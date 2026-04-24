@@ -4,7 +4,7 @@ import pLimit from 'p-limit';
 import { z } from 'zod';
 import { r as removeBase, i as isRemotePath, p as prependForwardSlash } from './path_tbLlI_c1.mjs';
 import { V as VALID_INPUT_FORMATS } from './consts_Bd-1c2lz.mjs';
-import { A as AstroError, U as UnknownContentCollectionError, c as createComponent, R as RenderUndefinedEntryError, u as unescapeHTML, b as renderTemplate, f as renderUniqueStylesheet, g as renderScriptElement, h as createHeadAndContent, r as renderComponent } from './astro/server_DC5FRKA8.mjs';
+import { A as AstroError, U as UnknownContentCollectionError, c as createComponent, R as RenderUndefinedEntryError, u as unescapeHTML, b as renderTemplate, f as renderUniqueStylesheet, g as renderScriptElement, h as createHeadAndContent, r as renderComponent } from './astro/server_DWURT7C5.mjs';
 import 'piccolore';
 import * as devalue from 'devalue';
 
@@ -66,7 +66,7 @@ class ImmutableDataStore {
    */
   static async fromModule() {
     try {
-      const data = await import('./_astro_data-layer-content_CA-3r5U6.mjs');
+      const data = await import('./_astro_data-layer-content_BwZ7CsLG.mjs');
       if (data.default instanceof Map) {
         return ImmutableDataStore.fromMap(data.default);
       }
@@ -98,7 +98,7 @@ function dataStoreSingleton() {
 }
 const globalDataStore = dataStoreSingleton();
 
-const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/dash", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NHrJ0VI1hHYn-j3Yjt_ojA_m5_CzO8l", "PUBLIC_SUPABASE_URL": "https://abelpkfwighqtueglbnf.supabase.co", "SITE": "https://khs.github.io", "SSR": true};
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NHrJ0VI1hHYn-j3Yjt_ojA_m5_CzO8l", "PUBLIC_SUPABASE_URL": "https://abelpkfwighqtueglbnf.supabase.co", "SITE": undefined, "SSR": true};
 function createCollectionToGlobResultMap({
   globResult,
   contentDir
@@ -307,7 +307,7 @@ const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html, fileName) {
   const { default: imageAssetMap } = await import('./content-assets_DleWbedO.mjs');
   const imageObjects = /* @__PURE__ */ new Map();
-  const { getImage } = await import('./_astro_assets_DFaFbccX.mjs').then(n => n._);
+  const { getImage } = await import('./_astro_assets_DR-UYEWM.mjs').then(n => n._);
   for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
     try {
       const decodedImagePath = JSON.parse(imagePath.replaceAll("&#x22;", '"'));
@@ -369,7 +369,7 @@ async function renderEntry(entry) {
   }
   if (entry.deferredRender) {
     try {
-      const { default: contentModules } = await import('./content-modules_Cx1PDsfK.mjs');
+      const { default: contentModules } = await import('./content-modules_BNRuBEXV.mjs');
       const renderEntryImport = contentModules.get(entry.filePath);
       return render({
         collection: "",

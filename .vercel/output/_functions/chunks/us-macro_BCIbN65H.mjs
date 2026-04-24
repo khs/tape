@@ -1,5 +1,5 @@
 async function getMod() {
-						return import('./countries_BlowIUok.mjs');
+						return import('./us-macro_DFkBL1Sy.mjs');
 					}
 					const collectedLinks = [];
 					const collectedStyles = [];

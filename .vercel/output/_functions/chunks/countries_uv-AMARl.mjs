@@ -1,5 +1,5 @@
 async function getMod() {
-						return import('./stocks_Ds01GfKo.mjs');
+						return import('./countries_rXcsynKV.mjs');
 					}
 					const collectedLinks = [];
 					const collectedStyles = [];

@@ -486,7 +486,7 @@ Use import.meta.glob instead: https://vitejs.dev/guide/features.html#glob-import
 }
 function createAstro(site) {
   return {
-    site: new URL(site) ,
+    site: void 0,
     generator: `Astro v${ASTRO_VERSION}`,
     glob: createAstroGlobFn()
   };

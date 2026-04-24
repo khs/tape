@@ -1,4 +1,4 @@
-import { ae as NOOP_MIDDLEWARE_HEADER, af as REDIRECT_STATUS_CODES, A as AstroError, ag as ActionsReturnedInvalidDataError, K as DEFAULT_404_COMPONENT } from './astro/server_DC5FRKA8.mjs';
+import { ae as NOOP_MIDDLEWARE_HEADER, af as REDIRECT_STATUS_CODES, A as AstroError, ag as ActionsReturnedInvalidDataError, K as DEFAULT_404_COMPONENT } from './astro/server_DWURT7C5.mjs';
 import { parse, stringify } from 'devalue';
 import { escape } from 'html-escaper';
 
@@ -12,7 +12,7 @@ const ACTION_QUERY_PARAMS$1 = {
   actionName: "_action"};
 const ACTION_RPC_ROUTE_PATTERN = "/_actions/[...path]";
 
-const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/dash", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NHrJ0VI1hHYn-j3Yjt_ojA_m5_CzO8l", "PUBLIC_SUPABASE_URL": "https://abelpkfwighqtueglbnf.supabase.co", "SITE": "https://khs.github.io", "SSR": true};
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NHrJ0VI1hHYn-j3Yjt_ojA_m5_CzO8l", "PUBLIC_SUPABASE_URL": "https://abelpkfwighqtueglbnf.supabase.co", "SITE": undefined, "SSR": true};
 const ACTION_QUERY_PARAMS = ACTION_QUERY_PARAMS$1;
 const codeToStatusMap = {
   // Implemented from IANA HTTP Status Code Registry

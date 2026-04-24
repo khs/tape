@@ -1,6 +1,6 @@
 import { j as joinPaths, i as isRemotePath } from './path_tbLlI_c1.mjs';
 import { i as isRemoteAllowed, t as typeHandlers, a as types } from './index_D7crw23D.mjs';
-import { A as AstroError, ai as ExpectedImage, aj as LocalImageUsedWrongly, ak as MissingImageDimension, al as UnsupportedImageFormat, am as IncompatibleDescriptorOptions, an as UnsupportedImageConversion, ao as toStyleString, ap as NoImageMetadata, aq as FailedToFetchRemoteImageDimensions, ar as RemoteImageNotAllowed, as as ExpectedImageOptions, at as ExpectedNotESMImage, au as InvalidImageService, e as createAstro, c as createComponent, av as ImageMissingAlt, m as maybeRenderHead, d as addAttribute, aw as spreadAttributes, b as renderTemplate, ax as ExperimentalFontsNotEnabled, ay as FontFamilyNotFound, u as unescapeHTML } from './astro/server_DC5FRKA8.mjs';
+import { A as AstroError, ai as ExpectedImage, aj as LocalImageUsedWrongly, ak as MissingImageDimension, al as UnsupportedImageFormat, am as IncompatibleDescriptorOptions, an as UnsupportedImageConversion, ao as toStyleString, ap as NoImageMetadata, aq as FailedToFetchRemoteImageDimensions, ar as RemoteImageNotAllowed, as as ExpectedImageOptions, at as ExpectedNotESMImage, au as InvalidImageService, c as createComponent, av as ImageMissingAlt, m as maybeRenderHead, d as addAttribute, aw as spreadAttributes, b as renderTemplate, e as createAstro, ax as ExperimentalFontsNotEnabled, ay as FontFamilyNotFound, u as unescapeHTML } from './astro/server_DWURT7C5.mjs';
 import { D as DEFAULT_OUTPUT_FORMAT, a as VALID_SUPPORTED_FORMATS, b as DEFAULT_HASH_PROPS } from './consts_Bd-1c2lz.mjs';
 import * as mime from 'mrmime';
 import 'clsx';
@@ -308,7 +308,7 @@ const baseService = {
     Object.entries(params).forEach(([param, key]) => {
       options[key] && searchParams.append(param, options[key].toString());
     });
-    const imageEndpoint = joinPaths("/dash", imageConfig.endpoint.route);
+    const imageEndpoint = joinPaths("/", imageConfig.endpoint.route);
     let url = `${imageEndpoint}?${searchParams}`;
     if (imageConfig.assetQueryParams) {
       const assetQueryString = imageConfig.assetQueryParams.toString();
@@ -510,7 +510,7 @@ async function getConfiguredImageService() {
   if (!globalThis?.astroAsset?.imageService) {
     const { default: service } = await import(
       // @ts-expect-error
-      './sharp_Dy7QzZgx.mjs'
+      './sharp_BOM7vca5.mjs'
     ).catch((e) => {
       const error = new AstroError(InvalidImageService);
       error.cause = e;
@@ -673,7 +673,7 @@ async function getImage$1(options, imageConfig) {
   };
 }
 
-const $$Astro$2 = createAstro("https://khs.github.io");
+const $$Astro$2 = createAstro();
 const $$Image = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$2, $$props, $$slots);
   Astro2.self = $$Image;
@@ -702,7 +702,7 @@ const $$Image = createComponent(async ($$result, $$props, $$slots) => {
   return renderTemplate`${maybeRenderHead()}<img${addAttribute(image.src, "src")}${spreadAttributes(attributes)}${addAttribute(className, "class")}>`;
 }, "C:/Users/Nemo/Documents/Coding/FinanceForDC/node_modules/astro/components/Image.astro", void 0);
 
-const $$Astro$1 = createAstro("https://khs.github.io");
+const $$Astro$1 = createAstro();
 const $$Picture = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$1, $$props, $$slots);
   Astro2.self = $$Picture;
@@ -812,7 +812,7 @@ function checkWeight(input, target) {
   return input === target;
 }
 
-const $$Astro = createAstro("https://khs.github.io");
+const $$Astro = createAstro();
 const $$Font = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Font;

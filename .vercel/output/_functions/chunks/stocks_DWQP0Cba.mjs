@@ -1,5 +1,5 @@
 async function getMod() {
-						return import('./oil-energy_nAZvh4U2.mjs');
+						return import('./stocks_Dj3Ht_yL.mjs');
 					}
 					const collectedLinks = [];
 					const collectedStyles = [];

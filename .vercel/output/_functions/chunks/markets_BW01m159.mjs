@@ -1,5 +1,5 @@
 async function getMod() {
-						return import('./us-macro_BBCVoQ4d.mjs');
+						return import('./markets_Dd5C0YdW.mjs');
 					}
 					const collectedLinks = [];
 					const collectedStyles = [];

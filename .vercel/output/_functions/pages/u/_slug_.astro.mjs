@@ -1,7 +1,7 @@
-import { e as createAstro, c as createComponent, r as renderComponent, b as renderTemplate, m as maybeRenderHead, d as addAttribute, F as Fragment, a as renderScript } from '../../chunks/astro/server_DC5FRKA8.mjs';
+import { c as createComponent, r as renderComponent, b as renderTemplate, e as createAstro, m as maybeRenderHead, d as addAttribute, F as Fragment, a as renderScript } from '../../chunks/astro/server_DWURT7C5.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from '../../chunks/BaseLayout_Co-Ii_Oo.mjs';
-import { f as composedStateSchema, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, g as encodeComposedState, D as DELTA_LABELS_SHORT, $ as $$Chart, e as effectiveChart, c as $$ChartController } from '../../chunks/composer-state_CNMwlujA.mjs';
+import { $ as $$BaseLayout } from '../../chunks/BaseLayout_3yRXHE75.mjs';
+import { f as composedStateSchema, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, g as encodeComposedState, D as DELTA_LABELS_SHORT, $ as $$Chart, e as effectiveChart, c as $$ChartController } from '../../chunks/composer-state_CLR-Mpem.mjs';
 import { createClient } from '@supabase/supabase-js';
 /* empty css                                     */
 export { renderers } from '../../renderers.mjs';
@@ -38,12 +38,12 @@ function createSupabase() {
 }
 const isSupabaseConfigured = Boolean(SUPABASE_ANON_KEY);
 
-const $$Astro = createAstro("https://khs.github.io");
+const $$Astro = createAstro();
 const prerender = false;
 const $$slug = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$slug;
-  const baseUrl = "/dash";
+  const baseUrl = "/";
   const slug = Astro2.params.slug;
   let notFound = false;
   let errorMessage = null;
@@ -101,7 +101,7 @@ This dashboard has no charts. <a class="underline"${addAttribute(`${baseUrl}/com
 </p>`}${renderScript($$result3, "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/pages/u/[slug].astro?astro&type=script&index=0&lang.ts")} ` })}` : null} </div> ${renderComponent($$result2, "ChartController", $$ChartController, { "data-astro-cid-xpoxhcjc": true })} ` })} `;
 }, "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/pages/u/[slug].astro", void 0);
 const $$file = "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/pages/u/[slug].astro";
-const $$url = "/dash/u/[slug]";
+const $$url = "/u/[slug]";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,

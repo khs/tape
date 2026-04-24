@@ -1,23 +1,23 @@
-import { n as createVNode, F as Fragment, az as __astro_tag_component__ } from './astro/server_DC5FRKA8.mjs';
+import { n as createVNode, F as Fragment, az as __astro_tag_component__ } from './astro/server_DWURT7C5.mjs';
 import 'clsx';
 
 const frontmatter = {
-  "title": "Markets overview",
+  "title": "Oil & Energy",
   "description": "KELLER WRITE THIS",
-  "order": 6,
+  "order": 1,
   "defaultDelta": "1m",
   "sections": [{
-    "title": "Major US indices",
-    "charts": ["markets/sp500", "markets/nasdaq", "markets/dia", "markets/iwm", "markets/iwb", "markets/vti"]
+    "title": "Crude oil",
+    "charts": ["oil/wti", "oil/brent"]
   }, {
-    "title": "International",
-    "charts": ["markets/efa", "markets/vea", "markets/eem", "markets/vwo"]
+    "title": "Refined products",
+    "charts": ["oil/rbob_wholesale", "oil/heating_oil_wholesale", "oil/retail_gasoline", "oil/retail_diesel"]
   }, {
-    "title": "Sectors (S&P 500 SPDRs)",
-    "charts": ["markets/xlk", "markets/xlf", "markets/xlv", "markets/xli", "markets/xlp", "markets/xly", "markets/xlb", "markets/xlc", "markets/xlre", "markets/xlu", "markets/xle"]
+    "title": "Natural gas",
+    "charts": ["oil/nat_gas"]
   }, {
-    "title": "Risk",
-    "charts": ["us-macro/vix"]
+    "title": "Sector equities",
+    "charts": ["oil/xle", "oil/transition"]
   }]
 };
 function getHeadings() {
@@ -41,15 +41,15 @@ function MDXContent(props = {}) {
     })
   }) : _createMdxContent(props);
 }
-const url = "src/content/dashboards/markets.mdx";
-const file = "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/content/dashboards/markets.mdx";
+const url = "src/content/dashboards/oil-energy.mdx";
+const file = "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/content/dashboards/oil-energy.mdx";
 const Content = (props = {}) => MDXContent({
   ...props,
   components: { Fragment: Fragment, ...props.components, },
 });
 Content[Symbol.for('mdx-component')] = true;
 Content[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);
-Content.moduleId = "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/content/dashboards/markets.mdx";
+Content.moduleId = "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/content/dashboards/oil-energy.mdx";
 __astro_tag_component__(Content, 'astro:jsx');
 
 export { Content, Content as default, file, frontmatter, getHeadings, url };

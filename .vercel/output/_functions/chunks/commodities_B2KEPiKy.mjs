@@ -1,5 +1,5 @@
 async function getMod() {
-						return import('./markets_BmVxPQ-Z.mjs');
+						return import('./commodities_BPPsciQ1.mjs');
 					}
 					const collectedLinks = [];
 					const collectedStyles = [];

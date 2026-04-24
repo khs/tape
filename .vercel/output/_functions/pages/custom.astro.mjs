@@ -1,7 +1,7 @@
-import { e as createAstro, c as createComponent, r as renderComponent, b as renderTemplate, m as maybeRenderHead, d as addAttribute, F as Fragment, a as renderScript, u as unescapeHTML } from '../chunks/astro/server_DC5FRKA8.mjs';
+import { c as createComponent, r as renderComponent, b as renderTemplate, e as createAstro, m as maybeRenderHead, d as addAttribute, F as Fragment, a as renderScript, u as unescapeHTML } from '../chunks/astro/server_DWURT7C5.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from '../chunks/BaseLayout_Co-Ii_Oo.mjs';
-import { d as decodeComposedState, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, $ as $$Chart, e as effectiveChart, D as DELTA_LABELS_SHORT, c as $$ChartController } from '../chunks/composer-state_CNMwlujA.mjs';
+import { $ as $$BaseLayout } from '../chunks/BaseLayout_3yRXHE75.mjs';
+import { d as decodeComposedState, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, $ as $$Chart, e as effectiveChart, D as DELTA_LABELS_SHORT, c as $$ChartController } from '../chunks/composer-state_CLR-Mpem.mjs';
 /* empty css                                  */
 export { renderers } from '../renderers.mjs';
 
@@ -9,14 +9,14 @@ var __freeze = Object.freeze;
 var __defProp = Object.defineProperty;
 var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(cooked.slice()) }));
 var _a;
-const $$Astro = createAstro("https://khs.github.io");
+const $$Astro = createAstro();
 const prerender = false;
 const $$Custom = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Custom;
   const dParam = Astro2.url.searchParams.get("d");
   const decoded = decodeComposedState(dParam);
-  const baseUrl = "/dash";
+  const baseUrl = "/";
   let title = "Composed dashboard";
   let description;
   let defaultDeltaRequested;
@@ -50,7 +50,7 @@ This composition has no charts yet. <a${addAttribute(`${baseUrl}/compose/`, "hre
 </p>`) })}`} </div> ${renderComponent($$result2, "ChartController", $$ChartController, { "data-astro-cid-3tu5uloj": true })} ` })} `;
 }, "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/pages/custom.astro", void 0);
 const $$file = "C:/Users/Nemo/Documents/Coding/FinanceForDC/src/pages/custom.astro";
-const $$url = "/dash/custom";
+const $$url = "/custom";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,

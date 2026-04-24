@@ -1,10 +1,10 @@
-import { e as createAstro, c as createComponent, m as maybeRenderHead, d as addAttribute, b as renderTemplate, r as renderComponent, F as Fragment, u as unescapeHTML, a as renderScript } from './astro/server_DC5FRKA8.mjs';
+import { c as createComponent, m as maybeRenderHead, d as addAttribute, b as renderTemplate, r as renderComponent, F as Fragment, u as unescapeHTML, e as createAstro, a as renderScript } from './astro/server_DWURT7C5.mjs';
 import 'piccolore';
 import fs from 'node:fs';
 import nodePath from 'node:path';
 /* empty css                          */
 import 'clsx';
-import { a as getEntry } from './_astro_content_slvnOICS.mjs';
+import { a as getEntry } from './_astro_content_B57TNz3M.mjs';
 import { z } from 'zod';
 
 const DELTA_WINDOWS = ["1w", "1m", "1y", "5y", "10y"];
@@ -156,7 +156,7 @@ var __freeze = Object.freeze;
 var __defProp = Object.defineProperty;
 var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(cooked.slice()) }));
 var _a;
-const $$Astro = createAstro("https://khs.github.io");
+const $$Astro = createAstro();
 const $$Chart = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Chart;
