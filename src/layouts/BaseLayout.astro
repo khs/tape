@@ -25,7 +25,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       <div
         class="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between"
       >
-        <a href={baseUrl} class="no-underline text-neutral-900 font-medium">
+        <a href={baseUrl || "/"} class="no-underline text-neutral-900 font-medium">
           Legible Markets
         </a>
         <nav class="flex items-center gap-5 text-sm">

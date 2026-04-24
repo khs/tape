@@ -72,7 +72,7 @@ if (state) {
     data-dashboard-default-window={defaultDelta ?? "1m"}
   >
     <nav class="text-xs text-neutral-500 mb-3">
-      <a href={baseUrl} class="no-underline hover:text-neutral-900">All dashboards</a>
+      <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
       <span class="mx-1">·</span>
       <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Composer</a>
     </nav>
