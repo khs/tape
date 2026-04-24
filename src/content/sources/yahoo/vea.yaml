@@ -1,0 +1,17 @@
+name: Vanguard FTSE Developed Markets ETF
+shortName: VEA
+description: Broad-index equity ETF. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/VEA.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: VEA
+  url: https://finance.yahoo.com/quote/VEA

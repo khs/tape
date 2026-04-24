@@ -1,0 +1,6 @@
+title: HY TMT bonds (XHYT)
+sources: ["yahoo/xhyt"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [credit]

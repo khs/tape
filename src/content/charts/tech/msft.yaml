@@ -1,0 +1,6 @@
+title: Microsoft
+sources: ["yahoo_marketcap/msft_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

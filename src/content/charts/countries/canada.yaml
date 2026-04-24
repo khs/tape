@@ -1,0 +1,9 @@
+title: Canada
+sources:
+  - countries/canada
+  - countries_gdp/canada
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

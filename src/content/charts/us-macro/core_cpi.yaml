@@ -1,0 +1,6 @@
+title: Core CPI
+sources: ["fred/core_cpi"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

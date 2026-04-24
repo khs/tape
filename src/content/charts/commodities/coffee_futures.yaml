@@ -1,0 +1,6 @@
+title: Coffee
+sources: ["yahoo/coffee_futures"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

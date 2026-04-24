@@ -1,0 +1,17 @@
+name: Fed total assets (balance sheet)
+shortName: Fed BS
+description: Federal Reserve total assets, weekly (Wednesday close).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/WALCL.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: WALCL
+  url: https://fred.stlouisfed.org/series/WALCL
+  license: Public domain (US government data)

@@ -1,0 +1,15 @@
+name: UMich consumer sentiment
+description: University of Michigan Index of Consumer Sentiment, monthly. A standard high-frequency read on household confidence.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/UMCSENT.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "index"
+formatting:
+  style: number
+  decimals: 1
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: UMCSENT
+  url: https://fred.stlouisfed.org/series/UMCSENT
+  license: Public domain (US government data)

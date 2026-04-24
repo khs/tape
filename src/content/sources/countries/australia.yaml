@@ -1,0 +1,17 @@
+name: Australia equity market vs. world
+shortName: EWA
+description: iShares MSCI Australia ETF (EWA) divided by Vanguard Total World ETF (VT), indexed to 100 at series start. Daily.
+kind: timeseries
+pipeline: countries_relative
+dataFile: data/countries_relative/EWA.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: index
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: Yahoo Finance (derived)
+  series: EWA / VT
+  url: https://finance.yahoo.com/quote/EWA
+  notes: Country ETF divided by VT, indexed to 100 at the first overlapping date.

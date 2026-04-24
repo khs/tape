@@ -1,0 +1,9 @@
+title: Japan
+sources:
+  - countries/japan
+  - countries_gdp/japan
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

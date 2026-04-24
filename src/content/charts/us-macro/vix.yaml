@@ -1,0 +1,6 @@
+title: VIX
+sources: ["fred/vix"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [macro]

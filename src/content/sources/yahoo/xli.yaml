@@ -1,0 +1,17 @@
+name: Industrial Select Sector SPDR
+shortName: XLI
+description: "S&P 500 industrials sector ETF. Daily adjusted close."
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/XLI.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: XLI
+  url: https://finance.yahoo.com/quote/XLI

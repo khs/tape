@@ -1,0 +1,6 @@
+title: ASML Holding
+sources: ["yahoo_marketcap/asml_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

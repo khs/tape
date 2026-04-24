@@ -1,0 +1,6 @@
+title: Fed balance sheet
+sources: ["fred/fed_balance_sheet"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

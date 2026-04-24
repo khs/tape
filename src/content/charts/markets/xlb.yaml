@@ -1,0 +1,6 @@
+title: Materials (XLB)
+sources: ["yahoo/xlb"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [sectors, equity-index]

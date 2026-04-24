@@ -1,0 +1,172 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const dashboards = await getCollection("dashboards");
+const sorted = dashboards.sort(
+  (a, b) => (a.data.order ?? 999) - (b.data.order ?? 999),
+);
+
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Legible Markets" description="KELLER WRITE THIS">
+  <div class="max-w-[720px] mx-auto px-6 pt-16 pb-8">
+    <h1>Legible Markets</h1>
+    <p class="mt-4 text-neutral-600 leading-relaxed">
+      <mark class="todo">KELLER WRITE THIS</mark>
+    </p>
+    <p class="mt-6">
+      <a
+        href={`${baseUrl}/compose/`}
+        class="inline-block text-sm font-medium no-underline rounded-sm px-4 py-2"
+        style="background: var(--color-accent); color: var(--color-white);"
+      >
+        Build your own dashboard &rarr;
+      </a>
+    </p>
+  </div>
+
+  <div class="max-w-[1120px] mx-auto px-6 pb-16" data-base-url={baseUrl}>
+    <!-- Client-injected "My dashboards" section (shown only when authed + has saves) -->
+    <section
+      class="mb-10"
+      data-role="my-section"
+      style="display: none"
+    >
+      <h2 class="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-3">
+        My dashboards
+      </h2>
+      <ul
+        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0"
+        data-role="my-list"
+      ></ul>
+    </section>
+
+    <!-- Server-rendered preset grid. When "my dashboards" exists, this becomes
+         the secondary list with an explicit label; otherwise it's the main
+         content without a heading. -->
+    <section>
+      <h2
+        class="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-3"
+        data-role="presets-heading"
+        style="display: none"
+      >
+        Preset dashboards
+      </h2>
+      {
+        sorted.length > 0 ? (
+          <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+            {sorted.map((d) => (
+              <li>
+                <a
+                  href={`${baseUrl}/${d.id}/`}
+                  class="block border hairline rounded p-4 bg-white no-underline text-neutral-900 hover:border-neutral-300 transition-colors"
+                >
+                  <h3 class="text-base font-semibold">{d.data.title}</h3>
+                  <p class="mt-1 text-sm text-neutral-500">
+                    <mark class="todo">KELLER WRITE THIS</mark>
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-sm text-neutral-500">Dashboards coming soon.</p>
+        )
+      }
+    </section>
+  </div>
+
+  <script>
+    import {
+      createSupabase,
+      isSupabaseConfigured,
+      readStoredSession,
+      SUPABASE_REST_URL,
+      SUPABASE_REST_ANON_KEY,
+    } from "../lib/supabase";
+
+    const host = document.querySelector<HTMLElement>("[data-base-url]");
+    if (host && isSupabaseConfigured) {
+      const baseUrl = host.dataset.baseUrl ?? "";
+      const sb = createSupabase();
+      if (sb) {
+        function escapeHtml(s: string): string {
+          return s
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        async function refresh() {
+          const mySection = host!.querySelector<HTMLElement>(
+            "[data-role='my-section']",
+          );
+          const myList = host!.querySelector<HTMLUListElement>(
+            "[data-role='my-list']",
+          );
+          const presetsHeading = host!.querySelector<HTMLElement>(
+            "[data-role='presets-heading']",
+          );
+          if (!mySection || !myList || !presetsHeading) return;
+
+          const stored = readStoredSession();
+          console.log("[home] stored session user:", stored?.user?.email ?? null);
+          if (!stored) {
+            mySection.style.display = "none";
+            presetsHeading.style.display = "none";
+            return;
+          }
+
+          // Direct REST fetch — bypass supabase-js client to avoid any
+          // getSession()/refresh deadlock. RLS enforces owner-or-public reads.
+          const restUrl = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?select=slug,title,visibility,updated_at&order=updated_at.desc`;
+          let data: Array<{ slug: string; title: string; visibility: string; updated_at: string }> | null = null;
+          let errorMsg: string | null = null;
+          try {
+            const res = await fetch(restUrl, {
+              headers: {
+                apikey: SUPABASE_REST_ANON_KEY,
+                Authorization: `Bearer ${stored.access_token}`,
+              },
+            });
+            if (!res.ok) {
+              errorMsg = `HTTP ${res.status}`;
+            } else {
+              data = await res.json();
+            }
+          } catch (e) {
+            errorMsg = String(e);
+          }
+          console.log(
+            "[home] saved_dashboards:",
+            errorMsg ? `error: ${errorMsg}` : `${data?.length ?? 0} rows`,
+          );
+          if (errorMsg || !data || data.length === 0) {
+            mySection.style.display = "none";
+            presetsHeading.style.display = "none";
+            return;
+          }
+
+          myList.innerHTML = "";
+          for (const row of data) {
+            const li = document.createElement("li");
+            li.innerHTML =
+              `<a href="${baseUrl}/u/${encodeURIComponent(row.slug)}/" class="block border hairline rounded p-4 bg-white no-underline text-neutral-900 hover:border-neutral-300 transition-colors">
+                <h3 class="text-base font-semibold">${escapeHtml(row.title ?? "Untitled dashboard")}</h3>
+                <p class="mt-1 text-xs text-neutral-500">${row.visibility === "private" ? "private · " : ""}updated ${new Date(row.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
+              </a>`;
+            myList.appendChild(li);
+          }
+          mySection.style.display = "";
+          presetsHeading.style.display = "";
+        }
+
+        refresh();
+        sb.auth.onAuthStateChange(() => refresh());
+      }
+    }
+  </script>
+</BaseLayout>

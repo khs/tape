@@ -1,0 +1,6 @@
+title: DBA (ETF)
+sources: ["yahoo/dba"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

@@ -1,0 +1,6 @@
+title: Communications (XLC)
+sources: ["yahoo/xlc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [sectors, equity-index]

@@ -1,0 +1,15 @@
+name: US 2-year Treasury yield
+description: Nominal yield on the constant-maturity 2-year US Treasury note. Daily.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DGS2.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DGS2
+  url: https://fred.stlouisfed.org/series/DGS2
+  license: Public domain (US government data)

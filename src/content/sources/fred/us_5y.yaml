@@ -1,0 +1,16 @@
+name: US 5-year Treasury yield
+shortName: 5Y
+description: Constant-maturity 5-year US Treasury yield. Daily.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DGS5.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DGS5
+  url: https://fred.stlouisfed.org/series/DGS5
+  license: Public domain (US government data)

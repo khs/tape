@@ -1,0 +1,16 @@
+name: McDonald's (MCD)
+shortName: MCD
+description: Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/MCD.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: MCD
+  url: https://finance.yahoo.com/quote/MCD

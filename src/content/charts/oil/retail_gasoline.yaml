@@ -1,0 +1,6 @@
+title: US retail gasoline
+sources: ["fred/us_retail_gasoline"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

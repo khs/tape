@@ -1,0 +1,15 @@
+name: Consumer Price Index (CPI-U)
+description: All-urban consumers, not seasonally adjusted, 1982-84 = 100. The 1-year delta on this series is year-over-year inflation.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CPIAUCSL.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "index (1982-84=100)"
+formatting:
+  style: number
+  decimals: 1
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CPIAUCSL
+  url: https://fred.stlouisfed.org/series/CPIAUCSL
+  license: Public domain (US government data)

@@ -1,0 +1,6 @@
+title: Silver
+sources: ["yahoo/silver_futures"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

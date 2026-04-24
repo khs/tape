@@ -1,0 +1,17 @@
+name: Cocoa front-month
+shortName: CC
+description: ICE front-month futures (ticker CC) for 10-metric-ton contracts of cocoa beans from one of ~20 origin countries. Quoted in USD per metric ton.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/CC_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD/ton"
+formatting:
+  style: number
+  decimals: 0
+  prefix: "$"
+  suffix: " /ton"
+provenance:
+  provider: Yahoo Finance
+  series: CC=F
+  url: https://finance.yahoo.com/quote/CC%3DF

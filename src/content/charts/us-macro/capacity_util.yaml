@@ -1,0 +1,6 @@
+title: Capacity utilization
+sources: ["fred/capacity_util"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

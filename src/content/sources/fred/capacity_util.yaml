@@ -1,0 +1,16 @@
+name: Capacity utilization (total industry)
+shortName: CapUtil
+description: Total industry capacity utilization, monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/TCU.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: TCU
+  url: https://fred.stlouisfed.org/series/TCU
+  license: Public domain (US government data)

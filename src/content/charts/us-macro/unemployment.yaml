@@ -1,0 +1,6 @@
+title: US unemployment rate
+sources: ["fred/us_unemployment"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

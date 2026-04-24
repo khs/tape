@@ -1,0 +1,17 @@
+name: Lumber front-month
+shortName: LBR
+description: CME front-month futures (ticker LBR) for 27,500-board-foot contracts of random-length softwood framing lumber (2×4 dimension, mill-direct). Quoted in USD per 1,000 board feet.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/LBR_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD/1000 bd-ft"
+formatting:
+  style: number
+  decimals: 2
+  prefix: "$"
+  suffix: " /1000bf"
+provenance:
+  provider: Yahoo Finance
+  series: LBR=F
+  url: https://finance.yahoo.com/quote/LBR%3DF

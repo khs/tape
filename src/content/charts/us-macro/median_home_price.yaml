@@ -1,0 +1,6 @@
+title: Median home sale price
+sources: ["fred/median_home_price"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

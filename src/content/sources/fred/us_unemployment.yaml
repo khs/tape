@@ -1,0 +1,15 @@
+name: US unemployment rate
+description: Civilian unemployment rate (seasonally adjusted), published monthly by the BLS.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/UNRATE.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: UNRATE
+  url: https://fred.stlouisfed.org/series/UNRATE
+  license: Public domain (US government data)

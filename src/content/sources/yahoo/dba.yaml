@@ -1,0 +1,17 @@
+name: Invesco DB Agriculture ETF
+shortName: DBA
+description: ETF tracking the DBIQ Diversified Agriculture Index — front-month futures on 10 agricultural commodities (corn, soybeans, wheat, sugar, cocoa, coffee, cotton, live cattle, feeder cattle, lean hogs). Share price reflects index level. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/DBA.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: DBA
+  url: https://finance.yahoo.com/quote/DBA

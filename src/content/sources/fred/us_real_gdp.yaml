@@ -1,0 +1,17 @@
+name: US real GDP
+description: Real gross domestic product, quarterly, chained 2017 dollars.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/GDPC1.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: billions USD
+formatting:
+  style: number
+  decimals: 0
+  prefix: "$"
+  suffix: "B"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: GDPC1
+  url: https://fred.stlouisfed.org/series/GDPC1
+  license: Public domain (US government data)

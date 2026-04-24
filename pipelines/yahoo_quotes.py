@@ -1,0 +1,192 @@
+"""
+Fetch daily adjusted-close prices from Yahoo Finance via yfinance.
+
+Run with: ``python pipelines/yahoo_quotes.py`` (all specs), or
+          ``python pipelines/yahoo_quotes.py AAPL CL_F`` (specific series).
+"""
+from __future__ import annotations
+
+import sys
+from dataclasses import dataclass
+
+import yfinance as yf
+
+from common import write_timeseries
+
+
+@dataclass
+class YahooSpec:
+    symbol: str  # Yahoo ticker (e.g. "AAPL", "CL=F")
+    series_id: str  # ID for output file (filename-safe)
+    name: str
+    unit: str | None = None
+
+
+SPECS: list[YahooSpec] = [
+    # Tech
+    YahooSpec("QQQ", "QQQ", "Invesco QQQ (Nasdaq-100 ETF)", "USD"),
+    YahooSpec("XLK", "XLK", "Technology Select Sector SPDR ETF", "USD"),
+    YahooSpec("SOXX", "SOXX", "iShares Semiconductor ETF", "USD"),
+    YahooSpec("AAPL", "AAPL", "Apple", "USD"),
+    YahooSpec("MSFT", "MSFT", "Microsoft", "USD"),
+    YahooSpec("GOOG", "GOOG", "Alphabet (Class C)", "USD"),
+    YahooSpec("AMZN", "AMZN", "Amazon", "USD"),
+    YahooSpec("META", "META", "Meta Platforms", "USD"),
+    YahooSpec("NVDA", "NVDA", "NVIDIA", "USD"),
+    # Tech-adjacent credit
+    YahooSpec("XHYT", "XHYT", "BondBloxx HY Telecom/Media/Tech bond ETF", "USD"),
+    # Oil & energy
+    YahooSpec("CL=F", "CL_F", "WTI crude oil front-month (NYMEX)", "USD/bbl"),
+    YahooSpec("BZ=F", "BZ_F", "Brent crude front-month (ICE)", "USD/bbl"),
+    YahooSpec("NG=F", "NG_F", "Henry Hub natural gas front-month", "USD/mmbtu"),
+    YahooSpec("RB=F", "RB_F", "RBOB gasoline wholesale (NYMEX)", "USD/gal"),
+    YahooSpec("HO=F", "HO_F", "NY Harbor ULSD / heating oil (NYMEX)", "USD/gal"),
+    YahooSpec("XLE", "XLE", "Energy Select Sector SPDR ETF", "USD"),
+    YahooSpec("XOP", "XOP", "SPDR Oil & Gas Exploration ETF", "USD"),
+    YahooSpec("URA", "URA", "Global X Uranium ETF", "USD"),
+    YahooSpec("ICLN", "ICLN", "iShares Global Clean Energy ETF", "USD"),
+    YahooSpec("TAN", "TAN", "Invesco Solar ETF", "USD"),
+    YahooSpec("USO", "USO", "United States Oil Fund", "USD"),
+    # Countries + global benchmark
+    YahooSpec("VT", "VT", "Vanguard Total World Stock ETF", "USD"),
+    YahooSpec("EWJ", "EWJ", "iShares MSCI Japan ETF", "USD"),
+    YahooSpec("EWG", "EWG", "iShares MSCI Germany ETF", "USD"),
+    YahooSpec("EWU", "EWU", "iShares MSCI UK ETF", "USD"),
+    YahooSpec("EWZ", "EWZ", "iShares MSCI Brazil ETF", "USD"),
+    YahooSpec("FXI", "FXI", "iShares China Large-Cap ETF", "USD"),
+    YahooSpec("INDA", "INDA", "iShares MSCI India ETF", "USD"),
+    YahooSpec("EWC", "EWC", "iShares MSCI Canada ETF", "USD"),
+    YahooSpec("EWA", "EWA", "iShares MSCI Australia ETF", "USD"),
+    YahooSpec("EWW", "EWW", "iShares MSCI Mexico ETF", "USD"),
+    YahooSpec("EWY", "EWY", "iShares MSCI South Korea ETF", "USD"),
+    # ------------------------------------------------------------------
+    # Library expansion: commodities, indices, sector SPDRs, famous stocks
+    # ------------------------------------------------------------------
+    # Precious & base metals
+    YahooSpec("GC=F", "GC_F", "Gold front-month (COMEX)", "USD/oz"),
+    YahooSpec("SI=F", "SI_F", "Silver front-month (COMEX)", "USD/oz"),
+    YahooSpec("PL=F", "PL_F", "Platinum front-month (NYMEX)", "USD/oz"),
+    YahooSpec("PA=F", "PA_F", "Palladium front-month (NYMEX)", "USD/oz"),
+    YahooSpec("HG=F", "HG_F", "Copper front-month (COMEX)", "USD/lb"),
+    YahooSpec("GLD", "GLD", "SPDR Gold Shares ETF", "USD"),
+    YahooSpec("SLV", "SLV", "iShares Silver Trust ETF", "USD"),
+    # Agricultural & softs
+    YahooSpec("ZC=F", "ZC_F", "Corn front-month (CBOT)", "USc/bu"),
+    YahooSpec("ZW=F", "ZW_F", "Wheat front-month (CBOT)", "USc/bu"),
+    YahooSpec("ZS=F", "ZS_F", "Soybean front-month (CBOT)", "USc/bu"),
+    YahooSpec("KC=F", "KC_F", "Coffee front-month (ICE)", "USc/lb"),
+    YahooSpec("SB=F", "SB_F", "Sugar No. 11 front-month (ICE)", "USc/lb"),
+    YahooSpec("CT=F", "CT_F", "Cotton No. 2 front-month (ICE)", "USc/lb"),
+    YahooSpec("CC=F", "CC_F", "Cocoa front-month (ICE)", "USD/ton"),
+    YahooSpec("LE=F", "LE_F", "Live cattle front-month (CME)", "USc/lb"),
+    YahooSpec("OJ=F", "OJ_F", "Orange juice front-month (ICE)", "USc/lb"),
+    YahooSpec("LBR=F", "LBR_F", "Lumber front-month (CME)", "USD/1000 bd-ft"),
+    # Broad-commodity ETFs
+    YahooSpec("DBC", "DBC", "Invesco DB Commodity Index Tracking ETF", "USD"),
+    YahooSpec("GSG", "GSG", "iShares S&P GSCI Commodity ETF", "USD"),
+    YahooSpec("DBA", "DBA", "Invesco DB Agriculture ETF", "USD"),
+    # Sector SPDRs (XLK and XLE already present)
+    YahooSpec("XLF", "XLF", "Financial Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLV", "XLV", "Health Care Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLI", "XLI", "Industrial Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLP", "XLP", "Consumer Staples Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLY", "XLY", "Consumer Discretionary Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLB", "XLB", "Materials Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLC", "XLC", "Communication Services Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLRE", "XLRE", "Real Estate Select Sector SPDR ETF", "USD"),
+    YahooSpec("XLU", "XLU", "Utilities Select Sector SPDR ETF", "USD"),
+    # Broad US indices (ETFs)
+    YahooSpec("DIA", "DIA", "SPDR Dow Jones Industrial Average ETF", "USD"),
+    YahooSpec("IWM", "IWM", "iShares Russell 2000 ETF", "USD"),
+    YahooSpec("IWB", "IWB", "iShares Russell 1000 ETF", "USD"),
+    YahooSpec("VTI", "VTI", "Vanguard Total Stock Market ETF", "USD"),
+    # International (beyond VT + country ETFs)
+    YahooSpec("EFA", "EFA", "iShares MSCI EAFE ETF", "USD"),
+    YahooSpec("VEA", "VEA", "Vanguard FTSE Developed Markets ETF", "USD"),
+    YahooSpec("EEM", "EEM", "iShares MSCI Emerging Markets ETF", "USD"),
+    YahooSpec("VWO", "VWO", "Vanguard FTSE Emerging Markets ETF", "USD"),
+    # Famous stocks — financials
+    YahooSpec("BRK-B", "BRK_B", "Berkshire Hathaway (Class B)", "USD"),
+    YahooSpec("JPM", "JPM", "JPMorgan Chase", "USD"),
+    YahooSpec("BAC", "BAC", "Bank of America", "USD"),
+    YahooSpec("GS", "GS", "Goldman Sachs", "USD"),
+    YahooSpec("V", "V", "Visa", "USD"),
+    YahooSpec("MA", "MA", "Mastercard", "USD"),
+    # Famous stocks — healthcare
+    YahooSpec("JNJ", "JNJ", "Johnson & Johnson", "USD"),
+    YahooSpec("UNH", "UNH", "UnitedHealth Group", "USD"),
+    YahooSpec("LLY", "LLY", "Eli Lilly", "USD"),
+    YahooSpec("PFE", "PFE", "Pfizer", "USD"),
+    # Famous stocks — energy
+    YahooSpec("XOM", "XOM", "ExxonMobil", "USD"),
+    YahooSpec("CVX", "CVX", "Chevron", "USD"),
+    # Famous stocks — consumer
+    YahooSpec("KO", "KO", "Coca-Cola", "USD"),
+    YahooSpec("PEP", "PEP", "PepsiCo", "USD"),
+    YahooSpec("WMT", "WMT", "Walmart", "USD"),
+    YahooSpec("COST", "COST", "Costco", "USD"),
+    YahooSpec("HD", "HD", "Home Depot", "USD"),
+    YahooSpec("MCD", "MCD", "McDonald's", "USD"),
+    YahooSpec("DIS", "DIS", "Walt Disney", "USD"),
+    # Famous stocks — industrial / auto
+    YahooSpec("BA", "BA", "Boeing", "USD"),
+    YahooSpec("CAT", "CAT", "Caterpillar", "USD"),
+    YahooSpec("GE", "GE", "GE Aerospace", "USD"),
+    YahooSpec("TSLA", "TSLA", "Tesla", "USD"),
+    # Famous stocks — more tech & media
+    YahooSpec("NFLX", "NFLX", "Netflix", "USD"),
+    YahooSpec("ASML", "ASML", "ASML Holding", "USD"),
+    YahooSpec("TSM", "TSM", "Taiwan Semiconductor (ADR)", "USD"),
+    YahooSpec("AVGO", "AVGO", "Broadcom", "USD"),
+    YahooSpec("ORCL", "ORCL", "Oracle", "USD"),
+    YahooSpec("CRM", "CRM", "Salesforce", "USD"),
+    YahooSpec("CSCO", "CSCO", "Cisco Systems", "USD"),
+]
+
+
+def fetch_series(spec: YahooSpec) -> list[dict]:
+    hist = yf.Ticker(spec.symbol).history(period="max", auto_adjust=True)
+    if hist.empty:
+        return []
+    closes = hist["Close"].dropna()
+    return [
+        {"t": ts.strftime("%Y-%m-%d"), "v": float(v)}
+        for ts, v in closes.items()
+    ]
+
+
+def main(argv: list[str] | None = None) -> int:
+    wanted = set((argv or [])[1:])
+    run = [
+        s for s in SPECS
+        if not wanted or s.series_id in wanted or s.symbol in wanted
+    ]
+    if not run:
+        print(f"No specs matched {wanted}")
+        return 2
+    errors = 0
+    for spec in run:
+        print(f"Fetching Yahoo {spec.symbol}...", flush=True)
+        try:
+            points = fetch_series(spec)
+        except Exception as e:
+            print(f"  ERROR: {e}")
+            errors += 1
+            continue
+        if not points:
+            print("  (no data returned)")
+            errors += 1
+            continue
+        out = write_timeseries(
+            pipeline="yahoo",
+            series_id=spec.series_id,
+            name=spec.name,
+            points=points,
+            unit=spec.unit,
+        )
+        print(f"  {len(points):>6} points -> {out}")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

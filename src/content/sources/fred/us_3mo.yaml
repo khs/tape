@@ -1,0 +1,16 @@
+name: US 3-month Treasury yield
+shortName: 3M
+description: Constant-maturity 3-month US Treasury yield. Daily.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DGS3MO.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DGS3MO
+  url: https://fred.stlouisfed.org/series/DGS3MO
+  license: Public domain (US government data)

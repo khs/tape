@@ -1,0 +1,6 @@
+title: US retail diesel
+sources: ["fred/us_retail_diesel"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

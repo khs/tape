@@ -1,0 +1,6 @@
+title: SOXX (Semiconductors)
+sources: ["yahoo/soxx"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [equity-index]

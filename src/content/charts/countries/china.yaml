@@ -1,0 +1,9 @@
+title: China
+sources:
+  - countries/china
+  - countries_gdp/china
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

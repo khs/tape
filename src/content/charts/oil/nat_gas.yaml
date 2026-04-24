@@ -1,0 +1,6 @@
+title: Henry Hub natural gas
+sources: ["yahoo/natural_gas"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

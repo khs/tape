@@ -1,0 +1,6 @@
+title: Personal saving rate
+sources: ["fred/saving_rate"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

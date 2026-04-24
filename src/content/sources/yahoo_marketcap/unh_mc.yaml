@@ -1,0 +1,18 @@
+name: UnitedHealth Group market cap
+shortName: UNH
+description: Unadjusted close × historical shares outstanding (yfinance).
+kind: timeseries
+pipeline: yahoo_marketcap
+dataFile: data/yahoo_marketcap/UNH_mc.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+  notation: compact
+provenance:
+  provider: Yahoo Finance (derived)
+  series: UNH × shares outstanding
+  url: https://finance.yahoo.com/quote/UNH
+  notes: Historical shares via yfinance get_shares_full(); shares forward-filled between quarterly observations.

@@ -1,0 +1,17 @@
+name: Consumer Staples Select Sector SPDR
+shortName: XLP
+description: "S&P 500 consumer staples sector ETF. Daily adjusted close."
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/XLP.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: XLP
+  url: https://finance.yahoo.com/quote/XLP

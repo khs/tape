@@ -1,0 +1,16 @@
+name: Live cattle front-month
+shortName: LE
+description: CME front-month futures (ticker LE) for 40,000-pound contracts of live slaughter-grade steers (55% Choice / 45% Select). Quoted in US cents per pound liveweight.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/LE_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USc/lb"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/lb"
+provenance:
+  provider: Yahoo Finance
+  series: LE=F
+  url: https://finance.yahoo.com/quote/LE%3DF

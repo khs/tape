@@ -1,0 +1,16 @@
+name: IG corporate OAS (ICE BofA)
+shortName: IG OAS
+description: ICE BofA US corporate (IG) option-adjusted spread, daily.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/BAMLC0A0CM.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: BAMLC0A0CM
+  url: https://fred.stlouisfed.org/series/BAMLC0A0CM
+  license: Public domain (US government data)

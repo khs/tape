@@ -1,0 +1,16 @@
+name: Federal funds effective rate
+shortName: FedFunds
+description: Monthly average of daily fed funds effective rate.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/FEDFUNDS.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: FEDFUNDS
+  url: https://fred.stlouisfed.org/series/FEDFUNDS
+  license: Public domain (US government data)

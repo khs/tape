@@ -1,0 +1,9 @@
+title: Mexico
+sources:
+  - countries/mexico
+  - countries_gdp/mexico
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

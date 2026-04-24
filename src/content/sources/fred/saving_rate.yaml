@@ -1,0 +1,16 @@
+name: Personal saving rate
+shortName: Saving
+description: Personal saving rate (SA), monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PSAVERT.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PSAVERT
+  url: https://fred.stlouisfed.org/series/PSAVERT
+  license: Public domain (US government data)

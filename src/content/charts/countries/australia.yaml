@@ -1,0 +1,9 @@
+title: Australia
+sources:
+  - countries/australia
+  - countries_gdp/australia
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

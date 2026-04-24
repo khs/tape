@@ -1,0 +1,6 @@
+title: QQQ (Nasdaq-100)
+sources: ["yahoo/qqq"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [equity-index]

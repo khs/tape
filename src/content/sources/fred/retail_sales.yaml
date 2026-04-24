@@ -1,0 +1,17 @@
+name: Retail sales (advance, total ex auto)
+shortName: Retail
+description: Advance retail sales, total ex auto (USD, SA), monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/RSAFS.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: RSAFS
+  url: https://fred.stlouisfed.org/series/RSAFS
+  license: Public domain (US government data)

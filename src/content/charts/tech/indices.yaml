@@ -1,0 +1,10 @@
+title: Tech indices (QQQ, XLK, SOXX)
+sources:
+  - yahoo/qqq
+  - yahoo/xlk
+  - yahoo/soxx
+render: line
+defaultDelta: 1m
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [equity-index]

@@ -1,0 +1,6 @@
+title: Utilities (XLU)
+sources: ["yahoo/xlu"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [sectors, equity-index]

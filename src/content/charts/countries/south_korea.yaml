@@ -1,0 +1,9 @@
+title: South Korea
+sources:
+  - countries/south_korea
+  - countries_gdp/south_korea
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

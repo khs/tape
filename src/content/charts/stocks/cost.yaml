@@ -1,0 +1,6 @@
+title: Costco
+sources: ["yahoo_marketcap/cost_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

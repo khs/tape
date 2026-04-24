@@ -1,0 +1,6 @@
+title: Oracle
+sources: ["yahoo_marketcap/orcl_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

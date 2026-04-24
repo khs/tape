@@ -1,0 +1,18 @@
+name: Alphabet market cap
+shortName: GOOG
+description: Unadjusted close of GOOG (Class C) × historical shares outstanding (yfinance). Represents Class C share value; Alphabet has Class A (GOOGL, voting) and Class B (unlisted) in addition.
+kind: timeseries
+pipeline: yahoo_marketcap
+dataFile: data/yahoo_marketcap/GOOG_mc.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+  notation: compact
+provenance:
+  provider: Yahoo Finance (derived)
+  series: GOOG × shares outstanding
+  notes: Class-C-derived market cap. For the full corporate market cap (all three share classes) multiply by roughly 2.1.
+  url: https://finance.yahoo.com/quote/GOOG

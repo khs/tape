@@ -1,0 +1,16 @@
+name: Wheat front-month
+shortName: ZW
+description: CBOT front-month futures (ticker ZW) for 5,000-bushel contracts of soft red winter wheat. Quoted in US cents per bushel (~60 lb).
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/ZW_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USc/bu"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/bu"
+provenance:
+  provider: Yahoo Finance
+  series: ZW=F
+  url: https://finance.yahoo.com/quote/ZW%3DF

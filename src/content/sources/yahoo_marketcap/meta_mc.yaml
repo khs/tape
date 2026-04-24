@@ -1,0 +1,18 @@
+name: Meta market cap
+shortName: META
+description: Market cap = unadjusted close × historical shares outstanding.
+kind: timeseries
+pipeline: yahoo_marketcap
+dataFile: data/yahoo_marketcap/META_mc.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+  notation: compact
+provenance:
+  provider: Yahoo Finance (derived)
+  series: META × shares outstanding
+  notes: Close price × yfinance get_shares_full() forward-filled to daily. History begins later than the ticker's IPO due to shares-outstanding data availability.
+  url: https://finance.yahoo.com/quote/META

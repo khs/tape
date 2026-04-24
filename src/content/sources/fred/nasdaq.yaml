@@ -1,0 +1,16 @@
+name: NASDAQ Composite
+description: NASDAQ Composite Index, daily close, back to 1971.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/NASDAQCOM.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: index
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: NASDAQCOM
+  url: https://fred.stlouisfed.org/series/NASDAQCOM
+  license: Nasdaq OMX (re-distributed by FRED)

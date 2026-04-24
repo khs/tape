@@ -1,0 +1,16 @@
+name: 30-year fixed mortgage rate
+shortName: 30yMort
+description: Freddie Mac primary mortgage market survey, weekly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/MORTGAGE30US.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: MORTGAGE30US
+  url: https://fred.stlouisfed.org/series/MORTGAGE30US
+  license: Public domain (US government data)

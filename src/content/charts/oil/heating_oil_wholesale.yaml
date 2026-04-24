@@ -1,0 +1,6 @@
+title: Heating oil / diesel (wholesale)
+sources: ["yahoo/heating_oil_futures"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

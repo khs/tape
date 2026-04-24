@@ -1,0 +1,6 @@
+title: Orange juice
+sources: ["yahoo/orange_juice_futures"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

@@ -1,0 +1,6 @@
+title: Technology (XLK)
+sources: ["yahoo/xlk"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [sectors, equity-index]

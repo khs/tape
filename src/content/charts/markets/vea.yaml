@@ -1,0 +1,6 @@
+title: Developed ex-US (VEA)
+sources: ["yahoo/vea"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

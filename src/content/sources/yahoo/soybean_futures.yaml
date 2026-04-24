@@ -1,0 +1,16 @@
+name: Soybean front-month
+shortName: ZS
+description: CBOT front-month futures (ticker ZS) for 5,000-bushel contracts of #2 yellow soybeans. Quoted in US cents per bushel (~60 lb).
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/ZS_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USc/bu"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/bu"
+provenance:
+  provider: Yahoo Finance
+  series: ZS=F
+  url: https://finance.yahoo.com/quote/ZS%3DF

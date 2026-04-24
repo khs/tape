@@ -1,0 +1,6 @@
+title: iShares Silver Trust (SLV)
+sources: ["yahoo/slv"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

@@ -1,0 +1,9 @@
+title: Brazil
+sources:
+  - countries/brazil
+  - countries_gdp/brazil
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

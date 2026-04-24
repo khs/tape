@@ -1,0 +1,16 @@
+name: Corn front-month
+shortName: ZC
+description: CBOT front-month futures (ticker ZC) for 5,000-bushel contracts of #2 yellow corn. Quoted in US cents per bushel (~56 lb).
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/ZC_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USc/bu"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/bu"
+provenance:
+  provider: Yahoo Finance
+  series: ZC=F
+  url: https://finance.yahoo.com/quote/ZC%3DF

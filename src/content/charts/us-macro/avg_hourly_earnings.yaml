@@ -1,0 +1,6 @@
+title: Avg hourly earnings
+sources: ["fred/avg_hourly_earnings"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

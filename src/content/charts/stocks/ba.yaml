@@ -1,0 +1,6 @@
+title: Boeing
+sources: ["yahoo_marketcap/ba_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

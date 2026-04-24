@@ -1,0 +1,9 @@
+title: United Kingdom
+sources:
+  - countries/uk
+  - countries_gdp/uk
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

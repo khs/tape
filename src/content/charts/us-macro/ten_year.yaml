@@ -1,0 +1,6 @@
+title: 10-year Treasury yield
+sources: ["fred/us_10y"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [rates, macro]

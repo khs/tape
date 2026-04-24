@@ -1,0 +1,17 @@
+name: Health Care Select Sector SPDR
+shortName: XLV
+description: "S&P 500 healthcare sector ETF. Daily adjusted close."
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/XLV.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: XLV
+  url: https://finance.yahoo.com/quote/XLV

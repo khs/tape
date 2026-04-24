@@ -1,0 +1,6 @@
+title: SPDR Gold Shares (GLD)
+sources: ["yahoo/gld"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

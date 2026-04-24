@@ -1,0 +1,16 @@
+name: Boeing (BA)
+shortName: BA
+description: Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/BA.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: BA
+  url: https://finance.yahoo.com/quote/BA

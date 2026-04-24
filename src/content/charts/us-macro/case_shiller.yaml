@@ -1,0 +1,6 @@
+title: Case-Shiller home prices
+sources: ["fred/case_shiller"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

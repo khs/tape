@@ -1,0 +1,6 @@
+title: Nonfarm payrolls
+sources: ["fred/payrolls"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [macro]

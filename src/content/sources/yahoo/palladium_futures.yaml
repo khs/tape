@@ -1,0 +1,17 @@
+name: Palladium front-month
+shortName: PA
+description: NYMEX front-month futures (ticker PA) for 100-troy-ounce contracts of 99.95%-pure palladium. Quoted in USD per troy ounce; physically deliverable.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/PA_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD/oz"
+formatting:
+  style: number
+  decimals: 2
+  prefix: "$"
+  suffix: " /oz"
+provenance:
+  provider: Yahoo Finance
+  series: PA=F
+  url: https://finance.yahoo.com/quote/PA%3DF

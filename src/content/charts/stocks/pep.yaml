@@ -1,0 +1,6 @@
+title: PepsiCo
+sources: ["yahoo_marketcap/pep_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

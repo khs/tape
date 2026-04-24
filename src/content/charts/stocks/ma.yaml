@@ -1,0 +1,6 @@
+title: Mastercard
+sources: ["yahoo_marketcap/ma_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

@@ -1,0 +1,17 @@
+name: iShares Semiconductor ETF (SOXX)
+shortName: SOXX
+description: Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/SOXX.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: SOXX
+  url: https://finance.yahoo.com/quote/SOXX

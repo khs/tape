@@ -1,0 +1,6 @@
+title: 3-month Treasury yield
+sources: ["fred/us_3mo"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [rates, macro]

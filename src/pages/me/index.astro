@@ -1,0 +1,155 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+export const prerender = true;
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="My dashboards — Legible Markets">
+  <div class="max-w-[880px] mx-auto px-6 py-10" data-me data-base-url={baseUrl}>
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={baseUrl} class="no-underline hover:text-neutral-900">All dashboards</a>
+    </nav>
+    <h1 class="text-2xl font-semibold">My dashboards</h1>
+
+    <div class="me-content mt-6" data-role="content">
+      <p class="text-sm text-neutral-500">Loading…</p>
+    </div>
+  </div>
+
+  <script>
+    import { createSupabase, isSupabaseConfigured, type DashboardRow } from "../../lib/supabase";
+
+    const host = document.querySelector<HTMLElement>("[data-me]");
+    if (!host) throw new Error("me host missing");
+    const baseUrl = host.dataset.baseUrl ?? "";
+    const content = host.querySelector<HTMLElement>("[data-role='content']");
+
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function render(): Promise<void> {
+      if (!content) return;
+      if (!isSupabaseConfigured) {
+        content.innerHTML =
+          '<p class="text-sm text-neutral-500">Supabase is not configured in this build.</p>';
+        return;
+      }
+      const sb = createSupabase()!;
+      const { data: sess } = await sb.auth.getSession();
+      const user = sess.session?.user ?? null;
+      if (!user) {
+        content.innerHTML =
+          '<p class="text-sm text-neutral-600">Please <button type="button" data-role="signin" class="underline bg-transparent border-0 p-0 cursor-pointer text-accent">sign in with Google</button> to see your saved dashboards.</p>';
+        const btn = content.querySelector<HTMLButtonElement>("[data-role='signin']");
+        btn?.addEventListener("click", async () => {
+          await sb.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: window.location.href,
+              scopes: "openid email",
+            },
+          });
+        });
+        return;
+      }
+
+      const { data, error } = await sb
+        .from("saved_dashboards")
+        .select("id, slug, title, visibility, updated_at")
+        .order("updated_at", { ascending: false });
+      if (error) {
+        content.innerHTML = `<p class="text-sm text-error">Failed to load: ${escapeHtml(error.message)}</p>`;
+        return;
+      }
+      const rows = (data ?? []) as Pick<
+        DashboardRow,
+        "id" | "slug" | "title" | "visibility" | "updated_at"
+      >[];
+      if (rows.length === 0) {
+        content.innerHTML =
+          `<p class="text-sm text-neutral-600">No saved dashboards yet. <a class="underline" href="${baseUrl}/compose/">Compose one</a>.</p>`;
+        return;
+      }
+      const list = document.createElement("ul");
+      list.className = "list-none p-0 m-0 flex flex-col gap-3";
+      for (const r of rows) {
+        const item = document.createElement("li");
+        item.className = "border hairline rounded p-4 bg-white flex items-center justify-between";
+        const dateStr = new Date(r.updated_at).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+        item.innerHTML =
+          `<div>
+             <a class="text-base font-medium text-neutral-900 no-underline hover:underline" href="${baseUrl}/u/${encodeURIComponent(r.slug)}/">${escapeHtml(r.title)}</a>
+             <div class="text-xs text-neutral-500 mt-1">Updated ${dateStr} \u00b7 ${r.visibility}</div>
+           </div>
+           <div class="flex gap-2 text-xs">
+             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="rename" data-id="${r.id}" data-current="${escapeHtml(r.title)}">Rename</button>
+             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="toggle-visibility" data-id="${r.id}" data-current="${r.visibility}">Make ${r.visibility === "public" ? "private" : "public"}</button>
+             <button type="button" class="underline text-error bg-transparent border-0 p-0 cursor-pointer" data-role="delete" data-id="${r.id}">Delete</button>
+           </div>`;
+        list.appendChild(item);
+      }
+      content.innerHTML = "";
+      content.appendChild(list);
+
+      content.querySelectorAll<HTMLButtonElement>("[data-role='rename']").forEach((b) => {
+        b.addEventListener("click", async () => {
+          const id = b.dataset.id!;
+          const current = b.dataset.current ?? "";
+          const next = prompt("New name:", current);
+          if (next === null) return;
+          const title = next.trim();
+          if (title === "" || title === current) return;
+          const { data: row, error: fetchErr } = await sb
+            .from("saved_dashboards")
+            .select("state_json")
+            .eq("id", id)
+            .single();
+          if (fetchErr) {
+            alert(fetchErr.message);
+            return;
+          }
+          const state = { ...((row?.state_json as Record<string, unknown>) ?? {}), title };
+          const { error } = await sb
+            .from("saved_dashboards")
+            .update({ title, state_json: state })
+            .eq("id", id);
+          if (error) alert(error.message);
+          else render();
+        });
+      });
+      content.querySelectorAll<HTMLButtonElement>("[data-role='toggle-visibility']").forEach((b) => {
+        b.addEventListener("click", async () => {
+          const id = b.dataset.id!;
+          const current = b.dataset.current as "public" | "private";
+          const next = current === "public" ? "private" : "public";
+          const { error } = await sb
+            .from("saved_dashboards")
+            .update({ visibility: next })
+            .eq("id", id);
+          if (error) alert(error.message);
+          else render();
+        });
+      });
+      content.querySelectorAll<HTMLButtonElement>("[data-role='delete']").forEach((b) => {
+        b.addEventListener("click", async () => {
+          if (!confirm("Delete this dashboard?")) return;
+          const id = b.dataset.id!;
+          const { error } = await sb.from("saved_dashboards").delete().eq("id", id);
+          if (error) alert(error.message);
+          else render();
+        });
+      });
+    }
+
+    render();
+  </script>
+</BaseLayout>

@@ -1,0 +1,6 @@
+title: GSG (ETF)
+sources: ["yahoo/gsg"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

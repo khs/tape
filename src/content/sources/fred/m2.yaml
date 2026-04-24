@@ -1,0 +1,17 @@
+name: M2 money supply
+shortName: M2
+description: M2 money stock (SA), monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/M2SL.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 0
+  suffix: "B"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: M2SL
+  url: https://fred.stlouisfed.org/series/M2SL
+  license: Public domain (US government data)

@@ -1,0 +1,120 @@
+---
+import "@fontsource-variable/inter";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="border-b hairline">
+      <div
+        class="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between"
+      >
+        <a href={baseUrl} class="no-underline text-neutral-900 font-medium">
+          Legible Markets
+        </a>
+        <nav class="flex items-center gap-5 text-sm">
+          <a
+            href={`${baseUrl}/compose/`}
+            class="text-neutral-600 no-underline hover:text-neutral-900"
+          >
+            Compose
+          </a>
+          <a
+            href={`${baseUrl}/me/`}
+            class="text-neutral-600 no-underline hover:text-neutral-900"
+            data-role="auth-me-link"
+            style="display: none"
+          >
+            My dashboards
+          </a>
+          <button
+            type="button"
+            class="text-neutral-600 hover:text-neutral-900 bg-transparent border-0 cursor-pointer p-0"
+            data-role="auth-signin"
+            style="display: none; font: inherit;"
+          >
+            Sign in
+          </button>
+          <button
+            type="button"
+            class="text-neutral-600 hover:text-neutral-900 bg-transparent border-0 cursor-pointer p-0"
+            data-role="auth-signout"
+            style="display: none; font: inherit;"
+          >
+            Sign out
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <script>
+      import { createSupabase, isSupabaseConfigured } from "../lib/supabase";
+      if (isSupabaseConfigured) {
+        const sb = createSupabase();
+        if (sb) {
+          const signin = document.querySelector<HTMLButtonElement>(
+            "[data-role='auth-signin']",
+          );
+          const signout = document.querySelector<HTMLButtonElement>(
+            "[data-role='auth-signout']",
+          );
+          const meLink = document.querySelector<HTMLAnchorElement>(
+            "[data-role='auth-me-link']",
+          );
+
+          async function refresh() {
+            const { data } = await sb!.auth.getUser();
+            const user = data.user;
+            if (user) {
+              if (signin) signin.style.display = "none";
+              if (signout) signout.style.display = "";
+              if (meLink) meLink.style.display = "";
+            } else {
+              if (signin) signin.style.display = "";
+              if (signout) signout.style.display = "none";
+              if (meLink) meLink.style.display = "none";
+            }
+          }
+
+          signin?.addEventListener("click", async () => {
+            await sb.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: window.location.href,
+                // Request minimum scopes: the user's unique ID + email only.
+                // Omitting `profile` means Google won't send name / picture.
+                scopes: "openid email",
+              },
+            });
+          });
+          signout?.addEventListener("click", async () => {
+            await sb.auth.signOut();
+            await refresh();
+          });
+          sb.auth.onAuthStateChange(() => refresh());
+          refresh();
+        }
+      }
+    </script>
+  </body>
+</html>

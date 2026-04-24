@@ -1,0 +1,6 @@
+title: Berkshire Hathaway
+sources: ["yahoo_marketcap/brk_b_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

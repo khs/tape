@@ -1,0 +1,16 @@
+name: ASML Holding (ASML)
+shortName: ASML
+description: Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/ASML.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: ASML
+  url: https://finance.yahoo.com/quote/ASML

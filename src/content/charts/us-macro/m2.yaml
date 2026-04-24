@@ -1,0 +1,6 @@
+title: M2 money supply
+sources: ["fred/m2"]
+render: line
+defaultDelta: 1y
+blurb: "KELLER WRITE THIS"
+tags: [macro]

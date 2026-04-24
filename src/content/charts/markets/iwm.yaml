@@ -1,0 +1,6 @@
+title: Russell 2000 (IWM)
+sources: ["yahoo/iwm"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [equity-index]

@@ -1,0 +1,15 @@
+name: Brent crude front-month
+description: ICE Brent front-month futures, daily.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/BZ_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD/bbl
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: BZ=F
+  url: https://finance.yahoo.com/quote/BZ%3DF

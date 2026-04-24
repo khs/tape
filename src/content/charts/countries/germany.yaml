@@ -1,0 +1,9 @@
+title: Germany
+sources:
+  - countries/germany
+  - countries_gdp/germany
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [world, equity-index]

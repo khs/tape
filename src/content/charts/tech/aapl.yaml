@@ -1,0 +1,6 @@
+title: Apple
+sources: ["yahoo_marketcap/aapl_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

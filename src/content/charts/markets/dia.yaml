@@ -1,0 +1,6 @@
+title: Dow Jones (DIA)
+sources: ["yahoo/dia"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [equity-index]

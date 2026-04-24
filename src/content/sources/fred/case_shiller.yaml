@@ -1,0 +1,16 @@
+name: Case-Shiller national home price
+shortName: CS HPI
+description: Case-Shiller national home price index (SA), monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CSUSHPISA.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "index"
+formatting:
+  style: number
+  decimals: 1
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CSUSHPISA
+  url: https://fred.stlouisfed.org/series/CSUSHPISA
+  license: Public domain (US government data)

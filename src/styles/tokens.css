@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #ededec;
+  --color-neutral-300: #dcdcda;
+  --color-neutral-400: #a8a6a1;
+  --color-neutral-500: #78746d;
+  --color-neutral-600: #55524c;
+  --color-neutral-700: #3f3d38;
+  --color-neutral-800: #2b2a26;
+  --color-neutral-900: #37352f;
+
+  --color-accent: #0f766e;
+  --color-accent-hover: #0c5f59;
+  --color-accent-soft: #e6f2f1;
+
+  --color-success: #166534;
+  --color-success-bg: #e7f5ee;
+  --color-success-border: #b7e0c6;
+  --color-warning: #854d0e;
+  --color-warning-bg: #fef6e0;
+  --color-warning-border: #f5d98a;
+  --color-error: #991b1b;
+  --color-error-bg: #fdecec;
+  --color-error-border: #f5bcbc;
+
+  --font-sans: "Inter Variable", Inter, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-serif: Fraunces, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: 3.25rem;
+  --text-5xl: 4rem;
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+
+  --shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.03);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(15, 118, 110, 0.25);
+
+  --container-prose: 680px;
+  --container-app: 1280px;
+}

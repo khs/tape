@@ -1,0 +1,17 @@
+name: Platinum front-month
+shortName: PL
+description: NYMEX front-month futures (ticker PL) for 50-troy-ounce contracts of 99.95%-pure platinum. Quoted in USD per troy ounce; physically deliverable.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/PL_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD/oz"
+formatting:
+  style: number
+  decimals: 2
+  prefix: "$"
+  suffix: " /oz"
+provenance:
+  provider: Yahoo Finance
+  series: PL=F
+  url: https://finance.yahoo.com/quote/PL%3DF

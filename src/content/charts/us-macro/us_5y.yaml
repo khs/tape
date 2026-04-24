@@ -1,0 +1,6 @@
+title: 5-year Treasury yield
+sources: ["fred/us_5y"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [rates, macro]

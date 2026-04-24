@@ -1,0 +1,16 @@
+name: TSMC (Taiwan Semiconductor)
+shortName: TSMC
+description: Daily adjusted close. NYSE-listed ADR for Taiwan Semiconductor Manufacturing Co.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/TSM.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: TSM
+  url: https://finance.yahoo.com/quote/TSM

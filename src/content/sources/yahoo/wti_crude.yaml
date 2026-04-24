@@ -1,0 +1,15 @@
+name: WTI crude oil front-month
+description: NYMEX CL front-month futures, daily.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/CL_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD/bbl
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: CL=F
+  url: https://finance.yahoo.com/quote/CL%3DF

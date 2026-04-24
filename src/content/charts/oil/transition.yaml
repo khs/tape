@@ -1,0 +1,10 @@
+title: Energy transition (URA, ICLN, TAN)
+sources:
+  - yahoo/ura
+  - yahoo/icln
+  - yahoo/tan
+render: line
+defaultDelta: 1m
+normalize: rebase
+blurb: "KELLER WRITE THIS"
+tags: [sectors, equity-index]

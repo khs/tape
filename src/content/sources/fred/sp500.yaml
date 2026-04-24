@@ -1,0 +1,16 @@
+name: S&P 500
+description: S&P 500 Index, daily close (FRED series, ~10y history).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/SP500.json
+supportedDeltas: ["1w", "1m", "1y", "5y"]
+unit: index
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: SP500
+  url: https://fred.stlouisfed.org/series/SP500
+  license: S&P Dow Jones Indices (re-distributed by FRED)

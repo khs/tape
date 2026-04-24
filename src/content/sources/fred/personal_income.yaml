@@ -1,0 +1,17 @@
+name: Personal income
+shortName: PI
+description: Personal income (SAAR, USD billions), monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PI.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "B"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PI
+  url: https://fred.stlouisfed.org/series/PI
+  license: Public domain (US government data)

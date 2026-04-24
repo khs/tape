@@ -1,0 +1,6 @@
+title: DBC (ETF)
+sources: ["yahoo/dbc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [commodities]

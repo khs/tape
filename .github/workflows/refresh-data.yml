@@ -1,0 +1,66 @@
+name: Refresh market data
+
+# Weekly on Sunday at 06:00 UTC (~1-2 AM ET depending on DST), plus manual
+# trigger from the GitHub Actions UI for ad-hoc refreshes.
+on:
+  schedule:
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install yfinance pandas
+
+      # Pipelines are run independently with continue-on-error so one failing
+      # provider (Yahoo rate-limiting us, FRED rejecting a series id, etc.)
+      # doesn't block the rest. Ordering matters: countries_relative reads VT
+      # + country-ETF data written by yahoo_quotes.
+
+      - name: Refresh FRED series
+        continue-on-error: true
+        run: python pipelines/fred_series.py
+
+      - name: Refresh Yahoo quotes (equities, ETFs, futures)
+        continue-on-error: true
+        run: python pipelines/yahoo_quotes.py
+
+      - name: Refresh Yahoo market caps (tech mega-caps)
+        continue-on-error: true
+        run: python pipelines/yahoo_marketcap.py
+
+      - name: Compute countries-relative (country ETF / VT)
+        continue-on-error: true
+        run: python pipelines/countries_relative.py
+
+      - name: Refresh World Bank real-GDP shares
+        continue-on-error: true
+        run: python pipelines/worldbank_gdp.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+          else
+            git commit -m "chore: weekly data refresh"
+            git push
+          fi

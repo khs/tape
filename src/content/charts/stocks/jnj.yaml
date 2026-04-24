@@ -1,0 +1,6 @@
+title: "Johnson & Johnson"
+sources: ["yahoo_marketcap/jnj_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

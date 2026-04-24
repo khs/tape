@@ -1,0 +1,15 @@
+name: Henry Hub natural gas front-month
+description: NYMEX NG front-month futures, daily.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/NG_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD/mmbtu
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: NG=F
+  url: https://finance.yahoo.com/quote/NG%3DF

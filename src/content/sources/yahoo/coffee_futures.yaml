@@ -1,0 +1,16 @@
+name: Coffee front-month
+shortName: KC
+description: ICE front-month "Coffee C" futures (ticker KC) for 37,500-pound contracts of washed arabica coffee beans from one of ~20 origin countries. Quoted in US cents per pound.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/KC_F.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "USc/lb"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/lb"
+provenance:
+  provider: Yahoo Finance
+  series: KC=F
+  url: https://finance.yahoo.com/quote/KC%3DF

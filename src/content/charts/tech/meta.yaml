@@ -1,0 +1,6 @@
+title: Meta
+sources: ["yahoo_marketcap/meta_mc"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [single-name]

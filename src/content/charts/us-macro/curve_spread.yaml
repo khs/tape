@@ -1,0 +1,6 @@
+title: 10Y–2Y yield curve
+sources: ["fred/us_2s10s"]
+render: line
+defaultDelta: 1m
+blurb: "KELLER WRITE THIS"
+tags: [rates, macro]

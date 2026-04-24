@@ -1,0 +1,17 @@
+name: Nonfarm payrolls
+shortName: Payrolls
+description: All employees, total nonfarm (thousands, SA). Monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PAYEMS.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "thousands"
+formatting:
+  style: number
+  decimals: 0
+  suffix: "k"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PAYEMS
+  url: https://fred.stlouisfed.org/series/PAYEMS
+  license: Public domain (US government data)
