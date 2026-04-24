@@ -19,7 +19,7 @@ export const prerender = false;
 const dParam = Astro.url.searchParams.get("d");
 const decoded = decodeComposedState(dParam);
 
-const baseUrl = import.meta.env.BASE_URL;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 let title = "Composed dashboard";
 let description: string | undefined;

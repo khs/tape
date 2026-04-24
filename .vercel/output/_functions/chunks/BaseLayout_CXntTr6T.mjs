@@ -8,7 +8,7 @@ const $$BaseLayout = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$BaseLayout;
   const { title, description } = Astro2.props;
-  const baseUrl = "/";
+  const baseUrl = "/".replace(/\/$/, "");
   return renderTemplate`<html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator"${addAttribute(Astro2.generator, "content")}><title>${title}</title>${description && renderTemplate`<meta name="description"${addAttribute(description, "content")}>`}${renderHead()}</head> <body class="min-h-screen flex flex-col"> <header class="border-b hairline"> <div class="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between"> <a${addAttribute(baseUrl, "href")} class="no-underline text-neutral-900 font-medium">
 Legible Markets
 </a> <nav class="flex items-center gap-5 text-sm"> <a${addAttribute(`${baseUrl}/compose/`, "href")} class="text-neutral-600 no-underline hover:text-neutral-900">

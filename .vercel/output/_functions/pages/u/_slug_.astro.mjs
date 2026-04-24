@@ -1,7 +1,7 @@
 import { c as createComponent, r as renderComponent, b as renderTemplate, e as createAstro, m as maybeRenderHead, d as addAttribute, F as Fragment, a as renderScript } from '../../chunks/astro/server_DWURT7C5.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from '../../chunks/BaseLayout_3yRXHE75.mjs';
-import { f as composedStateSchema, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, g as encodeComposedState, D as DELTA_LABELS_SHORT, $ as $$Chart, e as effectiveChart, c as $$ChartController } from '../../chunks/composer-state_CLR-Mpem.mjs';
+import { $ as $$BaseLayout } from '../../chunks/BaseLayout_CXntTr6T.mjs';
+import { f as composedStateSchema, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, g as encodeComposedState, D as DELTA_LABELS_SHORT, $ as $$Chart, e as effectiveChart, c as $$ChartController } from '../../chunks/composer-state_BVEWeDaO.mjs';
 import { createClient } from '@supabase/supabase-js';
 /* empty css                                     */
 export { renderers } from '../../renderers.mjs';
@@ -43,7 +43,7 @@ const prerender = false;
 const $$slug = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$slug;
-  const baseUrl = "/";
+  const baseUrl = "/".replace(/\/$/, "");
   const slug = Astro2.params.slug;
   let notFound = false;
   let errorMessage = null;

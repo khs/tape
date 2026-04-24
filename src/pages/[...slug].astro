@@ -37,7 +37,7 @@ const dashboardDefaultDelta = resolveDashboardDefault(
   supported,
 );
 
-const baseUrl = import.meta.env.BASE_URL;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const { Content } = await render(dashboard);
 
 const isPlaceholderDesc =

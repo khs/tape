@@ -7,7 +7,7 @@ const sorted = dashboards.sort(
   (a, b) => (a.data.order ?? 999) - (b.data.order ?? 999),
 );
 
-const baseUrl = import.meta.env.BASE_URL;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <BaseLayout title="Legible Markets" description="KELLER WRITE THIS">

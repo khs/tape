@@ -1,7 +1,7 @@
 import { c as createComponent, r as renderComponent, b as renderTemplate, e as createAstro, m as maybeRenderHead, d as addAttribute, F as Fragment, a as renderScript, u as unescapeHTML } from '../chunks/astro/server_DWURT7C5.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from '../chunks/BaseLayout_3yRXHE75.mjs';
-import { d as decodeComposedState, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, $ as $$Chart, e as effectiveChart, D as DELTA_LABELS_SHORT, c as $$ChartController } from '../chunks/composer-state_CLR-Mpem.mjs';
+import { $ as $$BaseLayout } from '../chunks/BaseLayout_CXntTr6T.mjs';
+import { d as decodeComposedState, r as resolveSections, a as dashboardSupportedDeltas, b as resolveDashboardDefault, $ as $$Chart, e as effectiveChart, D as DELTA_LABELS_SHORT, c as $$ChartController } from '../chunks/composer-state_BVEWeDaO.mjs';
 /* empty css                                  */
 export { renderers } from '../renderers.mjs';
 
@@ -16,7 +16,7 @@ const $$Custom = createComponent(async ($$result, $$props, $$slots) => {
   Astro2.self = $$Custom;
   const dParam = Astro2.url.searchParams.get("d");
   const decoded = decodeComposedState(dParam);
-  const baseUrl = "/";
+  const baseUrl = "/".replace(/\/$/, "");
   let title = "Composed dashboard";
   let description;
   let defaultDeltaRequested;

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import nodePath from 'node:path';
 /* empty css                          */
 import 'clsx';
-import { a as getEntry } from './_astro_content_B57TNz3M.mjs';
+import { a as getEntry } from './_astro_content_CKOr37fe.mjs';
 import { z } from 'zod';
 
 const DELTA_WINDOWS = ["1w", "1m", "1y", "5y", "10y"];
