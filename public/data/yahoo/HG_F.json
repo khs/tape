@@ -3,7 +3,7 @@
   "name": "Copper front-month (COMEX)",
   "kind": "timeseries",
   "unit": "USD/lb",
-  "lastUpdated": "2026-04-24T10:57:37Z",
+  "lastUpdated": "2026-04-26T07:17:51Z",
   "points": [
     {
       "t": "2000-08-30",
@@ -25767,7 +25767,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 5.994500160217285
+      "v": 6.0269999504089355
     }
   ]
 }

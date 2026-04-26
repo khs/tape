@@ -3,7 +3,7 @@
   "name": "VIX (CBOE volatility index)",
   "kind": "timeseries",
   "unit": "index",
-  "lastUpdated": "2026-04-24T10:56:58Z",
+  "lastUpdated": "2026-04-26T07:17:35Z",
   "points": [
     {
       "t": "1990-01-02",
@@ -36684,6 +36684,10 @@
     {
       "t": "2026-04-22",
       "v": 18.92
+    },
+    {
+      "t": "2026-04-23",
+      "v": 19.31
     }
   ]
 }

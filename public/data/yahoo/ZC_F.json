@@ -3,7 +3,7 @@
   "name": "Corn front-month (CBOT)",
   "kind": "timeseries",
   "unit": "USc/bu",
-  "lastUpdated": "2026-04-24T10:57:38Z",
+  "lastUpdated": "2026-04-26T07:17:51Z",
   "points": [
     {
       "t": "2000-07-17",
@@ -25795,7 +25795,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 466.0
+      "v": 463.5
     }
   ]
 }

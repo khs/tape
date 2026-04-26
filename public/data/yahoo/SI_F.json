@@ -3,7 +3,7 @@
   "name": "Silver front-month (COMEX)",
   "kind": "timeseries",
   "unit": "USD/oz",
-  "lastUpdated": "2026-04-24T10:57:36Z",
+  "lastUpdated": "2026-04-26T07:17:49Z",
   "points": [
     {
       "t": "2000-08-30",
@@ -25755,7 +25755,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 74.83999633789062
+      "v": 76.41400146484375
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Soybean front-month (CBOT)",
   "kind": "timeseries",
   "unit": "USc/bu",
-  "lastUpdated": "2026-04-24T10:57:39Z",
+  "lastUpdated": "2026-04-26T07:17:52Z",
   "points": [
     {
       "t": "2000-09-15",
@@ -25763,7 +25763,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 1177.5
+      "v": 1178.5
     }
   ]
 }

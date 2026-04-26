@@ -3,7 +3,7 @@
   "name": "Cocoa front-month (ICE)",
   "kind": "timeseries",
   "unit": "USD/ton",
-  "lastUpdated": "2026-04-24T10:57:40Z",
+  "lastUpdated": "2026-04-26T07:17:54Z",
   "points": [
     {
       "t": "2000-01-03",
@@ -26395,7 +26395,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 3416.0
+      "v": 3502.0
     }
   ]
 }

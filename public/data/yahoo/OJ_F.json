@@ -3,7 +3,7 @@
   "name": "Orange juice front-month (ICE)",
   "kind": "timeseries",
   "unit": "USc/lb",
-  "lastUpdated": "2026-04-24T10:57:41Z",
+  "lastUpdated": "2026-04-26T07:17:54Z",
   "points": [
     {
       "t": "2001-09-17",
@@ -24696,6 +24696,10 @@
     {
       "t": "2026-04-23",
       "v": 157.25
+    },
+    {
+      "t": "2026-04-24",
+      "v": 161.89999389648438
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Gold front-month (COMEX)",
   "kind": "timeseries",
   "unit": "USD/oz",
-  "lastUpdated": "2026-04-24T10:57:35Z",
+  "lastUpdated": "2026-04-26T07:17:49Z",
   "points": [
     {
       "t": "2000-08-30",
@@ -25747,7 +25747,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 4694.5
+      "v": 4740.89990234375
     }
   ]
 }

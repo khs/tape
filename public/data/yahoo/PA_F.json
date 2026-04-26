@@ -3,7 +3,7 @@
   "name": "Palladium front-month (NYMEX)",
   "kind": "timeseries",
   "unit": "USD/oz",
-  "lastUpdated": "2026-04-24T10:57:37Z",
+  "lastUpdated": "2026-04-26T07:17:50Z",
   "points": [
     {
       "t": "1998-09-28",
@@ -25903,7 +25903,7 @@
     },
     {
       "t": "2026-04-24",
-      "v": 1477.5
+      "v": 1509.9000244140625
     }
   ]
 }

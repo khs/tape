@@ -3,7 +3,7 @@
   "name": "US 3-month Treasury yield",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-04-24T10:56:51Z",
+  "lastUpdated": "2026-04-26T07:17:26Z",
   "points": [
     {
       "t": "1981-09-01",
@@ -44639,6 +44639,10 @@
     },
     {
       "t": "2026-04-22",
+      "v": 3.69
+    },
+    {
+      "t": "2026-04-23",
       "v": 3.69
     }
   ]

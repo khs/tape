@@ -3,12 +3,8 @@
   "name": "ICE BofA HY corporate option-adjusted spread",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-04-24T10:56:58Z",
+  "lastUpdated": "2026-04-26T07:17:34Z",
   "points": [
-    {
-      "t": "2023-04-24",
-      "v": 4.48
-    },
     {
       "t": "2023-04-25",
       "v": 4.64
@@ -3152,6 +3148,10 @@
     {
       "t": "2026-04-22",
       "v": 2.84
+    },
+    {
+      "t": "2026-04-23",
+      "v": 2.86
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "US unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-04-23T20:23:03Z",
+  "lastUpdated": "2026-04-26T07:17:14Z",
   "points": [
     {
       "t": "1948-01-01",
