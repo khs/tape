@@ -24,6 +24,33 @@ const sectionSchema = z.object({
   charts: z.array(z.string()).min(1),
 });
 
+/**
+ * An ad-hoc chart assembled in the composer from 1+ source IDs. Stored in the
+ * composed state's `inlineCharts` map; section chart lists reference these by
+ * an `inline:<id>` key. Keeping them as a map (rather than inlined into the
+ * chart list) lets a chart be referenced multiple times within one dashboard
+ * and keeps the renderer's chart-ID abstraction uniform.
+ */
+const inlineChartSchema = z.object({
+  title: z.string(),
+  sources: z.array(z.string()).min(1),
+  render: z
+    .enum([
+      "line",
+      "curve",
+      "smallMultiples",
+      "sparkDelta",
+      "deltaGrid",
+      "relativeReturns",
+    ])
+    .optional(),
+  normalize: z.enum(["rebase", "raw"]).optional(),
+  defaultDelta: deltaWindowSchema.optional(),
+  blurb: z.string().optional(),
+});
+
+export type InlineChart = z.infer<typeof inlineChartSchema>;
+
 export const composedStateSchema = z.object({
   v: z.literal(COMPOSER_STATE_VERSION),
   title: z.string().optional(),
@@ -32,6 +59,7 @@ export const composedStateSchema = z.object({
   charts: z.array(z.string()).optional(),
   sections: z.array(sectionSchema).optional(),
   chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),
+  inlineCharts: z.record(z.string(), inlineChartSchema).optional(),
 });
 
 export type ComposedState = z.infer<typeof composedStateSchema>;

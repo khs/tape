@@ -31,7 +31,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       </div>
       <div class="composer-actions">
         <button type="button" class="btn-secondary" data-role="copy-share">Copy share link</button>
-        <button type="button" class="btn-secondary" data-role="save">Save to my account</button>
+        <button type="button" class="btn-secondary" data-role="save" data-save-default-label="Save to my account">Save to my account</button>
         <a class="btn-primary" data-role="preview-link" href={`${baseUrl}/custom/`}>Preview &rarr;</a>
       </div>
     </div>
@@ -60,7 +60,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           <p class="muted">Pick charts on the left to start composing. They'll appear here organized into sections.</p>
         </div>
         <div class="comp-sections" data-role="comp-sections"></div>
-        <button type="button" class="btn-secondary" data-role="add-section">+ Add section</button>
+        <div class="comp-controls">
+          <button type="button" class="btn-secondary" data-role="add-section">+ Add section</button>
+          <button type="button" class="btn-secondary" data-role="open-custom-chart">+ Custom chart</button>
+        </div>
       </main>
     </div>
 
@@ -70,6 +73,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.
       </p>
     </footer>
+
+    <!-- Custom-chart modal. Mounted with display:none; the script toggles it. -->
+    <div class="cc-modal-backdrop" data-role="cc-modal" hidden>
+      <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cc-modal-title">
+        <div class="cc-modal-header">
+          <h3 id="cc-modal-title">New custom chart</h3>
+          <button type="button" class="cc-modal-close" data-role="cc-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="cc-modal-body">
+          <label class="cc-field">
+            <span class="eyebrow">Title</span>
+            <input type="text" data-role="cc-title" placeholder="Give this chart a name…" />
+          </label>
+          <div class="cc-field">
+            <div class="cc-sources-header">
+              <span class="eyebrow">Sources</span>
+              <span class="cc-sources-count" data-role="cc-count">0 selected</span>
+            </div>
+            <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name or ticker…" />
+            <div class="cc-source-list" data-role="cc-source-list"></div>
+          </div>
+          <label class="cc-rebase">
+            <input type="checkbox" data-role="cc-rebase" />
+            <span>Rebase to 100 at window start (compare relative moves across different scales)</span>
+          </label>
+        </div>
+        <div class="cc-modal-footer">
+          <button type="button" class="btn-secondary" data-role="cc-cancel">Cancel</button>
+          <button type="button" class="btn-primary" data-role="cc-create" disabled>Create chart</button>
+        </div>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
@@ -78,6 +113,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     encodeComposedState,
     decodeComposedState,
     type ComposedState,
+    type InlineChart,
   } from "../lib/composer-state";
   import type { DeltaWindow } from "../lib/deltas";
   import {
@@ -96,11 +132,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     sources: string[];
     defaultDelta?: DeltaWindow;
   };
-  type LibraryPayload = { charts: LibraryChart[]; sources: Record<string, unknown> };
+  type LibrarySource = {
+    id: string;
+    name: string;
+    shortName?: string;
+    description?: string;
+    kind?: string;
+    supportedDeltas?: DeltaWindow[];
+    unit?: string;
+  };
+  type LibraryPayload = {
+    charts: LibraryChart[];
+    sources: Record<string, LibrarySource>;
+  };
 
   const shell = document.querySelector<HTMLElement>(".composer-shell");
   if (!shell) throw new Error("composer shell missing");
   const baseUrl = shell.dataset.baseUrl ?? "";
+
+  // If `?edit=<slug>` is present, the composer is editing an existing saved
+  // dashboard rather than creating a new one. Save becomes Update (PATCH).
+  // We hold this outside the URL-encoded composed state so it never leaks
+  // into shared links.
+  let editingSlug: string | null = null;
 
   // ---- State ----
   interface UIState {
@@ -108,6 +162,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     description: string;
     defaultDelta: DeltaWindow | "";
     sections: { title: string; description: string; charts: string[] }[];
+    inlineCharts: Record<string, InlineChart>;
   }
 
   const defaultSections = () => [
@@ -119,7 +174,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     description: "",
     defaultDelta: "",
     sections: defaultSections(),
+    inlineCharts: {},
   };
+
+  const INLINE_PREFIX = "inline:";
+  function isInlineId(id: string): boolean {
+    return id.startsWith(INLINE_PREFIX);
+  }
 
   // ---- Load library ----
   async function loadLibrary(): Promise<LibraryPayload> {
@@ -131,6 +192,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // ---- URL state hydration on load ----
   function hydrateFromUrl(): void {
     const url = new URL(window.location.href);
+    const editParam = url.searchParams.get("edit");
+    if (editParam) editingSlug = editParam;
     const d = url.searchParams.get("d");
     if (!d) return;
     const res = decodeComposedState(d);
@@ -155,11 +218,26 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     } else {
       state.sections = defaultSections();
     }
+    state.inlineCharts = { ...(s.inlineCharts ?? {}) };
     // Preserve existing "adds go to the last section" default when a fork is loaded.
     activeSectionIdx = state.sections.length - 1;
   }
 
   // ---- URL state writing ----
+  // Collect only the inline-chart IDs that are actually referenced by some
+  // section, so removing a chart also prunes its orphaned inline spec.
+  function referencedInlineCharts(): Record<string, InlineChart> | undefined {
+    const refs: Record<string, InlineChart> = {};
+    for (const sec of state.sections) {
+      for (const cid of sec.charts) {
+        if (isInlineId(cid) && state.inlineCharts[cid]) {
+          refs[cid] = state.inlineCharts[cid];
+        }
+      }
+    }
+    return Object.keys(refs).length > 0 ? refs : undefined;
+  }
+
   function writeUrl(): void {
     const clean: Omit<ComposedState, "v"> = {
       title: state.title || undefined,
@@ -172,8 +250,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           description: s.description || undefined,
           charts: [...s.charts],
         })),
+      inlineCharts: referencedInlineCharts(),
     };
     if (!clean.sections || clean.sections.length === 0) delete clean.sections;
+    if (!clean.inlineCharts) delete clean.inlineCharts;
     const encoded = encodeComposedState(clean);
     const url = new URL(window.location.href);
     if (Object.keys(clean).length === 0) {
@@ -276,6 +356,121 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
   }
 
+  // ---- Drag & drop helpers ----
+  // Compute the index at which a dragged tile should be inserted. The grid
+  // is a multi-column CSS grid, so we walk tiles in DOM order and return the
+  // first one the cursor is "before" in reading order: above its row, or in
+  // its row but left of its horizontal midpoint. Empty grid → 0.
+  function computeDropIndex(
+    grid: HTMLElement,
+    clientX: number,
+    clientY: number,
+  ): number {
+    const tiles = [
+      ...grid.querySelectorAll<HTMLElement>(".comp-tile:not(.dragging)"),
+    ];
+    for (let i = 0; i < tiles.length; i++) {
+      const r = tiles[i].getBoundingClientRect();
+      // Cursor is above this tile's row entirely → insert before it.
+      if (clientY < r.top) return i;
+      // Cursor is in this tile's row → look at X.
+      if (clientY <= r.bottom) {
+        if (clientX < r.left + r.width / 2) return i;
+      }
+      // Otherwise cursor is below this row — keep walking.
+    }
+    return tiles.length;
+  }
+
+  // Move chart from one (section, index) to another.
+  // `toIdx` is computed against the POST-removal array (computeDropIndex
+  // skips the .dragging tile), so for same-section moves we splice the
+  // source out first and then insert at toIdx directly — no off-by-one.
+  function moveChart(
+    fromSec: number,
+    fromIdx: number,
+    toSec: number,
+    toIdx: number,
+  ): void {
+    if (fromSec === toSec && fromIdx === toIdx) return; // dropped on own slot
+    const fromArr = state.sections[fromSec]?.charts;
+    const toArr = state.sections[toSec]?.charts;
+    if (!fromArr || !toArr) return;
+    const [chartId] = fromArr.splice(fromIdx, 1);
+    toArr.splice(toIdx, 0, chartId);
+    // Cross-section move: refocus on the destination so subsequent library
+    // clicks land where the user was just operating.
+    if (fromSec !== toSec) activeSectionIdx = toSec;
+    writeUrl();
+    renderComposition();
+  }
+
+  // Reorder sections. `toIdx` is the desired final index in the array
+  // (i.e. drop "before section N" means toIdx = N; drop "after" means N + 1).
+  function moveSection(fromSec: number, toIdx: number): void {
+    if (
+      fromSec < 0 ||
+      fromSec >= state.sections.length ||
+      toIdx < 0 ||
+      toIdx > state.sections.length
+    )
+      return;
+    if (fromSec === toIdx || fromSec === toIdx - 1) return; // same slot
+    const [moved] = state.sections.splice(fromSec, 1);
+    let actualIdx = toIdx;
+    if (fromSec < toIdx) actualIdx--;
+    state.sections.splice(actualIdx, 0, moved);
+    // Keep the active section pointer pointing at the same logical section.
+    if (activeSectionIdx === fromSec) {
+      activeSectionIdx = actualIdx;
+    } else if (
+      fromSec < activeSectionIdx &&
+      actualIdx >= activeSectionIdx
+    ) {
+      activeSectionIdx--;
+    } else if (
+      fromSec > activeSectionIdx &&
+      actualIdx <= activeSectionIdx
+    ) {
+      activeSectionIdx++;
+    }
+    writeUrl();
+    renderComposition();
+  }
+
+  function wireGridDropTarget(grid: HTMLElement): void {
+    grid.addEventListener("dragover", (e) => {
+      // Only react to our own drag payload — leaves text-drag-from-elsewhere
+      // alone so the browser can do its default thing.
+      const types = e.dataTransfer?.types;
+      if (!types || !Array.from(types).includes("application/x-legible-chart"))
+        return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      grid.classList.add("drop-target");
+    });
+    grid.addEventListener("dragleave", (e) => {
+      // Only clear when leaving the grid itself, not when crossing into a child.
+      if (e.target === grid) grid.classList.remove("drop-target");
+    });
+    grid.addEventListener("drop", (e) => {
+      const raw = e.dataTransfer?.getData("application/x-legible-chart");
+      if (!raw) return;
+      e.preventDefault();
+      grid.classList.remove("drop-target");
+      let payload: { secIdx: number; chartIdx: number };
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        return;
+      }
+      const toSec = Number(grid.dataset.secIdx ?? "-1");
+      if (toSec < 0) return;
+      const toIdx = computeDropIndex(grid, e.clientX, e.clientY);
+      moveChart(payload.secIdx, payload.chartIdx, toSec, toIdx);
+    });
+  }
+
   function renderComposition(): void {
     const host = shell.querySelector<HTMLElement>("[data-role='comp-sections']");
     const empty = shell.querySelector<HTMLElement>("[data-role='comp-empty']");
@@ -296,8 +491,69 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
         setActiveSection(secIdx);
       });
+      // Section-reorder drop target. Only reacts to section-type payload —
+      // chart drags route through the inner grid handlers, not the section.
+      secEl.addEventListener("dragover", (e) => {
+        const types = e.dataTransfer?.types;
+        if (
+          !types ||
+          !Array.from(types).includes("application/x-legible-section")
+        )
+          return;
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+        const r = secEl.getBoundingClientRect();
+        const before = e.clientY < r.top + r.height / 2;
+        secEl.classList.toggle("drop-before", before);
+        secEl.classList.toggle("drop-after", !before);
+      });
+      secEl.addEventListener("dragleave", (e) => {
+        if (e.target === secEl) {
+          secEl.classList.remove("drop-before", "drop-after");
+        }
+      });
+      secEl.addEventListener("drop", (e) => {
+        const raw = e.dataTransfer?.getData("application/x-legible-section");
+        if (!raw) return;
+        e.preventDefault();
+        secEl.classList.remove("drop-before", "drop-after");
+        let payload: { secIdx: number };
+        try {
+          payload = JSON.parse(raw);
+        } catch {
+          return;
+        }
+        const r = secEl.getBoundingClientRect();
+        const before = e.clientY < r.top + r.height / 2;
+        const targetIdx = before ? secIdx : secIdx + 1;
+        moveSection(payload.secIdx, targetIdx);
+      });
       const header = document.createElement("div");
       header.className = "comp-section-header";
+      // Drag handle — only this is draggable, so the input fields below
+      // remain interactive without accidentally starting drags.
+      const handle = document.createElement("span");
+      handle.className = "comp-section-drag-handle";
+      handle.title = "Drag to reorder section";
+      handle.textContent = "⋮⋮"; // vertical ellipsis ×2
+      handle.draggable = true;
+      handle.addEventListener("dragstart", (e) => {
+        if (!e.dataTransfer) return;
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData(
+          "application/x-legible-section",
+          JSON.stringify({ secIdx }),
+        );
+        e.dataTransfer.setData("text/plain", `section ${secIdx}`);
+        secEl.classList.add("dragging");
+      });
+      handle.addEventListener("dragend", () => {
+        secEl.classList.remove("dragging");
+        shell
+          .querySelectorAll<HTMLElement>(".comp-section.drop-before, .comp-section.drop-after")
+          .forEach((s) => s.classList.remove("drop-before", "drop-after"));
+      });
+      header.appendChild(handle);
       const title = document.createElement("input");
       title.type = "text";
       title.className = "comp-section-title";
@@ -344,22 +600,77 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
       const grid = document.createElement("div");
       grid.className = "comp-section-grid";
+      grid.dataset.secIdx = String(secIdx);
+      // Drag-to-reorder: every grid is a drop target for chart moves.
+      wireGridDropTarget(grid);
       if (sec.charts.length === 0) {
-        grid.innerHTML = '<p class="muted small comp-empty-slot">Empty section. Click a chart on the left.</p>';
+        grid.innerHTML = '<p class="muted small comp-empty-slot">Empty section. Click a chart on the left, or drag a chart here.</p>';
       } else {
         sec.charts.forEach((chartId, chartIdx) => {
-          const chart = library?.charts.find((c) => c.id === chartId);
           const tile = document.createElement("div");
-          tile.className = "comp-tile";
+          let titleText: string;
+          let metaText: string;
+          if (isInlineId(chartId)) {
+            const inline = state.inlineCharts[chartId];
+            titleText = inline?.title ?? chartId;
+            const sourceLabels = (inline?.sources ?? []).map((sid) => {
+              const s = library?.sources[sid];
+              return s?.shortName ?? s?.name ?? sid;
+            });
+            metaText = `custom · ${sourceLabels.join(" + ")}`;
+            tile.className = "comp-tile comp-tile-inline";
+          } else {
+            const chart = library?.charts.find((c) => c.id === chartId);
+            titleText = chart?.title ?? chartId;
+            metaText = (chart?.tags ?? []).join(" \u00b7 ");
+            tile.className = "comp-tile";
+          }
           tile.innerHTML =
-            `<div class="comp-tile-title">${escapeHtml(chart?.title ?? chartId)}</div>` +
-            `<div class="comp-tile-meta">${(chart?.tags ?? []).map(escapeHtml).join(" \u00b7 ")}</div>`;
+            `<div class="comp-tile-title">${escapeHtml(titleText)}</div>` +
+            `<div class="comp-tile-meta">${escapeHtml(metaText)}</div>`;
+          // Drag-to-reorder. Browsers only fire `click` if no drag happened,
+          // so click-to-edit on inline tiles still works alongside this.
+          tile.draggable = true;
+          tile.dataset.secIdx = String(secIdx);
+          tile.dataset.chartIdx = String(chartIdx);
+          tile.addEventListener("dragstart", (e) => {
+            if (!e.dataTransfer) return;
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData(
+              "application/x-legible-chart",
+              JSON.stringify({ secIdx, chartIdx }),
+            );
+            e.dataTransfer.setData("text/plain", chartId);
+            tile.classList.add("dragging");
+          });
+          tile.addEventListener("dragend", () => {
+            tile.classList.remove("dragging");
+            shell
+              .querySelectorAll<HTMLElement>(".comp-section-grid.drop-target")
+              .forEach((g) => g.classList.remove("drop-target"));
+          });
+          if (isInlineId(chartId)) {
+            // Inline-chart tiles are editable — clicking the body reopens the
+            // modal in edit mode. The × button stops propagation so remove
+            // doesn't also trigger edit.
+            tile.classList.add("comp-tile-editable");
+            tile.title = "Drag to reorder, click to edit";
+            tile.addEventListener("click", () => {
+              openCustomChartModal(chartId);
+            });
+          } else {
+            tile.title = "Drag to reorder";
+          }
           const rm = document.createElement("button");
           rm.type = "button";
           rm.className = "comp-tile-del";
           rm.textContent = "\u00d7";
           rm.title = "Remove";
-          rm.addEventListener("click", () => {
+          // Don't let mousedown on the \u00d7 kick off a drag of the parent tile.
+          rm.draggable = false;
+          rm.addEventListener("mousedown", (e) => e.stopPropagation());
+          rm.addEventListener("click", (e) => {
+            e.stopPropagation();
             sec.charts.splice(chartIdx, 1);
             writeUrl();
             renderComposition();
@@ -430,6 +741,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderComposition();
       });
     }
+    const openCustom = shell.querySelector<HTMLButtonElement>("[data-role='open-custom-chart']");
+    if (openCustom) {
+      openCustom.addEventListener("click", () => openCustomChartModal());
+    }
+    wireCustomChartModal();
     const copyShare = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
     if (copyShare) {
       copyShare.addEventListener("click", async () => {
@@ -447,9 +763,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Button is always visible; if not signed in, clicking triggers the OAuth
     // round-trip and returns the user to the composer with their state intact.
     const saveBtn = shell.querySelector<HTMLButtonElement>("[data-role='save']");
+    const saveDefaultLabel =
+      saveBtn?.dataset.saveDefaultLabel ?? "Save to my account";
+    if (saveBtn) {
+      saveBtn.textContent = editingSlug
+        ? "Update dashboard"
+        : saveDefaultLabel;
+      saveBtn.title = editingSlug
+        ? `Updates the saved dashboard at /u/${editingSlug}/`
+        : "Saves this composition to your account";
+    }
     console.log("[save] wire:", {
       saveBtn: !!saveBtn,
       supabaseConfigured: isSupabaseConfigured,
+      editingSlug,
     });
     if (saveBtn && isSupabaseConfigured) {
       const sb = createSupabase();
@@ -488,37 +815,76 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               description: state.description || undefined,
               defaultDelta: state.defaultDelta || undefined,
               sections: cleanSections,
+              inlineCharts: referencedInlineCharts(),
             };
-            const slug = nanoid(10);
-            console.log("[save] inserting slug:", slug);
             saveBtn.disabled = true;
-            saveBtn.textContent = "Saving…";
-            const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/saved_dashboards`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                apikey: SUPABASE_REST_ANON_KEY,
-                Authorization: `Bearer ${stored.access_token}`,
-                Prefer: "return=minimal",
-              },
-              body: JSON.stringify({
-                slug,
-                owner_id: stored.user.id,
-                title: state.title || "Untitled dashboard",
-                state_json: stateJson,
-              }),
-            });
+            const restoreLabel = editingSlug ? "Update dashboard" : saveDefaultLabel;
+            saveBtn.textContent = editingSlug ? "Updating…" : "Saving…";
+
+            let targetSlug: string;
+            let res: Response;
+            if (editingSlug) {
+              // PATCH the existing row — owner-only per RLS. If the caller
+              // doesn't own this slug the request returns 204 with zero rows
+              // matched, so we explicitly fetch representation to confirm.
+              targetSlug = editingSlug;
+              const url = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?slug=eq.${encodeURIComponent(targetSlug)}`;
+              console.log("[save] patching slug:", targetSlug);
+              res = await fetch(url, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  apikey: SUPABASE_REST_ANON_KEY,
+                  Authorization: `Bearer ${stored.access_token}`,
+                  Prefer: "return=representation",
+                },
+                body: JSON.stringify({
+                  title: state.title || "Untitled dashboard",
+                  state_json: stateJson,
+                }),
+              });
+            } else {
+              targetSlug = nanoid(10);
+              console.log("[save] inserting slug:", targetSlug);
+              res = await fetch(`${SUPABASE_REST_URL}/rest/v1/saved_dashboards`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  apikey: SUPABASE_REST_ANON_KEY,
+                  Authorization: `Bearer ${stored.access_token}`,
+                  Prefer: "return=minimal",
+                },
+                body: JSON.stringify({
+                  slug: targetSlug,
+                  owner_id: stored.user.id,
+                  title: state.title || "Untitled dashboard",
+                  state_json: stateJson,
+                }),
+              });
+            }
             saveBtn.disabled = false;
-            saveBtn.textContent = "Save to my account";
-            console.log("[save] insert HTTP status:", res.status);
+            saveBtn.textContent = restoreLabel;
+            console.log("[save] HTTP status:", res.status);
             if (!res.ok) {
               const msg = await res.text().catch(() => `HTTP ${res.status}`);
-              console.error("[save] insert error:", msg);
+              console.error("[save] error:", msg);
               alert(`Save failed: ${msg}`);
               return;
             }
+            if (editingSlug) {
+              // PATCH with return=representation returns [] if RLS filtered
+              // the update out (i.e. you don't own this slug). Treat that as
+              // a permission error rather than silently no-op'ing.
+              const rows = await res.json().catch(() => []);
+              if (!Array.isArray(rows) || rows.length === 0) {
+                alert(
+                  "Couldn't update this dashboard — you may not own it, or it no longer exists.",
+                );
+                return;
+              }
+            }
             console.log("[save] success, redirecting");
-            window.location.href = `${baseUrl}/u/${slug}/`;
+            window.location.href = `${baseUrl}/u/${targetSlug}/`;
           } catch (e) {
             console.error("[save] click handler threw:", e);
             alert(`Save failed: ${String(e)}`);
@@ -528,6 +894,182 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         });
       }
     }
+  }
+
+  // ---- Custom-chart modal ----
+  // Modal state (ephemeral — does not live in composed state until Save is clicked).
+  interface CustomChartModalState {
+    editingId: string | null; // inline id being edited, or null for create
+    title: string;
+    selected: Set<string>;
+    search: string;
+    rebase: boolean;
+  }
+  const ccModal: CustomChartModalState = {
+    editingId: null,
+    title: "",
+    selected: new Set<string>(),
+    search: "",
+    rebase: true,
+  };
+
+  function openCustomChartModal(editingId?: string): void {
+    const existing =
+      editingId && state.inlineCharts[editingId]
+        ? state.inlineCharts[editingId]
+        : null;
+    ccModal.editingId = existing ? (editingId as string) : null;
+    ccModal.title = existing?.title ?? "";
+    ccModal.selected = new Set<string>(existing?.sources ?? []);
+    ccModal.search = "";
+    ccModal.rebase = existing
+      ? existing.normalize !== "raw"
+      : true;
+
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
+    if (!backdrop) return;
+    backdrop.hidden = false;
+    const heading = shell.querySelector<HTMLElement>("#cc-modal-title");
+    if (heading) heading.textContent = existing ? "Edit custom chart" : "New custom chart";
+    const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-create']");
+    if (createBtn) createBtn.textContent = existing ? "Save changes" : "Create chart";
+    const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cc-title']");
+    if (titleInput) {
+      titleInput.value = ccModal.title;
+      titleInput.focus();
+    }
+    const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
+    if (searchInput) searchInput.value = "";
+    const rebaseCb = shell.querySelector<HTMLInputElement>("[data-role='cc-rebase']");
+    if (rebaseCb) rebaseCb.checked = ccModal.rebase;
+    renderCustomChartSources();
+    updateCustomChartCreateState();
+  }
+
+  function closeCustomChartModal(): void {
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
+    if (backdrop) backdrop.hidden = true;
+  }
+
+  function updateCustomChartCreateState(): void {
+    const btn = shell.querySelector<HTMLButtonElement>("[data-role='cc-create']");
+    const count = shell.querySelector<HTMLElement>("[data-role='cc-count']");
+    if (count) {
+      const n = ccModal.selected.size;
+      count.textContent = `${n} selected`;
+    }
+    if (btn) {
+      btn.disabled = !ccModal.title.trim() || ccModal.selected.size === 0;
+    }
+  }
+
+  function filteredModalSources(): LibrarySource[] {
+    if (!library) return [];
+    const q = ccModal.search.trim().toLowerCase();
+    const all = Object.values(library.sources);
+    if (!q) return all;
+    return all.filter((s) => {
+      const hay = `${s.name} ${s.shortName ?? ""} ${s.description ?? ""} ${s.id}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  function renderCustomChartSources(): void {
+    const host = shell.querySelector<HTMLElement>("[data-role='cc-source-list']");
+    if (!host) return;
+    const sources = filteredModalSources();
+    host.innerHTML = "";
+    if (sources.length === 0) {
+      host.innerHTML = '<p class="muted small">No sources match.</p>';
+      return;
+    }
+    // Sort alphabetically by display name so the list stays predictable under search.
+    sources.sort((a, b) => (a.shortName ?? a.name).localeCompare(b.shortName ?? b.name));
+    for (const s of sources) {
+      const row = document.createElement("label");
+      row.className = "cc-source-row";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = ccModal.selected.has(s.id);
+      cb.addEventListener("change", () => {
+        if (cb.checked) ccModal.selected.add(s.id);
+        else ccModal.selected.delete(s.id);
+        updateCustomChartCreateState();
+      });
+      row.appendChild(cb);
+      const text = document.createElement("span");
+      text.className = "cc-source-row-text";
+      const primary = s.shortName ?? s.name;
+      const secondary = s.shortName && s.shortName !== s.name ? s.name : "";
+      text.innerHTML =
+        `<span class="cc-source-primary">${escapeHtml(primary)}</span>` +
+        (secondary ? `<span class="cc-source-secondary">${escapeHtml(secondary)}</span>` : "");
+      row.appendChild(text);
+      host.appendChild(row);
+    }
+  }
+
+  function wireCustomChartModal(): void {
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
+    const closeBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-close']");
+    const cancelBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-cancel']");
+    const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-create']");
+    const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cc-title']");
+    const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
+    const rebaseCb = shell.querySelector<HTMLInputElement>("[data-role='cc-rebase']");
+
+    closeBtn?.addEventListener("click", closeCustomChartModal);
+    cancelBtn?.addEventListener("click", closeCustomChartModal);
+    // Click on the backdrop (outside the dialog) also closes.
+    backdrop?.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeCustomChartModal();
+    });
+    // ESC closes the modal when it's open.
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !backdrop || backdrop.hidden) return;
+      closeCustomChartModal();
+    });
+    titleInput?.addEventListener("input", () => {
+      ccModal.title = titleInput.value;
+      updateCustomChartCreateState();
+    });
+    searchInput?.addEventListener("input", () => {
+      ccModal.search = searchInput.value;
+      renderCustomChartSources();
+    });
+    rebaseCb?.addEventListener("change", () => {
+      ccModal.rebase = rebaseCb.checked;
+    });
+    createBtn?.addEventListener("click", () => {
+      const sourceIds = [...ccModal.selected];
+      if (!ccModal.title.trim() || sourceIds.length === 0) return;
+      if (ccModal.editingId) {
+        // Edit mode: preserve any fields we don't expose (e.g. render, blurb).
+        const existing = state.inlineCharts[ccModal.editingId] ?? {
+          title: "",
+          sources: [] as string[],
+        };
+        state.inlineCharts[ccModal.editingId] = {
+          ...existing,
+          title: ccModal.title.trim(),
+          sources: sourceIds,
+          normalize: ccModal.rebase ? "rebase" : "raw",
+        };
+      } else {
+        const id = INLINE_PREFIX + nanoid(8);
+        state.inlineCharts[id] = {
+          title: ccModal.title.trim(),
+          sources: sourceIds,
+          normalize: ccModal.rebase ? "rebase" : "raw",
+        };
+        clampActiveSection();
+        const target = state.sections[activeSectionIdx];
+        if (target) target.charts.push(id);
+      }
+      writeUrl();
+      renderComposition();
+      closeCustomChartModal();
+    });
   }
 
   function escapeHtml(s: string): string {
@@ -742,6 +1284,32 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     gap: 8px;
     margin-bottom: 10px;
   }
+  .comp-section-drag-handle {
+    user-select: none;
+    cursor: grab;
+    color: var(--color-neutral-400);
+    font-size: var(--text-sm);
+    line-height: 1;
+    padding: 0 2px;
+    letter-spacing: -3px;
+    flex-shrink: 0;
+  }
+  .comp-section-drag-handle:active {
+    cursor: grabbing;
+  }
+  .comp-section-drag-handle:hover {
+    color: var(--color-neutral-700);
+  }
+  /* Section drop indicators — a thin accent line above or below the target. */
+  .comp-section.drop-before {
+    box-shadow: 0 -3px 0 0 var(--color-accent);
+  }
+  .comp-section.drop-after {
+    box-shadow: 0 3px 0 0 var(--color-accent);
+  }
+  .comp-section.dragging {
+    opacity: 0.5;
+  }
   .comp-section-title {
     flex: 1;
     font: inherit;
@@ -783,6 +1351,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 8px;
+    /* Make the grid a forgiving drop target even when nearly empty. */
+    min-height: 32px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.12s ease, outline-color 0.12s ease;
+    outline: 2px dashed transparent;
+    outline-offset: -2px;
+  }
+  .comp-section-grid.drop-target {
+    background: rgba(0, 0, 0, 0.02);
+    outline-color: var(--color-accent);
+  }
+  .comp-tile.dragging {
+    opacity: 0.35;
   }
   .comp-empty-slot {
     grid-column: 1 / -1;
@@ -822,6 +1403,129 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     padding: 2px 6px;
   }
   .comp-tile-del:hover { color: var(--color-error); }
+  .comp-tile-inline {
+    border-style: dashed;
+  }
+  .comp-tile-editable {
+    cursor: pointer;
+  }
+  .comp-tile-editable:hover {
+    border-color: var(--color-accent);
+  }
+  .comp-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ---- Custom-chart modal ---- */
+  .cc-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .cc-modal-backdrop[hidden] { display: none; }
+  .cc-modal {
+    background: var(--color-white);
+    border-radius: var(--radius);
+    max-width: 560px;
+    width: 100%;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+  .cc-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .cc-modal-header h3 { margin: 0; font-size: var(--text-base); font-weight: 600; }
+  .cc-modal-close {
+    font: inherit;
+    font-size: var(--text-xl);
+    line-height: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .cc-modal-close:hover { color: var(--color-neutral-900); }
+  .cc-modal-body {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+  }
+  .cc-field { display: flex; flex-direction: column; gap: 6px; }
+  .cc-field input[type="text"],
+  .cc-field input[type="search"],
+  .cc-source-search {
+    font: inherit;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .cc-sources-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .cc-sources-count {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  .cc-source-list {
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--color-white);
+  }
+  .cc-source-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.04);
+  }
+  .cc-source-row:last-child { border-bottom: none; }
+  .cc-source-row:hover { background: var(--color-neutral-100); }
+  .cc-source-row input[type="checkbox"] { margin-top: 3px; }
+  .cc-source-row-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--text-sm);
+  }
+  .cc-source-primary { color: var(--color-neutral-900); font-weight: 500; }
+  .cc-source-secondary { color: var(--color-neutral-500); font-size: var(--text-xs); }
+  .cc-rebase {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-700);
+  }
+  .cc-rebase input { margin-top: 3px; }
+  .cc-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
 
   .composer-footer {
     margin-top: 32px;

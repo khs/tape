@@ -5,6 +5,7 @@ import {
   closestSupported,
   type DeltaWindow,
 } from "./deltas";
+import type { InlineChart } from "./composer-state";
 
 export type ResolvedChart = {
   chart: CollectionEntry<"charts">;
@@ -24,14 +25,53 @@ export type DashboardShape = {
     string,
     Partial<CollectionEntry<"charts">["data"]>
   >;
+  inlineCharts?: Record<string, InlineChart>;
   defaultDelta?: DeltaWindow;
 };
 
+export const INLINE_CHART_PREFIX = "inline:";
+
 /**
  * Resolve a chart-by-ID. Follows `aliasOf` once if set (transparent rename support).
+ * If `id` starts with `inline:`, looks up the ad-hoc chart in `inlineCharts`
+ * and synthesizes a chart entry from that spec plus real source collection entries.
  * Returns null when the chart or any of its sources can't be found.
  */
-export async function resolveChart(id: string): Promise<ResolvedChart | null> {
+export async function resolveChart(
+  id: string,
+  inlineCharts?: Record<string, InlineChart>,
+): Promise<ResolvedChart | null> {
+  if (id.startsWith(INLINE_CHART_PREFIX)) {
+    const spec = inlineCharts?.[id];
+    if (!spec) return null;
+    const sources = await Promise.all(
+      spec.sources.map((sid) => getEntry("sources", sid)),
+    );
+    const validSources = sources.filter(
+      (s): s is CollectionEntry<"sources"> => s !== undefined,
+    );
+    if (validSources.length === 0) return null;
+    // Synthesize a minimal chart entry. Only `id` and `data` are read downstream
+    // (see Chart.astro + effectiveChart). Default render to "line" and pick a
+    // normalize default: when >1 source is combined, rebase so mixed-unit
+    // series are comparable; for a single source, raw is natural.
+    const normalize =
+      spec.normalize ??
+      (spec.sources.length > 1 ? ("rebase" as const) : ("raw" as const));
+    const fakeChart = {
+      id,
+      data: {
+        title: spec.title,
+        sources: spec.sources,
+        render: spec.render ?? ("line" as const),
+        defaultDelta: spec.defaultDelta ?? ("1m" as const),
+        normalize,
+        blurb: spec.blurb,
+        tags: [] as string[],
+      },
+    } as unknown as CollectionEntry<"charts">;
+    return { chart: fakeChart, sources: validSources };
+  }
   let chart = await getEntry("charts", id);
   if (!chart) return null;
   // One-hop alias follow. `deprecated` without `aliasOf` still renders (the
@@ -63,7 +103,9 @@ export async function resolveSections(
   ];
   const out: ResolvedSection[] = [];
   for (const s of sectionsRaw) {
-    const resolved = await Promise.all(s.charts.map(resolveChart));
+    const resolved = await Promise.all(
+      s.charts.map((cid) => resolveChart(cid, dashboard.inlineCharts)),
+    );
     const valid = resolved.filter((r): r is ResolvedChart => r !== null);
     if (valid.length > 0) {
       out.push({

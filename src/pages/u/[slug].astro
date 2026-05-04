@@ -25,6 +25,7 @@ let notFound = false;
 let errorMessage: string | null = null;
 let state: ComposedState | null = null;
 let ownerBadge: string | null = null;
+let ownerId: string | null = null;
 
 if (!isSupabaseConfigured) {
   errorMessage = "Supabase is not configured on this build.";
@@ -32,7 +33,7 @@ if (!isSupabaseConfigured) {
   const sb = createSupabase()!;
   const { data, error } = await sb
     .from("saved_dashboards")
-    .select("title, state_json, visibility")
+    .select("title, state_json, visibility, owner_id")
     .eq("slug", slug)
     .maybeSingle();
   if (error) {
@@ -49,6 +50,7 @@ if (!isSupabaseConfigured) {
       // Prefer the saved title column over any embedded state title.
       if (data.title && !state.title) state.title = data.title;
       ownerBadge = data.visibility === "private" ? "private" : null;
+      ownerId = data.owner_id ?? null;
     }
   }
 }
@@ -60,6 +62,7 @@ if (state) {
   resolvedSections = await resolveSections({
     sections: state.sections,
     charts: state.charts,
+    inlineCharts: state.inlineCharts,
   });
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDelta = resolveDashboardDefault(state.defaultDelta, supported);
@@ -104,19 +107,38 @@ if (state) {
               >
                 Copy link
               </button>
-              <a
-                href={`${baseUrl}/compose/?d=${encodeComposedState({
-                  title: state.title,
-                  description: state.description,
-                  defaultDelta: state.defaultDelta,
-                  sections: state.sections,
-                  charts: state.charts,
-                  chartOverrides: state.chartOverrides,
-                })}`}
-                class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
-              >
-                Fork this &rarr;
-              </a>
+              {
+                (() => {
+                  const encoded = encodeComposedState({
+                    title: state.title,
+                    description: state.description,
+                    defaultDelta: state.defaultDelta,
+                    sections: state.sections,
+                    charts: state.charts,
+                    chartOverrides: state.chartOverrides,
+                    inlineCharts: state.inlineCharts,
+                  });
+                  return (
+                    <>
+                      <a
+                        href={`${baseUrl}/compose/?d=${encoded}&edit=${slug}`}
+                        class="text-xs text-accent no-underline hover:underline border hairline rounded-sm px-2 py-1"
+                        data-role="edit-link"
+                        data-owner-id={ownerId ?? ""}
+                        style="display: none"
+                      >
+                        Edit &rarr;
+                      </a>
+                      <a
+                        href={`${baseUrl}/compose/?d=${encoded}`}
+                        class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
+                      >
+                        Fork this &rarr;
+                      </a>
+                    </>
+                  );
+                })()
+              }
             </div>
           </div>
           {state.description && (
@@ -174,6 +196,8 @@ if (state) {
         )}
 
         <script>
+          import { readStoredSession } from "../../lib/supabase";
+
           const btn = document.querySelector<HTMLButtonElement>(
             "[data-role='copy-link']",
           );
@@ -187,6 +211,20 @@ if (state) {
               alert("Copy failed. URL is in the address bar.");
             }
           });
+
+          // Reveal the Edit button when the current user is the owner of
+          // this saved dashboard. Owner id is baked into the anchor as a data
+          // attribute; we compare against the user stored locally.
+          const editLink = document.querySelector<HTMLAnchorElement>(
+            "[data-role='edit-link']",
+          );
+          if (editLink) {
+            const ownerId = editLink.dataset.ownerId ?? "";
+            const stored = readStoredSession();
+            if (ownerId && stored && stored.user.id === ownerId) {
+              editLink.style.display = "";
+            }
+          }
         </script>
       </>
     ) : null}
