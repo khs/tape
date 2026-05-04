@@ -10,7 +10,10 @@ const sorted = dashboards.sort(
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
-<BaseLayout title="Legible Markets" description="KELLER WRITE THIS">
+<BaseLayout
+  title="Legible Markets"
+  description="Make your own financial dashboard, for free."
+>
   <div class="max-w-[720px] mx-auto px-6 pt-16 pb-8">
     <h1>Legible Markets</h1>
     <p class="mt-4 text-neutral-600 leading-relaxed">
@@ -64,9 +67,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   class="block border hairline rounded p-4 bg-white no-underline text-neutral-900 hover:border-neutral-300 transition-colors"
                 >
                   <h3 class="text-base font-semibold">{d.data.title}</h3>
-                  <p class="mt-1 text-sm text-neutral-500">
-                    <mark class="todo">KELLER WRITE THIS</mark>
-                  </p>
+                  {d.data.description && (
+                    <p class="mt-1 text-sm text-neutral-500">{d.data.description}</p>
+                  )}
                 </a>
               </li>
             ))}

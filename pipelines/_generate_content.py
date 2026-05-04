@@ -105,7 +105,7 @@ def chart_yaml(
     sources: list[str],
     default_delta: str = "1m",
     emphasis: str | None = None,
-    blurb: str = "KELLER WRITE THIS",
+    blurb: str | None = None,
 ) -> str:
     lines = [f"title: {yaml_escape(title)}"]
     if len(sources) == 1:
@@ -118,7 +118,8 @@ def chart_yaml(
     lines.append(f"defaultDelta: {default_delta}")
     if emphasis:
         lines.append(f"emphasis: {emphasis}")
-    lines.append(f'blurb: "{blurb}"')
+    if blurb:
+        lines.append(f'blurb: "{blurb}"')
     return "\n".join(lines) + "\n"
 
 

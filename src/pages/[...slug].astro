@@ -40,16 +40,12 @@ const dashboardDefaultDelta = resolveDashboardDefault(
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const { Content } = await render(dashboard);
 
-const isPlaceholderDesc =
-  !dashboard.data.description ||
-  dashboard.data.description === "KELLER WRITE THIS";
-
 const forkUrl =
   baseUrl +
   "/compose/?d=" +
   encodeComposedState({
     title: dashboard.data.title,
-    description: isPlaceholderDesc ? undefined : dashboard.data.description,
+    description: dashboard.data.description,
     defaultDelta: dashboard.data.defaultDelta,
     sections: dashboard.data.sections ?? undefined,
     charts: !dashboard.data.sections ? dashboard.data.charts : undefined,
@@ -70,9 +66,7 @@ const forkUrl =
 
 <BaseLayout
   title={`${dashboard.data.title} — Legible Markets`}
-  description={
-    isPlaceholderDesc ? "Legible Markets" : dashboard.data.description
-  }
+  description={dashboard.data.description ?? "Legible Markets"}
 >
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
@@ -93,17 +87,11 @@ const forkUrl =
           Fork this &rarr;
         </a>
       </div>
-      {
-        isPlaceholderDesc ? (
-          <p class="mt-2 text-sm text-neutral-500">
-            <mark class="todo">KELLER WRITE THIS</mark>
-          </p>
-        ) : (
-          <p class="mt-2 text-sm text-neutral-600 max-w-[640px]">
-            {dashboard.data.description}
-          </p>
-        )
-      }
+      {dashboard.data.description && (
+        <p class="mt-2 text-sm text-neutral-600 max-w-[640px]">
+          {dashboard.data.description}
+        </p>
+      )}
     </header>
 
     <div class="dashboard-window" role="group" aria-label="Default window">
