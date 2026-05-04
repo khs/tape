@@ -1,0 +1,144 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+export const prerender = true;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout
+  title="About — Legible Markets"
+  description="What Legible Markets is, who it's for, and where the data comes from."
+>
+  <article class="about-root">
+    <h1>About Legible Markets</h1>
+
+    <p class="lead">
+      A read-only window onto the same financial data professionals watch — but
+      organized for people who don't watch markets for a living. Levels and
+      recent changes side-by-side, plain-language notes on what to look at, and
+      one-click "fork this to make your own dashboard."
+    </p>
+
+    <h2>Who it's for</h2>
+    <p>
+      Policy folks, journalists, and curious generalists who keep wanting to
+      sanity-check a number — "is the 10-year really up that much?", "what's
+      retail diesel doing?", "how much of the S&amp;P is really just the top
+      seven names?" — without subscribing to a Bloomberg terminal or signing up
+      for yet another fintech newsletter. The site is free, link-shareable, and
+      stays out of your way.
+    </p>
+
+    <h2>What makes it different</h2>
+    <ul>
+      <li>
+        <strong>Levels and changes together.</strong> Every chart shows where a
+        series is now plus how it has shifted over your selected window
+        (1&nbsp;week, 1&nbsp;month, 1&nbsp;year, 5&nbsp;years, 10&nbsp;years).
+        Almost every "what does this mean" question starts with one of those
+        two views.
+      </li>
+      <li>
+        <strong>Composable dashboards.</strong> Pick from 130+ pre-built charts
+        (or assemble new ones from raw sources), arrange them into sections,
+        add commentary, share by URL. Sign in to save and edit.
+      </li>
+      <li>
+        <strong>Curator notes.</strong> Each chart can carry a short
+        plain-language note explaining what to notice. The point of "legible"
+        is the notes — the data alone isn't enough.
+      </li>
+    </ul>
+
+    <h2>Where the data comes from</h2>
+    <p>
+      Every series is fetched from a public, free upstream source on a weekly
+      schedule (GitHub Actions, Sundays around 06:00&nbsp;UTC) and committed
+      back into the repo as static JSON. Visitors never make calls to those
+      upstreams; the site serves cached data from Vercel's CDN. Provider
+      attribution is on each chart's expanded view.
+    </p>
+    <ul>
+      <li><strong>FRED</strong> (St. Louis Fed) — rates, inflation, employment, GDP, and most US-macro series.</li>
+      <li><strong>Yahoo Finance</strong> (via <code>yfinance</code>) — equity tickers, ETFs, futures.</li>
+      <li><strong>World Bank Open Data</strong> — country GDP shares.</li>
+      <li><strong>EIA</strong> — retail fuel prices (where applicable).</li>
+    </ul>
+    <p>
+      None of this is investment advice. Series can be revised, restated, or
+      deprecated by their providers; the site reflects whatever was current on
+      the most recent refresh.
+    </p>
+
+    <h2>Stack</h2>
+    <p>
+      Astro + TypeScript on the front end (Observable Plot for charts), Python
+      pipelines for data, Vercel for hosting, Supabase (Postgres + Auth) for
+      saved dashboards. Source on GitHub.
+    </p>
+
+    <h2>Built by</h2>
+    <p>
+      Keller Scholl (DC, econ &amp; data). Notes &amp; corrections welcome at
+      <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.
+      More writing at
+      <a href="https://khs.github.io" rel="noopener">khs.github.io</a>.
+    </p>
+
+    <p class="footer-note">
+      <a href={baseUrl || "/"}>&larr; All dashboards</a>
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .about-root {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    color: var(--color-neutral-900);
+    line-height: 1.6;
+  }
+  .about-root h1 {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+  .about-root h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 28px 0 8px;
+    color: var(--color-neutral-900);
+  }
+  .about-root p,
+  .about-root ul {
+    margin: 8px 0;
+    color: var(--color-neutral-700);
+  }
+  .about-root ul {
+    padding-left: 20px;
+  }
+  .about-root li {
+    margin: 6px 0;
+  }
+  .about-root .lead {
+    font-size: var(--text-base);
+    color: var(--color-neutral-800);
+    margin-top: 0;
+  }
+  .about-root code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--color-neutral-100);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.92em;
+  }
+  .about-root a {
+    color: var(--color-accent);
+  }
+  .footer-note {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+    font-size: var(--text-sm);
+  }
+</style>
