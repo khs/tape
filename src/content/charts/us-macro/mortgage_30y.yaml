@@ -2,5 +2,4 @@ title: 30-year fixed mortgage
 sources: ["fred/mortgage_30y"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [rates, macro]

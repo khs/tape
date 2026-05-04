@@ -92,6 +92,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
            </div>
            <div class="flex gap-2 text-xs">
              <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="rename" data-id="${r.id}" data-current="${escapeHtml(r.title)}">Rename</button>
+             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="set-url" data-id="${r.id}" data-current="${escapeHtml(r.slug)}">Set URL</button>
              <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="toggle-visibility" data-id="${r.id}" data-current="${r.visibility}">Make ${r.visibility === "public" ? "private" : "public"}</button>
              <button type="button" class="underline text-error bg-transparent border-0 p-0 cursor-pointer" data-role="delete" data-id="${r.id}">Delete</button>
            </div>`;
@@ -124,6 +125,71 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             .eq("id", id);
           if (error) alert(error.message);
           else render();
+        });
+      });
+      // Reserved slugs that must never be claimed — they collide with our
+      // own routes or near-future ones. Lower-cased, no leading slash.
+      const RESERVED_SLUGS = new Set([
+        "me",
+        "compose",
+        "custom",
+        "api",
+        "auth",
+        "u",
+        "admin",
+        "settings",
+        "login",
+        "logout",
+        "signin",
+        "signout",
+        "_astro",
+        "library.json",
+        "favicon.ico",
+        "robots.txt",
+        "sitemap.xml",
+      ]);
+
+      function validateSlug(s: string): string | null {
+        if (!s) return "Custom URL can't be empty.";
+        if (s.length < 3) return "Custom URL must be at least 3 characters.";
+        if (s.length > 60) return "Custom URL must be 60 characters or fewer.";
+        if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(s)) {
+          return "Custom URL must be lowercase letters, digits, and dashes — and can't start or end with a dash.";
+        }
+        if (RESERVED_SLUGS.has(s)) return `"${s}" is a reserved URL.`;
+        return null;
+      }
+
+      content.querySelectorAll<HTMLButtonElement>("[data-role='set-url']").forEach((b) => {
+        b.addEventListener("click", async () => {
+          const id = b.dataset.id!;
+          const current = b.dataset.current ?? "";
+          const raw = prompt(
+            "Custom URL — lowercase letters, digits, and dashes. Will be available at /u/<slug>/. Renaming makes the old URL free again, so anyone (including you) could grab it later.",
+            current,
+          );
+          if (raw === null) return;
+          const next = raw.trim().toLowerCase();
+          if (next === "" || next === current) return;
+          const err = validateSlug(next);
+          if (err) {
+            alert(err);
+            return;
+          }
+          const { error } = await sb
+            .from("saved_dashboards")
+            .update({ slug: next })
+            .eq("id", id);
+          if (error) {
+            // 23505 = Postgres unique-violation. Surface as friendly text.
+            const msg =
+              error.code === "23505"
+                ? `"/u/${next}/" is already taken — pick another.`
+                : error.message;
+            alert(msg);
+            return;
+          }
+          render();
         });
       });
       content.querySelectorAll<HTMLButtonElement>("[data-role='toggle-visibility']").forEach((b) => {

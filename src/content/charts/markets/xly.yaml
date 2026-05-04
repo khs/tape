@@ -2,5 +2,4 @@ title: Consumer discretionary (XLY)
 sources: ["yahoo/xly"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [sectors, equity-index]

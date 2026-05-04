@@ -2,5 +2,4 @@ title: Walmart
 sources: ["yahoo_marketcap/wmt_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

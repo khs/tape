@@ -6,5 +6,4 @@ sources:
 render: line
 defaultDelta: 1m
 normalize: rebase
-blurb: "KELLER WRITE THIS"
 tags: [equity-index]

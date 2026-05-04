@@ -2,5 +2,4 @@ title: Coca-Cola
 sources: ["yahoo_marketcap/ko_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

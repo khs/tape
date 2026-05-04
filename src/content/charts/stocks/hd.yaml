@@ -2,5 +2,4 @@ title: Home Depot
 sources: ["yahoo_marketcap/hd_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

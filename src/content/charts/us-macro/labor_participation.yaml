@@ -2,5 +2,4 @@ title: Labor force participation
 sources: ["fred/labor_participation"]
 render: line
 defaultDelta: 1y
-blurb: "KELLER WRITE THIS"
 tags: [macro]

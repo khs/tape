@@ -2,5 +2,4 @@ title: Pfizer
 sources: ["yahoo_marketcap/pfe_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

@@ -2,5 +2,4 @@ title: MSCI EAFE (EFA)
 sources: ["yahoo/efa"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [world, equity-index]

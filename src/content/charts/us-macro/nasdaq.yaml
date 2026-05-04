@@ -2,5 +2,4 @@ title: NASDAQ Composite
 sources: ["fred/nasdaq"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [equity-index, macro]

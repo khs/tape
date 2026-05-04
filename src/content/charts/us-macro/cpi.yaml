@@ -2,5 +2,4 @@ title: CPI (headline)
 sources: ["fred/us_cpi"]
 render: line
 defaultDelta: 1y
-blurb: "KELLER WRITE THIS"
 tags: [macro]

@@ -5,5 +5,4 @@ sources:
 render: line
 defaultDelta: 1y
 normalize: rebase
-blurb: "KELLER WRITE THIS"
 tags: [world, equity-index]

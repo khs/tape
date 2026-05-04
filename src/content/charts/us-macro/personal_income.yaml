@@ -2,5 +2,4 @@ title: Personal income
 sources: ["fred/personal_income"]
 render: line
 defaultDelta: 1y
-blurb: "KELLER WRITE THIS"
 tags: [macro]

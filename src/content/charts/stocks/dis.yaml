@@ -2,5 +2,4 @@ title: Walt Disney
 sources: ["yahoo_marketcap/dis_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

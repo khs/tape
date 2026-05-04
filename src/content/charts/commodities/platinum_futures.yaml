@@ -2,5 +2,4 @@ title: Platinum
 sources: ["yahoo/platinum_futures"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [commodities]

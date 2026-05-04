@@ -2,5 +2,4 @@ title: Sugar No. 11
 sources: ["yahoo/sugar_futures"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [commodities]

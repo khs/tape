@@ -2,5 +2,4 @@ title: Netflix
 sources: ["yahoo_marketcap/nflx_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

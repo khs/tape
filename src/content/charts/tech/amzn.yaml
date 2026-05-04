@@ -2,5 +2,4 @@ title: Amazon
 sources: ["yahoo_marketcap/amzn_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

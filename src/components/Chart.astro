@@ -328,13 +328,11 @@ const mostRecentUpdate = payload.sources
       )
     }
 
-    <div class="dialog-blurb">
-      {blurb && blurb !== "KELLER WRITE THIS" ? (
+    {blurb && blurb !== "KELLER WRITE THIS" && (
+      <div class="dialog-blurb">
         <Fragment set:html={blurb} />
-      ) : (
-        <mark class="todo">KELLER WRITE THIS</mark>
-      )}
-    </div>
+      </div>
+    )}
 
     <footer class="dialog-footer muted">
       {

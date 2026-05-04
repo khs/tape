@@ -2,5 +2,4 @@ title: Financials (XLF)
 sources: ["yahoo/xlf"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [sectors, equity-index]

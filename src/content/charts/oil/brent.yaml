@@ -2,5 +2,4 @@ title: Brent crude (front-month)
 sources: ["yahoo/brent_crude"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [commodities]

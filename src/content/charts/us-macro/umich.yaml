@@ -2,5 +2,4 @@ title: UMich consumer sentiment
 sources: ["fred/us_umich_sentiment"]
 render: line
 defaultDelta: 1y
-blurb: "KELLER WRITE THIS"
 tags: [macro]

@@ -2,5 +2,4 @@ title: Cisco Systems
 sources: ["yahoo_marketcap/csco_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

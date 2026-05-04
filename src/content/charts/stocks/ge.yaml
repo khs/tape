@@ -2,5 +2,4 @@ title: GE Aerospace
 sources: ["yahoo_marketcap/ge_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

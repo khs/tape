@@ -2,5 +2,4 @@ title: Consumer staples (XLP)
 sources: ["yahoo/xlp"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [sectors, equity-index]

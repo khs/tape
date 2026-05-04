@@ -2,5 +2,4 @@ title: Energy sector (XLE)
 sources: ["yahoo/xle"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [sectors, equity-index]

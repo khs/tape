@@ -2,5 +2,4 @@ title: Industrial production
 sources: ["fred/us_industrial_production"]
 render: line
 defaultDelta: 1y
-blurb: "KELLER WRITE THIS"
 tags: [macro]

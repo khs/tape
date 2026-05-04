@@ -2,5 +2,4 @@ title: Real estate (XLRE)
 sources: ["yahoo/xlre"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [sectors, equity-index]

@@ -2,5 +2,4 @@ title: Russell 1000 (IWB)
 sources: ["yahoo/iwb"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [equity-index]

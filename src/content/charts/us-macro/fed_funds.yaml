@@ -2,5 +2,4 @@ title: Federal funds rate
 sources: ["fred/fed_funds"]
 render: line
 defaultDelta: 1y
-blurb: "KELLER WRITE THIS"
 tags: [rates, macro]

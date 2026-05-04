@@ -2,5 +2,4 @@ title: Bank of America
 sources: ["yahoo_marketcap/bac_mc"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [single-name]

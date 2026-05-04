@@ -2,5 +2,4 @@ title: HY corporate spread
 sources: ["fred/hy_spread"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [credit, macro]

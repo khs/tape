@@ -2,5 +2,4 @@ title: Emerging markets (VWO)
 sources: ["yahoo/vwo"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [world, equity-index]

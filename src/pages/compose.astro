@@ -36,6 +36,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       </div>
     </div>
 
+    <div class="composer-url-warn" data-role="url-warn" hidden>
+      <strong>Heads up:</strong> the share link is getting long
+      (<span data-role="url-warn-len">0</span> chars).
+      Some browsers and servers cap URLs around 8&nbsp;KB.
+      Use <strong>Save to my account</strong> to get a short
+      <code>/u/&lt;slug&gt;/</code> link instead.
+    </div>
+
     <div class="composer-description-wrap">
       <textarea
         class="composer-description-input"
@@ -73,6 +81,31 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.
       </p>
     </footer>
+
+    <!-- Per-chart blurb / title override modal. -->
+    <div class="cc-modal-backdrop" data-role="cb-modal" hidden>
+      <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cb-modal-title">
+        <div class="cc-modal-header">
+          <h3 id="cb-modal-title">Edit chart note</h3>
+          <button type="button" class="cc-modal-close" data-role="cb-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="cc-modal-body">
+          <p class="muted small" data-role="cb-chart-name">&nbsp;</p>
+          <label class="cc-field">
+            <span class="eyebrow">Title (override)</span>
+            <input type="text" data-role="cb-title" placeholder="Leave blank to keep the chart's default title" />
+          </label>
+          <label class="cc-field">
+            <span class="eyebrow">Note shown when expanded</span>
+            <textarea data-role="cb-blurb" rows="6" placeholder="What should readers notice about this chart in the context of your dashboard? Plain text. Leave blank to omit."></textarea>
+          </label>
+        </div>
+        <div class="cc-modal-footer">
+          <button type="button" class="btn-secondary" data-role="cb-cancel">Cancel</button>
+          <button type="button" class="btn-primary" data-role="cb-save">Save</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Custom-chart modal. Mounted with display:none; the script toggles it. -->
     <div class="cc-modal-backdrop" data-role="cc-modal" hidden>
@@ -157,12 +190,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   let editingSlug: string | null = null;
 
   // ---- State ----
+  type ChartOverride = {
+    title?: string;
+    defaultDelta?: DeltaWindow;
+    blurb?: string;
+  };
   interface UIState {
     title: string;
     description: string;
     defaultDelta: DeltaWindow | "";
     sections: { title: string; description: string; charts: string[] }[];
     inlineCharts: Record<string, InlineChart>;
+    chartOverrides: Record<string, ChartOverride>;
   }
 
   const defaultSections = () => [
@@ -175,6 +214,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     defaultDelta: "",
     sections: defaultSections(),
     inlineCharts: {},
+    chartOverrides: {},
   };
 
   const INLINE_PREFIX = "inline:";
@@ -219,6 +259,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       state.sections = defaultSections();
     }
     state.inlineCharts = { ...(s.inlineCharts ?? {}) };
+    state.chartOverrides = {
+      ...((s.chartOverrides as Record<string, ChartOverride>) ?? {}),
+    };
     // Preserve existing "adds go to the last section" default when a fork is loaded.
     activeSectionIdx = state.sections.length - 1;
   }
@@ -238,6 +281,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return Object.keys(refs).length > 0 ? refs : undefined;
   }
 
+  // Strip empty values from chart overrides, drop overrides for charts no
+  // longer referenced, and return undefined when nothing's left.
+  function referencedChartOverrides(): Record<string, ChartOverride> | undefined {
+    const referenced = new Set<string>();
+    for (const sec of state.sections) for (const cid of sec.charts) referenced.add(cid);
+    const refs: Record<string, ChartOverride> = {};
+    for (const [cid, ov] of Object.entries(state.chartOverrides)) {
+      if (!referenced.has(cid)) continue;
+      const trimmed: ChartOverride = {};
+      if (ov.title && ov.title.trim()) trimmed.title = ov.title.trim();
+      if (ov.defaultDelta) trimmed.defaultDelta = ov.defaultDelta;
+      if (ov.blurb && ov.blurb.trim()) trimmed.blurb = ov.blurb.trim();
+      if (Object.keys(trimmed).length > 0) refs[cid] = trimmed;
+    }
+    return Object.keys(refs).length > 0 ? refs : undefined;
+  }
+
   function writeUrl(): void {
     const clean: Omit<ComposedState, "v"> = {
       title: state.title || undefined,
@@ -251,9 +311,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           charts: [...s.charts],
         })),
       inlineCharts: referencedInlineCharts(),
+      chartOverrides: referencedChartOverrides(),
     };
     if (!clean.sections || clean.sections.length === 0) delete clean.sections;
     if (!clean.inlineCharts) delete clean.inlineCharts;
+    if (!clean.chartOverrides) delete clean.chartOverrides;
     const encoded = encodeComposedState(clean);
     const url = new URL(window.location.href);
     if (Object.keys(clean).length === 0) {
@@ -266,6 +328,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const preview = shell.querySelector<HTMLAnchorElement>("[data-role='preview-link']");
     if (preview) {
       preview.href = `${baseUrl}/custom/?d=${encoded}`;
+    }
+
+    // Warn when the share URL is getting close to the practical browser/proxy
+    // limit (~8KB). At 7000 chars we surface a banner suggesting the user save
+    // to their account so they can share /u/<slug>/ instead, which is short
+    // regardless of state size.
+    const SHARE_URL_WARN_AT = 7000;
+    const warnBanner = shell.querySelector<HTMLElement>("[data-role='url-warn']");
+    const warnLen = shell.querySelector<HTMLElement>("[data-role='url-warn-len']");
+    const shareUrlLen = url.toString().length;
+    if (warnBanner) {
+      if (shareUrlLen >= SHARE_URL_WARN_AT) {
+        warnBanner.hidden = false;
+        if (warnLen) warnLen.textContent = String(shareUrlLen);
+      } else {
+        warnBanner.hidden = true;
+      }
     }
   }
 
@@ -621,9 +700,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             tile.className = "comp-tile comp-tile-inline";
           } else {
             const chart = library?.charts.find((c) => c.id === chartId);
-            titleText = chart?.title ?? chartId;
-            metaText = (chart?.tags ?? []).join(" \u00b7 ");
-            tile.className = "comp-tile";
+            const override = state.chartOverrides[chartId];
+            titleText = override?.title || chart?.title || chartId;
+            const tagText = (chart?.tags ?? []).join(" \u00b7 ");
+            metaText = override?.blurb
+              ? `${tagText}${tagText ? " \u00b7 " : ""}note added`
+              : tagText;
+            tile.className =
+              "comp-tile" + (override ? " has-override" : "");
           }
           tile.innerHTML =
             `<div class="comp-tile-title">${escapeHtml(titleText)}</div>` +
@@ -675,6 +759,26 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             writeUrl();
             renderComposition();
           });
+          // \u270e Edit button: for inline charts, opens the custom-chart modal;
+          // for library charts, opens the per-chart blurb / title override.
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "comp-tile-edit";
+          edit.textContent = "\u270e";
+          edit.title = isInlineId(chartId)
+            ? "Edit custom chart"
+            : "Add a note for this chart";
+          edit.draggable = false;
+          edit.addEventListener("mousedown", (e) => e.stopPropagation());
+          edit.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (isInlineId(chartId)) {
+              openCustomChartModal(chartId);
+            } else {
+              openChartBlurbModal(chartId);
+            }
+          });
+          tile.appendChild(edit);
           tile.appendChild(rm);
           grid.appendChild(tile);
         });
@@ -746,6 +850,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       openCustom.addEventListener("click", () => openCustomChartModal());
     }
     wireCustomChartModal();
+    wireChartBlurbModal();
     const copyShare = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
     if (copyShare) {
       copyShare.addEventListener("click", async () => {
@@ -816,6 +921,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               defaultDelta: state.defaultDelta || undefined,
               sections: cleanSections,
               inlineCharts: referencedInlineCharts(),
+              chartOverrides: referencedChartOverrides(),
             };
             saveBtn.disabled = true;
             const restoreLabel = editingSlug ? "Update dashboard" : saveDefaultLabel;
@@ -894,6 +1000,73 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         });
       }
     }
+  }
+
+  // ---- Per-chart blurb / title override modal ----
+  let cbEditingChartId: string | null = null;
+
+  function openChartBlurbModal(chartId: string): void {
+    cbEditingChartId = chartId;
+    const existing = state.chartOverrides[chartId] ?? {};
+    const libChart = library?.charts.find((c) => c.id === chartId);
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='cb-modal']");
+    if (!backdrop) return;
+    backdrop.hidden = false;
+    const nameEl = shell.querySelector<HTMLElement>("[data-role='cb-chart-name']");
+    if (nameEl) {
+      nameEl.textContent = libChart?.title ?? chartId;
+    }
+    const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cb-title']");
+    if (titleInput) {
+      titleInput.value = existing.title ?? "";
+      titleInput.placeholder = `Leave blank to keep "${libChart?.title ?? chartId}"`;
+      titleInput.focus();
+    }
+    const blurbInput = shell.querySelector<HTMLTextAreaElement>("[data-role='cb-blurb']");
+    if (blurbInput) blurbInput.value = existing.blurb ?? "";
+  }
+
+  function closeChartBlurbModal(): void {
+    cbEditingChartId = null;
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='cb-modal']");
+    if (backdrop) backdrop.hidden = true;
+  }
+
+  function wireChartBlurbModal(): void {
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='cb-modal']");
+    const closeBtn = shell.querySelector<HTMLButtonElement>("[data-role='cb-close']");
+    const cancelBtn = shell.querySelector<HTMLButtonElement>("[data-role='cb-cancel']");
+    const saveBtn = shell.querySelector<HTMLButtonElement>("[data-role='cb-save']");
+    closeBtn?.addEventListener("click", closeChartBlurbModal);
+    cancelBtn?.addEventListener("click", closeChartBlurbModal);
+    backdrop?.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeChartBlurbModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !backdrop || backdrop.hidden) return;
+      closeChartBlurbModal();
+    });
+    saveBtn?.addEventListener("click", () => {
+      if (!cbEditingChartId) return;
+      const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cb-title']");
+      const blurbInput = shell.querySelector<HTMLTextAreaElement>("[data-role='cb-blurb']");
+      const title = (titleInput?.value ?? "").trim();
+      const blurb = (blurbInput?.value ?? "").trim();
+      const existing = state.chartOverrides[cbEditingChartId] ?? {};
+      const next: ChartOverride = { ...existing };
+      if (title) next.title = title;
+      else delete next.title;
+      if (blurb) next.blurb = blurb;
+      else delete next.blurb;
+      if (Object.keys(next).length === 0) {
+        delete state.chartOverrides[cbEditingChartId];
+      } else {
+        state.chartOverrides[cbEditingChartId] = next;
+      }
+      writeUrl();
+      renderComposition();
+      closeChartBlurbModal();
+    });
   }
 
   // ---- Custom-chart modal ----
@@ -1376,8 +1549,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     position: relative;
     border: 1px solid rgba(55, 53, 47, 0.08);
     border-radius: var(--radius-sm);
-    padding: 10px 30px 10px 12px;
+    padding: 10px 52px 10px 12px;
     background: var(--color-neutral-50);
+  }
+  .comp-tile-edit {
+    position: absolute;
+    top: 4px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: 1;
+    padding: 2px 4px;
+    color: var(--color-neutral-400);
+    cursor: pointer;
+  }
+  .comp-tile-edit:hover { color: var(--color-accent); }
+  .comp-tile.has-override .comp-tile-edit {
+    color: var(--color-accent);
   }
   .comp-tile-title {
     font-size: var(--text-sm);
@@ -1525,6 +1715,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     gap: 8px;
     padding: 12px 18px;
     border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+
+  .composer-url-warn {
+    margin: 8px 0 12px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(217, 119, 6, 0.08);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+    color: var(--color-neutral-800);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+  }
+  .composer-url-warn[hidden] { display: none; }
+  .composer-url-warn code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.95em;
   }
 
   .composer-footer {

@@ -2,5 +2,4 @@ title: Industrials (XLI)
 sources: ["yahoo/xli"]
 render: line
 defaultDelta: 1m
-blurb: "KELLER WRITE THIS"
 tags: [sectors, equity-index]
