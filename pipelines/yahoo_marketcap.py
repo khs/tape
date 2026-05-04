@@ -102,18 +102,70 @@ def fetch_marketcap(symbol: str) -> list[dict]:
         future_factor = future_factor.reindex(closes.index, method="ffill").fillna(1.0)
         closes = closes * future_factor
 
-    shares = ticker.get_shares_full(start="1980-01-01")
+    raw_shares = ticker.get_shares_full(start="1980-01-01")
     points: list[dict] = []
-    if shares is not None and len(shares) > 0:
-        shares = shares.sort_index()
-        shares.index = shares.index.tz_localize(None).normalize()
-        # On split days, yfinance returns BOTH the pre- and post-split share
-        # counts at the same timestamp. We always want the post-split count
-        # (= max), since by the close of the split day the new basis applies.
-        shares = shares.groupby(level=0).max()
-        aligned = shares.reindex(closes.index, method="ffill")
+    if raw_shares is not None and len(raw_shares) > 0:
+        raw_shares = raw_shares.sort_index()
+        raw_shares.index = raw_shares.index.tz_localize(None).normalize()
+        # Bucket all values per day so we can pick the right one when there's
+        # ambiguity. yfinance frequently returns 2-3 values on a split day:
+        # the pre-split count, the post-split count, and (occasionally) a
+        # bogus value (e.g., post-split × split-ratio again). We prefer the
+        # one closest to expected = prev × split_ratio rather than blindly
+        # taking max/last/first.
+        per_day: dict[pd.Timestamp, list[float]] = {}
+        for ts, v in raw_shares.items():
+            per_day.setdefault(ts, []).append(float(v))
+
+        # Build a clean per-trading-day share count aligned to closes.index.
+        # On split days we synthesize prev × ratio if no plausible value exists.
+        # On non-split days we take the latest yfinance value (or carry forward).
+        # NB: yfinance can return stale pre-split-equivalent counts for some
+        # weeks AFTER a split (Apple's late-2020 case). The split-day override
+        # corrects the split-day point itself; subsequent ffill carries the
+        # corrected value until yfinance returns a consistent newer value.
+        clean = {}
+        last_known: float | None = None
+        for ts in closes.index:
+            ratio = float(splits.get(ts, 0)) if splits is not None else 0.0
+            available = per_day.get(ts, [])
+            if ratio > 0:
+                expected = last_known * ratio if last_known is not None else None
+                chosen: float | None = None
+                if available and expected is not None:
+                    chosen = min(available, key=lambda v: abs(v - expected))
+                    # Reject if it's wildly off (e.g., yfinance's bogus 4.65B
+                    # for Tesla, which is 5x the expected post-split count).
+                    if abs(chosen - expected) / expected > 0.5:
+                        chosen = expected
+                elif expected is not None:
+                    chosen = expected
+                elif available:
+                    # No prior known shares; just take the largest as a guess.
+                    chosen = max(available)
+                if chosen is not None:
+                    clean[ts] = chosen
+                    last_known = chosen
+            else:
+                if available:
+                    # Plain non-split day. Take last reported value. Reject
+                    # if it implies an implausibly huge jump (>10x) from the
+                    # last known — that signals a stale pre-split entry
+                    # surfacing late. (Smaller jumps from real issuance or
+                    # buybacks pass through fine.)
+                    cand = available[-1]
+                    if last_known is not None and (
+                        cand > last_known * 10 or cand < last_known / 10
+                    ):
+                        clean[ts] = last_known
+                    else:
+                        clean[ts] = cand
+                        last_known = cand
+                elif last_known is not None:
+                    clean[ts] = last_known
+
         for ts, close_v in closes.items():
-            shares_v = aligned.loc[ts] if ts in aligned.index else None
+            shares_v = clean.get(ts)
             if shares_v is None or pd.isna(shares_v):
                 continue
             mc = float(close_v) * float(shares_v)
