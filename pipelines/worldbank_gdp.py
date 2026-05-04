@@ -30,6 +30,7 @@ class CountrySpec:
 
 
 COUNTRIES: list[CountrySpec] = [
+    CountrySpec("USA", "United States", "USA"),
     CountrySpec("JPN", "Japan", "EWJ"),
     CountrySpec("DEU", "Germany", "EWG"),
     CountrySpec("GBR", "United Kingdom", "EWU"),

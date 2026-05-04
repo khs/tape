@@ -5,4 +5,5 @@ sources:
 render: line
 defaultDelta: 1y
 normalize: rebase
+seriesLabels: ["ETF / world", "GDP share"]
 tags: [world, equity-index]

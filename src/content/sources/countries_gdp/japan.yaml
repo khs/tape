@@ -1,5 +1,5 @@
 name: Japan real-GDP share of world
-shortName: GDP share
+shortName: Japan
 description: Japan real GDP / world real GDP (constant 2015 USD), annual (World Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
 kind: timeseries
 pipeline: worldbank_gdp

@@ -78,20 +78,39 @@ SPECS: list[MarketCapSpec] = [
 
 def fetch_marketcap(symbol: str) -> list[dict]:
     ticker = yf.Ticker(symbol)
-    # Unadjusted prices so that price × historical-shares gives actual MC at time t
+    # Note: even with auto_adjust=False, modern yfinance returns "Close" that
+    # is silently split-adjusted (pre-split rows in post-split dollars). We
+    # recover the truly unadjusted price by multiplying by the product of all
+    # split ratios that occurred AFTER each date.
     hist = ticker.history(period="max", auto_adjust=False)
     if hist.empty:
         return []
     closes = hist["Close"].dropna()
     closes.index = closes.index.tz_localize(None).normalize()
 
+    splits = hist["Stock Splits"].fillna(0).copy() if "Stock Splits" in hist.columns else None
+    if splits is not None and len(splits) > 0:
+        splits.index = splits.index.tz_localize(None).normalize()
+        splits = splits[~splits.index.duplicated(keep="last")]
+        # Treat zero-rows as ratio-1; multiply going backward to get cumulative
+        # future-split factor at each date. On a split day the close is already
+        # at post-split basis, so we exclude that day's split from its own
+        # factor (factor = rev_cumprod / self_ratio).
+        splits_clean = splits.where(splits > 0, 1.0)
+        rev_cumprod = splits_clean.iloc[::-1].cumprod().iloc[::-1]
+        future_factor = rev_cumprod / splits_clean
+        future_factor = future_factor.reindex(closes.index, method="ffill").fillna(1.0)
+        closes = closes * future_factor
+
     shares = ticker.get_shares_full(start="1980-01-01")
     points: list[dict] = []
     if shares is not None and len(shares) > 0:
         shares = shares.sort_index()
         shares.index = shares.index.tz_localize(None).normalize()
-        # Deduplicate any same-day entries (keep last)
-        shares = shares[~shares.index.duplicated(keep="last")]
+        # On split days, yfinance returns BOTH the pre- and post-split share
+        # counts at the same timestamp. We always want the post-split count
+        # (= max), since by the close of the split day the new basis applies.
+        shares = shares.groupby(level=0).max()
         aligned = shares.reindex(closes.index, method="ffill")
         for ts, close_v in closes.items():
             shares_v = aligned.loc[ts] if ts in aligned.index else None
