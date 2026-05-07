@@ -1,0 +1,6 @@
+title: Manufacturing employment
+sources:
+  - fred/manufacturing_employment
+render: line
+defaultDelta: 10y
+tags: [labor, macro, us]

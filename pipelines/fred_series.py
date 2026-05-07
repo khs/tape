@@ -85,6 +85,31 @@ SPECS: list[FredSpec] = [
     # Government finances
     FredSpec("GFDEGDQ188S", "Federal debt held by the public, % of GDP", "%"),
     FredSpec("FYFSGDA188S", "Federal surplus/deficit, % of GDP", "%"),
+    # ------------------------------------------------------------------
+    # Library expansion v3: fiscal depth, labor depth, inflation expectations,
+    # real estate depth, trade
+    # ------------------------------------------------------------------
+    # Fiscal policy / revenue + spending
+    FredSpec("FYFRGDA188S", "Federal receipts, % of GDP", "%"),
+    FredSpec("FYONGDA188S", "Federal outlays, % of GDP", "%"),
+    FredSpec("FYOIGDA188S", "Federal net interest outlays, % of GDP", "%"),
+    FredSpec("FDEFX", "Federal defense outlays", "billions USD"),
+    # Inflation expectations (TIPS-derived breakevens)
+    FredSpec("T5YIE", "5-year breakeven inflation", "%"),
+    FredSpec("T10YIE", "10-year breakeven inflation", "%"),
+    FredSpec("DFII10", "10-year TIPS yield (real)", "%"),
+    # Labor depth
+    FredSpec("LNS11300060", "Prime-age (25-54) labor force participation", "%"),
+    FredSpec("JTSQUR", "Quits rate (JOLTS)", "%"),
+    FredSpec("MANEMP", "Manufacturing employment", "thousands of persons"),
+    FredSpec("CES0500000003", "Average hourly earnings, all employees", "USD/hour"),
+    # Real estate depth
+    FredSpec("MORTGAGE15US", "15-year fixed mortgage rate", "%"),
+    FredSpec("MSACSR", "Months supply of new houses for sale", "months"),
+    # Trade
+    FredSpec("BOPGSTB", "US trade balance, goods and services", "millions USD"),
+    # Recession indicator (NBER, monthly)
+    FredSpec("USREC", "NBER recession indicator", "binary"),
 ]
 
 

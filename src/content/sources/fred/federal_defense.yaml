@@ -1,0 +1,19 @@
+name: Federal defense outlays
+shortName: Defense outlays
+description: Federal national-defense spending in nominal dollars. Quarterly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/FDEFX.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: billions USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: FDEFX
+  url: https://fred.stlouisfed.org/series/FDEFX
+  license: Public domain (US government data)

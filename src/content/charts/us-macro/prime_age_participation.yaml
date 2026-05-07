@@ -1,0 +1,6 @@
+title: Prime-age (25–54) participation
+sources:
+  - fred/prime_age_participation
+render: line
+defaultDelta: 5y
+tags: [labor, macro, us]

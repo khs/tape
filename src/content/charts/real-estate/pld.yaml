@@ -1,0 +1,6 @@
+title: Prologis (PLD)
+sources:
+  - yahoo/pld
+render: line
+defaultDelta: 1y
+tags: [real-estate, single-name, us]

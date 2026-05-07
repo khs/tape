@@ -1,0 +1,6 @@
+title: New-home months supply
+sources:
+  - fred/months_supply
+render: line
+defaultDelta: 5y
+tags: [real-estate, macro, us]

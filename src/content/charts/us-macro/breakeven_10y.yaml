@@ -1,0 +1,6 @@
+title: 10-year breakeven inflation
+sources:
+  - fred/breakeven_10y
+render: line
+defaultDelta: 1y
+tags: [rates, macro, us]

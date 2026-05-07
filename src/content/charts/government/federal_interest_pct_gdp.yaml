@@ -1,0 +1,6 @@
+title: Federal interest / GDP
+sources:
+  - fred/federal_interest_pct_gdp
+render: line
+defaultDelta: 10y
+tags: [fiscal, government, macro, rates, us]

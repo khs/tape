@@ -1,0 +1,6 @@
+title: USD / MXN
+sources:
+  - yahoo/usdmxn
+render: line
+defaultDelta: 1y
+tags: [fx, world]

@@ -1,0 +1,6 @@
+title: US trade balance
+sources:
+  - fred/trade_balance
+render: line
+defaultDelta: 5y
+tags: [government, macro, world, us]

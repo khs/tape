@@ -1,0 +1,6 @@
+title: XRP
+sources:
+  - yahoo/xrp_usd
+render: line
+defaultDelta: 1y
+tags: [crypto]

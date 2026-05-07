@@ -1,0 +1,6 @@
+title: 5-year breakeven inflation
+sources:
+  - fred/breakeven_5y
+render: line
+defaultDelta: 1y
+tags: [rates, macro, us]

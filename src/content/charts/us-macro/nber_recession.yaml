@@ -1,0 +1,6 @@
+title: NBER recession indicator
+sources:
+  - fred/nber_recession
+render: line
+defaultDelta: 10y
+tags: [macro, us]

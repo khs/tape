@@ -1,0 +1,16 @@
+name: USD / CAD
+shortName: USD/CAD
+description: Canadian dollars per US dollar. Up = dollar stronger / loonie weaker. Highly correlated with crude-oil prices given Canada's energy export exposure.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/USDCAD.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: CAD
+formatting:
+  style: number
+  decimals: 4
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: CAD=X
+  url: https://finance.yahoo.com/quote/CAD%3DX

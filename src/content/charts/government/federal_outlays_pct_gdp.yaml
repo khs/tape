@@ -1,0 +1,6 @@
+title: Federal outlays / GDP
+sources:
+  - fred/federal_outlays_pct_gdp
+render: line
+defaultDelta: 10y
+tags: [fiscal, government, macro, us]

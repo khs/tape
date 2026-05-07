@@ -1,0 +1,6 @@
+title: Federal receipts / GDP
+sources:
+  - fred/federal_receipts_pct_gdp
+render: line
+defaultDelta: 10y
+tags: [fiscal, government, macro, us]

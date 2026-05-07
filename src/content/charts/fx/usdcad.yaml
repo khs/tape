@@ -1,0 +1,6 @@
+title: USD / CAD
+sources:
+  - yahoo/usdcad
+render: line
+defaultDelta: 1y
+tags: [fx, world]

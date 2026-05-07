@@ -1,0 +1,16 @@
+name: USD / INR
+shortName: USD/INR
+description: Indian rupees per US dollar. Up = dollar stronger / rupee weaker.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/USDINR.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: INR
+formatting:
+  style: number
+  decimals: 3
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: INR=X
+  url: https://finance.yahoo.com/quote/INR%3DX

@@ -1,0 +1,17 @@
+name: Federal net interest outlays, % of GDP
+shortName: Interest / GDP
+description: Federal interest payments on outstanding debt, net of interest received, as a share of GDP. Annual. Rises with both debt level and interest-rate level.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/FYOIGDA188S.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: FYOIGDA188S
+  url: https://fred.stlouisfed.org/series/FYOIGDA188S
+  license: Public domain (US government data)

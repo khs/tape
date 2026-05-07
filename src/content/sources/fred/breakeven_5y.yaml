@@ -1,0 +1,17 @@
+name: 5-year breakeven inflation
+shortName: 5Y breakeven
+description: Difference between the 5-year nominal Treasury yield and the 5-year TIPS yield. Approximates the bond market's expected inflation rate over the next five years.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/T5YIE.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: T5YIE
+  url: https://fred.stlouisfed.org/series/T5YIE
+  license: Public domain (US government data)

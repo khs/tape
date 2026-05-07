@@ -1,0 +1,16 @@
+name: GBP / USD
+shortName: GBP/USD
+description: US dollars per British pound. Up = pound stronger / dollar weaker.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/GBPUSD.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: number
+  decimals: 4
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: GBPUSD=X
+  url: https://finance.yahoo.com/quote/GBPUSD%3DX

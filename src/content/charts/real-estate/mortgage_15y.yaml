@@ -1,0 +1,6 @@
+title: 15-year mortgage rate
+sources:
+  - fred/mortgage_15y
+render: line
+defaultDelta: 1y
+tags: [real-estate, rates, macro, us]

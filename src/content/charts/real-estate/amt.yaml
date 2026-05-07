@@ -1,0 +1,6 @@
+title: American Tower (AMT)
+sources:
+  - yahoo/amt
+render: line
+defaultDelta: 1y
+tags: [real-estate, single-name, us]

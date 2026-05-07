@@ -1,0 +1,17 @@
+name: Prologis (PLD)
+shortName: PLD
+description: Prologis, Inc. — the largest US logistics-focused REIT. Owns warehouses and distribution centers around major ports and population centers; a useful read on goods-logistics demand.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/PLD.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: PLD
+  url: https://finance.yahoo.com/quote/PLD

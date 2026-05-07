@@ -1,0 +1,17 @@
+name: NBER recession indicator
+shortName: Recession
+description: Binary monthly flag (1 = recession, 0 = expansion) per the NBER Business Cycle Dating Committee. Useful as an overlay against other macro series to mark historical downturns.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/USREC.json
+supportedDeltas: ["5y", "10y"]
+unit: binary
+formatting:
+  style: number
+  decimals: 0
+emphasis: level
+provenance:
+  provider: FRED (St. Louis Fed) / NBER
+  series: USREC
+  url: https://fred.stlouisfed.org/series/USREC
+  license: Public domain (US government data)

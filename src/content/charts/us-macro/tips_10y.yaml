@@ -1,0 +1,6 @@
+title: 10-year TIPS yield (real)
+sources:
+  - fred/tips_10y
+render: line
+defaultDelta: 1y
+tags: [rates, macro, us]

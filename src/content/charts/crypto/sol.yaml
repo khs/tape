@@ -1,0 +1,6 @@
+title: Solana
+sources:
+  - yahoo/sol_usd
+render: line
+defaultDelta: 1y
+tags: [crypto]

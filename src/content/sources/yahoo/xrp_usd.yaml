@@ -1,0 +1,17 @@
+name: XRP (USD)
+shortName: XRP
+description: Spot XRP (Ripple) price in US dollars. Daily close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/XRP_USD.json
+supportedDeltas: ["1w", "1m", "1y", "5y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 4
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: XRP-USD
+  url: https://finance.yahoo.com/quote/XRP-USD

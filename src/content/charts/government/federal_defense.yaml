@@ -1,0 +1,6 @@
+title: Federal defense outlays
+sources:
+  - fred/federal_defense
+render: line
+defaultDelta: 10y
+tags: [fiscal, government, macro, us]

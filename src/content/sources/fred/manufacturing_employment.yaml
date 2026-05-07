@@ -1,0 +1,18 @@
+name: Manufacturing employment
+shortName: Mfg. employment
+description: Total nonfarm employment in manufacturing. Tracks an oft-discussed but shrinking slice of the US labor market (~8% of total nonfarm jobs).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/MANEMP.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: thousands
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: MANEMP
+  url: https://fred.stlouisfed.org/series/MANEMP
+  license: Public domain (US government data)

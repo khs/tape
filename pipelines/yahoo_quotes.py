@@ -157,6 +157,21 @@ SPECS: list[YahooSpec] = [
     # Real estate ETFs
     YahooSpec("VNQ", "VNQ", "Vanguard Real Estate ETF (VNQ)", "USD"),
     YahooSpec("XHB", "XHB", "SPDR S&P Homebuilders ETF (XHB)", "USD"),
+    # ------------------------------------------------------------------
+    # Library expansion v3: more crypto, more FX, more real estate stocks
+    # ------------------------------------------------------------------
+    # More crypto
+    YahooSpec("SOL-USD", "SOL_USD", "Solana (USD)", "USD"),
+    YahooSpec("XRP-USD", "XRP_USD", "XRP (USD)", "USD"),
+    YahooSpec("MSTR", "MSTR", "Strategy (formerly MicroStrategy)", "USD"),
+    # More FX
+    YahooSpec("GBPUSD=X", "GBPUSD", "GBP / USD", "USD"),
+    YahooSpec("CAD=X", "USDCAD", "USD / CAD", "CAD"),
+    YahooSpec("MXN=X", "USDMXN", "USD / MXN", "MXN"),
+    YahooSpec("INR=X", "USDINR", "USD / INR", "INR"),
+    # Real estate REITs
+    YahooSpec("PLD", "PLD", "Prologis (PLD)", "USD"),
+    YahooSpec("AMT", "AMT", "American Tower (AMT)", "USD"),
 ]
 
 

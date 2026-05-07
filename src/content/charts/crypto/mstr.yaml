@@ -1,0 +1,6 @@
+title: Strategy / MicroStrategy (MSTR)
+sources:
+  - yahoo/mstr
+render: line
+defaultDelta: 1y
+tags: [crypto, single-name, us]

@@ -1,0 +1,17 @@
+name: Federal receipts, % of GDP
+shortName: Receipts / GDP
+description: Federal government revenue (taxes plus other receipts) as a share of GDP. Annual.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/FYFRGDA188S.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: FYFRGDA188S
+  url: https://fred.stlouisfed.org/series/FYFRGDA188S
+  license: Public domain (US government data)

@@ -1,0 +1,6 @@
+title: Average hourly earnings (all employees)
+sources:
+  - fred/avg_hourly_earnings_all
+render: line
+defaultDelta: 5y
+tags: [labor, macro, us]
