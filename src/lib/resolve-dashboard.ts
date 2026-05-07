@@ -53,11 +53,20 @@ export async function resolveChart(
     if (validSources.length === 0) return null;
     // Synthesize a minimal chart entry. Only `id` and `data` are read downstream
     // (see Chart.astro + effectiveChart). Default render to "line" and pick a
-    // normalize default: when >1 source is combined, rebase so mixed-unit
-    // series are comparable; for a single source, raw is natural.
-    const normalize =
-      spec.normalize ??
-      (spec.sources.length > 1 ? ("rebase" as const) : ("raw" as const));
+    // normalize default. Heuristic: when all sources share the same formatting
+    // style + unit (e.g. multiple inflation %s, multiple USD prices) leave
+    // them on raw scale; otherwise rebase for legibility. For exactly two
+    // mismatched-scale sources the user can still pick dual-axis explicitly.
+    const sameScale =
+      validSources.length > 1 &&
+      validSources.every(
+        (s) =>
+          s.data.formatting?.style === validSources[0].data.formatting?.style &&
+          s.data.unit === validSources[0].data.unit,
+      );
+    const defaultNormalize: "rebase" | "raw" =
+      validSources.length > 1 && !sameScale ? "rebase" : "raw";
+    const normalize = spec.normalize ?? defaultNormalize;
     const fakeChart = {
       id,
       data: {

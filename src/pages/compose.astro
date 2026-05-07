@@ -128,10 +128,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name or ticker…" />
               <div class="cc-source-list" data-role="cc-source-list"></div>
             </div>
-            <label class="cc-rebase">
-              <input type="checkbox" data-role="cc-rebase" />
-              <span>Rebase to 100 at window start (compare relative moves across different scales)</span>
-            </label>
+            <fieldset class="cc-mode" data-role="cc-mode">
+              <legend class="eyebrow">Scale</legend>
+              <label class="cc-mode-opt">
+                <input type="radio" name="cc-mode" value="raw" data-role="cc-mode-raw" />
+                <span><strong>Raw</strong> — plot each series at its own value. Best when all picked sources share the same scale (e.g. several inflation rates).</span>
+              </label>
+              <label class="cc-mode-opt">
+                <input type="radio" name="cc-mode" value="rebase" data-role="cc-mode-rebase" />
+                <span><strong>Rebase</strong> — index every series to 100 at the window start. Best when scales differ wildly (mortgage rates + S&amp;P).</span>
+              </label>
+              <label class="cc-mode-opt" data-role="cc-mode-dual-wrap">
+                <input type="radio" name="cc-mode" value="dual-axis" data-role="cc-mode-dual" />
+                <span><strong>Dual-axis</strong> — left and right y-axes, one per series. Available with exactly two sources.</span>
+              </label>
+            </fieldset>
           </div>
           <div class="cc-modal-preview">
             <div class="cc-preview-header">
@@ -1136,20 +1147,54 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // ---- Custom-chart modal ----
   // Modal state (ephemeral — does not live in composed state until Save is clicked).
+  type CustomChartMode = "raw" | "rebase" | "dual-axis";
   interface CustomChartModalState {
     editingId: string | null; // inline id being edited, or null for create
     title: string;
     selected: Set<string>;
     search: string;
-    rebase: boolean;
+    mode: CustomChartMode;
+    // Tracks whether the user has explicitly picked a mode. If false, the
+    // mode is auto-determined from source-scale heuristics on each change.
+    modeIsExplicit: boolean;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
     title: "",
     selected: new Set<string>(),
     search: "",
-    rebase: true,
+    mode: "raw",
+    modeIsExplicit: false,
   };
+
+  // True when every selected source shares the same formatting style + unit
+  // (e.g. all percent / all USD-per-barrel) — they can be plotted on one axis
+  // legibly without rebasing.
+  function ccSelectedSharesScale(): boolean {
+    if (!library) return false;
+    const ids = [...ccModal.selected];
+    if (ids.length < 2) return true;
+    const first = library.sources[ids[0]] as
+      | { formatting?: { style?: string }; unit?: string }
+      | undefined;
+    if (!first) return false;
+    return ids.every((id) => {
+      const s = library!.sources[id] as
+        | { formatting?: { style?: string }; unit?: string }
+        | undefined;
+      return (
+        !!s &&
+        s.formatting?.style === first.formatting?.style &&
+        s.unit === first.unit
+      );
+    });
+  }
+
+  function ccDefaultMode(): CustomChartMode {
+    const n = ccModal.selected.size;
+    if (n <= 1) return "raw";
+    return ccSelectedSharesScale() ? "raw" : "rebase";
+  }
 
   function openCustomChartModal(editingId?: string): void {
     const existing =
@@ -1160,9 +1205,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.title = existing?.title ?? "";
     ccModal.selected = new Set<string>(existing?.sources ?? []);
     ccModal.search = "";
-    ccModal.rebase = existing
-      ? existing.normalize !== "raw"
-      : true;
+    if (existing?.normalize) {
+      ccModal.mode = existing.normalize as CustomChartMode;
+      ccModal.modeIsExplicit = true;
+    } else {
+      ccModal.modeIsExplicit = false;
+      ccModal.mode = ccDefaultMode();
+    }
 
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
     if (!backdrop) return;
@@ -1178,11 +1227,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
     if (searchInput) searchInput.value = "";
-    const rebaseCb = shell.querySelector<HTMLInputElement>("[data-role='cc-rebase']");
-    if (rebaseCb) rebaseCb.checked = ccModal.rebase;
+    syncModeRadioFromState();
     renderCustomChartSources();
     updateCustomChartCreateState();
     renderCustomChartPreview();
+  }
+
+  // Reflect ccModal.mode + selected-source count onto the radio inputs:
+  // toggle the dual-axis option's enabled state and check the right radio.
+  function syncModeRadioFromState(): void {
+    const raw = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-raw']");
+    const reb = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-rebase']");
+    const dual = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-dual']");
+    const dualWrap = shell.querySelector<HTMLElement>("[data-role='cc-mode-dual-wrap']");
+    const allowDual = ccModal.selected.size === 2;
+    if (dual) dual.disabled = !allowDual;
+    if (dualWrap) dualWrap.classList.toggle("cc-mode-opt-disabled", !allowDual);
+    if (raw) raw.checked = ccModal.mode === "raw";
+    if (reb) reb.checked = ccModal.mode === "rebase";
+    if (dual) dual.checked = ccModal.mode === "dual-axis" && allowDual;
   }
 
   function closeCustomChartModal(): void {
@@ -1233,6 +1296,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       cb.addEventListener("change", () => {
         if (cb.checked) ccModal.selected.add(s.id);
         else ccModal.selected.delete(s.id);
+        // If user hasn't explicitly picked a mode, auto-default from scale
+        // heuristics whenever the source set changes. If they have, keep
+        // their pick (but flip dual-axis off when no longer 2 sources).
+        if (!ccModal.modeIsExplicit) {
+          ccModal.mode = ccDefaultMode();
+        } else if (ccModal.mode === "dual-axis" && ccModal.selected.size !== 2) {
+          ccModal.mode = ccDefaultMode();
+          ccModal.modeIsExplicit = false;
+        }
+        syncModeRadioFromState();
         updateCustomChartCreateState();
         renderCustomChartPreview();
       });
@@ -1329,59 +1402,124 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       statusEl.textContent = "Couldn't load data for the selected sources.";
       return;
     }
-    statusEl.textContent = `${series.length} series`;
-
-    // Decide rebase: the modal toggle wins, but auto-default to true when
-    // multiple sources are picked at very different scales.
-    const rebase = ccModal.rebase && series.length > 1;
+    // Effective mode for rendering: dual-axis only legitimate with exactly 2.
+    const mode: CustomChartMode =
+      ccModal.mode === "dual-axis" && series.length === 2
+        ? "dual-axis"
+        : ccModal.mode === "dual-axis"
+          ? "rebase"
+          : ccModal.mode;
+    statusEl.textContent =
+      `${series.length} series · ${mode === "dual-axis" ? "dual-axis" : mode === "rebase" ? "rebased to 100" : "raw"}`;
 
     const colored = series.map((s, i) => ({
       ...s,
       color: CC_COLORS[i % CC_COLORS.length],
     }));
 
-    // Compute baseline for rebasing: use earliest visible window across all
-    // series (use full series intersection for now — preview is dial-only).
-    const marks: any[] = [];
-    for (const s of colored) {
-      const pts = s.points;
-      if (pts.length < 2) continue;
-      let plotPts: { t: Date; v: number }[];
-      if (rebase) {
-        const baseline = pts[0].v || 1;
-        plotPts = pts.map((p) => ({ t: new Date(p.t), v: (p.v / baseline) * 100 }));
-      } else {
-        plotPts = pts.map((p) => ({ t: new Date(p.t), v: p.v }));
-      }
-      marks.push(
-        Plot.lineY(plotPts, {
-          x: "t",
-          y: "v",
-          stroke: s.color,
-          strokeWidth: 1.4,
-        }),
-      );
-    }
-
     const width = plotHost.clientWidth || 360;
-    const plot = Plot.plot({
-      height: 220,
-      width,
-      marginLeft: 50,
-      marginBottom: 24,
-      marginTop: 8,
-      marginRight: 12,
-      style: {
-        fontFamily:
-          '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontSize: "11px",
-        color: "#55524C",
-        background: "transparent",
-      },
-      x: { label: null, ticks: 4 },
-      y: { label: rebase ? "index (start = 100)" : null, grid: true, ticks: 4 },
-      marks,
-    });
+    const baseStyle = {
+      fontFamily:
+        '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      fontSize: "11px",
+      color: "#55524C",
+      background: "transparent",
+    };
+
+    let plot: HTMLElement;
+    if (mode === "dual-axis") {
+      // Series 0 stays on the left axis at its raw scale. Series 1 is
+      // rescaled to fit the left's domain, but a second axis on the right
+      // shows series 1's true tick values.
+      const a = colored[0];
+      const b = colored[1];
+      const aPts = a.points.map((p) => ({ t: new Date(p.t), v: p.v }));
+      const bPts = b.points;
+      const bMin = Math.min(...bPts.map((p) => p.v));
+      const bMax = Math.max(...bPts.map((p) => p.v));
+      const aMin = Math.min(...a.points.map((p) => p.v));
+      const aMax = Math.max(...a.points.map((p) => p.v));
+      const bRange = bMax - bMin || 1;
+      const aRange = aMax - aMin || 1;
+      const rescaleB = (v: number) => aMin + ((v - bMin) / bRange) * aRange;
+      const unrescale = (yPos: number) =>
+        bMin + ((yPos - aMin) / aRange) * bRange;
+      const bRescaledPts = bPts.map((p) => ({
+        t: new Date(p.t),
+        v: rescaleB(p.v),
+      }));
+      plot = Plot.plot({
+        height: 220,
+        width,
+        marginLeft: 50,
+        marginBottom: 24,
+        marginTop: 8,
+        marginRight: 50,
+        style: baseStyle,
+        x: { label: null, ticks: 4 },
+        y: { label: null, grid: true, ticks: 4 },
+        marks: [
+          Plot.lineY(aPts, { x: "t", y: "v", stroke: a.color, strokeWidth: 1.4 }),
+          Plot.lineY(bRescaledPts, {
+            x: "t",
+            y: "v",
+            stroke: b.color,
+            strokeWidth: 1.4,
+          }),
+          Plot.axisY({
+            anchor: "right",
+            color: b.color,
+            ticks: 4,
+            tickFormat: (v: number) => unrescale(v).toFixed(2),
+          }),
+          Plot.axisY({
+            anchor: "left",
+            color: a.color,
+            ticks: 4,
+          }),
+        ],
+      }) as HTMLElement;
+    } else {
+      const marks: any[] = [];
+      for (const s of colored) {
+        const pts = s.points;
+        if (pts.length < 2) continue;
+        let plotPts: { t: Date; v: number }[];
+        if (mode === "rebase") {
+          const baseline = pts[0].v || 1;
+          plotPts = pts.map((p) => ({
+            t: new Date(p.t),
+            v: (p.v / baseline) * 100,
+          }));
+        } else {
+          plotPts = pts.map((p) => ({ t: new Date(p.t), v: p.v }));
+        }
+        marks.push(
+          Plot.lineY(plotPts, {
+            x: "t",
+            y: "v",
+            stroke: s.color,
+            strokeWidth: 1.4,
+          }),
+        );
+      }
+      plot = Plot.plot({
+        height: 220,
+        width,
+        marginLeft: 50,
+        marginBottom: 24,
+        marginTop: 8,
+        marginRight: 12,
+        style: baseStyle,
+        x: { label: null, ticks: 4 },
+        y: {
+          label: mode === "rebase" ? "index (start = 100)" : null,
+          grid: true,
+          ticks: 4,
+        },
+        marks,
+      }) as HTMLElement;
+    }
     plotHost.replaceChildren(plot);
     legendEl.innerHTML = colored
       .map(
@@ -1398,7 +1536,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-create']");
     const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cc-title']");
     const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
-    const rebaseCb = shell.querySelector<HTMLInputElement>("[data-role='cc-rebase']");
+    const modeRadios = shell.querySelectorAll<HTMLInputElement>(
+      "input[name='cc-mode']",
+    );
 
     closeBtn?.addEventListener("click", closeCustomChartModal);
     cancelBtn?.addEventListener("click", closeCustomChartModal);
@@ -1419,13 +1559,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ccModal.search = searchInput.value;
       renderCustomChartSources();
     });
-    rebaseCb?.addEventListener("change", () => {
-      ccModal.rebase = rebaseCb.checked;
-      renderCustomChartPreview();
+    modeRadios.forEach((r) => {
+      r.addEventListener("change", () => {
+        if (!r.checked) return;
+        ccModal.mode = r.value as CustomChartMode;
+        ccModal.modeIsExplicit = true;
+        renderCustomChartPreview();
+      });
     });
     createBtn?.addEventListener("click", () => {
       const sourceIds = [...ccModal.selected];
       if (!ccModal.title.trim() || sourceIds.length === 0) return;
+      // Final mode: dual-axis is only valid with exactly 2 sources; clamp.
+      const mode: CustomChartMode =
+        ccModal.mode === "dual-axis" && sourceIds.length !== 2
+          ? "rebase"
+          : ccModal.mode;
       if (ccModal.editingId) {
         // Edit mode: preserve any fields we don't expose (e.g. render, blurb).
         const existing = state.inlineCharts[ccModal.editingId] ?? {
@@ -1436,14 +1585,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           ...existing,
           title: ccModal.title.trim(),
           sources: sourceIds,
-          normalize: ccModal.rebase ? "rebase" : "raw",
+          normalize: mode,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
         state.inlineCharts[id] = {
           title: ccModal.title.trim(),
           sources: sourceIds,
-          normalize: ccModal.rebase ? "rebase" : "raw",
+          normalize: mode,
         };
         clampActiveSection();
         const target = state.sections[activeSectionIdx];
@@ -1999,14 +2148,32 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
   .cc-source-primary { color: var(--color-neutral-900); font-weight: 500; }
   .cc-source-secondary { color: var(--color-neutral-500); font-size: var(--text-xs); }
-  .cc-rebase {
+  .cc-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .cc-mode legend {
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  .cc-mode-opt {
     display: flex;
     align-items: flex-start;
     gap: 8px;
     font-size: var(--text-sm);
     color: var(--color-neutral-700);
+    line-height: 1.35;
   }
-  .cc-rebase input { margin-top: 3px; }
+  .cc-mode-opt input { margin-top: 3px; flex-shrink: 0; }
+  .cc-mode-opt-disabled {
+    color: var(--color-neutral-400);
+    cursor: not-allowed;
+  }
+  .cc-mode-opt-disabled input { cursor: not-allowed; }
   .cc-modal-footer {
     display: flex;
     justify-content: flex-end;

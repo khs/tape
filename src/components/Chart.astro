@@ -32,8 +32,14 @@ const { chartId, chart, sources, dashboardSlug, dashboardWindow } =
   Astro.props;
 
 const isMulti = sources.length > 1;
-const normalize: "rebase" | "raw" =
-  chart.normalize ?? (isMulti ? "rebase" : "raw");
+// Resolve normalize mode. If the chart didn't set one, pick a sensible
+// default: "rebase" for multi-source charts, "raw" for single. Heuristic
+// for same-scale multi-source ("3 percent rates": all match formatting +
+// unit) is applied at compose time when the inline chart is built; when
+// it's already explicit on the chart we honor whatever was set.
+const normalize: "rebase" | "raw" | "dual-axis" =
+  (chart.normalize as "rebase" | "raw" | "dual-axis" | undefined) ??
+  (isMulti ? "rebase" : "raw");
 
 // Effective supportedDeltas = intersection of sources' supportedDeltas.
 // Preserve the canonical order (DELTA_WINDOWS order).

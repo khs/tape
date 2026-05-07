@@ -65,7 +65,7 @@ const charts = defineCollection({
     // How to normalize multi-source plots. "rebase" indexes every series to 100
     // at the window start (good for comparing relative returns of dissimilar
     // scales). "raw" plots each at its natural scale.
-    normalize: z.enum(["rebase", "raw"]).optional(),
+    normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
     // Per-chart short labels for series (overrides source.shortName for this chart).
     seriesLabels: z.array(z.string()).optional(),
     // Topic tags for the composer library filter. Multi-tag allowed; proposed
@@ -94,7 +94,7 @@ const chartOverrideSchema = z
     blurb: z.string(),
     sources: z.array(z.string()),
     emphasis,
-    normalize: z.enum(["rebase", "raw"]),
+    normalize: z.enum(["rebase", "raw", "dual-axis"]),
     seriesLabels: z.array(z.string()),
   })
   .partial();

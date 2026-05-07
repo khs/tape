@@ -44,7 +44,7 @@ const inlineChartSchema = z.object({
       "relativeReturns",
     ])
     .optional(),
-  normalize: z.enum(["rebase", "raw"]).optional(),
+  normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
   defaultDelta: deltaWindowSchema.optional(),
   blurb: z.string().optional(),
 });
