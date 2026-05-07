@@ -1,0 +1,6 @@
+title: Homebuilders ETF (XHB)
+sources:
+  - yahoo/xhb
+render: line
+defaultDelta: 1y
+tags: [real-estate, equity-index, us]

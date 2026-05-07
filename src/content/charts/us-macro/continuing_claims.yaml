@@ -1,0 +1,6 @@
+title: Continuing jobless claims
+sources:
+  - fred/continuing_claims
+render: line
+defaultDelta: 1y
+tags: [labor, macro, us]

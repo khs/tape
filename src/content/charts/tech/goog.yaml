@@ -2,4 +2,4 @@ title: Alphabet
 sources: ["yahoo_marketcap/goog_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

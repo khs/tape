@@ -2,4 +2,4 @@ title: HY corporate spread
 sources: ["fred/hy_spread"]
 render: line
 defaultDelta: 1m
-tags: [credit, macro]
+tags: [us, credit, macro]

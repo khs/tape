@@ -6,4 +6,4 @@ sources:
 render: line
 defaultDelta: 1m
 normalize: rebase
-tags: [equity-index]
+tags: [us, equity-index]

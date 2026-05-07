@@ -2,4 +2,4 @@ title: Federal funds rate
 sources: ["fred/fed_funds"]
 render: line
 defaultDelta: 1y
-tags: [rates, macro]
+tags: [us, rates, macro]

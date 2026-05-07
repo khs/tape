@@ -2,4 +2,4 @@ title: Personal saving rate
 sources: ["fred/saving_rate"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

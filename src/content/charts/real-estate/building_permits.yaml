@@ -1,0 +1,6 @@
+title: Building permits
+sources:
+  - fred/building_permits
+render: line
+defaultDelta: 5y
+tags: [real-estate, macro, us]

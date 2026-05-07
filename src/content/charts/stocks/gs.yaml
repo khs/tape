@@ -2,4 +2,4 @@ title: Goldman Sachs
 sources: ["yahoo_marketcap/gs_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

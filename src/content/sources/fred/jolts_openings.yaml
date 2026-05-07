@@ -1,0 +1,18 @@
+name: Job openings (JOLTS, total nonfarm)
+shortName: Job openings
+description: Number of unfilled job postings on the last business day of the month. The labor-demand half of the supply-and-demand picture (UNRATE is the supply half). Together drive the openings-to-unemployed ratio that the Fed watches.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/JTSJOL.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: thousands
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: JTSJOL
+  url: https://fred.stlouisfed.org/series/JTSJOL
+  license: Public domain (US government data)

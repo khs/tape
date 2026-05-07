@@ -1,0 +1,6 @@
+title: USD / JPY
+sources:
+  - yahoo/usdjpy
+render: line
+defaultDelta: 1y
+tags: [fx, world]

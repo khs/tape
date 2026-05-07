@@ -1,0 +1,16 @@
+name: USD / JPY
+shortName: USD/JPY
+description: Japanese yen per US dollar. Up = dollar stronger / yen weaker. Sensitive to BOJ policy and rate-differential moves with the Fed.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/USDJPY.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: JPY
+formatting:
+  style: number
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: JPY=X
+  url: https://finance.yahoo.com/quote/JPY%3DX

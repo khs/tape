@@ -2,4 +2,4 @@ title: Amazon
 sources: ["yahoo_marketcap/amzn_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

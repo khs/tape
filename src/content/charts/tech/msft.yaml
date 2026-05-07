@@ -2,4 +2,4 @@ title: Microsoft
 sources: ["yahoo_marketcap/msft_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

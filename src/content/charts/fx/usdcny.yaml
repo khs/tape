@@ -1,0 +1,6 @@
+title: USD / CNY
+sources:
+  - yahoo/usdcny
+render: line
+defaultDelta: 1y
+tags: [fx, world]

@@ -2,4 +2,4 @@ title: Tesla
 sources: ["yahoo_marketcap/tsla_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

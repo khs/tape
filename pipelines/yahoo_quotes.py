@@ -141,6 +141,22 @@ SPECS: list[YahooSpec] = [
     YahooSpec("ORCL", "ORCL", "Oracle", "USD"),
     YahooSpec("CRM", "CRM", "Salesforce", "USD"),
     YahooSpec("CSCO", "CSCO", "Cisco Systems", "USD"),
+    # ------------------------------------------------------------------
+    # Library expansion v2: crypto, FX, real estate
+    # ------------------------------------------------------------------
+    # Crypto
+    YahooSpec("BTC-USD", "BTC_USD", "Bitcoin (USD)", "USD"),
+    YahooSpec("ETH-USD", "ETH_USD", "Ethereum (USD)", "USD"),
+    YahooSpec("COIN", "COIN", "Coinbase Global", "USD"),
+    # FX (= USD per unit of the foreign currency, except DXY which is the
+    # broad trade-weighted dollar index against six majors).
+    YahooSpec("DX-Y.NYB", "DXY", "US Dollar Index (DXY)", "index"),
+    YahooSpec("EURUSD=X", "EURUSD", "EUR / USD", "USD"),
+    YahooSpec("JPY=X", "USDJPY", "USD / JPY", "JPY"),
+    YahooSpec("CNY=X", "USDCNY", "USD / CNY", "CNY"),
+    # Real estate ETFs
+    YahooSpec("VNQ", "VNQ", "Vanguard Real Estate ETF (VNQ)", "USD"),
+    YahooSpec("XHB", "XHB", "SPDR S&P Homebuilders ETF (XHB)", "USD"),
 ]
 
 

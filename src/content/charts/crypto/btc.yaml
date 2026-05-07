@@ -1,0 +1,6 @@
+title: Bitcoin
+sources:
+  - yahoo/btc_usd
+render: line
+defaultDelta: 1y
+tags: [crypto]

@@ -1,0 +1,16 @@
+name: USD / CNY
+shortName: USD/CNY
+description: Chinese yuan per US dollar. Up = dollar stronger / yuan weaker. Heavily managed by the People's Bank of China through its daily fix; less freely floating than other major pairs.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/USDCNY.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: CNY
+formatting:
+  style: number
+  decimals: 4
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: CNY=X
+  url: https://finance.yahoo.com/quote/CNY%3DX

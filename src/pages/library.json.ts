@@ -42,20 +42,43 @@ export const GET: APIRoute = async () => {
     // Hide charts tagged deprecated=true without an alias. Aliased ones still
     // expose the redirect so saved dashboards can resolve transparently.
     .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
-    .map((c) => ({
-      id: c.id,
-      title: c.data.title,
-      tags: c.data.tags ?? [],
-      sources: c.data.sources,
-      render: c.data.render,
-      defaultDelta: c.data.defaultDelta,
-      normalize: c.data.normalize,
-      seriesLabels: c.data.seriesLabels,
-      blurb: c.data.blurb,
-      emphasis: c.data.emphasis,
-      deprecated: c.data.deprecated,
-      aliasOf: c.data.aliasOf,
-    }));
+    .map((c) => {
+      // Build a single concatenated `searchText` field on the server to keep
+      // client-side search cheap and consistent. Includes title, id, tags,
+      // and each linked source's name/shortName/description.
+      const sourceText = (c.data.sources ?? [])
+        .map((sid) => {
+          const s = (sources as Record<string, { name?: string; shortName?: string; description?: string }>)[sid];
+          if (!s) return "";
+          return [s.name, s.shortName, s.description].filter(Boolean).join(" ");
+        })
+        .join(" ");
+      const searchText = [
+        c.data.title,
+        c.id,
+        (c.data.tags ?? []).join(" "),
+        c.data.blurb ?? "",
+        sourceText,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return {
+        id: c.id,
+        title: c.data.title,
+        tags: c.data.tags ?? [],
+        sources: c.data.sources,
+        render: c.data.render,
+        defaultDelta: c.data.defaultDelta,
+        normalize: c.data.normalize,
+        seriesLabels: c.data.seriesLabels,
+        blurb: c.data.blurb,
+        emphasis: c.data.emphasis,
+        deprecated: c.data.deprecated,
+        aliasOf: c.data.aliasOf,
+        searchText,
+      };
+    });
 
   const body = JSON.stringify({ charts, sources });
   return new Response(body, {

@@ -1,0 +1,6 @@
+title: EUR / USD
+sources:
+  - yahoo/eurusd
+render: line
+defaultDelta: 1y
+tags: [fx, world]

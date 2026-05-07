@@ -114,23 +114,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           <h3 id="cc-modal-title">New custom chart</h3>
           <button type="button" class="cc-modal-close" data-role="cc-close" aria-label="Close">&times;</button>
         </div>
-        <div class="cc-modal-body">
-          <label class="cc-field">
-            <span class="eyebrow">Title</span>
-            <input type="text" data-role="cc-title" placeholder="Give this chart a name…" />
-          </label>
-          <div class="cc-field">
-            <div class="cc-sources-header">
-              <span class="eyebrow">Sources</span>
-              <span class="cc-sources-count" data-role="cc-count">0 selected</span>
+        <div class="cc-modal-body cc-modal-split">
+          <div class="cc-modal-form">
+            <label class="cc-field">
+              <span class="eyebrow">Title</span>
+              <input type="text" data-role="cc-title" placeholder="Give this chart a name…" />
+            </label>
+            <div class="cc-field">
+              <div class="cc-sources-header">
+                <span class="eyebrow">Sources</span>
+                <span class="cc-sources-count" data-role="cc-count">0 selected</span>
+              </div>
+              <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name or ticker…" />
+              <div class="cc-source-list" data-role="cc-source-list"></div>
             </div>
-            <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name or ticker…" />
-            <div class="cc-source-list" data-role="cc-source-list"></div>
+            <label class="cc-rebase">
+              <input type="checkbox" data-role="cc-rebase" />
+              <span>Rebase to 100 at window start (compare relative moves across different scales)</span>
+            </label>
           </div>
-          <label class="cc-rebase">
-            <input type="checkbox" data-role="cc-rebase" />
-            <span>Rebase to 100 at window start (compare relative moves across different scales)</span>
-          </label>
+          <div class="cc-modal-preview">
+            <div class="cc-preview-header">
+              <span class="eyebrow">Preview</span>
+              <span class="cc-preview-status muted small" data-role="cc-preview-status">Pick a source to preview.</span>
+            </div>
+            <div class="cc-preview-plot" data-role="cc-preview-plot"></div>
+            <ul class="cc-preview-legend" data-role="cc-preview-legend"></ul>
+          </div>
         </div>
         <div class="cc-modal-footer">
           <button type="button" class="btn-secondary" data-role="cc-cancel">Cancel</button>
@@ -157,6 +167,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     SUPABASE_REST_ANON_KEY,
   } from "../lib/supabase";
   import { nanoid } from "nanoid";
+  import * as Plot from "@observablehq/plot";
 
   type LibraryChart = {
     id: string;
@@ -350,7 +361,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // ---- Render ----
   let library: LibraryPayload | null = null;
-  let selectedTag: string = "";
+  // Multi-tag filter: every selected tag must match (AND). Empty = no filter.
+  const selectedTags: Set<string> = new Set<string>();
   let searchQuery: string = "";
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;
@@ -378,14 +390,40 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   function filteredCharts(): LibraryChart[] {
     if (!library) return [];
     const q = searchQuery.trim().toLowerCase();
+    const tagsRequired = [...selectedTags];
     return library.charts.filter((c) => {
-      if (selectedTag && !c.tags.includes(selectedTag)) return false;
+      // Multi-tag: every selected tag must be present (AND).
+      for (const t of tagsRequired) {
+        if (!c.tags.includes(t)) return false;
+      }
       if (q) {
-        const hay = (c.title + " " + c.id + " " + c.tags.join(" ")).toLowerCase();
+        // Server pre-built searchText (lowercased) when available; otherwise
+        // synthesize from id/title/tags.
+        const hay =
+          (c as LibraryChart & { searchText?: string }).searchText ??
+          (c.title + " " + c.id + " " + c.tags.join(" ")).toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
+  }
+
+  // Pretty label for the chart-folder prefix used as a category grouping.
+  function categoryLabel(prefix: string): string {
+    const map: Record<string, string> = {
+      "us-macro": "US macro",
+      "real-estate": "Real estate",
+      tech: "Tech",
+      stocks: "Stocks",
+      countries: "Countries",
+      commodities: "Commodities",
+      markets: "Markets",
+      oil: "Oil & energy",
+      crypto: "Crypto",
+      fx: "FX",
+      government: "Government finances",
+    };
+    return map[prefix] ?? prefix;
   }
 
   function renderTagFilters(): void {
@@ -393,22 +431,31 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (!host || !library) return;
     const tags = allTags();
     host.innerHTML = "";
-    const makeBtn = (tag: string, label: string) => {
+    const makeBtn = (tag: string, label: string, active: boolean) => {
       const b = document.createElement("button");
       b.type = "button";
-      b.className = "tag-pill" + (selectedTag === tag ? " tag-pill-active" : "");
+      b.className = "tag-pill" + (active ? " tag-pill-active" : "");
       b.textContent = label;
       b.addEventListener("click", () => {
-        selectedTag = selectedTag === tag ? "" : tag;
+        if (tag === "") {
+          // "all" pill clears every filter.
+          selectedTags.clear();
+        } else if (selectedTags.has(tag)) {
+          selectedTags.delete(tag);
+        } else {
+          selectedTags.add(tag);
+        }
         renderTagFilters();
         renderLibrary();
       });
       return b;
     };
-    host.appendChild(makeBtn("", `all (${library.charts.length})`));
+    host.appendChild(
+      makeBtn("", `all (${library.charts.length})`, selectedTags.size === 0),
+    );
     for (const t of tags) {
       const count = library.charts.filter((c) => c.tags.includes(t)).length;
-      host.appendChild(makeBtn(t, `${t} (${count})`));
+      host.appendChild(makeBtn(t, `${t} (${count})`, selectedTags.has(t)));
     }
   }
 
@@ -422,7 +469,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         '<p class="muted small">No charts match. Feel free to request one at <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.</p>';
       return;
     }
+    // Group by chart-folder prefix (e.g. "us-macro/foo" → "us-macro"). Keeps
+    // the result list scannable when many results are returned.
+    const groups = new Map<string, LibraryChart[]>();
     for (const c of charts) {
+      const prefix = c.id.includes("/") ? c.id.split("/")[0] : "other";
+      if (!groups.has(prefix)) groups.set(prefix, []);
+      groups.get(prefix)!.push(c);
+    }
+    const orderedPrefixes = [...groups.keys()].sort((a, b) =>
+      categoryLabel(a).localeCompare(categoryLabel(b)),
+    );
+    for (const prefix of orderedPrefixes) {
+      const group = groups.get(prefix)!;
+      const heading = document.createElement("div");
+      heading.className = "lib-group-heading";
+      heading.textContent = `${categoryLabel(prefix)} (${group.length})`;
+      host.appendChild(heading);
+      for (const c of group) {
       const card = document.createElement("button");
       card.type = "button";
       card.className = "chart-card";
@@ -432,6 +496,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         `<div class="chart-card-meta">${c.tags.map(escapeHtml).join(" \u00b7 ")}</div>`;
       card.addEventListener("click", () => addChart(c.id));
       host.appendChild(card);
+      }
     }
   }
 
@@ -1117,6 +1182,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (rebaseCb) rebaseCb.checked = ccModal.rebase;
     renderCustomChartSources();
     updateCustomChartCreateState();
+    renderCustomChartPreview();
   }
 
   function closeCustomChartModal(): void {
@@ -1168,6 +1234,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         if (cb.checked) ccModal.selected.add(s.id);
         else ccModal.selected.delete(s.id);
         updateCustomChartCreateState();
+        renderCustomChartPreview();
       });
       row.appendChild(cb);
       const text = document.createElement("span");
@@ -1180,6 +1247,148 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       row.appendChild(text);
       host.appendChild(row);
     }
+  }
+
+  // ---- Custom-chart preview rendering ----
+  // Cache fetched source-data JSON by source ID so toggling sources doesn't
+  // refetch. Cleared lazily — small payloads, page-scoped.
+  type SeriesPoint = { t: string; v: number };
+  type FetchedSeries = {
+    id: string;
+    name: string;
+    points: SeriesPoint[];
+  };
+  const sourceDataCache: Map<string, Promise<FetchedSeries | null>> = new Map();
+
+  // Modest palette echoing the chart-tile colors. Cycles for >8 sources.
+  const CC_COLORS = [
+    "#2563eb",
+    "#dc2626",
+    "#16a34a",
+    "#9333ea",
+    "#ea580c",
+    "#0891b2",
+    "#db2777",
+    "#65a30d",
+  ];
+
+  async function fetchSourceSeries(sourceId: string): Promise<FetchedSeries | null> {
+    if (sourceDataCache.has(sourceId)) return sourceDataCache.get(sourceId)!;
+    const promise = (async () => {
+      const lib = library;
+      const meta = lib?.sources[sourceId];
+      if (!lib || !meta) return null;
+      const rawPath = (meta as any).dataFile as string | undefined;
+      if (!rawPath) return null;
+      const url = `${baseUrl}/${rawPath.replace(/^\//, "")}`;
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return null;
+        const json = await r.json();
+        const points: SeriesPoint[] = Array.isArray(json?.points)
+          ? (json.points as SeriesPoint[]).filter(
+              (p) => p && typeof p.t === "string" && typeof p.v === "number",
+            )
+          : [];
+        if (points.length === 0) return null;
+        return { id: sourceId, name: meta.shortName ?? meta.name, points };
+      } catch {
+        return null;
+      }
+    })();
+    sourceDataCache.set(sourceId, promise);
+    return promise;
+  }
+
+  // Counter so a slow fetch from a stale modal state doesn't render over a
+  // newer one when the user rapidly toggles sources.
+  let ccPreviewToken = 0;
+
+  async function renderCustomChartPreview(): Promise<void> {
+    const plotHost = shell.querySelector<HTMLElement>("[data-role='cc-preview-plot']");
+    const statusEl = shell.querySelector<HTMLElement>("[data-role='cc-preview-status']");
+    const legendEl = shell.querySelector<HTMLElement>("[data-role='cc-preview-legend']");
+    if (!plotHost || !statusEl || !legendEl) return;
+    const token = ++ccPreviewToken;
+    const ids = [...ccModal.selected];
+    if (ids.length === 0) {
+      plotHost.replaceChildren();
+      legendEl.innerHTML = "";
+      statusEl.textContent = "Pick a source to preview.";
+      return;
+    }
+    statusEl.textContent = "Loading…";
+    const series = (
+      await Promise.all(ids.map((id) => fetchSourceSeries(id)))
+    ).filter((s): s is FetchedSeries => s !== null);
+    if (token !== ccPreviewToken) return; // stale render
+
+    if (series.length === 0) {
+      plotHost.replaceChildren();
+      legendEl.innerHTML = "";
+      statusEl.textContent = "Couldn't load data for the selected sources.";
+      return;
+    }
+    statusEl.textContent = `${series.length} series`;
+
+    // Decide rebase: the modal toggle wins, but auto-default to true when
+    // multiple sources are picked at very different scales.
+    const rebase = ccModal.rebase && series.length > 1;
+
+    const colored = series.map((s, i) => ({
+      ...s,
+      color: CC_COLORS[i % CC_COLORS.length],
+    }));
+
+    // Compute baseline for rebasing: use earliest visible window across all
+    // series (use full series intersection for now — preview is dial-only).
+    const marks: any[] = [];
+    for (const s of colored) {
+      const pts = s.points;
+      if (pts.length < 2) continue;
+      let plotPts: { t: Date; v: number }[];
+      if (rebase) {
+        const baseline = pts[0].v || 1;
+        plotPts = pts.map((p) => ({ t: new Date(p.t), v: (p.v / baseline) * 100 }));
+      } else {
+        plotPts = pts.map((p) => ({ t: new Date(p.t), v: p.v }));
+      }
+      marks.push(
+        Plot.lineY(plotPts, {
+          x: "t",
+          y: "v",
+          stroke: s.color,
+          strokeWidth: 1.4,
+        }),
+      );
+    }
+
+    const width = plotHost.clientWidth || 360;
+    const plot = Plot.plot({
+      height: 220,
+      width,
+      marginLeft: 50,
+      marginBottom: 24,
+      marginTop: 8,
+      marginRight: 12,
+      style: {
+        fontFamily:
+          '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontSize: "11px",
+        color: "#55524C",
+        background: "transparent",
+      },
+      x: { label: null, ticks: 4 },
+      y: { label: rebase ? "index (start = 100)" : null, grid: true, ticks: 4 },
+      marks,
+    });
+    plotHost.replaceChildren(plot);
+    legendEl.innerHTML = colored
+      .map(
+        (s) =>
+          `<li><span class="cc-legend-dot" style="background:${s.color}"></span><span>${escapeHtml(s.name)}</span></li>`,
+      )
+      .join("");
   }
 
   function wireCustomChartModal(): void {
@@ -1212,6 +1421,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     });
     rebaseCb?.addEventListener("change", () => {
       ccModal.rebase = rebaseCb.checked;
+      renderCustomChartPreview();
     });
     createBtn?.addEventListener("click", () => {
       const sourceIds = [...ccModal.selected];
@@ -1399,6 +1609,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     flex-direction: column;
     gap: 6px;
     flex: 1;
+  }
+  .lib-group-heading {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-neutral-500);
+    margin: 10px 0 2px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .lib-group-heading:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
   }
   .chart-card {
     text-align: left;
@@ -1630,6 +1853,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     flex-direction: column;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   }
+  /* Wider modal when the body uses the split form/preview layout. */
+  .cc-modal:has(.cc-modal-split) {
+    max-width: 960px;
+  }
   .cc-modal-header {
     display: flex;
     align-items: center;
@@ -1655,6 +1882,77 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     flex-direction: column;
     gap: 14px;
     overflow-y: auto;
+  }
+  /* Split layout: form left, live preview right; stacks below 720px. */
+  .cc-modal-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .cc-modal-split {
+      grid-template-columns: 1fr;
+    }
+  }
+  .cc-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+  .cc-modal-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    border-left: 1px solid rgba(55, 53, 47, 0.06);
+    padding-left: 18px;
+  }
+  @media (max-width: 720px) {
+    .cc-modal-preview {
+      border-left: none;
+      border-top: 1px solid rgba(55, 53, 47, 0.06);
+      padding-left: 0;
+      padding-top: 14px;
+    }
+  }
+  .cc-preview-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .cc-preview-status {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  .cc-preview-plot {
+    min-height: 220px;
+    background: var(--color-neutral-50);
+    border-radius: var(--radius-sm);
+    padding: 6px;
+  }
+  .cc-preview-legend {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+  }
+  .cc-preview-legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cc-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
   }
   .cc-field { display: flex; flex-direction: column; gap: 6px; }
   .cc-field input[type="text"],

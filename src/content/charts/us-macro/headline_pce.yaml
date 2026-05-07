@@ -2,4 +2,4 @@ title: PCE (headline)
 sources: ["fred/headline_pce"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

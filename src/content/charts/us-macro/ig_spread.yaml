@@ -2,4 +2,4 @@ title: IG corporate spread
 sources: ["fred/ig_spread"]
 render: line
 defaultDelta: 1m
-tags: [credit, macro]
+tags: [us, credit, macro]

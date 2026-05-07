@@ -2,4 +2,4 @@ title: Fed balance sheet
 sources: ["fred/fed_balance_sheet"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

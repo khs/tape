@@ -1,0 +1,18 @@
+name: Bitcoin (USD)
+shortName: BTC
+description: Spot Bitcoin price in US dollars. Daily close, includes weekends since crypto trades 24/7.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/BTC_USD.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: BTC-USD
+  url: https://finance.yahoo.com/quote/BTC-USD

@@ -2,4 +2,4 @@ title: Technology (XLK)
 sources: ["yahoo/xlk"]
 render: line
 defaultDelta: 1m
-tags: [sectors, equity-index]
+tags: [us, sectors, equity-index]

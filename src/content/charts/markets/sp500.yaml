@@ -2,4 +2,4 @@ title: S&P 500
 sources: ["fred/sp500"]
 render: line
 defaultDelta: 1m
-tags: [equity-index]
+tags: [us, equity-index]

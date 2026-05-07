@@ -1,0 +1,6 @@
+title: Job openings (JOLTS)
+sources:
+  - fred/jolts_openings
+render: line
+defaultDelta: 5y
+tags: [labor, macro, us]

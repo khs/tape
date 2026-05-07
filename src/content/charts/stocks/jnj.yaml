@@ -2,4 +2,4 @@ title: "Johnson & Johnson"
 sources: ["yahoo_marketcap/jnj_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

@@ -2,4 +2,4 @@ title: Retail sales
 sources: ["fred/retail_sales"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

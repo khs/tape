@@ -1,0 +1,6 @@
+title: US Dollar Index (DXY)
+sources:
+  - yahoo/dxy
+render: line
+defaultDelta: 1y
+tags: [fx, us]

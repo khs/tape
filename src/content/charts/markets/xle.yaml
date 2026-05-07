@@ -2,4 +2,4 @@ title: Energy (XLE)
 sources: ["yahoo/xle"]
 render: line
 defaultDelta: 1m
-tags: [sectors, equity-index]
+tags: [us, sectors, equity-index]

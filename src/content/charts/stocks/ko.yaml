@@ -2,4 +2,4 @@ title: Coca-Cola
 sources: ["yahoo_marketcap/ko_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

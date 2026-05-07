@@ -1,0 +1,16 @@
+name: EUR / USD
+shortName: EUR/USD
+description: US dollars per euro. Up = euro stronger / dollar weaker. The most-traded currency pair in the world.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/EURUSD.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: number
+  decimals: 4
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: EURUSD=X
+  url: https://finance.yahoo.com/quote/EURUSD%3DX

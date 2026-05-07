@@ -1,0 +1,17 @@
+name: Coinbase Global (COIN)
+shortName: COIN
+description: Coinbase Global, Inc. — the largest US-listed crypto exchange. Often used as a proxy for crypto-adjacent equity exposure.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/COIN.json
+supportedDeltas: ["1w", "1m", "1y", "5y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: COIN
+  url: https://finance.yahoo.com/quote/COIN

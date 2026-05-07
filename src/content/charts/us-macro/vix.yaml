@@ -2,4 +2,4 @@ title: VIX
 sources: ["fred/vix"]
 render: line
 defaultDelta: 1m
-tags: [macro]
+tags: [us, macro]

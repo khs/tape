@@ -1,0 +1,6 @@
+title: Initial jobless claims
+sources:
+  - fred/initial_claims
+render: line
+defaultDelta: 1y
+tags: [labor, macro, us]

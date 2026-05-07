@@ -1,0 +1,6 @@
+title: New home sales
+sources:
+  - fred/new_home_sales
+render: line
+defaultDelta: 5y
+tags: [real-estate, macro, us]

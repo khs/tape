@@ -2,4 +2,4 @@ title: Industrial production
 sources: ["fred/us_industrial_production"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

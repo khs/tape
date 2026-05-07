@@ -2,4 +2,4 @@ title: Eli Lilly
 sources: ["yahoo_marketcap/lly_mc"]
 render: line
 defaultDelta: 1m
-tags: [single-name]
+tags: [us, single-name]

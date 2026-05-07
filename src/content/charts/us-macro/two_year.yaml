@@ -2,4 +2,4 @@ title: 2-year Treasury yield
 sources: ["fred/us_2y"]
 render: line
 defaultDelta: 1m
-tags: [rates, macro]
+tags: [us, rates, macro]

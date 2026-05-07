@@ -1,0 +1,6 @@
+title: Federal deficit / GDP
+sources:
+  - fred/federal_deficit_pct_gdp
+render: line
+defaultDelta: 10y
+tags: [fiscal, government, macro, us]

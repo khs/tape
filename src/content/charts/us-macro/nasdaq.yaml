@@ -2,4 +2,4 @@ title: NASDAQ Composite
 sources: ["fred/nasdaq"]
 render: line
 defaultDelta: 1m
-tags: [equity-index, macro]
+tags: [us, equity-index, macro]

@@ -2,4 +2,4 @@ title: Core CPI
 sources: ["fred/core_cpi"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

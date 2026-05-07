@@ -71,6 +71,20 @@ SPECS: list[FredSpec] = [
     FredSpec("BAMLC0A0CM", "ICE BofA IG corporate option-adjusted spread", "%"),
     # Risk
     FredSpec("VIXCLS", "VIX (CBOE volatility index)", "index"),
+    # ------------------------------------------------------------------
+    # Library expansion v2: labor sub-series, real estate, government finances
+    # ------------------------------------------------------------------
+    # Labor
+    FredSpec("U6RATE", "U-6 unemployment rate (broader)", "%"),
+    FredSpec("ICSA", "Initial jobless claims (weekly)", "thousands"),
+    FredSpec("CCSA", "Continuing jobless claims", "thousands"),
+    FredSpec("JTSJOL", "Job openings (JOLTS, total nonfarm)", "thousands"),
+    # Real estate
+    FredSpec("PERMIT", "Building permits (new private housing)", "thousands, SAAR"),
+    FredSpec("HSN1F", "New single-family home sales", "thousands, SAAR"),
+    # Government finances
+    FredSpec("GFDEGDQ188S", "Federal debt held by the public, % of GDP", "%"),
+    FredSpec("FYFSGDA188S", "Federal surplus/deficit, % of GDP", "%"),
 ]
 
 

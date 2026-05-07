@@ -2,4 +2,4 @@ title: 10-year Treasury yield
 sources: ["fred/us_10y"]
 render: line
 defaultDelta: 1m
-tags: [rates, macro]
+tags: [us, rates, macro]

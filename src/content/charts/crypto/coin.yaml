@@ -1,0 +1,6 @@
+title: Coinbase (COIN)
+sources:
+  - yahoo/coin
+render: line
+defaultDelta: 1y
+tags: [crypto, single-name, us]

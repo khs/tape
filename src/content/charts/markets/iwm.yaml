@@ -2,4 +2,4 @@ title: Russell 2000 (IWM)
 sources: ["yahoo/iwm"]
 render: line
 defaultDelta: 1m
-tags: [equity-index]
+tags: [us, equity-index]

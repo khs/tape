@@ -2,4 +2,4 @@ title: CPI (headline)
 sources: ["fred/us_cpi"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

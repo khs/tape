@@ -2,4 +2,4 @@ title: Personal income
 sources: ["fred/personal_income"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

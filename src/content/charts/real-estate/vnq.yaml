@@ -1,0 +1,6 @@
+title: REIT broad ETF (VNQ)
+sources:
+  - yahoo/vnq
+render: line
+defaultDelta: 1y
+tags: [real-estate, equity-index, us]

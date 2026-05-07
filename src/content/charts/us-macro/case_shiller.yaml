@@ -2,4 +2,4 @@ title: Case-Shiller home prices
 sources: ["fred/case_shiller"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

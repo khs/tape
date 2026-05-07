@@ -1,0 +1,6 @@
+title: U-6 unemployment (broader)
+sources:
+  - fred/u6_unemployment
+render: line
+defaultDelta: 5y
+tags: [labor, macro, us]

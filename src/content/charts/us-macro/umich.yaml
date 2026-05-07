@@ -2,4 +2,4 @@ title: UMich consumer sentiment
 sources: ["fred/us_umich_sentiment"]
 render: line
 defaultDelta: 1y
-tags: [macro]
+tags: [us, macro]

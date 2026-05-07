@@ -1,0 +1,18 @@
+name: Ethereum (USD)
+shortName: ETH
+description: Spot Ethereum price in US dollars. Daily close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/ETH_USD.json
+supportedDeltas: ["1w", "1m", "1y", "5y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: ETH-USD
+  url: https://finance.yahoo.com/quote/ETH-USD
