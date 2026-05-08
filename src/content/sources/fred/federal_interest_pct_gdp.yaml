@@ -4,7 +4,7 @@ description: Federal interest payments on outstanding debt, net of interest rece
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYOIGDA188S.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

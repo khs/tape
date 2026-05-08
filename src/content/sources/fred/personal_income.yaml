@@ -4,7 +4,7 @@ description: Personal income (SAAR, USD billions), monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PI.json
-supportedDeltas: ["1m", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
 unit: "billions USD"
 formatting:
   style: currency

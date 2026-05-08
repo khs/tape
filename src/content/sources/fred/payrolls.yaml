@@ -4,7 +4,7 @@ description: All employees, total nonfarm (thousands, SA). Monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PAYEMS.json
-supportedDeltas: ["1m", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
 unit: "thousands"
 formatting:
   style: number

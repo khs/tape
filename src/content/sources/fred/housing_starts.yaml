@@ -4,7 +4,7 @@ description: New privately-owned housing units started, thousands SAAR, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/HOUST.json
-supportedDeltas: ["1m", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
 unit: "thousands, SAAR"
 formatting:
   style: number

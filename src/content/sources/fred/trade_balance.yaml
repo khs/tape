@@ -4,7 +4,7 @@ description: Monthly net exports (exports minus imports) of goods and services. 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/BOPGSTB.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: millions USD
 formatting:
   style: currency

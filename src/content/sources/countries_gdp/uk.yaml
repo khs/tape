@@ -4,7 +4,7 @@ description: UK real GDP / world real GDP (constant 2015 USD), annual (World Ban
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWU.json
-supportedDeltas: ["5y", "10y"]
+supportedDeltas: ["5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

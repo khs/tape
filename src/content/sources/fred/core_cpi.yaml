@@ -4,7 +4,7 @@ description: Core CPI (1982-84=100), monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPILFESL.json
-supportedDeltas: ["1m", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
 unit: "index"
 formatting:
   style: number

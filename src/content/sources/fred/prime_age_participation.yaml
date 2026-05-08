@@ -4,7 +4,7 @@ description: Share of people aged 25-54 either working or actively looking for w
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/LNS11300060.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

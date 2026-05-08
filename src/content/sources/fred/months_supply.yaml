@@ -4,7 +4,7 @@ description: Months it would take to sell the current new-home inventory at the 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MSACSR.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: months
 formatting:
   style: number

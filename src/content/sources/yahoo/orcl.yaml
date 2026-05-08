@@ -4,7 +4,7 @@ description: Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/ORCL.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y"]
 unit: "USD"
 formatting:
   style: currency

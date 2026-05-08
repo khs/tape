@@ -3,7 +3,7 @@ description: NASDAQ Composite Index, daily close, back to 1971.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/NASDAQCOM.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y"]
 unit: index
 formatting:
   style: number

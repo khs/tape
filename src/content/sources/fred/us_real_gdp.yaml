@@ -3,7 +3,7 @@ description: Real gross domestic product, quarterly, chained 2017 dollars.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GDPC1.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: billions USD
 formatting:
   style: number

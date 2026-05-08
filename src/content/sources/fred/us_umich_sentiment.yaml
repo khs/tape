@@ -3,7 +3,7 @@ description: University of Michigan Index of Consumer Sentiment, monthly. A stan
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/UMCSENT.json
-supportedDeltas: ["1m", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
 unit: "index"
 formatting:
   style: number

@@ -4,7 +4,7 @@ description: Constant-maturity 5-year US Treasury yield. Daily.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DGS5.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

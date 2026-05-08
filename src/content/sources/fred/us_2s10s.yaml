@@ -3,7 +3,7 @@ description: The yield curve slope between the 10-year and 2-year Treasury notes
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/T10Y2Y.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

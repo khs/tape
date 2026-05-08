@@ -4,7 +4,7 @@ description: Outstanding federal debt held by the public (excludes intragovernme
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GFDEGDQ188S.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent
