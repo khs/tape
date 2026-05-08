@@ -47,6 +47,9 @@
     // For dual-axis with 3+ sources or explicit assignment: source IDs that
     // plot on the right axis. Empty/missing → first source on left, rest right.
     rightAxisSources?: string[];
+    // Fixed [start, end] date range. When set, overrides the trailing-window
+    // mode entirely; tile delta and full plot both use these bounds.
+    fixedRange?: { start: string; end: string };
   };
 
   function findPrior(points: Point[], targetMs: number): Point | null {
@@ -95,13 +98,35 @@
     return { visible, startMs };
   }
 
+  // Same shape as visibleRange but driven by a fixed [start, end] range.
+  // No lead-in buffer at the trailing edge — we want the rendered window
+  // to end exactly at `end`, even if the source has more recent points.
+  function visibleRangeFixed(
+    points: Point[],
+    startMs: number,
+    endMs: number,
+  ): { visible: Point[]; startMs: number } {
+    const visible = points.filter((p) => {
+      const t = new Date(p.t).getTime();
+      return t >= startMs && t <= endMs;
+    });
+    return { visible, startMs };
+  }
+
   function renderSparkSingle(
     container: HTMLElement,
     source: SourcePayload,
     window: DeltaWindow,
+    fixed?: { start: string; end: string },
   ): void {
     if (source.points.length < 2) return;
-    const { visible } = visibleRange(source.points, window, 0);
+    const { visible } = fixed
+      ? visibleRangeFixed(
+          source.points,
+          new Date(fixed.start).getTime(),
+          new Date(fixed.end).getTime(),
+        )
+      : visibleRange(source.points, window, 0);
     if (visible.length < 2) return;
 
     const width = container.clientWidth || 220;
@@ -130,11 +155,16 @@
     payload: Payload,
     window: DeltaWindow,
   ): void {
+    const fixed = payload.fixedRange;
+    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
+    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
     const width = container.clientWidth || 220;
     const marks: any[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
-      const { visible, startMs } = visibleRange(s.points, eff, 0);
+      const { visible, startMs } = fixed
+        ? visibleRangeFixed(s.points, fStart, fEnd)
+        : visibleRange(s.points, eff, 0);
       if (visible.length < 2) continue;
       const pts =
         payload.normalize === "rebase"
@@ -186,12 +216,18 @@
       // Need at least one series on each side; otherwise fall through to the
       // generic non-dual-axis branch below.
       if (leftSrcs.length > 0 && rightSrcs.length > 0) {
-        // Materialize visible ranges per source.
+        const fixed = payload.fixedRange;
+        const fStart = fixed ? new Date(fixed.start).getTime() : 0;
+        const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
+        // Materialize visible ranges per source — fixed range when set, else
+        // window-based.
         const matLeft = leftSrcs.map((s) => {
+          if (fixed) return { s, ...visibleRangeFixed(s.points, fStart, fEnd) };
           const eff = closestSupported(window, s.supportedDeltas);
           return { s, ...visibleRange(s.points, eff, 0.15) };
         });
         const matRight = rightSrcs.map((s) => {
+          if (fixed) return { s, ...visibleRangeFixed(s.points, fStart, fEnd) };
           const eff = closestSupported(window, s.supportedDeltas);
           return { s, ...visibleRange(s.points, eff, 0.15) };
         });
@@ -302,9 +338,14 @@
 
     const marks: any[] = [];
     let dashStartDrawn = false;
+    const fixed = payload.fixedRange;
+    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
+    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
-      const { visible, startMs } = visibleRange(s.points, eff, 0.15);
+      const { visible, startMs } = fixed
+        ? visibleRangeFixed(s.points, fStart, fEnd)
+        : visibleRange(s.points, eff, 0.15);
       if (visible.length < 2) continue;
       const rebase = payload.normalize === "rebase" && payload.isMulti;
       const pts = rebase ? rebasePoints(visible, startMs) : visible;
@@ -369,29 +410,56 @@
     payload: Payload,
     window: DeltaWindow,
   ): void {
+    const fixed = payload.fixedRange;
     const captionEl = tile.querySelector<HTMLElement>(".tile-window");
     if (captionEl) {
-      captionEl.textContent = `over the ${DELTA_LABELS_PAST[window]}`;
+      if (fixed) {
+        captionEl.textContent = `${fixed.start} → ${fixed.end}`;
+      } else {
+        captionEl.textContent = `over the ${DELTA_LABELS_PAST[window]}`;
+      }
     }
 
     const sparkEl = tile.querySelector<HTMLElement>(
       '[data-role="tile-spark"]',
     );
 
+    // For fixed-range, current = last point ≤ end; prior = last point ≤ start.
+    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
+    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
+    function pickFixed(points: Point[]): { current: Point | null; prior: Point | null } {
+      let current: Point | null = null;
+      let prior: Point | null = null;
+      for (const p of points) {
+        const t = new Date(p.t).getTime();
+        if (t <= fEnd) current = p;
+        if (t <= fStart) prior = p;
+        else if (t > fEnd) break;
+      }
+      return { current, prior };
+    }
+
     if (payload.isMulti) {
       for (const s of payload.sources) {
         const eff = closestSupported(window, s.supportedDeltas);
-        const last = s.points[s.points.length - 1];
-        if (!last) continue;
-        const priorMs =
-          new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
-        const prior = findPrior(s.points, priorMs);
+        let current: Point | null;
+        let prior: Point | null;
+        if (fixed) {
+          ({ current, prior } = pickFixed(s.points));
+        } else {
+          const last = s.points[s.points.length - 1];
+          if (!last) continue;
+          current = last;
+          const priorMs =
+            new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+          prior = findPrior(s.points, priorMs);
+        }
         const row = tile.querySelector<HTMLElement>(
           `[data-role="series-delta"][data-source-id="${CSS.escape(s.id)}"]`,
         );
         if (row) {
-          if (prior) {
-            const dd = formatDeltaDisplay(last.v, prior.v, s.formatting);
+          if (current && prior) {
+            const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
             row.textContent = dd.text;
             row.dataset.direction = dd.direction;
           } else {
@@ -405,26 +473,34 @@
       const s = payload.sources[0];
       if (!s || s.points.length === 0) return;
       const eff = closestSupported(window, s.supportedDeltas);
-      const last = s.points[s.points.length - 1];
-      const priorMs =
-        new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
-      const prior = findPrior(s.points, priorMs);
+      let current: Point | null;
+      let prior: Point | null;
+      if (fixed) {
+        ({ current, prior } = pickFixed(s.points));
+      } else {
+        const last = s.points[s.points.length - 1];
+        current = last;
+        const priorMs =
+          new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+        prior = findPrior(s.points, priorMs);
+      }
 
       const valEl = tile.querySelector<HTMLElement>('[data-role="tile-value"]');
-      if (valEl) valEl.textContent = formatValue(last.v, s.formatting);
+      if (valEl)
+        valEl.textContent = current ? formatValue(current.v, s.formatting) : "—";
 
       const deltaEl = tile.querySelector<HTMLElement>(
         '[data-role="tile-delta"]',
       );
-      if (deltaEl && prior) {
-        const dd = formatDeltaDisplay(last.v, prior.v, s.formatting);
+      if (deltaEl && current && prior) {
+        const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
         deltaEl.textContent = dd.text;
         deltaEl.dataset.direction = dd.direction;
       } else if (deltaEl) {
         deltaEl.textContent = "";
       }
 
-      if (sparkEl) renderSparkSingle(sparkEl, s, eff);
+      if (sparkEl) renderSparkSingle(sparkEl, s, eff, fixed);
     }
   }
 
@@ -433,14 +509,36 @@
     payload: Payload,
     window: DeltaWindow,
   ): void {
+    const fixed = payload.fixedRange;
+    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
+    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
+    function pickFixed(points: Point[]): { current: Point | null; prior: Point | null } {
+      let current: Point | null = null;
+      let prior: Point | null = null;
+      for (const p of points) {
+        const t = new Date(p.t).getTime();
+        if (t <= fEnd) current = p;
+        if (t <= fStart) prior = p;
+        else if (t > fEnd) break;
+      }
+      return { current, prior };
+    }
+
     if (payload.isMulti) {
       for (const s of payload.sources) {
         const eff = closestSupported(window, s.supportedDeltas);
-        const last = s.points[s.points.length - 1];
-        if (!last) continue;
-        const priorMs =
-          new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
-        const prior = findPrior(s.points, priorMs);
+        let current: Point | null;
+        let prior: Point | null;
+        if (fixed) {
+          ({ current, prior } = pickFixed(s.points));
+        } else {
+          const last = s.points[s.points.length - 1];
+          if (!last) continue;
+          current = last;
+          const priorMs =
+            new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+          prior = findPrior(s.points, priorMs);
+        }
         const row = dialog.querySelector<HTMLElement>(
           `.multi-readout-row[data-source-id="${CSS.escape(s.id)}"]`,
         );
@@ -451,10 +549,11 @@
         const deltaEl = row.querySelector<HTMLElement>(
           '[data-role="readout-delta"]',
         );
-        if (levelEl) levelEl.textContent = formatValue(last.v, s.formatting);
+        if (levelEl)
+          levelEl.textContent = current ? formatValue(current.v, s.formatting) : "—";
         if (deltaEl) {
-          if (prior) {
-            const dd = formatDeltaDisplay(last.v, prior.v, s.formatting);
+          if (current && prior) {
+            const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
             deltaEl.textContent = dd.text;
             deltaEl.dataset.direction = dd.direction;
           } else {
@@ -467,18 +566,27 @@
         '[data-role="descriptor"]',
       );
       if (captionEl) {
-        captionEl.textContent = `Over the ${DELTA_LABELS_PAST[window]}.`;
+        captionEl.textContent = fixed
+          ? `${fixed.start} → ${fixed.end}.`
+          : `Over the ${DELTA_LABELS_PAST[window]}.`;
       }
     } else {
       const s = payload.sources[0];
       if (!s) return;
-      const last = s.points[s.points.length - 1];
       const eff = closestSupported(window, s.supportedDeltas);
-      const priorMs =
-        new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
-      const prior = findPrior(s.points, priorMs);
+      let current: Point | null;
+      let prior: Point | null;
+      if (fixed) {
+        ({ current, prior } = pickFixed(s.points));
+      } else {
+        const last = s.points[s.points.length - 1];
+        current = last;
+        const priorMs =
+          new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+        prior = findPrior(s.points, priorMs);
+      }
 
-      const currentStr = formatValue(last.v, s.formatting);
+      const currentStr = current ? formatValue(current.v, s.formatting) : "—";
       const valEl = dialog.querySelector<HTMLElement>('[data-role="value"]');
       if (valEl) valEl.textContent = currentStr;
 
@@ -489,18 +597,21 @@
         '[data-role="descriptor"]',
       );
 
-      if (prior) {
-        const dd = formatDeltaDisplay(last.v, prior.v, s.formatting);
+      if (current && prior) {
+        const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
         if (deltaEl) {
           deltaEl.textContent = dd.text;
           deltaEl.dataset.direction = dd.direction;
         }
         const priorStr = formatValue(prior.v, s.formatting);
+        const periodPhrase = fixed
+          ? `from ${fixed.start} to ${fixed.end}`
+          : `over the ${DELTA_LABELS_PAST[eff]}`;
         if (descriptorEl) {
           descriptorEl.textContent =
             dd.direction === "flat"
-              ? `${s.name} is at ${currentStr}, roughly unchanged over the ${DELTA_LABELS_PAST[eff]}.`
-              : `${s.name} is at ${currentStr}, ${directionWord(dd.direction)} from ${priorStr} over the ${DELTA_LABELS_PAST[eff]} (${dd.text}).`;
+              ? `${s.name} is at ${currentStr}, roughly unchanged ${periodPhrase}.`
+              : `${s.name} is at ${currentStr}, ${directionWord(dd.direction)} from ${priorStr} ${periodPhrase} (${dd.text}).`;
         }
       } else {
         if (deltaEl) {
@@ -508,7 +619,10 @@
           deltaEl.dataset.direction = "flat";
         }
         if (descriptorEl) {
-          descriptorEl.textContent = `${s.name} is at ${currentStr}. History doesn't reach back over the ${DELTA_LABELS_PAST[eff]}.`;
+          const periodPhrase = fixed
+            ? `the range ${fixed.start} → ${fixed.end}`
+            : `the ${DELTA_LABELS_PAST[eff]}`;
+          descriptorEl.textContent = `${s.name} is at ${currentStr}. History doesn't cover ${periodPhrase}.`;
         }
       }
     }

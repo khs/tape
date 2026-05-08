@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
+import { loadSourceData } from "../lib/load-data";
 
 /**
  * Chart-library manifest consumed by the composer (/compose/) and the
@@ -22,6 +23,20 @@ export const GET: APIRoute = async () => {
 
   const sources: Record<string, unknown> = {};
   for (const s of sourcesCol) {
+    // Read first / last observation dates from the source's data file at
+    // build time so the composer can flag charts whose data doesn't cover
+    // a fixed-range request without having to fetch each JSON itself.
+    let firstObservation: string | undefined;
+    let lastObservation: string | undefined;
+    try {
+      const data = loadSourceData(s.data.dataFile);
+      if (data.kind === "timeseries" && data.points.length > 0) {
+        firstObservation = data.points[0].t;
+        lastObservation = data.points[data.points.length - 1].t;
+      }
+    } catch {
+      // Missing data file; leave first/last undefined so callers know.
+    }
     sources[s.id] = {
       id: s.id,
       name: s.data.name,
@@ -35,6 +50,8 @@ export const GET: APIRoute = async () => {
       formatting: s.data.formatting,
       emphasis: s.data.emphasis,
       provenance: s.data.provenance,
+      firstObservation,
+      lastObservation,
     };
   }
 

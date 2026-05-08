@@ -54,11 +54,22 @@ const inlineChartSchema = z.object({
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;
 
+// Fixed-date range that pins both the visible window and the delta-prior
+// anchor to a specific [start, end] pair. When set, overrides defaultDelta
+// and the per-viewer window pills entirely so the dashboard reads the same
+// regardless of when it's loaded — useful for "snapshot" or presentation
+// dashboards. Both bounds are ISO YYYY-MM-DD strings.
+const fixedRangeSchema = z.object({
+  start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
 export const composedStateSchema = z.object({
   v: z.literal(COMPOSER_STATE_VERSION),
   title: z.string().optional(),
   description: z.string().optional(),
   defaultDelta: deltaWindowSchema.optional(),
+  fixedRange: fixedRangeSchema.optional(),
   charts: z.array(z.string()).optional(),
   sections: z.array(sectionSchema).optional(),
   chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),

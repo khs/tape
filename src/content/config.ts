@@ -121,6 +121,12 @@ const dashboards = defineCollection({
       sections: z.array(sectionSchema).optional(),
       chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),
       defaultDelta: deltaWindow.optional(),
+      fixedRange: z
+        .object({
+          start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+          end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        })
+        .optional(),
       order: z.number().int().optional(),
     })
     .refine(

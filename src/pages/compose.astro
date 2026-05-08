@@ -19,17 +19,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         />
       </div>
       <div class="composer-window-wrap">
-        <label class="eyebrow" for="composer-default-delta">Default window</label>
+        <label class="eyebrow" for="composer-default-delta">Time</label>
         <select id="composer-default-delta" data-role="default-delta">
-          <option value="">(auto)</option>
-          <option value="1w">1W</option>
-          <option value="1m">1M</option>
-          <option value="1y">1Y</option>
-          <option value="5y">5Y</option>
-          <option value="10y">10Y</option>
-          <option value="30y">30Y</option>
-          <option value="50y">50Y</option>
+          <option value="">Auto window</option>
+          <option value="1w">1W trailing</option>
+          <option value="1m">1M trailing</option>
+          <option value="1y">1Y trailing</option>
+          <option value="5y">5Y trailing</option>
+          <option value="10y">10Y trailing</option>
+          <option value="30y">30Y trailing</option>
+          <option value="50y">50Y trailing</option>
+          <option value="fixed">Fixed dates…</option>
         </select>
+        <span class="composer-fixed-inputs" data-role="fixed-inputs" hidden>
+          <input
+            type="date"
+            data-role="fixed-start"
+            class="composer-date"
+            aria-label="Start date"
+          />
+          <span class="muted small">→</span>
+          <input
+            type="date"
+            data-role="fixed-end"
+            class="composer-date"
+            aria-label="End date"
+          />
+        </span>
       </div>
       <div class="composer-actions">
         <button type="button" class="btn-secondary" data-role="copy-share">Copy share link</button>
@@ -223,6 +239,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     title: string;
     description: string;
     defaultDelta: DeltaWindow | "";
+    // When set, takes precedence over defaultDelta; pinned [start, end].
+    fixedRange?: { start: string; end: string };
     sections: { title: string; description: string; charts: string[] }[];
     inlineCharts: Record<string, InlineChart>;
     chartOverrides: Record<string, ChartOverride>;
@@ -269,6 +287,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     state.title = s.title ?? "";
     state.description = s.description ?? "";
     state.defaultDelta = (s.defaultDelta as DeltaWindow | undefined) ?? "";
+    state.fixedRange = s.fixedRange;
     if (s.sections && s.sections.length > 0) {
       state.sections = s.sections.map((sec) => ({
         title: sec.title,
@@ -327,6 +346,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       title: state.title || undefined,
       description: state.description || undefined,
       defaultDelta: (state.defaultDelta || undefined) as DeltaWindow | undefined,
+      fixedRange: state.fixedRange,
       sections: state.sections
         .filter((s) => s.charts.length > 0)
         .map((s) => ({
@@ -595,6 +615,34 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     renderComposition();
   }
 
+  // Returns a warning string if the chart's underlying sources don't cover
+  // the dashboard's fixed range. Returns null when fully covered or when no
+  // fixed range is set. Light-touch: pulls firstObservation/lastObservation
+  // from the library.json manifest, no extra fetches.
+  function coverageWarningFor(chartId: string): string | null {
+    if (!state.fixedRange) return null;
+    if (!library) return null;
+    const sourceIds = isInlineId(chartId)
+      ? state.inlineCharts[chartId]?.sources ?? []
+      : library.charts.find((c) => c.id === chartId)?.sources ?? [];
+    if (sourceIds.length === 0) return null;
+    const start = state.fixedRange.start;
+    const end = state.fixedRange.end;
+    const issues: string[] = [];
+    for (const sid of sourceIds) {
+      const s = library.sources[sid] as
+        | { firstObservation?: string; lastObservation?: string; shortName?: string; name?: string }
+        | undefined;
+      if (!s) continue;
+      const first = s.firstObservation;
+      const last = s.lastObservation;
+      const label = s.shortName ?? s.name ?? sid;
+      if (first && first > start) issues.push(`${label} starts ${first}`);
+      if (last && last < end) issues.push(`${label} ends ${last}`);
+    }
+    return issues.length > 0 ? issues.join("; ") : null;
+  }
+
   function wireGridDropTarget(grid: HTMLElement): void {
     grid.addEventListener("dragover", (e) => {
       // Only react to our own drag payload — leaves text-drag-from-elsewhere
@@ -790,6 +838,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           tile.innerHTML =
             `<div class="comp-tile-title">${escapeHtml(titleText)}</div>` +
             `<div class="comp-tile-meta">${escapeHtml(metaText)}</div>`;
+          // Fixed-range coverage check: highlight tiles whose underlying
+          // sources don't fully cover the requested range. Doesn't reject —
+          // the user can still ship a dashboard with partial coverage; we
+          // just flag it.
+          const coverageMsg = coverageWarningFor(chartId);
+          if (coverageMsg) {
+            tile.classList.add("comp-tile-coverage-warn");
+            tile.title = `Outside fixed range: ${coverageMsg}`;
+            const meta = tile.querySelector<HTMLElement>(".comp-tile-meta");
+            if (meta) {
+              const flag = document.createElement("span");
+              flag.className = "comp-tile-coverage-flag";
+              flag.textContent = " · partial coverage";
+              meta.appendChild(flag);
+            }
+          }
           // Drag-to-reorder. Browsers only fire `click` if no drag happened,
           // so click-to-edit on inline tiles still works alongside this.
           tile.draggable = true;
@@ -896,13 +960,62 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     }
     const ddSelect = shell.querySelector<HTMLSelectElement>("[data-role='default-delta']");
-    if (ddSelect) {
-      ddSelect.value = state.defaultDelta;
-      ddSelect.addEventListener("change", () => {
-        state.defaultDelta = ddSelect.value as UIState["defaultDelta"];
-        writeUrl();
-      });
+    const fixedInputs = shell.querySelector<HTMLElement>("[data-role='fixed-inputs']");
+    const fixedStart = shell.querySelector<HTMLInputElement>("[data-role='fixed-start']");
+    const fixedEnd = shell.querySelector<HTMLInputElement>("[data-role='fixed-end']");
+    function syncTimeUI(): void {
+      if (!ddSelect) return;
+      const usingFixed = !!state.fixedRange;
+      ddSelect.value = usingFixed ? "fixed" : state.defaultDelta;
+      if (fixedInputs) fixedInputs.hidden = !usingFixed;
+      if (usingFixed) {
+        if (fixedStart) fixedStart.value = state.fixedRange!.start;
+        if (fixedEnd) fixedEnd.value = state.fixedRange!.end;
+      }
     }
+    syncTimeUI();
+    ddSelect?.addEventListener("change", () => {
+      const v = ddSelect.value;
+      if (v === "fixed") {
+        // Initialize a sensible default range if there isn't one yet:
+        // last 5 years to today.
+        if (!state.fixedRange) {
+          const today = new Date();
+          const todayIso = today.toISOString().slice(0, 10);
+          const fiveYearsAgo = new Date(today);
+          fiveYearsAgo.setFullYear(today.getFullYear() - 5);
+          state.fixedRange = {
+            start: fiveYearsAgo.toISOString().slice(0, 10),
+            end: todayIso,
+          };
+        }
+        state.defaultDelta = "";
+      } else {
+        state.fixedRange = undefined;
+        state.defaultDelta = v as UIState["defaultDelta"];
+      }
+      syncTimeUI();
+      writeUrl();
+      renderComposition(); // re-flag tiles for coverage
+    });
+    function onFixedInput(): void {
+      if (!fixedStart || !fixedEnd) return;
+      const start = fixedStart.value;
+      const end = fixedEnd.value;
+      // Only commit when both are valid and start <= end. Otherwise leave the
+      // existing fixedRange untouched so the user can edit one box at a time.
+      if (
+        /^\d{4}-\d{2}-\d{2}$/.test(start) &&
+        /^\d{4}-\d{2}-\d{2}$/.test(end) &&
+        start <= end
+      ) {
+        state.fixedRange = { start, end };
+        writeUrl();
+        renderComposition();
+      }
+    }
+    fixedStart?.addEventListener("change", onFixedInput);
+    fixedEnd?.addEventListener("change", onFixedInput);
     const searchInput = shell.querySelector<HTMLInputElement>("[data-role='lib-search']");
     if (searchInput) {
       searchInput.addEventListener("input", () => {
@@ -997,6 +1110,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               title: state.title || undefined,
               description: state.description || undefined,
               defaultDelta: state.defaultDelta || undefined,
+              fixedRange: state.fixedRange,
               sections: cleanSections,
               inlineCharts: referencedInlineCharts(),
               chartOverrides: referencedChartOverrides(),
@@ -2074,6 +2188,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .comp-tile-del:hover { color: var(--color-error); }
   .comp-tile-inline {
     border-style: dashed;
+  }
+  .comp-tile-coverage-warn {
+    border-color: var(--color-error);
+    box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.25);
+  }
+  .comp-tile-coverage-flag {
+    color: var(--color-error);
+  }
+  .composer-fixed-inputs {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+  }
+  .composer-date {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 2px 6px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
   }
   .comp-tile-editable {
     cursor: pointer;

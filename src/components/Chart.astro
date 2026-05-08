@@ -26,9 +26,13 @@ interface Props {
   sources: CollectionEntry<"sources">[];
   dashboardSlug: string;
   dashboardWindow?: DeltaWindow;
+  // When set, the chart renders a fixed [start, end] date range instead of
+  // a trailing window. Both bounds are ISO YYYY-MM-DD. Wins over
+  // dashboardWindow when present.
+  dashboardFixedRange?: { start: string; end: string };
 }
 
-const { chartId, chart, sources, dashboardSlug, dashboardWindow } =
+const { chartId, chart, sources, dashboardSlug, dashboardWindow, dashboardFixedRange } =
   Astro.props;
 
 const isMulti = sources.length > 1;
@@ -102,8 +106,28 @@ const perSource: PerSource[] = sources.map((s, i) => {
     defaultDelta,
     s.data.supportedDeltas as DeltaWindow[],
   );
-  const current = trimmed ? currentPoint(trimmed) : null;
-  const prior = trimmed ? findPriorPoint(trimmed, effectiveDeltaForSource) : null;
+  // For a fixed-range chart, current = last point at-or-before end;
+  // prior = last point at-or-before start. (Using "at-or-before" for both
+  // matches how the UI reads "as of <end>" / "as of <start>".)
+  let current: { t: string; v: number } | null = null;
+  let prior: { t: string; v: number } | null = null;
+  if (dashboardFixedRange && trimmed) {
+    const startMs = new Date(dashboardFixedRange.start).getTime();
+    const endMs = new Date(dashboardFixedRange.end).getTime();
+    let lastBeforeEnd: { t: string; v: number } | null = null;
+    let lastBeforeStart: { t: string; v: number } | null = null;
+    for (const p of trimmed.points) {
+      const t = new Date(p.t).getTime();
+      if (t <= endMs) lastBeforeEnd = p;
+      if (t <= startMs) lastBeforeStart = p;
+      else break; // points are sorted; nothing later will help start
+    }
+    current = lastBeforeEnd;
+    prior = lastBeforeStart;
+  } else if (trimmed) {
+    current = currentPoint(trimmed);
+    prior = findPriorPoint(trimmed, effectiveDeltaForSource);
+  }
   const currentStr = current
     ? formatValue(current.v, s.data.formatting)
     : "—";
@@ -159,6 +183,7 @@ const payload = {
   rightAxisSources: (chart as { rightAxisSources?: string[] }).rightAxisSources,
   supportedDeltas: effectiveSupported,
   defaultDelta,
+  fixedRange: dashboardFixedRange,
   sources: perSource
     .filter((p) => p.data !== null)
     .map((p) => ({

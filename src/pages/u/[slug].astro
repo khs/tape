@@ -113,6 +113,7 @@ if (state) {
                     title: state.title,
                     description: state.description,
                     defaultDelta: state.defaultDelta,
+                    fixedRange: state.fixedRange,
                     sections: state.sections,
                     charts: state.charts,
                     chartOverrides: state.chartOverrides,
@@ -146,22 +147,31 @@ if (state) {
           )}
         </header>
 
-        {supported.length > 0 && (
-          <div class="dashboard-window" role="group" aria-label="Default window">
-            <span class="eyebrow">Window</span>
-            <div class="pills" data-dashboard-window-control>
-              {supported.map((w) => (
-                <button
-                  type="button"
-                  class={"pill" + (w === defaultDelta ? " pill-active" : "")}
-                  data-dashboard-window={w}
-                  aria-pressed={w === defaultDelta ? "true" : "false"}
-                >
-                  {DELTA_LABELS_SHORT[w]}
-                </button>
-              ))}
-            </div>
+        {state.fixedRange ? (
+          <div class="dashboard-window" role="group" aria-label="Fixed range">
+            <span class="eyebrow">Range</span>
+            <span class="dashboard-fixed-range">
+              {state.fixedRange.start} → {state.fixedRange.end}
+            </span>
           </div>
+        ) : (
+          supported.length > 0 && (
+            <div class="dashboard-window" role="group" aria-label="Default window">
+              <span class="eyebrow">Window</span>
+              <div class="pills" data-dashboard-window-control>
+                {supported.map((w) => (
+                  <button
+                    type="button"
+                    class={"pill" + (w === defaultDelta ? " pill-active" : "")}
+                    data-dashboard-window={w}
+                    aria-pressed={w === defaultDelta ? "true" : "false"}
+                  >
+                    {DELTA_LABELS_SHORT[w]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
         )}
 
         {resolvedSections.map((section) => (
@@ -183,6 +193,7 @@ if (state) {
                   sources={c.sources}
                   dashboardSlug={`u-${slug}`}
                   dashboardWindow={defaultDelta}
+                  dashboardFixedRange={state.fixedRange}
                 />
               ))}
             </div>
@@ -238,6 +249,14 @@ if (state) {
 
 <style>
   .dashboard-window { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .dashboard-fixed-range {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+    background: var(--color-neutral-100);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+  }
   .dashboard-window .pills { display: flex; gap: 4px; font-size: var(--text-xs); font-weight: 500; }
   .dashboard-window .pill { padding: 4px 10px; border: 1px solid rgba(55, 53, 47, 0.1); border-radius: var(--radius-sm); background: var(--color-white); color: var(--color-neutral-600); cursor: pointer; font: inherit; }
   .dashboard-window .pill:hover { background: var(--color-neutral-100); }

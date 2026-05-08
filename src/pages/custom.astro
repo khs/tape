@@ -29,6 +29,7 @@ let supported: ReturnType<typeof dashboardSupportedDeltas> = [];
 let errorMessage: string | null = null;
 let forkUrl: string | null = null;
 let chartOverrides: Record<string, Partial<import("astro:content").CollectionEntry<"charts">["data"]>> | undefined;
+let fixedRange: { start: string; end: string } | undefined;
 
 if (!decoded.ok) {
   errorMessage = decoded.message;
@@ -37,6 +38,7 @@ if (!decoded.ok) {
   title = st.title ?? "Composed dashboard";
   description = st.description;
   chartOverrides = st.chartOverrides as typeof chartOverrides;
+  fixedRange = st.fixedRange;
   resolvedSections = await resolveSections({
     sections: st.sections,
     charts: st.charts,
@@ -213,24 +215,33 @@ if (!decoded.ok) {
             }
           </script>
 
-          {supported.length > 0 && (
-            <div class="dashboard-window" role="group" aria-label="Default window">
-              <span class="eyebrow">Window</span>
-              <div class="pills" data-dashboard-window-control>
-                {supported.map((w) => (
-                  <button
-                    type="button"
-                    class={
-                      "pill" + (w === defaultDeltaRequested ? " pill-active" : "")
-                    }
-                    data-dashboard-window={w}
-                    aria-pressed={w === defaultDeltaRequested ? "true" : "false"}
-                  >
-                    {DELTA_LABELS_SHORT[w]}
-                  </button>
-                ))}
-              </div>
+          {fixedRange ? (
+            <div class="dashboard-window" role="group" aria-label="Fixed range">
+              <span class="eyebrow">Range</span>
+              <span class="dashboard-fixed-range">
+                {fixedRange.start} → {fixedRange.end}
+              </span>
             </div>
+          ) : (
+            supported.length > 0 && (
+              <div class="dashboard-window" role="group" aria-label="Default window">
+                <span class="eyebrow">Window</span>
+                <div class="pills" data-dashboard-window-control>
+                  {supported.map((w) => (
+                    <button
+                      type="button"
+                      class={
+                        "pill" + (w === defaultDeltaRequested ? " pill-active" : "")
+                      }
+                      data-dashboard-window={w}
+                      aria-pressed={w === defaultDeltaRequested ? "true" : "false"}
+                    >
+                      {DELTA_LABELS_SHORT[w]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
           )}
 
           {resolvedSections.map((section) => (
@@ -249,6 +260,7 @@ if (!decoded.ok) {
                     sources={c.sources}
                     dashboardSlug="custom"
                     dashboardWindow={defaultDeltaRequested}
+                    dashboardFixedRange={fixedRange}
                   />
                 ))}
               </div>
@@ -275,6 +287,14 @@ if (!decoded.ok) {
     gap: 10px;
     margin-bottom: 20px;
     flex-wrap: wrap;
+  }
+  .dashboard-fixed-range {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+    background: var(--color-neutral-100);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
   }
   .dashboard-window .pills {
     display: flex;
