@@ -1157,6 +1157,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Tracks whether the user has explicitly picked a mode. If false, the
     // mode is auto-determined from source-scale heuristics on each change.
     modeIsExplicit: boolean;
+    // Source IDs assigned to the right axis when mode === "dual-axis".
+    // Sources not in this set plot on the left. Edited only when mode is
+    // dual-axis; preserved in spec on save.
+    rightAxisSources: Set<string>;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
@@ -1165,6 +1169,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     search: "",
     mode: "raw",
     modeIsExplicit: false,
+    rightAxisSources: new Set<string>(),
   };
 
   // True when every selected source shares the same formatting style + unit
@@ -1212,6 +1217,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ccModal.modeIsExplicit = false;
       ccModal.mode = ccDefaultMode();
     }
+    ccModal.rightAxisSources = new Set<string>(
+      existing?.rightAxisSources ?? [],
+    );
 
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
     if (!backdrop) return;
@@ -1240,12 +1248,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const reb = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-rebase']");
     const dual = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-dual']");
     const dualWrap = shell.querySelector<HTMLElement>("[data-role='cc-mode-dual-wrap']");
-    const allowDual = ccModal.selected.size === 2;
+    // Dual-axis needs at least 2 sources; manual L/R assignment lets it
+    // make sense for 3+ as well.
+    const allowDual = ccModal.selected.size >= 2;
     if (dual) dual.disabled = !allowDual;
     if (dualWrap) dualWrap.classList.toggle("cc-mode-opt-disabled", !allowDual);
     if (raw) raw.checked = ccModal.mode === "raw";
     if (reb) reb.checked = ccModal.mode === "rebase";
     if (dual) dual.checked = ccModal.mode === "dual-axis" && allowDual;
+  }
+
+  // For dual-axis with no explicit assignment, default the first picked
+  // source to left and everything else to right.
+  function defaultRightAxisSources(): Set<string> {
+    const ids = [...ccModal.selected];
+    if (ids.length < 2) return new Set();
+    return new Set(ids.slice(1));
+  }
+
+  // Returns the current right-axis assignment, falling back to the default
+  // split when the explicit set is empty (initial state for fresh dual-axis).
+  function effectiveRightAxisSources(): Set<string> {
+    if (ccModal.rightAxisSources.size > 0) return ccModal.rightAxisSources;
+    return defaultRightAxisSources();
   }
 
   function closeCustomChartModal(): void {
@@ -1301,12 +1326,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // their pick (but flip dual-axis off when no longer 2 sources).
         if (!ccModal.modeIsExplicit) {
           ccModal.mode = ccDefaultMode();
-        } else if (ccModal.mode === "dual-axis" && ccModal.selected.size !== 2) {
+        } else if (ccModal.mode === "dual-axis" && ccModal.selected.size < 2) {
+          // < 2 sources can't dual-axis at all; fall back.
           ccModal.mode = ccDefaultMode();
           ccModal.modeIsExplicit = false;
         }
+        // Strip rightAxis assignment for sources that just got unchecked.
+        if (!cb.checked) ccModal.rightAxisSources.delete(s.id);
         syncModeRadioFromState();
         updateCustomChartCreateState();
+        renderCustomChartSources();
         renderCustomChartPreview();
       });
       row.appendChild(cb);
@@ -1318,6 +1347,41 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         `<span class="cc-source-primary">${escapeHtml(primary)}</span>` +
         (secondary ? `<span class="cc-source-secondary">${escapeHtml(secondary)}</span>` : "");
       row.appendChild(text);
+      // Per-source L|R axis pill, only when dual-axis mode + this source is picked.
+      if (ccModal.mode === "dual-axis" && ccModal.selected.has(s.id)) {
+        const effRight = effectiveRightAxisSources();
+        const isRight = effRight.has(s.id);
+        const axisWrap = document.createElement("span");
+        axisWrap.className = "cc-source-axis";
+        const lBtn = document.createElement("button");
+        lBtn.type = "button";
+        lBtn.className = "cc-axis-pill" + (!isRight ? " cc-axis-pill-active" : "");
+        lBtn.textContent = "L";
+        lBtn.title = "Plot on the left axis";
+        const rBtn = document.createElement("button");
+        rBtn.type = "button";
+        rBtn.className = "cc-axis-pill" + (isRight ? " cc-axis-pill-active" : "");
+        rBtn.textContent = "R";
+        rBtn.title = "Plot on the right axis";
+        const setSide = (right: boolean, e: Event) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Materialize the effective default into the explicit set the
+          // first time the user touches an axis pill.
+          if (ccModal.rightAxisSources.size === 0) {
+            ccModal.rightAxisSources = new Set(effectiveRightAxisSources());
+          }
+          if (right) ccModal.rightAxisSources.add(s.id);
+          else ccModal.rightAxisSources.delete(s.id);
+          renderCustomChartSources();
+          renderCustomChartPreview();
+        };
+        lBtn.addEventListener("click", (e) => setSide(false, e));
+        rBtn.addEventListener("click", (e) => setSide(true, e));
+        axisWrap.appendChild(lBtn);
+        axisWrap.appendChild(rBtn);
+        row.appendChild(axisWrap);
+      }
       host.appendChild(row);
     }
   }
@@ -1402,13 +1466,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       statusEl.textContent = "Couldn't load data for the selected sources.";
       return;
     }
-    // Effective mode for rendering: dual-axis only legitimate with exactly 2.
-    const mode: CustomChartMode =
-      ccModal.mode === "dual-axis" && series.length === 2
-        ? "dual-axis"
-        : ccModal.mode === "dual-axis"
-          ? "rebase"
-          : ccModal.mode;
+    // Effective mode for rendering: dual-axis needs at least 2 sources, and
+    // both axes must end up with at least one series after partitioning.
+    let mode: CustomChartMode = ccModal.mode;
+    if (mode === "dual-axis") {
+      if (series.length < 2) mode = "rebase";
+      else {
+        const eff = effectiveRightAxisSources();
+        const rightCount = series.filter((s) => eff.has(s.id)).length;
+        const leftCount = series.length - rightCount;
+        if (rightCount === 0 || leftCount === 0) mode = "rebase";
+      }
+    }
     statusEl.textContent =
       `${series.length} series · ${mode === "dual-axis" ? "dual-axis" : mode === "rebase" ? "rebased to 100" : "raw"}`;
 
@@ -1428,26 +1497,66 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
     let plot: HTMLElement;
     if (mode === "dual-axis") {
-      // Series 0 stays on the left axis at its raw scale. Series 1 is
-      // rescaled to fit the left's domain, but a second axis on the right
-      // shows series 1's true tick values.
-      const a = colored[0];
-      const b = colored[1];
-      const aPts = a.points.map((p) => ({ t: new Date(p.t), v: p.v }));
-      const bPts = b.points;
-      const bMin = Math.min(...bPts.map((p) => p.v));
-      const bMax = Math.max(...bPts.map((p) => p.v));
-      const aMin = Math.min(...a.points.map((p) => p.v));
-      const aMax = Math.max(...a.points.map((p) => p.v));
-      const bRange = bMax - bMin || 1;
-      const aRange = aMax - aMin || 1;
-      const rescaleB = (v: number) => aMin + ((v - bMin) / bRange) * aRange;
-      const unrescale = (yPos: number) =>
-        bMin + ((yPos - aMin) / aRange) * bRange;
-      const bRescaledPts = bPts.map((p) => ({
-        t: new Date(p.t),
-        v: rescaleB(p.v),
-      }));
+      const eff = effectiveRightAxisSources();
+      const leftSeries = colored.filter((s) => !eff.has(s.id));
+      const rightSeries = colored.filter((s) => eff.has(s.id));
+      // Left domain: min/max across all left series. Right domain: same on
+      // the right side. Right values are rescaled to fit the left domain
+      // for plotting; the right axis's tickFormat un-rescales.
+      const leftPts = leftSeries.flatMap((s) => s.points);
+      const rightPts = rightSeries.flatMap((s) => s.points);
+      const leftMin = Math.min(...leftPts.map((p) => p.v));
+      const leftMax = Math.max(...leftPts.map((p) => p.v));
+      const rightMin = Math.min(...rightPts.map((p) => p.v));
+      const rightMax = Math.max(...rightPts.map((p) => p.v));
+      const lRange = leftMax - leftMin || 1;
+      const rRange = rightMax - rightMin || 1;
+      const rescaleR = (v: number) =>
+        leftMin + ((v - rightMin) / rRange) * lRange;
+      const unrescaleR = (yPos: number) =>
+        rightMin + ((yPos - leftMin) / lRange) * rRange;
+      const marks: any[] = [];
+      // A representative color per axis for the axis labels themselves: when
+      // there's exactly one series on a side, use that series' color. With
+      // multiple, use neutral so it doesn't claim allegiance to one line.
+      const leftAxisColor =
+        leftSeries.length === 1 ? leftSeries[0].color : "#55524C";
+      const rightAxisColor =
+        rightSeries.length === 1 ? rightSeries[0].color : "#55524C";
+      for (const s of leftSeries) {
+        const pts = s.points.map((p) => ({ t: new Date(p.t), v: p.v }));
+        marks.push(
+          Plot.lineY(pts, {
+            x: "t",
+            y: "v",
+            stroke: s.color,
+            strokeWidth: 1.4,
+          }),
+        );
+      }
+      for (const s of rightSeries) {
+        const pts = s.points.map((p) => ({
+          t: new Date(p.t),
+          v: rescaleR(p.v),
+        }));
+        marks.push(
+          Plot.lineY(pts, {
+            x: "t",
+            y: "v",
+            stroke: s.color,
+            strokeWidth: 1.4,
+          }),
+        );
+      }
+      marks.push(
+        Plot.axisY({ anchor: "left", color: leftAxisColor, ticks: 4 }),
+        Plot.axisY({
+          anchor: "right",
+          color: rightAxisColor,
+          ticks: 4,
+          tickFormat: (v: number) => unrescaleR(v).toFixed(2),
+        }),
+      );
       plot = Plot.plot({
         height: 220,
         width,
@@ -1458,26 +1567,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         style: baseStyle,
         x: { label: null, ticks: 4 },
         y: { label: null, grid: true, ticks: 4 },
-        marks: [
-          Plot.lineY(aPts, { x: "t", y: "v", stroke: a.color, strokeWidth: 1.4 }),
-          Plot.lineY(bRescaledPts, {
-            x: "t",
-            y: "v",
-            stroke: b.color,
-            strokeWidth: 1.4,
-          }),
-          Plot.axisY({
-            anchor: "right",
-            color: b.color,
-            ticks: 4,
-            tickFormat: (v: number) => unrescale(v).toFixed(2),
-          }),
-          Plot.axisY({
-            anchor: "left",
-            color: a.color,
-            ticks: 4,
-          }),
-        ],
+        marks,
       }) as HTMLElement;
     } else {
       const marks: any[] = [];
@@ -1564,17 +1654,30 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         if (!r.checked) return;
         ccModal.mode = r.value as CustomChartMode;
         ccModal.modeIsExplicit = true;
+        // Re-render the source list so the L|R pills appear/disappear as the
+        // mode toggles into/out of dual-axis.
+        renderCustomChartSources();
         renderCustomChartPreview();
       });
     });
     createBtn?.addEventListener("click", () => {
       const sourceIds = [...ccModal.selected];
       if (!ccModal.title.trim() || sourceIds.length === 0) return;
-      // Final mode: dual-axis is only valid with exactly 2 sources; clamp.
+      // Final mode: dual-axis needs at least 2 sources; clamp.
       const mode: CustomChartMode =
-        ccModal.mode === "dual-axis" && sourceIds.length !== 2
+        ccModal.mode === "dual-axis" && sourceIds.length < 2
           ? "rebase"
           : ccModal.mode;
+      // Resolve rightAxisSources only when dual-axis. Persist explicit
+      // user picks; if the user never touched the L/R pills, persist the
+      // default split (first source left, rest right) so the rendered
+      // chart matches the preview the user saw.
+      let rightAxisSources: string[] | undefined;
+      if (mode === "dual-axis") {
+        const eff = effectiveRightAxisSources();
+        const filtered = sourceIds.filter((id) => eff.has(id));
+        rightAxisSources = filtered.length > 0 ? filtered : undefined;
+      }
       if (ccModal.editingId) {
         // Edit mode: preserve any fields we don't expose (e.g. render, blurb).
         const existing = state.inlineCharts[ccModal.editingId] ?? {
@@ -1586,6 +1689,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           title: ccModal.title.trim(),
           sources: sourceIds,
           normalize: mode,
+          rightAxisSources,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -1593,6 +1697,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           title: ccModal.title.trim(),
           sources: sourceIds,
           normalize: mode,
+          rightAxisSources,
         };
         clampActiveSection();
         const target = state.sections[activeSectionIdx];
@@ -2148,6 +2253,34 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
   .cc-source-primary { color: var(--color-neutral-900); font-weight: 500; }
   .cc-source-secondary { color: var(--color-neutral-500); font-size: var(--text-xs); }
+  .cc-source-axis {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 0;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .cc-axis-pill {
+    font: inherit;
+    font-size: var(--text-xs);
+    line-height: 1;
+    padding: 3px 8px;
+    background: var(--color-white);
+    border: none;
+    color: var(--color-neutral-600);
+    cursor: pointer;
+  }
+  .cc-axis-pill + .cc-axis-pill {
+    border-left: 1px solid rgba(55, 53, 47, 0.12);
+  }
+  .cc-axis-pill:hover { background: var(--color-neutral-100); }
+  .cc-axis-pill-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+  }
+  .cc-source-row { align-items: center; }
   .cc-mode {
     display: flex;
     flex-direction: column;

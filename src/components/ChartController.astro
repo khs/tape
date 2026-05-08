@@ -44,6 +44,9 @@
     supportedDeltas: DeltaWindow[];
     defaultDelta: DeltaWindow;
     sources: SourcePayload[];
+    // For dual-axis with 3+ sources or explicit assignment: source IDs that
+    // plot on the right axis. Empty/missing → first source on left, rest right.
+    rightAxisSources?: string[];
   };
 
   function findPrior(points: Point[], targetMs: number): Point | null {
@@ -166,95 +169,135 @@
   ): void {
     const width = container.clientWidth || 700;
 
-    // Dual-axis is only valid with exactly two sources. Series A on the left
-    // axis at its raw scale; series B rescaled to fit A's domain, with a
-    // right-side axis showing B's true tick values.
+    // Dual-axis: at least 2 sources, partition into left and right groups
+    // by rightAxisSources (or default = first source left, rest right).
     if (
       payload.normalize === "dual-axis" &&
-      payload.sources.length === 2
+      payload.sources.length >= 2
     ) {
-      const a = payload.sources[0];
-      const b = payload.sources[1];
-      const effA = closestSupported(window, a.supportedDeltas);
-      const effB = closestSupported(window, b.supportedDeltas);
-      const aRange = visibleRange(a.points, effA, 0.15);
-      const bRange = visibleRange(b.points, effB, 0.15);
-      if (aRange.visible.length < 2 || bRange.visible.length < 2) {
-        container.replaceChildren();
-        return;
+      const explicit = payload.rightAxisSources ?? [];
+      const rightSet = new Set(
+        explicit.length > 0
+          ? explicit
+          : payload.sources.slice(1).map((s) => s.id),
+      );
+      const leftSrcs = payload.sources.filter((s) => !rightSet.has(s.id));
+      const rightSrcs = payload.sources.filter((s) => rightSet.has(s.id));
+      // Need at least one series on each side; otherwise fall through to the
+      // generic non-dual-axis branch below.
+      if (leftSrcs.length > 0 && rightSrcs.length > 0) {
+        // Materialize visible ranges per source.
+        const matLeft = leftSrcs.map((s) => {
+          const eff = closestSupported(window, s.supportedDeltas);
+          return { s, ...visibleRange(s.points, eff, 0.15) };
+        });
+        const matRight = rightSrcs.map((s) => {
+          const eff = closestSupported(window, s.supportedDeltas);
+          return { s, ...visibleRange(s.points, eff, 0.15) };
+        });
+        const haveLeft = matLeft.some((m) => m.visible.length >= 2);
+        const haveRight = matRight.some((m) => m.visible.length >= 2);
+        if (haveLeft && haveRight) {
+          const flatL = matLeft.flatMap((m) => m.visible.map((p) => p.v));
+          const flatR = matRight.flatMap((m) => m.visible.map((p) => p.v));
+          const lMin = Math.min(...flatL);
+          const lMax = Math.max(...flatL);
+          const rMin = Math.min(...flatR);
+          const rMax = Math.max(...flatR);
+          const dL = lMax - lMin || 1;
+          const dR = rMax - rMin || 1;
+          const rescaleR = (v: number) => lMin + ((v - rMin) / dR) * dL;
+          const unscaleR = (yPos: number) =>
+            rMin + ((yPos - lMin) / dL) * dR;
+          const marks: any[] = [];
+          for (const m of matLeft) {
+            if (m.visible.length < 2) continue;
+            const pts = m.visible.map((p) => ({ t: new Date(p.t), v: p.v }));
+            marks.push(
+              Plot.lineY(pts, {
+                x: "t",
+                y: "v",
+                stroke: m.s.color,
+                strokeWidth: 1.75,
+              }),
+              Plot.dot(pts.slice(-1), {
+                x: "t",
+                y: "v",
+                fill: m.s.color,
+                r: 3.5,
+              }),
+            );
+          }
+          for (const m of matRight) {
+            if (m.visible.length < 2) continue;
+            const pts = m.visible.map((p) => ({
+              t: new Date(p.t),
+              v: rescaleR(p.v),
+            }));
+            marks.push(
+              Plot.lineY(pts, {
+                x: "t",
+                y: "v",
+                stroke: m.s.color,
+                strokeWidth: 1.75,
+              }),
+              Plot.dot(pts.slice(-1), {
+                x: "t",
+                y: "v",
+                fill: m.s.color,
+                r: 3.5,
+              }),
+            );
+          }
+          // Axis colors: when only one series on a side, color the axis to
+          // match. With multiple, keep neutral so it doesn't claim allegiance.
+          const leftAxisColor =
+            leftSrcs.length === 1 ? leftSrcs[0].color : "#55524C";
+          const rightAxisColor =
+            rightSrcs.length === 1 ? rightSrcs[0].color : "#55524C";
+          // Tick formatting picks formatting from the single side-source if
+          // unique, otherwise just compact numeric.
+          const leftFmt = leftSrcs[0]?.formatting;
+          const rightFmt = rightSrcs[0]?.formatting;
+          marks.push(
+            Plot.axisY({
+              anchor: "left",
+              color: leftAxisColor,
+              ticks: 5,
+              tickFormat: (v: number) =>
+                formatValue(v, { ...leftFmt, decimals: 1 }),
+            }),
+            Plot.axisY({
+              anchor: "right",
+              color: rightAxisColor,
+              ticks: 5,
+              tickFormat: (v: number) =>
+                formatValue(unscaleR(v), { ...rightFmt, decimals: 1 }),
+            }),
+          );
+          const plot = Plot.plot({
+            height: 280,
+            width,
+            marginLeft: 64,
+            marginBottom: 28,
+            marginTop: 10,
+            marginRight: 64,
+            style: {
+              fontFamily:
+                '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              fontSize: "12px",
+              color: "#55524C",
+              background: "transparent",
+            },
+            x: { label: null, ticks: 5 },
+            y: { label: null, grid: true, ticks: 5 },
+            marks,
+          });
+          container.replaceChildren(plot);
+          return;
+        }
       }
-      const aMin = Math.min(...aRange.visible.map((p) => p.v));
-      const aMax = Math.max(...aRange.visible.map((p) => p.v));
-      const bMin = Math.min(...bRange.visible.map((p) => p.v));
-      const bMax = Math.max(...bRange.visible.map((p) => p.v));
-      const dA = aMax - aMin || 1;
-      const dB = bMax - bMin || 1;
-      const rescale = (v: number) => aMin + ((v - bMin) / dB) * dA;
-      const unscale = (yPos: number) => bMin + ((yPos - aMin) / dA) * dB;
-      const aPts = aRange.visible.map((p) => ({ t: new Date(p.t), v: p.v }));
-      const bPts = bRange.visible.map((p) => ({
-        t: new Date(p.t),
-        v: rescale(p.v),
-      }));
-      const plot = Plot.plot({
-        height: 280,
-        width,
-        marginLeft: 64,
-        marginBottom: 28,
-        marginTop: 10,
-        marginRight: 64,
-        style: {
-          fontFamily:
-            '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          fontSize: "12px",
-          color: "#55524C",
-          background: "transparent",
-        },
-        x: { label: null, ticks: 5 },
-        y: { label: null, grid: true, ticks: 5 },
-        marks: [
-          Plot.lineY(aPts, {
-            x: "t",
-            y: "v",
-            stroke: a.color,
-            strokeWidth: 1.75,
-          }),
-          Plot.dot(aPts.slice(-1), {
-            x: "t",
-            y: "v",
-            fill: a.color,
-            r: 3.5,
-          }),
-          Plot.lineY(bPts, {
-            x: "t",
-            y: "v",
-            stroke: b.color,
-            strokeWidth: 1.75,
-          }),
-          Plot.dot(bPts.slice(-1), {
-            x: "t",
-            y: "v",
-            fill: b.color,
-            r: 3.5,
-          }),
-          Plot.axisY({
-            anchor: "left",
-            color: a.color,
-            ticks: 5,
-            tickFormat: (v: number) =>
-              formatValue(v, { ...a.formatting, decimals: 1 }),
-          }),
-          Plot.axisY({
-            anchor: "right",
-            color: b.color,
-            ticks: 5,
-            tickFormat: (v: number) =>
-              formatValue(unscale(v), { ...b.formatting, decimals: 1 }),
-          }),
-        ],
-      });
-      container.replaceChildren(plot);
-      return;
+      // If we get here, the dual-axis split was degenerate; fall through.
     }
 
     const marks: any[] = [];

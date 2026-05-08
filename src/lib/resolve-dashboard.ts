@@ -75,6 +75,7 @@ export async function resolveChart(
         render: spec.render ?? ("line" as const),
         defaultDelta: spec.defaultDelta ?? ("1m" as const),
         normalize,
+        rightAxisSources: spec.rightAxisSources,
         blurb: spec.blurb,
         tags: [] as string[],
       },

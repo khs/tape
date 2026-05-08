@@ -156,6 +156,7 @@ const uniqueId = `dialog-${dashboardSlug}-${chartId.replace(/[^a-z0-9-]/gi, "-")
 const payload = {
   isMulti,
   normalize,
+  rightAxisSources: (chart as { rightAxisSources?: string[] }).rightAxisSources,
   supportedDeltas: effectiveSupported,
   defaultDelta,
   sources: perSource

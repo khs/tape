@@ -45,6 +45,9 @@ const inlineChartSchema = z.object({
     ])
     .optional(),
   normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
+  // For dual-axis charts, source IDs that should plot on the right axis.
+  // Anything not listed plots on the left. Ignored unless normalize === "dual-axis".
+  rightAxisSources: z.array(z.string()).optional(),
   defaultDelta: deltaWindowSchema.optional(),
   blurb: z.string().optional(),
 });

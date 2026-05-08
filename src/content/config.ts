@@ -66,6 +66,9 @@ const charts = defineCollection({
     // at the window start (good for comparing relative returns of dissimilar
     // scales). "raw" plots each at its natural scale.
     normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
+    // For dual-axis charts, source IDs that plot on the right axis. Anything
+    // not listed plots on the left. Ignored unless normalize === "dual-axis".
+    rightAxisSources: z.array(z.string()).optional(),
     // Per-chart short labels for series (overrides source.shortName for this chart).
     seriesLabels: z.array(z.string()).optional(),
     // Topic tags for the composer library filter. Multi-tag allowed; proposed

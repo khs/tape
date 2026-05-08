@@ -37,6 +37,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   <script>
     import { encodeComposedState } from "../lib/composer-state";
+    import { readStoredSession } from "../lib/supabase";
 
     type LibraryChart = {
       id: string;
@@ -211,7 +212,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             });
           const desc = describeSources(c);
           card.innerHTML =
-            `<h3 class="explore-card-title">${escapeHtml(c.title)}</h3>` +
+            `<h3 class="explore-card-title"><a href="${baseUrl}/chart/${escapeHtml(c.id)}/" class="explore-card-titlelink">${escapeHtml(c.title)}</a></h3>` +
             `<div class="explore-card-tags">${c.tags
               .map(
                 (t) => `<span class="explore-card-tag">${escapeHtml(t)}</span>`,
@@ -220,7 +221,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             (desc
               ? `<p class="explore-card-desc">${escapeHtml(desc)}</p>`
               : "") +
-            `<a class="explore-card-cta" href="${composeHref}">Compose with this &rarr;</a>`;
+            `<div class="explore-card-actions">` +
+            `<a class="explore-card-cta" href="${composeHref}">Compose with this &rarr;</a>` +
+            `<button type="button" class="explore-card-add" data-role="explore-add" data-chart-id="${escapeHtml(c.id)}" style="display: none">Add to my dashboard</button>` +
+            `</div>`;
           grid.appendChild(card);
         }
         resultsHost.appendChild(grid);
@@ -246,6 +250,36 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderResults();
       });
     }
+
+    // Reveal "Add to my dashboard" buttons on render when authed.
+    function revealAddButtonsIfAuthed(): void {
+      const stored = readStoredSession();
+      if (!stored) return;
+      resultsHost
+        ?.querySelectorAll<HTMLButtonElement>("[data-role='explore-add']")
+        .forEach((b) => {
+          b.style.display = "";
+        });
+    }
+    // Patch renderResults to reveal buttons after each render. Wrap the
+    // existing function via a one-shot observer on the results host.
+    const observer = new MutationObserver(() => revealAddButtonsIfAuthed());
+    if (resultsHost) {
+      observer.observe(resultsHost, { childList: true, subtree: true });
+    }
+
+    // Event-delegate clicks on the per-card add buttons → custom event.
+    resultsHost?.addEventListener("click", (e) => {
+      const target = (e.target as HTMLElement).closest<HTMLButtonElement>(
+        "[data-role='explore-add']",
+      );
+      if (!target) return;
+      const chartId = target.dataset.chartId ?? "";
+      if (!chartId) return;
+      window.dispatchEvent(
+        new CustomEvent("legible:add-to-dashboard", { detail: { chartId } }),
+      );
+    });
 
     load();
   </script>
@@ -355,15 +389,40 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .explore-card-cta {
+  .explore-card-titlelink {
+    color: inherit;
+    text-decoration: none;
+  }
+  .explore-card-titlelink:hover {
+    text-decoration: underline;
+  }
+  .explore-card-actions {
     margin-top: auto;
-    align-self: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .explore-card-cta {
     font-size: var(--text-xs);
     color: var(--color-accent);
     text-decoration: none;
     font-weight: 500;
   }
   .explore-card-cta:hover {
+    text-decoration: underline;
+  }
+  .explore-card-add {
+    font: inherit;
+    font-size: var(--text-xs);
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--color-accent);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .explore-card-add:hover {
     text-decoration: underline;
   }
 

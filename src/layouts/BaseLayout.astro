@@ -79,6 +79,28 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       <slot />
     </main>
 
+    <!-- "Add to my dashboard" modal. Any page can trigger it by dispatching
+         CustomEvent("legible:add-to-dashboard", {detail: {chartId}}). The
+         modal fetches the user's saved dashboards from Supabase, lets them
+         pick one, and PATCHes the chosen dashboard's state_json. -->
+    <div class="atd-backdrop" data-role="atd-modal" hidden>
+      <div class="atd-modal" role="dialog" aria-modal="true" aria-labelledby="atd-title">
+        <div class="atd-header">
+          <h3 id="atd-title">Add to a saved dashboard</h3>
+          <button type="button" class="atd-close" data-role="atd-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="atd-body">
+          <p class="atd-target muted small" data-role="atd-target">&nbsp;</p>
+          <div class="atd-list" data-role="atd-list">
+            <p class="muted small">Loading…</p>
+          </div>
+        </div>
+        <div class="atd-footer">
+          <button type="button" class="btn-secondary" data-role="atd-cancel">Close</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       import {
         createSupabase,
@@ -133,5 +155,273 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         }
       }
     </script>
+
+    <script>
+      // ---- Add-to-my-dashboard modal ----
+      // Listens for `legible:add-to-dashboard` events and walks the user
+      // through picking a saved dashboard to append the chart to.
+      import {
+        readStoredSession,
+        SUPABASE_REST_URL,
+        SUPABASE_REST_ANON_KEY,
+      } from "../lib/supabase";
+
+      type SavedRow = {
+        id: string;
+        slug: string;
+        title: string;
+        state_json: any;
+        updated_at: string;
+      };
+
+      const atdBackdrop = document.querySelector<HTMLElement>(
+        "[data-role='atd-modal']",
+      );
+      const atdList = document.querySelector<HTMLElement>(
+        "[data-role='atd-list']",
+      );
+      const atdTarget = document.querySelector<HTMLElement>(
+        "[data-role='atd-target']",
+      );
+      const atdClose = document.querySelector<HTMLButtonElement>(
+        "[data-role='atd-close']",
+      );
+      const atdCancel = document.querySelector<HTMLButtonElement>(
+        "[data-role='atd-cancel']",
+      );
+
+      function escapeHtmlSafe(s: string): string {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function closeAtd(): void {
+        if (atdBackdrop) atdBackdrop.hidden = true;
+      }
+
+      atdClose?.addEventListener("click", closeAtd);
+      atdCancel?.addEventListener("click", closeAtd);
+      atdBackdrop?.addEventListener("click", (e) => {
+        if (e.target === atdBackdrop) closeAtd();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape" || !atdBackdrop || atdBackdrop.hidden) return;
+        closeAtd();
+      });
+
+      async function fetchSaved(token: string): Promise<SavedRow[]> {
+        const url = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?select=id,slug,title,state_json,updated_at&order=updated_at.desc`;
+        const r = await fetch(url, {
+          headers: {
+            apikey: SUPABASE_REST_ANON_KEY,
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return (await r.json()) as SavedRow[];
+      }
+
+      async function patchDashboard(
+        slug: string,
+        state: any,
+        token: string,
+      ): Promise<boolean> {
+        const url = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?slug=eq.${encodeURIComponent(slug)}`;
+        const r = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_REST_ANON_KEY,
+            Authorization: `Bearer ${token}`,
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify({ state_json: state }),
+        });
+        if (!r.ok) return false;
+        const rows = await r.json().catch(() => []);
+        return Array.isArray(rows) && rows.length > 0;
+      }
+
+      // Add a chart ID to a saved-dashboard state, appending to the last
+      // section (creating one if necessary). Returns the mutated state.
+      function addChartToState(state: any, chartId: string): any {
+        const next = { ...(state ?? {}) };
+        next.v = next.v ?? 1;
+        if (!Array.isArray(next.sections) || next.sections.length === 0) {
+          next.sections = [{ title: "Overview", charts: [chartId] }];
+          return next;
+        }
+        const lastIdx = next.sections.length - 1;
+        const last = next.sections[lastIdx];
+        const charts: string[] = Array.isArray(last.charts) ? [...last.charts] : [];
+        if (!charts.includes(chartId)) charts.push(chartId);
+        next.sections = [
+          ...next.sections.slice(0, lastIdx),
+          { ...last, charts },
+        ];
+        return next;
+      }
+
+      let lastChartId: string | null = null;
+
+      async function openAtd(chartId: string): Promise<void> {
+        if (!atdBackdrop || !atdList || !atdTarget) return;
+        lastChartId = chartId;
+        atdTarget.textContent = `Adding ${chartId}`;
+        atdBackdrop.hidden = false;
+        atdList.innerHTML = '<p class="muted small">Loading your dashboards…</p>';
+        const stored = readStoredSession();
+        if (!stored) {
+          atdList.innerHTML =
+            '<p class="muted small">Sign in (top right) to save and add charts to your dashboards.</p>';
+          return;
+        }
+        let rows: SavedRow[];
+        try {
+          rows = await fetchSaved(stored.access_token);
+        } catch (e) {
+          atdList.innerHTML = `<p class="muted small">Couldn't load your dashboards: ${escapeHtmlSafe(String(e))}</p>`;
+          return;
+        }
+        if (rows.length === 0) {
+          atdList.innerHTML =
+            '<p class="muted small">You haven\'t saved any dashboards yet. Compose one first, then come back.</p>';
+          return;
+        }
+        atdList.innerHTML = "";
+        const ul = document.createElement("ul");
+        ul.className = "atd-saved-list";
+        for (const r of rows) {
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "atd-saved-item";
+          btn.innerHTML =
+            `<span class="atd-saved-title">${escapeHtmlSafe(r.title || "Untitled dashboard")}</span>` +
+            `<span class="atd-saved-slug muted small">/u/${escapeHtmlSafe(r.slug)}/</span>`;
+          btn.addEventListener("click", async () => {
+            btn.disabled = true;
+            btn.classList.add("atd-saved-item-busy");
+            const newState = addChartToState(r.state_json, lastChartId!);
+            const ok = await patchDashboard(r.slug, newState, stored.access_token);
+            if (ok) {
+              btn.innerHTML = `<span class="atd-saved-title">Added! Open <a href="${(window as any).location?.origin ?? ""}/u/${encodeURIComponent(r.slug)}/" class="underline">/u/${escapeHtmlSafe(r.slug)}/</a></span>`;
+              btn.classList.add("atd-saved-item-done");
+            } else {
+              btn.innerHTML = `<span class="atd-saved-title">Couldn't update — you may not own this dashboard, or it may have been deleted.</span>`;
+              btn.disabled = false;
+              btn.classList.remove("atd-saved-item-busy");
+            }
+          });
+          li.appendChild(btn);
+          ul.appendChild(li);
+        }
+        atdList.appendChild(ul);
+      }
+
+      window.addEventListener("legible:add-to-dashboard", (e: Event) => {
+        const detail = (e as CustomEvent).detail as { chartId?: string } | undefined;
+        if (detail?.chartId) openAtd(detail.chartId);
+      });
+    </script>
+
+    <style>
+      .atd-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 60;
+      }
+      .atd-backdrop[hidden] { display: none; }
+      .atd-modal {
+        background: var(--color-white);
+        border-radius: var(--radius);
+        max-width: 480px;
+        width: 100%;
+        max-height: calc(100vh - 40px);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+      }
+      .atd-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+      }
+      .atd-header h3 {
+        margin: 0;
+        font-size: var(--text-base);
+        font-weight: 600;
+      }
+      .atd-close {
+        font: inherit;
+        font-size: var(--text-xl);
+        line-height: 1;
+        background: transparent;
+        border: none;
+        color: var(--color-neutral-500);
+        cursor: pointer;
+        padding: 0 4px;
+      }
+      .atd-close:hover { color: var(--color-neutral-900); }
+      .atd-body {
+        padding: 12px 16px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .atd-target { margin: 0; }
+      .atd-saved-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .atd-saved-item {
+        font: inherit;
+        text-align: left;
+        width: 100%;
+        background: var(--color-white);
+        border: 1px solid rgba(55, 53, 47, 0.08);
+        border-radius: var(--radius-sm);
+        padding: 8px 10px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .atd-saved-item:hover {
+        border-color: var(--color-accent);
+      }
+      .atd-saved-item-busy {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      .atd-saved-item-done {
+        background: rgba(16, 163, 74, 0.06);
+        border-color: rgba(16, 163, 74, 0.4);
+        cursor: default;
+      }
+      .atd-saved-title { font-size: var(--text-sm); color: var(--color-neutral-900); }
+      .atd-saved-slug { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .atd-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px 16px;
+        border-top: 1px solid rgba(55, 53, 47, 0.08);
+      }
+    </style>
   </body>
 </html>

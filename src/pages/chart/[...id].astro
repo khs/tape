@@ -1,0 +1,137 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Chart from "../../components/Chart.astro";
+import ChartController from "../../components/ChartController.astro";
+import {
+  resolveChart,
+  effectiveChart,
+} from "../../lib/resolve-dashboard";
+import { encodeComposedState } from "../../lib/composer-state";
+
+export async function getStaticPaths() {
+  const charts = await getCollection("charts");
+  // Skip deprecated-without-alias entries (the Explore page hides them too).
+  return charts
+    .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+    .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
+}
+
+interface Props {
+  chartId: string;
+}
+
+const { chartId } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const resolved = await resolveChart(chartId);
+const composeUrl =
+  baseUrl +
+  "/compose/?d=" +
+  encodeComposedState({
+    title: resolved?.chart.data.title ?? chartId,
+    sections: [{ title: "Overview", charts: [chartId] }],
+  });
+---
+
+<BaseLayout
+  title={`${resolved?.chart.data.title ?? chartId} — Legible Markets`}
+  description={resolved?.chart.data.blurb ?? "A single chart from the Legible Markets library."}
+>
+  <div class="chart-detail max-w-[880px] mx-auto px-6 pt-8 pb-16" data-chart-id={chartId}>
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
+      <span class="mx-1">·</span>
+      <a href={`${baseUrl}/explore/`} class="no-underline hover:text-neutral-900">Explore</a>
+    </nav>
+
+    {
+      !resolved ? (
+        <div class="p-6 border hairline rounded bg-neutral-100 text-sm text-neutral-700 leading-relaxed">
+          <p><strong>Chart not found:</strong> <code>{chartId}</code></p>
+          <p class="mt-2">
+            <a href={`${baseUrl}/explore/`} class="underline">Browse the library &rarr;</a>
+          </p>
+        </div>
+      ) : (
+        <>
+          <header class="mb-4">
+            <div class="flex items-baseline justify-between flex-wrap gap-3">
+              <h1 class="text-2xl font-semibold">{resolved.chart.data.title}</h1>
+              <div class="flex gap-2 items-center">
+                <a
+                  href={composeUrl}
+                  class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
+                >
+                  Compose with this &rarr;
+                </a>
+                <button
+                  type="button"
+                  class="text-xs text-accent hover:underline border hairline rounded-sm px-2 py-1 bg-white cursor-pointer"
+                  data-role="add-to-dashboard"
+                  style="display: none"
+                >
+                  Add to my dashboard
+                </button>
+              </div>
+            </div>
+            {resolved.chart.data.tags && resolved.chart.data.tags.length > 0 && (
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                {resolved.chart.data.tags.map((t) => (
+                  <span class="text-xs text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          <div class="chart-detail-tile">
+            <Chart
+              chartId={chartId}
+              chart={effectiveChart(resolved)}
+              sources={resolved.sources}
+              dashboardSlug="chart"
+            />
+          </div>
+
+          <p class="mt-3 text-xs text-neutral-500">
+            Click the chart for the larger view, sources, and a longer time-window selector.
+          </p>
+        </>
+      )
+    }
+  </div>
+
+  <ChartController />
+
+  <script>
+    import { readStoredSession } from "../../lib/supabase";
+
+    const root = document.querySelector<HTMLElement>(".chart-detail");
+    if (root) {
+      const chartId = root.dataset.chartId ?? "";
+      const btn = root.querySelector<HTMLButtonElement>(
+        "[data-role='add-to-dashboard']",
+      );
+      // Show the button only when the user is authed locally.
+      if (btn) {
+        const stored = readStoredSession();
+        if (stored) btn.style.display = "";
+        btn.addEventListener("click", () => {
+          window.dispatchEvent(
+            new CustomEvent("legible:add-to-dashboard", { detail: { chartId } }),
+          );
+        });
+      }
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .chart-detail-tile {
+    /* The Chart tile wants ~220px min so a single tile in a centered column
+       looks right; cap it so it doesn't stretch awkwardly wide. */
+    max-width: 360px;
+  }
+</style>
