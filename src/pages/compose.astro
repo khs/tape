@@ -152,14 +152,28 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <option value="sum">Sum (A + B)</option>
             </select>
           </label>
-          <label class="cc-field">
+          <div class="cc-field">
             <span class="eyebrow">A (first operand)</span>
-            <select data-role="ds-a"></select>
-          </label>
-          <label class="cc-field">
+            <input
+              type="search"
+              class="cc-source-search"
+              data-role="ds-a-search"
+              placeholder="Search sources…"
+            />
+            <div class="cc-source-list ds-source-list" data-role="ds-a-list"></div>
+            <p class="muted small ds-current" data-role="ds-a-current">No source picked yet.</p>
+          </div>
+          <div class="cc-field">
             <span class="eyebrow">B (second operand)</span>
-            <select data-role="ds-b"></select>
-          </label>
+            <input
+              type="search"
+              class="cc-source-search"
+              data-role="ds-b-search"
+              placeholder="Search sources…"
+            />
+            <div class="cc-source-list ds-source-list" data-role="ds-b-list"></div>
+            <p class="muted small ds-current" data-role="ds-b-current">No source picked yet.</p>
+          </div>
           <p class="cc-op-hint muted small" data-role="ds-hint">&nbsp;</p>
         </div>
         <div class="cc-modal-footer">
@@ -2043,12 +2057,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     op: "divide" | "sum" | "diff";
     a: string;
     b: string;
+    aSearch: string;
+    bSearch: string;
   }
   const dsModal: DerivedModalState = {
     name: "",
     op: "divide",
     a: "",
     b: "",
+    aSearch: "",
+    bSearch: "",
   };
 
   // Universe of pickable source IDs: every real source from library.json
@@ -2073,20 +2091,62 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return [...derived, ...real];
   }
 
-  function fillSelect(sel: HTMLSelectElement, value: string): void {
-    sel.innerHTML = "";
-    const opts = pickableSourceOptions();
-    const blank = document.createElement("option");
-    blank.value = "";
-    blank.textContent = "— pick a source —";
-    sel.appendChild(blank);
-    for (const o of opts) {
-      const e = document.createElement("option");
-      e.value = o.id;
-      e.textContent = o.label;
-      sel.appendChild(e);
+  // Render one of the two source-picker lists (A or B) filtered by its
+  // own search box. Clicking a row selects it. The currently-picked
+  // source is highlighted; the other side's pick is marked dimly so the
+  // user doesn't accidentally pick the same source twice.
+  function renderDsPicker(side: "a" | "b"): void {
+    const list = shell.querySelector<HTMLElement>(
+      `[data-role='ds-${side}-list']`,
+    );
+    const current = shell.querySelector<HTMLElement>(
+      `[data-role='ds-${side}-current']`,
+    );
+    if (!list) return;
+    const search = (side === "a" ? dsModal.aSearch : dsModal.bSearch)
+      .trim()
+      .toLowerCase();
+    const opts = pickableSourceOptions().filter((o) => {
+      if (!search) return true;
+      return (
+        o.label.toLowerCase().includes(search) ||
+        o.id.toLowerCase().includes(search)
+      );
+    });
+    list.innerHTML = "";
+    if (opts.length === 0) {
+      list.innerHTML = '<p class="muted small">No sources match.</p>';
+    } else {
+      const selectedId = side === "a" ? dsModal.a : dsModal.b;
+      const otherId = side === "a" ? dsModal.b : dsModal.a;
+      for (const o of opts) {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className =
+          "ds-source-row" +
+          (o.id === selectedId ? " ds-source-row-selected" : "") +
+          (o.id === otherId ? " ds-source-row-disabled" : "") +
+          (o.isDerived ? " ds-source-row-derived" : "");
+        row.textContent = o.label;
+        if (o.id === otherId) {
+          row.title = "Already picked on the other side";
+          row.disabled = true;
+        }
+        row.addEventListener("click", () => {
+          if (side === "a") dsModal.a = o.id;
+          else dsModal.b = o.id;
+          // Re-render both so the cross-disable state stays in sync.
+          renderDsPicker("a");
+          renderDsPicker("b");
+          syncDerivedHint();
+        });
+        list.appendChild(row);
+      }
     }
-    sel.value = value;
+    if (current) {
+      const id = side === "a" ? dsModal.a : dsModal.b;
+      current.textContent = id ? `Picked: ${dsSourceLabel(id)}` : "No source picked yet.";
+    }
   }
 
   function dsSourceLabel(id: string): string {
@@ -2129,6 +2189,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     dsModal.op = "divide";
     dsModal.a = "";
     dsModal.b = "";
+    dsModal.aSearch = "";
+    dsModal.bSearch = "";
     const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;
@@ -2139,10 +2201,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
     if (opSelect) opSelect.value = "divide";
-    const aSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-a']");
-    const bSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-b']");
-    if (aSel) fillSelect(aSel, "");
-    if (bSel) fillSelect(bSel, "");
+    const aSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-a-search']");
+    const bSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-b-search']");
+    if (aSearch) aSearch.value = "";
+    if (bSearch) bSearch.value = "";
+    renderDsPicker("a");
+    renderDsPicker("b");
     syncDerivedHint();
   }
 
@@ -2158,8 +2222,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='ds-create']");
     const nameInput = shell.querySelector<HTMLInputElement>("[data-role='ds-name']");
     const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
-    const aSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-a']");
-    const bSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-b']");
+    const aSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-a-search']");
+    const bSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-b-search']");
 
     closeBtn?.addEventListener("click", closeDerivedSourceModal);
     cancelBtn?.addEventListener("click", closeDerivedSourceModal);
@@ -2178,13 +2242,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       dsModal.op = opSelect.value as DerivedModalState["op"];
       syncDerivedHint();
     });
-    aSel?.addEventListener("change", () => {
-      dsModal.a = aSel.value;
-      syncDerivedHint();
+    aSearch?.addEventListener("input", () => {
+      dsModal.aSearch = aSearch.value;
+      renderDsPicker("a");
     });
-    bSel?.addEventListener("change", () => {
-      dsModal.b = bSel.value;
-      syncDerivedHint();
+    bSearch?.addEventListener("input", () => {
+      dsModal.bSearch = bSearch.value;
+      renderDsPicker("b");
     });
     createBtn?.addEventListener("click", () => {
       if (
@@ -2921,6 +2985,41 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-white);
   }
   .cc-source-row { align-items: center; }
+  /* Derived-source picker rows are buttons, not labels (single-select). */
+  .ds-source-list {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .ds-source-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    font-size: var(--text-sm);
+    background: var(--color-white);
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--color-neutral-900);
+    border-bottom: 1px solid rgba(55, 53, 47, 0.04);
+  }
+  .ds-source-row:last-child { border-bottom: none; }
+  .ds-source-row:hover { background: var(--color-neutral-100); }
+  .ds-source-row-selected {
+    background: var(--color-accent-soft, rgba(37, 99, 235, 0.12));
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+  .ds-source-row-disabled {
+    color: var(--color-neutral-400);
+    cursor: not-allowed;
+  }
+  .ds-source-row-disabled:hover { background: var(--color-white); }
+  .ds-source-row-derived::before {
+    content: "◇ ";
+    color: var(--color-accent);
+  }
+  .ds-current { margin-top: 4px; font-style: italic; }
   .cc-mode {
     display: flex;
     flex-direction: column;
