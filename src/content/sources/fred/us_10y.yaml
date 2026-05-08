@@ -4,7 +4,7 @@ description: Nominal yield on the constant-maturity 10-year US Treasury note. Da
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DGS10.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y"]
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

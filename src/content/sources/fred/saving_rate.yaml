@@ -4,7 +4,7 @@ description: Personal saving rate (SA), monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PSAVERT.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

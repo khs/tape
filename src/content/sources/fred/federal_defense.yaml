@@ -4,7 +4,7 @@ description: Federal national-defense spending in nominal dollars. Quarterly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FDEFX.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
 unit: billions USD
 formatting:
   style: currency

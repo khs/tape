@@ -4,7 +4,7 @@ description: Binary monthly flag (1 = recession, 0 = expansion) per the NBER Bus
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/USREC.json
-supportedDeltas: ["5y", "10y", "30y"]
+supportedDeltas: ["5y", "10y", "30y", "50y"]
 unit: binary
 formatting:
   style: number

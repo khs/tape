@@ -4,7 +4,7 @@ description: India real GDP / world real GDP (constant 2015 USD), annual (World 
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/INDA.json
-supportedDeltas: ["5y", "10y", "30y"]
+supportedDeltas: ["5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

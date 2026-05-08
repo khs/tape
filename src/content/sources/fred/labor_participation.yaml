@@ -4,7 +4,7 @@ description: Civilian labor force participation rate, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CIVPART.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
+supportedDeltas: ["1m", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

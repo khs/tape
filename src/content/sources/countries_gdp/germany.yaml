@@ -4,7 +4,7 @@ description: Germany real GDP / world real GDP (constant 2015 USD), annual (Worl
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWG.json
-supportedDeltas: ["5y", "10y", "30y"]
+supportedDeltas: ["5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

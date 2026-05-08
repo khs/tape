@@ -1,4 +1,4 @@
-export const DELTA_WINDOWS = ["1w", "1m", "1y", "5y", "10y", "30y"] as const;
+export const DELTA_WINDOWS = ["1w", "1m", "1y", "5y", "10y", "30y", "50y"] as const;
 export type DeltaWindow = (typeof DELTA_WINDOWS)[number];
 
 export const DELTA_LABELS: Record<DeltaWindow, string> = {
@@ -8,6 +8,7 @@ export const DELTA_LABELS: Record<DeltaWindow, string> = {
   "5y": "5 years",
   "10y": "10 years",
   "30y": "30 years",
+  "50y": "50 years",
 };
 
 /**
@@ -21,6 +22,7 @@ export const DELTA_LABELS_PAST: Record<DeltaWindow, string> = {
   "5y": "past five years",
   "10y": "past ten years",
   "30y": "past 30 years",
+  "50y": "past 50 years",
 };
 
 export const DELTA_LABELS_SHORT: Record<DeltaWindow, string> = {
@@ -30,6 +32,7 @@ export const DELTA_LABELS_SHORT: Record<DeltaWindow, string> = {
   "5y": "5Y",
   "10y": "10Y",
   "30y": "30Y",
+  "50y": "50Y",
 };
 
 export const DELTA_DAYS: Record<DeltaWindow, number> = {
@@ -39,6 +42,7 @@ export const DELTA_DAYS: Record<DeltaWindow, number> = {
   "5y": 365 * 5,
   "10y": 365 * 10,
   "30y": 365 * 30,
+  "50y": 365 * 50,
 };
 
 export function deltaPrior(now: Date, window: DeltaWindow): Date {
