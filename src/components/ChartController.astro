@@ -159,6 +159,90 @@
     const fStart = fixed ? new Date(fixed.start).getTime() : 0;
     const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
     const width = container.clientWidth || 220;
+
+    // Dual-axis: rescale every right-axis series to fit the left axis's
+    // domain so both groups render legibly in the spark. (No axis labels;
+    // sparks are axis-less anyway.)
+    if (
+      payload.normalize === "dual-axis" &&
+      payload.sources.length >= 2
+    ) {
+      const explicit = payload.rightAxisSources ?? [];
+      const rightSet = new Set(
+        explicit.length > 0
+          ? explicit
+          : payload.sources.slice(1).map((s) => s.id),
+      );
+      const matLeft = payload.sources
+        .filter((s) => !rightSet.has(s.id))
+        .map((s) => {
+          const eff = closestSupported(window, s.supportedDeltas);
+          const { visible } = fixed
+            ? visibleRangeFixed(s.points, fStart, fEnd)
+            : visibleRange(s.points, eff, 0);
+          return { s, visible };
+        });
+      const matRight = payload.sources
+        .filter((s) => rightSet.has(s.id))
+        .map((s) => {
+          const eff = closestSupported(window, s.supportedDeltas);
+          const { visible } = fixed
+            ? visibleRangeFixed(s.points, fStart, fEnd)
+            : visibleRange(s.points, eff, 0);
+          return { s, visible };
+        });
+      const haveLeft = matLeft.some((m) => m.visible.length >= 2);
+      const haveRight = matRight.some((m) => m.visible.length >= 2);
+      if (haveLeft && haveRight) {
+        const flatL = matLeft.flatMap((m) => m.visible.map((p) => p.v));
+        const flatR = matRight.flatMap((m) => m.visible.map((p) => p.v));
+        const lMin = Math.min(...flatL);
+        const lMax = Math.max(...flatL);
+        const rMin = Math.min(...flatR);
+        const rMax = Math.max(...flatR);
+        const dL = lMax - lMin || 1;
+        const dR = rMax - rMin || 1;
+        const rescaleR = (v: number) => lMin + ((v - rMin) / dR) * dL;
+        const dualMarks: any[] = [];
+        for (const m of matLeft) {
+          if (m.visible.length < 2) continue;
+          dualMarks.push(
+            Plot.lineY(m.visible, {
+              x: (p: Point) => new Date(p.t),
+              y: "v",
+              stroke: m.s.color,
+              strokeWidth: 1.25,
+            }),
+          );
+        }
+        for (const m of matRight) {
+          if (m.visible.length < 2) continue;
+          const pts = m.visible.map((p) => ({ t: p.t, v: rescaleR(p.v) }));
+          dualMarks.push(
+            Plot.lineY(pts, {
+              x: (p: Point) => new Date(p.t),
+              y: "v",
+              stroke: m.s.color,
+              strokeWidth: 1.25,
+            }),
+          );
+        }
+        const dualPlot = Plot.plot({
+          height: 48,
+          width,
+          axis: null,
+          marginLeft: 0,
+          marginRight: 0,
+          marginTop: 2,
+          marginBottom: 2,
+          marks: dualMarks,
+        });
+        container.replaceChildren(dualPlot);
+        return;
+      }
+      // Degenerate split (one side empty) — fall through to non-dual branch.
+    }
+
     const marks: any[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
