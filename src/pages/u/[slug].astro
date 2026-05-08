@@ -63,6 +63,7 @@ if (state) {
     sections: state.sections,
     charts: state.charts,
     inlineCharts: state.inlineCharts,
+    inlineSources: state.inlineSources,
   });
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDelta = resolveDashboardDefault(state.defaultDelta, supported);
@@ -194,6 +195,7 @@ if (state) {
                   dashboardSlug={`u-${slug}`}
                   dashboardWindow={defaultDelta}
                   dashboardFixedRange={state.fixedRange}
+                  preloaded={c.preloaded}
                 />
               ))}
             </div>

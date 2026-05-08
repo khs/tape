@@ -43,6 +43,7 @@ if (!decoded.ok) {
     sections: st.sections,
     charts: st.charts,
     inlineCharts: st.inlineCharts,
+    inlineSources: st.inlineSources,
   });
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDeltaRequested = resolveDashboardDefault(st.defaultDelta, supported);
@@ -261,6 +262,7 @@ if (!decoded.ok) {
                     dashboardSlug="custom"
                     dashboardWindow={defaultDeltaRequested}
                     dashboardFixedRange={fixedRange}
+                    preloaded={c.preloaded}
                   />
                 ))}
               </div>

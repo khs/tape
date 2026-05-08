@@ -89,6 +89,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="comp-controls">
           <button type="button" class="btn-secondary" data-role="add-section">+ Add section</button>
           <button type="button" class="btn-secondary" data-role="open-custom-chart">+ Custom chart</button>
+          <button type="button" class="btn-secondary" data-role="open-derived-source">+ Derived source</button>
         </div>
       </main>
     </div>
@@ -121,6 +122,49 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="cc-modal-footer">
           <button type="button" class="btn-secondary" data-role="cb-cancel">Cancel</button>
           <button type="button" class="btn-primary" data-role="cb-save">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Derived-source modal. Combines two sources (real or already-derived)
+         into a new first-class source that can be used anywhere a regular
+         source can. -->
+    <div class="cc-modal-backdrop" data-role="ds-modal" hidden>
+      <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="ds-modal-title">
+        <div class="cc-modal-header">
+          <h3 id="ds-modal-title">New derived source</h3>
+          <button type="button" class="cc-modal-close" data-role="ds-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="cc-modal-body">
+          <p class="muted small">
+            Combines two existing sources (real or derived) into a new
+            source you can use in any chart.
+          </p>
+          <label class="cc-field">
+            <span class="eyebrow">Name</span>
+            <input type="text" data-role="ds-name" placeholder="e.g. Retail-gas / WTI" />
+          </label>
+          <label class="cc-field">
+            <span class="eyebrow">Operation</span>
+            <select data-role="ds-op">
+              <option value="divide">Divide (A ÷ B)</option>
+              <option value="diff">Difference (A − B)</option>
+              <option value="sum">Sum (A + B)</option>
+            </select>
+          </label>
+          <label class="cc-field">
+            <span class="eyebrow">A (first operand)</span>
+            <select data-role="ds-a"></select>
+          </label>
+          <label class="cc-field">
+            <span class="eyebrow">B (second operand)</span>
+            <select data-role="ds-b"></select>
+          </label>
+          <p class="cc-op-hint muted small" data-role="ds-hint">&nbsp;</p>
+        </div>
+        <div class="cc-modal-footer">
+          <button type="button" class="btn-secondary" data-role="ds-cancel">Cancel</button>
+          <button type="button" class="btn-primary" data-role="ds-create" disabled>Create source</button>
         </div>
       </div>
     </div>
@@ -161,19 +205,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span><strong>Dual-axis</strong> — left and right y-axes, one per series. Available with exactly two sources.</span>
               </label>
             </fieldset>
-            <div class="cc-op-wrap" data-role="cc-op-wrap" hidden>
-              <label class="eyebrow" for="cc-op-select">Combine</label>
-              <select id="cc-op-select" data-role="cc-op-select">
-                <option value="">No combine — plot lines separately</option>
-                <option value="divide">Divide (A ÷ B)</option>
-                <option value="sum">Sum (A + B)</option>
-                <option value="diff">Difference (A − B)</option>
-              </select>
-              <p class="cc-op-hint muted small" data-role="cc-op-hint">&nbsp;</p>
-              <button type="button" class="btn-secondary cc-op-swap" data-role="cc-op-swap" hidden>
-                ⇄ Swap A and B
-              </button>
-            </div>
+            <p class="muted small">
+              Need to plot a ratio, sum, or difference?
+              Click <strong>+ Derived source</strong> outside this modal
+              first; then pick the derived source here like any other.
+            </p>
           </div>
           <div class="cc-modal-preview">
             <div class="cc-preview-header">
@@ -199,6 +235,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     decodeComposedState,
     type ComposedState,
     type InlineChart,
+    type InlineSource,
   } from "../lib/composer-state";
   import type { DeltaWindow } from "../lib/deltas";
   import {
@@ -256,6 +293,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     fixedRange?: { start: string; end: string };
     sections: { title: string; description: string; charts: string[] }[];
     inlineCharts: Record<string, InlineChart>;
+    inlineSources: Record<string, InlineSource>;
     chartOverrides: Record<string, ChartOverride>;
   }
 
@@ -269,10 +307,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     defaultDelta: "",
     sections: defaultSections(),
     inlineCharts: {},
+    inlineSources: {},
     chartOverrides: {},
   };
 
   const INLINE_PREFIX = "inline:";
+  const DERIVED_PREFIX = "derived:";
+  function isDerivedId(id: string): boolean {
+    return id.startsWith(DERIVED_PREFIX);
+  }
   function isInlineId(id: string): boolean {
     return id.startsWith(INLINE_PREFIX);
   }
@@ -315,6 +358,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       state.sections = defaultSections();
     }
     state.inlineCharts = { ...(s.inlineCharts ?? {}) };
+    state.inlineSources = { ...(s.inlineSources ?? {}) };
     state.chartOverrides = {
       ...((s.chartOverrides as Record<string, ChartOverride>) ?? {}),
     };
@@ -335,6 +379,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
     }
     return Object.keys(refs).length > 0 ? refs : undefined;
+  }
+
+  // Walk the dashboard for transitive references to inline (derived)
+  // sources — any source ID with the derived: prefix used either by an
+  // inline chart's sources list or by another derived source's a/b.
+  // Drops entries that aren't reachable so renaming/removing a chart
+  // doesn't leave orphans in the saved state.
+  function referencedInlineSources(): Record<string, InlineSource> | undefined {
+    if (Object.keys(state.inlineSources).length === 0) return undefined;
+    const reachable = new Set<string>();
+    function visit(id: string): void {
+      if (!isDerivedId(id)) return;
+      if (reachable.has(id)) return;
+      const spec = state.inlineSources[id];
+      if (!spec) return;
+      reachable.add(id);
+      visit(spec.a);
+      visit(spec.b);
+    }
+    // Seed from all inline-chart sources currently in use.
+    for (const sec of state.sections) {
+      for (const cid of sec.charts) {
+        if (!isInlineId(cid)) continue;
+        const ic = state.inlineCharts[cid];
+        if (!ic) continue;
+        for (const sid of ic.sources) visit(sid);
+      }
+    }
+    if (reachable.size === 0) return undefined;
+    const out: Record<string, InlineSource> = {};
+    for (const id of reachable) out[id] = state.inlineSources[id];
+    return out;
   }
 
   // Strip empty values from chart overrides, drop overrides for charts no
@@ -368,10 +444,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           charts: [...s.charts],
         })),
       inlineCharts: referencedInlineCharts(),
+      inlineSources: referencedInlineSources(),
       chartOverrides: referencedChartOverrides(),
     };
     if (!clean.sections || clean.sections.length === 0) delete clean.sections;
     if (!clean.inlineCharts) delete clean.inlineCharts;
+    if (!clean.inlineSources) delete clean.inlineSources;
     if (!clean.chartOverrides) delete clean.chartOverrides;
     const encoded = encodeComposedState(clean);
     const url = new URL(window.location.href);
@@ -832,9 +910,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             const inline = state.inlineCharts[chartId];
             titleText = inline?.title ?? chartId;
             const sourceLabels = (inline?.sources ?? []).map((sid) => {
+              if (isDerivedId(sid)) {
+                return state.inlineSources[sid]?.name ?? sid;
+              }
               const s = library?.sources[sid];
               return s?.shortName ?? s?.name ?? sid;
             });
+            // Legacy chart-level op (deprecated by derived sources): keep
+            // rendering correctly for any saved dashboards that still
+            // carry it.
             const joiner = inline?.op === "divide"
               ? " ÷ "
               : inline?.op === "diff"
@@ -1058,8 +1142,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (openCustom) {
       openCustom.addEventListener("click", () => openCustomChartModal());
     }
+    const openDerived = shell.querySelector<HTMLButtonElement>("[data-role='open-derived-source']");
+    if (openDerived) {
+      openDerived.addEventListener("click", () => openDerivedSourceModal());
+    }
     wireCustomChartModal();
     wireChartBlurbModal();
+    wireDerivedSourceModal();
     const copyShare = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
     if (copyShare) {
       copyShare.addEventListener("click", async () => {
@@ -1131,6 +1220,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               fixedRange: state.fixedRange,
               sections: cleanSections,
               inlineCharts: referencedInlineCharts(),
+              inlineSources: referencedInlineSources(),
               chartOverrides: referencedChartOverrides(),
             };
             saveBtn.disabled = true;
@@ -1474,12 +1564,34 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   function filteredModalSources(): LibrarySource[] {
     if (!library) return [];
     const q = ccModal.search.trim().toLowerCase();
-    const all = Object.values(library.sources);
+    // Inject derived sources at the top of the universe so the user sees
+    // their own creations before the firehose of library sources.
+    const derivedAsLib: LibrarySource[] = Object.entries(state.inlineSources).map(
+      ([id, spec]) => ({
+        id,
+        name: spec.name,
+        shortName: spec.name,
+        description: `Derived: ${describeDerivedExpr(id)}`,
+      } as LibrarySource),
+    );
+    const all = [...derivedAsLib, ...Object.values(library.sources)];
     if (!q) return all;
     return all.filter((s) => {
       const hay = `${s.name} ${s.shortName ?? ""} ${s.description ?? ""} ${s.id}`.toLowerCase();
       return hay.includes(q);
     });
+  }
+
+  // Render a chain of derived combinations as a string, recursively.
+  function describeDerivedExpr(id: string): string {
+    if (!isDerivedId(id)) {
+      const s = library?.sources[id];
+      return s?.shortName ?? s?.name ?? id;
+    }
+    const spec = state.inlineSources[id];
+    if (!spec) return id;
+    const symbol = spec.op === "divide" ? "÷" : spec.op === "sum" ? "+" : "−";
+    return `${describeDerivedExpr(spec.a)} ${symbol} ${describeDerivedExpr(spec.b)}`;
   }
 
   function renderCustomChartSources(): void {
@@ -1604,6 +1716,44 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   async function fetchSourceSeries(sourceId: string): Promise<FetchedSeries | null> {
     if (sourceDataCache.has(sourceId)) return sourceDataCache.get(sourceId)!;
     const promise = (async () => {
+      // Derived path: recursively fetch A and B, combine via op.
+      if (isDerivedId(sourceId)) {
+        const spec = state.inlineSources[sourceId];
+        if (!spec) return null;
+        const [a, b] = await Promise.all([
+          fetchSourceSeries(spec.a),
+          fetchSourceSeries(spec.b),
+        ]);
+        if (!a || !b) return null;
+        const aMap = new Map<string, number>();
+        for (const p of a.points) aMap.set(p.t, p.v);
+        const bMap = new Map<string, number>();
+        for (const p of b.points) bMap.set(p.t, p.v);
+        const all = new Set<string>();
+        for (const p of a.points) all.add(p.t);
+        for (const p of b.points) all.add(p.t);
+        const ordered = [...all].sort();
+        let lastA: number | null = null;
+        let lastB: number | null = null;
+        const out: SeriesPoint[] = [];
+        for (const t of ordered) {
+          if (aMap.has(t)) lastA = aMap.get(t)!;
+          if (bMap.has(t)) lastB = bMap.get(t)!;
+          if (lastA === null || lastB === null) continue;
+          let v: number;
+          if (spec.op === "divide") {
+            if (lastB === 0) continue;
+            v = lastA / lastB;
+          } else if (spec.op === "sum") {
+            v = lastA + lastB;
+          } else {
+            v = lastA - lastB;
+          }
+          out.push({ t, v });
+        }
+        if (out.length === 0) return null;
+        return { id: sourceId, name: spec.name, points: out };
+      }
       const lib = library;
       const meta = lib?.sources[sourceId];
       if (!lib || !meta) return null;
@@ -1880,6 +2030,182 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           `<li><span class="cc-legend-dot" style="background:${s.color}"></span><span>${escapeHtml(s.name)}</span></li>`,
       )
       .join("");
+  }
+
+  // ---- Derived-source modal ----
+  // A derived source = A op B, where A and B can each be a real source ID
+  // OR another derived source ID (recursive). Stored in state.inlineSources
+  // keyed by `derived:<nanoid>`. Once created it appears in the source
+  // picker for + Custom chart and as an A/B option for further derivation.
+
+  interface DerivedModalState {
+    name: string;
+    op: "divide" | "sum" | "diff";
+    a: string;
+    b: string;
+  }
+  const dsModal: DerivedModalState = {
+    name: "",
+    op: "divide",
+    a: "",
+    b: "",
+  };
+
+  // Universe of pickable source IDs: every real source from library.json
+  // plus every derived source already in state. Sorted: derived first
+  // (so the user sees the ones they've created at the top), then real,
+  // each block sorted by display name.
+  function pickableSourceOptions(): { id: string; label: string; isDerived: boolean }[] {
+    const derived = Object.entries(state.inlineSources).map(([id, spec]) => ({
+      id,
+      label: `${spec.name} (derived)`,
+      isDerived: true,
+    }));
+    derived.sort((x, y) => x.label.localeCompare(y.label));
+    const real = library
+      ? Object.values(library.sources).map((s) => ({
+          id: s.id,
+          label: (s.shortName ?? s.name) + (s.shortName && s.shortName !== s.name ? ` — ${s.name}` : ""),
+          isDerived: false,
+        }))
+      : [];
+    real.sort((x, y) => x.label.localeCompare(y.label));
+    return [...derived, ...real];
+  }
+
+  function fillSelect(sel: HTMLSelectElement, value: string): void {
+    sel.innerHTML = "";
+    const opts = pickableSourceOptions();
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "— pick a source —";
+    sel.appendChild(blank);
+    for (const o of opts) {
+      const e = document.createElement("option");
+      e.value = o.id;
+      e.textContent = o.label;
+      sel.appendChild(e);
+    }
+    sel.value = value;
+  }
+
+  function dsSourceLabel(id: string): string {
+    if (!id) return "?";
+    if (isDerivedId(id)) return state.inlineSources[id]?.name ?? id;
+    const s = library?.sources[id];
+    return s?.shortName ?? s?.name ?? id;
+  }
+
+  function syncDerivedHint(): void {
+    const hint = shell.querySelector<HTMLElement>("[data-role='ds-hint']");
+    const create = shell.querySelector<HTMLButtonElement>("[data-role='ds-create']");
+    if (hint) {
+      const symbol = dsModal.op === "divide" ? "÷" : dsModal.op === "sum" ? "+" : "−";
+      const aL = dsSourceLabel(dsModal.a);
+      const bL = dsSourceLabel(dsModal.b);
+      const ready = !!(dsModal.name.trim() && dsModal.a && dsModal.b && dsModal.a !== dsModal.b);
+      hint.textContent = ready
+        ? `→ ${aL} ${symbol} ${bL}`
+        : !dsModal.a || !dsModal.b
+          ? "Pick A and B."
+          : dsModal.a === dsModal.b
+            ? "A and B must be different."
+            : !dsModal.name.trim()
+              ? "Give the new source a name."
+              : "";
+    }
+    if (create) {
+      create.disabled = !(
+        dsModal.name.trim() &&
+        dsModal.a &&
+        dsModal.b &&
+        dsModal.a !== dsModal.b
+      );
+    }
+  }
+
+  function openDerivedSourceModal(): void {
+    dsModal.name = "";
+    dsModal.op = "divide";
+    dsModal.a = "";
+    dsModal.b = "";
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
+    if (!backdrop) return;
+    backdrop.hidden = false;
+    const nameInput = shell.querySelector<HTMLInputElement>("[data-role='ds-name']");
+    if (nameInput) {
+      nameInput.value = "";
+      nameInput.focus();
+    }
+    const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
+    if (opSelect) opSelect.value = "divide";
+    const aSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-a']");
+    const bSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-b']");
+    if (aSel) fillSelect(aSel, "");
+    if (bSel) fillSelect(bSel, "");
+    syncDerivedHint();
+  }
+
+  function closeDerivedSourceModal(): void {
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
+    if (backdrop) backdrop.hidden = true;
+  }
+
+  function wireDerivedSourceModal(): void {
+    const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
+    const closeBtn = shell.querySelector<HTMLButtonElement>("[data-role='ds-close']");
+    const cancelBtn = shell.querySelector<HTMLButtonElement>("[data-role='ds-cancel']");
+    const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='ds-create']");
+    const nameInput = shell.querySelector<HTMLInputElement>("[data-role='ds-name']");
+    const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
+    const aSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-a']");
+    const bSel = shell.querySelector<HTMLSelectElement>("[data-role='ds-b']");
+
+    closeBtn?.addEventListener("click", closeDerivedSourceModal);
+    cancelBtn?.addEventListener("click", closeDerivedSourceModal);
+    backdrop?.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeDerivedSourceModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !backdrop || backdrop.hidden) return;
+      closeDerivedSourceModal();
+    });
+    nameInput?.addEventListener("input", () => {
+      dsModal.name = nameInput.value;
+      syncDerivedHint();
+    });
+    opSelect?.addEventListener("change", () => {
+      dsModal.op = opSelect.value as DerivedModalState["op"];
+      syncDerivedHint();
+    });
+    aSel?.addEventListener("change", () => {
+      dsModal.a = aSel.value;
+      syncDerivedHint();
+    });
+    bSel?.addEventListener("change", () => {
+      dsModal.b = bSel.value;
+      syncDerivedHint();
+    });
+    createBtn?.addEventListener("click", () => {
+      if (
+        !dsModal.name.trim() ||
+        !dsModal.a ||
+        !dsModal.b ||
+        dsModal.a === dsModal.b
+      )
+        return;
+      const id = DERIVED_PREFIX + nanoid(8);
+      state.inlineSources[id] = {
+        op: dsModal.op,
+        a: dsModal.a,
+        b: dsModal.b,
+        name: dsModal.name.trim(),
+      };
+      writeUrl();
+      closeDerivedSourceModal();
+      // Refresh anything that lists sources (custom-chart modal, if open).
+      renderCustomChartSources();
+    });
   }
 
   function wireCustomChartModal(): void {

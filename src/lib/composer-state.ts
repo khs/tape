@@ -59,6 +59,22 @@ const inlineChartSchema = z.object({
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;
 
+/**
+ * A user-defined derived source: A op B, where A and B can each be a real
+ * source ID OR another inline-source ID. The result is a first-class
+ * source: it can be added to charts, combined further, given to the
+ * dual-axis picker, etc. Stored in the composed state's `inlineSources`
+ * map and referenced via the `derived:<id>` ID prefix.
+ */
+const inlineSourceSchema = z.object({
+  op: z.enum(["divide", "sum", "diff"]),
+  a: z.string(),
+  b: z.string(),
+  name: z.string(),
+});
+
+export type InlineSource = z.infer<typeof inlineSourceSchema>;
+
 // Fixed-date range that pins both the visible window and the delta-prior
 // anchor to a specific [start, end] pair. When set, overrides defaultDelta
 // and the per-viewer window pills entirely so the dashboard reads the same
@@ -79,6 +95,7 @@ export const composedStateSchema = z.object({
   sections: z.array(sectionSchema).optional(),
   chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),
   inlineCharts: z.record(z.string(), inlineChartSchema).optional(),
+  inlineSources: z.record(z.string(), inlineSourceSchema).optional(),
 });
 
 export type ComposedState = z.infer<typeof composedStateSchema>;

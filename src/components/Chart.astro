@@ -31,9 +31,13 @@ interface Props {
   // a trailing window. Both bounds are ISO YYYY-MM-DD. Wins over
   // dashboardWindow when present.
   dashboardFixedRange?: { start: string; end: string };
+  // Side channel: pre-computed timeseries keyed by source ID. Used by
+  // derived sources (which don't have a real data file). Real sources
+  // can also be preloaded; we just won't read fs in that case.
+  preloaded?: Record<string, TimeSeriesData>;
 }
 
-const { chartId, chart, sources, dashboardSlug, dashboardWindow, dashboardFixedRange } =
+const { chartId, chart, sources, dashboardSlug, dashboardWindow, dashboardFixedRange, preloaded } =
   Astro.props;
 
 // Pull op (arithmetic combination) off the chart if set. When valid (op
@@ -111,11 +115,19 @@ const perSourceRaw: PerSource[] = sources.map((s, i) => {
     s.data.name;
   let data: TimeSeriesData | null = null;
   let loadError: string | null = null;
-  try {
-    const raw = loadSourceData(s.data.dataFile);
-    if (raw.kind === "timeseries") data = raw;
-  } catch (e) {
-    loadError = `Data unavailable: ${s.data.dataFile}`;
+  // Prefer preloaded data when available (always for derived sources;
+  // optionally for real sources when the resolver wants to short-circuit
+  // an extra fs read).
+  const preloadedHere = preloaded?.[s.id];
+  if (preloadedHere) {
+    data = preloadedHere;
+  } else {
+    try {
+      const raw = loadSourceData(s.data.dataFile);
+      if (raw.kind === "timeseries") data = raw;
+    } catch (e) {
+      loadError = `Data unavailable: ${s.data.dataFile}`;
+    }
   }
   const trimmed = data ? trimPoints(data, s.data.supportedDeltas as DeltaWindow[]) : null;
   const effectiveDeltaForSource: DeltaWindow = closestSupported(
