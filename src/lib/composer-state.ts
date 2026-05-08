@@ -50,6 +50,11 @@ const inlineChartSchema = z.object({
   rightAxisSources: z.array(z.string()).optional(),
   defaultDelta: deltaWindowSchema.optional(),
   blurb: z.string().optional(),
+  // Optional arithmetic operation between sources. When set, the chart
+  // plots a single derived series instead of the individual sources.
+  // Order matters for divide / diff (sources[0] op sources[1]); sum is
+  // commutative. Currently restricted to 2 sources.
+  op: z.enum(["divide", "sum", "diff"]).optional(),
 });
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;

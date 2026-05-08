@@ -17,6 +17,7 @@ import {
 } from "../lib/deltas";
 import type { TimeSeriesData } from "../lib/data-types";
 import { seriesColor } from "../lib/series-colors";
+import { combineTwo, combineOpLabel, type CombineOp } from "../lib/derive";
 
 type ChartData = CollectionEntry<"charts">["data"];
 
@@ -35,15 +36,30 @@ interface Props {
 const { chartId, chart, sources, dashboardSlug, dashboardWindow, dashboardFixedRange } =
   Astro.props;
 
-const isMulti = sources.length > 1;
+// Pull op (arithmetic combination) off the chart if set. When valid (op
+// + exactly two sources), we collapse the chart into a single derived
+// series after perSource is loaded; the rest of the pipeline then treats
+// it as a single-source chart.
+const chartOp =
+  (chart as { op?: CombineOp }).op &&
+  sources.length === 2
+    ? ((chart as { op?: CombineOp }).op as CombineOp)
+    : undefined;
+
+// `isMulti` after any op collapse: if we have an op-driven collapse, the
+// rendered chart is single-line.
+const isMulti = !chartOp && sources.length > 1;
 // Resolve normalize mode. If the chart didn't set one, pick a sensible
 // default: "rebase" for multi-source charts, "raw" for single. Heuristic
 // for same-scale multi-source ("3 percent rates": all match formatting +
 // unit) is applied at compose time when the inline chart is built; when
-// it's already explicit on the chart we honor whatever was set.
+// it's already explicit on the chart we honor whatever was set. Op'd
+// charts always render raw (single derived line).
 const normalize: "rebase" | "raw" | "dual-axis" =
-  (chart.normalize as "rebase" | "raw" | "dual-axis" | undefined) ??
-  (isMulti ? "rebase" : "raw");
+  chartOp
+    ? "raw"
+    : ((chart.normalize as "rebase" | "raw" | "dual-axis" | undefined) ??
+      (isMulti ? "rebase" : "raw"));
 
 // Effective supportedDeltas = intersection of sources' supportedDeltas.
 // Preserve the canonical order (DELTA_WINDOWS order).
@@ -88,7 +104,7 @@ interface PerSource {
   loadError: string | null;
 }
 
-const perSource: PerSource[] = sources.map((s, i) => {
+const perSourceRaw: PerSource[] = sources.map((s, i) => {
   const label =
     chart.seriesLabels?.[i] ??
     s.data.shortName ??
@@ -150,6 +166,94 @@ const perSource: PerSource[] = sources.map((s, i) => {
     loadError,
   };
 });
+
+// If this is an op'd chart, collapse the two perSource entries into a
+// single derived entry whose data is the combined timeseries. The rest
+// of the rendering pipeline then treats this as a normal single-source
+// chart.
+let perSource: PerSource[] = perSourceRaw;
+if (chartOp && perSourceRaw.length === 2 && perSourceRaw[0].data && perSourceRaw[1].data) {
+  const a = perSourceRaw[0];
+  const b = perSourceRaw[1];
+  const combinedPoints = combineTwo(a.data!, b.data!, chartOp);
+  // Pick formatting: divide → unitless ratio with 4 decimals; sum/diff
+  // → reuse the first source's formatting (units typically match).
+  const baseFmt = a.source.data.formatting;
+  const opFormatting =
+    chartOp === "divide"
+      ? { ...baseFmt, style: "number" as const, decimals: 4 }
+      : baseFmt;
+  // Synthesize a single virtual perSource entry. We reuse a's source
+  // collection entry as the carrier but override formatting through a
+  // shadow object passed downstream where possible.
+  const combinedData: TimeSeriesData | null =
+    combinedPoints.length > 0
+      ? {
+          id: `${a.id}_${chartOp}_${b.id}`,
+          name: `${a.label} ${combineOpLabel(chartOp)} ${b.label}`,
+          kind: "timeseries",
+          unit: chartOp === "divide" ? "ratio" : a.data!.unit,
+          lastUpdated: a.data!.lastUpdated,
+          points: combinedPoints,
+        }
+      : null;
+  // Compute current/prior on the combined series with the same logic
+  // used for the underlying singletons.
+  let combinedCurrent: { t: string; v: number } | null = null;
+  let combinedPrior: { t: string; v: number } | null = null;
+  if (combinedData) {
+    if (dashboardFixedRange) {
+      const startMs = new Date(dashboardFixedRange.start).getTime();
+      const endMs = new Date(dashboardFixedRange.end).getTime();
+      for (const p of combinedData.points) {
+        const t = new Date(p.t).getTime();
+        if (t <= endMs) combinedCurrent = p;
+        if (t <= startMs) combinedPrior = p;
+        else if (t > endMs) break;
+      }
+    } else {
+      combinedCurrent = currentPoint(combinedData);
+      const eff = closestSupported(
+        defaultDelta,
+        a.source.data.supportedDeltas as DeltaWindow[],
+      );
+      combinedPrior = findPriorPoint(combinedData, eff);
+    }
+  }
+  const currentStr = combinedCurrent
+    ? formatValue(combinedCurrent.v, opFormatting)
+    : "—";
+  const priorStr = combinedPrior
+    ? formatValue(combinedPrior.v, opFormatting)
+    : null;
+  const delta =
+    combinedCurrent && combinedPrior
+      ? formatDeltaDisplay(combinedCurrent.v, combinedPrior.v, opFormatting)
+      : null;
+  // Build a synthetic source entry that carries the new formatting so
+  // downstream code (tile readouts, dialog readouts, plot tickFormat)
+  // displays the derived series correctly. We piggyback on a's
+  // CollectionEntry shape and override its data.formatting.
+  const syntheticSource = {
+    ...a.source,
+    data: { ...a.source.data, formatting: opFormatting },
+  } as CollectionEntry<"sources">;
+  perSource = [
+    {
+      id: combinedData?.id ?? `${a.id}_${chartOp}_${b.id}`,
+      source: syntheticSource,
+      label: `${a.label} ${combineOpLabel(chartOp)} ${b.label}`,
+      color: seriesColor(0),
+      data: combinedData,
+      current: combinedCurrent,
+      prior: combinedPrior,
+      currentStr,
+      priorStr,
+      delta,
+      loadError: a.loadError ?? b.loadError,
+    },
+  ];
+}
 
 const primary = perSource[0];
 const primarySource = primary.source;

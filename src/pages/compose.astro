@@ -161,6 +161,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span><strong>Dual-axis</strong> — left and right y-axes, one per series. Available with exactly two sources.</span>
               </label>
             </fieldset>
+            <div class="cc-op-wrap" data-role="cc-op-wrap" hidden>
+              <label class="eyebrow" for="cc-op-select">Combine</label>
+              <select id="cc-op-select" data-role="cc-op-select">
+                <option value="">No combine — plot lines separately</option>
+                <option value="divide">Divide (A ÷ B)</option>
+                <option value="sum">Sum (A + B)</option>
+                <option value="diff">Difference (A − B)</option>
+              </select>
+              <p class="cc-op-hint muted small" data-role="cc-op-hint">&nbsp;</p>
+              <button type="button" class="btn-secondary cc-op-swap" data-role="cc-op-swap" hidden>
+                ⇄ Swap A and B
+              </button>
+            </div>
           </div>
           <div class="cc-modal-preview">
             <div class="cc-preview-header">
@@ -822,7 +835,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               const s = library?.sources[sid];
               return s?.shortName ?? s?.name ?? sid;
             });
-            metaText = `custom · ${sourceLabels.join(" + ")}`;
+            const joiner = inline?.op === "divide"
+              ? " ÷ "
+              : inline?.op === "diff"
+                ? " − "
+                : " + ";
+            metaText = `custom · ${sourceLabels.join(joiner)}`;
             tile.className = "comp-tile comp-tile-inline";
           } else {
             const chart = library?.charts.find((c) => c.id === chartId);
@@ -1264,10 +1282,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // ---- Custom-chart modal ----
   // Modal state (ephemeral — does not live in composed state until Save is clicked).
   type CustomChartMode = "raw" | "rebase" | "dual-axis";
+  type ChartCombineOp = "divide" | "sum" | "diff";
   interface CustomChartModalState {
     editingId: string | null; // inline id being edited, or null for create
     title: string;
     selected: Set<string>;
+    // Order in which sources were picked; this is the "A, B" order for op
+    // computations and preserves the user's intent across re-renders. Items
+    // get pushed when checked, removed when unchecked, swapped on Swap.
+    selectedOrder: string[];
     search: string;
     mode: CustomChartMode;
     // Tracks whether the user has explicitly picked a mode. If false, the
@@ -1277,15 +1300,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Sources not in this set plot on the left. Edited only when mode is
     // dual-axis; preserved in spec on save.
     rightAxisSources: Set<string>;
+    // Optional arithmetic combine op. When set with exactly 2 sources,
+    // collapses the chart into a single derived series.
+    op: ChartCombineOp | null;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
     title: "",
     selected: new Set<string>(),
+    selectedOrder: [],
     search: "",
     mode: "raw",
     modeIsExplicit: false,
     rightAxisSources: new Set<string>(),
+    op: null,
   };
 
   // True when every selected source shares the same formatting style + unit
@@ -1325,6 +1353,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.editingId = existing ? (editingId as string) : null;
     ccModal.title = existing?.title ?? "";
     ccModal.selected = new Set<string>(existing?.sources ?? []);
+    ccModal.selectedOrder = [...(existing?.sources ?? [])];
+    ccModal.op = (existing?.op as ChartCombineOp | undefined) ?? null;
     ccModal.search = "";
     if (existing?.normalize) {
       ccModal.mode = existing.normalize as CustomChartMode;
@@ -1352,9 +1382,44 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
     if (searchInput) searchInput.value = "";
     syncModeRadioFromState();
+    syncOpUI();
     renderCustomChartSources();
     updateCustomChartCreateState();
     renderCustomChartPreview();
+  }
+
+  // Reflect ccModal.op + selected count onto the operation UI: enable
+  // when 2 sources picked, fill in the dropdown value, render the A/B
+  // hint, toggle Swap visibility.
+  function syncOpUI(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='cc-op-wrap']");
+    const sel = shell.querySelector<HTMLSelectElement>("[data-role='cc-op-select']");
+    const hint = shell.querySelector<HTMLElement>("[data-role='cc-op-hint']");
+    const swap = shell.querySelector<HTMLButtonElement>("[data-role='cc-op-swap']");
+    if (!wrap || !sel || !hint || !swap) return;
+    // Show Combine UI any time we have at least 2 selected sources.
+    wrap.hidden = ccModal.selected.size < 2;
+    if (ccModal.selected.size !== 2) {
+      // Op needs exactly 2 sources. Disable but show the wrap if 2+ so
+      // the user knows the option exists.
+      sel.disabled = ccModal.selected.size !== 2;
+    } else {
+      sel.disabled = false;
+    }
+    sel.value = ccModal.op ?? "";
+    if (ccModal.op && ccModal.selectedOrder.length === 2) {
+      const [aId, bId] = ccModal.selectedOrder;
+      const aLabel = library?.sources[aId]?.shortName ?? library?.sources[aId]?.name ?? aId;
+      const bLabel = library?.sources[bId]?.shortName ?? library?.sources[bId]?.name ?? bId;
+      const symbol = ccModal.op === "divide" ? "÷" : ccModal.op === "sum" ? "+" : "−";
+      hint.textContent = `A: ${aLabel}   B: ${bLabel}   →   ${aLabel} ${symbol} ${bLabel}`;
+      swap.hidden = false;
+    } else {
+      hint.textContent = ccModal.selected.size > 2
+        ? "Combine requires exactly 2 sources."
+        : "";
+      swap.hidden = true;
+    }
   }
 
   // Reflect ccModal.mode + selected-source count onto the radio inputs:
@@ -1435,8 +1500,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       cb.type = "checkbox";
       cb.checked = ccModal.selected.has(s.id);
       cb.addEventListener("change", () => {
-        if (cb.checked) ccModal.selected.add(s.id);
-        else ccModal.selected.delete(s.id);
+        if (cb.checked) {
+          ccModal.selected.add(s.id);
+          if (!ccModal.selectedOrder.includes(s.id))
+            ccModal.selectedOrder.push(s.id);
+        } else {
+          ccModal.selected.delete(s.id);
+          ccModal.selectedOrder = ccModal.selectedOrder.filter((id) => id !== s.id);
+        }
         // If user hasn't explicitly picked a mode, auto-default from scale
         // heuristics whenever the source set changes. If they have, keep
         // their pick (but flip dual-axis off when no longer 2 sources).
@@ -1449,7 +1520,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         }
         // Strip rightAxis assignment for sources that just got unchecked.
         if (!cb.checked) ccModal.rightAxisSources.delete(s.id);
+        // Op requires exactly 2 sources; clear if no longer applicable.
+        if (ccModal.op && ccModal.selected.size !== 2) {
+          ccModal.op = null;
+        }
         syncModeRadioFromState();
+        syncOpUI();
         updateCustomChartCreateState();
         renderCustomChartSources();
         renderCustomChartPreview();
@@ -1571,8 +1647,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return;
     }
     statusEl.textContent = "Loading…";
+    // Use selectedOrder so the user's explicit A/B order is honored when op
+    // is set. Fall back to selection iteration order otherwise.
+    const orderedIds = ccModal.selectedOrder.filter((id) =>
+      ccModal.selected.has(id),
+    );
+    for (const id of ccModal.selected) {
+      if (!orderedIds.includes(id)) orderedIds.push(id);
+    }
     const series = (
-      await Promise.all(ids.map((id) => fetchSourceSeries(id)))
+      await Promise.all(orderedIds.map((id) => fetchSourceSeries(id)))
     ).filter((s): s is FetchedSeries => s !== null);
     if (token !== ccPreviewToken) return; // stale render
 
@@ -1580,6 +1664,69 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       plotHost.replaceChildren();
       legendEl.innerHTML = "";
       statusEl.textContent = "Couldn't load data for the selected sources.";
+      return;
+    }
+
+    // Op short-circuit: if 2 sources + op set, collapse into a single
+    // derived series and render as one line.
+    if (ccModal.op && series.length === 2) {
+      const a = series[0];
+      const b = series[1];
+      const aMap = new Map<string, number>();
+      for (const p of a.points) aMap.set(p.t, p.v);
+      const bMap = new Map<string, number>();
+      for (const p of b.points) bMap.set(p.t, p.v);
+      const all = new Set<string>();
+      for (const p of a.points) all.add(p.t);
+      for (const p of b.points) all.add(p.t);
+      const ordered = [...all].sort();
+      const combined: { t: Date; v: number }[] = [];
+      let lastA: number | null = null;
+      let lastB: number | null = null;
+      for (const t of ordered) {
+        if (aMap.has(t)) lastA = aMap.get(t)!;
+        if (bMap.has(t)) lastB = bMap.get(t)!;
+        if (lastA === null || lastB === null) continue;
+        let v: number;
+        if (ccModal.op === "divide") {
+          if (lastB === 0) continue;
+          v = lastA / lastB;
+        } else if (ccModal.op === "sum") {
+          v = lastA + lastB;
+        } else {
+          v = lastA - lastB;
+        }
+        combined.push({ t: new Date(t), v });
+      }
+      const symbol = ccModal.op === "divide" ? "÷" : ccModal.op === "sum" ? "+" : "−";
+      statusEl.textContent = `${a.name} ${symbol} ${b.name}`;
+      const opPlot = Plot.plot({
+        height: 220,
+        width: plotHost.clientWidth || 360,
+        marginLeft: 60,
+        marginBottom: 24,
+        marginTop: 8,
+        marginRight: 12,
+        style: {
+          fontFamily:
+            '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontSize: "11px",
+          color: "#55524C",
+          background: "transparent",
+        },
+        x: { label: null, ticks: 4 },
+        y: { label: null, grid: true, ticks: 4 },
+        marks: [
+          Plot.lineY(combined, {
+            x: "t",
+            y: "v",
+            stroke: CC_COLORS[0],
+            strokeWidth: 1.5,
+          }),
+        ],
+      }) as HTMLElement;
+      plotHost.replaceChildren(opPlot);
+      legendEl.innerHTML = `<li><span class="cc-legend-dot" style="background:${CC_COLORS[0]}"></span><span>${escapeHtml(a.name)} ${symbol} ${escapeHtml(b.name)}</span></li>`;
       return;
     }
     // Effective mode for rendering: dual-axis needs at least 2 sources, and
@@ -1776,8 +1923,35 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderCustomChartPreview();
       });
     });
+
+    const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='cc-op-select']");
+    opSelect?.addEventListener("change", () => {
+      ccModal.op = (opSelect.value as ChartCombineOp | "") || null;
+      syncOpUI();
+      renderCustomChartPreview();
+    });
+    const opSwap = shell.querySelector<HTMLButtonElement>("[data-role='cc-op-swap']");
+    opSwap?.addEventListener("click", () => {
+      if (ccModal.selectedOrder.length === 2) {
+        ccModal.selectedOrder = [
+          ccModal.selectedOrder[1],
+          ccModal.selectedOrder[0],
+        ];
+        syncOpUI();
+        renderCustomChartPreview();
+      }
+    });
     createBtn?.addEventListener("click", () => {
-      const sourceIds = [...ccModal.selected];
+      // Use selectedOrder so the user's explicit A/B order is preserved
+      // for op'd charts. Fall back to insertion order if needed.
+      const sourceIds = ccModal.selectedOrder.filter((id) =>
+        ccModal.selected.has(id),
+      );
+      // Append any selected sources that didn't make it into selectedOrder
+      // (defensive — shouldn't happen given the change handler).
+      for (const id of ccModal.selected) {
+        if (!sourceIds.includes(id)) sourceIds.push(id);
+      }
       if (!ccModal.title.trim() || sourceIds.length === 0) return;
       // Final mode: dual-axis needs at least 2 sources; clamp.
       const mode: CustomChartMode =
@@ -1794,6 +1968,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         const filtered = sourceIds.filter((id) => eff.has(id));
         rightAxisSources = filtered.length > 0 ? filtered : undefined;
       }
+      // Op only valid with exactly 2 sources.
+      const opToSave: ChartCombineOp | undefined =
+        ccModal.op && sourceIds.length === 2 ? ccModal.op : undefined;
       if (ccModal.editingId) {
         // Edit mode: preserve any fields we don't expose (e.g. render, blurb).
         const existing = state.inlineCharts[ccModal.editingId] ?? {
@@ -1806,6 +1983,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           sources: sourceIds,
           normalize: mode,
           rightAxisSources,
+          op: opToSave,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -1814,6 +1992,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           sources: sourceIds,
           normalize: mode,
           rightAxisSources,
+          op: opToSave,
         };
         clampActiveSection();
         const target = state.sections[activeSectionIdx];
@@ -2442,6 +2621,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     cursor: not-allowed;
   }
   .cc-mode-opt-disabled input { cursor: not-allowed; }
+  .cc-op-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .cc-op-wrap[hidden] { display: none; }
+  .cc-op-wrap select {
+    font: inherit;
+    padding: 4px 8px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .cc-op-hint {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .cc-op-swap {
+    align-self: flex-start;
+    font-size: var(--text-xs);
+  }
   .cc-modal-footer {
     display: flex;
     justify-content: flex-end;
