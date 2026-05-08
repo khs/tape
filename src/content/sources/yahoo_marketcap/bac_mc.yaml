@@ -1,5 +1,5 @@
 name: Bank of America market cap
-shortName: BAC
+shortName: BAC mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

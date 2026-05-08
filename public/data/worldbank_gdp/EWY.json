@@ -3,7 +3,7 @@
   "name": "South Korea real GDP share of world",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-04T14:19:16Z",
+  "lastUpdated": "2026-05-08T20:09:17Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -266,7 +266,7 @@
       "v": 1.9869852384974507
     },
     {
-      "t": "2026-05-04",
+      "t": "2026-05-08",
       "v": 1.9869852384974507
     }
   ]

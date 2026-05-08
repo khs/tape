@@ -1,0 +1,17 @@
+name: iShares MSCI Brazil ETF (EWZ)
+shortName: EWZ
+description: iShares MSCI Brazil ETF — large- and mid-cap Brazilian equities. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/EWZ.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: EWZ
+  url: https://finance.yahoo.com/quote/EWZ

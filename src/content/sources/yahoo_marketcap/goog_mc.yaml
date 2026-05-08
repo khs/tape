@@ -1,5 +1,5 @@
 name: Alphabet market cap
-shortName: GOOG
+shortName: GOOG mc
 description: Unadjusted close of GOOG (Class C) × historical shares outstanding (yfinance). Represents Class C share value; Alphabet has Class A (GOOGL, voting) and Class B (unlisted) in addition.
 kind: timeseries
 pipeline: yahoo_marketcap

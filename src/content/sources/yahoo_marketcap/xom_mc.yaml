@@ -1,5 +1,5 @@
 name: ExxonMobil market cap
-shortName: XOM
+shortName: XOM mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

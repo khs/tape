@@ -1,5 +1,5 @@
 name: Walt Disney market cap
-shortName: DIS
+shortName: DIS mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

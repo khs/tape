@@ -1,5 +1,5 @@
 name: JPMorgan Chase market cap
-shortName: JPM
+shortName: JPM mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

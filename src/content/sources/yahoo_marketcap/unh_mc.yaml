@@ -1,5 +1,5 @@
 name: UnitedHealth Group market cap
-shortName: UNH
+shortName: UNH mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

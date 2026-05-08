@@ -1,5 +1,5 @@
 name: Tesla market cap
-shortName: TSLA
+shortName: TSLA mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

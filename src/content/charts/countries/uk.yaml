@@ -1,9 +1,11 @@
 title: United Kingdom
 sources:
-  - countries/uk
-  - countries_gdp/uk
+  - yahoo/ewu
+  - yahoo/vt
+  - worldbank_gdp_raw/uk
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["UK ETF", "World ETF", "UK GDP", "World GDP"]
 tags: [world, equity-index]

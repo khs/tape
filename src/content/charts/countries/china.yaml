@@ -1,9 +1,11 @@
 title: China
 sources:
-  - countries/china
-  - countries_gdp/china
+  - yahoo/fxi
+  - yahoo/vt
+  - worldbank_gdp_raw/china
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["China ETF", "World ETF", "China GDP", "World GDP"]
 tags: [world, equity-index]

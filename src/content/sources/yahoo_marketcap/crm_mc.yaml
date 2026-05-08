@@ -1,5 +1,5 @@
 name: Salesforce market cap
-shortName: CRM
+shortName: CRM mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

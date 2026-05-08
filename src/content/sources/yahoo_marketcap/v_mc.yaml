@@ -1,5 +1,5 @@
 name: Visa market cap
-shortName: V
+shortName: V mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

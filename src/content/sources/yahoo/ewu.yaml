@@ -1,0 +1,17 @@
+name: iShares MSCI United Kingdom ETF (EWU)
+shortName: EWU
+description: iShares MSCI United Kingdom ETF — large- and mid-cap UK equities. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/EWU.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: EWU
+  url: https://finance.yahoo.com/quote/EWU

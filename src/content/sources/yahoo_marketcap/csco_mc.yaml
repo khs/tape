@@ -1,5 +1,5 @@
 name: Cisco Systems market cap
-shortName: CSCO
+shortName: CSCO mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

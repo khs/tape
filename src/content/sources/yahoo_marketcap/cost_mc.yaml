@@ -1,5 +1,5 @@
 name: Costco market cap
-shortName: COST
+shortName: COST mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

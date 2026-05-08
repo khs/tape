@@ -1,9 +1,11 @@
 title: Canada
 sources:
-  - countries/canada
-  - countries_gdp/canada
+  - yahoo/ewc
+  - yahoo/vt
+  - worldbank_gdp_raw/canada
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["Canada ETF", "World ETF", "Canada GDP", "World GDP"]
 tags: [world, equity-index]

@@ -1,5 +1,5 @@
 name: Apple market cap
-shortName: AAPL
+shortName: AAPL mc
 description: Market cap = unadjusted close × historical shares outstanding.
 kind: timeseries
 pipeline: yahoo_marketcap

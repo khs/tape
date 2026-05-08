@@ -1,5 +1,5 @@
 name: McDonald's market cap
-shortName: MCD
+shortName: MCD mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

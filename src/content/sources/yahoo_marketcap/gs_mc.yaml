@@ -1,5 +1,5 @@
 name: Goldman Sachs market cap
-shortName: GS
+shortName: GS mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

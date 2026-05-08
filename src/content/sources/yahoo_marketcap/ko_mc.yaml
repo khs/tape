@@ -1,5 +1,5 @@
 name: Coca-Cola market cap
-shortName: KO
+shortName: KO mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

@@ -1,5 +1,5 @@
 name: Berkshire Hathaway market cap
-shortName: BRK
+shortName: BRK mc
 description: Unadjusted close of Class B × historical shares outstanding (yfinance). Class A represents the same underlying company.
 kind: timeseries
 pipeline: yahoo_marketcap

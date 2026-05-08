@@ -1,0 +1,19 @@
+name: India real GDP
+shortName: India GDP
+description: India real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, IND). Annual, latest observation forward-filled to today; WB data lags by ~1 year.
+kind: timeseries
+pipeline: worldbank_gdp_raw
+dataFile: data/worldbank_gdp_raw/INDA.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: USD (constant 2015)
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank
+  series: NY.GDP.MKTP.KD (IND)
+  url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=IN
+  license: CC BY-4.0

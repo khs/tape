@@ -1,5 +1,5 @@
 name: Broadcom market cap
-shortName: AVGO
+shortName: AVGO mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

@@ -1,9 +1,11 @@
 title: India
 sources:
-  - countries/india
-  - countries_gdp/india
+  - yahoo/inda
+  - yahoo/vt
+  - worldbank_gdp_raw/india
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["India ETF", "World ETF", "India GDP", "World GDP"]
 tags: [world, equity-index]

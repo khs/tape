@@ -1,5 +1,5 @@
 name: Netflix market cap
-shortName: NFLX
+shortName: NFLX mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

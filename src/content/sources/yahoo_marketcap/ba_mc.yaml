@@ -1,5 +1,5 @@
 name: Boeing market cap
-shortName: BA
+shortName: BA mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

@@ -1,0 +1,17 @@
+name: iShares MSCI Japan ETF (EWJ)
+shortName: EWJ
+description: iShares MSCI Japan ETF — large- and mid-cap Japanese equities. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/EWJ.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: EWJ
+  url: https://finance.yahoo.com/quote/EWJ

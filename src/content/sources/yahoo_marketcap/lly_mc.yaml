@@ -1,5 +1,5 @@
 name: Eli Lilly market cap
-shortName: LLY
+shortName: LLY mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

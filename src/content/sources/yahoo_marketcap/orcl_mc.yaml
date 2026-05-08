@@ -1,5 +1,5 @@
 name: Oracle market cap
-shortName: ORCL
+shortName: ORCL mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

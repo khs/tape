@@ -1,5 +1,5 @@
 name: TSMC market cap
-shortName: TSMC
+shortName: TSMC mc
 description: Unadjusted close × historical shares outstanding (yfinance). Based on NYSE-listed ADR; does not include shares held via other listings.
 kind: timeseries
 pipeline: yahoo_marketcap

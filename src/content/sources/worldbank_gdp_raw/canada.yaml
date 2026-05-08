@@ -1,0 +1,19 @@
+name: Canada real GDP
+shortName: Canada GDP
+description: Canada real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, CAN). Annual, latest observation forward-filled to today; WB data lags by ~1 year.
+kind: timeseries
+pipeline: worldbank_gdp_raw
+dataFile: data/worldbank_gdp_raw/EWC.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: USD (constant 2015)
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank
+  series: NY.GDP.MKTP.KD (CAN)
+  url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=CA
+  license: CC BY-4.0

@@ -1,5 +1,5 @@
 name: Meta market cap
-shortName: META
+shortName: META mc
 description: Market cap = unadjusted close × historical shares outstanding.
 kind: timeseries
 pipeline: yahoo_marketcap

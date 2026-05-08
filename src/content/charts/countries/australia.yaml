@@ -1,9 +1,11 @@
 title: Australia
 sources:
-  - countries/australia
-  - countries_gdp/australia
+  - yahoo/ewa
+  - yahoo/vt
+  - worldbank_gdp_raw/australia
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["Australia ETF", "World ETF", "Australia GDP", "World GDP"]
 tags: [world, equity-index]

@@ -1,5 +1,5 @@
 name: Pfizer market cap
-shortName: PFE
+shortName: PFE mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

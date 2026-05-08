@@ -1,0 +1,17 @@
+name: iShares China Large-Cap ETF (FXI)
+shortName: FXI
+description: iShares China Large-Cap ETF — 50 of the largest Chinese companies trading on the Hong Kong Stock Exchange. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/FXI.json
+supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: FXI
+  url: https://finance.yahoo.com/quote/FXI

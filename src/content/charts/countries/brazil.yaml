@@ -1,9 +1,11 @@
 title: Brazil
 sources:
-  - countries/brazil
-  - countries_gdp/brazil
+  - yahoo/ewz
+  - yahoo/vt
+  - worldbank_gdp_raw/brazil
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["Brazil ETF", "World ETF", "Brazil GDP", "World GDP"]
 tags: [world, equity-index]

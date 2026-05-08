@@ -1,5 +1,5 @@
 name: "Johnson & Johnson market cap"
-shortName: JNJ
+shortName: JNJ mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

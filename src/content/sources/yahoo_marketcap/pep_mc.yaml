@@ -1,5 +1,5 @@
 name: PepsiCo market cap
-shortName: PEP
+shortName: PEP mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

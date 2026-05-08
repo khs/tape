@@ -1,5 +1,5 @@
 name: Home Depot market cap
-shortName: HD
+shortName: HD mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

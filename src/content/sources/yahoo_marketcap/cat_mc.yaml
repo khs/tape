@@ -1,5 +1,5 @@
 name: Caterpillar market cap
-shortName: CAT
+shortName: CAT mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

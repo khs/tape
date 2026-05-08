@@ -1,5 +1,5 @@
 name: Mastercard market cap
-shortName: MA
+shortName: MA mc
 description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap

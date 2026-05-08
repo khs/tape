@@ -1,5 +1,5 @@
 name: Microsoft market cap
-shortName: MSFT
+shortName: MSFT mc
 description: Market cap = unadjusted close × historical shares outstanding.
 kind: timeseries
 pipeline: yahoo_marketcap

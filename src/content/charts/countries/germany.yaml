@@ -1,9 +1,11 @@
 title: Germany
 sources:
-  - countries/germany
-  - countries_gdp/germany
+  - yahoo/ewg
+  - yahoo/vt
+  - worldbank_gdp_raw/germany
+  - worldbank_gdp_raw/world
 render: line
-defaultDelta: 1y
+defaultDelta: 5y
 normalize: rebase
-seriesLabels: ["ETF / world", "GDP share"]
+seriesLabels: ["Germany ETF", "World ETF", "Germany GDP", "World GDP"]
 tags: [world, equity-index]

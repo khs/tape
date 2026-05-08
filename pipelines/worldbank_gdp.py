@@ -72,6 +72,19 @@ def fetch_wb_series(code: str) -> dict[str, float]:
     return out
 
 
+def _annual_to_points(series: dict[str, float]) -> list[dict]:
+    """Convert {year_str: value} into a sorted points list, with today
+    appended as a forward-fill so the plot reaches the right edge."""
+    if not series:
+        return []
+    years = sorted(series.keys())
+    points = [{"t": f"{y}-12-31", "v": series[y]} for y in years]
+    today = datetime.now(timezone.utc).date().isoformat()
+    if points[-1]["t"] < today:
+        points.append({"t": today, "v": points[-1]["v"]})
+    return points
+
+
 def main() -> int:
     print(f"Fetching World aggregate ({WORLD_CODE})...", flush=True)
     world = fetch_wb_series(WORLD_CODE)
@@ -80,6 +93,20 @@ def main() -> int:
         return 2
     print(f"  {len(world)} years")
 
+    # Write the world raw GDP series so dashboards can compare any
+    # country's raw GDP against it via the multi-source / derived-source
+    # flow in the composer.
+    world_raw = _annual_to_points(world)
+    if world_raw:
+        out = write_timeseries(
+            pipeline="worldbank_gdp_raw",
+            series_id="WLD",
+            name="World real GDP",
+            points=world_raw,
+            unit="USD (constant 2015)",
+        )
+        print(f"  [{out}]")
+
     for spec in COUNTRIES:
         print(f"Fetching {spec.iso3} ({spec.label})...", flush=True)
         country = fetch_wb_series(spec.iso3)
@@ -87,40 +114,47 @@ def main() -> int:
             print("  (no data)")
             continue
 
-        # Compute share as percent for each year present in both series.
+        # 1. Share-of-world as percent (existing behavior).
         years = sorted(set(country) & set(world))
-        points = []
+        share_points = []
         for y in years:
             w = world[y]
             c = country[y]
             if w <= 0:
                 continue
             pct = (c / w) * 100.0
-            points.append({"t": f"{y}-12-31", "v": pct})
-
-        # Forward-fill the latest observation to today so the plot reaches the
-        # right edge of the window and delta computations have a "current" anchor.
-        # Annual WB data lags by ~1 year; the flat extension is flagged in the
-        # source description.
-        if points:
+            share_points.append({"t": f"{y}-12-31", "v": pct})
+        if share_points:
             today = datetime.now(timezone.utc).date().isoformat()
-            if points[-1]["t"] < today:
-                points.append({"t": today, "v": points[-1]["v"]})
-
+            if share_points[-1]["t"] < today:
+                share_points.append({"t": today, "v": share_points[-1]["v"]})
         out = write_timeseries(
             pipeline="worldbank_gdp",
             series_id=spec.series_id,
             name=f"{spec.label} real GDP share of world",
-            points=points,
+            points=share_points,
             unit="%",
         )
-        if points:
-            first = points[0]
-            last = points[-1]
+
+        # 2. Raw country GDP (constant 2015 USD). Lets users build their
+        # own ratios via derived sources or compare directly with the
+        # world series.
+        raw_points = _annual_to_points(country)
+        out_raw = write_timeseries(
+            pipeline="worldbank_gdp_raw",
+            series_id=spec.series_id,
+            name=f"{spec.label} real GDP",
+            points=raw_points,
+            unit="USD (constant 2015)",
+        )
+
+        if share_points:
+            first = share_points[0]
+            last = share_points[-1]
             print(
-                f"  {len(points)} years, {first['v']:.2f}% ({first['t'][:4]}) -> {last['v']:.2f}% ({last['t'][:4]})"
+                f"  {len(share_points)} years, {first['v']:.2f}% ({first['t'][:4]}) -> {last['v']:.2f}% ({last['t'][:4]})"
             )
-        print(f"  [{out}]")
+        print(f"  [{out}] [{out_raw}]")
     return 0
 
 

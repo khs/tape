@@ -1,5 +1,5 @@
 name: Amazon market cap
-shortName: AMZN
+shortName: AMZN mc
 description: Market cap = unadjusted close × historical shares outstanding.
 kind: timeseries
 pipeline: yahoo_marketcap
