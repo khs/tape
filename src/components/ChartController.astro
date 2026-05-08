@@ -713,14 +713,9 @@
 
     const plotEl = dialog.querySelector<HTMLElement>('[data-role="plot"]');
     if (plotEl) renderFullPlot(plotEl, payload, window);
-
-    dialog
-      .querySelectorAll<HTMLButtonElement>("button[data-window]")
-      .forEach((p) => {
-        const active = p.dataset.window === window;
-        p.classList.toggle("pill-active", active);
-        p.setAttribute("aria-pressed", active ? "true" : "false");
-      });
+    // (Pill-active toggling is handled by the call site so that the "fixed"
+    // pill — whose data-window value isn't a DeltaWindow — can be activated
+    // alongside regular windows.)
   }
 
   interface TileCtx {
@@ -728,7 +723,36 @@
     dialog: HTMLDialogElement;
     payload: Payload;
     currentWindow: DeltaWindow;
+    // "fixed" when the dialog should render the dashboard's fixedRange;
+    // otherwise the user's currently-selected DeltaWindow. When a chart
+    // ships with a fixed range, this defaults to "fixed" but the user can
+    // toggle to a trailing window from the dialog's pill row.
+    selectedView: DeltaWindow | "fixed";
     dialogInitialized: boolean;
+  }
+
+  // Build the payload to pass to update functions based on whether the
+  // viewer is in fixed-range mode or trailing-window mode. In trailing
+  // mode we strip the dashboard's fixedRange so the renderers fall back
+  // to window logic.
+  function effectivePayload(payload: Payload, useFixed: boolean): Payload {
+    if (useFixed) return payload;
+    if (!payload.fixedRange) return payload;
+    return { ...payload, fixedRange: undefined };
+  }
+
+  // Toggle pill-active class to match the current view selection.
+  function setActivePill(
+    dialog: HTMLDialogElement,
+    selected: DeltaWindow | "fixed",
+  ): void {
+    dialog
+      .querySelectorAll<HTMLButtonElement>("button[data-window]")
+      .forEach((p) => {
+        const active = p.dataset.window === selected;
+        p.classList.toggle("pill-active", active);
+        p.setAttribute("aria-pressed", active ? "true" : "false");
+      });
   }
 
   function hydrate(): void {
@@ -762,15 +786,26 @@
         dialog,
         payload,
         currentWindow: closestSupported(dashDefault, payload.supportedDeltas),
+        selectedView: payload.fixedRange ? "fixed" : "_window",
         dialogInitialized: false,
-      };
+      } as TileCtx;
+      // Fix sentinel "_window": replace with the actual window value.
+      if (ctx.selectedView === ("_window" as unknown as DeltaWindow)) {
+        ctx.selectedView = ctx.currentWindow;
+      }
       tileContexts.push(ctx);
       updateTile(tile, payload, ctx.currentWindow);
 
       tile.addEventListener("click", () => {
         dialog.showModal();
         if (!ctx.dialogInitialized) {
-          updateDialog(dialog, payload, ctx.currentWindow);
+          const useFixed = ctx.selectedView === "fixed";
+          updateDialog(
+            dialog,
+            effectivePayload(payload, useFixed),
+            ctx.currentWindow,
+          );
+          setActivePill(dialog, ctx.selectedView);
           ctx.dialogInitialized = true;
         }
       });
@@ -780,11 +815,25 @@
         .forEach((pill) => {
           pill.addEventListener("click", (e) => {
             e.stopPropagation();
-            const w = pill.dataset.window as DeltaWindow | undefined;
-            if (w) {
-              ctx.currentWindow = w;
-              updateDialog(dialog, payload, w);
+            const w = pill.dataset.window;
+            if (!w) return;
+            if (w === "fixed") {
+              ctx.selectedView = "fixed";
+              updateDialog(
+                dialog,
+                effectivePayload(payload, true),
+                ctx.currentWindow,
+              );
+            } else {
+              ctx.currentWindow = w as DeltaWindow;
+              ctx.selectedView = ctx.currentWindow;
+              updateDialog(
+                dialog,
+                effectivePayload(payload, false),
+                ctx.currentWindow,
+              );
             }
+            setActivePill(dialog, ctx.selectedView);
           });
         });
 

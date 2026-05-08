@@ -339,12 +339,28 @@ const mostRecentUpdate = payload.sources
       !anyLoadError && (
         <>
           <div class="pills" role="group" aria-label="Delta window">
+            {dashboardFixedRange && (
+              <button
+                type="button"
+                class="pill pill-active"
+                data-window="fixed"
+                aria-pressed="true"
+                title={`Custom range: ${dashboardFixedRange.start} → ${dashboardFixedRange.end}`}
+              >
+                Custom ({dashboardFixedRange.start} → {dashboardFixedRange.end})
+              </button>
+            )}
             {effectiveSupported.map((w) => (
               <button
                 type="button"
-                class={"pill" + (w === defaultDelta ? " pill-active" : "")}
+                class={
+                  "pill" +
+                  (!dashboardFixedRange && w === defaultDelta ? " pill-active" : "")
+                }
                 data-window={w}
-                aria-pressed={w === defaultDelta ? "true" : "false"}
+                aria-pressed={
+                  !dashboardFixedRange && w === defaultDelta ? "true" : "false"
+                }
               >
                 {DELTA_LABELS_SHORT[w]}
               </button>
