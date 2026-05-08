@@ -1,0 +1,372 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+export const prerender = true;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout
+  title="Explore charts — Legible Markets"
+  description="Browse every chart in the Legible Markets library. Filter by tag, search by name, then drop the ones you want into a custom dashboard."
+>
+  <div class="explore-root max-w-[1100px] mx-auto px-6 pt-8 pb-16" data-base-url={baseUrl}>
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
+    </nav>
+    <header class="mb-5">
+      <h1 class="text-2xl font-semibold">Explore charts</h1>
+      <p class="mt-2 text-sm text-neutral-600 max-w-[640px]">
+        Every chart in the library. Search, filter by tag, and click <strong>Compose with this</strong> to drop one into a fresh dashboard you can edit.
+      </p>
+    </header>
+
+    <div class="explore-controls">
+      <input
+        type="search"
+        class="explore-search"
+        data-role="explore-search"
+        placeholder="Search charts by name, ticker, or description…"
+      />
+      <div class="explore-tag-filters" data-role="explore-tag-filters">
+        <span class="muted small">Loading library…</span>
+      </div>
+    </div>
+
+    <p class="explore-status muted small" data-role="explore-status">Loading…</p>
+    <div class="explore-results" data-role="explore-results"></div>
+  </div>
+
+  <script>
+    import { encodeComposedState } from "../lib/composer-state";
+
+    type LibraryChart = {
+      id: string;
+      title: string;
+      tags: string[];
+      sources: string[];
+      blurb?: string;
+      searchText?: string;
+    };
+    type LibrarySource = {
+      id: string;
+      name: string;
+      shortName?: string;
+      description?: string;
+    };
+    type LibraryPayload = {
+      charts: LibraryChart[];
+      sources: Record<string, LibrarySource>;
+    };
+
+    const root = document.querySelector<HTMLElement>(".explore-root");
+    if (!root) throw new Error("explore root missing");
+    const baseUrl = root.dataset.baseUrl ?? "";
+
+    const searchInput = root.querySelector<HTMLInputElement>(
+      "[data-role='explore-search']",
+    );
+    const tagHost = root.querySelector<HTMLElement>(
+      "[data-role='explore-tag-filters']",
+    );
+    const resultsHost = root.querySelector<HTMLElement>(
+      "[data-role='explore-results']",
+    );
+    const statusEl = root.querySelector<HTMLElement>("[data-role='explore-status']");
+
+    const selectedTags = new Set<string>();
+    let query = "";
+    let lib: LibraryPayload | null = null;
+
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function categoryLabel(prefix: string): string {
+      const map: Record<string, string> = {
+        "us-macro": "US macro",
+        "real-estate": "Real estate",
+        tech: "Tech",
+        stocks: "Stocks",
+        countries: "Countries",
+        commodities: "Commodities",
+        markets: "Markets",
+        oil: "Oil & energy",
+        crypto: "Crypto",
+        fx: "FX",
+        government: "Government finances",
+      };
+      return map[prefix] ?? prefix;
+    }
+
+    function categoryFromId(id: string): string {
+      return id.includes("/") ? id.split("/")[0] : "other";
+    }
+
+    function describeSources(c: LibraryChart): string {
+      if (!lib) return "";
+      const parts: string[] = [];
+      for (const sid of c.sources) {
+        const s = lib.sources[sid];
+        if (!s) continue;
+        if (s.description) {
+          parts.push(s.description);
+          break; // first source's description is enough at the card level
+        }
+      }
+      return parts[0] ?? "";
+    }
+
+    function filtered(): LibraryChart[] {
+      if (!lib) return [];
+      const q = query.trim().toLowerCase();
+      const tags = [...selectedTags];
+      return lib.charts.filter((c) => {
+        for (const t of tags) if (!c.tags.includes(t)) return false;
+        if (q) {
+          const hay =
+            c.searchText ??
+            (c.title + " " + c.id + " " + c.tags.join(" ")).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function allTags(): string[] {
+      if (!lib) return [];
+      const s = new Set<string>();
+      for (const c of lib.charts) for (const t of c.tags) s.add(t);
+      return [...s].sort();
+    }
+
+    function renderTagFilters(): void {
+      if (!tagHost || !lib) return;
+      tagHost.innerHTML = "";
+      const make = (tag: string, label: string, active: boolean) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "tag-pill" + (active ? " tag-pill-active" : "");
+        b.textContent = label;
+        b.addEventListener("click", () => {
+          if (tag === "") {
+            selectedTags.clear();
+          } else if (selectedTags.has(tag)) {
+            selectedTags.delete(tag);
+          } else {
+            selectedTags.add(tag);
+          }
+          renderTagFilters();
+          renderResults();
+        });
+        return b;
+      };
+      tagHost.appendChild(
+        make("", `all (${lib.charts.length})`, selectedTags.size === 0),
+      );
+      for (const t of allTags()) {
+        const count = lib.charts.filter((c) => c.tags.includes(t)).length;
+        tagHost.appendChild(make(t, `${t} (${count})`, selectedTags.has(t)));
+      }
+    }
+
+    function renderResults(): void {
+      if (!resultsHost || !statusEl || !lib) return;
+      const charts = filtered();
+      statusEl.textContent = `${charts.length} of ${lib.charts.length} charts`;
+      resultsHost.innerHTML = "";
+      if (charts.length === 0) {
+        resultsHost.innerHTML =
+          '<p class="muted small">No charts match. Loosen the filter or <a href="mailto:keller.scholl@gmail.com">request one</a>.</p>';
+        return;
+      }
+      // Group by category prefix.
+      const groups = new Map<string, LibraryChart[]>();
+      for (const c of charts) {
+        const prefix = categoryFromId(c.id);
+        if (!groups.has(prefix)) groups.set(prefix, []);
+        groups.get(prefix)!.push(c);
+      }
+      const orderedPrefixes = [...groups.keys()].sort((a, b) =>
+        categoryLabel(a).localeCompare(categoryLabel(b)),
+      );
+      for (const prefix of orderedPrefixes) {
+        const heading = document.createElement("h2");
+        heading.className = "explore-group-heading";
+        heading.textContent = `${categoryLabel(prefix)} (${groups.get(prefix)!.length})`;
+        resultsHost.appendChild(heading);
+        const grid = document.createElement("div");
+        grid.className = "explore-grid";
+        for (const c of groups.get(prefix)!) {
+          const card = document.createElement("article");
+          card.className = "explore-card";
+          const composeHref =
+            baseUrl +
+            "/compose/?d=" +
+            encodeComposedState({
+              title: c.title,
+              sections: [{ title: "Overview", charts: [c.id] }],
+            });
+          const desc = describeSources(c);
+          card.innerHTML =
+            `<h3 class="explore-card-title">${escapeHtml(c.title)}</h3>` +
+            `<div class="explore-card-tags">${c.tags
+              .map(
+                (t) => `<span class="explore-card-tag">${escapeHtml(t)}</span>`,
+              )
+              .join("")}</div>` +
+            (desc
+              ? `<p class="explore-card-desc">${escapeHtml(desc)}</p>`
+              : "") +
+            `<a class="explore-card-cta" href="${composeHref}">Compose with this &rarr;</a>`;
+          grid.appendChild(card);
+        }
+        resultsHost.appendChild(grid);
+      }
+    }
+
+    async function load(): Promise<void> {
+      try {
+        const r = await fetch(`${baseUrl}/library.json`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        lib = (await r.json()) as LibraryPayload;
+      } catch (e) {
+        if (statusEl) statusEl.textContent = `Couldn't load library: ${String(e)}`;
+        return;
+      }
+      renderTagFilters();
+      renderResults();
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        query = searchInput.value;
+        renderResults();
+      });
+    }
+
+    load();
+  </script>
+</BaseLayout>
+
+<style>
+  .explore-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .explore-search {
+    font: inherit;
+    padding: 8px 12px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    width: 100%;
+    max-width: 520px;
+  }
+  .explore-tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag-pill {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 3px 8px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: 999px;
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+  }
+  .tag-pill:hover {
+    background: var(--color-neutral-100);
+  }
+  .tag-pill-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border-color: var(--color-neutral-900);
+  }
+
+  .explore-status {
+    margin: 12px 0 8px;
+  }
+  .explore-results {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .explore-group-heading {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin: 8px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .explore-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+  }
+  .explore-card {
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.12s ease;
+  }
+  .explore-card:hover {
+    border-color: rgba(55, 53, 47, 0.18);
+  }
+  .explore-card-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .explore-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .explore-card-tag {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+    background: var(--color-neutral-100);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .explore-card-desc {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-600);
+    margin: 0;
+    line-height: 1.4;
+    /* Cap at 3 lines for tile uniformity. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .explore-card-cta {
+    margin-top: auto;
+    align-self: flex-start;
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .explore-card-cta:hover {
+    text-decoration: underline;
+  }
+
+  .muted { color: var(--color-neutral-500); }
+  .small { font-size: var(--text-xs); }
+</style>
