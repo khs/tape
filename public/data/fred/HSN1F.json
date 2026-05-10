@@ -3,7 +3,7 @@
   "name": "New single-family home sales",
   "kind": "timeseries",
   "unit": "thousands, SAAR",
-  "lastUpdated": "2026-05-07T15:32:41Z",
+  "lastUpdated": "2026-05-10T07:56:51Z",
   "points": [
     {
       "t": "1963-01-01",

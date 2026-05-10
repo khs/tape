@@ -3,7 +3,7 @@
   "name": "United Kingdom real GDP share of world",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-08T20:09:14Z",
+  "lastUpdated": "2026-05-10T07:57:57Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -266,7 +266,7 @@
       "v": 3.4408222709959198
     },
     {
-      "t": "2026-05-08",
+      "t": "2026-05-10",
       "v": 3.4408222709959198
     }
   ]

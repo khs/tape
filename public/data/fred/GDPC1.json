@@ -3,7 +3,7 @@
   "name": "US real GDP (chained 2017 dollars)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-05-03T07:48:31Z",
+  "lastUpdated": "2026-05-10T07:56:43Z",
   "points": [
     {
       "t": "1947-01-01",

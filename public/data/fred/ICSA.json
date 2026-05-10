@@ -3,7 +3,7 @@
   "name": "Initial jobless claims (weekly)",
   "kind": "timeseries",
   "unit": "thousands",
-  "lastUpdated": "2026-05-07T15:31:43Z",
+  "lastUpdated": "2026-05-10T07:56:50Z",
   "points": [
     {
       "t": "1967-01-07",

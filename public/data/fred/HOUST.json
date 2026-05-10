@@ -3,7 +3,7 @@
   "name": "Housing starts (new privately-owned units)",
   "kind": "timeseries",
   "unit": "thousands, SAAR",
-  "lastUpdated": "2026-05-03T07:48:36Z",
+  "lastUpdated": "2026-05-10T07:56:48Z",
   "points": [
     {
       "t": "1959-01-01",

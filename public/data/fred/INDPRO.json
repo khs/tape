@@ -3,7 +3,7 @@
   "name": "US industrial production",
   "kind": "timeseries",
   "unit": "index (2017=100)",
-  "lastUpdated": "2026-05-03T07:48:31Z",
+  "lastUpdated": "2026-05-10T07:56:43Z",
   "points": [
     {
       "t": "1919-01-01",

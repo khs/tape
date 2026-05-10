@@ -3,7 +3,7 @@
   "name": "Manufacturing employment",
   "kind": "timeseries",
   "unit": "thousands of persons",
-  "lastUpdated": "2026-05-07T19:20:16Z",
+  "lastUpdated": "2026-05-10T07:56:53Z",
   "points": [
     {
       "t": "1939-01-01",
@@ -4187,11 +4187,15 @@
     },
     {
       "t": "2026-02-01",
-      "v": 12576.0
+      "v": 12583.0
     },
     {
       "t": "2026-03-01",
-      "v": 12591.0
+      "v": 12598.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 12596.0
     }
   ]
 }

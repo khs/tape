@@ -3,7 +3,7 @@
   "name": "30-year fixed mortgage rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-03T07:48:35Z",
+  "lastUpdated": "2026-05-10T07:56:47Z",
   "points": [
     {
       "t": "1971-04-02",
@@ -11504,6 +11504,10 @@
     {
       "t": "2026-04-30",
       "v": 6.3
+    },
+    {
+      "t": "2026-05-07",
+      "v": 6.37
     }
   ]
 }
