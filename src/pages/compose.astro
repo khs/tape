@@ -210,7 +210,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <input type="radio" name="cc-mode" value="raw" data-role="cc-mode-raw" />
                 <span><strong>Raw</strong> — plot each series at its own value. Best when all picked sources share the same scale (e.g. several inflation rates).</span>
               </label>
-              <label class="cc-mode-opt">
+              <label class="cc-mode-opt" data-role="cc-mode-rebase-wrap">
                 <input type="radio" name="cc-mode" value="rebase" data-role="cc-mode-rebase" />
                 <span><strong>Rebase</strong> — index every series to 100 at the window start. Best when scales differ wildly (mortgage rates + S&amp;P).</span>
               </label>
@@ -1531,16 +1531,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   function syncModeRadioFromState(): void {
     const raw = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-raw']");
     const reb = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-rebase']");
+    const rebWrap = shell.querySelector<HTMLElement>("[data-role='cc-mode-rebase-wrap']");
     const dual = shell.querySelector<HTMLInputElement>("[data-role='cc-mode-dual']");
     const dualWrap = shell.querySelector<HTMLElement>("[data-role='cc-mode-dual-wrap']");
-    // Dual-axis needs at least 2 sources; manual L/R assignment lets it
-    // make sense for 3+ as well.
-    const allowDual = ccModal.selected.size >= 2;
-    if (dual) dual.disabled = !allowDual;
-    if (dualWrap) dualWrap.classList.toggle("cc-mode-opt-disabled", !allowDual);
+    // Both rebase and dual-axis are multi-series concepts: with one source,
+    // rebase is just a single line indexed to 100 (no comparison) and
+    // dual-axis needs two series to assign to L/R. Disable both until 2+.
+    const allowMulti = ccModal.selected.size >= 2;
+    if (reb) reb.disabled = !allowMulti;
+    if (rebWrap) rebWrap.classList.toggle("cc-mode-opt-disabled", !allowMulti);
+    if (dual) dual.disabled = !allowMulti;
+    if (dualWrap) dualWrap.classList.toggle("cc-mode-opt-disabled", !allowMulti);
     if (raw) raw.checked = ccModal.mode === "raw";
-    if (reb) reb.checked = ccModal.mode === "rebase";
-    if (dual) dual.checked = ccModal.mode === "dual-axis" && allowDual;
+    if (reb) reb.checked = ccModal.mode === "rebase" && allowMulti;
+    if (dual) dual.checked = ccModal.mode === "dual-axis" && allowMulti;
   }
 
   // For dual-axis with no explicit assignment, default the first picked
@@ -1636,12 +1640,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         }
         // If user hasn't explicitly picked a mode, auto-default from scale
         // heuristics whenever the source set changes. If they have, keep
-        // their pick (but flip dual-axis off when no longer 2 sources).
+        // their pick — but flip rebase or dual-axis off when no longer 2+
+        // sources, since neither concept is meaningful with a single series.
         if (!ccModal.modeIsExplicit) {
           ccModal.mode = ccDefaultMode();
-        } else if (ccModal.mode === "dual-axis" && ccModal.selected.size < 2) {
-          // < 2 sources can't dual-axis at all; fall back.
-          ccModal.mode = ccDefaultMode();
+        } else if (
+          (ccModal.mode === "dual-axis" || ccModal.mode === "rebase") &&
+          ccModal.selected.size < 2
+        ) {
+          ccModal.mode = "raw";
           ccModal.modeIsExplicit = false;
         }
         // Strip rightAxis assignment for sources that just got unchecked.
@@ -2343,10 +2350,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         if (!sourceIds.includes(id)) sourceIds.push(id);
       }
       if (!ccModal.title.trim() || sourceIds.length === 0) return;
-      // Final mode: dual-axis needs at least 2 sources; clamp.
+      // Final mode: rebase and dual-axis both need at least 2 sources to be
+      // meaningful (rebasing a single series is just "indexed to 100" with no
+      // comparison; dual-axis has nothing to assign to L/R). Clamp down to raw.
       const mode: CustomChartMode =
-        ccModal.mode === "dual-axis" && sourceIds.length < 2
-          ? "rebase"
+        (ccModal.mode === "dual-axis" || ccModal.mode === "rebase") &&
+        sourceIds.length < 2
+          ? "raw"
           : ccModal.mode;
       // Resolve rightAxisSources only when dual-axis. Persist explicit
       // user picks; if the user never touched the L/R pills, persist the
