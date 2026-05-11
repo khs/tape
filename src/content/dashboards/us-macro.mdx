@@ -1,35 +1,38 @@
 ---
 title: US Macro snapshot
-order: 2
-defaultDelta: 1m
+order: 1
+defaultDelta: 5y
 sections:
-  - title: Treasuries & yield curve
+  - title: Labor
+    description: "How tight is the labor market? Unemployment, payrolls, participation, and wage growth — the four headline labor-market gauges."
     charts:
-      - us-macro/us_3mo
-      - us-macro/two_year
-      - us-macro/us_5y
+      - us-macro/unemployment
+      - us-macro/payrolls
+      - us-macro/labor_participation
+      - us-macro/avg_hourly_earnings
+  - title: Treasuries & yield curve
+    description: "Rates across the curve, the 10Y–2Y spread (the classic recession signal), Fed funds policy rate, and the 30-year mortgage rate consumers actually pay."
+    charts:
       - us-macro/ten_year
-      - us-macro/us_30y
+      - us-macro/two_year
       - us-macro/curve_spread
       - us-macro/fed_funds
       - us-macro/mortgage_30y
+      - us-macro/us_30y
+      - us-macro/us_3mo
+      - us-macro/us_5y
+  - title: Output
+    description: "Real GDP, industrial production, and capacity utilization — what the economy is producing and how hard it's working to do it."
+    charts:
+      - us-macro/real_gdp
+      - us-macro/industrial_production
+      - us-macro/capacity_util
   - title: Inflation
     charts:
       - us-macro/cpi
       - us-macro/core_cpi
       - us-macro/headline_pce
       - us-macro/core_pce
-  - title: Labor
-    charts:
-      - us-macro/unemployment
-      - us-macro/payrolls
-      - us-macro/labor_participation
-      - us-macro/avg_hourly_earnings
-  - title: Output
-    charts:
-      - us-macro/real_gdp
-      - us-macro/industrial_production
-      - us-macro/capacity_util
   - title: Spending & income
     charts:
       - us-macro/retail_sales
@@ -55,4 +58,3 @@ sections:
     charts:
       - us-macro/umich
 ---
-
