@@ -22,6 +22,8 @@
     formatDeltaDisplay,
     type Formatting,
   } from "../lib/format";
+  import { SITE_BRAND_URL } from "../lib/brand";
+  import { track } from "@vercel/analytics";
 
   type Point = { t: string; v: number };
   type Direction = "up" | "down" | "flat";
@@ -39,6 +41,8 @@
   };
 
   type Payload = {
+    /** Chart ID, e.g. "us-macro/sp500" — forwarded from server for telemetry. */
+    chartId?: string;
     isMulti: boolean;
     normalize: "rebase" | "raw" | "dual-axis";
     supportedDeltas: DeltaWindow[];
@@ -755,6 +759,197 @@
       });
   }
 
+  // ---- Save-as-image export ----
+  // Capture the dialog's currently-rendered SVG, wrap it in a branded
+  // header/footer container, rasterize via Canvas, and trigger a download.
+  // Keeps the user inside the page (no server roundtrip) and the watermark
+  // makes the image attributable when it ends up in a slide deck or memo.
+
+  function escapeXml(s: string): string {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+  }
+
+  function slugifyForFilename(s: string): string {
+    return (
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 60) || "chart"
+    );
+  }
+
+  /**
+   * Inline computed font/fill/stroke styles on every node of the SVG clone so
+   * the serialized markup renders the same in a fresh <img> tag as it does on
+   * the live page (where external CSS supplies most of the styling). Without
+   * this step, the exported PNG comes out with wrong fonts, default black
+   * strokes, and missing fills.
+   */
+  function inlineComputedStyles(
+    live: SVGSVGElement,
+    cloned: SVGSVGElement,
+  ): void {
+    const liveNodes = live.querySelectorAll<SVGElement>("*");
+    const clonedNodes = cloned.querySelectorAll<SVGElement>("*");
+    const wanted = [
+      "fill",
+      "stroke",
+      "stroke-width",
+      "stroke-linecap",
+      "stroke-linejoin",
+      "stroke-dasharray",
+      "stroke-opacity",
+      "fill-opacity",
+      "opacity",
+      "font-family",
+      "font-size",
+      "font-weight",
+      "text-anchor",
+      "dominant-baseline",
+      "color",
+    ];
+    for (let i = 0; i < liveNodes.length && i < clonedNodes.length; i++) {
+      const styles = getComputedStyle(liveNodes[i]);
+      let inline = "";
+      for (const prop of wanted) {
+        const val = styles.getPropertyValue(prop);
+        if (val && val !== "none" && val !== "normal") {
+          inline += `${prop}:${val};`;
+        }
+      }
+      if (inline) clonedNodes[i].setAttribute("style", inline);
+    }
+  }
+
+  async function exportDialogAsPng(
+    dialog: HTMLDialogElement,
+    payload: Payload,
+    currentWindow: DeltaWindow,
+  ): Promise<boolean> {
+    const plotEl = dialog.querySelector<HTMLElement>('[data-role="plot"]');
+    const liveSvg = plotEl?.querySelector<SVGSVGElement>("svg");
+    if (!liveSvg) return false;
+
+    const titleEl = dialog.querySelector<HTMLHeadingElement>(
+      ".dialog-header h2",
+    );
+    const title = titleEl?.textContent?.trim() ?? "Chart";
+
+    // Source attribution line. Mirrors the existing dialog footer but
+    // flattened into a single string so it renders cleanly in the export.
+    const sourceLabels = payload.sources.map((s) => s.shortName || s.name);
+    const sourceLine = sourceLabels.join(" · ");
+
+    // Window label (e.g. "5y", "10y") so the exported image is self-describing
+    // when it's pasted into a slide divorced from the dashboard context.
+    const windowLabel = currentWindow.toUpperCase();
+
+    // Latest data timestamp across all sources, so the image carries its own
+    // recency stamp.
+    let mostRecent = "";
+    for (const s of payload.sources) {
+      if (s.lastUpdated > mostRecent) mostRecent = s.lastUpdated;
+    }
+    const updatedStr = mostRecent
+      ? new Date(mostRecent).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "";
+
+    // Clone the live SVG and freeze its styling — Plot's output relies on
+    // CSS rules from the page; without inlining computed styles, the export
+    // would lose fonts/strokes.
+    const cloned = liveSvg.cloneNode(true) as SVGSVGElement;
+    inlineComputedStyles(liveSvg, cloned);
+
+    const liveRect = liveSvg.getBoundingClientRect();
+    const plotW = Math.max(640, Math.round(liveRect.width || 720));
+    const plotH = Math.max(280, Math.round(liveRect.height || 360));
+    cloned.setAttribute("width", String(plotW));
+    cloned.setAttribute("height", String(plotH));
+
+    const pad = 28;
+    const headerH = 64 + (sourceLine ? 22 : 0);
+    const footerH = 28;
+    const W = plotW + pad * 2;
+    const H = plotH + headerH + footerH + pad * 2;
+
+    // Build the wrapper SVG that contains: branded eyebrow, title, optional
+    // source line, the cloned plot, and watermark footer.
+    const plotInner = new XMLSerializer().serializeToString(cloned);
+    const wrapper = [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">`,
+      `<rect width="${W}" height="${H}" fill="#fefefe"/>`,
+      `<text x="${pad}" y="${pad + 14}" font-size="11" font-weight="600" letter-spacing="1.2" fill="#0d7a6a">LEGIBLE MARKETS</text>`,
+      `<text x="${pad}" y="${pad + 46}" font-size="22" font-weight="600" fill="#111">${escapeXml(title)}</text>`,
+      sourceLine
+        ? `<text x="${pad}" y="${pad + 70}" font-size="13" fill="#666">${escapeXml(sourceLine)} · ${escapeXml(windowLabel)} window</text>`
+        : "",
+      `<g transform="translate(${pad}, ${pad + headerH})">${plotInner}</g>`,
+      `<text x="${pad}" y="${H - pad / 2}" font-size="12" fill="#888">${escapeXml(SITE_BRAND_URL)}</text>`,
+      updatedStr
+        ? `<text x="${W - pad}" y="${H - pad / 2}" font-size="12" fill="#888" text-anchor="end">Data through ${escapeXml(updatedStr)}</text>`
+        : "",
+      `</svg>`,
+    ].join("");
+
+    const svgBlob = new Blob([wrapper], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(svgBlob);
+
+    try {
+      const img = new Image();
+      img.decoding = "sync";
+      const loaded = new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("svg load failed"));
+      });
+      img.src = url;
+      await loaded;
+
+      // 2× DPR for crisp output regardless of the user's screen.
+      const dpr = 2;
+      const canvas = document.createElement("canvas");
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("2d context unavailable");
+      ctx.scale(dpr, dpr);
+      ctx.drawImage(img, 0, 0);
+
+      await new Promise<void>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("toBlob returned null"));
+            return;
+          }
+          const dlUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = dlUrl;
+          a.download = `${slugifyForFilename(title)}-${currentWindow}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          // Defer revoke to next tick so the download has time to start.
+          setTimeout(() => URL.revokeObjectURL(dlUrl), 0);
+          resolve();
+        }, "image/png");
+      });
+      return true;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   function hydrate(): void {
     const dashRoot = document.querySelector<HTMLElement>(".dashboard-root");
     const dashDefault = (dashRoot?.dataset.dashboardDefaultWindow ??
@@ -844,6 +1039,60 @@
       const closeBtn = dialog.querySelector<HTMLElement>(".dialog-close");
       if (closeBtn) {
         closeBtn.addEventListener("click", () => dialog.close());
+      }
+
+      const saveImgBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-role='save-image']",
+      );
+      if (saveImgBtn) {
+        saveImgBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (saveImgBtn.disabled) return;
+          // Defensive: the dialog must have rendered its plot before export
+          // works. Forcing render here is cheap and idempotent.
+          if (!ctx.dialogInitialized) {
+            const useFixed = ctx.selectedView === "fixed";
+            updateDialog(
+              dialog,
+              effectivePayload(payload, useFixed),
+              ctx.currentWindow,
+            );
+            setActivePill(dialog, ctx.selectedView);
+            ctx.dialogInitialized = true;
+          }
+          const originalLabel = saveImgBtn.textContent ?? "Save as image";
+          saveImgBtn.disabled = true;
+          saveImgBtn.textContent = "Saving…";
+          try {
+            const ok = await exportDialogAsPng(
+              dialog,
+              payload,
+              ctx.currentWindow,
+            );
+            saveImgBtn.textContent = ok ? "Saved" : "Failed";
+            setTimeout(() => {
+              saveImgBtn.disabled = false;
+              saveImgBtn.textContent = originalLabel;
+            }, 1200);
+            // Telemetry: image export is a strong intent signal — user found
+            // the chart valuable enough to want to paste it elsewhere.
+            track("chart_image_exported", {
+              chartId: payload.chartId ?? "",
+              window: ctx.currentWindow,
+              sources: payload.sources
+                .map((s) => s.id)
+                .slice(0, 8)
+                .join(","),
+            });
+          } catch (err) {
+            console.error("[save image] failed:", err);
+            saveImgBtn.textContent = "Failed";
+            setTimeout(() => {
+              saveImgBtn.disabled = false;
+              saveImgBtn.textContent = originalLabel;
+            }, 1500);
+          }
+        });
       }
     });
 

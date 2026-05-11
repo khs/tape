@@ -32,6 +32,7 @@ import {
   windowPoints,
   type OgSeries,
 } from "../lib/og-render";
+import { SITE_BRAND_URL, SITE_BRAND_NAME } from "../lib/brand";
 
 export const prerender = false;
 
@@ -39,7 +40,7 @@ const WIDTH = 1200;
 const HEIGHT = 630;
 const CHART_W = 1040;
 const CHART_H = 280;
-const FOOT_NOTE = "legiblemarkets.com";
+const FOOT_NOTE = SITE_BRAND_URL;
 
 // Trailing window for the OG thumbnail — picked separately from the chart's
 // saved defaultDelta because the goal is "evocative thumbnail", not "literal
@@ -225,7 +226,7 @@ export const GET: APIRoute = async ({ url }) => {
   // Fallback / explicit title-only card.
   if (!resolved) {
     resolved = {
-      title: params.get("title") ?? "Legible Markets",
+      title: params.get("title") ?? SITE_BRAND_NAME,
       subtitle:
         params.get("subtitle") ??
         "Shareable financial dashboards for analysts, journalists, and the policy-curious.",
@@ -272,7 +273,7 @@ export const GET: APIRoute = async ({ url }) => {
               fontWeight: 600,
               marginBottom: 14,
             },
-            children: "Legible Markets",
+            children: SITE_BRAND_NAME,
           },
         },
         // Title
