@@ -593,9 +593,22 @@ const mostRecentUpdate = payload.sources
     font: inherit;
     color: inherit;
     transition: border-color 0.15s, transform 0.08s;
+    /* Establish a stacking context so the hovered state below can lift
+       this tile above siblings (and above the dashboard's window-pill
+       row, the next section header, neighboring tiles, etc.). Without
+       position:relative the z-index toggle below has no effect. */
+    position: relative;
+    z-index: 1;
   }
   .chart-tile:hover {
     border-color: rgba(55, 53, 47, 0.18);
+    /* Float the hovered tile above everything else on the page (modals
+       and the chart dialog itself live in the dialog top-layer, so they
+       still trump this). Important because the Plot.tip tooltip extends
+       beyond the sparkline's bounding box via overflow:visible — if the
+       tile stayed at z-index:1, that overflowed tip could end up obscured
+       by neighboring tiles or the time-frame caption / pill row. */
+    z-index: 20;
   }
   .chart-tile:focus-visible {
     outline: 2px solid var(--color-accent);
