@@ -261,6 +261,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   } from "../lib/supabase";
   import { nanoid } from "nanoid";
   import * as Plot from "@observablehq/plot";
+  import { track } from "@vercel/analytics";
 
   type LibraryChart = {
     id: string;
@@ -1055,6 +1056,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     target.charts.push(chartId);
     writeUrl();
     renderComposition();
+    // Funnel telemetry: which charts are most popular adds, and how often
+    // first-time users get past "open composer" → "actually pick a chart".
+    track("compose_chart_added", { chartId, source: "library" });
   }
 
   // ---- Wire up controls ----
@@ -1170,6 +1174,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           await navigator.clipboard.writeText(window.location.href);
           copyShare.textContent = "Copied!";
           setTimeout(() => (copyShare.textContent = "Copy share link"), 1500);
+          // Share-link copy is the closest proxy we have for "user found this
+          // valuable enough to send to someone else." Track length so we can
+          // also see how often URLs are uncomfortably long (the saved-vs-shared
+          // breakpoint).
+          track("compose_share_copied", {
+            urlLength: window.location.href.length,
+          });
         } catch {
           alert("Copy failed. URL is in the address bar.");
         }
@@ -1201,6 +1212,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       if (sb) {
         saveBtn.addEventListener("click", async () => {
           console.log("[save] click fired");
+          // Step 1 of the save funnel: user clicked save. Captures whether
+          // they were signed in or got bounced through OAuth.
+          track("compose_save_attempted", {
+            mode: editingSlug ? "update" : "create",
+            wasSignedIn: !!readStoredSession(),
+          });
           try {
             const stored = readStoredSession();
             console.log("[save] stored session user:", stored?.user?.email ?? null);
@@ -1304,6 +1321,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               }
             }
             console.log("[save] success, redirecting");
+            // Step 2 of the save funnel: persisted. compose_save_attempted →
+            // compose_save_succeeded ratio tells us how often the save flow
+            // actually completes vs. dies in OAuth or hits a Supabase error.
+            track("compose_save_succeeded", {
+              mode: editingSlug ? "update" : "create",
+              slug: targetSlug,
+            });
             window.location.href = `${baseUrl}/u/${targetSlug}/`;
           } catch (e) {
             console.error("[save] click handler threw:", e);
@@ -2276,6 +2300,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       closeDerivedSourceModal();
       // Refresh anything that lists sources (custom-chart modal, if open).
       renderCustomChartSources();
+      // Funnel telemetry: derived sources are a power-user feature; tracking
+      // op distribution tells us whether divide-ratios dominate (the case we
+      // designed for) or sum/diff get real use.
+      track("compose_derived_source_created", { op: dsModal.op });
     });
   }
 
@@ -2401,6 +2429,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       writeUrl();
       renderComposition();
       closeCustomChartModal();
+      // Funnel telemetry: how often users create custom multi-source charts,
+      // and what scale modes (raw / rebase / dual-axis) they actually pick.
+      track(
+        ccModal.editingId ? "compose_custom_chart_edited" : "compose_custom_chart_created",
+        {
+          sourceCount: sourceIds.length,
+          mode,
+        },
+      );
     });
   }
 

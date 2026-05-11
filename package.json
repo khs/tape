@@ -19,6 +19,7 @@
     "@observablehq/plot": "^0.6.16",
     "@supabase/supabase-js": "^2.104.1",
     "@tailwindcss/vite": "^4.0.0",
+    "@vercel/analytics": "^2.0.1",
     "@vercel/og": "^0.11.1",
     "arctic": "^3.7.0",
     "astro": "^5.0.0",

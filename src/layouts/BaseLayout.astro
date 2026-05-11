@@ -456,5 +456,19 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         border-top: 1px solid rgba(55, 53, 47, 0.08);
       }
     </style>
+    <script>
+      /*
+        Vercel Web Analytics — cookieless pageview + custom-event tracking.
+        Loads on every page via BaseLayout. In dev or any non-Vercel host,
+        `inject()` no-ops; in production it sends to /_vercel/insights/*,
+        which is GDPR-clean (no cookies, no PII stored).
+
+        Custom event firing happens in individual pages/components via:
+            import { track } from "@vercel/analytics";
+            track("compose_save_succeeded", { slug: "..." });
+      */
+      import { inject } from "@vercel/analytics";
+      inject();
+    </script>
   </body>
 </html>

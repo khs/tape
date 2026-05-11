@@ -123,6 +123,7 @@ if (!decoded.ok) {
           <script>
             import { createSupabase, isSupabaseConfigured } from "../lib/supabase";
             import { nanoid } from "nanoid";
+            import { track } from "@vercel/analytics";
 
             // --- Copy link ---
             const copyBtn = document.querySelector<HTMLButtonElement>(
@@ -134,6 +135,9 @@ if (!decoded.ok) {
                 const original = copyBtn.textContent;
                 copyBtn.textContent = "Copied!";
                 setTimeout(() => (copyBtn.textContent = original), 1500);
+                track("custom_share_copied", {
+                  urlLength: window.location.href.length,
+                });
               } catch {
                 alert("Copy failed. URL is in the address bar.");
               }
@@ -150,6 +154,10 @@ if (!decoded.ok) {
               if (sb) {
                 saveBtn.addEventListener("click", async () => {
                   console.log("[custom save] click fired");
+                  // Step 1: user clicked save on a viewer page. Different
+                  // event name from the composer save so we can tell which
+                  // surface (composer vs. /custom/ viewer) is doing the work.
+                  track("custom_save_attempted", {});
                   try {
                     const { data: sess } = await sb.auth.getSession();
                     const user = sess.session?.user ?? null;
@@ -208,6 +216,7 @@ if (!decoded.ok) {
                       alert(`Save failed: ${error.message}`);
                       return;
                     }
+                    track("custom_save_succeeded", { slug });
                     window.location.href = `${baseUrl}/u/${slug}/`;
                   } catch (e) {
                     console.error("[custom save] exception:", e);
