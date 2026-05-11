@@ -10,6 +10,7 @@ import {
   effectiveChart,
 } from "../lib/resolve-dashboard";
 import { decodeComposedState } from "../lib/composer-state";
+import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
 
 // Server-rendered so `Astro.url.searchParams.get("d")` reads the request URL,
 // not the (empty) build-time URL. The Vercel adapter turns this into a tiny
@@ -49,6 +50,19 @@ if (!decoded.ok) {
   defaultDeltaRequested = resolveDashboardDefault(st.defaultDelta, supported);
   forkUrl = baseUrl + "/compose/?d=" + (dParam ?? "");
 }
+
+// Flatten resolved sources for the dashboard_viewed telemetry event.
+const viewedSourceIds = Array.from(
+  new Set(
+    resolvedSections.flatMap((sec) =>
+      sec.charts.flatMap((c) => c.sources.map((s) => s.id)),
+    ),
+  ),
+);
+const viewedChartCount = resolvedSections.reduce(
+  (acc, sec) => acc + sec.charts.length,
+  0,
+);
 ---
 
 <BaseLayout
@@ -293,6 +307,13 @@ if (!decoded.ok) {
   </div>
 
   <ChartController />
+  {viewedChartCount > 0 && (
+    <AnalyticsDashboardView
+      sources={viewedSourceIds}
+      surface="custom"
+      chartCount={viewedChartCount}
+    />
+  )}
 </BaseLayout>
 
 <style>

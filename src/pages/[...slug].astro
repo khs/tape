@@ -12,6 +12,7 @@ import {
   effectiveChart,
 } from "../lib/resolve-dashboard";
 import { encodeComposedState } from "../lib/composer-state";
+import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
 
 export async function getStaticPaths() {
   const dashboards = await getCollection("dashboards");
@@ -39,6 +40,20 @@ const dashboardDefaultDelta = resolveDashboardDefault(
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const { Content } = await render(dashboard);
+
+// Flatten the resolved-source list for the dashboard_viewed telemetry event.
+// Deduped server-side; the analytics helper will further truncate as needed.
+const viewedSourceIds = Array.from(
+  new Set(
+    resolvedSections.flatMap((sec) =>
+      sec.charts.flatMap((c) => c.sources.map((s) => s.id)),
+    ),
+  ),
+);
+const viewedChartCount = resolvedSections.reduce(
+  (acc, sec) => acc + sec.charts.length,
+  0,
+);
 
 const forkUrl =
   baseUrl +
@@ -153,6 +168,12 @@ const forkUrl =
   </div>
 
   <ChartController />
+  <AnalyticsDashboardView
+    sources={viewedSourceIds}
+    surface="preset"
+    chartCount={viewedChartCount}
+    slug={dashboard.id}
+  />
 </BaseLayout>
 
 <style>

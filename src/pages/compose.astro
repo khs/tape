@@ -262,6 +262,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { nanoid } from "nanoid";
   import * as Plot from "@observablehq/plot";
   import { track } from "@vercel/analytics";
+  import { packSourceIds } from "../lib/analytics-helpers";
 
   type LibraryChart = {
     id: string;
@@ -1058,7 +1059,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     renderComposition();
     // Funnel telemetry: which charts are most popular adds, and how often
     // first-time users get past "open composer" → "actually pick a chart".
-    track("compose_chart_added", { chartId, source: "library" });
+    // Include the chart's underlying source IDs so we can also see *source*
+    // popularity at construction time, not just chart popularity.
+    const libChart = library?.charts.find((c) => c.id === chartId);
+    track("compose_chart_added", {
+      chartId,
+      source: "library",
+      sources: libChart ? packSourceIds(libChart.sources) : "",
+    });
   }
 
   // ---- Wire up controls ----
@@ -2302,8 +2310,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       renderCustomChartSources();
       // Funnel telemetry: derived sources are a power-user feature; tracking
       // op distribution tells us whether divide-ratios dominate (the case we
-      // designed for) or sum/diff get real use.
-      track("compose_derived_source_created", { op: dsModal.op });
+      // designed for) or sum/diff get real use. Including the operand source
+      // IDs lets us spot common derived-source recipes (e.g. retail-gas/WTI).
+      track("compose_derived_source_created", {
+        op: dsModal.op,
+        sources: packSourceIds([dsModal.a, dsModal.b]),
+      });
     });
   }
 
@@ -2430,12 +2442,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       renderComposition();
       closeCustomChartModal();
       // Funnel telemetry: how often users create custom multi-source charts,
-      // and what scale modes (raw / rebase / dual-axis) they actually pick.
+      // what scale modes (raw / rebase / dual-axis) they actually pick, and
+      // which sources they combine. The source list lets us cross-check the
+      // composition popularity signal against the library-add signal.
       track(
         ccModal.editingId ? "compose_custom_chart_edited" : "compose_custom_chart_created",
         {
           sourceCount: sourceIds.length,
           mode,
+          sources: packSourceIds(sourceIds),
         },
       );
     });

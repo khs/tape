@@ -1,0 +1,62 @@
+---
+/**
+ * One-shot client-side telemetry: fires a `dashboard_viewed` Vercel-analytics
+ * event on page load with the packed list of source IDs rendered on this
+ * page. Drop into any dashboard route (`<AnalyticsDashboardView sources={[...]}
+ * surface="preset" />`) to get a viewer-side popularity signal that
+ * complements the composer-side creation events.
+ *
+ * Lives as its own component because four routes need this same behavior
+ * (preset / custom / saved / chart-detail) and inlining the script in each
+ * would be either duplication or — if changed — a refactor nightmare.
+ */
+import { packSourceIds } from "../lib/analytics-helpers";
+
+interface Props {
+  sources: string[];
+  /** Which surface the view came from — preset, custom, saved, chart-detail. */
+  surface: "preset" | "custom" | "saved" | "chart";
+  /** Number of charts shown on this page (for "depth of dashboard" segmentation). */
+  chartCount: number;
+  /** Optional preset/saved/chart slug for dedup'd resource identification. */
+  slug?: string;
+}
+
+const { sources, surface, chartCount, slug } = Astro.props;
+const packed = packSourceIds(sources);
+---
+
+<script
+  type="application/json"
+  data-role="analytics-view-payload"
+  set:html={JSON.stringify({ packed, surface, chartCount, slug: slug ?? null })}
+></script>
+<script>
+  import { track } from "@vercel/analytics";
+
+  const el = document.querySelector<HTMLScriptElement>(
+    "[data-role='analytics-view-payload']",
+  );
+  if (el?.textContent) {
+    try {
+      const payload = JSON.parse(el.textContent) as {
+        packed: string;
+        surface: string;
+        chartCount: number;
+        slug: string | null;
+      };
+      // Fire once per pageload. Vercel auto-tracks the pageview separately; this
+      // event adds the source-attribution dimension so the popularity dashboard
+      // can answer "which sources are people actually looking at?" not just
+      // "which routes are popular?".
+      track("dashboard_viewed", {
+        surface: payload.surface,
+        chartCount: payload.chartCount,
+        sources: payload.packed,
+        slug: payload.slug ?? "",
+      });
+    } catch {
+      /* malformed payload — silently skip */
+    }
+  }
+</script>

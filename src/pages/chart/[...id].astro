@@ -8,6 +8,7 @@ import {
   effectiveChart,
 } from "../../lib/resolve-dashboard";
 import { encodeComposedState } from "../../lib/composer-state";
+import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
 
 export async function getStaticPaths() {
   const charts = await getCollection("charts");
@@ -32,6 +33,10 @@ const composeUrl =
     title: resolved?.chart.data.title ?? chartId,
     sections: [{ title: "Overview", charts: [chartId] }],
   });
+
+// Source list for the dashboard_viewed telemetry event. Chart-detail pages
+// have exactly one chart, so this is the source set of that single chart.
+const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
 ---
 
 <BaseLayout
@@ -105,6 +110,15 @@ const composeUrl =
   </div>
 
   <ChartController />
+
+  {viewedSourceIds.length > 0 && (
+    <AnalyticsDashboardView
+      sources={viewedSourceIds}
+      surface="chart"
+      chartCount={1}
+      slug={chartId}
+    />
+  )}
 
   <script>
     import { readStoredSession } from "../../lib/supabase";

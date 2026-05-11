@@ -15,6 +15,7 @@ import {
   type ComposedState,
 } from "../../lib/composer-state";
 import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
+import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
 
 export const prerender = false;
 
@@ -68,6 +69,19 @@ if (state) {
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDelta = resolveDashboardDefault(state.defaultDelta, supported);
 }
+
+// Flatten resolved sources for the dashboard_viewed telemetry event.
+const viewedSourceIds = Array.from(
+  new Set(
+    resolvedSections.flatMap((sec) =>
+      sec.charts.flatMap((c) => c.sources.map((s) => s.id)),
+    ),
+  ),
+);
+const viewedChartCount = resolvedSections.reduce(
+  (acc, sec) => acc + sec.charts.length,
+  0,
+);
 
 // Re-encode the resolved state into an ?d= blob so the OG endpoint renders
 // the saved dashboard's actual hero chart (vs a bare title-only card). This
@@ -260,9 +274,14 @@ const ogD = state
   </div>
 
   <ChartController />
-
-
-
+  {viewedChartCount > 0 && (
+    <AnalyticsDashboardView
+      sources={viewedSourceIds}
+      surface="saved"
+      chartCount={viewedChartCount}
+      slug={slug}
+    />
+  )}
 </BaseLayout>
 
 <style>
