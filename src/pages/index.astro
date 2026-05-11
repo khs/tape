@@ -1,6 +1,9 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Chart from "../components/Chart.astro";
+import ChartController from "../components/ChartController.astro";
+import { resolveSections, effectiveChart } from "../lib/resolve-dashboard";
 
 const dashboards = await getCollection("dashboards");
 const sorted = dashboards.sort(
@@ -8,78 +11,142 @@ const sorted = dashboards.sort(
 );
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// For each preset dashboard, resolve its first chart so we can render a
+// live featured-chart tile on the homepage. We don't need every chart from
+// every dashboard — just the first one as a flavor preview. This keeps the
+// homepage payload bounded (~7 charts × 1 source-history each) vs. eagerly
+// rendering every chart of every dashboard.
+type Feature = {
+  slug: string;
+  title: string;
+  description?: string;
+  featuredChart: Awaited<ReturnType<typeof resolveSections>>[number]["charts"][number] | null;
+};
+
+const features: Feature[] = [];
+for (const d of sorted) {
+  const sections = await resolveSections({
+    sections: d.data.sections,
+    charts: d.data.charts,
+  });
+  const first = sections[0]?.charts?.[0] ?? null;
+  features.push({
+    slug: d.id,
+    title: d.data.title,
+    description: d.data.description,
+    featuredChart: first,
+  });
+}
+
+// The default-active feature when the homepage first renders. Earliest
+// `order` value wins (already pre-sorted), so this is whatever the team
+// considers the strongest visual hook.
+const defaultActiveSlug = features[0]?.slug ?? "";
 ---
 
 <BaseLayout
   title="Legible Markets"
-  description="Make your own financial dashboard, for free."
+  description="Shareable, citation-grade financial dashboards for the analysts, journalists, and congressional staff who have to explain what's happening in markets to people who don't read Bloomberg."
 >
-  <div class="max-w-[720px] mx-auto px-6 pt-16 pb-8">
-    <h1>Legible Markets</h1>
-    <p class="mt-4 text-neutral-600 leading-relaxed">
-      Legible Markets is a tool to let you make your own financial dashboard, for free.
+  <div class="hero">
+    <h1 class="hero-title">Legible Markets</h1>
+    <p class="hero-pitch">
+      Shareable, citation-grade financial dashboards for the analysts,
+      journalists, and congressional staff who have to explain what's
+      happening in markets to people who don't read Bloomberg.
     </p>
-    <p class="mt-6">
+    <p class="hero-cta-row">
       <a
         href={`${baseUrl}/compose/`}
-        class="inline-block text-sm font-medium no-underline rounded-sm px-4 py-2"
-        style="background: var(--color-accent); color: var(--color-white);"
+        class="hero-cta-primary"
       >
         Build your own dashboard &rarr;
+      </a>
+      <a
+        href={`${baseUrl}/explore/`}
+        class="hero-cta-secondary"
+      >
+        Browse the chart library
       </a>
     </p>
   </div>
 
-  <div class="max-w-[1120px] mx-auto px-6 pb-16" data-base-url={baseUrl}>
-    <!-- Client-injected "My dashboards" section (shown only when authed + has saves) -->
+  <div class="page-cols" data-base-url={baseUrl}>
+    {/* Auth-injected "My dashboards" section. Stays at the top of the
+        content area so returning users see their work first. */}
     <section
-      class="mb-10"
+      class="my-section"
       data-role="my-section"
       style="display: none"
     >
-      <h2 class="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-3">
-        My dashboards
-      </h2>
-      <ul
-        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0"
-        data-role="my-list"
-      ></ul>
+      <h2 class="section-eyebrow">My dashboards</h2>
+      <ul class="my-grid" data-role="my-list"></ul>
     </section>
 
-    <!-- Server-rendered preset grid. When "my dashboards" exists, this becomes
-         the secondary list with an explicit label; otherwise it's the main
-         content without a heading. -->
-    <section>
-      <h2
-        class="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-3"
-        data-role="presets-heading"
-        style="display: none"
-      >
-        Preset dashboards
-      </h2>
-      {
-        sorted.length > 0 ? (
-          <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
-            {sorted.map((d) => (
-              <li>
-                <a
-                  href={`${baseUrl}/${d.id}/`}
-                  class="block border hairline rounded p-4 bg-white no-underline text-neutral-900 hover:border-neutral-300 transition-colors"
-                >
-                  <h3 class="text-base font-semibold">{d.data.title}</h3>
-                  {d.data.description && (
-                    <p class="mt-1 text-sm text-neutral-500">{d.data.description}</p>
-                  )}
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="text-sm text-neutral-500">Dashboards coming soon.</p>
-        )
-      }
+    {/* Featured-dashboard preview: tabs + the active dashboard's first
+        chart rendered live. Each tile is hidden by default; client JS
+        unhides the active one. Defaults to whichever dashboard sorts
+        first by `order`. */}
+    <section class="featured" data-role="featured">
+      <h2 class="section-eyebrow">Featured dashboards</h2>
+      <div class="featured-tabs" role="tablist" aria-label="Preset dashboards">
+        {features.map((f) => (
+          <button
+            type="button"
+            role="tab"
+            class={
+              "featured-tab" +
+              (f.slug === defaultActiveSlug ? " featured-tab-active" : "")
+            }
+            data-role="featured-tab"
+            data-slug={f.slug}
+            aria-selected={f.slug === defaultActiveSlug ? "true" : "false"}
+          >
+            {f.title}
+          </button>
+        ))}
+      </div>
+
+      <div class="featured-panels">
+        {features.map((f) => (
+          <div
+            class="featured-panel"
+            data-role="featured-panel"
+            data-slug={f.slug}
+            hidden={f.slug !== defaultActiveSlug}
+          >
+            {f.description && (
+              <p class="featured-description">{f.description}</p>
+            )}
+            {f.featuredChart ? (
+              <div class="featured-tile-wrap">
+                <Chart
+                  chartId={f.featuredChart.chart.id}
+                  chart={effectiveChart(f.featuredChart)}
+                  sources={f.featuredChart.sources}
+                  dashboardSlug={f.slug}
+                  preloaded={f.featuredChart.preloaded}
+                />
+              </div>
+            ) : (
+              <p class="featured-empty">This dashboard has no charts yet.</p>
+            )}
+            <p class="featured-cta-row">
+              <a
+                href={`${baseUrl}/${f.slug}/`}
+                class="featured-open-link"
+              >
+                Open {f.title} dashboard &rarr;
+              </a>
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   </div>
+
+  <ChartController />
 
   <script>
     import {
@@ -89,7 +156,64 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       SUPABASE_REST_URL,
       SUPABASE_REST_ANON_KEY,
     } from "../lib/supabase";
+    import { track } from "@vercel/analytics";
 
+    // --- Featured-dashboard tab switching ---------------------------------
+    // Each preset dashboard's first chart is rendered server-side, hidden
+    // by default. Tabs unhide one at a time. Active selection is also
+    // mirrored to location.hash so refresh + share preserves the tab and
+    // we can deep-link to "homepage with X dashboard featured".
+    const tabs = Array.from(
+      document.querySelectorAll<HTMLButtonElement>("[data-role='featured-tab']"),
+    );
+    const panels = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-role='featured-panel']"),
+    );
+
+    function showFeatured(slug: string): void {
+      let matched = false;
+      for (const tab of tabs) {
+        const active = tab.dataset.slug === slug;
+        tab.classList.toggle("featured-tab-active", active);
+        tab.setAttribute("aria-selected", active ? "true" : "false");
+        if (active) matched = true;
+      }
+      for (const panel of panels) {
+        const active = panel.dataset.slug === slug;
+        panel.hidden = !active;
+      }
+      if (!matched && tabs[0]) {
+        // Hash referenced a dashboard that no longer exists; fall back to
+        // the default tab so we don't show an empty featured area.
+        showFeatured(tabs[0].dataset.slug ?? "");
+      }
+    }
+
+    // Honor a hash like #us-macro on first load.
+    const initialHash = window.location.hash.replace(/^#/, "");
+    if (initialHash && tabs.some((t) => t.dataset.slug === initialHash)) {
+      showFeatured(initialHash);
+    }
+
+    for (const tab of tabs) {
+      tab.addEventListener("click", () => {
+        const slug = tab.dataset.slug;
+        if (!slug) return;
+        showFeatured(slug);
+        // Update hash without scrolling; replaceState avoids cluttering
+        // browser history with a tab-switch entry per click.
+        history.replaceState(
+          {},
+          "",
+          window.location.pathname + window.location.search + "#" + slug,
+        );
+        track("home_featured_tab_clicked", { slug });
+      });
+    }
+
+    // --- Auth-gated "My dashboards" section -------------------------------
+    // Same behavior as before: hidden by default, populated client-side
+    // when there's a stored session.
     const host = document.querySelector<HTMLElement>("[data-base-url]");
     if (host && isSupabaseConfigured) {
       const baseUrl = host.dataset.baseUrl ?? "";
@@ -110,23 +234,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           const myList = host!.querySelector<HTMLUListElement>(
             "[data-role='my-list']",
           );
-          const presetsHeading = host!.querySelector<HTMLElement>(
-            "[data-role='presets-heading']",
-          );
-          if (!mySection || !myList || !presetsHeading) return;
+          if (!mySection || !myList) return;
 
           const stored = readStoredSession();
-          console.log("[home] stored session user:", stored?.user?.email ?? null);
+          console.log(
+            "[home] stored session user:",
+            stored?.user?.email ?? null,
+          );
           if (!stored) {
             mySection.style.display = "none";
-            presetsHeading.style.display = "none";
             return;
           }
 
           // Direct REST fetch — bypass supabase-js client to avoid any
           // getSession()/refresh deadlock. RLS enforces owner-or-public reads.
           const restUrl = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?select=slug,title,visibility,updated_at&order=updated_at.desc`;
-          let data: Array<{ slug: string; title: string; visibility: string; updated_at: string }> | null = null;
+          let data: Array<{
+            slug: string;
+            title: string;
+            visibility: string;
+            updated_at: string;
+          }> | null = null;
           let errorMsg: string | null = null;
           try {
             const res = await fetch(restUrl, {
@@ -149,22 +277,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           );
           if (errorMsg || !data || data.length === 0) {
             mySection.style.display = "none";
-            presetsHeading.style.display = "none";
             return;
           }
 
           myList.innerHTML = "";
           for (const row of data) {
             const li = document.createElement("li");
-            li.innerHTML =
-              `<a href="${baseUrl}/u/${encodeURIComponent(row.slug)}/" class="block border hairline rounded p-4 bg-white no-underline text-neutral-900 hover:border-neutral-300 transition-colors">
-                <h3 class="text-base font-semibold">${escapeHtml(row.title ?? "Untitled dashboard")}</h3>
-                <p class="mt-1 text-xs text-neutral-500">${row.visibility === "private" ? "private · " : ""}updated ${new Date(row.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
+            li.innerHTML = `<a href="${baseUrl}/u/${encodeURIComponent(row.slug)}/" class="my-card">
+                <h3>${escapeHtml(row.title ?? "Untitled dashboard")}</h3>
+                <p>${row.visibility === "private" ? "private · " : ""}updated ${new Date(row.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
               </a>`;
             myList.appendChild(li);
           }
           mySection.style.display = "";
-          presetsHeading.style.display = "";
         }
 
         refresh();
@@ -173,3 +298,183 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
   </script>
 </BaseLayout>
+
+<style>
+  .hero {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 28px;
+  }
+  .hero-title {
+    font-size: var(--text-3xl, 2.25rem);
+    font-weight: 600;
+    margin: 0 0 18px;
+    letter-spacing: -0.01em;
+    color: var(--color-neutral-900);
+  }
+  .hero-pitch {
+    font-size: var(--text-lg, 1.125rem);
+    line-height: 1.55;
+    color: var(--color-neutral-700);
+    margin: 0 0 28px;
+    max-width: 660px;
+  }
+  .hero-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .hero-cta-primary {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: var(--color-white);
+    transition: filter 0.12s;
+  }
+  .hero-cta-primary:hover {
+    filter: brightness(1.06);
+  }
+  .hero-cta-secondary {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-neutral-700);
+    text-decoration: none;
+  }
+  .hero-cta-secondary:hover {
+    color: var(--color-neutral-900);
+    text-decoration: underline;
+  }
+
+  .page-cols {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 56px;
+  }
+
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-neutral-500);
+    margin: 0 0 14px;
+  }
+
+  /* My dashboards section */
+  .my-section {
+    margin-bottom: 40px;
+  }
+  .my-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .my-card {
+    display: block;
+    padding: 16px;
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    text-decoration: none;
+    color: var(--color-neutral-900);
+    transition: border-color 0.12s;
+  }
+  .my-card:hover {
+    border-color: rgba(55, 53, 47, 0.25);
+  }
+  .my-card h3 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin: 0;
+  }
+  .my-card p {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+    margin: 4px 0 0;
+  }
+
+  /* Featured dashboards (tabs + live preview) */
+  .featured-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .featured-tab {
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    transition:
+      background-color 0.12s,
+      border-color 0.12s,
+      color 0.12s;
+  }
+  .featured-tab:hover {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+  }
+  .featured-tab-active,
+  .featured-tab-active:hover {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border-color: var(--color-neutral-900);
+  }
+  .featured-panel[hidden] {
+    display: none;
+  }
+  .featured-description {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+    line-height: 1.55;
+    margin: 0 0 16px;
+    max-width: 640px;
+  }
+  .featured-empty {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-500);
+  }
+  /* Make the live preview tile stretch out a bit — on its own (not in a
+     dashboard grid) it would otherwise render at the cramped min-width. */
+  .featured-tile-wrap :global(.chart-tile) {
+    max-width: 520px;
+  }
+  .featured-cta-row {
+    margin: 18px 0 0;
+  }
+  .featured-open-link {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .featured-open-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding: 36px 20px 20px;
+    }
+    .hero-title {
+      font-size: 1.875rem;
+    }
+    .hero-pitch {
+      font-size: 1rem;
+    }
+  }
+</style>
