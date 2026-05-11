@@ -725,6 +725,14 @@ const mostRecentUpdate = payload.sources
        the tip behind the legend rows above. */
     overflow: visible;
   }
+  /* Within a tile, the .tile-window caption ("over the past month")
+     comes after .tile-spark in document order and would paint on top of
+     the tip's overflow area. Lift the spark to z-index 2 so its
+     overflowed tip is drawn above the caption. */
+  .tile-spark {
+    position: relative;
+    z-index: 2;
+  }
   .tile-window {
     font-size: var(--text-xs);
   }
