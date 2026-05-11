@@ -229,7 +229,7 @@ export const GET: APIRoute = async ({ url }) => {
       title: params.get("title") ?? SITE_BRAND_NAME,
       subtitle:
         params.get("subtitle") ??
-        "Shareable financial dashboards for analysts, journalists, and the policy-curious.",
+        "Shareable, citation-ready financial dashboards for analysts, journalists, and staffers.",
       series: [],
       isSingle: false,
     };
