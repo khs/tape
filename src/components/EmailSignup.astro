@@ -115,18 +115,23 @@ const resolvedBlurb = blurb ?? placeholderBlurb;
     submitBtn.textContent = "Subscribing…";
     setStatus(form, "", "info");
     try {
-      const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/subscribers`, {
+      // Route through a SECURITY DEFINER RPC (public.subscribe) rather than
+      // a direct POST to the subscribers table. The direct path failed under
+      // Supabase's new sb_publishable_* API-key format: anon-role inserts
+      // hit "violates row-level security policy" even with a permissive
+      // `to public WITH CHECK (true)` policy in place — something in the
+      // new key's role-mapping breaks RLS evaluation. The RPC's
+      // SECURITY DEFINER context runs as the function owner (postgres,
+      // bypassing RLS) so it sidesteps the issue entirely while keeping
+      // the same on-conflict-do-nothing dedupe semantics.
+      const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/rpc/subscribe`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           apikey: SUPABASE_REST_ANON_KEY,
           Authorization: `Bearer ${SUPABASE_REST_ANON_KEY}`,
-          // ignore-duplicates: re-subscribes return 201 silently rather
-          // than 409, which spares us a "but I already gave you my email"
-          // user-facing error.
-          Prefer: "resolution=ignore-duplicates,return=minimal",
         },
-        body: JSON.stringify({ email, source }),
+        body: JSON.stringify({ p_email: email, p_source: source }),
       });
       if (!res.ok) {
         // 4xx other than the duplicate-handled-above case. Probably the
