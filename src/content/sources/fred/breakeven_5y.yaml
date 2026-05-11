@@ -4,7 +4,7 @@ description: Difference between the 5-year nominal Treasury yield and the 5-year
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/T5YIE.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "%"
 formatting:
   style: percent

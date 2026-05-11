@@ -4,7 +4,7 @@ description: Equal-weighted index of US homebuilders, building products, and hom
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XHB.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD
 formatting:
   style: currency

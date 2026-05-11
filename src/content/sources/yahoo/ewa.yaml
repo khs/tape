@@ -4,7 +4,7 @@ description: iShares MSCI Australia ETF — large- and mid-cap Australian equiti
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWA.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD
 formatting:
   style: currency

@@ -3,7 +3,7 @@ description: Civilian unemployment rate (seasonally adjusted), published monthly
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/UNRATE.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

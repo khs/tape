@@ -4,7 +4,7 @@ description: COMEX front-month futures (ticker SI) for 5,000-troy-ounce contract
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/SI_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "USD/oz"
 formatting:
   style: number

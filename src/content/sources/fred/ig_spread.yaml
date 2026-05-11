@@ -4,7 +4,7 @@ description: ICE BofA US corporate (IG) option-adjusted spread, daily.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/BAMLC0A0CM.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "%"
 formatting:
   style: percent

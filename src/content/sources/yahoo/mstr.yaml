@@ -4,7 +4,7 @@ description: Strategy, Inc. (formerly MicroStrategy) — a corporate Bitcoin hol
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/MSTR.json
-supportedDeltas: ["1w", "1m", "1y", "5y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y"]
 unit: USD
 formatting:
   style: currency

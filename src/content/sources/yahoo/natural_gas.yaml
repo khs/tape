@@ -3,7 +3,7 @@ description: NYMEX NG front-month futures, daily.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/NG_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD/mmbtu
 formatting:
   style: currency

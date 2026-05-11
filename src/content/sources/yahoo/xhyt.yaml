@@ -4,7 +4,7 @@ description: "BondBloxx HY Telecom/Media/Tech Sector ETF. High-yield corporate b
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XHYT.json
-supportedDeltas: ["1w", "1m", "1y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y"]
 unit: USD
 formatting:
   style: currency

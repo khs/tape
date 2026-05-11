@@ -3,7 +3,7 @@ description: All-urban consumers, not seasonally adjusted, 1982-84 = 100. The 1-
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPIAUCSL.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: "index (1982-84=100)"
 formatting:
   style: number

@@ -4,7 +4,7 @@ description: iShares MSCI Japan ETF — large- and mid-cap Japanese equities. Da
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWJ.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD
 formatting:
   style: currency

@@ -4,7 +4,7 @@ description: ICE front-month "Cotton No. 2" futures (ticker CT) for 50,000-pound
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/CT_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "USc/lb"
 formatting:
   style: number

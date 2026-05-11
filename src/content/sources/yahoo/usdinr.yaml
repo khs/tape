@@ -4,7 +4,7 @@ description: Indian rupees per US dollar. Up = dollar stronger / rupee weaker.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/USDINR.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: INR
 formatting:
   style: number

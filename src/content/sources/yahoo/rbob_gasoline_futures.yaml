@@ -4,7 +4,7 @@ description: NYMEX RBOB (Reformulated Blendstock for Oxygenate Blending) gasolin
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/RB_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD/gal
 formatting:
   style: currency

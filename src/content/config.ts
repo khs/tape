@@ -1,7 +1,16 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 
-const deltaWindow = z.enum(["1w", "1m", "1y", "5y", "10y", "30y", "50y"]);
+const deltaWindow = z.enum([
+  "1w",
+  "1m",
+  "ytd",
+  "1y",
+  "5y",
+  "10y",
+  "30y",
+  "50y",
+]);
 
 const formatting = z
   .object({

@@ -14,6 +14,8 @@
     DELTA_DAYS,
     DELTA_LABELS_PAST,
     closestSupported,
+    windowStartMs,
+    windowDays,
     type DeltaWindow,
   } from "../lib/deltas";
   import {
@@ -138,8 +140,13 @@
     leadIn = 0.15,
   ): { visible: Point[]; startMs: number } {
     const last = points[points.length - 1];
-    const startMs = new Date(last.t).getTime() - DELTA_DAYS[window] * 86400000;
-    const visibleStart = startMs - DELTA_DAYS[window] * 86400000 * leadIn;
+    const lastMs = new Date(last.t).getTime();
+    // YTD anchors to Jan 1; trailing windows just subtract DELTA_DAYS.
+    // windowStartMs encapsulates that decision.
+    const startMs = windowStartMs(lastMs, window);
+    // Lead-in buffer scales with the *actual* visible window length, so a
+    // YTD plot on Jan 15 gets a tiny lead-in instead of half a year of it.
+    const visibleStart = startMs - windowDays(window, new Date(lastMs)) * 86400000 * leadIn;
     const visible = points.filter(
       (p) => new Date(p.t).getTime() >= visibleStart,
     );
@@ -638,8 +645,7 @@
           const last = s.points[s.points.length - 1];
           if (!last) continue;
           current = last;
-          const priorMs =
-            new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+          const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
           prior = findPrior(s.points, priorMs);
         }
         const row = tile.querySelector<HTMLElement>(
@@ -668,8 +674,7 @@
       } else {
         const last = s.points[s.points.length - 1];
         current = last;
-        const priorMs =
-          new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+        const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
         prior = findPrior(s.points, priorMs);
       }
 
@@ -723,8 +728,7 @@
           const last = s.points[s.points.length - 1];
           if (!last) continue;
           current = last;
-          const priorMs =
-            new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+          const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
           prior = findPrior(s.points, priorMs);
         }
         const row = dialog.querySelector<HTMLElement>(
@@ -769,8 +773,7 @@
       } else {
         const last = s.points[s.points.length - 1];
         current = last;
-        const priorMs =
-          new Date(last.t).getTime() - DELTA_DAYS[eff] * 86400000;
+        const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
         prior = findPrior(s.points, priorMs);
       }
 
@@ -1303,9 +1306,18 @@
         tileContexts.forEach((ctx) => {
           const w = closestSupported(want, ctx.payload.supportedDeltas);
           ctx.currentWindow = w;
+          // Track the user's intent at the dashboard level so reopening
+          // the dialog reflects the active selection, not the trailing
+          // pre-click state.
+          ctx.selectedView = w;
           updateTile(ctx.tile, ctx.payload, w);
           if (ctx.dialogInitialized) {
             updateDialog(ctx.dialog, ctx.payload, w);
+            // Mirror the dashboard-level pill state into the dialog's
+            // per-chart pill row so the highlighted pill matches what's
+            // actually plotted — otherwise the dialog shows stale
+            // selection after a dashboard-level window change.
+            setActivePill(ctx.dialog, w);
           }
         });
       });

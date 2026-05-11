@@ -7,12 +7,43 @@ export interface Formatting {
   notation?: "standard" | "compact";
 }
 
+/**
+ * For compact-notation values ("$3.41T", "$456B", "$45.6B") this picks how
+ * many digits to show after the decimal so the *displayed* number always
+ * carries ~3 significant figures. A market cap of $456B is clearer at
+ * "$456B" than "$456.78B"; a $2.34T cap reads as "$2.34T" rather than the
+ * truncated "$2T". Rule: 3 leading digits → 0 decimals, 2 → 1, 1 → 2.
+ *
+ * Non-compact formatting (percent, raw currency, etc.) is unaffected —
+ * those still honor fmt.decimals verbatim.
+ */
+function compactDecimalsFor(v: number): number {
+  const absV = Math.abs(v);
+  if (!Number.isFinite(absV) || absV < 1) return 2;
+  // Largest band ≤ absV. 1e12 = T, 1e9 = B, 1e6 = M, 1e3 = K, 1 = none.
+  // Intl's compact suffix picks the same band, so the leading-digit count
+  // we compute matches what the rendered string will show.
+  const bands = [1e12, 1e9, 1e6, 1e3, 1];
+  let band = 1;
+  for (const b of bands) {
+    if (absV >= b) {
+      band = b;
+      break;
+    }
+  }
+  const leading = Math.floor(absV / band); // 1..999
+  const leadingDigits = String(leading).length;
+  return Math.max(0, 3 - leadingDigits);
+}
+
 export function formatValue(v: number, fmt: Formatting): string {
+  const isCompact = fmt.notation === "compact";
+  const decimals = isCompact ? compactDecimalsFor(v) : fmt.decimals;
   const opts: Intl.NumberFormatOptions = {
-    minimumFractionDigits: fmt.decimals,
-    maximumFractionDigits: fmt.decimals,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   };
-  if (fmt.notation === "compact") {
+  if (isCompact) {
     opts.notation = "compact";
     opts.compactDisplay = "short";
   }

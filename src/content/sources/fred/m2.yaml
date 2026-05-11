@@ -4,7 +4,7 @@ description: M2 money stock (SA), monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/M2SL.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: "billions USD"
 formatting:
   style: currency

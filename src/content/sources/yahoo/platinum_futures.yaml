@@ -4,7 +4,7 @@ description: NYMEX front-month futures (ticker PL) for 50-troy-ounce contracts o
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/PL_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "USD/oz"
 formatting:
   style: number

@@ -4,7 +4,7 @@ description: CME front-month futures (ticker LE) for 40,000-pound contracts of l
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/LE_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "USc/lb"
 formatting:
   style: number

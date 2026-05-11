@@ -4,7 +4,7 @@ description: Coinbase Global, Inc. — the largest US-listed crypto exchange. Of
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/COIN.json
-supportedDeltas: ["1w", "1m", "1y", "5y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y"]
 unit: USD
 formatting:
   style: currency

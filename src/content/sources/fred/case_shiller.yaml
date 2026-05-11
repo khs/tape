@@ -4,7 +4,7 @@ description: Case-Shiller national home price index (SA), monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CSUSHPISA.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "index"
 formatting:
   style: number

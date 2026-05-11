@@ -4,7 +4,7 @@ description: CME front-month futures (ticker LBR) for 27,500-board-foot contract
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/LBR_F.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "USD/1000 bd-ft"
 formatting:
   style: number

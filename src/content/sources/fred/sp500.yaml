@@ -3,7 +3,7 @@ description: S&P 500 Index, daily close (FRED series, ~10y history).
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SP500.json
-supportedDeltas: ["1w", "1m", "1y", "5y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y"]
 unit: index
 formatting:
   style: number

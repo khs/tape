@@ -4,7 +4,7 @@ description: "CBOE S&P 500 implied-volatility index, daily close."
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/VIXCLS.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "index"
 formatting:
   style: number

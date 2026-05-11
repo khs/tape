@@ -4,7 +4,7 @@ description: Sales of newly built single-family homes (Census Bureau). Excludes 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/HSN1F.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: thousands
 formatting:
   style: number

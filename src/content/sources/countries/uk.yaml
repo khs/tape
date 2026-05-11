@@ -4,7 +4,7 @@ description: iShares MSCI UK ETF (EWU) divided by Vanguard Total World ETF (VT),
 kind: timeseries
 pipeline: countries_relative
 dataFile: data/countries_relative/EWU.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: index
 formatting:
   style: number

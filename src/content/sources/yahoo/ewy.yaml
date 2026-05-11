@@ -4,7 +4,7 @@ description: iShares MSCI South Korea ETF — large- and mid-cap South Korean eq
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWY.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD
 formatting:
   style: currency

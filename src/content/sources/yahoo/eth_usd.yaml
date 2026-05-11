@@ -4,7 +4,7 @@ description: Spot Ethereum price in US dollars. Daily close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/ETH_USD.json
-supportedDeltas: ["1w", "1m", "1y", "5y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y"]
 unit: USD
 formatting:
   style: currency

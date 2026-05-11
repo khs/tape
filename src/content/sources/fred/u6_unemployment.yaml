@@ -4,7 +4,7 @@ description: Total unemployed plus all marginally attached workers plus people e
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/U6RATE.json
-supportedDeltas: ["1m", "1y", "5y", "10y", "30y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

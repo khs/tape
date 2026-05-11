@@ -1,6 +1,6 @@
 import type { SourceData, TimeSeriesData } from "./data-types";
 import type { DeltaWindow } from "./deltas";
-import { DELTA_DAYS } from "./deltas";
+import { windowStartMs } from "./deltas";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -24,8 +24,9 @@ export function findPriorPoint(
 ): { t: string; v: number } | null {
   if (data.points.length === 0) return null;
   const last = data.points[data.points.length - 1];
-  const targetMs =
-    new Date(last.t).getTime() - DELTA_DAYS[window] * 24 * 60 * 60 * 1000;
+  // windowStartMs handles YTD (anchors to Jan 1) and trailing windows
+  // (subtracts DELTA_DAYS) in one call.
+  const targetMs = windowStartMs(new Date(last.t).getTime(), window);
 
   if (new Date(data.points[0].t).getTime() > targetMs) return null;
 

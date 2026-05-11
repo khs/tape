@@ -4,7 +4,7 @@ description: Federal Reserve total assets, weekly (Wednesday close).
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WALCL.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: "millions USD"
 formatting:
   style: currency

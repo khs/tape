@@ -4,7 +4,7 @@ description: Japanese yen per US dollar. Up = dollar stronger / yen weaker. Sens
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/USDJPY.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: JPY
 formatting:
   style: number

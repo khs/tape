@@ -4,7 +4,7 @@ description: Market cap = unadjusted close × historical shares outstanding.
 kind: timeseries
 pipeline: yahoo_marketcap
 dataFile: data/yahoo_marketcap/AAPL_mc.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: USD
 formatting:
   style: currency

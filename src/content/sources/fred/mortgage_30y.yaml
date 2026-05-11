@@ -4,7 +4,7 @@ description: Freddie Mac primary mortgage market survey, weekly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MORTGAGE30US.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

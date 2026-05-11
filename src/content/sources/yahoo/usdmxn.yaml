@@ -4,7 +4,7 @@ description: Mexican pesos per US dollar. Up = dollar stronger / peso weaker. Se
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/USDMXN.json
-supportedDeltas: ["1w", "1m", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
 unit: MXN
 formatting:
   style: number
