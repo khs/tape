@@ -49,7 +49,7 @@ const defaultActiveSlug = features[0]?.slug ?? "";
   title="Legible Markets"
   description="Shareable, citation-grade financial dashboards for the analysts, journalists, and congressional staff who have to explain what's happening in markets to people who don't read Bloomberg."
 >
-  <div class="hero">
+  <div class="hero" data-role="hero">
     <h1 class="hero-title">Legible Markets</h1>
     <p class="hero-pitch">
       Shareable, citation-grade financial dashboards for the analysts,
@@ -71,6 +71,46 @@ const defaultActiveSlug = features[0]?.slug ?? "";
       </a>
     </p>
   </div>
+
+  {/* Returning-user lede — shown in place of the marketing hero once we know
+      the visitor is signed in and has at least one saved dashboard. Kept
+      slim because the real content is the my-dashboards list right below. */}
+  <div class="returning-hero" data-role="returning-hero" hidden>
+    <h1 class="returning-title">Your dashboards</h1>
+    <p class="returning-actions">
+      <a href={`${baseUrl}/compose/`} class="hero-cta-primary">
+        Build another &rarr;
+      </a>
+      <a href={`${baseUrl}/explore/`} class="hero-cta-secondary">
+        Browse charts
+      </a>
+    </p>
+  </div>
+
+  {/* Synchronous, blocking pre-paint check: if the visitor already has a
+      Supabase session in localStorage, hide the marketing hero immediately
+      so they don't see a flash of "make your own dashboard" copy that's
+      not for them. The async data fetch downstream then decides whether to
+      surface the returning-user lede (has saves) or unhide the hero again
+      (signed in but no saves yet — uncommon but possible). */}
+  <script is:inline define:vars={{ supabaseUrl: import.meta.env.PUBLIC_SUPABASE_URL ?? "" }}>
+    (function () {
+      try {
+        if (!supabaseUrl) return;
+        var m = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/);
+        if (!m) return;
+        var raw = localStorage.getItem("sb-" + m[1] + "-auth-token");
+        if (!raw) return;
+        var parsed = JSON.parse(raw);
+        var s = (parsed && (parsed.currentSession || parsed)) || null;
+        if (!s || !s.access_token) return;
+        var hero = document.querySelector("[data-role='hero']");
+        if (hero) hero.hidden = true;
+      } catch (e) {
+        /* swallow — worst case the marketing hero flashes for an instant */
+      }
+    })();
+  </script>
 
   <div class="page-cols" data-base-url={baseUrl}>
     {/* Auth-injected "My dashboards" section. Stays at the top of the
@@ -227,6 +267,27 @@ const defaultActiveSlug = features[0]?.slug ?? "";
             .replace(/"/g, "&quot;");
         }
 
+        // Helpers to swap the page lede between the marketing hero (for
+        // new visitors / signed-in users with no saves) and the slim
+        // "Your dashboards" header (for returning users with at least one
+        // save). The inline pre-paint script may have already hidden the
+        // hero; these calls make sure the right one is visible after the
+        // saves-fetch resolves.
+        const hero = document.querySelector<HTMLElement>(
+          "[data-role='hero']",
+        );
+        const returningHero = document.querySelector<HTMLElement>(
+          "[data-role='returning-hero']",
+        );
+        function showMarketingHero(): void {
+          if (hero) hero.hidden = false;
+          if (returningHero) returningHero.hidden = true;
+        }
+        function showReturningHero(): void {
+          if (hero) hero.hidden = true;
+          if (returningHero) returningHero.hidden = false;
+        }
+
         async function refresh() {
           const mySection = host!.querySelector<HTMLElement>(
             "[data-role='my-section']",
@@ -243,6 +304,7 @@ const defaultActiveSlug = features[0]?.slug ?? "";
           );
           if (!stored) {
             mySection.style.display = "none";
+            showMarketingHero();
             return;
           }
 
@@ -276,7 +338,11 @@ const defaultActiveSlug = features[0]?.slug ?? "";
             errorMsg ? `error: ${errorMsg}` : `${data?.length ?? 0} rows`,
           );
           if (errorMsg || !data || data.length === 0) {
+            // Signed in but no saves yet → re-show marketing hero so they
+            // see the value prop + Build-your-own CTA again. (Pre-paint
+            // script optimistically hid the hero on session presence.)
             mySection.style.display = "none";
+            showMarketingHero();
             return;
           }
 
@@ -290,6 +356,10 @@ const defaultActiveSlug = features[0]?.slug ?? "";
             myList.appendChild(li);
           }
           mySection.style.display = "";
+          // Signed in *and* has saves: the marketing pitch isn't for them.
+          // Swap to the slim "Your dashboards" lede so their saved work is
+          // the primary content above the fold.
+          showReturningHero();
         }
 
         refresh();
@@ -349,6 +419,32 @@ const defaultActiveSlug = features[0]?.slug ?? "";
   .hero-cta-secondary:hover {
     color: var(--color-neutral-900);
     text-decoration: underline;
+  }
+
+  /* "Your dashboards" lede shown to signed-in users with saves. Slimmer
+     than the marketing hero so their saved-dashboards grid is the primary
+     content above the fold. */
+  .returning-hero {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px 24px 16px;
+  }
+  .returning-hero[hidden] {
+    display: none;
+  }
+  .returning-title {
+    font-size: var(--text-2xl, 1.5rem);
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: var(--color-neutral-900);
+    letter-spacing: -0.005em;
+  }
+  .returning-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 0;
   }
 
   .page-cols {
