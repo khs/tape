@@ -827,14 +827,19 @@
     }
   }
 
-  async function exportDialogAsPng(
+  /**
+   * Capture the dialog's chart as a watermarked PNG Blob. Returns the Blob
+   * plus a filename, ready for either clipboard-write or a download anchor
+   * fallback. Caller decides which.
+   */
+  async function captureDialogPng(
     dialog: HTMLDialogElement,
     payload: Payload,
     currentWindow: DeltaWindow,
-  ): Promise<boolean> {
+  ): Promise<{ blob: Blob; filename: string } | null> {
     const plotEl = dialog.querySelector<HTMLElement>('[data-role="plot"]');
     const liveSvg = plotEl?.querySelector<SVGSVGElement>("svg");
-    if (!liveSvg) return false;
+    if (!liveSvg) return null;
 
     const titleEl = dialog.querySelector<HTMLHeadingElement>(
       ".dialog-header h2",
@@ -926,27 +931,51 @@
       ctx.scale(dpr, dpr);
       ctx.drawImage(img, 0, 0);
 
-      await new Promise<void>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject(new Error("toBlob returned null"));
-            return;
-          }
-          const dlUrl = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = dlUrl;
-          a.download = `${slugifyForFilename(title)}-${currentWindow}.png`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          // Defer revoke to next tick so the download has time to start.
-          setTimeout(() => URL.revokeObjectURL(dlUrl), 0);
-          resolve();
-        }, "image/png");
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), "image/png");
       });
-      return true;
+      if (!blob) throw new Error("toBlob returned null");
+      return {
+        blob,
+        filename: `${slugifyForFilename(title)}-${currentWindow}.png`,
+      };
     } finally {
       URL.revokeObjectURL(url);
+    }
+  }
+
+  /**
+   * Trigger a browser download of the given blob as a fallback when the
+   * clipboard image-write API isn't available. Returned as a Promise so the
+   * caller can await completion (the click happens synchronously but the
+   * browser kicks the download asynchronously).
+   */
+  function downloadBlob(blob: Blob, filename: string): void {
+    const dlUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = dlUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(dlUrl), 0);
+  }
+
+  /**
+   * Try to write the PNG to the system clipboard. Returns true on success,
+   * false if the browser doesn't support image clipboard writes (older
+   * Firefox or Safari) or if the user denied clipboard permission.
+   */
+  async function copyImageToClipboard(blob: Blob): Promise<boolean> {
+    try {
+      const Ctor = (window as unknown as { ClipboardItem?: typeof ClipboardItem })
+        .ClipboardItem;
+      if (!Ctor || !navigator.clipboard?.write) return false;
+      const item = new Ctor({ [blob.type]: blob });
+      await navigator.clipboard.write([item]);
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -1088,14 +1117,14 @@
         });
       }
 
-      const saveImgBtn = dialog.querySelector<HTMLButtonElement>(
-        "[data-role='save-image']",
+      const copyImgBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-role='copy-image']",
       );
-      if (saveImgBtn) {
-        saveImgBtn.addEventListener("click", async (e) => {
+      if (copyImgBtn) {
+        copyImgBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
-          if (saveImgBtn.disabled) return;
-          // Defensive: the dialog must have rendered its plot before export
+          if (copyImgBtn.disabled) return;
+          // Defensive: the dialog must have rendered its plot before capture
           // works. Forcing render here is cheap and idempotent.
           if (!ctx.dialogInitialized) {
             const useFixed = ctx.selectedView === "fixed";
@@ -1107,36 +1136,52 @@
             setActivePill(dialog, ctx.selectedView);
             ctx.dialogInitialized = true;
           }
-          const originalLabel = saveImgBtn.textContent ?? "Save as image";
-          saveImgBtn.disabled = true;
-          saveImgBtn.textContent = "Saving…";
+          const originalLabel = copyImgBtn.textContent ?? "Copy chart as image";
+          copyImgBtn.disabled = true;
+          copyImgBtn.textContent = "Copying…";
           try {
-            const ok = await exportDialogAsPng(
+            const captured = await captureDialogPng(
               dialog,
               payload,
               ctx.currentWindow,
             );
-            saveImgBtn.textContent = ok ? "Saved" : "Failed";
+            if (!captured) throw new Error("capture failed");
+            // Clipboard image-write is what we want — paste directly into
+            // Substack / a Google Doc / a slide. Browsers without
+            // ClipboardItem (old Firefox, ancient Safari) gracefully fall
+            // back to a file download so the action still produces *something*.
+            const clipboardOk = await copyImageToClipboard(captured.blob);
+            let outcome: "clipboard" | "download";
+            if (clipboardOk) {
+              copyImgBtn.textContent = "Copied!";
+              outcome = "clipboard";
+            } else {
+              downloadBlob(captured.blob, captured.filename);
+              copyImgBtn.textContent = "Downloaded";
+              outcome = "download";
+            }
             setTimeout(() => {
-              saveImgBtn.disabled = false;
-              saveImgBtn.textContent = originalLabel;
-            }, 1200);
-            // Telemetry: image export is a strong intent signal — user found
-            // the chart valuable enough to want to paste it elsewhere.
-            track("chart_image_exported", {
+              copyImgBtn.disabled = false;
+              copyImgBtn.textContent = originalLabel;
+            }, 1500);
+            // Telemetry: image export is a strong intent signal. `outcome`
+            // distinguishes clipboard from the older-browser download path
+            // so we can see how often the fallback is hit.
+            track("chart_image_copied", {
               chartId: payload.chartId ?? "",
               window: ctx.currentWindow,
+              outcome,
               sources: payload.sources
                 .map((s) => s.id)
                 .slice(0, 8)
                 .join(","),
             });
           } catch (err) {
-            console.error("[save image] failed:", err);
-            saveImgBtn.textContent = "Failed";
+            console.error("[copy image] failed:", err);
+            copyImgBtn.textContent = "Failed";
             setTimeout(() => {
-              saveImgBtn.disabled = false;
-              saveImgBtn.textContent = originalLabel;
+              copyImgBtn.disabled = false;
+              copyImgBtn.textContent = originalLabel;
             }, 1500);
           }
         });
