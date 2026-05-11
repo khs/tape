@@ -26,7 +26,18 @@
     type Formatting,
   } from "../lib/format";
   import { SITE_BRAND_URL } from "../lib/brand";
+  import { readStoredSession } from "../lib/supabase";
   import { track } from "@vercel/analytics";
+
+  // One-shot auth probe — used to decide whether tile sparkline tooltips
+  // include the "Click to zoom in" affordance line. Signed-in users have
+  // already discovered the click-to-expand interaction; signed-out users
+  // probably haven't, so they get a small extra cue. Read once at hydrate
+  // time; if the user signs in or out mid-session the page reloads
+  // anyway (the auth nav buttons trigger that), so we don't need to
+  // refresh this flag.
+  const showClickHint = !readStoredSession();
+  const TILE_HINT = showClickHint ? "Click to zoom in" : null;
 
   type Point = { t: string; v: number };
   type Direction = "up" | "down" | "flat";
@@ -103,24 +114,70 @@
     iso: string;
   };
 
-  /** Build the multi-line text shown in a hover tip box. */
-  function buildTipTitle(
-    s: SourcePayload,
-    p: TipPoint,
-    options: { rebased?: boolean; rescaled?: boolean } = {},
-  ): string {
-    const namePart = s.shortName || s.name;
-    const dateStr = formatDate(p.iso);
-    const rawStr = formatValue(p.vRaw, s.formatting);
-    // For rebased multi-source plots the line's y is an index near 100, so
-    // show both the raw value (most informative) and the index (matches what
-    // the user is looking at on the y-axis).
-    if (options.rebased) {
-      return `${namePart}\n${dateStr}\n${rawStr}  ·  index ${p.v.toFixed(1)}`;
-    }
-    // Dual-axis right-side: the line's y is rescaled to fit the left axis;
-    // raw is the only meaningful number to show.
-    return `${namePart}\n${dateStr}\n${rawStr}`;
+  /**
+   * One series' contribution to the combined hover bundle: the source
+   * (for label + formatting), the series's TipPoints in render order, and
+   * any per-series quirks the title formatter needs to know about.
+   */
+  type BundleSeries = {
+    source: SourcePayload;
+    pts: TipPoint[];
+    rebased?: boolean;
+  };
+
+  /** One row of the combined-tip dataset: an x-time + pre-formatted lines. */
+  type Bundle = {
+    t: Date;
+    lines: string[];
+  };
+
+  /**
+   * Build the combined-tip dataset: one row per x value in the union of
+   * series, each row carrying the pre-formatted lines that the tip box
+   * will render. We do the forward-fill (use the last point at or before
+   * x) here so the tip mirrors how Plot draws the line between sparse
+   * observations — important for charts that mix daily ETF prices with
+   * annual GDP, where the GDP value should "carry through" to the next
+   * year's observation, not vanish between data points.
+   *
+   * Doing this once at render time (instead of inside the title()
+   * callback Plot invokes on every pointer move) keeps hover-update
+   * cheap even on multi-source plots with hundreds of points.
+   */
+  function buildBundles(series: BundleSeries[]): Bundle[] {
+    if (series.length === 0) return [];
+    const allMs = new Set<number>();
+    for (const s of series) for (const p of s.pts) allMs.add(p.t.getTime());
+    const sorted = [...allMs].sort((a, b) => a - b);
+    return sorted.map((xMs) => {
+      const t = new Date(xMs);
+      const lines: string[] = [formatDate(t.toISOString())];
+      for (const s of series) {
+        let best: TipPoint | null = null;
+        for (const p of s.pts) {
+          if (p.t.getTime() <= xMs) best = p;
+          else break;
+        }
+        if (!best) continue;
+        const label = s.source.shortName || s.source.name;
+        const rawStr = formatValue(best.vRaw, s.source.formatting);
+        // For rebased lines, also show the on-axis index so the value
+        // ties to what the user sees on the y-axis.
+        const indexStr = s.rebased
+          ? `  ·  index ${best.v.toFixed(1)}`
+          : "";
+        lines.push(`${label}: ${rawStr}${indexStr}`);
+      }
+      return { t, lines };
+    });
+  }
+
+  /**
+   * Final string handed to Plot.tip's `title` channel. Optionally prepends
+   * an affordance hint (e.g. "Click to zoom in") above the data lines.
+   */
+  function bundleTitle(b: Bundle, hint?: string | null): string {
+    return hint ? `${hint}\n${b.lines.join("\n")}` : b.lines.join("\n");
   }
 
   // Shared tip-mark styling. Inline so Plot's tip box font matches the rest
@@ -185,6 +242,16 @@
     if (visible.length < 2) return;
 
     const width = container.clientWidth || 220;
+    // Build TipPoints + a one-series bundle so the tile gets the same
+    // hover-to-read-value affordance as the dialog. Cheap (one source's
+    // points already in memory).
+    const pts: TipPoint[] = visible.map((p) => ({
+      t: new Date(p.t),
+      v: p.v,
+      vRaw: p.v,
+      iso: p.t,
+    }));
+    const bundles = buildBundles([{ source, pts }]);
     const plot = Plot.plot({
       height: 36,
       width,
@@ -194,12 +261,24 @@
       marginTop: 2,
       marginBottom: 2,
       marks: [
-        Plot.lineY(visible, {
-          x: (p: Point) => new Date(p.t),
+        Plot.lineY(pts, {
+          x: "t",
           y: "v",
           stroke: source.color,
           strokeWidth: 1.5,
         }),
+        ...(bundles.length > 0
+          ? [
+              Plot.tip(
+                bundles,
+                Plot.pointerX({
+                  x: "t",
+                  title: (b: Bundle) => bundleTitle(b, TILE_HINT),
+                  ...TIP_STYLE,
+                }),
+              ),
+            ]
+          : []),
       ],
     });
     container.replaceChildren(plot);
@@ -259,27 +338,54 @@
         const dR = rMax - rMin || 1;
         const rescaleR = (v: number) => lMin + ((v - rMin) / dR) * dL;
         const dualMarks: any[] = [];
+        const dualBundleSeries: BundleSeries[] = [];
         for (const m of matLeft) {
           if (m.visible.length < 2) continue;
+          const pts: TipPoint[] = m.visible.map((p) => ({
+            t: new Date(p.t),
+            v: p.v,
+            vRaw: p.v,
+            iso: p.t,
+          }));
           dualMarks.push(
-            Plot.lineY(m.visible, {
-              x: (p: Point) => new Date(p.t),
+            Plot.lineY(pts, {
+              x: "t",
               y: "v",
               stroke: m.s.color,
               strokeWidth: 1.25,
             }),
           );
+          dualBundleSeries.push({ source: m.s, pts });
         }
         for (const m of matRight) {
           if (m.visible.length < 2) continue;
-          const pts = m.visible.map((p) => ({ t: p.t, v: rescaleR(p.v) }));
+          const pts: TipPoint[] = m.visible.map((p) => ({
+            t: new Date(p.t),
+            v: rescaleR(p.v),
+            vRaw: p.v,
+            iso: p.t,
+          }));
           dualMarks.push(
             Plot.lineY(pts, {
-              x: (p: Point) => new Date(p.t),
+              x: "t",
               y: "v",
               stroke: m.s.color,
               strokeWidth: 1.25,
             }),
+          );
+          dualBundleSeries.push({ source: m.s, pts });
+        }
+        const dualBundles = buildBundles(dualBundleSeries);
+        if (dualBundles.length > 0) {
+          dualMarks.push(
+            Plot.tip(
+              dualBundles,
+              Plot.pointerX({
+                x: "t",
+                title: (b: Bundle) => bundleTitle(b, TILE_HINT),
+                ...TIP_STYLE,
+              }),
+            ),
           );
         }
         const dualPlot = Plot.plot({
@@ -299,23 +405,47 @@
     }
 
     const marks: any[] = [];
+    const sparkBundles: BundleSeries[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
       const { visible, startMs } = fixed
         ? visibleRangeFixed(s.points, fStart, fEnd)
         : visibleRange(s.points, eff, 0);
       if (visible.length < 2) continue;
-      const pts =
-        payload.normalize === "rebase"
-          ? rebasePoints(visible, startMs)
-          : visible;
+      // Inline the rebase math so the TipPoint keeps both raw + plotted v.
+      let baseline = visible[0].v;
+      for (const p of visible) {
+        if (new Date(p.t).getTime() <= startMs) baseline = p.v;
+        else break;
+      }
+      const useRebase = payload.normalize === "rebase" && baseline !== 0;
+      const pts: TipPoint[] = visible.map((p) => ({
+        t: new Date(p.t),
+        v: useRebase ? (p.v / baseline) * 100 : p.v,
+        vRaw: p.v,
+        iso: p.t,
+      }));
       marks.push(
         Plot.lineY(pts, {
-          x: (p: Point) => new Date(p.t),
+          x: "t",
           y: "v",
           stroke: s.color,
           strokeWidth: 1.25,
         }),
+      );
+      sparkBundles.push({ source: s, pts, rebased: useRebase });
+    }
+    const bundles = buildBundles(sparkBundles);
+    if (bundles.length > 0) {
+      marks.push(
+        Plot.tip(
+          bundles,
+          Plot.pointerX({
+            x: "t",
+            title: (b: Bundle) => bundleTitle(b, TILE_HINT),
+            ...TIP_STYLE,
+          }),
+        ),
       );
     }
     const plot = Plot.plot({
@@ -385,6 +515,10 @@
           const unscaleR = (yPos: number) =>
             rMin + ((yPos - lMin) / dL) * dR;
           const marks: any[] = [];
+          // Per-series TipPoints collected into a single bundle so the tip
+          // box can show all series' values at the hovered x in one box,
+          // rather than four overlapping boxes (the previous bug).
+          const bundleSeries: BundleSeries[] = [];
           for (const m of matLeft) {
             if (m.visible.length < 2) continue;
             // Left-axis values plot at their natural scale, so v === vRaw.
@@ -409,16 +543,8 @@
                 fill: m.s.color,
                 r: 3.5,
               }),
-              Plot.tip(
-                pts,
-                Plot.pointerX({
-                  x: "t",
-                  y: "v",
-                  title: (p: TipPoint) => buildTipTitle(m.s, p),
-                  ...TIP_STYLE,
-                }),
-              ),
             );
+            bundleSeries.push({ source: m.s, pts });
           }
           for (const m of matRight) {
             if (m.visible.length < 2) continue;
@@ -444,13 +570,17 @@
                 fill: m.s.color,
                 r: 3.5,
               }),
+            );
+            bundleSeries.push({ source: m.s, pts });
+          }
+          const bundles = buildBundles(bundleSeries);
+          if (bundles.length > 0) {
+            marks.push(
               Plot.tip(
-                pts,
+                bundles,
                 Plot.pointerX({
                   x: "t",
-                  y: "v",
-                  title: (p: TipPoint) =>
-                    buildTipTitle(m.s, p, { rescaled: true }),
+                  title: (b: Bundle) => bundleTitle(b),
                   ...TIP_STYLE,
                 }),
               ),
@@ -513,6 +643,7 @@
     const fStart = fixed ? new Date(fixed.start).getTime() : 0;
     const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
     const rebaseMode = payload.normalize === "rebase" && payload.isMulti;
+    const bundleSeries: BundleSeries[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
       const { visible, startMs } = fixed
@@ -556,13 +687,20 @@
           fill: s.color,
           r: 3.5,
         }),
+      );
+      bundleSeries.push({ source: s, pts, rebased: useRebase });
+    }
+    const bundles = buildBundles(bundleSeries);
+    if (bundles.length > 0) {
+      // One combined tip showing all series at the hovered x. Previously we
+      // pushed a separate Plot.tip per series, which produced overlapping
+      // boxes (and thus illegible tooltips) on multi-series plots.
+      marks.push(
         Plot.tip(
-          pts,
+          bundles,
           Plot.pointerX({
             x: "t",
-            y: "v",
-            title: (p: TipPoint) =>
-              buildTipTitle(s, p, { rebased: useRebase }),
+            title: (b: Bundle) => bundleTitle(b),
             ...TIP_STYLE,
           }),
         ),
