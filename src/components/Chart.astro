@@ -335,6 +335,7 @@ const mostRecentUpdate = payload.sources
   data-chart-ref={uniqueId}
   data-emphasis={effectiveEmphasis}
   data-multi={isMulti ? "true" : "false"}
+  data-series-count={String(perSource.length)}
   aria-haspopup="dialog"
   aria-label={`${chart.title} details`}
 >
@@ -688,8 +689,28 @@ const mostRecentUpdate = payload.sources
     height: 36px;
     margin-top: 2px;
   }
-  .tile-spark svg {
+  /* Proportional growth for multi-series cards. Each extra series adds a
+     legend row, so the spark area gets ~14px taller per series above the
+     baseline — keeping the chart-to-legend ratio readable. Series counts
+     past 6 cap out (those charts are rare and the dialog's better suited
+     for that density anyway). */
+  .chart-tile-multi[data-series-count="2"] .tile-spark { height: 56px; }
+  .chart-tile-multi[data-series-count="3"] .tile-spark { height: 68px; }
+  .chart-tile-multi[data-series-count="4"] .tile-spark { height: 80px; }
+  .chart-tile-multi[data-series-count="5"] .tile-spark { height: 92px; }
+  .chart-tile-multi[data-series-count="6"] .tile-spark,
+  .chart-tile-multi[data-series-count="7"] .tile-spark,
+  .chart-tile-multi[data-series-count="8"] .tile-spark { height: 104px; }
+  /* Plot.plot creates the SVG at runtime, so Astro's scoped class
+     attributes never get applied to it — scoped `.tile-spark svg` rules
+     would otherwise miss the actual rendered element. `:global` lets the
+     overflow rule apply to whatever SVG Plot drops into the container. */
+  .tile-spark :global(svg) {
     display: block;
+    /* Allow Plot.tip's tooltip box to render outside the sparkline's
+       viewBox. Without this, hovering near the top of the spark clips
+       the tip behind the legend rows above. */
+    overflow: visible;
   }
   .tile-window {
     font-size: var(--text-xs);
