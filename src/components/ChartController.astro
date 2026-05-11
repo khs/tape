@@ -20,6 +20,7 @@
     formatValue,
     formatDelta,
     formatDeltaDisplay,
+    formatDate,
     type Formatting,
   } from "../lib/format";
   import { SITE_BRAND_URL } from "../lib/brand";
@@ -87,6 +88,49 @@
     if (baseline === 0) return points;
     return points.map((p) => ({ t: p.t, v: (p.v / baseline) * 100 }));
   }
+
+  // Tip-ready point: t as a Date (Plot's preferred time format), v as the
+  // value the line actually plots (raw, rebased, or rescaled depending on
+  // the chart's normalize mode), and vRaw as the original-units value so
+  // hover tooltips can show "actual price" even when the line shows an
+  // indexed or rescaled-to-the-other-axis value.
+  type TipPoint = {
+    t: Date;
+    v: number;
+    vRaw: number;
+    iso: string;
+  };
+
+  /** Build the multi-line text shown in a hover tip box. */
+  function buildTipTitle(
+    s: SourcePayload,
+    p: TipPoint,
+    options: { rebased?: boolean; rescaled?: boolean } = {},
+  ): string {
+    const namePart = s.shortName || s.name;
+    const dateStr = formatDate(p.iso);
+    const rawStr = formatValue(p.vRaw, s.formatting);
+    // For rebased multi-source plots the line's y is an index near 100, so
+    // show both the raw value (most informative) and the index (matches what
+    // the user is looking at on the y-axis).
+    if (options.rebased) {
+      return `${namePart}\n${dateStr}\n${rawStr}  ·  index ${p.v.toFixed(1)}`;
+    }
+    // Dual-axis right-side: the line's y is rescaled to fit the left axis;
+    // raw is the only meaningful number to show.
+    return `${namePart}\n${dateStr}\n${rawStr}`;
+  }
+
+  // Shared tip-mark styling. Inline so Plot's tip box font matches the rest
+  // of the plot chrome — without this it falls back to the SVG defaults
+  // (Helvetica) and looks foreign next to our Inter axes.
+  const TIP_STYLE = {
+    fill: "#fefefe",
+    stroke: "#dcdcda",
+    fontFamily:
+      '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontSize: 12,
+  };
 
   function visibleRange(
     points: Point[],
@@ -336,27 +380,14 @@
           const marks: any[] = [];
           for (const m of matLeft) {
             if (m.visible.length < 2) continue;
-            const pts = m.visible.map((p) => ({ t: new Date(p.t), v: p.v }));
-            marks.push(
-              Plot.lineY(pts, {
-                x: "t",
-                y: "v",
-                stroke: m.s.color,
-                strokeWidth: 1.75,
-              }),
-              Plot.dot(pts.slice(-1), {
-                x: "t",
-                y: "v",
-                fill: m.s.color,
-                r: 3.5,
-              }),
-            );
-          }
-          for (const m of matRight) {
-            if (m.visible.length < 2) continue;
-            const pts = m.visible.map((p) => ({
+            // Left-axis values plot at their natural scale, so v === vRaw.
+            // Carrying vRaw uniformly across both sides lets the same tip
+            // builder format either side without branching.
+            const pts: TipPoint[] = m.visible.map((p) => ({
               t: new Date(p.t),
-              v: rescaleR(p.v),
+              v: p.v,
+              vRaw: p.v,
+              iso: p.t,
             }));
             marks.push(
               Plot.lineY(pts, {
@@ -371,6 +402,51 @@
                 fill: m.s.color,
                 r: 3.5,
               }),
+              Plot.tip(
+                pts,
+                Plot.pointerX({
+                  x: "t",
+                  y: "v",
+                  title: (p: TipPoint) => buildTipTitle(m.s, p),
+                  ...TIP_STYLE,
+                }),
+              ),
+            );
+          }
+          for (const m of matRight) {
+            if (m.visible.length < 2) continue;
+            // Right-axis values are rescaled into the left axis's range so
+            // both series share one y-domain. vRaw preserves the raw value
+            // so the hover tip shows the real number, not the rescaled one.
+            const pts: TipPoint[] = m.visible.map((p) => ({
+              t: new Date(p.t),
+              v: rescaleR(p.v),
+              vRaw: p.v,
+              iso: p.t,
+            }));
+            marks.push(
+              Plot.lineY(pts, {
+                x: "t",
+                y: "v",
+                stroke: m.s.color,
+                strokeWidth: 1.75,
+              }),
+              Plot.dot(pts.slice(-1), {
+                x: "t",
+                y: "v",
+                fill: m.s.color,
+                r: 3.5,
+              }),
+              Plot.tip(
+                pts,
+                Plot.pointerX({
+                  x: "t",
+                  y: "v",
+                  title: (p: TipPoint) =>
+                    buildTipTitle(m.s, p, { rescaled: true }),
+                  ...TIP_STYLE,
+                }),
+              ),
             );
           }
           // Axis colors: when only one series on a side, color the axis to
@@ -429,14 +505,28 @@
     const fixed = payload.fixedRange;
     const fStart = fixed ? new Date(fixed.start).getTime() : 0;
     const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
+    const rebaseMode = payload.normalize === "rebase" && payload.isMulti;
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
       const { visible, startMs } = fixed
         ? visibleRangeFixed(s.points, fStart, fEnd)
         : visibleRange(s.points, eff, 0.15);
       if (visible.length < 2) continue;
-      const rebase = payload.normalize === "rebase" && payload.isMulti;
-      const pts = rebase ? rebasePoints(visible, startMs) : visible;
+      // Compute rebase baseline up-front (same logic as rebasePoints, inlined
+      // so we can build TipPoints that carry both rebased v and raw vRaw in
+      // a single pass — the hover tip wants raw values).
+      let baseline = visible[0].v;
+      for (const p of visible) {
+        if (new Date(p.t).getTime() <= startMs) baseline = p.v;
+        else break;
+      }
+      const useRebase = rebaseMode && baseline !== 0;
+      const pts: TipPoint[] = visible.map((p) => ({
+        t: new Date(p.t),
+        v: useRebase ? (p.v / baseline) * 100 : p.v,
+        vRaw: p.v,
+        iso: p.t,
+      }));
       if (!dashStartDrawn) {
         marks.push(
           Plot.ruleX([new Date(startMs)], {
@@ -448,17 +538,27 @@
       }
       marks.push(
         Plot.lineY(pts, {
-          x: (p: Point) => new Date(p.t),
+          x: "t",
           y: "v",
           stroke: s.color,
           strokeWidth: 1.75,
         }),
         Plot.dot(pts.slice(-1), {
-          x: (p: Point) => new Date(p.t),
+          x: "t",
           y: "v",
           fill: s.color,
           r: 3.5,
         }),
+        Plot.tip(
+          pts,
+          Plot.pointerX({
+            x: "t",
+            y: "v",
+            title: (p: TipPoint) =>
+              buildTipTitle(s, p, { rebased: useRebase }),
+            ...TIP_STYLE,
+          }),
+        ),
       );
     }
     // For single-source plots, use the source's own formatting for y-axis ticks
