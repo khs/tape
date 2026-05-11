@@ -231,7 +231,10 @@ const viewedChartCount = resolvedSections.reduce(
                       return;
                     }
                     track("custom_save_succeeded", { slug });
-                    window.location.href = `${baseUrl}/u/${slug}/`;
+                    // ?just-saved=1 triggers the post-save email-capture
+                    // prompt on the /u/<slug>/ page; the param is stripped
+                    // after first read so it doesn't survive refresh/share.
+                    window.location.href = `${baseUrl}/u/${slug}/?just-saved=1`;
                   } catch (e) {
                     console.error("[custom save] exception:", e);
                     alert(`Save failed: ${String(e)}`);

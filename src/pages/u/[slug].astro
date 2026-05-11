@@ -16,6 +16,7 @@ import {
 } from "../../lib/composer-state";
 import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
 import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
+import EmailSignup from "../../components/EmailSignup.astro";
 
 export const prerender = false;
 
@@ -124,6 +125,30 @@ const ogD = state
       </div>
     ) : state ? (
       <>
+        {/* Post-save email-capture banner. Rendered hidden; the inline
+            script below reveals it only when the user just arrived from
+            a successful save (?just-saved=1 in the URL, set by the
+            composer) and hasn't dismissed the prompt this session. */}
+        <div
+          class="post-save-prompt"
+          data-role="post-save-prompt"
+          hidden
+        >
+          <button
+            type="button"
+            class="post-save-dismiss"
+            data-role="post-save-dismiss"
+            aria-label="Dismiss"
+            title="Dismiss"
+          >&times;</button>
+          <EmailSignup
+            variant="banner"
+            source="post-save"
+            title="Saved. Want to know when we add new sources?"
+            blurb="Roughly monthly — composer features, new chart sources, the occasional analysis. No spam, easy to unsubscribe."
+          />
+        </div>
+
         <header class="mb-4">
           <div class="flex items-baseline justify-between flex-wrap gap-3">
             <h1 class="text-2xl font-semibold">{state.title}</h1>
@@ -282,6 +307,65 @@ const ogD = state
       slug={slug}
     />
   )}
+
+  <script>
+    // Reveal the post-save email-capture banner only when the user just
+    // arrived from a successful save (the composer adds ?just-saved=1)
+    // and hasn't dismissed the prompt this session. We strip the query
+    // param after reveal so refresh doesn't re-prompt.
+    const url = new URL(window.location.href);
+    const justSaved = url.searchParams.get("just-saved") === "1";
+    const dismissedKey = "lm:post-save-dismissed";
+    const alreadyDismissed =
+      sessionStorage.getItem(dismissedKey) === "1";
+    const prompt = document.querySelector<HTMLElement>(
+      "[data-role='post-save-prompt']",
+    );
+    if (justSaved && !alreadyDismissed && prompt) {
+      prompt.hidden = false;
+      // Strip the param so a refresh doesn't re-arm the prompt; also
+      // tidier in case the user shares this URL elsewhere.
+      url.searchParams.delete("just-saved");
+      window.history.replaceState(
+        {},
+        "",
+        url.pathname + (url.search ? url.search : "") + url.hash,
+      );
+    }
+    if (prompt) {
+      const dismissBtn = prompt.querySelector<HTMLButtonElement>(
+        "[data-role='post-save-dismiss']",
+      );
+      dismissBtn?.addEventListener("click", () => {
+        prompt.hidden = true;
+        sessionStorage.setItem(dismissedKey, "1");
+      });
+      // Also auto-dismiss once a submission succeeds — the EmailSignup
+      // component flips the status text to "Subscribed. Talk soon." on
+      // success; observe it and collapse the prompt a moment later.
+      const status = prompt.querySelector<HTMLElement>(
+        "[data-role='email-signup-status']",
+      );
+      if (status) {
+        const obs = new MutationObserver(() => {
+          if (status.dataset.kind === "ok") {
+            sessionStorage.setItem(dismissedKey, "1");
+            setTimeout(() => {
+              prompt.hidden = true;
+            }, 1800);
+            obs.disconnect();
+          }
+        });
+        obs.observe(status, {
+          attributes: true,
+          attributeFilter: ["data-kind"],
+          childList: true,
+          characterData: true,
+          subtree: true,
+        });
+      }
+    }
+  </script>
 </BaseLayout>
 
 <style>
@@ -303,4 +387,27 @@ const ogD = state
   .section-description { font-size: var(--text-sm); color: var(--color-neutral-600); line-height: 1.5; margin: 0 0 12px; max-width: 720px; white-space: pre-wrap; }
   .chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
   @media (min-width: 768px) { .chart-grid { grid-template-columns: repeat(3, 1fr); } }
+  .post-save-prompt {
+    position: relative;
+    margin: 0 0 20px;
+  }
+  .post-save-prompt[hidden] { display: none; }
+  .post-save-dismiss {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: var(--color-neutral-500);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    z-index: 1;
+  }
+  .post-save-dismiss:hover {
+    background: rgba(55, 53, 47, 0.06);
+    color: var(--color-neutral-900);
+  }
 </style>

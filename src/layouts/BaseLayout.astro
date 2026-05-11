@@ -1,6 +1,8 @@
 ---
 import "@fontsource-variable/inter";
 import "../styles/global.css";
+import EmailSignup from "../components/EmailSignup.astro";
+import { SITE_BRAND_NAME } from "../lib/brand";
 
 interface Props {
   title: string;
@@ -111,6 +113,35 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
     <main class="flex-1">
       <slot />
     </main>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <div class="site-footer-col site-footer-col-brand">
+          <p class="site-footer-brand">{SITE_BRAND_NAME}</p>
+          <p class="site-footer-tagline">
+            Shareable, citation-grade financial dashboards for the analysts,
+            journalists, and congressional staff who have to explain what's
+            happening in markets to people who don't read Bloomberg.
+          </p>
+        </div>
+        <div class="site-footer-col site-footer-col-nav">
+          <p class="site-footer-eyebrow">Navigate</p>
+          <ul class="site-footer-links">
+            <li><a href={`${baseUrl}/explore/`}>Explore charts</a></li>
+            <li><a href={`${baseUrl}/compose/`}>Compose a dashboard</a></li>
+            <li><a href={`${baseUrl}/about/`}>About</a></li>
+          </ul>
+        </div>
+        <div class="site-footer-col site-footer-col-signup">
+          <EmailSignup
+            variant="footer"
+            source="footer"
+            title="Stay in the loop"
+            blurb="Roughly monthly updates on new data sources and composer features. No spam."
+          />
+        </div>
+      </div>
+    </footer>
 
     <!-- "Add to my dashboard" modal. Any page can trigger it by dispatching
          CustomEvent("legible:add-to-dashboard", {detail: {chartId}}). The
@@ -362,6 +393,67 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
     </script>
 
     <style>
+      .site-footer {
+        border-top: 1px solid rgba(55, 53, 47, 0.08);
+        margin-top: 64px;
+        padding: 40px 24px 32px;
+        background: var(--color-white);
+      }
+      .site-footer-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 1.2fr);
+        gap: 48px;
+        align-items: start;
+      }
+      @media (max-width: 720px) {
+        .site-footer-inner {
+          grid-template-columns: 1fr;
+          gap: 28px;
+        }
+      }
+      .site-footer-col {
+        min-width: 0;
+      }
+      .site-footer-brand {
+        margin: 0 0 8px;
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--color-neutral-900);
+      }
+      .site-footer-tagline {
+        margin: 0;
+        font-size: var(--text-xs);
+        color: var(--color-neutral-600);
+        line-height: 1.55;
+        max-width: 420px;
+      }
+      .site-footer-eyebrow {
+        margin: 0 0 8px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-neutral-500);
+      }
+      .site-footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .site-footer-links a {
+        font-size: var(--text-sm);
+        color: var(--color-neutral-700);
+        text-decoration: none;
+      }
+      .site-footer-links a:hover {
+        color: var(--color-neutral-900);
+        text-decoration: underline;
+      }
       .atd-backdrop {
         position: fixed;
         inset: 0;

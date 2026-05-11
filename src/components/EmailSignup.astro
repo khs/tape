@@ -1,0 +1,273 @@
+---
+/**
+ * Email signup form. One markup template, two visual flavors:
+ *   variant="footer" - compact inline form for the BaseLayout footer
+ *   variant="banner" - bigger callout used by the post-save prompt
+ *
+ * Submission goes straight to Supabase via the anon REST endpoint with
+ * `Prefer: resolution=ignore-duplicates` so re-subscribes are silent 201s,
+ * not 409s. RLS lets anon insert into `subscribers` but blocks read — see
+ * migrations/0001_subscribers.sql.
+ *
+ * The component carries its own client script. Astro deduplicates module
+ * scripts, so dropping <EmailSignup /> in multiple places on the same page
+ * (e.g. footer + banner) only ships one copy of the handler.
+ */
+
+interface Props {
+  variant?: "footer" | "banner";
+  source?: string;
+  title?: string;
+  blurb?: string;
+}
+
+const {
+  variant = "footer",
+  source = "footer",
+  title,
+  blurb,
+} = Astro.props;
+
+const placeholderTitle =
+  variant === "banner" ? "Get notified when we add new data" : null;
+const placeholderBlurb =
+  variant === "banner"
+    ? "Roughly monthly. Updates on new chart sources, composer features, and the occasional analysis. No spam, easy to unsubscribe — the addresses just sit in a small private list."
+    : null;
+
+const resolvedTitle = title ?? placeholderTitle;
+const resolvedBlurb = blurb ?? placeholderBlurb;
+---
+
+<form class={`email-signup email-signup-${variant}`} data-source={source} novalidate>
+  {resolvedTitle && <p class="email-signup-title">{resolvedTitle}</p>}
+  {resolvedBlurb && <p class="email-signup-blurb">{resolvedBlurb}</p>}
+  <div class="email-signup-row">
+    <input
+      type="email"
+      class="email-signup-input"
+      name="email"
+      placeholder="you@example.com"
+      autocomplete="email"
+      required
+      aria-label="Email address"
+    />
+    <button type="submit" class="email-signup-submit">Subscribe</button>
+  </div>
+  <p
+    class="email-signup-status"
+    data-role="email-signup-status"
+    aria-live="polite"
+  >
+  </p>
+</form>
+
+<script>
+  import {
+    SUPABASE_REST_URL,
+    SUPABASE_REST_ANON_KEY,
+    isSupabaseConfigured,
+  } from "../lib/supabase";
+  import { track } from "@vercel/analytics";
+
+  // Simple HTML5-grade email regex. Doesn't try to fully validate RFC 5321
+  // (no JS regex does cleanly); just rejects obvious garbage so we don't
+  // waste a network round-trip on it. The DB has its own check constraint
+  // as a backstop.
+  const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  function setStatus(
+    form: HTMLFormElement,
+    text: string,
+    kind: "info" | "ok" | "error" = "info",
+  ): void {
+    const el = form.querySelector<HTMLElement>(
+      "[data-role='email-signup-status']",
+    );
+    if (!el) return;
+    el.textContent = text;
+    el.dataset.kind = kind;
+  }
+
+  async function submit(form: HTMLFormElement): Promise<void> {
+    if (!isSupabaseConfigured) {
+      setStatus(
+        form,
+        "Subscriptions are not configured in this environment yet.",
+        "error",
+      );
+      return;
+    }
+    const input = form.querySelector<HTMLInputElement>("input[name='email']");
+    const submitBtn = form.querySelector<HTMLButtonElement>(
+      "button[type='submit']",
+    );
+    if (!input || !submitBtn) return;
+    const email = input.value.trim().toLowerCase();
+    if (!EMAIL_RE.test(email)) {
+      setStatus(form, "That doesn't look like an email address.", "error");
+      input.focus();
+      return;
+    }
+    const source = form.dataset.source ?? "unknown";
+    submitBtn.disabled = true;
+    const originalLabel = submitBtn.textContent ?? "Subscribe";
+    submitBtn.textContent = "Subscribing…";
+    setStatus(form, "", "info");
+    try {
+      const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/subscribers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_REST_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_REST_ANON_KEY}`,
+          // ignore-duplicates: re-subscribes return 201 silently rather
+          // than 409, which spares us a "but I already gave you my email"
+          // user-facing error.
+          Prefer: "resolution=ignore-duplicates,return=minimal",
+        },
+        body: JSON.stringify({ email, source }),
+      });
+      if (!res.ok) {
+        // 4xx other than the duplicate-handled-above case. Probably the
+        // CHECK constraint rejecting a bad-shape email that slipped past
+        // the client regex.
+        setStatus(
+          form,
+          res.status >= 500
+            ? "Server hiccup. Try again in a bit?"
+            : "Couldn't save that. Double-check the address?",
+          "error",
+        );
+        track("email_signup_failed", {
+          source,
+          status: res.status,
+        });
+        return;
+      }
+      input.value = "";
+      setStatus(form, "Subscribed. Talk soon.", "ok");
+      track("email_signup_succeeded", { source });
+    } catch (err) {
+      console.error("[email signup] network error:", err);
+      setStatus(form, "Network hiccup. Try again?", "error");
+      track("email_signup_failed", { source, status: "network" });
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+  }
+
+  // Wire every signup form on the page. Re-runs cheaply on each new page
+  // load (Astro doesn't SPA-navigate by default for these routes).
+  document
+    .querySelectorAll<HTMLFormElement>(".email-signup")
+    .forEach((form) => {
+      // Avoid double-binding when this script is included twice (paranoid
+      // since Astro should dedupe, but the cost of guarding is trivial).
+      if (form.dataset.wired === "1") return;
+      form.dataset.wired = "1";
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        void submit(form);
+      });
+    });
+</script>
+
+<style>
+  .email-signup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .email-signup-title {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+  }
+  .email-signup-blurb {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-600);
+    line-height: 1.5;
+    max-width: 520px;
+  }
+  .email-signup-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+    margin-top: 6px;
+  }
+  .email-signup-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    font: inherit;
+    font-size: var(--text-sm);
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    color: var(--color-neutral-900);
+    line-height: 1.3;
+  }
+  .email-signup-input:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -1px;
+    border-color: transparent;
+  }
+  .email-signup-submit {
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    padding: 6px 14px;
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: filter 0.12s;
+  }
+  .email-signup-submit:hover {
+    filter: brightness(1.06);
+  }
+  .email-signup-submit:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .email-signup-status {
+    margin: 0;
+    min-height: 1.2em;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-600);
+  }
+  .email-signup-status[data-kind="ok"] {
+    color: var(--color-accent);
+  }
+  .email-signup-status[data-kind="error"] {
+    color: #b42318;
+  }
+
+  /* Banner-flavored signup used by the post-save prompt. Slightly bigger
+     copy + more breathing room than the compact footer instance. */
+  .email-signup-banner {
+    background: var(--color-neutral-50, #fafafa);
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    margin: 0 0 24px;
+  }
+  .email-signup-banner .email-signup-title {
+    font-size: var(--text-base);
+  }
+  .email-signup-banner .email-signup-blurb {
+    font-size: var(--text-sm);
+    max-width: 640px;
+  }
+
+  /* Footer instance is denser to fit the existing footer column. */
+  .email-signup-footer .email-signup-row {
+    max-width: 360px;
+  }
+</style>
