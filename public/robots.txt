@@ -1,0 +1,21 @@
+# Legible Markets — crawler rules.
+#
+# Public, indexable: homepage, preset dashboards, individual chart pages,
+# the chart-library explore page, about. These are the URLs we want
+# search engines to surface.
+#
+# Hidden from indexing: user accounts, saved dashboards (each one is
+# specific to its owner), the composer (a tool, not content), the OG
+# image endpoint, and any API routes. Listing them would dilute the
+# topical signal without helping users.
+
+User-agent: *
+Allow: /
+Disallow: /me/
+Disallow: /u/
+Disallow: /compose/
+Disallow: /custom/
+Disallow: /api/
+Disallow: /og.png
+
+Sitemap: https://legible-markets.vercel.app/sitemap-index.xml

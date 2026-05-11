@@ -38,6 +38,43 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
 
+    {/* Canonical URL: tells search engines which version of a page is
+        the authoritative one when the same content is reachable from
+        multiple URLs (with/without trailing slashes, query strings,
+        etc.). Without this, link-juice and indexing get split. */}
+    <link rel="canonical" href={absolutePageUrl} />
+
+    {/* JSON-LD Organization + WebSite schema. Helps search engines build
+        a knowledge-graph card for the brand and exposes a sitelink-search
+        box on Google for the eventual custom domain. Lightweight and
+        only rendered once per page (in <head>) — no runtime cost. */}
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            name: "Legible Markets",
+            url: siteOrigin,
+            logo: absoluteOgUrl,
+          },
+          {
+            "@type": "WebSite",
+            name: "Legible Markets",
+            url: siteOrigin,
+            description:
+              "Shareable, citation-ready financial dashboards for the analysts, journalists, and staffers who have to explain what's happening in markets to people who don't read Bloomberg.",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${siteOrigin}/explore/?q={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          },
+        ],
+      })}
+    />
+
     {/* Open Graph + Twitter card. Without these, shared URLs unfurl as a
         generic site card with no chart preview — a major leak on a product
         whose primary distribution channel is shareable links. */}

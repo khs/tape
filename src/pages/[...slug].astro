@@ -96,11 +96,8 @@ const forkUrl =
     <header class="mb-4">
       <div class="flex items-baseline justify-between flex-wrap gap-3">
         <h1 class="text-2xl font-semibold">{dashboard.data.title}</h1>
-        <a
-          href={forkUrl}
-          class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
-        >
-          Fork this &rarr;
+        <a href={forkUrl} class="fork-cta">
+          Fork this dashboard &rarr;
         </a>
       </div>
       {dashboard.data.description && (
@@ -177,6 +174,29 @@ const forkUrl =
 </BaseLayout>
 
 <style>
+  /* Fork-this is the primary call-to-action on every preset dashboard page —
+     it's the moment a curious viewer becomes someone composing their own
+     thing. Sized and weighted accordingly: same brand-accent treatment as
+     the homepage "Build your own" CTA, not a tiny outline link. */
+  .fork-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: var(--color-white);
+    transition: filter 0.12s, transform 0.08s;
+  }
+  .fork-cta:hover {
+    filter: brightness(1.06);
+  }
+  .fork-cta:active {
+    transform: translateY(1px);
+  }
   .dashboard-window {
     display: flex;
     align-items: center;

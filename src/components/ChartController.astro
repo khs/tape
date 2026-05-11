@@ -125,9 +125,15 @@
     rebased?: boolean;
   };
 
-  /** One row of the combined-tip dataset: an x-time + pre-formatted lines. */
+  /**
+   * One row of the combined-tip dataset: an x-time, a y-anchor (the mean
+   * of all series' displayed values at this x, used so the tip floats up
+   * and down with the chart instead of sitting at a fixed y), and the
+   * pre-formatted lines that the tip box renders.
+   */
   type Bundle = {
     t: Date;
+    y: number;
     lines: string[];
   };
 
@@ -152,6 +158,10 @@
     return sorted.map((xMs) => {
       const t = new Date(xMs);
       const lines: string[] = [formatDate(t.toISOString())];
+      // Collect the displayed y values for each series at this x so we can
+      // place the tip near the cluster of actual data instead of at a fixed
+      // height. This is what makes the tip "follow" the chart as you scrub.
+      const ys: number[] = [];
       for (const s of series) {
         let best: TipPoint | null = null;
         for (const p of s.pts) {
@@ -159,6 +169,7 @@
           else break;
         }
         if (!best) continue;
+        ys.push(best.v);
         const label = s.source.shortName || s.source.name;
         const rawStr = formatValue(best.vRaw, s.source.formatting);
         // For rebased lines, also show the on-axis index so the value
@@ -168,7 +179,9 @@
           : "";
         lines.push(`${label}: ${rawStr}${indexStr}`);
       }
-      return { t, lines };
+      const y =
+        ys.length > 0 ? ys.reduce((a, b) => a + b, 0) / ys.length : 0;
+      return { t, y, lines };
     });
   }
 
@@ -276,12 +289,12 @@
                 bundles,
                 Plot.pointerX({
                   x: "t",
-                  // anchor: "top" pins the tip box at its top edge so the
-                  // tooltip renders DOWNWARD from the data point. Combined
-                  // with overflow:visible on the spark SVG (CSS) the tip
-                  // can spill below the spark area without being clipped
-                  // by the legend rows above.
-                  anchor: "top",
+                  // Anchor the tip's y to the bundle's mean displayed-y so
+                  // it floats up/down with the chart line instead of sitting
+                  // at a fixed vertical position. Plot's auto anchor logic
+                  // then picks above/below based on available space, so the
+                  // tip naturally avoids covering the line cluster.
+                  y: "y",
                   title: (b: Bundle) => bundleTitle(b, TILE_HINT),
                   ...TIP_STYLE,
                 }),
@@ -394,7 +407,7 @@
               dualBundles,
               Plot.pointerX({
                 x: "t",
-                anchor: "top",
+                y: "y",
                 title: (b: Bundle) => bundleTitle(b, TILE_HINT),
                 ...TIP_STYLE,
               }),
@@ -455,7 +468,7 @@
           bundles,
           Plot.pointerX({
             x: "t",
-            anchor: "top",
+            y: "y",
             title: (b: Bundle) => bundleTitle(b, TILE_HINT),
             ...TIP_STYLE,
           }),
@@ -594,6 +607,7 @@
                 bundles,
                 Plot.pointerX({
                   x: "t",
+                  y: "y",
                   title: (b: Bundle) => bundleTitle(b),
                   ...TIP_STYLE,
                 }),
@@ -714,6 +728,7 @@
           bundles,
           Plot.pointerX({
             x: "t",
+            y: "y",
             title: (b: Bundle) => bundleTitle(b),
             ...TIP_STYLE,
           }),
