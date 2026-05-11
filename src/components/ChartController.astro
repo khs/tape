@@ -1041,6 +1041,53 @@
         closeBtn.addEventListener("click", () => dialog.close());
       }
 
+      const embedLinkBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-role='copy-embed-link']",
+      );
+      if (embedLinkBtn) {
+        embedLinkBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (embedLinkBtn.disabled) return;
+          // Substack / Twitter / Slack / Discord auto-unfurl URLs via OG
+          // meta tags. For library charts we link to the chart-detail page
+          // (/chart/<id>/) whose OG image is a rich rendered preview of
+          // that specific chart. For ad-hoc inline charts (composer-only,
+          // no detail page) fall back to the current page URL — that's
+          // still a real page with its own OG card.
+          const chartId = payload.chartId ?? "";
+          const origin = window.location.origin;
+          const isInline = chartId.startsWith("inline:");
+          const link =
+            chartId && !isInline
+              ? `${origin}/chart/${chartId}/`
+              : window.location.href;
+          const originalLabel = embedLinkBtn.textContent ?? "Copy embed link";
+          embedLinkBtn.disabled = true;
+          try {
+            await navigator.clipboard.writeText(link);
+            embedLinkBtn.textContent = "Copied!";
+            // Strong intent signal — separate from share-link copy because
+            // this one's specifically about distribution to a different
+            // surface, not just "share the URL I'm on".
+            track("chart_embed_link_copied", {
+              chartId,
+              window: ctx.currentWindow,
+              sources: payload.sources
+                .map((s) => s.id)
+                .slice(0, 8)
+                .join(","),
+            });
+          } catch {
+            embedLinkBtn.textContent = "Copy failed";
+          } finally {
+            setTimeout(() => {
+              embedLinkBtn.disabled = false;
+              embedLinkBtn.textContent = originalLabel;
+            }, 1500);
+          }
+        });
+      }
+
       const saveImgBtn = dialog.querySelector<HTMLButtonElement>(
         "[data-role='save-image']",
       );

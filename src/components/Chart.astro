@@ -393,12 +393,21 @@ const mostRecentUpdate = payload.sources
   <div class="dialog-close-bar">
     <button
       type="button"
-      class="dialog-save-image"
+      class="dialog-action-btn"
       data-role="save-image"
       aria-label="Save chart as image"
       title="Save this chart as a PNG image"
     >
       Save as image
+    </button>
+    <button
+      type="button"
+      class="dialog-action-btn"
+      data-role="copy-embed-link"
+      aria-label="Copy embed link for Substack, Twitter, etc."
+      title="Copy a link that unfurls into a chart preview when pasted into Substack, Twitter, Slack, or Discord"
+    >
+      Copy embed link
     </button>
     <button type="button" class="dialog-close" aria-label="Close">
       &times;
@@ -711,7 +720,7 @@ const mostRecentUpdate = payload.sources
     gap: 8px;
     padding: 8px 10px 0;
   }
-  .dialog-save-image {
+  .dialog-action-btn {
     font: inherit;
     font-size: var(--text-xs);
     font-weight: 500;
@@ -722,14 +731,15 @@ const mostRecentUpdate = payload.sources
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     line-height: 1.2;
+    white-space: nowrap;
     transition: background-color 0.12s, border-color 0.12s, color 0.12s;
   }
-  .dialog-save-image:hover {
+  .dialog-action-btn:hover {
     background: var(--color-neutral-100);
     border-color: rgba(55, 53, 47, 0.2);
     color: var(--color-neutral-900);
   }
-  .dialog-save-image:disabled {
+  .dialog-action-btn:disabled {
     opacity: 0.6;
     cursor: progress;
   }
