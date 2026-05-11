@@ -1,0 +1,169 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { ENTERPRISE_INQUIRY_URL } from "../lib/brand";
+export const prerender = true;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout
+  title="For organizations — Legible Markets"
+  description="Custom data sources, stability guarantees, and dedicated support for analyst teams, newsrooms, and policy shops who need Legible Markets to do something specific."
+>
+  <article class="enterprise-root">
+    <p class="enterprise-eyebrow">For organizations</p>
+    <h1>Need something Legible Markets doesn't do yet?</h1>
+
+    <p class="lead">
+      The free site is built for individual analysts, journalists, and
+      staffers — pick a chart, build a dashboard, share it, move on. If
+      you're running a team that needs more, we'll build out what's
+      missing as part of an enterprise engagement.
+    </p>
+
+    <h2>What enterprise unlocks</h2>
+    <ul class="enterprise-features">
+      <li>
+        <strong>Custom data sources.</strong> Private feeds, internal
+        indicators, third-party APIs the free tier doesn't pull from —
+        ingested into the same composer flow as the public charts, with
+        access scoped to your team.
+      </li>
+      <li>
+        <strong>Stability guarantees.</strong> SLA on uptime and data
+        freshness. Pinned chart IDs so saved dashboards don't break under
+        schema changes. Notification windows before pipeline tweaks.
+      </li>
+      <li>
+        <strong>Dashboards designed with you.</strong> If your team has a
+        recurring report or weekly briefing that always needs the same
+        eight charts, we'll build it as a private preset rather than
+        having every analyst rebuild it from scratch.
+      </li>
+      <li>
+        <strong>Whitelabeled embeds.</strong> Charts embedded in your
+        website, intranet, or research notes without the Legible Markets
+        watermark, on your domain.
+      </li>
+      <li>
+        <strong>Direct line for feature requests.</strong> Anything on
+        the free site is on the roadmap eventually; enterprise customers
+        get to specify "we need this in six weeks for the year-end
+        report" and we work to that.
+      </li>
+    </ul>
+
+    <h2>Who this is for</h2>
+    <p>
+      Think-tank research desks, newsroom data teams, congressional
+      committees, central-bank watchers, asset-management research
+      groups — anyone whose work routinely involves explaining markets
+      to people who don't read Bloomberg, and who needs the tool to keep
+      working the same way next month and next quarter as it does today.
+    </p>
+
+    <h2>How it works</h2>
+    <p>
+      Send a note — we'll book a 30-minute call, walk through what your
+      team currently does and where the friction is, and scope an
+      engagement from there. Pricing is per-engagement; we'll quote
+      based on data-pipeline complexity, the SLA you need, and how much
+      bespoke work is in scope.
+    </p>
+
+    <p class="enterprise-cta-row">
+      <a href={ENTERPRISE_INQUIRY_URL} class="enterprise-cta-primary">
+        Get in touch &rarr;
+      </a>
+      <a href={`${baseUrl}/about/`} class="enterprise-cta-secondary">
+        Read more about the project
+      </a>
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .enterprise-root {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+    color: var(--color-neutral-900);
+    line-height: 1.6;
+  }
+  .enterprise-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0 0 16px;
+  }
+  .enterprise-root h1 {
+    font-size: var(--text-3xl, 2rem);
+    font-weight: 600;
+    margin: 0 0 18px;
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+  }
+  .lead {
+    font-size: var(--text-lg, 1.1rem);
+    color: var(--color-neutral-700);
+    margin: 0 0 32px;
+    line-height: 1.55;
+  }
+  .enterprise-root h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 36px 0 12px;
+    color: var(--color-neutral-900);
+  }
+  .enterprise-root p,
+  .enterprise-features {
+    color: var(--color-neutral-700);
+  }
+  .enterprise-features {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .enterprise-features li {
+    padding-left: 0;
+  }
+  .enterprise-features strong {
+    color: var(--color-neutral-900);
+    font-weight: 600;
+  }
+  .enterprise-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 36px 0 0;
+  }
+  .enterprise-cta-primary {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: var(--color-white);
+    transition: filter 0.12s;
+  }
+  .enterprise-cta-primary:hover {
+    filter: brightness(1.06);
+  }
+  .enterprise-cta-secondary {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-neutral-700);
+    text-decoration: none;
+  }
+  .enterprise-cta-secondary:hover {
+    color: var(--color-neutral-900);
+    text-decoration: underline;
+  }
+</style>

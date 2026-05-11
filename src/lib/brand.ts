@@ -13,3 +13,15 @@ export const SITE_BRAND_URL = "legiblemarkets.com";
 
 /** The display name we use in titles and OG cards. */
 export const SITE_BRAND_NAME = "Legible Markets";
+
+/**
+ * Where the "Inquire about enterprise" CTA points — a Notion form or
+ * similar lightweight intake surface. Swap this string when the real
+ * intake URL is ready; falls back to a mailto so the link is never
+ * dead while the form is being set up.
+ *
+ * Used by /enterprise/, the /me/ account section, and the footer link
+ * — keeping the URL central means one edit when the form moves.
+ */
+export const ENTERPRISE_INQUIRY_URL =
+  "mailto:keller.scholl@gmail.com?subject=Legible%20Markets%20Enterprise%20Inquiry";
