@@ -51,7 +51,11 @@ if (!decoded.ok) {
 }
 ---
 
-<BaseLayout title={`${title} — Legible Markets`} description={description}>
+<BaseLayout
+  title={`${title} — Legible Markets`}
+  description={description}
+  ogImage={dParam ? `/og.png?d=${encodeURIComponent(dParam)}` : undefined}
+>
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
     data-dashboard-default-window={defaultDeltaRequested ?? "1m"}

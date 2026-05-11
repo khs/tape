@@ -68,9 +68,25 @@ if (state) {
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDelta = resolveDashboardDefault(state.defaultDelta, supported);
 }
+
+// Re-encode the resolved state into an ?d= blob so the OG endpoint renders
+// the saved dashboard's actual hero chart (vs a bare title-only card). This
+// dodges the need to give the OG endpoint a service-role Supabase key.
+const ogD = state
+  ? encodeComposedState({
+      title: state.title,
+      sections: state.sections,
+      charts: state.charts,
+      inlineCharts: state.inlineCharts,
+      inlineSources: state.inlineSources,
+    })
+  : null;
 ---
 
-<BaseLayout title={`${state?.title ?? "Saved dashboard"} — Legible Markets`}>
+<BaseLayout
+  title={`${state?.title ?? "Saved dashboard"} — Legible Markets`}
+  ogImage={ogD ? `/og.png?d=${encodeURIComponent(ogD)}` : undefined}
+>
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
     data-dashboard-default-window={defaultDelta ?? "1m"}

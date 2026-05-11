@@ -37,6 +37,7 @@ const composeUrl =
 <BaseLayout
   title={`${resolved?.chart.data.title ?? chartId} — Legible Markets`}
   description={resolved?.chart.data.blurb ?? "A single chart from the Legible Markets library."}
+  ogImage={`/og.png?chart=${encodeURIComponent(chartId)}`}
 >
   <div class="chart-detail max-w-[880px] mx-auto px-6 pt-8 pb-16" data-chart-id={chartId}>
     <nav class="text-xs text-neutral-500 mb-3">

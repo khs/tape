@@ -5,10 +5,26 @@ import "../styles/global.css";
 interface Props {
   title: string;
   description?: string;
+  /**
+   * URL path (relative to the site root) for the OG image. When unset, falls
+   * back to the bare brand card so social-card previews always have *some*
+   * thumbnail rather than the platform's generic link icon.
+   * Pass e.g. "/og.png?dash=us-macro" or "/og.png?chart=oil/wti".
+   */
+  ogImage?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogImage } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Build the absolute URL the social-card crawler will hit. Astro.site is
+// configured in production; in dev we fall back to the request origin so
+// previews work locally too.
+const siteOrigin =
+  Astro.site?.toString().replace(/\/$/, "") ?? Astro.url.origin;
+const resolvedOgPath = ogImage ?? "/og.png?title=Legible+Markets";
+const absoluteOgUrl = siteOrigin + resolvedOgPath;
+const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
 ---
 
 <!doctype html>
@@ -19,6 +35,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+
+    {/* Open Graph + Twitter card. Without these, shared URLs unfurl as a
+        generic site card with no chart preview — a major leak on a product
+        whose primary distribution channel is shareable links. */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Legible Markets" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={absolutePageUrl} />
+    <meta property="og:image" content={absoluteOgUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content={absoluteOgUrl} />
   </head>
   <body class="min-h-screen flex flex-col">
     <header class="border-b hairline">

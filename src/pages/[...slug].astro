@@ -67,6 +67,7 @@ const forkUrl =
 <BaseLayout
   title={`${dashboard.data.title} — Legible Markets`}
   description={dashboard.data.description ?? "Legible Markets"}
+  ogImage={`/og.png?dash=${encodeURIComponent(dashboard.id)}`}
 >
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
