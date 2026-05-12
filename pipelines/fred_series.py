@@ -113,6 +113,38 @@ SPECS: list[FredSpec] = [
     # Population — exposed as a quick-divisor in the composer's derived-
     # source modal so users can build per-capita series in one click.
     FredSpec("POPTHM", "US population, all persons (monthly)", "thousands"),
+    # ---- Federal spending by function (quarterly, OMB/BEA) ----
+    # NIPA Table 3.9.5 functional breakdown is what people actually argue
+    # about: defense vs entitlements vs interest. These are nominal $B
+    # annual rates. For ratio-to-GDP analyses, pair with us_real_gdp +
+    # the divide quick-action in the composer.
+    FredSpec("FDEFX", "Federal defense spending (NIPA)", "billions USD"),
+    FredSpec("W068RCQ027SBEA", "Federal nondefense consumption + investment", "billions USD"),
+    FredSpec("W823RC1Q027SBEA", "Federal Medicare benefits", "billions USD"),
+    FredSpec("W824RC1Q027SBEA", "Federal Medicaid benefits", "billions USD"),
+    FredSpec("W825RC1Q027SBEA", "Federal Social Security benefits", "billions USD"),
+    FredSpec("A091RC1Q027SBEA", "Federal interest payments", "billions USD"),
+    # ---- Real estate fundamentals ----
+    # Rent CPI is on FRED as part of CPI; separately, this is the
+    # standalone shelter and rent-of-primary-residence index, useful for
+    # the "is rent inflation persisting?" question.
+    FredSpec("CUUR0000SEHA", "CPI: Rent of primary residence", "index 1982-84=100"),
+    FredSpec("CUUR0000SAH1", "CPI: Shelter", "index 1982-84=100"),
+    # Vacancy rates — Census/HVS quarterly. RRVRUSQ156N = rental vacancy.
+    FredSpec("RRVRUSQ156N", "US rental vacancy rate", "%"),
+    FredSpec("RHVRUSQ156N", "US homeowner vacancy rate", "%"),
+    # Total housing starts (we already have it as housing_starts in
+    # contents/charts but worth keeping it here for completeness).
+    # Median listing price by national — useful for current-conditions
+    # snapshots.
+    FredSpec("MEDLISPRIUS", "US median listing price (homes for sale)", "USD"),
+    # ---- Productivity (BLS via FRED mirror) ----
+    # Output per hour, nonfarm business sector — the headline productivity
+    # number that wage-vs-productivity debates hinge on.
+    FredSpec("OPHNFB", "Nonfarm business: output per hour", "index 2017=100"),
+    FredSpec("ULCNFB", "Nonfarm business: unit labor costs", "index 2017=100"),
+    # Manufacturing-sector productivity for the "is reshoring real?" debate
+    FredSpec("OPHMFG", "Manufacturing: output per hour", "index 2017=100"),
 ]
 
 

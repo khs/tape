@@ -57,16 +57,25 @@ jobs:
         continue-on-error: true
         run: python pipelines/bls.py
 
-      # CBO + OECD are stubs — see their module docstrings for the build
-      # plan. They no-op cleanly so flipping them on later is just a
-      # matter of filling in the body.
-      - name: Refresh CBO projections (stub)
+      # CBO is blocked on DataDome bot protection from non-browser
+      # clients; no-ops until someone manually drops an XLSX into
+      # pipelines/cbo_data/. See cbo.py docstring.
+      - name: Refresh CBO projections (manual XLSX only)
         continue-on-error: true
         run: python pipelines/cbo.py
 
-      - name: Refresh OECD cross-country comparisons (stub)
+      # OECD: G7 unemployment + CPI; all-OECD-member debt + deficit + life
+      # expectancy + health spending. Multi-country requests batch to stay
+      # under the public API's rate limits.
+      - name: Refresh OECD cross-country comparisons
         continue-on-error: true
         run: python pipelines/oecd.py
+
+      # Treasury TIC — foreign holdings of US Treasuries by country.
+      # Monthly back to 2000.
+      - name: Refresh Treasury TIC (foreign holdings)
+        continue-on-error: true
+        run: python pipelines/treasury_tic.py
 
       # After all pipelines have written their fresh JSON, copy the whole
       # data/ tree into a dated archive at data/_archive/<YYYY-MM-DD>/...

@@ -1,0 +1,19 @@
+title: Productivity (output per hour)
+sources:
+  - "fred/productivity_nfb"
+  - "fred/productivity_mfg"
+render: line
+defaultDelta: 30y
+tags: [us, macro, labor]
+normalize: raw
+blurb: |
+  Output per hour worked, two sectors:
+  <ul>
+    <li><strong>Nonfarm business</strong>: the headline productivity number,
+    covering ~80% of the private economy.</li>
+    <li><strong>Manufacturing</strong>: the cyclical, technology-sensitive
+    sector that drives a lot of the wage-vs-productivity argument.</li>
+  </ul>
+  Productivity growth is the only sustainable source of real wage
+  growth. The post-2007 slowdown ("the missing decade") and the
+  2023–24 rebound are central to current macro debates.

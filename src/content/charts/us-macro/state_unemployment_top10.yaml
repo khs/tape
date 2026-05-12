@@ -1,0 +1,22 @@
+title: State unemployment (top 10 by GDP)
+sources:
+  - "bls/state_unemployment_ca"
+  - "bls/state_unemployment_tx"
+  - "bls/state_unemployment_ny"
+  - "bls/state_unemployment_fl"
+  - "bls/state_unemployment_il"
+  - "bls/state_unemployment_pa"
+  - "bls/state_unemployment_oh"
+  - "bls/state_unemployment_ga"
+  - "bls/state_unemployment_nc"
+  - "bls/state_unemployment_nj"
+render: line
+defaultDelta: 5y
+tags: [us, macro, labor]
+normalize: raw
+blurb: |
+  Headline unemployment rate by state, BLS LAUS, seasonally adjusted.
+  Headline US unemployment hides a lot of dispersion — a national 4% rate
+  can mean Massachusetts at 3 and Nevada at 6 simultaneously. The composer
+  has all 50 states + DC available individually if you need a different
+  cut.

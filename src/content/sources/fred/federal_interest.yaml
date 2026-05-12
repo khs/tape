@@ -1,0 +1,17 @@
+name: Federal interest payments
+shortName: Net interest
+description: Net interest paid on federal debt. Has grown sharply since 2022 as the Treasury rolls debt at higher rates.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/A091RC1Q027SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: billions USD
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: A091RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/A091RC1Q027SBEA
+  license: Public domain (US government data)

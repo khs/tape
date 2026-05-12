@@ -1,0 +1,17 @@
+name: Colorado unemployment rate
+shortName: CO unemployment
+description: Headline unemployment rate, seasonally adjusted, monthly. From BLS Local Area Unemployment Statistics (LAUS).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_unemployment_co.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: percent
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BLS (LAUS)
+  series: LASST080000000000003
+  url: https://www.bls.gov/lau/
+  license: Public domain (US government data)

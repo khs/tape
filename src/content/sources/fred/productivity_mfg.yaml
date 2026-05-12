@@ -1,0 +1,17 @@
+name: Manufacturing productivity
+shortName: Mfg productivity
+description: Output per hour in the manufacturing sector specifically. Useful for the "is US reshoring real?" debate.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/OPHMFG.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: index 2017=100
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: OPHMFG
+  url: https://fred.stlouisfed.org/series/OPHMFG
+  license: Public domain (US government data)

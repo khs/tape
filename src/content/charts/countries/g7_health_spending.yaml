@@ -1,0 +1,22 @@
+title: G7 health spending (% of GDP)
+sources:
+  - "oecd/usa_health_spending_pct_gdp"
+  - "oecd/can_health_spending_pct_gdp"
+  - "oecd/gbr_health_spending_pct_gdp"
+  - "oecd/fra_health_spending_pct_gdp"
+  - "oecd/deu_health_spending_pct_gdp"
+  - "oecd/ita_health_spending_pct_gdp"
+  - "oecd/jpn_health_spending_pct_gdp"
+render: line
+defaultDelta: 30y
+tags: [world, macro, government]
+normalize: raw
+blurb: |
+  Total current expenditure on health as a share of GDP, OECD System
+  of Health Accounts methodology. Comparable across countries because
+  it includes all financing schemes (public + private + mandatory
+  social insurance).
+  <br/><br/>
+  US spends ~17% of GDP on healthcare — roughly double the rate of
+  Italy, the UK, or Japan — without commensurately better life
+  expectancy outcomes.

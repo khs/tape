@@ -1,0 +1,17 @@
+name: New Zealand gov debt/GDP
+shortName: NZ gov debt/GDP
+description: General government gross financial liabilities as % of GDP. OECD Economic Outlook (GGFLQ). Annual.
+kind: timeseries
+pipeline: oecd
+dataFile: data/oecd/nzl_gov_debt_pct_gdp.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: OECD
+  series: gov_debt_pct_gdp (NZL)
+  url: https://data-explorer.oecd.org/
+  license: OECD terms of use

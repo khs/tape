@@ -1,0 +1,17 @@
+name: Israel gov debt/GDP
+shortName: IL gov debt/GDP
+description: General government gross financial liabilities as % of GDP. OECD Economic Outlook (GGFLQ). Annual.
+kind: timeseries
+pipeline: oecd
+dataFile: data/oecd/isr_gov_debt_pct_gdp.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: percent
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: OECD
+  series: DSD_EO@DF_EO (ISR)
+  url: https://data-explorer.oecd.org/
+  license: OECD terms of use

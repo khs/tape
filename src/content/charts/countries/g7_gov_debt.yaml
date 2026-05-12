@@ -1,0 +1,20 @@
+title: G7 government debt (% of GDP)
+sources:
+  - "oecd/usa_gov_debt_pct_gdp"
+  - "oecd/can_gov_debt_pct_gdp"
+  - "oecd/fra_gov_debt_pct_gdp"
+  - "oecd/deu_gov_debt_pct_gdp"
+  - "oecd/ita_gov_debt_pct_gdp"
+  - "oecd/jpn_gov_debt_pct_gdp"
+render: line
+defaultDelta: 30y
+tags: [world, macro, government]
+normalize: raw
+blurb: |
+  General government gross financial liabilities as a share of GDP, OECD
+  Economic Outlook. Japan stands out as the persistent debt-to-GDP
+  outlier (~250%+ for two decades) without ever hitting a fiscal crisis
+  — context for any "debt levels are unsustainable" framing.
+  <br/><br/>
+  UK data isn't in this chart pending the next pipeline refresh (OECD
+  rate-limited us during the bulk fetch; will fill in on the next run).

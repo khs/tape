@@ -1,0 +1,18 @@
+name: Indiana nonfarm payroll employment
+shortName: IN payrolls
+description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS Current Employment Statistics (CES) state series, in thousands of persons.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_payrolls_in.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: thousands of persons
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: BLS (CES)
+  series: SMS18000000000000001
+  url: https://www.bls.gov/sae/
+  license: Public domain (US government data)

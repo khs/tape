@@ -1,0 +1,17 @@
+name: Nonfarm business productivity
+shortName: NFB productivity
+description: Output per hour, nonfarm business sector. The headline productivity number. Wage growth above productivity growth is the textbook recipe for inflation.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/OPHNFB.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: index 2017=100
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: OPHNFB
+  url: https://fred.stlouisfed.org/series/OPHNFB
+  license: Public domain (US government data)

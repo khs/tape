@@ -1,0 +1,17 @@
+title: US vacancy rates (rental + homeowner)
+sources:
+  - "fred/rental_vacancy"
+  - "fred/homeowner_vacancy"
+render: line
+defaultDelta: 30y
+tags: [us, macro, real-estate]
+normalize: raw
+blurb: |
+  Share of housing units vacant and available — for-rent (rental
+  vacancy) or for-sale (homeowner vacancy). Census Bureau Housing
+  Vacancy Survey, quarterly.
+  <br/><br/>
+  Both ran high in the 2010s post-GFC recovery, then crashed to multi-
+  decade lows during the 2020–22 housing scramble. Slack returning to
+  the rental market in 2024–25 helps explain why CPI rent finally
+  started cooling.

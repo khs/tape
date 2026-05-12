@@ -1,0 +1,17 @@
+name: Federal Medicare benefits
+shortName: Medicare
+description: Federal current transfer payments for Medicare. Quarterly annualized rate. Combines hospital insurance + supplementary medical insurance.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/W823RC1Q027SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: billions USD
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: W823RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/W823RC1Q027SBEA
+  license: Public domain (US government data)

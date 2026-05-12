@@ -1,0 +1,21 @@
+title: G7 life expectancy at birth
+sources:
+  - "oecd/usa_life_expectancy"
+  - "oecd/can_life_expectancy"
+  - "oecd/gbr_life_expectancy"
+  - "oecd/fra_life_expectancy"
+  - "oecd/deu_life_expectancy"
+  - "oecd/ita_life_expectancy"
+  - "oecd/jpn_life_expectancy"
+render: line
+defaultDelta: 30y
+tags: [world, macro]
+normalize: raw
+blurb: |
+  Life expectancy at birth (both sexes), annual, from OECD Health
+  Statistics. The US stands out as the persistent G7 underperformer
+  even though it spends ~17% of GDP on healthcare (about double the
+  G7 average).
+  <br/><br/>
+  Pair this with the "G7 health spending (% of GDP)" chart in the
+  composer to see the spending-vs-outcome divergence visually.

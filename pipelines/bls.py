@@ -42,10 +42,111 @@ class BlsSpec:
     notes: str = ""
 
 
+# US states + DC, keyed by FIPS code. DC included because policy people
+# care about it as a labor market and many congressional staffers live
+# there; including it matches the rest of our audience-oriented choices.
+US_STATES: dict[str, tuple[str, str]] = {
+    "01": ("AL", "Alabama"),
+    "02": ("AK", "Alaska"),
+    "04": ("AZ", "Arizona"),
+    "05": ("AR", "Arkansas"),
+    "06": ("CA", "California"),
+    "08": ("CO", "Colorado"),
+    "09": ("CT", "Connecticut"),
+    "10": ("DE", "Delaware"),
+    "11": ("DC", "District of Columbia"),
+    "12": ("FL", "Florida"),
+    "13": ("GA", "Georgia"),
+    "15": ("HI", "Hawaii"),
+    "16": ("ID", "Idaho"),
+    "17": ("IL", "Illinois"),
+    "18": ("IN", "Indiana"),
+    "19": ("IA", "Iowa"),
+    "20": ("KS", "Kansas"),
+    "21": ("KY", "Kentucky"),
+    "22": ("LA", "Louisiana"),
+    "23": ("ME", "Maine"),
+    "24": ("MD", "Maryland"),
+    "25": ("MA", "Massachusetts"),
+    "26": ("MI", "Michigan"),
+    "27": ("MN", "Minnesota"),
+    "28": ("MS", "Mississippi"),
+    "29": ("MO", "Missouri"),
+    "30": ("MT", "Montana"),
+    "31": ("NE", "Nebraska"),
+    "32": ("NV", "Nevada"),
+    "33": ("NH", "New Hampshire"),
+    "34": ("NJ", "New Jersey"),
+    "35": ("NM", "New Mexico"),
+    "36": ("NY", "New York"),
+    "37": ("NC", "North Carolina"),
+    "38": ("ND", "North Dakota"),
+    "39": ("OH", "Ohio"),
+    "40": ("OK", "Oklahoma"),
+    "41": ("OR", "Oregon"),
+    "42": ("PA", "Pennsylvania"),
+    "44": ("RI", "Rhode Island"),
+    "45": ("SC", "South Carolina"),
+    "46": ("SD", "South Dakota"),
+    "47": ("TN", "Tennessee"),
+    "48": ("TX", "Texas"),
+    "49": ("UT", "Utah"),
+    "50": ("VT", "Vermont"),
+    "51": ("VA", "Virginia"),
+    "53": ("WA", "Washington"),
+    "54": ("WV", "West Virginia"),
+    "55": ("WI", "Wisconsin"),
+    "56": ("WY", "Wyoming"),
+}
+
+
+def state_unemployment_specs() -> list[BlsSpec]:
+    """
+    LAUS state-level unemployment rate series IDs are formed by:
+      LASST + <FIPS> + 0000000000 + 003
+    where 003 is the unemployment-rate measure code. SA series.
+    """
+    out: list[BlsSpec] = []
+    for fips, (abbr, name) in US_STATES.items():
+        out.append(
+            BlsSpec(
+                series_id=f"LASST{fips}0000000000003",
+                out_id=f"state_unemployment_{abbr.lower()}",
+                label=f"{name} unemployment rate",
+                unit="%",
+            )
+        )
+    return out
+
+
+def state_payrolls_specs() -> list[BlsSpec]:
+    """
+    CES (Current Employment Statistics) state-level total nonfarm payroll
+    employment series IDs are formed by:
+      SMS + <FIPS> + 00000 + 00 + 000000 + 01
+    where the final 01 = "All Employees, In Thousands". SA series.
+    """
+    out: list[BlsSpec] = []
+    for fips, (abbr, name) in US_STATES.items():
+        out.append(
+            BlsSpec(
+                # 20-char SM series ID: SMS (3) + FIPS (2) + area (5)
+                # + supersector (2) + industry (6) + data type (2)
+                # = 3 + 2 + "000000000000001" (15 chars) = 20.
+                series_id=f"SMS{fips}000000000000001",
+                out_id=f"state_payrolls_{abbr.lower()}",
+                label=f"{name} nonfarm payroll employment",
+                unit="thousands of persons",
+            )
+        )
+    return out
+
+
 # Curated set. Categories:
 #   1. CPI subcomponents — beyond what FRED carries broadly
 #   2. JOLTS by industry — labor demand granularity
-#   3. State-level unemployment — geographic dispersion
+#   3. State-level unemployment + payrolls — geographic dispersion across
+#      all 50 states + DC
 #
 # Add more series here as needed; each one ships its own chart manifest.
 SERIES: list[BlsSpec] = [
@@ -92,27 +193,8 @@ SERIES: list[BlsSpec] = [
         label="JOLTS: hires rate (total nonfarm)",
         unit="% of employment",
     ),
-    # ---- Regional / state unemployment, illustrative. CA + TX + NY are
-    #      the three biggest state economies; we can extend the list later.
-    BlsSpec(
-        series_id="LASST060000000000003",
-        out_id="state_unemployment_ca",
-        label="California unemployment rate",
-        unit="%",
-    ),
-    BlsSpec(
-        series_id="LASST480000000000003",
-        out_id="state_unemployment_tx",
-        label="Texas unemployment rate",
-        unit="%",
-    ),
-    BlsSpec(
-        series_id="LASST360000000000003",
-        out_id="state_unemployment_ny",
-        label="New York unemployment rate",
-        unit="%",
-    ),
-]
+    # ---- State-level series follow, generated programmatically. ----
+] + state_unemployment_specs() + state_payrolls_specs()
 
 
 def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:

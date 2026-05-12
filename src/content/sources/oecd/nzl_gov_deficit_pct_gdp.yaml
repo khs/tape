@@ -1,0 +1,17 @@
+name: New Zealand gov deficit/GDP
+shortName: NZ gov deficit/GDP
+description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual.
+kind: timeseries
+pipeline: oecd
+dataFile: data/oecd/nzl_gov_deficit_pct_gdp.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: OECD
+  series: gov_deficit_pct_gdp (NZL)
+  url: https://data-explorer.oecd.org/
+  license: OECD terms of use

@@ -1,0 +1,23 @@
+title: State payroll employment (top 10 by GDP)
+sources:
+  - "bls/state_payrolls_ca"
+  - "bls/state_payrolls_tx"
+  - "bls/state_payrolls_ny"
+  - "bls/state_payrolls_fl"
+  - "bls/state_payrolls_il"
+  - "bls/state_payrolls_pa"
+  - "bls/state_payrolls_oh"
+  - "bls/state_payrolls_ga"
+  - "bls/state_payrolls_nc"
+  - "bls/state_payrolls_nj"
+render: line
+defaultDelta: 5y
+tags: [us, macro, labor]
+normalize: rebase
+blurb: |
+  Total nonfarm payroll employment by state, BLS CES, seasonally
+  adjusted. Rebased to 100 at window start so state trajectories are
+  comparable (raw levels vary by 10× from Wyoming to California).
+  <br/><br/>
+  All 50 states + DC are available individually in the composer for
+  custom subsetting.

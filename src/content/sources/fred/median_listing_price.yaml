@@ -1,0 +1,18 @@
+name: US median listing price
+shortName: Median list $
+description: Median list price of homes for sale, monthly. Different from the median sale price (Case-Shiller) — list = asking price, sale = transaction price.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/MEDLISPRIUS.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: MEDLISPRIUS
+  url: https://fred.stlouisfed.org/series/MEDLISPRIUS
+  license: Public domain (US government data)

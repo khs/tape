@@ -1,0 +1,17 @@
+name: Federal defense spending
+shortName: Defense $
+description: Federal defense consumption and investment, NIPA Table 3.9.5. Quarterly annualized rate, billions USD.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/FDEFX.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: billions USD
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: FDEFX
+  url: https://fred.stlouisfed.org/series/FDEFX
+  license: Public domain (US government data)

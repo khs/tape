@@ -1,0 +1,18 @@
+name: Canada life expectancy
+shortName: CA life expectancy
+description: Life expectancy at birth, both sexes combined. OECD Health Statistics. Annual.
+kind: timeseries
+pipeline: oecd
+dataFile: data/oecd/can_life_expectancy.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: years
+formatting:
+  style: number
+  decimals: 1
+  suffix: " yrs"
+emphasis: change
+provenance:
+  provider: OECD
+  series: life_expectancy (CAN)
+  url: https://data-explorer.oecd.org/
+  license: OECD terms of use

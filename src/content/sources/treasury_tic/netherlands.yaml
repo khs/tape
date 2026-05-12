@@ -1,0 +1,19 @@
+name: Netherlands — US Treasury holdings
+shortName: Netherlands
+description: US Treasury securities held by Netherlands, monthly. From Treasury's TIC (Treasury International Capital) major-foreign-holders release. End-of-month positions, billions of USD.
+kind: timeseries
+pipeline: treasury_tic
+dataFile: data/treasury_tic/netherlands.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: billions USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Treasury (TIC)
+  series: MFH (Netherlands)
+  url: https://home.treasury.gov/data/treasury-international-capital-tic-system
+  license: Public domain (US government data)

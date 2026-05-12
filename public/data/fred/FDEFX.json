@@ -1,9 +1,9 @@
 {
   "id": "FDEFX",
-  "name": "Federal defense outlays",
+  "name": "Federal defense spending (NIPA)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-05-10T07:56:52Z",
+  "lastUpdated": "2026-05-12T13:24:33Z",
   "points": [
     {
       "t": "1947-01-01",
