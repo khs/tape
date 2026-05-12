@@ -75,6 +75,11 @@ const charts = defineCollection({
     // at the window start (good for comparing relative returns of dissimilar
     // scales). "raw" plots each at its natural scale.
     normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
+    // Y-axis scale type. "log" makes exponential growth (market caps, GDP,
+    // stock prices over decades) read as straight lines. Compatible with raw
+    // and rebase modes; explicitly NOT compatible with dual-axis — running
+    // log on one axis and linear on the other is misleading.
+    scale: z.enum(["linear", "log"]).optional(),
     // For dual-axis charts, source IDs that plot on the right axis. Anything
     // not listed plots on the left. Ignored unless normalize === "dual-axis".
     rightAxisSources: z.array(z.string()).optional(),
@@ -107,6 +112,7 @@ const chartOverrideSchema = z
     sources: z.array(z.string()),
     emphasis,
     normalize: z.enum(["rebase", "raw", "dual-axis"]),
+    scale: z.enum(["linear", "log"]),
     seriesLabels: z.array(z.string()),
   })
   .partial();

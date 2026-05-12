@@ -300,6 +300,11 @@ const payload = {
   chartId,
   isMulti,
   normalize,
+  // Y-axis scale ("linear" | "log"). Forwarded from chart spec so the
+  // client renderer can pass type:"log" to Plot when set. Log + dual-axis
+  // is meaningless (one log, one linear is misleading) so the renderer
+  // ignores log when normalize === "dual-axis".
+  scale: (chart as { scale?: "linear" | "log" }).scale ?? "linear",
   rightAxisSources: (chart as { rightAxisSources?: string[] }).rightAxisSources,
   supportedDeltas: effectiveSupported,
   defaultDelta,

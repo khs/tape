@@ -45,6 +45,12 @@ const inlineChartSchema = z.object({
     ])
     .optional(),
   normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
+  // Y-axis scale. Default linear; "log" makes exponential growth read as
+  // a straight line. Incompatible with dual-axis (mixing log + linear axes
+  // is misleading) — the composer enforces this in its UI, but the schema
+  // doesn't constrain it because a user could hand-craft a state with both
+  // and we'd rather render something than reject the URL state outright.
+  scale: z.enum(["linear", "log"]).optional(),
   // For dual-axis charts, source IDs that should plot on the right axis.
   // Anything not listed plots on the left. Ignored unless normalize === "dual-axis".
   rightAxisSources: z.array(z.string()).optional(),

@@ -219,6 +219,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span><strong>Dual-axis</strong> — left and right y-axes, one per series. Available with exactly two sources.</span>
               </label>
             </fieldset>
+            <label
+              class="cc-log-opt"
+              data-role="cc-log-wrap"
+              title="Log-scale the y-axis. Makes exponential growth (market caps, GDP, prices over decades) read as a straight line. Disabled when dual-axis is selected — running log on one axis and linear on the other would be misleading."
+            >
+              <input type="checkbox" data-role="cc-log" />
+              <span><strong>Log scale</strong> — makes exponential growth read as a straight line. Combine with raw or rebase; off with dual-axis.</span>
+            </label>
             <p class="muted small">
               Need to plot a ratio, sum, or difference?
               Click <strong>+ Derived source</strong> outside this modal
@@ -1443,6 +1451,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Optional arithmetic combine op. When set with exactly 2 sources,
     // collapses the chart into a single derived series.
     op: ChartCombineOp | null;
+    // Log-scale toggle. Independent of `mode`: log is an axis concern,
+    // mode is a value-transformation concern. Forbidden in combination
+    // with dual-axis (one-log-one-linear is misleading); the UI clears
+    // this flag whenever dual-axis becomes active.
+    logScale: boolean;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
@@ -1454,6 +1467,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     modeIsExplicit: false,
     rightAxisSources: new Set<string>(),
     op: null,
+    logScale: false,
   };
 
   // True when every selected source shares the same formatting style + unit
@@ -1506,6 +1520,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.rightAxisSources = new Set<string>(
       existing?.rightAxisSources ?? [],
     );
+    // Restore the log-scale flag from the saved spec; falls back to false
+    // (linear) which is the safe default for any value distribution.
+    ccModal.logScale =
+      (existing as { scale?: string } | null)?.scale === "log";
 
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
     if (!backdrop) return;
@@ -1522,10 +1540,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
     if (searchInput) searchInput.value = "";
     syncModeRadioFromState();
+    syncLogUI();
     syncOpUI();
     renderCustomChartSources();
     updateCustomChartCreateState();
     renderCustomChartPreview();
+  }
+
+  // Reflect ccModal.logScale + mode onto the log-scale checkbox: log is
+  // exclusive with dual-axis, so the checkbox is forced unchecked + disabled
+  // whenever dual-axis is the active mode.
+  function syncLogUI(): void {
+    const cb = shell.querySelector<HTMLInputElement>("[data-role='cc-log']");
+    const wrap = shell.querySelector<HTMLElement>("[data-role='cc-log-wrap']");
+    if (!cb || !wrap) return;
+    const isDual = ccModal.mode === "dual-axis";
+    if (isDual && ccModal.logScale) {
+      // Mode-change made log invalid; clear the state flag so it doesn't
+      // re-engage if the user flips back to raw/rebase.
+      ccModal.logScale = false;
+    }
+    cb.disabled = isDual;
+    cb.checked = ccModal.logScale && !isDual;
+    wrap.classList.toggle("cc-log-opt-disabled", isDual);
   }
 
   // Reflect ccModal.op + selected count onto the operation UI: enable
@@ -1694,6 +1731,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           ccModal.op = null;
         }
         syncModeRadioFromState();
+        syncLogUI();
         syncOpUI();
         updateCustomChartCreateState();
         renderCustomChartSources();
@@ -2063,6 +2101,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }),
         );
       }
+      // Log scale only takes effect on the non-dual-axis branch (we
+      // explicitly disallow log + dual-axis in the UI, and ignore the
+      // flag if somehow set when mode === "dual-axis").
+      const useLog = ccModal.logScale && mode !== "dual-axis";
       plot = Plot.plot({
         height: 220,
         width,
@@ -2076,6 +2118,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           label: mode === "rebase" ? "index (start = 100)" : null,
           grid: true,
           ticks: 4,
+          type: useLog ? "log" : undefined,
         },
         marks,
       }) as HTMLElement;
@@ -2361,8 +2404,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // Re-render the source list so the L|R pills appear/disappear as the
         // mode toggles into/out of dual-axis.
         renderCustomChartSources();
+        // Log scale is incompatible with dual-axis; keep the checkbox state
+        // honest as the user flips modes.
+        syncLogUI();
         renderCustomChartPreview();
       });
+    });
+
+    const logCheckbox = shell.querySelector<HTMLInputElement>(
+      "[data-role='cc-log']",
+    );
+    logCheckbox?.addEventListener("change", () => {
+      // Defensive: even though we disable the checkbox in dual-axis mode,
+      // a keyboard focus + space-bar could still flip it. Ignore that.
+      if (ccModal.mode === "dual-axis") {
+        logCheckbox.checked = false;
+        return;
+      }
+      ccModal.logScale = logCheckbox.checked;
+      renderCustomChartPreview();
     });
 
     const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='cc-op-select']");
@@ -2415,6 +2475,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // Op only valid with exactly 2 sources.
       const opToSave: ChartCombineOp | undefined =
         ccModal.op && sourceIds.length === 2 ? ccModal.op : undefined;
+      // Log scale only valid with raw or rebase modes. Coerce off when
+      // dual-axis is the final mode to keep the saved spec internally
+      // consistent (so a state surviving across refreshes doesn't get
+      // re-armed by some future UI fix).
+      const scaleToSave: "linear" | "log" | undefined =
+        ccModal.logScale && mode !== "dual-axis" ? "log" : undefined;
       if (ccModal.editingId) {
         // Edit mode: preserve any fields we don't expose (e.g. render, blurb).
         const existing = state.inlineCharts[ccModal.editingId] ?? {
@@ -2426,6 +2492,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           title: ccModal.title.trim(),
           sources: sourceIds,
           normalize: mode,
+          scale: scaleToSave,
           rightAxisSources,
           op: opToSave,
         };
@@ -2435,6 +2502,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           title: ccModal.title.trim(),
           sources: sourceIds,
           normalize: mode,
+          scale: scaleToSave,
           rightAxisSources,
           op: opToSave,
         };
@@ -3112,6 +3180,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     cursor: not-allowed;
   }
   .cc-mode-opt-disabled input { cursor: not-allowed; }
+  /* Log-scale toggle sits as a sibling to the scale-mode fieldset, not
+     inside it (it's an independent axis decision, not a normalize mode).
+     Matches the .cc-mode-opt visuals so they read as one cluster of
+     scale-related controls. */
+  .cc-log-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+    font-size: var(--text-sm);
+    color: var(--color-neutral-700);
+    line-height: 1.35;
+  }
+  .cc-log-opt input { margin-top: 3px; flex-shrink: 0; }
+  .cc-log-opt.cc-log-opt-disabled {
+    color: var(--color-neutral-400);
+    cursor: not-allowed;
+  }
+  .cc-log-opt.cc-log-opt-disabled input { cursor: not-allowed; }
   .cc-op-wrap {
     display: flex;
     flex-direction: column;

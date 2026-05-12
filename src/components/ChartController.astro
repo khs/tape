@@ -59,6 +59,8 @@
     chartId?: string;
     isMulti: boolean;
     normalize: "rebase" | "raw" | "dual-axis";
+    /** Y-axis scale. "log" only respected when normalize !== "dual-axis". */
+    scale?: "linear" | "log";
     supportedDeltas: DeltaWindow[];
     defaultDelta: DeltaWindow;
     sources: SourcePayload[];
@@ -483,6 +485,10 @@
       marginRight: 0,
       marginTop: 2,
       marginBottom: 2,
+      // Honor the chart's log-scale flag here as well so the sparkline shape
+      // matches what the dialog shows. The dual-axis branch above returns
+      // before reaching this code path, so we don't need to gate on normalize.
+      y: payload.scale === "log" ? { type: "log" } : undefined,
       marks,
     });
     container.replaceChildren(plot);
@@ -761,7 +767,17 @@
         background: "transparent",
       },
       x: { label: null, ticks: 5 },
-      y: { label: null, grid: true, ticks: 5, tickFormat },
+      y: {
+        label: null,
+        grid: true,
+        ticks: 5,
+        tickFormat,
+        // Log scale is honored in the standard (non-dual-axis) branch.
+        // Dual-axis takes its own branch above and never reaches here,
+        // so we don't need to guard against `normalize === "dual-axis"`
+        // — the dual-axis branch ignores payload.scale entirely.
+        type: payload.scale === "log" ? "log" : undefined,
+      },
       marks,
     });
     container.replaceChildren(plot);
