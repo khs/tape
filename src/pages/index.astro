@@ -261,7 +261,7 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       SUPABASE_REST_URL,
       SUPABASE_REST_ANON_KEY,
     } from "../lib/supabase";
-    import { track } from "@vercel/analytics";
+    import { track } from "../lib/track";
 
     // --- Featured-dashboard tab telemetry ---------------------------------
     // Tabs are real <a> links now (server picks the active dashboard from

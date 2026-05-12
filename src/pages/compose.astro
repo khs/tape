@@ -298,7 +298,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   } from "../lib/supabase";
   import { nanoid } from "nanoid";
   import * as Plot from "@observablehq/plot";
-  import { track } from "@vercel/analytics";
+  import { track } from "../lib/track";
   import { packSourceIds } from "../lib/analytics-helpers";
 
   type LibraryChart = {

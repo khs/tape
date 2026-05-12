@@ -594,17 +594,24 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         which is GDPR-clean (no cookies, no PII stored).
 
         Custom event firing happens in individual pages/components via:
-            import { track } from "@vercel/analytics";
+            import { track } from "../lib/track";
             track("compose_save_succeeded", { slug: "..." });
+
+        track() routes to PostHog (Vercel's Hobby tier silently drops
+        custom events, so we don't bother sending them there). When
+        PUBLIC_POSTHOG_KEY is unset (local dev or pre-config preview
+        builds) every track() call no-ops cleanly.
 
         Client-side error monitoring also lives here: we listen for
         uncaught errors and unhandled promise rejections and surface them
-        as Vercel-analytics events ("js_error"). That's enough to know an
-        error is happening and roughly where, without standing up a
-        separate Sentry-style service. Throttled so a runaway error loop
-        doesn't flood the analytics budget.
+        as track("js_error", ...) events so PostHog catches them.
+        Throttled so a runaway error loop doesn't flood the budget.
       */
-      import { inject, track } from "@vercel/analytics";
+      // Vercel handles pageviews via inject() (works on Hobby, free).
+      // Custom events go through ../lib/track which routes to PostHog —
+      // Vercel's Hobby tier silently drops custom events.
+      import { inject } from "@vercel/analytics";
+      import { track } from "../lib/track";
       inject();
 
       // --- Error monitoring ---------------------------------------------

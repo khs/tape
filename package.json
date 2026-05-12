@@ -27,6 +27,7 @@
     "d3": "^7.9.0",
     "js-yaml": "^4.1.0",
     "nanoid": "^5.1.9",
+    "posthog-js": "^1.373.2",
     "preact": "^10.29.1",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.5.0",

@@ -32,7 +32,7 @@ const packed = packSourceIds(sources);
   set:html={JSON.stringify({ packed, surface, chartCount, slug: slug ?? null })}
 ></script>
 <script>
-  import { track } from "@vercel/analytics";
+  import { track } from "../lib/track";
 
   const el = document.querySelector<HTMLScriptElement>(
     "[data-role='analytics-view-payload']",

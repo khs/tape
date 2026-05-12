@@ -137,7 +137,7 @@ const viewedChartCount = resolvedSections.reduce(
           <script>
             import { createSupabase, isSupabaseConfigured } from "../lib/supabase";
             import { nanoid } from "nanoid";
-            import { track } from "@vercel/analytics";
+            import { track } from "../lib/track";
 
             // --- Copy link ---
             const copyBtn = document.querySelector<HTMLButtonElement>(
