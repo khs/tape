@@ -179,6 +179,10 @@ export async function resolveChart(
         render: spec.render ?? ("line" as const),
         defaultDelta: spec.defaultDelta ?? ("1m" as const),
         normalize,
+        // Log scale is meaningless when combined with dual-axis (one log axis
+        // + one linear axis is misleading). Strip it here so a stale state
+        // can't smuggle it past the composer's UI guard.
+        scale: normalize === "dual-axis" ? undefined : spec.scale,
         rightAxisSources: spec.rightAxisSources,
         op: spec.op,
         blurb: spec.blurb,

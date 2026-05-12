@@ -1945,6 +1945,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
       const symbol = ccModal.op === "divide" ? "÷" : ccModal.op === "sum" ? "+" : "−";
       statusEl.textContent = `${a.name} ${symbol} ${b.name}`;
+      // Log scale on a derived single line is a legitimate ask (ratio of
+      // market caps over decades, e.g.) so honor the checkbox here too.
+      // Plot.lineY drops points where y ≤ 0 under log automatically, which
+      // is fine — sums-that-go-negative or divisions-by-tiny-numbers will
+      // simply not appear on the log view.
+      const useLog = ccModal.logScale;
       const opPlot = Plot.plot({
         height: 220,
         width: plotHost.clientWidth || 360,
@@ -1960,7 +1966,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           background: "transparent",
         },
         x: { label: null, ticks: 4 },
-        y: { label: null, grid: true, ticks: 4 },
+        y: {
+          label: null,
+          grid: true,
+          ticks: 4,
+          type: useLog ? "log" : undefined,
+        },
         marks: [
           Plot.lineY(combined, {
             x: "t",
