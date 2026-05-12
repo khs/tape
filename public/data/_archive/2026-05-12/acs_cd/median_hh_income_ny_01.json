@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_ny_01",
+  "name": "Median household income \u2014 NY-01",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:36Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 129170.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "bachelors_plus_ny_06",
+  "name": "Adults 25+ with bachelor's degree \u2014 NY-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:59Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 133145.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_sc_06",
+  "name": "Median household income \u2014 SC-06",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:41Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 51412.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_va_06",
+  "name": "People in poverty \u2014 VA-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:39Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 91470.0
+    }
+  ]
+}

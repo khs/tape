@@ -1,0 +1,13 @@
+{
+  "id": "bachelors_plus_ut_03",
+  "name": "Adults 25+ with bachelor's degree \u2014 UT-03",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:06:06Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 133149.0
+    }
+  ]
+}

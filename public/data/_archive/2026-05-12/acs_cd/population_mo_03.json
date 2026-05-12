@@ -1,0 +1,13 @@
+{
+  "id": "population_mo_03",
+  "name": "Total population \u2014 MO-03",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:01Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 770039.0
+    }
+  ]
+}

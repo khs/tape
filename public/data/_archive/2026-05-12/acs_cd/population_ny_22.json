@@ -1,0 +1,13 @@
+{
+  "id": "population_ny_22",
+  "name": "Total population \u2014 NY-22",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:04Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 772136.0
+    }
+  ]
+}

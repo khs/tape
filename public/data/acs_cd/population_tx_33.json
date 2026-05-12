@@ -1,0 +1,13 @@
+{
+  "id": "population_tx_33",
+  "name": "Total population \u2014 TX-33",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 776063.0
+    }
+  ]
+}

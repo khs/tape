@@ -1,0 +1,13 @@
+{
+  "id": "population_ma_01",
+  "name": "Total population \u2014 MA-01",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:59Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 778095.0
+    }
+  ]
+}

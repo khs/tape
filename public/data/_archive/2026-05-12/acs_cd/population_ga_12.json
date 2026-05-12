@@ -1,0 +1,13 @@
+{
+  "id": "population_ga_12",
+  "name": "Total population \u2014 GA-12",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:53Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 764339.0
+    }
+  ]
+}

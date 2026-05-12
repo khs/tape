@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_or_02",
+  "name": "People in poverty \u2014 OR-02",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:35Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 96454.0
+    }
+  ]
+}

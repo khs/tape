@@ -1,0 +1,13 @@
+{
+  "id": "population_ct_03",
+  "name": "Total population \u2014 CT-03",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:50Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 723601.0
+    }
+  ]
+}

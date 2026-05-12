@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_sc_01",
+  "name": "People in poverty \u2014 SC-01",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:36Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 71863.0
+    }
+  ]
+}

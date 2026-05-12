@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_nv_03",
+  "name": "People in poverty \u2014 NV-03",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:30Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 86622.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "population_nj_09",
+  "name": "Total population \u2014 NJ-09",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:03Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 765162.0
+    }
+  ]
+}

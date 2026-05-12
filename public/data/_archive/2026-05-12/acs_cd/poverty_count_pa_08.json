@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_pa_08",
+  "name": "People in poverty \u2014 PA-08",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:35Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 99377.0
+    }
+  ]
+}

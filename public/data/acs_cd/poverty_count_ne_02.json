@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_ne_02",
+  "name": "People in poverty \u2014 NE-02",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:29Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 65952.0
+    }
+  ]
+}

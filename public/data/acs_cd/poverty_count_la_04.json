@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_la_04",
+  "name": "People in poverty \u2014 LA-04",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:25Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 165758.0
+    }
+  ]
+}

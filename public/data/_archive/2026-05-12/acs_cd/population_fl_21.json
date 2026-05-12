@@ -1,0 +1,13 @@
+{
+  "id": "population_fl_21",
+  "name": "Total population \u2014 FL-21",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:52Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 776143.0
+    }
+  ]
+}

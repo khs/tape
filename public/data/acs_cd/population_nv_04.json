@@ -1,0 +1,13 @@
+{
+  "id": "population_nv_04",
+  "name": "Total population \u2014 NV-04",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:02Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 787554.0
+    }
+  ]
+}

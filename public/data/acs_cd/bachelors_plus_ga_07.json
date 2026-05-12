@@ -1,0 +1,13 @@
+{
+  "id": "bachelors_plus_ga_07",
+  "name": "Adults 25+ with bachelor's degree \u2014 GA-07",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:48Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 125777.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_co_02",
+  "name": "Median household income \u2014 CO-02",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:22Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 94403.0
+    }
+  ]
+}

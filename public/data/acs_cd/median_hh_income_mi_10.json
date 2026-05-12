@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_mi_10",
+  "name": "Median household income \u2014 MI-10",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:31Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 72757.0
+    }
+  ]
+}

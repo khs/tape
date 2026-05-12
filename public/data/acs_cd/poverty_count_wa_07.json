@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_wa_07",
+  "name": "People in poverty \u2014 WA-07",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:40Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 70721.0
+    }
+  ]
+}

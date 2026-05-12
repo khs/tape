@@ -1,0 +1,13 @@
+{
+  "id": "population_ky_06",
+  "name": "Total population \u2014 KY-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:56Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 750403.0
+    }
+  ]
+}

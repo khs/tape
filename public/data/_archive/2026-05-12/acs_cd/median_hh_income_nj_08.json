@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_nj_08",
+  "name": "Median household income \u2014 NJ-08",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:35Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 78486.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "bachelors_plus_ca_38",
+  "name": "Adults 25+ with bachelor's degree \u2014 CA-38",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:45Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 104425.0
+    }
+  ]
+}

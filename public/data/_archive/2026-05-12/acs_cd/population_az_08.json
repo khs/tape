@@ -1,0 +1,13 @@
+{
+  "id": "population_az_08",
+  "name": "Total population \u2014 AZ-08",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:48Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 784453.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_ca_51",
+  "name": "People in poverty \u2014 CA-51",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:17Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 82868.0
+    }
+  ]
+}

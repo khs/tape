@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_mo_06",
+  "name": "People in poverty \u2014 MO-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:28Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 88391.0
+    }
+  ]
+}

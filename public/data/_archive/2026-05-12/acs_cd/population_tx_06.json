@@ -1,0 +1,13 @@
+{
+  "id": "population_tx_06",
+  "name": "Total population \u2014 TX-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 763185.0
+    }
+  ]
+}

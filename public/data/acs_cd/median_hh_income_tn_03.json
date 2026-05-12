@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_tn_03",
+  "name": "Median household income \u2014 TN-03",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:42Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 62960.0
+    }
+  ]
+}

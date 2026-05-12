@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_mi_05",
+  "name": "People in poverty \u2014 MI-05",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:27Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 89779.0
+    }
+  ]
+}

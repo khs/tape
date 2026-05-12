@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_ky_02",
+  "name": "People in poverty \u2014 KY-02",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:24Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 108394.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "population_nc_03",
+  "name": "Total population \u2014 NC-03",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:05Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 746908.0
+    }
+  ]
+}

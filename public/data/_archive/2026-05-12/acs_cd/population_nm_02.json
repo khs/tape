@@ -1,0 +1,13 @@
+{
+  "id": "population_nm_02",
+  "name": "Total population \u2014 NM-02",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:04Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 703136.0
+    }
+  ]
+}

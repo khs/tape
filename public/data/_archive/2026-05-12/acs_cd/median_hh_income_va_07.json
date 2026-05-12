@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_va_07",
+  "name": "Median household income \u2014 VA-07",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:44Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 106405.0
+    }
+  ]
+}

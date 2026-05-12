@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_ok_05",
+  "name": "Median household income \u2014 OK-05",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:39Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 70189.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_tx_20",
+  "name": "Median household income \u2014 TX-20",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:43Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 59459.0
+    }
+  ]
+}

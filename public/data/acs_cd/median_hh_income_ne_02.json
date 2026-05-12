@@ -1,0 +1,13 @@
+{
+  "id": "median_hh_income_ne_02",
+  "name": "Median household income \u2014 NE-02",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-12T18:04:34Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 79112.0
+    }
+  ]
+}

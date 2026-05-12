@@ -1,0 +1,13 @@
+{
+  "id": "population_ut_04",
+  "name": "Total population \u2014 UT-04",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:11Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 824895.0
+    }
+  ]
+}

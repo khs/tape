@@ -1,0 +1,13 @@
+{
+  "id": "poverty_count_nm_01",
+  "name": "People in poverty \u2014 NM-01",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:31Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 100824.0
+    }
+  ]
+}

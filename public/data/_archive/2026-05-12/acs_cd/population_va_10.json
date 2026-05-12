@@ -1,0 +1,13 @@
+{
+  "id": "population_va_10",
+  "name": "Total population \u2014 VA-10",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 783536.0
+    }
+  ]
+}

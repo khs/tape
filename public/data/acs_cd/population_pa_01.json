@@ -1,0 +1,13 @@
+{
+  "id": "population_pa_01",
+  "name": "Total population \u2014 PA-01",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:08Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 763498.0
+    }
+  ]
+}

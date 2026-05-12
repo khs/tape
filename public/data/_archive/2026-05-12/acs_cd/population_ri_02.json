@@ -1,0 +1,13 @@
+{
+  "id": "population_ri_02",
+  "name": "Total population \u2014 RI-02",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:08Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 548896.0
+    }
+  ]
+}

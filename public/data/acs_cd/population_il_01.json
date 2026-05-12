@@ -1,0 +1,13 @@
+{
+  "id": "population_il_01",
+  "name": "Total population \u2014 IL-01",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:04:54Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 754024.0
+    }
+  ]
+}

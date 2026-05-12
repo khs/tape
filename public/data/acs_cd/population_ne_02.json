@@ -1,0 +1,13 @@
+{
+  "id": "population_ne_02",
+  "name": "Total population \u2014 NE-02",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-12T18:05:02Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 652597.0
+    }
+  ]
+}
