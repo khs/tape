@@ -1,0 +1,21 @@
+title: G7 unemployment rates
+sources:
+  - "oecd/usa_unemployment_rate"
+  - "oecd/can_unemployment_rate"
+  - "oecd/gbr_unemployment_rate"
+  - "oecd/fra_unemployment_rate"
+  - "oecd/deu_unemployment_rate"
+  - "oecd/ita_unemployment_rate"
+  - "oecd/jpn_unemployment_rate"
+render: line
+defaultDelta: 10y
+tags: [world, macro]
+normalize: raw
+blurb: |
+  Harmonized unemployment rates from OECD — same methodology across
+  countries, so the comparisons are apples-to-apples (unlike stitching
+  together national labor-force surveys with different definitions).
+  <br/><br/>
+  Useful for spotting whether a labor-market story is a US-only thing
+  (e.g. the 2020 spike was wider but the 2022 reversal was faster) or a
+  developed-economies-wide pattern.

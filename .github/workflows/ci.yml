@@ -46,6 +46,14 @@ jobs:
       - name: Type-check (astro check)
         run: npx astro check
 
+      - name: Unit tests (vitest)
+        # Runs every .test.ts under src/lib/ and tests/. Covers the pure-TS
+        # library code: composer state encode/decode, delta math, derive ops,
+        # formatting, analytics packing. Astro components themselves aren't
+        # tested here — they'd need a heavier setup and the lib tests catch
+        # most of the semantic regressions.
+        run: npm test
+
       - name: Build
         # SITE_URL is unset here, so Astro.site is undefined and sitemap()
         # warns + skips — that's fine for CI. The real build on Vercel

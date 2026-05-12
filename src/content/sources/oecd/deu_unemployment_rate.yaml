@@ -1,0 +1,17 @@
+name: Germany unemployment rate
+shortName: Germany unemployment
+description: Harmonized unemployment rate from OECD — monthly, seasonally adjusted, age 15+, both sexes. The harmonized methodology makes cross-country comparisons clean (unlike mixing national labor-force surveys with different definitions).
+kind: timeseries
+pipeline: oecd
+dataFile: data/oecd/deu_unemployment_rate.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: percent
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: OECD
+  series: DSD_LFS@DF_IALFS_UNE_M (DEU)
+  url: https://data-explorer.oecd.org/
+  license: OECD terms of use (free for non-commercial)

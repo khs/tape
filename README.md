@@ -102,6 +102,9 @@ Requirements: Node 22+ (Vercel pins this), Python 3.13+ for pipelines.
 ```sh
 npm install
 npm run dev         # http://localhost:4321/
+npm test            # vitest — fast unit tests for src/lib/*
+npm run typecheck   # astro check (TS + content-collection schema)
+npm run build       # static + serverless function build
 ```
 
 To pull a fresh data snapshot locally:
@@ -131,6 +134,38 @@ PUBLIC_SUPABASE_ANON_KEY=...
 Both are *publishable* keys — safe in the browser. RLS on `saved_dashboards`
 gates writes to owners and reads to public-or-own. The service-role key is
 **never** used by this codebase.
+
+For PostHog custom-event analytics (Vercel Hobby drops them):
+
+```
+PUBLIC_POSTHOG_KEY=phc_...
+PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+When unset, every `track()` call no-ops cleanly — fine for local dev.
+
+## CI gates deploy
+
+GitHub Actions runs `astro check`, `vitest`, and `astro build` on every
+push to `main`. To make a CI failure actually *block* the Vercel deploy
+(rather than just appearing red in the GH UI while a broken main goes
+live), wire up **Vercel's Ignored Build Step**:
+
+1. Vercel dashboard → project → **Settings → Git → Ignored Build Step**
+2. Paste this command:
+
+   ```sh
+   sh -c '! (npm run typecheck && npm test)'
+   ```
+
+3. Save.
+
+The semantics: Vercel's Ignored Build Step *skips* the build when its
+command exits 0. The leading `!` inverts the natural CI exit code, so:
+- Tests pass → exit 0 → `!` flips it to exit 1 → Vercel proceeds with
+  the build.
+- Tests fail → exit non-zero → `!` flips it to exit 0 → Vercel skips
+  the deploy, and the previous deploy stays live.
 
 ## Adding a chart
 

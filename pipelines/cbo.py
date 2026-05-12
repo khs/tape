@@ -1,57 +1,62 @@
 """
-CBO (Congressional Budget Office) projections pipeline. STUB.
+CBO (Congressional Budget Office) projections pipeline.
 
-What CBO publishes that's interesting for a DC policy audience:
-* Long-Term Budget Outlook (annual): debt/GDP, primary deficit projections,
-  Social Security and Medicare cost projections, all out to ~30 years.
-* The Budget and Economic Outlook (annual + updates): 10-year deficit,
-  receipts and outlays by category, GDP and inflation projections.
-* Monthly Budget Review: month-over-month receipts/outlays vs. prior year.
+STATUS: blocked on access. CBO's website is behind DataDome anti-bot
+protection — direct HTTP requests from CI (or any non-browser client)
+return HTTP 403. We can't automate downloads of their XLSX publications
+without either:
 
-Why this is a stub: CBO does not publish a clean API. Their data tables
-are XLSX files attached to PDF reports. To do this right we need to:
+  (a) a paid scraping service that handles bot mitigation,
+  (b) a manual periodic upload of the XLSX file into this repo, or
+  (c) an alternative data source.
 
-  1. Identify the canonical URL for each indicator (these change each
-     publication cycle; CBO doesn't keep stable URLs).
-  2. Fetch the XLSX (`requests` + `openpyxl`).
-  3. Pick out the right sheet + cell range (they're not consistent
-     across reports).
-  4. Map rows to {t: year-end-iso, v: float}.
+We've gone with (c) for now: cross-country government finance data
+(debt-to-GDP, deficit-to-GDP) comes through OECD's SDMX endpoint
+(see pipelines/oecd.py), which IS scrapeable. CBO's unique value is
+*forward-looking projections* (10-year and 30-year budget outlooks),
+which OECD doesn't have.
 
-Recommended sources to wire up first, in priority order:
-  A. Federal debt held by the public, % of GDP — from the LTBO base case.
-     URL pattern: cbo.gov/publication/<id>/long-term-budget-outlook-data
-     (rotates annually; current 2025 publication is at .../56598 or similar)
-  B. Primary deficit, % of GDP — same LTBO data tables, "Primary deficit"
-     row.
-  C. Social Security and Medicare combined spending, % of GDP — same source,
-     "Major mandatory" rows.
+To unblock projection data, the manual path is:
 
-For now this script does nothing. When implementing, model the structure
-on `worldbank_gdp.py` (single-pipeline, multiple series via `CountrySpec`
-dataclass + `write_timeseries`). The output should be:
+  1. Visit https://www.cbo.gov/data/budget-economic-data in a browser
+  2. Download the latest "10-Year Budget Projections" XLSX
+  3. Save to pipelines/cbo_data/budget_projections_<YYYY-MM>.xlsx
+  4. Add openpyxl to CI deps + uncomment the parser below
 
-    public/data/cbo/<series>.json  -> { kind: "timeseries", points: [...] }
-
-And matching `src/content/sources/cbo/<series>.yaml` manifests so the
-composer picks them up.
+For now this script prints a status note and returns 0 so the GH
+Actions refresh-data workflow keeps going.
 
 Run with: ``python pipelines/cbo.py``.
 """
 from __future__ import annotations
 
 import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+MANUAL_DIR = REPO_ROOT / "pipelines" / "cbo_data"
 
 
 def main() -> int:
+    # If a manually-uploaded XLSX is present, parse it. Otherwise, no-op.
+    xlsx_files = list(MANUAL_DIR.glob("*.xlsx")) if MANUAL_DIR.exists() else []
+    if not xlsx_files:
+        print(
+            "cbo.py: no manual XLSX found in pipelines/cbo_data/. "
+            "See module docstring for the manual upload workflow.",
+            file=sys.stderr,
+        )
+        return 0
+
+    # Manual-upload mode: a future implementation parses the XLSX with
+    # openpyxl/pandas and writes JSON to public/data/cbo/<series>.json.
+    # Stubbed here; the parsing is XLSX-layout-specific and worth a
+    # focused PR rather than guessing the sheet structure.
     print(
-        "cbo.py: not implemented yet. See module docstring for the build plan "
-        "and recommended priority order.",
+        f"cbo.py: found {len(xlsx_files)} manual file(s) but parser not "
+        "implemented. See module docstring for next steps.",
         file=sys.stderr,
     )
-    # Returning 0 (not an error) so the GH Actions refresh-data workflow
-    # keeps going with continue-on-error semantics. When this is built out,
-    # flip to real work.
     return 0
 
 

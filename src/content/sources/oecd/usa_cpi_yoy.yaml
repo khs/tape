@@ -1,0 +1,17 @@
+name: United States CPI inflation (YoY)
+shortName: USA CPI YoY
+description: Headline consumer price inflation, year-over-year, from OECD. Monthly, all items, national methodology, not seasonally adjusted. Cross-country comparable because OECD applies the same harmonization rules.
+kind: timeseries
+pipeline: oecd
+dataFile: data/oecd/usa_cpi_yoy.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: percent
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: OECD
+  series: DSD_PRICES@DF_PRICES_ALL (USA)
+  url: https://data-explorer.oecd.org/
+  license: OECD terms of use (free for non-commercial)

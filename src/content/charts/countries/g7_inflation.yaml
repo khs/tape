@@ -1,0 +1,19 @@
+title: G7 inflation
+sources:
+  - "oecd/usa_cpi_yoy"
+  - "oecd/can_cpi_yoy"
+  - "oecd/gbr_cpi_yoy"
+  - "oecd/fra_cpi_yoy"
+  - "oecd/deu_cpi_yoy"
+  - "oecd/ita_cpi_yoy"
+  - "oecd/jpn_cpi_yoy"
+render: line
+defaultDelta: 10y
+tags: [world, macro]
+normalize: raw
+blurb: |
+  Headline consumer price inflation (year-over-year) for G7 economies,
+  harmonized methodology from OECD. Useful for spotting whether an
+  inflation episode is global (2022 spike across all seven) or local
+  (Japan running near zero while everyone else struggled with prices
+  in the 2010s).

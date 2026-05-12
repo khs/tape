@@ -164,6 +164,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 data-divisor-id="fred/payrolls"
                 data-name-template="per worker"
               >÷ US employment</button>
+              <button
+                type="button"
+                class="ds-quick-chip"
+                data-role="ds-quick"
+                data-divisor-id="fred/us_cpi"
+                data-name-template="real (CPI-adjusted)"
+                title="Plots the ratio of A to CPI. Shape is correct for 'is this growing faster than inflation?'; units are 'per CPI point' rather than textbook real dollars."
+              >÷ CPI</button>
             </div>
             <p class="muted small ds-quick-help">
               Pre-fills the divisor and operation; pick the numerator (A) below.
