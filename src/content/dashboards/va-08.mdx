@@ -1,7 +1,7 @@
 ---
 title: "VA-08 — Arlington / Alexandria / Falls Church"
 description: "A dashboard built around Virginia's 8th Congressional District — federal money flow, labor market, demographic snapshot. The flagship Northern Virginia federal-economy district."
-order: 10
+order: 2
 defaultDelta: 10y
 aboutBlurb: "A dashboard for one of the most federally-dependent congressional districts in the country — Don Beyer's VA-08, covering Arlington, Alexandria, Falls Church, and inner Fairfax County."
 sections:
@@ -27,6 +27,22 @@ sections:
 | Adults with bachelor's degree | ~172,000 | Doesn't include the (large) population with advanced degrees on top of that |
 
 VA-08 is the **highest-income congressional district in Virginia and one of the highest in the country.** The combination of federal salaries, contractor compensation, and a lawyer/lobbyist/consultant base produces an exceptional household income distribution.
+
+## What "federal spending in VA-08" actually means
+
+The USAspending.gov data we use here attributes dollars by **prime recipient
+location** — where the contractor's primary office is, not where the work is
+performed. For VA-08, this is a feature, not a bug: the district's economic
+identity is built around being the place those prime contractors are
+headquartered. A Crystal City defense firm hiring engineers in Huntsville
+still books the contract dollars to VA-08, and that's the right metric for
+"how does federal money interact with this place economically."
+
+It does mean the figures aren't directly comparable to "federal spending per
+capita on residents" in the welfare-and-transfers sense. Aggregated, our
+50-state sum captures about 73% of total federal outlays — the missing 27%
+is debt service, some classified spending, and outlays without a clean
+recipient-state attribution.
 
 ## Federal-spending pattern
 
