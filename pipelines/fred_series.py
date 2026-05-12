@@ -110,6 +110,9 @@ SPECS: list[FredSpec] = [
     FredSpec("BOPGSTB", "US trade balance, goods and services", "millions USD"),
     # Recession indicator (NBER, monthly)
     FredSpec("USREC", "NBER recession indicator", "binary"),
+    # Population — exposed as a quick-divisor in the composer's derived-
+    # source modal so users can build per-capita series in one click.
+    FredSpec("POPTHM", "US population, all persons (monthly)", "thousands"),
 ]
 
 

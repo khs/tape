@@ -140,6 +140,35 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             Combines two existing sources (real or derived) into a new
             source you can use in any chart.
           </p>
+          <div class="cc-field ds-quick-divisors">
+            <span class="eyebrow">Quick: divide by…</span>
+            <div class="ds-quick-chips" data-role="ds-quick-chips">
+              <button
+                type="button"
+                class="ds-quick-chip"
+                data-role="ds-quick"
+                data-divisor-id="fred/us_population"
+                data-name-template="per capita"
+              >÷ US population</button>
+              <button
+                type="button"
+                class="ds-quick-chip"
+                data-role="ds-quick"
+                data-divisor-id="fred/us_real_gdp"
+                data-name-template="share of GDP"
+              >÷ US GDP</button>
+              <button
+                type="button"
+                class="ds-quick-chip"
+                data-role="ds-quick"
+                data-divisor-id="fred/payrolls"
+                data-name-template="per worker"
+              >÷ US employment</button>
+            </div>
+            <p class="muted small ds-quick-help">
+              Pre-fills the divisor and operation; pick the numerator (A) below.
+            </p>
+          </div>
           <label class="cc-field">
             <span class="eyebrow">Name</span>
             <input type="text" data-role="ds-name" placeholder="e.g. Retail-gas / WTI" />
@@ -2302,6 +2331,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const bSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-b-search']");
     if (aSearch) aSearch.value = "";
     if (bSearch) bSearch.value = "";
+    // Clear any stale quick-divisor highlight from a prior open.
+    shell
+      .querySelectorAll<HTMLButtonElement>("[data-role='ds-quick']")
+      .forEach((c) => c.classList.remove("ds-quick-chip-active"));
     renderDsPicker("a");
     renderDsPicker("b");
     syncDerivedHint();
@@ -2346,6 +2379,45 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     bSearch?.addEventListener("input", () => {
       dsModal.bSearch = bSearch.value;
       renderDsPicker("b");
+    });
+    // Quick-divisor chips: one-click pre-fill of op + B with a commonly
+    // requested denominator (population / GDP / employment). The user
+    // still picks A; we seed the name with a hint phrase if blank, and
+    // focus the A search so the next interaction is obvious.
+    const quickChips = shell.querySelectorAll<HTMLButtonElement>(
+      "[data-role='ds-quick']",
+    );
+    quickChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const id = chip.dataset.divisorId ?? "";
+        const tmpl = chip.dataset.nameTemplate ?? "";
+        if (!id) return;
+        dsModal.op = "divide";
+        if (opSelect) opSelect.value = "divide";
+        dsModal.b = id;
+        // If the user had picked the same source as A, clear A — we
+        // can't divide a source by itself, and the picker would mark
+        // the row "Already picked on the other side" anyway.
+        if (dsModal.a === id) dsModal.a = "";
+        // Seed the name field only if the user hasn't typed anything
+        // yet (don't trample over their work).
+        if (!dsModal.name.trim() && tmpl) {
+          dsModal.name = tmpl;
+          if (nameInput) nameInput.value = tmpl;
+        }
+        // Reflect the new active chip — primarily a visual cue that
+        // the click registered (the rest of the UI updates too, but
+        // the chip itself is what they just touched).
+        quickChips.forEach((c) => c.classList.remove("ds-quick-chip-active"));
+        chip.classList.add("ds-quick-chip-active");
+        renderDsPicker("a");
+        renderDsPicker("b");
+        syncDerivedHint();
+        // Funnel telemetry: which quick divisor wins? Useful for
+        // deciding whether to add more (CPI, hours worked, etc.).
+        track("compose_quick_divisor_picked", { divisor: id });
+        if (aSearch) aSearch.focus();
+      });
     });
     createBtn?.addEventListener("click", () => {
       if (
@@ -3165,6 +3237,46 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-accent);
   }
   .ds-current { margin-top: 4px; font-style: italic; }
+  /* Quick-divisor chips — one-click pre-fill of op + B in the
+     derived-source modal for the common per-capita / per-worker /
+     share-of-GDP recipes. Sits above Name + Operation so it reads
+     as a shortcut row rather than a third operand. */
+  .ds-quick-divisors {
+    background: var(--color-neutral-100);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+  }
+  .ds-quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .ds-quick-chip {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 4px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    border-radius: 999px;
+    color: var(--color-neutral-800);
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .ds-quick-chip:hover {
+    border-color: rgba(55, 53, 47, 0.3);
+    background: var(--color-neutral-100);
+  }
+  .ds-quick-chip-active {
+    background: var(--color-accent, #2563eb);
+    border-color: var(--color-accent, #2563eb);
+    color: var(--color-white);
+  }
+  .ds-quick-chip-active:hover {
+    background: var(--color-accent, #2563eb);
+    border-color: var(--color-accent, #2563eb);
+  }
+  .ds-quick-help { margin: 6px 0 0; }
   .cc-mode {
     display: flex;
     flex-direction: column;
