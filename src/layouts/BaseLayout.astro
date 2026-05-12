@@ -596,9 +596,74 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         Custom event firing happens in individual pages/components via:
             import { track } from "@vercel/analytics";
             track("compose_save_succeeded", { slug: "..." });
+
+        Client-side error monitoring also lives here: we listen for
+        uncaught errors and unhandled promise rejections and surface them
+        as Vercel-analytics events ("js_error"). That's enough to know an
+        error is happening and roughly where, without standing up a
+        separate Sentry-style service. Throttled so a runaway error loop
+        doesn't flood the analytics budget.
       */
-      import { inject } from "@vercel/analytics";
+      import { inject, track } from "@vercel/analytics";
       inject();
+
+      // --- Error monitoring ---------------------------------------------
+      // Rate-limit + dedupe so a single error firing in a render loop
+      // doesn't burn through Vercel's free-tier event budget. We key on
+      // (message, source-file) since stack traces are noisy and a single
+      // bug usually presents with one message-and-file pair.
+      const errSeen = new Map<string, number>();
+      const ERR_LIMIT_PER_KEY = 3; // first 3 firings per page session
+      const TRUNC = (s: string, n: number) =>
+        s.length > n ? s.slice(0, n) + "…" : s;
+
+      function reportError(payload: {
+        message: string;
+        source: string;
+        line?: number;
+        col?: number;
+        stack?: string;
+        kind: "error" | "rejection";
+      }) {
+        const key = `${payload.message}|${payload.source}|${payload.line ?? 0}`;
+        const seen = errSeen.get(key) ?? 0;
+        if (seen >= ERR_LIMIT_PER_KEY) return;
+        errSeen.set(key, seen + 1);
+        // Each Vercel-analytics property is capped at 256 chars; truncate
+        // generously so an enormous stack doesn't get the whole event
+        // dropped.
+        track("js_error", {
+          kind: payload.kind,
+          message: TRUNC(payload.message, 200),
+          source: TRUNC(payload.source, 100),
+          line: payload.line ?? 0,
+          col: payload.col ?? 0,
+          stack: TRUNC(payload.stack ?? "", 200),
+          path: location.pathname,
+        });
+      }
+
+      window.addEventListener("error", (ev) => {
+        reportError({
+          message: String(ev.message ?? "unknown"),
+          source: String(ev.filename ?? "unknown"),
+          line: ev.lineno,
+          col: ev.colno,
+          stack: ev.error?.stack ?? "",
+          kind: "error",
+        });
+      });
+      window.addEventListener("unhandledrejection", (ev) => {
+        const reason = ev.reason;
+        const message =
+          (reason && (reason.message || String(reason))) ?? "unknown rejection";
+        reportError({
+          message: String(message),
+          source: location.pathname,
+          stack: reason?.stack ?? "",
+          kind: "rejection",
+        });
+      });
     </script>
   </body>
 </html>

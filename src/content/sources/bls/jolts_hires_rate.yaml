@@ -1,0 +1,17 @@
+name: Hires rate (JOLTS)
+shortName: Hires rate
+description: Job Openings and Labor Turnover Survey — total hires as a share of employment. Hiring momentum that's not visible in the headline payrolls number.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/jolts_hires_rate.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: JTS000000000000000HIR
+  url: https://data.bls.gov/timeseries/JTS000000000000000HIR
+  license: U.S. public domain

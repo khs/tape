@@ -53,6 +53,29 @@ jobs:
         continue-on-error: true
         run: python pipelines/worldbank_gdp.py
 
+      - name: Refresh BLS subseries (CPI components, JOLTS, state unemployment)
+        continue-on-error: true
+        run: python pipelines/bls.py
+
+      # CBO + OECD are stubs — see their module docstrings for the build
+      # plan. They no-op cleanly so flipping them on later is just a
+      # matter of filling in the body.
+      - name: Refresh CBO projections (stub)
+        continue-on-error: true
+        run: python pipelines/cbo.py
+
+      - name: Refresh OECD cross-country comparisons (stub)
+        continue-on-error: true
+        run: python pipelines/oecd.py
+
+      # After all pipelines have written their fresh JSON, copy the whole
+      # data/ tree into a dated archive at data/_archive/<YYYY-MM-DD>/...
+      # so cited URLs can resolve a specific data vintage indefinitely.
+      # Storage is cheap; revisions and provider restatements are not
+      # reversible without this.
+      - name: Snapshot data for citation integrity
+        run: python pipelines/snapshot_data.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"

@@ -1,0 +1,53 @@
+name: CI
+
+# Cheap insurance against shipping a broken main. Runs on every PR and every
+# push to main, so a typo, a missing import, a content-collection schema
+# mismatch, or a TypeScript error gets caught before Vercel tries to deploy
+# it (or worse, before a manual merge lands a half-broken commit).
+#
+# What this catches:
+#   - `astro check` runs TypeScript across all .ts/.astro files, including
+#     the content-collection schema validation against every YAML manifest.
+#     This is how the "Entry sources/X not found" type of bug shows up.
+#   - `astro build` is the closest thing to "did Vercel's build succeed?"
+#     without paying for Vercel build minutes on every PR.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # Match the version Vercel pins serverless functions to so we're
+          # not green here and red there.
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        # `npm ci` is the deterministic install — fails fast if package-lock.json
+        # is out of sync with package.json, which would otherwise produce a
+        # mystery-broken build.
+        run: npm ci
+
+      - name: Type-check (astro check)
+        run: npx astro check
+
+      - name: Build
+        # SITE_URL is unset here, so Astro.site is undefined and sitemap()
+        # warns + skips — that's fine for CI. The real build on Vercel
+        # picks up VERCEL_PROJECT_PRODUCTION_URL and emits the sitemap.
+        run: npm run build

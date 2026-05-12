@@ -1,0 +1,17 @@
+name: Quits rate (JOLTS)
+shortName: Quits rate
+description: Job Openings and Labor Turnover Survey — voluntary quits as a share of total employment. The headline "great resignation" indicator; a tight labor market shows up here first.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/jolts_quits_rate.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: JTS000000000000000QUR
+  url: https://data.bls.gov/timeseries/JTS000000000000000QUR
+  license: U.S. public domain

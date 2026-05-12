@@ -1,0 +1,17 @@
+name: CPI used cars & trucks
+shortName: CPI used vehicles
+description: Consumer Price Index, used cars and trucks. The poster-child series for the 2021-22 inflation surge.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/cpi_used_vehicles.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: index (1982-84=100)
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: CUUR0000SETA02
+  url: https://data.bls.gov/timeseries/CUUR0000SETA02
+  license: U.S. public domain
