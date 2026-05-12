@@ -1,0 +1,13 @@
+title: Virginia nonfarm payroll employment
+sources:
+  - "bls/state_payrolls_va"
+render: line
+defaultDelta: 10y
+tags: [us, labor]
+normalize: raw
+blurb: |
+  Total nonfarm payroll employment in Virginia, BLS CES, seasonally
+  adjusted, in thousands. Virginia's employment base is ~50% federal +
+  state government, federal contractors, and federally-dependent
+  services in NoVA — substantially less cyclical than e.g. Michigan
+  (manufacturing) or Nevada (hospitality).

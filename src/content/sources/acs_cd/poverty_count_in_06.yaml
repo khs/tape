@@ -1,0 +1,18 @@
+name: People in poverty — IN-06
+shortName: IN-06 poverty count
+description: People in poverty for IN-06 (118th Congress boundaries). From the American Community Survey 5-year estimates. Released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/poverty_count_in_06.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: poverty_count
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)

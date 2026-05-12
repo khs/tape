@@ -1,0 +1,20 @@
+title: Virginia unemployment vs US
+sources:
+  - "bls/state_unemployment_va"
+  - "fred/us_unemployment"
+render: line
+defaultDelta: 10y
+tags: [us, labor, macro]
+normalize: raw
+seriesLabels: ["Virginia", "US national"]
+blurb: |
+  Headline unemployment rate, Virginia vs national, monthly. From BLS
+  LAUS (state) and BLS LFS (national, via FRED). Both are seasonally
+  adjusted.
+  <br/><br/>
+  Virginia consistently runs ~0.5–1 percentage point below the national
+  rate, in large part because of the federal-government employment base
+  in Northern Virginia (which doesn't lay off the way private cyclical
+  industries do) and a high-skill workforce that holds up well in
+  downturns. The spread widened during the 2008–10 recession (state
+  outperformed) and during COVID (state also outperformed).

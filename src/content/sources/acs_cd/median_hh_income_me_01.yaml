@@ -1,0 +1,19 @@
+name: Median household income — ME-01
+shortName: ME-01 median hh income
+description: Median household income for ME-01 (118th Congress boundaries). From the American Community Survey 5-year estimates. Released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_hh_income_me_01.json
+supportedDeltas: ["5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_hh_income
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)

@@ -1,0 +1,58 @@
+---
+title: "VA-08 — Arlington / Alexandria / Falls Church"
+description: "A dashboard built around Virginia's 8th Congressional District — federal money flow, labor market, demographic snapshot. The flagship Northern Virginia federal-economy district."
+order: 10
+defaultDelta: 10y
+aboutBlurb: "A dashboard for one of the most federally-dependent congressional districts in the country — Don Beyer's VA-08, covering Arlington, Alexandria, Falls Church, and inner Fairfax County."
+sections:
+  - title: "Federal money flow"
+    description: "VA-08 is structurally federal-spending-heavy: Pentagon-adjacent, dense with DoD prime contractors, and home to a large federal-employee population. Total federal dollars (contracts + grants + loans + direct payments) flowing to district recipients tell the story."
+    charts:
+      - government/va_08_federal_spending
+      - government/va_08_vs_neighbors
+  - title: "Labor market"
+    description: "Virginia's state-level labor market matters for VA-08 because the federal-government and federal-contractor base shows up as state aggregate first. VA consistently runs below national unemployment because federal employment doesn't lay off the way cyclical industries do."
+    charts:
+      - us-macro/va_unemployment_vs_us
+      - us-macro/va_payrolls
+---
+
+## District snapshot (ACS 5-year, 2022 vintage)
+
+| Measure | Value | Compare to |
+|---|---|---|
+| Population | ~779,000 | Median CD is ~770,000 by design (each district sized equal at the decennial) |
+| Median household income | **$125,652** | US national median is ~$74,500 |
+| Residents in poverty | ~59,000 (~7.6%) | US national poverty rate is ~11.5% |
+| Adults with bachelor's degree | ~172,000 | Doesn't include the (large) population with advanced degrees on top of that |
+
+VA-08 is the **highest-income congressional district in Virginia and one of the highest in the country.** The combination of federal salaries, contractor compensation, and a lawyer/lobbyist/consultant base produces an exceptional household income distribution.
+
+## Federal-spending pattern
+
+Three visible regimes in the spending chart:
+
+1. **Pre-2011 growth.** Steady increase through the late-Bush + early-Obama buildup — DoD spending, the Stimulus, post-9/11 contractor expansion.
+2. **2011–2015 flat-and-decline.** The Budget Control Act of 2011 imposed sequestration on FY2013+. VA-08 felt this sharply because so much of the local economy is on prime contracts. Federal spending in the district basically didn't grow for half a decade.
+3. **Post-2020 step up.** COVID emergency appropriations, then the IRA/CHIPS/IIJA tranche of Biden-era industrial policy. Spending levels are now well above the 2009 stimulus peak.
+
+VA-11 (Loudoun + outer Fairfax — Gerry Connolly's seat) has grown faster than VA-08 over the same period as data-center construction and contractor satellite offices spread west along the Dulles corridor. VA-08's spending base is more mature; VA-11's is the marginal-growth district for the DC contracting economy.
+
+## Labor market resilience
+
+Virginia state unemployment runs about a percentage point below the US headline rate in almost every period. The spread widens during downturns:
+
+- **2008–2010.** US unemployment peaked at 10.0%; Virginia's peak was 7.6%. A 2.4-point gap.
+- **2020 COVID.** US peaked at 14.7%; Virginia at 11.3%. A 3.4-point gap.
+
+This isn't because VA is recession-proof — it's because federal employment is roughly 12% of the state workforce (vs ~2% nationally), and the federal payroll doesn't cyclically shed workers the way manufacturing or hospitality do. Federal-contractor employment is more cyclical but still less so than private-sector averages, because most prime contracts have multi-year obligations.
+
+## Why this dashboard
+
+Most "congressional district" data is hard to compose — published as PDF maps, locked behind interactive web tools, or aggregated only to the state level. VA-08 in particular is a useful case study because:
+
+1. The federal-money story is unusually concentrated and visible
+2. Demographic + economic outliers (income, education) make it a stress-test of national-vs-local divergence
+3. Combined with neighboring districts (VA-11, MD-05, MD-08, DC) it tells a clean DC-metro federal-economy story you can't get from state-level data alone
+
+All underlying sources are in the composer library if you want to swap in different districts or build a different angle. The "Customize this dashboard" link at top opens this one in the composer pre-loaded.

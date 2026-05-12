@@ -1,0 +1,23 @@
+title: Federal spending — VA-08 vs DC-area neighbors
+sources:
+  - "usaspending/district_va_08"
+  - "usaspending/district_va_11"
+  - "usaspending/district_md_05"
+  - "usaspending/district_md_08"
+  - "usaspending/state_dc"
+render: line
+defaultDelta: 10y
+tags: [us, government]
+normalize: rebase
+blurb: |
+  Federal spending across the DC-metro congressional districts, rebased
+  to 100 at window start so growth trajectories are comparable. Raw
+  levels differ enough (DC ~$50B, VA-11 ~$30B, VA-08 ~$30B, MD ~$15B)
+  that side-by-side rebase tells a clearer story than absolute dollars.
+  <br/><br/>
+  VA-11 (Loudoun / outer Fairfax — Gerry Connolly's seat) has grown
+  fastest as data-center and contractor build-out spread west. MD
+  districts grew slower as Bethesda/NIH spending stabilized; DC's
+  growth was middle-of-pack despite being the seat of government,
+  because most of its federal flow is salaries rather than the kind
+  of contract money that's grown fastest.

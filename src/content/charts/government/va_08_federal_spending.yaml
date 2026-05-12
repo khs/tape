@@ -1,0 +1,22 @@
+title: Federal spending in VA-08
+sources:
+  - "usaspending/district_va_08"
+render: line
+defaultDelta: 10y
+tags: [us, government]
+normalize: raw
+blurb: |
+  Total federal contracts, grants, loans, and direct payments flowing
+  to recipients located in Virginia's 8th Congressional District,
+  fiscal year. From USAspending.gov.
+  <br/><br/>
+  VA-08 (Arlington / Alexandria / Falls Church / inner Fairfax) is one
+  of the highest-federal-spending congressional districts in the
+  country because of Pentagon-adjacency: nearly half of all DoD prime
+  contractors have offices here, and the district overlaps with the
+  agencies and contractor footprints around Crystal City, Pentagon
+  City, and Tysons.
+  <br/><br/>
+  The flat-and-falling stretch 2011–2015 is the Budget Control Act /
+  sequestration era. The post-2020 step up tracks emergency COVID
+  appropriations + the IRA/CHIPS Act buildout.
