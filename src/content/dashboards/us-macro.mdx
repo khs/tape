@@ -2,7 +2,8 @@
 title: US Macro snapshot
 order: 1
 defaultDelta: 5y
-aboutBlurb: "This is a sample dashboard that gives a quick overview of the US economy."
+description: "The eight gauges a US macro analyst checks first — labor, rates, output, inflation, consumers, housing, money & credit, and risk assets."
+aboutBlurb: "Eight headline gauges of where the US economy sits: labor, rates, output, inflation, consumers, housing, money & credit, and risk. Every chart shows the level and the move so you can see the direction at a glance."
 sections:
   - title: Labor
     description: "How tight is the labor market? Unemployment, payrolls, participation, and wage growth — the four headline labor-market gauges."
@@ -29,30 +30,74 @@ sections:
       - us-macro/industrial_production
       - us-macro/capacity_util
   - title: Inflation
+    description: "Headline and core CPI vs PCE. Core strips out food and energy because they swing on supply shocks that don't reflect persistent inflation pressure. PCE is what the Fed actually targets; it runs ~0.3 pp below CPI because of methodology differences."
     charts:
       - us-macro/cpi
       - us-macro/core_cpi
       - us-macro/headline_pce
       - us-macro/core_pce
   - title: Consumers
+    description: "Where consumer demand actually is. Retail sales = current spending, saving rate = the cushion, UMich sentiment = how people *feel* about the economy (often diverges from the hard data, sometimes leads it)."
     charts:
       - us-macro/retail_sales
       - us-macro/saving_rate
       - us-macro/umich
   - title: Housing
+    description: "Starts measure new-construction supply; Case-Shiller and median home price gauge the price side. Together they tell you whether housing-affordability stress is a quantity problem (not enough being built) or a pricing problem (existing stock bidding up)."
     charts:
       - us-macro/housing_starts
       - us-macro/case_shiller
       - us-macro/median_home_price
   - title: Monetary & credit
+    description: "M2 and the Fed balance sheet show how much liquidity the system carries; HY and IG corporate spreads show how the credit market prices risk on top of that. Spread widening before a recession is the classic 'this time isn't different' signal."
     charts:
       - us-macro/m2
       - us-macro/fed_balance_sheet
       - us-macro/hy_spread
       - us-macro/ig_spread
   - title: Stocks & risk
+    description: "S&P and Nasdaq for equity-market direction; VIX for the implied-volatility premium markets pay to hedge. Sustained VIX > 30 is real fear; > 40 is crisis."
     charts:
       - us-macro/sp500
       - us-macro/nasdaq
       - us-macro/vix
 ---
+
+## How to read this dashboard
+
+The eight sections are ordered the way a US macro analyst typically scans a
+morning briefing: **labor first** (the timeliest hard-data read on the
+economy), **rates second** (because everything else is priced off them),
+then **output, inflation, consumers, housing, monetary & credit, and risk
+assets.**
+
+A few cross-section reading patterns:
+
+- **Labor + inflation + rates together.** When unemployment is low and core
+  CPI/PCE is running hot, the Fed has every reason to keep policy tight.
+  When unemployment rises and inflation cools, the cutting cycle starts.
+  The 10Y–2Y spread is the market's forward-looking read on that arc:
+  inversion historically leads recessions by 6–18 months.
+
+- **Consumers + housing together.** Both are interest-rate sensitive.
+  Retail sales weakening + housing starts falling + mortgage rates high is
+  the textbook pre-recession setup. Add credit spreads widening and the
+  signal is hard to ignore.
+
+- **VIX as the meta-gauge.** A calm market (VIX in the teens) means
+  participants aren't paying up for protection; a spike above 30 means
+  hedging demand is overwhelming the supply. It's a near-perfect mirror
+  of equity-market drawdowns but tells you something about the *price* of
+  risk that levels alone don't.
+
+## Why these eight and not others
+
+The omitted-but-considered: PMI manufacturing + services, JOLTS detail
+beyond the headline, government finance (now on its own enterprise-tier
+build-out), state-level decomposition (visible in the composer — all 50
+states for unemployment + payrolls), commodity prices, FX. They're all in
+the composer library if you want to compose your own variant.
+
+Click "Customize this dashboard" at the top to do exactly that. The link
+opens this dashboard pre-loaded in the composer so you can add, remove, or
+rearrange charts without starting from scratch.

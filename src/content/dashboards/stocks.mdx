@@ -1,9 +1,12 @@
 ---
 title: Stocks — famous names
-order: 7
-defaultDelta: 1m
+description: "Thirty-odd large-cap US stocks grouped by sector. Less for picking winners than for using individual names as ways to track sector themes."
+order: 5
+defaultDelta: 1y
+aboutBlurb: "Thirty-odd large-cap US stocks organized by sector. Most useful not as a stock-picking list but as a way to track sector-level themes through their largest, most-followed names."
 sections:
   - title: Financials
+    description: "Banks, payments processors, and Berkshire Hathaway as the diversified-financials proxy. Net interest margins (banks) move with the yield curve; payments (V, MA) are recession-sensitive consumer spending. JPM has become the bellwether for big-bank health since 2008."
     charts:
       - stocks/brk_b
       - stocks/jpm
@@ -12,16 +15,19 @@ sections:
       - stocks/v
       - stocks/ma
   - title: Healthcare
+    description: "Pharma (LLY, PFE), the insurance-and-services giant (UNH), and the diversified original (JNJ). GLP-1 obesity drugs reshaped LLY's trajectory post-2022; Medicare Advantage drives UNH; PFE rode COVID up and then back down."
     charts:
       - stocks/jnj
       - stocks/unh
       - stocks/lly
       - stocks/pfe
   - title: Energy
+    description: "Two integrated oil majors. ExxonMobil and Chevron move together with WTI crude — useful as a leveraged proxy on energy-price views without taking commodity exposure directly."
     charts:
       - stocks/xom
       - stocks/cvx
   - title: Consumer
+    description: "Staples (KO, PEP, WMT, COST) for defensive consumer demand; discretionary (HD, MCD, DIS) for cyclical reads. Cost of living shocks (2021–22) widened the staples-discretionary spread sharply."
     charts:
       - stocks/ko
       - stocks/pep
@@ -31,12 +37,14 @@ sections:
       - stocks/mcd
       - stocks/dis
   - title: Industrials & autos
+    description: "Boeing (defense + commercial aviation), Caterpillar (global construction + mining capex), GE (post-spinoff aerospace pure play), and Tesla (the EV margin-leader-turned-volatility-vehicle). Picks up the goods-economy pulse the consumer section misses."
     charts:
       - stocks/ba
       - stocks/cat
       - stocks/ge
       - stocks/tsla
   - title: Tech beyond the mega-caps
+    description: "The 'second tier' of public tech — still large by most standards, but not in the six-stocks-rule-the-market club. ASML and TSMC are the semiconductor supply chain; CRM/ORCL/CSCO/AVGO are enterprise IT bedrock; NFLX is streaming."
     charts:
       - stocks/nflx
       - stocks/asml
@@ -47,3 +55,44 @@ sections:
       - stocks/csco
 ---
 
+## What this dashboard is for
+
+Individual-stock charts are usually presented as picks ("buy this, sell
+that"). That's not the lens here. **These are sector-thesis vehicles.** A
+view on the consumer goes through Walmart and McDonald's; a view on
+healthcare costs goes through UnitedHealth; a view on AI capex goes
+through TSMC and ASML.
+
+## Reading patterns across sectors
+
+- **Financials vs the yield curve.** When the 10Y–2Y spread inverts and
+  stays inverted, banks (especially regional and money-center like BAC)
+  underperform because their core net-interest-margin business gets
+  squeezed. The 2022–24 inversion cycle is visible in JPM and BAC.
+
+- **Healthcare bifurcation.** Pharma giants (LLY, PFE) trade on
+  drug-pipeline catalysts; insurers (UNH) trade on Medicare-policy and
+  utilization trends. They're in the same dashboard section but their
+  drivers barely overlap.
+
+- **Energy as macro proxy.** XOM and CVX are basically two ways to express
+  the same view: oil up vs oil down. The 2022 spike and 2023 normalization
+  are clean.
+
+- **Consumer staples vs discretionary.** During inflation shocks, KO/PEP/
+  WMT tend to outperform HD/MCD/DIS because consumers shift from
+  discretionary to essential spending. This is a relative-trade story
+  that's easier to see across the section than in any single chart.
+
+## What this dashboard isn't
+
+This isn't a portfolio. It's a tour of how individual large-cap stocks
+serve as windows onto bigger themes. If you want a sector ETF view, the
+composer has XLF, XLV, XLE, XLP, XLY, XLI, XLK and the rest of the GICS
+sector ETFs ready to compose with. If you want full position-tracking,
+that's not what Legible Markets does — pick a brokerage tool for that.
+
+What we offer that those tools don't: every chart shows the level *and*
+the change, side-by-side, with curator notes explaining what to look at.
+"Customize this dashboard" opens this list in the composer so you can
+build your own variant.

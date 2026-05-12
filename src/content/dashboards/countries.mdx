@@ -1,7 +1,9 @@
 ---
 title: Countries vs. world
+description: "Ten major economies seen through two lenses: equity-market returns (country ETFs vs the global market) and economic weight (national vs world GDP)."
 order: 4
 defaultDelta: 10y
+aboutBlurb: "Ten major economies through two lenses: equity-market performance (country ETF vs global VT) and economic weight (national vs world GDP). Both rebased to 100 at the start of the window so trajectories are directly comparable."
 charts:
   - countries/japan
   - countries/germany
@@ -15,3 +17,49 @@ charts:
   - countries/south_korea
 ---
 
+## How to read each chart
+
+Every country card shows four series, all rebased to 100 at window start:
+
+| Line | What it tells you |
+|------|-------------------|
+| **Country ETF** (e.g., EWJ for Japan) | How a USD investor in that country's stock market has done |
+| **World ETF** (VT) | Same investor in the global benchmark |
+| **Country GDP** | The economy's nominal scale in domestic currency, from World Bank |
+| **World GDP** | Aggregate global output |
+
+When a country's ETF outpaces VT, USD investors made money allocating to
+it. When its GDP outpaces world GDP, the country grew faster than the
+global average. **The two often disagree** — that's the interesting case.
+
+## Patterns that recur
+
+- **Japan and Korea**: ETF performance often understates the underlying
+  economic story because of currency headwinds. Yen weakness drags EWJ
+  even when Japanese GDP grows steadily.
+
+- **China**: The decade-long divergence between Chinese GDP growth and
+  Chinese-equity-ETF returns (FXI / MCHI) is one of the most striking
+  pieces of macro mispricing — or correct re-pricing of governance risk —
+  in recent memory.
+
+- **India**: Both lines climbing at similar rates; one of the cleanest
+  "real economic growth shows up in the equity market" cases of the
+  decade.
+
+- **Germany**: Equity flat-ish, GDP growing slowly; the chronic productivity
+  problem of a manufacturing-heavy economy facing energy-cost shocks and
+  China competition.
+
+- **Mexico and Brazil**: Volatile equity ETFs reflecting currency moves
+  more than fundamentals. Rebasing is essential — raw price comparisons
+  would be misleading.
+
+## What's deliberately not here
+
+Single-country deep-dives. The composer has individual sources for each
+country's GDP, ETF, currency, and stock-market indices if you want to
+build a Japan-specific or India-specific dashboard. The G7 cross-country
+charts (unemployment, CPI, government debt, life expectancy) are also
+in the library — useful as macro context to pair with the country views
+here.

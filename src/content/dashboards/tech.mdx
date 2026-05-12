@@ -1,13 +1,16 @@
 ---
 title: Tech industry snapshot
-description: A quick overview of the tech industry.
+description: "Where the US tech industry sits — sector indices, the mega-caps that drive most of the S&P, and how the credit market prices their risk."
 order: 3
-defaultDelta: 1m
+defaultDelta: 1y
+aboutBlurb: "Three lenses on the US tech industry: sector indices for the broad picture, the mega-cap names that drive most of the value, and high-yield TMT credit for how lenders price their risk."
 sections:
   - title: Sector indices
+    description: "Tech-sector ETFs and indices. Pick the right index for the question: QQQ is Nasdaq-100 (mega-cap-skewed), XLK is the S&P tech sector (no Amazon or Meta because they're classified Consumer Discretionary and Communication Services), SOXX is semiconductors."
     charts:
       - tech/indices
   - title: Mega-caps
+    description: "The six names that make up an outsized share of US equity-market capitalization. Together they account for roughly a quarter of the S&P 500. Concentration risk is the price of letting winners compound."
     charts:
       - tech/aapl
       - tech/msft
@@ -16,7 +19,50 @@ sections:
       - tech/meta
       - tech/nvda
   - title: Credit
+    description: "High-yield bonds issued by tech, media, and telecom (TMT) borrowers. When the credit market thinks the sector is in trouble, spreads widen here before they widen at the index level."
     charts:
       - tech/hy_tmt_bonds
 ---
 
+## What this dashboard is for
+
+Most "tech industry" coverage flips between two views that aren't actually
+the same thing:
+
+1. **The headline indices** (QQQ, XLK, SOXX) — what people mean when they
+   say "tech is up." Mega-cap-weighted, so they really mean a handful of
+   companies.
+2. **The individual stocks** — the names that drive those indices. AAPL,
+   MSFT, GOOG, AMZN, META, NVDA collectively account for ~25% of S&P 500
+   market cap as of 2025.
+
+This dashboard puts both side-by-side so you can see when the megacaps are
+pulling the indices and when the indices are masking divergence underneath.
+
+The credit chart is the contrarian indicator. When the equity market is
+bullish on a sector and credit spreads on its junk bonds are *widening*,
+something's off. Tech HY spreads widening ahead of the dot-com bust and
+ahead of the 2022 Nasdaq drawdown are both visible in the long-window data.
+
+## How concentration changed the story
+
+Through the 2010s, "tech" was a loose label — the S&P tech sector index
+(XLK) tracked similarly to the broader Nasdaq. Post-2017, the GICS sector
+reclassification pulled Amazon and Meta out of "tech" into Consumer
+Discretionary and Communication Services respectively, so XLK and Nasdaq
+diverged. By 2024 the gap between QQQ (Nasdaq-100, includes everything)
+and XLK (pure tech-classified) had grown enough that they tell visibly
+different stories during AI-rally periods.
+
+The single-name charts are most useful for tracking specific narrative
+shifts: NVDA dominates the AI buildout story, AAPL has been the slowest
+of the six since the iPhone supercycle plateaued, META's pivot from
+metaverse to AI shows up clearly in 2022–24, GOOG's antitrust overhang
+is visible as periodic drawdowns.
+
+## Composing your own version
+
+The full library has 50+ individual tech and adjacent names (Oracle,
+Salesforce, ASML, TSM, etc.) plus all the major ETFs. Click "Customize
+this dashboard" to swap in your own mix — semiconductor-pure-plays only,
+say, or AI-thesis stocks bundled together.
