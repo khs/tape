@@ -3,3 +3,11 @@ sources: ["fred/ig_spread"]
 render: line
 defaultDelta: 1m
 tags: [us, credit, macro]
+blurb: |
+  The yield premium for <strong>investment-grade</strong> corporate bonds
+  over comparable Treasuries. Tighter than HY because IG issuers are by
+  definition the more creditworthy ones; widens during liquidity stress
+  (March 2020, 2008) even when default risk is low.
+  <br/><br/>
+  Compare with HY for a sense of whether stress is broad-based credit
+  deterioration or narrow risk-off.

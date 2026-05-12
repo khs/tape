@@ -132,6 +132,11 @@ const dashboards = defineCollection({
     .object({
       title: z.string(),
       description: z.string().optional(),
+      // Short topic blurb rendered in the "About this dashboard" section
+      // at the bottom of the page, prepended to the editable-link prompt.
+      // Distinct from `description` (which appears under the title and is
+      // also used as the page meta description / OG sub-headline).
+      aboutBlurb: z.string().optional(),
       charts: z.array(z.string()).optional(),
       sections: z.array(sectionSchema).optional(),
       chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),

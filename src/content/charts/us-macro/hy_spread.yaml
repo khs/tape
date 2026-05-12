@@ -3,3 +3,10 @@ sources: ["fred/hy_spread"]
 render: line
 defaultDelta: 1m
 tags: [us, credit, macro]
+blurb: |
+  The yield premium investors demand to hold <strong>high-yield</strong>
+  ("junk") corporate bonds over comparable Treasuries. Widens when
+  credit-stressed firms look riskier and tightens when risk appetite
+  returns — one of the cleanest market-priced reads on corporate credit
+  conditions. Sustained jumps above ~5–6&nbsp;pp historically line up
+  with recessions.

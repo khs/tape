@@ -3,3 +3,12 @@ sources: ["fred/vix"]
 render: line
 defaultDelta: 1m
 tags: [us, macro]
+blurb: |
+  The Cboe Volatility Index — <strong>implied volatility</strong> of S&amp;P 500
+  options over the next 30 days, quoted in annualized percentage points.
+  Rough rule of thumb: ~15 is a calm market, 30+ signals real fear, 40+
+  is crisis territory.
+  <br/><br/>
+  Often called the "fear gauge," but it's really the price of insurance —
+  a high VIX means options are expensive because traders are paying up
+  to hedge.
