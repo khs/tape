@@ -77,6 +77,20 @@ jobs:
         continue-on-error: true
         run: python pipelines/treasury_tic.py
 
+      # USAspending: federal $ flowing to each state and each
+      # congressional district, by fiscal year, since FY2008.
+      - name: Refresh USAspending state + CD federal flows
+        continue-on-error: true
+        run: python pipelines/usaspending.py
+
+      # Census ACS demographics by CD — requires CENSUS_API_KEY secret
+      # (free registration). No-ops cleanly when the key isn't set.
+      - name: Refresh Census ACS by congressional district
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_cd.py
+
       # After all pipelines have written their fresh JSON, copy the whole
       # data/ tree into a dated archive at data/_archive/<YYYY-MM-DD>/...
       # so cited URLs can resolve a specific data vintage indefinitely.

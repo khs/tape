@@ -1,0 +1,19 @@
+name: Federal spending in Alabama
+shortName: Alabama fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Alabama, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_al.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_al
+  url: https://www.usaspending.gov/state/AL
+  license: Public domain (US government data)

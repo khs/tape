@@ -1,0 +1,19 @@
+name: Federal spending in Rhode Island
+shortName: Rhode Island fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Rhode Island, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_ri.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_ri
+  url: https://www.usaspending.gov/state/RI
+  license: Public domain (US government data)

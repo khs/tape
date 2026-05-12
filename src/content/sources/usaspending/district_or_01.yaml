@@ -1,0 +1,19 @@
+name: Federal spending — OR-01
+shortName: OR-01
+description: Total federal outlays where the recipient is in Oregon's district 1 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/district_or_01.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: district_or_01
+  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=OR-01
+  license: Public domain (US government data)

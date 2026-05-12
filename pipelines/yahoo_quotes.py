@@ -172,6 +172,29 @@ SPECS: list[YahooSpec] = [
     # Real estate REITs
     YahooSpec("PLD", "PLD", "Prologis (PLD)", "USD"),
     YahooSpec("AMT", "AMT", "American Tower (AMT)", "USD"),
+    # ------------------------------------------------------------------
+    # Library expansion v4: broader crypto coverage
+    # ------------------------------------------------------------------
+    # The top dozen-or-so coins by market cap, plus a couple ETF/proxy
+    # vehicles for users who care about TradFi-accessible exposure rather
+    # than spot tokens. Use the canonical Yahoo "<TICKER>-USD" form for
+    # spot prices.
+    YahooSpec("ADA-USD", "ADA_USD", "Cardano (USD)", "USD"),
+    YahooSpec("DOGE-USD", "DOGE_USD", "Dogecoin (USD)", "USD"),
+    YahooSpec("LTC-USD", "LTC_USD", "Litecoin (USD)", "USD"),
+    YahooSpec("BNB-USD", "BNB_USD", "BNB (Binance) (USD)", "USD"),
+    YahooSpec("DOT-USD", "DOT_USD", "Polkadot (USD)", "USD"),
+    YahooSpec("LINK-USD", "LINK_USD", "Chainlink (USD)", "USD"),
+    YahooSpec("AVAX-USD", "AVAX_USD", "Avalanche (USD)", "USD"),
+    YahooSpec("MATIC-USD", "MATIC_USD", "Polygon (USD)", "USD"),
+    YahooSpec("TRX-USD", "TRX_USD", "TRON (USD)", "USD"),
+    YahooSpec("SHIB-USD", "SHIB_USD", "Shiba Inu (USD)", "USD"),
+    # Crypto-adjacent equities + ETFs — TradFi vehicles for crypto exposure
+    YahooSpec("IBIT", "IBIT", "iShares Bitcoin Trust ETF (IBIT)", "USD"),
+    YahooSpec("FBTC", "FBTC", "Fidelity Wise Origin Bitcoin Fund (FBTC)", "USD"),
+    YahooSpec("ETHA", "ETHA", "iShares Ethereum Trust ETF (ETHA)", "USD"),
+    YahooSpec("MARA", "MARA", "Marathon Digital Holdings (MARA)", "USD"),
+    YahooSpec("RIOT", "RIOT", "Riot Platforms (RIOT)", "USD"),
 ]
 
 

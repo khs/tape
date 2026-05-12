@@ -1,0 +1,19 @@
+name: Federal spending in Puerto Rico
+shortName: Puerto Rico fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Puerto Rico, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_pr.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_pr
+  url: https://www.usaspending.gov/state/PR
+  license: Public domain (US government data)

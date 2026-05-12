@@ -1,0 +1,19 @@
+name: Federal spending in Pennsylvania
+shortName: Pennsylvania fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Pennsylvania, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_pa.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_pa
+  url: https://www.usaspending.gov/state/PA
+  license: Public domain (US government data)

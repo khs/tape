@@ -1,0 +1,19 @@
+name: Federal spending — CO-06
+shortName: CO-06
+description: Total federal outlays where the recipient is in Colorado's district 6 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/district_co_06.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: district_co_06
+  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=CO-06
+  license: Public domain (US government data)

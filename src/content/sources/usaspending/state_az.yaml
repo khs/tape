@@ -1,0 +1,19 @@
+name: Federal spending in Arizona
+shortName: Arizona fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Arizona, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_az.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_az
+  url: https://www.usaspending.gov/state/AZ
+  license: Public domain (US government data)

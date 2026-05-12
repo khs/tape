@@ -1,0 +1,19 @@
+name: Federal spending in Oklahoma
+shortName: Oklahoma fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Oklahoma, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_ok.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_ok
+  url: https://www.usaspending.gov/state/OK
+  license: Public domain (US government data)

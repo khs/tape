@@ -1,0 +1,19 @@
+name: Federal spending in Northern Mariana Islands
+shortName: Northern Mariana Islands fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Northern Mariana Islands, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_mp.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_mp
+  url: https://www.usaspending.gov/state/MP
+  license: Public domain (US government data)

@@ -1,0 +1,26 @@
+title: Federal spending by state (top 10)
+sources:
+  - "usaspending/state_va"
+  - "usaspending/state_ca"
+  - "usaspending/state_md"
+  - "usaspending/state_tx"
+  - "usaspending/state_pa"
+  - "usaspending/state_ny"
+  - "usaspending/state_fl"
+  - "usaspending/state_il"
+  - "usaspending/state_ga"
+  - "usaspending/state_oh"
+render: line
+defaultDelta: 10y
+tags: [us, macro, government]
+normalize: raw
+blurb: |
+  Top 10 states by total federal spending (contracts + grants + loans
+  + direct payments), fiscal year, from USAspending.gov. Virginia
+  consistently tops the list because of DoD contractor concentration
+  in the DMV; Maryland follows for similar reasons. California is #3
+  by sheer population scale.
+  <br/><br/>
+  All 50 states + DC + territories available in the composer for
+  custom subsetting. Use the ÷ US population quick-divisor for
+  per-capita comparisons.

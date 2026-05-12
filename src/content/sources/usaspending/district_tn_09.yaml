@@ -1,0 +1,19 @@
+name: Federal spending — TN-09
+shortName: TN-09
+description: Total federal outlays where the recipient is in Tennessee's district 9 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/district_tn_09.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: district_tn_09
+  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=TN-09
+  license: Public domain (US government data)

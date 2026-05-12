@@ -1,0 +1,19 @@
+name: Federal spending — WA-10
+shortName: WA-10
+description: Total federal outlays where the recipient is in Washington's district 10 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/district_wa_10.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: district_wa_10
+  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=WA-10
+  license: Public domain (US government data)

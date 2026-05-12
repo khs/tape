@@ -1,0 +1,15 @@
+title: Bitcoin ETFs and miners
+sources:
+  - "yahoo/ibit"
+  - "yahoo/fbtc"
+  - "yahoo/mara"
+  - "yahoo/riot"
+render: line
+defaultDelta: 1y
+tags: [crypto, equity-index]
+normalize: rebase
+blurb: |
+  TradFi vehicles for Bitcoin exposure. IBIT and FBTC are the two
+  biggest spot Bitcoin ETFs (launched Jan 2024). MARA and RIOT are
+  the two largest publicly-traded Bitcoin miners — their stock prices
+  amplify BTC's moves with mining-economics leverage.

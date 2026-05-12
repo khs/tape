@@ -1,0 +1,19 @@
+name: Federal spending — IL-16
+shortName: IL-16
+description: Total federal outlays where the recipient is in Illinois's district 16 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/district_il_16.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: district_il_16
+  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=IL-16
+  license: Public domain (US government data)

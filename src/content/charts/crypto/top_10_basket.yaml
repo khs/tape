@@ -1,0 +1,21 @@
+title: Top crypto basket (rebased)
+sources:
+  - "yahoo/btc_usd"
+  - "yahoo/eth_usd"
+  - "yahoo/bnb_usd"
+  - "yahoo/sol_usd"
+  - "yahoo/xrp_usd"
+  - "yahoo/ada_usd"
+  - "yahoo/doge_usd"
+  - "yahoo/avax_usd"
+  - "yahoo/link_usd"
+  - "yahoo/ltc_usd"
+render: line
+defaultDelta: 1y
+tags: [crypto]
+normalize: rebase
+blurb: |
+  Top ~10 cryptocurrencies by market cap, prices rebased to 100 at
+  window-start so trajectories are comparable. Useful for "did
+  Bitcoin or alts lead this cycle?" — historically Bitcoin tends to
+  lead bull runs and alts lever up beyond it.

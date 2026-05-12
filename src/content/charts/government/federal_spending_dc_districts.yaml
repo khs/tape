@@ -1,0 +1,22 @@
+title: Federal spending — DC area congressional districts
+sources:
+  - "usaspending/state_dc"
+  - "usaspending/district_va_08"
+  - "usaspending/district_va_11"
+  - "usaspending/district_md_05"
+  - "usaspending/district_md_08"
+render: line
+defaultDelta: 10y
+tags: [us, macro, government]
+normalize: rebase
+blurb: |
+  Federal spending concentration in the DC metro: DC itself (as a
+  state-equivalent), plus the surrounding Virginia and Maryland
+  congressional districts that capture most of the federal-contractor
+  ecosystem (Arlington VA-08, Loudoun/Fairfax VA-11, Bethesda MD-08,
+  Prince George's MD-05).
+  <br/><br/>
+  Rebased to 100 at window-start so the trajectory comparison is clean
+  — DC's nominal volume is in the tens of billions, the Virginia
+  districts are in the same range, but raw levels differ enough that
+  rebase is the right comparison.

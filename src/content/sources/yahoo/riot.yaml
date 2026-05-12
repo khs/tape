@@ -1,0 +1,18 @@
+name: Riot Platforms
+shortName: RIOT
+description: Bitcoin mining company. Daily close, weekends included for spot tokens since crypto trades 24/7.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/RIOT.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+  notation: compact
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: RIOT
+  url: https://finance.yahoo.com/quote/RIOT

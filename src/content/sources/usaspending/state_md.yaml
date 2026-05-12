@@ -1,0 +1,19 @@
+name: Federal spending in Maryland
+shortName: Maryland fed $
+description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Maryland, by fiscal year. From USAspending.gov.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/state_md.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: state_md
+  url: https://www.usaspending.gov/state/MD
+  license: Public domain (US government data)
