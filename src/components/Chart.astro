@@ -298,6 +298,9 @@ const payload = {
   // telemetry events (e.g. chart_image_exported) and any future per-chart
   // operations without re-deriving it from the normalized dialog ID.
   chartId,
+  // Chart title — needed so the "Open as new dashboard" action can name
+  // the resulting composed state with something more useful than "Untitled."
+  title: chart.title,
   isMulti,
   normalize,
   // Y-axis scale ("linear" | "log"). Forwarded from chart spec so the
@@ -305,6 +308,10 @@ const payload = {
   // is meaningless (one log, one linear is misleading) so the renderer
   // ignores log when normalize === "dual-axis".
   scale: (chart as { scale?: "linear" | "log" }).scale ?? "linear",
+  // Optional arithmetic op (divide/sum/diff) — collapsed at render time
+  // but preserved here so "Open as new dashboard" can reconstruct the
+  // original chart spec faithfully for inline charts.
+  op: (chart as { op?: "divide" | "sum" | "diff" }).op,
   rightAxisSources: (chart as { rightAxisSources?: string[] }).rightAxisSources,
   supportedDeltas: effectiveSupported,
   defaultDelta,
@@ -414,6 +421,15 @@ const mostRecentUpdate = payload.sources
       title="Copy a link that unfurls into a chart preview when pasted into Substack, Twitter, Slack, or Discord"
     >
       Copy embed link
+    </button>
+    <button
+      type="button"
+      class="dialog-action-btn"
+      data-role="open-as-dashboard"
+      aria-label="Open this chart as a new dashboard"
+      title="Open the composer with this chart already added — a starting point to build around"
+    >
+      Open as new dashboard
     </button>
     <button type="button" class="dialog-close" aria-label="Close">
       &times;

@@ -27,6 +27,10 @@
   } from "../lib/format";
   import { SITE_BRAND_URL } from "../lib/brand";
   import { readStoredSession } from "../lib/supabase";
+  import {
+    encodeComposedState,
+    type InlineChart,
+  } from "../lib/composer-state";
   import { track } from "@vercel/analytics";
 
   // One-shot auth probe — used to decide whether tile sparkline tooltips
@@ -57,10 +61,14 @@
   type Payload = {
     /** Chart ID, e.g. "us-macro/sp500" — forwarded from server for telemetry. */
     chartId?: string;
+    /** Chart title — used as the seed title when "Open as new dashboard" fires. */
+    title?: string;
     isMulti: boolean;
     normalize: "rebase" | "raw" | "dual-axis";
     /** Y-axis scale. "log" only respected when normalize !== "dual-axis". */
     scale?: "linear" | "log";
+    /** Optional arithmetic op (divide/sum/diff), preserved for inline-chart roundtrip. */
+    op?: "divide" | "sum" | "diff";
     supportedDeltas: DeltaWindow[];
     defaultDelta: DeltaWindow;
     sources: SourcePayload[];
@@ -1400,6 +1408,81 @@
               embedLinkBtn.textContent = originalLabel;
             }, 1500);
           }
+        });
+      }
+
+      const openAsDashBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-role='open-as-dashboard']",
+      );
+      if (openAsDashBtn) {
+        openAsDashBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          // Build a minimal composed state containing just this chart, then
+          // bounce to /compose/?d=... so the user lands in the composer with
+          // the chart already added and the original chart's title pre-seeded
+          // as the dashboard title.
+          //
+          // Two branches: library charts (e.g. "us-macro/sp500") only need
+          // their ID — the composer resolves them via the content
+          // collection. Inline charts (composer-built, "inline:abc123") need
+          // their full spec carried over inlineCharts because there's no
+          // server-side source of truth for them.
+          const chartId = payload.chartId ?? "";
+          const isInline = chartId.startsWith("inline:");
+          const seedTitle = payload.title ?? "New dashboard";
+          // Preserve the user's current time window — if they were
+          // looking at YTD on this chart, the new dashboard should open
+          // at YTD too. closestSupported() in the composer falls back
+          // gracefully if some chart in the dashboard doesn't support it.
+          const seedDelta = ctx.currentWindow;
+          let dParam: string;
+          if (chartId && !isInline) {
+            // Library chart: composer resolves chartId via getEntry().
+            dParam = encodeComposedState({
+              title: seedTitle,
+              defaultDelta: seedDelta,
+              sections: [
+                { title: "Overview", charts: [chartId] },
+              ],
+            });
+          } else {
+            // Inline chart: reconstruct its InlineChart spec from the
+            // payload. The composer keeps it under inlineCharts[id] and
+            // renders it like the original dashboard would have.
+            const inlineId = chartId || `inline:${Math.random().toString(36).slice(2, 10)}`;
+            const inlineSpec: InlineChart = {
+              title: seedTitle,
+              sources: payload.sources.map((s) => s.id),
+              normalize: payload.normalize,
+              scale: payload.scale === "log" ? "log" : undefined,
+              rightAxisSources: payload.rightAxisSources,
+              op: payload.op,
+              defaultDelta: seedDelta,
+            };
+            dParam = encodeComposedState({
+              title: seedTitle,
+              defaultDelta: seedDelta,
+              sections: [
+                { title: "Overview", charts: [inlineId] },
+              ],
+              inlineCharts: { [inlineId]: inlineSpec },
+            });
+          }
+          // Telemetry: each click is a strong-intent "I want to build
+          // around this chart" signal; valuable for prioritizing which
+          // charts deserve more attention from the curation pass.
+          track("chart_open_as_dashboard", {
+            chartId,
+            window: ctx.currentWindow,
+            sources: payload.sources
+              .map((s) => s.id)
+              .slice(0, 8)
+              .join(","),
+          });
+          // The site doesn't run under a subpath, so an absolute /compose/ is
+          // safe. If we ever deploy under a base prefix this should pick up
+          // a baseUrl helper instead.
+          window.location.href = `/compose/?d=${dParam}`;
         });
       }
 
