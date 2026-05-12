@@ -671,6 +671,66 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
           kind: "rejection",
         });
       });
+
+      // --- Outbound-link telemetry --------------------------------------
+      // Delegated click listener catches <a> elements anywhere on the
+      // page. Fires "outbound_link_click" for cross-origin destinations
+      // so we can see which external references (source URLs, Notion
+      // form, About-page links, etc.) people actually follow.
+      //
+      // Heuristic:
+      //   - Same origin → skip (covered by pageview telemetry)
+      //   - mailto:, tel:, javascript: → skip (not really "outbound")
+      //   - data-no-outbound attribute → skip (lets us opt out individual
+      //     links, e.g. analytics dashboards we don't want noise from)
+      //
+      // The listener is `capture: true` so we beat any "prevent default"
+      // a click handler might set later in the bubble phase.
+      document.addEventListener(
+        "click",
+        (ev) => {
+          // Walk up from the target to find an <a> ancestor. <a>s often
+          // wrap richer content (icons, spans) so the click target itself
+          // may not be the <a>.
+          let el: HTMLElement | null = ev.target as HTMLElement | null;
+          let anchor: HTMLAnchorElement | null = null;
+          while (el && el !== document.body) {
+            if (el.tagName === "A") {
+              anchor = el as HTMLAnchorElement;
+              break;
+            }
+            el = el.parentElement;
+          }
+          if (!anchor) return;
+          if (anchor.hasAttribute("data-no-outbound")) return;
+          const href = anchor.getAttribute("href") ?? "";
+          if (!href) return;
+          // Bail on protocols we don't want to count: mailto, tel, etc.
+          // are intentional escape hatches, not "outbound" in the funnel
+          // sense. javascript: is suspicious anyway.
+          if (/^(mailto:|tel:|javascript:|#)/i.test(href)) return;
+          // Resolve relative URLs against current location to compare
+          // origins. Fallback to literal href if parsing fails (which
+          // shouldn't happen with the above guards but be safe).
+          let url: URL;
+          try {
+            url = new URL(href, location.href);
+          } catch {
+            return;
+          }
+          if (url.origin === location.origin) return;
+          // Outbound — track. Use first 200 chars of textContent as a
+          // human-readable label (truncated to stay under PostHog limits).
+          const text = (anchor.textContent ?? "").trim().slice(0, 200);
+          track("outbound_link_click", {
+            url: url.href.slice(0, 200),
+            host: url.host,
+            text,
+            path: location.pathname,
+          });
+        },
+        { capture: true },
+      );
     </script>
   </body>
 </html>

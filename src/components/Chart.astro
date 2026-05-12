@@ -298,6 +298,11 @@ const payload = {
   // telemetry events (e.g. chart_image_exported) and any future per-chart
   // operations without re-deriving it from the normalized dialog ID.
   chartId,
+  // Surface where this chart is being rendered — preset dashboard slug
+  // (e.g. "us-macro"), "custom" for URL-state, "u-<slug>" for a saved
+  // dashboard. Used by chart_expanded telemetry so we can answer
+  // "which charts on which surfaces actually get opened?"
+  surface: dashboardSlug,
   // Chart title — needed so the "Open as new dashboard" action can name
   // the resulting composed state with something more useful than "Untitled."
   title: chart.title,

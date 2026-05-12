@@ -61,6 +61,8 @@
   type Payload = {
     /** Chart ID, e.g. "us-macro/sp500" — forwarded from server for telemetry. */
     chartId?: string;
+    /** Surface (preset slug / "custom" / "u-<slug>" / "chart") — for telemetry. */
+    surface?: string;
     /** Chart title — used as the seed title when "Open as new dashboard" fires. */
     title?: string;
     isMulti: boolean;
@@ -1326,6 +1328,14 @@
           setActivePill(dialog, ctx.selectedView);
           ctx.dialogInitialized = true;
         }
+        // Attention signal — which charts on which dashboards actually
+        // get expanded for closer reading. Pairs with dashboard_viewed
+        // (page-level) to compute "expanded per dashboard view" engagement.
+        track("chart_expanded", {
+          chartId: payload.chartId ?? "unknown",
+          surface: payload.surface ?? "unknown",
+          window: ctx.currentWindow,
+        });
       });
 
       dialog
