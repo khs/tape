@@ -106,7 +106,26 @@ jobs:
           git add public/data/
           if git diff --cached --quiet; then
             echo "No data changes to commit."
-          else
-            git commit -m "chore: weekly data refresh"
-            git push
+            exit 0
           fi
+          git commit -m "chore: weekly data refresh"
+          # Race-safe push: another commit may have landed on main during
+          # the (long) data-refresh run. Rebase onto whatever's on the
+          # remote, then push. Retry a few times in case more pushes pile
+          # up while we're rebasing. Data-only changes never conflict
+          # with code commits, so the rebase is always clean.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push origin main; then
+                echo "Pushed on attempt $attempt"
+                exit 0
+              fi
+            else
+              echo "Rebase failed on attempt $attempt — aborting and retrying"
+              git rebase --abort || true
+            fi
+            sleep 5
+          done
+          echo "Failed to push after 5 attempts." >&2
+          exit 1
