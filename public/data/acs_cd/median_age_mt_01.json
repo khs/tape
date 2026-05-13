@@ -1,0 +1,13 @@
+{
+  "id": "median_age_mt_01",
+  "name": "Median age \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "years",
+  "lastUpdated": "2026-05-13T13:50:30Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 40.0
+    }
+  ]
+}
