@@ -64,8 +64,13 @@ const forkUrl =
     defaultDelta: dashboard.data.defaultDelta,
     sections: dashboard.data.sections ?? undefined,
     charts: !dashboard.data.sections ? dashboard.data.charts : undefined,
+    // The cast here strips the override down to the three fields the
+    // composer state schema accepts. The string→DeltaWindow narrowing
+    // is sound because the source field already passed the dashboard-
+    // schema validation, but TypeScript can't see through the
+    // Object.fromEntries indirection so we annotate explicitly.
     chartOverrides: dashboard.data.chartOverrides
-      ? (Object.fromEntries(
+      ? Object.fromEntries(
           Object.entries(dashboard.data.chartOverrides).map(([k, v]) => [
             k,
             {
@@ -74,7 +79,7 @@ const forkUrl =
               blurb: v.blurb,
             },
           ]),
-        ) as Record<string, { title?: string; defaultDelta?: string; blurb?: string }>)
+        )
       : undefined,
   });
 ---

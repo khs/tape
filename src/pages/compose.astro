@@ -330,8 +330,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     sources: Record<string, LibrarySource>;
   };
 
-  const shell = document.querySelector<HTMLElement>(".composer-shell");
-  if (!shell) throw new Error("composer shell missing");
+  const _shellMaybe = document.querySelector<HTMLElement>(".composer-shell");
+  if (!_shellMaybe) throw new Error("composer shell missing");
+  // Pin to a non-nullable local. The `let shell: HTMLElement = ...`
+  // form would also work but a fresh const reads cleanest. Avoids
+  // ~30 spurious "possibly null" errors in TS strict mode where the
+  // narrowing from the if-guard doesn't propagate into closures.
+  const shell: HTMLElement = _shellMaybe;
   const baseUrl = shell.dataset.baseUrl ?? "";
 
   // If `?edit=<slug>` is present, the composer is editing an existing saved
@@ -2150,9 +2155,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         );
       }
       // Log scale only takes effect on the non-dual-axis branch (we
-      // explicitly disallow log + dual-axis in the UI, and ignore the
-      // flag if somehow set when mode === "dual-axis").
-      const useLog = ccModal.logScale && mode !== "dual-axis";
+      // explicitly disallow log + dual-axis in the UI). We're already
+      // inside the non-dual-axis branch here — TS has narrowed mode
+      // to "raw" | "rebase" — so the previous `mode !== "dual-axis"`
+      // guard was a tautology TS flagged. Keeping the comment as a
+      // pointer for the parallel guard in the saved-spec branch.
+      const useLog = ccModal.logScale;
       plot = Plot.plot({
         height: 220,
         width,

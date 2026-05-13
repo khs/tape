@@ -104,7 +104,7 @@ interface PerSource {
   prior: { t: string; v: number } | null;
   currentStr: string;
   priorStr: string | null;
-  delta: ReturnType<typeof formatDelta> | null;
+  delta: ReturnType<typeof formatDeltaDisplay> | null;
   loadError: string | null;
 }
 
