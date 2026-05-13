@@ -47,5 +47,22 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      // Tell Vite not to watch the data tree (5,000+ JSON files that
+      // never change during local dev — they're refreshed by the
+      // weekly CI pipeline, not by anything that runs in `astro dev`).
+      // Without this, dev-server startup balloons to >2 minutes and
+      // hot-reload module fetches time out at 60s on first request.
+      // Crosswalk cache is even bigger (~1GB of zips); never relevant
+      // to the dev experience.
+      watch: {
+        ignored: [
+          "**/public/data/**",
+          "**/pipelines/_crosswalks/**",
+          "**/pipelines/_crosswalks_cache/**",
+          "**/public/data/_archive/**",
+        ],
+      },
+    },
   },
 });
