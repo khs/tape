@@ -3,6 +3,8 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
+import { rm, stat } from "node:fs/promises";
+import path from "node:path";
 
 // Production site URL. Used by Astro.site (for sitemap, canonical URLs,
 // og:image absolute URLs) and anything else that needs an absolute origin.
@@ -44,6 +46,52 @@ export default defineConfig({
         !page.includes("/u/") &&
         !page.includes("/compose"),
     }),
+    // Strip public/data/ out of the Vercel SSR function bundle. The
+    // node-file-tracer that ships with @astrojs/vercel sees the
+    // fs.readFileSync(process.cwd() + "/public/" + ...) calls in
+    // load-data.ts and conservatively bundles the whole public/data
+    // tree into the function (~290MB). That's redundant with the
+    // static-assets copy of the same files (served from the same
+    // deployment's CDN) AND blows past Vercel's 250MB serverless-
+    // function size limit.
+    //
+    // load-data.ts is now async and falls back to fetch() against the
+    // deployment's static assets when fs.readFileSync ENOENTs at
+    // runtime, so deleting these files from the bundle is safe.
+    //
+    // The adapter's own `excludeFiles` option only accepts literal
+    // file paths (one entry per file), not globs — useless for a
+    // 5,000-file tree. So we do the strip in a build:done hook.
+    {
+      name: "strip-data-from-function",
+      hooks: {
+        "astro:build:done": async ({ logger }) => {
+          // .vercel/output/functions/_render.func/public/data is the
+          // only path we know we want to drop. If a future Vercel
+          // adapter version changes the function folder name, the
+          // rm-with-force will no-op silently rather than crash.
+          const projectRoot = process.cwd();
+          const candidates = [
+            path.join(projectRoot, ".vercel/output/functions/_render.func/public/data"),
+            path.join(projectRoot, ".vercel/output/functions/_render.func/pipelines"),
+          ];
+          for (const target of candidates) {
+            try {
+              const s = await stat(target);
+              if (!s.isDirectory()) continue;
+              await rm(target, { recursive: true, force: true });
+              logger.info(`stripped from function bundle: ${path.relative(projectRoot, target)}`);
+            } catch (e) {
+              // ENOENT is the expected case when the path simply
+              // wasn't bundled this time — nothing to strip.
+              if (e && e.code !== "ENOENT") {
+                logger.warn(`could not strip ${target}: ${e}`);
+              }
+            }
+          }
+        },
+      },
+    },
   ],
   vite: {
     plugins: [tailwindcss()],

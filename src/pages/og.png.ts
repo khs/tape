@@ -119,7 +119,7 @@ async function resolveDashSlug(slug: string): Promise<Resolved | null> {
     const src = await getEntry("sources", sid);
     if (!src) continue;
     try {
-      const data = loadSourceData(src.data.dataFile);
+      const data = await loadSourceData(src.data.dataFile);
       if (data.kind !== "timeseries") continue;
       sources.push({
         id: src.id,
@@ -148,7 +148,7 @@ async function resolveChartId(chartId: string): Promise<Resolved | null> {
     const src = await getEntry("sources", sid);
     if (!src) continue;
     try {
-      const data = loadSourceData(src.data.dataFile);
+      const data = await loadSourceData(src.data.dataFile);
       if (data.kind !== "timeseries") continue;
       sources.push({
         id: src.id,
@@ -192,7 +192,7 @@ async function resolveComposed(d: string): Promise<Resolved | null> {
       pts = preloaded.points;
     } else {
       try {
-        const data = loadSourceData(s.data.dataFile);
+        const data = await loadSourceData(s.data.dataFile);
         if (data.kind === "timeseries") pts = data.points;
       } catch {
         /* skip */

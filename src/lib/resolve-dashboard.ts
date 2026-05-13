@@ -114,7 +114,7 @@ async function resolveSourceById(
   if (!entry) return null;
   let points: TimeSeriesData;
   try {
-    const raw = loadSourceData(entry.data.dataFile);
+    const raw = await loadSourceData(entry.data.dataFile);
     if (raw.kind !== "timeseries") return null;
     points = raw;
   } catch {

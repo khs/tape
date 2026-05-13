@@ -108,7 +108,10 @@ interface PerSource {
   loadError: string | null;
 }
 
-const perSourceRaw: PerSource[] = sources.map((s, i) => {
+// Resolve every source in parallel. Each `loadSourceData` is async
+// because it falls back to HTTP fetch in serverless context (data files
+// aren't bundled with the function — see load-data.ts).
+const perSourceRaw: PerSource[] = await Promise.all(sources.map(async (s, i) => {
   const label =
     chart.seriesLabels?.[i] ??
     s.data.shortName ??
@@ -117,13 +120,13 @@ const perSourceRaw: PerSource[] = sources.map((s, i) => {
   let loadError: string | null = null;
   // Prefer preloaded data when available (always for derived sources;
   // optionally for real sources when the resolver wants to short-circuit
-  // an extra fs read).
+  // an extra fs/fetch read).
   const preloadedHere = preloaded?.[s.id];
   if (preloadedHere) {
     data = preloadedHere;
   } else {
     try {
-      const raw = loadSourceData(s.data.dataFile);
+      const raw = await loadSourceData(s.data.dataFile);
       if (raw.kind === "timeseries") data = raw;
     } catch (e) {
       loadError = `Data unavailable: ${s.data.dataFile}`;
@@ -177,7 +180,7 @@ const perSourceRaw: PerSource[] = sources.map((s, i) => {
     delta,
     loadError,
   };
-});
+}));
 
 // If this is an op'd chart, collapse the two perSource entries into a
 // single derived entry whose data is the combined timeseries. The rest

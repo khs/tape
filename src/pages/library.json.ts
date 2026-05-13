@@ -29,7 +29,7 @@ export const GET: APIRoute = async () => {
     let firstObservation: string | undefined;
     let lastObservation: string | undefined;
     try {
-      const data = loadSourceData(s.data.dataFile);
+      const data = await loadSourceData(s.data.dataFile);
       if (data.kind === "timeseries" && data.points.length > 0) {
         firstObservation = data.points[0].t;
         lastObservation = data.points[data.points.length - 1].t;
