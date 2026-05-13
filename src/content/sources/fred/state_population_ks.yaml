@@ -1,0 +1,18 @@
+name: Kansas population
+shortName: Kansas pop
+description: Annual estimate of Kansas's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/KSPOP.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: thousands
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: KSPOP
+  url: https://fred.stlouisfed.org/series/KSPOP
+  license: Public domain (US government data)

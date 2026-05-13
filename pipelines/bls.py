@@ -119,6 +119,43 @@ def state_unemployment_specs() -> list[BlsSpec]:
     return out
 
 
+# DC-metro counties for the VA-08 / DC-metro dashboard storyline. State
+# FIPS + county FIPS combined into the 5-digit code BLS uses.
+# Format below: (fips5, slug, display name).
+DC_METRO_COUNTIES: list[tuple[str, str, str]] = [
+    ("51013", "arlington_va",      "Arlington County, VA"),
+    ("51510", "alexandria_va",     "Alexandria City, VA"),
+    ("51610", "falls_church_va",   "Falls Church City, VA"),
+    ("51059", "fairfax_va",        "Fairfax County, VA"),
+    ("51107", "loudoun_va",        "Loudoun County, VA"),
+    ("51153", "prince_william_va", "Prince William County, VA"),
+    ("24031", "montgomery_md",     "Montgomery County, MD"),
+    ("24033", "prince_georges_md", "Prince George's County, MD"),
+]
+
+
+def dc_metro_county_unemployment_specs() -> list[BlsSpec]:
+    """
+    LAUS county unemployment-rate series. Format:
+        LAUCN + <5-digit state+county FIPS> + 0000000003
+    where 003 is the unemployment-rate measure code. Monthly, NSA — BLS
+    only publishes seasonally-adjusted county series for a handful of
+    large metros; we use the not-seasonally-adjusted variant for
+    consistency across all DC-metro jurisdictions.
+    """
+    out: list[BlsSpec] = []
+    for fips5, slug, name in DC_METRO_COUNTIES:
+        out.append(
+            BlsSpec(
+                series_id=f"LAUCN{fips5}0000000003",
+                out_id=f"county_unemployment_{slug}",
+                label=f"{name} — unemployment rate",
+                unit="%",
+            )
+        )
+    return out
+
+
 def state_payrolls_specs() -> list[BlsSpec]:
     """
     CES (Current Employment Statistics) state-level total nonfarm payroll
@@ -194,7 +231,7 @@ SERIES: list[BlsSpec] = [
         unit="% of employment",
     ),
     # ---- State-level series follow, generated programmatically. ----
-] + state_unemployment_specs() + state_payrolls_specs()
+] + state_unemployment_specs() + state_payrolls_specs() + dc_metro_county_unemployment_specs()
 
 
 def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:

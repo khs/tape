@@ -145,6 +145,39 @@ SPECS: list[FredSpec] = [
     FredSpec("ULCNFB", "Nonfarm business: unit labor costs", "index 2017=100"),
     # Manufacturing-sector productivity for the "is reshoring real?" debate
     FredSpec("OPHMFG", "Manufacturing: output per hour", "index 2017=100"),
+    # ---- DC-metro variants (for the VA-08 + DC-area workbooks) ----
+    # The Washington-Arlington-Alexandria MSA cuts across DC, parts of VA,
+    # parts of MD, and parts of WV — so these series capture economic
+    # conditions in the federal-economy core regardless of jurisdiction.
+    FredSpec("WDXRSA", "DC-metro Case-Shiller home price index", "index 2000=100"),
+    FredSpec("WASH911URN", "DC-metro unemployment rate", "%"),
+    FredSpec("WASH911NA", "DC-metro nonfarm payroll employment", "thousands"),
+    FredSpec("MEDLISPRI47900", "DC-metro median listing price (homes for sale)", "USD"),
+    FredSpec("CUUSA311SA0", "DC-metro CPI, all items", "index 1982-84=100"),
+    # ---- State population, annual, for all 50 states + DC ----
+    # FRED series naming: <STATE_ABBR>POP. Annual data from Census Bureau
+    # Population Estimates Program. Used as a denominator for state-level
+    # per-capita derivations in the composer (paired with the existing
+    # ÷ quick-divisor chips).
+    *[FredSpec(f"{a}POP", f"{n} population", "thousands") for a, n in [
+        ("AL", "Alabama"), ("AK", "Alaska"), ("AZ", "Arizona"),
+        ("AR", "Arkansas"), ("CA", "California"), ("CO", "Colorado"),
+        ("CT", "Connecticut"), ("DE", "Delaware"), ("DC", "District of Columbia"),
+        ("FL", "Florida"), ("GA", "Georgia"), ("HI", "Hawaii"),
+        ("ID", "Idaho"), ("IL", "Illinois"), ("IN", "Indiana"),
+        ("IA", "Iowa"), ("KS", "Kansas"), ("KY", "Kentucky"),
+        ("LA", "Louisiana"), ("ME", "Maine"), ("MD", "Maryland"),
+        ("MA", "Massachusetts"), ("MI", "Michigan"), ("MN", "Minnesota"),
+        ("MS", "Mississippi"), ("MO", "Missouri"), ("MT", "Montana"),
+        ("NE", "Nebraska"), ("NV", "Nevada"), ("NH", "New Hampshire"),
+        ("NJ", "New Jersey"), ("NM", "New Mexico"), ("NY", "New York"),
+        ("NC", "North Carolina"), ("ND", "North Dakota"), ("OH", "Ohio"),
+        ("OK", "Oklahoma"), ("OR", "Oregon"), ("PA", "Pennsylvania"),
+        ("RI", "Rhode Island"), ("SC", "South Carolina"), ("SD", "South Dakota"),
+        ("TN", "Tennessee"), ("TX", "Texas"), ("UT", "Utah"),
+        ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"),
+        ("WV", "West Virginia"), ("WI", "Wisconsin"), ("WY", "Wyoming"),
+    ]],
 ]
 
 

@@ -1,0 +1,17 @@
+name: DC-metro CPI, all items
+shortName: DC CPI
+description: Consumer price index for the Washington DC-MD-VA metro area, all items. Annual (released every other January) from BLS.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CUUSA311SA0.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: index 1982-84=100
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CUUSA311SA0
+  url: https://fred.stlouisfed.org/series/CUUSA311SA0
+  license: Public domain (US government data)

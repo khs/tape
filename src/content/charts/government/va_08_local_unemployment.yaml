@@ -1,0 +1,21 @@
+title: VA-08 county-level unemployment
+sources:
+  - "bls/county_unemployment_arlington_va"
+  - "bls/county_unemployment_alexandria_va"
+  - "bls/county_unemployment_falls_church_va"
+  - "bls/county_unemployment_fairfax_va"
+render: line
+defaultDelta: 10y
+tags: [us, labor, government]
+normalize: raw
+blurb: |
+  Headline unemployment rate for the four jurisdictions that make up
+  Virginia's 8th Congressional District: Arlington County, the City
+  of Alexandria, the City of Falls Church, and Fairfax County
+  (Fairfax is mostly in VA-11 but the southern slice falls into VA-08
+  and the county aggregate is the best available local read).
+  <br/><br/>
+  Falls Church City's tiny-population (~15k) and elevated unemployment
+  numbers come with high statistical noise — treat the line as
+  directional, not precise. Arlington consistently sits at or below
+  the metro average because of dense federal-employee concentration.

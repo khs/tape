@@ -1,0 +1,14 @@
+title: DC-metro nonfarm employment
+sources:
+  - "fred/dc_payrolls"
+render: line
+defaultDelta: 30y
+tags: [us, labor, government]
+normalize: raw
+blurb: |
+  Total nonfarm payroll employment in the Washington-Arlington-
+  Alexandria MSA, in thousands. Federal employees, federal contractors,
+  service-sector workers supporting both, plus the residential
+  economy. The metro added jobs steadily from the mid-1990s through
+  the 2008 crisis, recovered relatively quickly, then ground sideways
+  during the 2011–15 sequestration era before resuming growth.

@@ -1,0 +1,18 @@
+name: Wyoming population
+shortName: Wyoming pop
+description: Annual estimate of Wyoming's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/WYPOP.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: thousands
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: WYPOP
+  url: https://fred.stlouisfed.org/series/WYPOP
+  license: Public domain (US government data)

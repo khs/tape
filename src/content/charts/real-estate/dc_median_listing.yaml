@@ -1,0 +1,13 @@
+title: DC-metro median home listing price
+sources:
+  - "fred/dc_median_listing"
+render: line
+defaultDelta: 5y
+tags: [us, real-estate]
+normalize: raw
+blurb: |
+  Median list price for homes for sale in the DC-Arlington-Alexandria
+  MSA. From Realtor.com via FRED, monthly back to 2016. The 2020–22
+  COVID housing surge pulled DC listing prices from ~$430k to ~$550k
+  in two years; the 2023–24 plateau reflects the rate-driven freeze
+  in buyer + seller activity.

@@ -1,0 +1,18 @@
+name: Mississippi population
+shortName: Mississippi pop
+description: Annual estimate of Mississippi's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/MSPOP.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: thousands
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: MSPOP
+  url: https://fred.stlouisfed.org/series/MSPOP
+  license: Public domain (US government data)

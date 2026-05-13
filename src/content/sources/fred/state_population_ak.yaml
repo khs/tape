@@ -1,0 +1,18 @@
+name: Alaska population
+shortName: Alaska pop
+description: Annual estimate of Alaska's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/AKPOP.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: thousands
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: AKPOP
+  url: https://fred.stlouisfed.org/series/AKPOP
+  license: Public domain (US government data)

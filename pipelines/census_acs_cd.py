@@ -40,14 +40,47 @@ class AcsVar:
 
 
 INDICATORS = [
+    # Headline economics
     AcsVar("median_hh_income", "B19013_001E",
            "Median household income", "USD", 0),
+    # Demographics
     AcsVar("population", "B01003_001E",
            "Total population", "people", 0),
+    AcsVar("median_age", "B01002_001E",
+           "Median age", "years", 1),
+    # Origin / migration
+    AcsVar("foreign_born", "B05002_013E",
+           "Foreign-born population", "people", 0),
+    # Hardship
     AcsVar("poverty_count", "B17001_002E",
            "People in poverty", "people", 0),
+    # Education (bachelor's, master's, professional, doctorate). We only
+    # fetch B15003_022 (bachelor's) and below other indicators can be
+    # composed; the headline number for "highly-educated" is the sum but
+    # we keep the bachelor's-specific cell so power users can decompose.
     AcsVar("bachelors_plus", "B15003_022E",
            "Adults 25+ with bachelor's degree", "people", 0),
+    AcsVar("masters_plus", "B15003_023E",
+           "Adults 25+ with master's degree", "people", 0),
+    # Housing
+    AcsVar("median_home_value", "B25077_001E",
+           "Median home value (owner-occupied)", "USD", 0),
+    AcsVar("median_gross_rent", "B25064_001E",
+           "Median gross rent", "USD", 0),
+    AcsVar("owner_occupied", "B25003_002E",
+           "Owner-occupied housing units", "households", 0),
+    AcsVar("renter_occupied", "B25003_003E",
+           "Renter-occupied housing units", "households", 0),
+    # Veterans — important for districts with big military bases
+    AcsVar("veterans", "B21001_002E",
+           "Civilian veteran population (18+)", "people", 0),
+    # Internet access — useful for the digital-divide policy story
+    AcsVar("broadband_households", "B28002_004E",
+           "Households with broadband internet", "households", 0),
+    # Public-sector employment share. Class-of-worker breakdowns by CD
+    # are in B24080 / C24080 but the cell numbering shifts with each
+    # vintage and we don't want stale data hardcoded. Future addition
+    # once the cell map is verified against the 2022 vintage.
 ]
 
 # State FIPS codes for the 50 states + DC. Census doesn't return CD data

@@ -1,0 +1,19 @@
+name: DC-metro median home listing price
+shortName: DC median list
+description: Median listing price for homes for sale in the Washington-Arlington-Alexandria MSA. Monthly from Realtor.com via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/MEDLISPRI47900.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: MEDLISPRI47900
+  url: https://fred.stlouisfed.org/series/MEDLISPRI47900
+  license: Public domain (US government data)
