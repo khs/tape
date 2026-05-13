@@ -1,4 +1,4 @@
-import type { SourceData, TimeSeriesData } from "./data-types";
+import type { SourceData, TimeSeriesData, TimeSeriesPoint, TimeSeriesSummary } from "./data-types";
 import type { DeltaWindow } from "./deltas";
 import { windowStartMs } from "./deltas";
 import fs from "node:fs";
@@ -8,6 +8,7 @@ import path from "node:path";
 // re-fetching the same source JSON on every page render. Cold-start
 // resets are cheap because each entry is ~10-100KB.
 const dataCache = new Map<string, SourceData>();
+const summaryCache = new Map<string, TimeSeriesSummary>();
 
 /**
  * Load a Source's data JSON from public/data/.
@@ -61,6 +62,124 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
   }
   dataCache.set(dataFile, data);
   return data;
+}
+
+/**
+ * Compact tile-summary loader, parallel to loadSourceData but reads
+ * the .summary.json sibling file (produced by pipelines/build_summaries.py).
+ *
+ * Use this when tile-level rendering is all that's needed (level + delta
+ * + sparkline per supported window). The full-data file is ~5-10x larger
+ * and is only needed by the expanded chart dialog — which lazy-fetches
+ * it client-side when the user clicks the tile.
+ *
+ * Resolution semantics mirror loadSourceData: filesystem read first
+ * (works at build time and on local dev), HTTPS fetch fallback against
+ * the deployment's own static-asset URL when the file isn't on disk
+ * (i.e., serverless function context).
+ */
+export async function loadSourceSummary(dataFile: string): Promise<TimeSeriesSummary | null> {
+  const summaryFile = dataFile.replace(/\.json$/, ".summary.json");
+  const cached = summaryCache.get(summaryFile);
+  if (cached) return cached;
+
+  const fullPath = path.join(process.cwd(), "public", summaryFile);
+  let data: TimeSeriesSummary | null = null;
+  try {
+    const raw = fs.readFileSync(fullPath, "utf-8");
+    data = JSON.parse(raw) as TimeSeriesSummary;
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code !== "ENOENT") throw err;
+    const origin = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.SITE_URL ?? "http://localhost:4321";
+    const url = `${origin}/${summaryFile}`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      data = (await res.json()) as TimeSeriesSummary;
+    } catch {
+      return null;
+    }
+  }
+  if (data) summaryCache.set(summaryFile, data);
+  return data;
+}
+
+// Window definitions for in-memory summary computation. Mirrors the
+// DELTA_WINDOWS / DELTA_DAYS in deltas.ts so we don't have a circular
+// import. The "ytd" key is handled specially below.
+const SUMMARY_WINDOWS_DAYS: Record<string, number> = {
+  "1w": 7,
+  "1m": 30,
+  "1y": 365,
+  "5y": 1825,
+  "10y": 3650,
+  "30y": 10950,
+  "50y": 18250,
+};
+const SUMMARY_SPARK_POINTS = 30;
+
+/**
+ * Compute per-window sparks + priors from a full timeseries.
+ * Used when we already have full data server-side (op'd / derived
+ * charts) and need to bake summary-shape data into the client payload.
+ *
+ * For single-source non-derived charts, prefer `loadSourceSummary`
+ * which reads the pre-computed .summary.json directly — no need to
+ * load the full series at all.
+ */
+export function computeSummaryFromPoints(
+  fullPoints: TimeSeriesPoint[],
+  supportedDeltas: readonly string[],
+): {
+  latest: TimeSeriesPoint;
+  priors: Record<string, TimeSeriesPoint>;
+  sparks: Record<string, TimeSeriesPoint[]>;
+} | null {
+  if (fullPoints.length === 0) return null;
+  const latest = fullPoints[fullPoints.length - 1];
+  const latestMs = new Date(latest.t).getTime();
+  const priors: Record<string, TimeSeriesPoint> = {};
+  const sparks: Record<string, TimeSeriesPoint[]> = {};
+  for (const window of supportedDeltas) {
+    let startMs: number;
+    if (window === "ytd") {
+      const y = new Date(latest.t).getUTCFullYear();
+      startMs = Date.UTC(y, 0, 1);
+    } else {
+      const days = SUMMARY_WINDOWS_DAYS[window];
+      if (days === undefined) continue;
+      startMs = latestMs - days * 86400000;
+    }
+    // Prior: last point at-or-before startMs
+    let prior: TimeSeriesPoint | null = null;
+    for (const p of fullPoints) {
+      const t = new Date(p.t).getTime();
+      if (t <= startMs) prior = p;
+      else break;
+    }
+    if (prior && prior.t !== latest.t) priors[window] = prior;
+    // Spark: uniformly sampled subset within [startMs, latestMs]
+    const startIdx = fullPoints.findIndex(
+      (p) => new Date(p.t).getTime() >= startMs,
+    );
+    if (startIdx === -1) continue;
+    const sliced = fullPoints.slice(startIdx);
+    if (sliced.length <= SUMMARY_SPARK_POINTS) {
+      sparks[window] = sliced;
+    } else {
+      const indices: number[] = [];
+      for (let i = 0; i < SUMMARY_SPARK_POINTS; i++) {
+        indices.push(
+          Math.round((i * (sliced.length - 1)) / (SUMMARY_SPARK_POINTS - 1)),
+        );
+      }
+      sparks[window] = indices.map((idx) => sliced[idx]);
+    }
+  }
+  return { latest, priors, sparks };
 }
 
 /**
