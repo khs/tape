@@ -1,0 +1,25 @@
+title: DC-metro congressional districts — median household income
+sources:
+  - "acs_cd/median_hh_income_va_08"
+  - "acs_cd/median_hh_income_va_10"
+  - "acs_cd/median_hh_income_va_11"
+  - "acs_cd/median_hh_income_md_05"
+  - "acs_cd/median_hh_income_md_08"
+render: line
+defaultDelta: 10y
+tags: [us, government]
+normalize: raw
+blurb: |
+  Median household income trajectories for the DC-metro
+  congressional districts. All on stable 118th-Congress geography,
+  recomputed from B19001 distribution tables aggregated by tract.
+  <br/><br/>
+  VA-10 (Wexton — Loudoun and outer Fairfax) tops the metro at
+  $150k+ median, reflecting the data-center-corridor wealth
+  concentration. VA-08 (Beyer — Arlington / Alexandria / Falls
+  Church) and VA-11 (Connolly — outer Fairfax) sit in the $125–135k
+  range. Maryland's MD-05 and MD-08 are slightly lower, in the
+  $120–125k band.
+  <br/><br/>
+  All five grew nominal income 21–28% over five years; ranking has
+  stayed largely stable.

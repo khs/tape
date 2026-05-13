@@ -1,0 +1,20 @@
+title: VA-08 median household income
+sources:
+  - "acs_cd/median_hh_income_va_08"
+render: line
+defaultDelta: 10y
+tags: [us, government]
+normalize: raw
+blurb: |
+  Median household income for VA-08, recomputed at the current
+  118th-Congress geography. Each year aggregates the household-income
+  distribution across all census tracts assigned to current VA-08,
+  then weighted-medians the result — a true CD-level median on
+  stable geography, not the population-weighted-mean-of-tract-medians
+  approximation other CD-aggregation efforts use.
+  <br/><br/>
+  Available years are limited by what Census's tract-level API
+  exposes for older vintages; the line currently runs 2017–2022.
+  Up roughly 21% over those five years (nominal — well above
+  national CPI of ~19% over the same window, so a modest real-income
+  gain).

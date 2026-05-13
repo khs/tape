@@ -21,45 +21,64 @@ sections:
     charts:
       - real-estate/dc_case_shiller_vs_us
       - real-estate/dc_median_listing
+      - government/va_08_housing_costs
+  - title: "Demographics over time"
+    description: "Median household income and the underlying population composition for VA-08, recomputed at stable 118th-Congress geography. Population is flat; education, foreign-born share, and household income all trend up."
+    charts:
+      - government/va_08_median_income
+      - government/va_08_demographic_panel
+      - government/dc_metro_cds_median_income
 ---
 
 ## District snapshot (ACS 5-year, 2022 vintage)
 
-| Measure | Value | Context |
+| Measure | Value | National comparison |
 |---|---|---|
-| Population | ~779,000 | Median CD is ~770,000 (sized equal at the decennial) |
-| Median household income | **$125,652** | US national median ~$74,500 |
-| Median age | (annual ACS — see source) | National median ~38.9 |
-| Residents in poverty | ~59,000 (~7.6%) | US national rate ~11.5% |
-| Adults with bachelor's degree | ~172,000 | Plus a large additional population with graduate degrees |
-| Foreign-born share | (from ACS) | National foreign-born share ~13.9% |
-| Veteran population | (from ACS) | DoD-adjacency notwithstanding, VA-08 is a civilian-government district |
+| Population | **792,500** | Median CD ~770,000 (sized equal at each decennial) |
+| Median household income | **$126,200** | US national median ~$74,500 (1.7× national) |
+| Median age | 37.1 | National median ~38.9 |
+| Residents in poverty | 58,700 (**7.4%**) | US national rate ~11.5% |
+| Adults with bachelor's degree (just) | 175,600 | Substantial additional population has graduate degrees on top |
+| **Foreign-born share** | **27.2%** | National foreign-born share ~13.9% — VA-08 nearly double |
+| Veteran population (civilian) | 49,400 (6.2%) | National veteran share ~6.0% — at the national rate despite DoD-adjacency |
+| Owner-occupied households | 171,100 (51.6%) | National homeownership ~65% — VA-08 is a renter-heavy district |
+| Median home value | **$695,100** | US median ~$280,000 (2.5× national) |
+| Median gross rent | **$2,072/mo** | US median ~$1,300/mo (1.6× national) |
+| Households with broadband | 311,500 (94.0%) | National rate ~88% |
 
-The full ACS panel for the district (~13 indicators) is in the composer
-library — search "VA-08" in the source picker. Each runs back to the
-2010 ACS 5-year, giving 13 annual data points per indicator.
+The five-year nominal-income trajectory ($104k → $126k = +21% from 2017
+to 2022) tracks ~2 percentage points above national CPI inflation over
+the same window — a modest real-income gain on top of inflation. The
+trajectory chart below shows VA-08 sitting in the middle of the
+DC-metro pack; VA-10 (Wexton — Loudoun-and-outer-Fairfax) is the
+metro's richest CD.
 
-**Stable-geography aggregation.** Most series here aren't fetched at
-the congressional-district level directly. They're fetched at the
-census-tract level (tracts are near-stable across redistricting
-cycles) and re-aggregated to current 118th-Congress VA-08 using
+## How these numbers are computed
+
+Most figures above are aggregated from tract-level ACS data using
 Census block-assignment files and the 2010↔2020 block correspondence
-tables. So a "VA-08 median household income, 2014" line is computed
-on *current* VA-08 geography, not the geography in effect during the
-113th Congress when the original ACS measurement was made.
+tables. So "VA-08 median household income, 2014" is computed on
+*current* 118th-Congress VA-08 geography, not the geography that was
+in effect during the 113th Congress when the original ACS 2014
+measurement was made.
 
 For median household income specifically, the computation goes one
 step further: we sum the 16 household-income bins from the B19001
 distribution table across all tracts assigned to current VA-08, then
-compute the weighted median of the aggregated distribution. This
-gives a true CD-level median rather than the population-weighted-
-mean-of-tract-medians approximation other CD-aggregation efforts
-use.
+compute the weighted median of the aggregated distribution. This is
+a true CD-level median rather than the population-weighted-mean-of-
+tract-medians approximation other CD-aggregation efforts use.
 
-Three of the medians — median age, median home value, median gross
-rent — currently use contemporaneous-CD-level data and inherit the
-boundary-cycle caveat. Recomputing them via distribution tables is
-a future addition (the same technique as for income).
+The medians for age, home value, and rent are currently
+contemporaneous-CD-level (i.e. the geography that was in effect each
+vintage). Recomputing them via distribution tables is a future
+addition — same technique as for income.
+
+**Coverage caveat.** The tract-level stable-geo aggregation currently
+runs 2017–2022; the Census API's tract-level endpoints for pre-2017
+ACS5 vintages haven't returned data for our fetcher, an issue to
+investigate. The contemporaneous-CD-level medians (age, home value,
+rent) extend back to ACS 2010 as a partial fallback.
 
 ## What "federal spending in VA-08" actually means
 

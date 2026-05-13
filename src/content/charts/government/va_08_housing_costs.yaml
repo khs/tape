@@ -1,0 +1,20 @@
+title: VA-08 housing costs — median home value + median rent
+sources:
+  - "acs_cd/median_home_value_va_08"
+  - "acs_cd/median_gross_rent_va_08"
+render: line
+defaultDelta: 10y
+tags: [us, government, real-estate]
+normalize: rebase
+seriesLabels: ["Median home value", "Median gross rent"]
+blurb: |
+  Median owner-occupied home value and median gross rent for VA-08,
+  rebased to 100 at window start so trajectories are directly
+  comparable. ACS 5-year, 13 years back.
+  <br/><br/>
+  Note: these specific medians are on <em>contemporaneous</em> CD
+  boundaries (the geographic area called "VA-08" shifted slightly
+  with each redistricting cycle). VA's boundaries changed only
+  modestly in 2010 and 2022, so the trend is meaningful, but
+  trajectories for districts in heavily-redistricted states would
+  deserve more skepticism here.

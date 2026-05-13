@@ -1,6 +1,11 @@
 {
   "items": [
     {
+      "chartId": "government/dc_metro_cds_median_income",
+      "title": "DC-metro median household income, by congressional district",
+      "note": "VA-10 (Loudoun corridor) tops the metro at $150k+. VA-08 (Arlington / Alexandria) sits in the middle of the DC pack. All five districts grew nominal incomes 21–28% over five years, well above national inflation. Stable-geography aggregation: same district boundary at every point in the line."
+    },
+    {
       "chartId": "government/foreign_holdings_treasuries",
       "title": "Foreign holders of US Treasuries",
       "note": "Japan overtook China around 2019 and never gave the lead back. The Cayman line is mostly US hedge funds expressing positions through offshore vehicles, not Caribbean households."
