@@ -24,10 +24,32 @@ from dataclasses import dataclass
 from common import write_timeseries
 
 
-# Latest available ACS 5-year. Released ~Dec of year+2 (so 2022 5-year
-# released Dec 2023; current as of mid-2026).
-ACS_YEAR = 2022
-ACS_BASE = f"https://api.census.gov/data/{ACS_YEAR}/acs/acs5"
+# ACS 5-year vintages we pull, oldest to newest. Each is published as a
+# separate API endpoint (/data/<year>/acs/acs5). Range chosen for two
+# reasons:
+#   1. 2010 is the earliest vintage with congressional-district geography
+#      that we can query in this API.
+#   2. 2022 is the latest released as of mid-2026 (2023 ACS5 typically
+#      releases Dec 2024; 2024 in Dec 2025).
+# The pipeline auto-detects what's actually available — it skips vintages
+# that 404 or return errors, so adding 2023 / 2024 to this list when they
+# release is harmless even if they don't exist yet.
+#
+# IMPORTANT caveat on boundary continuity: ACS data is published on the
+# congressional-district boundaries in effect for that ACS window. After
+# the 2020 decennial, many states redrew their CDs for the 118th Congress
+# (effective Jan 2023). So:
+#   - 2022 ACS5 (covering 2018-2022): 118th Congress boundaries
+#   - 2021 ACS5 and earlier: 117th or 116th Congress boundaries
+# A "VA-08 median income" trend line spanning the 2020 redistricting
+# event crosses a boundary-change, which means the geographic area
+# being measured shifted underneath the trend. We surface this with a
+# `vintageBoundaries` field on each point so downstream renderers can
+# annotate or break the line if they choose. For trend reading, the
+# underlying economy doesn't reshape just because the lines moved — but
+# the caveat belongs in chart blurbs.
+ACS_VINTAGES = list(range(2010, 2023))
+ACS_BASE = "https://api.census.gov/data/{year}/acs/acs5"
 
 # Indicator → ACS variable code + display metadata.
 @dataclass
@@ -108,18 +130,25 @@ STATE_ABBR = {
 }
 
 
-def fetch_indicator(var: AcsVar, state_fips: str, key: str) -> dict[str, float]:
+def fetch_year(year: int, indicators: list[AcsVar], key: str) -> dict[tuple[str, str], dict[str, float]]:
     """
-    Fetch one ACS variable for all congressional districts within one state.
-    Returns {district_code: value}.
+    Fetch all indicators for ALL congressional districts in one ACS
+    vintage in a single API call. Returns {(state_fips, district): {indicator_out_id: value}}.
+
+    The `in=state:*` clause used to be required by the API but as of 2022+
+    you can query CD geography across all states in one call by omitting
+    `in=` entirely. This cuts pipeline cost from ~660 API calls per
+    run (51 states × 13 years) to ~13 (one per vintage), well inside
+    rate limits even with a busy daily quota.
     """
+    var_codes = ",".join(v.var_code for v in indicators)
     url = (
-        f"{ACS_BASE}?get=NAME,{var.var_code}"
-        f"&for=congressional%20district:*&in=state:{state_fips}&key={key}"
+        f"{ACS_BASE.format(year=year)}?get=NAME,{var_codes}"
+        f"&for=congressional%20district:*&key={key}"
     )
     try:
         out = subprocess.run(
-            ["curl", "-s", "-S", "--max-time", "60", url],
+            ["curl", "-s", "-S", "--max-time", "120", url],
             capture_output=True, text=True, check=True,
         )
     except subprocess.CalledProcessError:
@@ -130,17 +159,40 @@ def fetch_indicator(var: AcsVar, state_fips: str, key: str) -> dict[str, float]:
         return {}
     if not isinstance(data, list) or len(data) < 2:
         return {}
-    # First row is headers: ['NAME', '<var_code>', 'state', 'congressional district']
-    out_map: dict[str, float] = {}
-    for row in data[1:]:
-        if len(row) < 4:
-            continue
+    # Headers: ['NAME', <var_code>, ..., 'state', 'congressional district']
+    headers = data[0]
+    # Map column index -> indicator out_id.
+    col_to_out: dict[int, str] = {}
+    for var in indicators:
         try:
-            v = float(row[1])
-        except (TypeError, ValueError):
+            col_to_out[headers.index(var.var_code)] = var.out_id
+        except ValueError:
+            continue  # Variable not present in this vintage (added later, etc.)
+    try:
+        state_col = headers.index("state")
+        dist_col = headers.index("congressional district")
+    except ValueError:
+        return {}
+    out_map: dict[tuple[str, str], dict[str, float]] = {}
+    for row in data[1:]:
+        if len(row) < len(headers):
             continue
-        district = row[3]
-        out_map[district] = v
+        state_fips = row[state_col]
+        district = row[dist_col]
+        per_indicator: dict[str, float] = {}
+        for col_idx, out_id in col_to_out.items():
+            try:
+                v = float(row[col_idx])
+            except (TypeError, ValueError):
+                continue
+            # Census sentinels for "data suppressed" or "invalid" are
+            # large negative values (-666666666 etc.) — drop those
+            # rather than render them as real data.
+            if v < -1_000_000:
+                continue
+            per_indicator[out_id] = v
+        if per_indicator:
+            out_map[(state_fips, district)] = per_indicator
     return out_map
 
 
@@ -155,37 +207,53 @@ def main() -> int:
         )
         return 0
 
-    # ACS data is annual; we store one data point per (district, indicator).
-    # Anchor at end-of-year-of-ACS-period for chronological sorting.
-    anchor = f"{ACS_YEAR}-12-31"
+    # Accumulator: {(out_id, state_abbr, dist_slug): [{t, v}, ...]}
+    series_accum: dict[tuple[str, str, str], list[dict]] = {}
+
+    for year in ACS_VINTAGES:
+        # ACS 5-year covering YYYY-4 through YYYY, conventionally anchored
+        # at end-of-year of the final year (so 2022 ACS5 → 2022-12-31).
+        anchor = f"{year}-12-31"
+        print(f"Fetching ACS5 vintage {year}...", flush=True)
+        by_district = fetch_year(year, INDICATORS, key)
+        if not by_district:
+            print(f"  no data for vintage {year} — endpoint may not be live yet", file=sys.stderr)
+            continue
+        for (state_fips, district), per_indicator in by_district.items():
+            abbr = STATE_ABBR.get(state_fips)
+            if not abbr:
+                continue  # Territory or unknown FIPS — skip
+            if district == "00":
+                dist_slug = "al"
+            else:
+                try:
+                    dist_slug = f"{int(district):02d}"
+                except ValueError:
+                    continue
+            for out_id, value in per_indicator.items():
+                key_tup = (out_id, abbr, dist_slug)
+                series_accum.setdefault(key_tup, []).append(
+                    {"t": anchor, "v": value}
+                )
 
     written = 0
-    for var in INDICATORS:
-        print(f"Fetching {var.var_code} ({var.out_id})...", flush=True)
-        for fips in STATE_FIPS:
-            data = fetch_indicator(var, fips, key)
-            for district, value in data.items():
-                abbr = STATE_ABBR.get(fips, fips)
-                # At-large district encoding: Census returns "00" for at-large.
-                if district == "00":
-                    dist_slug = "al"
-                else:
-                    try:
-                        dist_slug = f"{int(district):02d}"
-                    except ValueError:
-                        continue
-                slug = f"{var.out_id}_{abbr}_{dist_slug}"
-                # ACS 5-year is annual; one point per series for now.
-                # Future runs will append new years.
-                write_timeseries(
-                    pipeline="acs_cd",
-                    series_id=slug,
-                    name=f"{var.name_prefix} — {abbr.upper()}-{dist_slug.upper()}",
-                    points=[{"t": anchor, "v": value}],
-                    unit=var.unit,
-                )
-                written += 1
-    print(f"acs_cd: wrote {written} series", flush=True)
+    for (out_id, abbr, dist_slug), points in series_accum.items():
+        if not points:
+            continue
+        points.sort(key=lambda p: p["t"])
+        var = next((v for v in INDICATORS if v.out_id == out_id), None)
+        name_prefix = var.name_prefix if var else out_id
+        unit = var.unit if var else "value"
+        slug = f"{out_id}_{abbr}_{dist_slug}"
+        write_timeseries(
+            pipeline="acs_cd",
+            series_id=slug,
+            name=f"{name_prefix} — {abbr.upper()}-{dist_slug.upper()}",
+            points=points,
+            unit=unit,
+        )
+        written += 1
+    print(f"acs_cd: wrote {written} series across {len(ACS_VINTAGES)} vintages", flush=True)
     return 0
 
 
