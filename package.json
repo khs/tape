@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:vercel": "npm run typecheck && npm run test && npm run build",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
