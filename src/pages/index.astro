@@ -99,30 +99,6 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       </p>
     </div>
 
-    {/* Editor-curated chart list — small, opinionated, refreshed
-        manually. Lives at src/content/notable.json so updates are a
-        one-line edit, not a code change. Renders as a typographic
-        list, not a row of cards (deliberately avoiding the "three
-        equal feature cards" AI default look). */}
-    <section class="notable" aria-labelledby="notable-heading">
-      <header class="notable-header">
-        <p class="notable-eyebrow">Worth a look</p>
-        <h2 id="notable-heading" class="notable-title">
-          Charts the editor thinks you should see this week
-        </h2>
-      </header>
-      <ul class="notable-list">
-        {notable.items.map((item) => (
-          <li class="notable-item">
-            <a class="notable-link" href={`${baseUrl}/chart/${item.chartId}/`}>
-              <span class="notable-item-title">{item.title}</span>
-              <span class="notable-item-arrow" aria-hidden="true">&rarr;</span>
-            </a>
-            <p class="notable-note">{item.note}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
 
     {/* Featured-dashboard preview: tabs + the active dashboard's full
         content rendered live. Tabs are <a> links to `/?dash=<slug>`
@@ -279,6 +255,38 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       <h2 class="section-eyebrow">My dashboards</h2>
       <ul class="my-grid" data-role="my-list"></ul>
     </section>
+
+    {/* "Worth a look" — editor-curated chart picks. Shown only to
+        signed-in-with-saves users, beneath their own dashboards. The
+        new-visitor home page now leads cleanly into the marketing
+        hero + featured-dashboard preview without this competing for
+        attention; returning users who already know what the product
+        is for get the curator's-pick surface instead. Toggled by
+        the same auth flow that shows .my-section. */}
+    <section
+      class="notable"
+      data-role="notable-section"
+      aria-labelledby="notable-heading"
+      style="display: none"
+    >
+      <header class="notable-header">
+        <p class="notable-eyebrow">Worth a look</p>
+        <h2 id="notable-heading" class="notable-title">
+          Charts the editor thinks you should see this week
+        </h2>
+      </header>
+      <ul class="notable-list">
+        {notable.items.map((item) => (
+          <li class="notable-item">
+            <a class="notable-link" href={`${baseUrl}/chart/${item.chartId}/`}>
+              <span class="notable-item-title">{item.title}</span>
+              <span class="notable-item-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+            <p class="notable-note">{item.note}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   </div>
 
   <ChartController />
@@ -406,17 +414,80 @@ const tabs: TabSpec[] = sorted.map((d) => ({
           myList.innerHTML = "";
           for (const row of data) {
             const li = document.createElement("li");
-            li.innerHTML = `<a href="${baseUrl}/u/${encodeURIComponent(row.slug)}/" class="my-card">
+            li.className = "my-card-wrap";
+            li.dataset.slug = row.slug;
+            // The card body is an anchor (whole card clickable). The
+            // delete button is a sibling positioned absolute in the
+            // top-right corner — preventDefault + stopPropagation on
+            // click so it doesn't also navigate.
+            li.innerHTML =
+              `<a href="${baseUrl}/u/${encodeURIComponent(row.slug)}/" class="my-card">
                 <h3>${escapeHtml(row.title ?? "Untitled dashboard")}</h3>
                 <p>${row.visibility === "private" ? "private · " : ""}updated ${new Date(row.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
-              </a>`;
+              </a>` +
+              `<button
+                type="button"
+                class="my-card-delete"
+                data-role="delete-dashboard"
+                aria-label="Delete this dashboard"
+                title="Delete this dashboard">&times;</button>`;
             myList.appendChild(li);
           }
+          // Wire delete buttons. Single delegated listener on the list
+          // so we don't have to attach individually + we pick up any
+          // future rows automatically.
+          myList.addEventListener("click", async (e) => {
+            const target = e.target as HTMLElement;
+            if (!target.matches("[data-role='delete-dashboard']")) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const wrapper = target.closest<HTMLElement>(".my-card-wrap");
+            if (!wrapper) return;
+            const slug = wrapper.dataset.slug;
+            if (!slug) return;
+            const titleEl = wrapper.querySelector("h3");
+            const title = titleEl?.textContent ?? "this dashboard";
+            if (!confirm(`Delete "${title}"? This can't be undone.`)) return;
+            // Optimistic UI: fade the row, then do the network call.
+            // If the call fails we re-show it with an error.
+            wrapper.style.opacity = "0.4";
+            wrapper.style.pointerEvents = "none";
+            try {
+              const stored2 = readStoredSession();
+              if (!stored2?.access_token) throw new Error("not signed in");
+              const delUrl = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?slug=eq.${encodeURIComponent(slug)}`;
+              const res = await fetch(delUrl, {
+                method: "DELETE",
+                headers: {
+                  apikey: SUPABASE_REST_ANON_KEY,
+                  Authorization: `Bearer ${stored2.access_token}`,
+                },
+              });
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              wrapper.remove();
+              track("dashboard_deleted", { slug });
+              // If list is empty after delete, flip back to marketing
+              // zone so the user gets the Build-your-own CTA again.
+              if (myList.children.length === 0) {
+                mySection.style.display = "none";
+                const notable = document.querySelector<HTMLElement>("[data-role='notable-section']");
+                if (notable) notable.style.display = "none";
+                showMarketingZone();
+              }
+            } catch (err) {
+              wrapper.style.opacity = "";
+              wrapper.style.pointerEvents = "";
+              alert(`Delete failed: ${String(err)}`);
+            }
+          });
           mySection.style.display = "";
           // Signed in *and* has saves: the marketing pitch isn't for them.
           // Swap to the slim "Your dashboards" lede so their saved work is
-          // the primary content above the fold.
+          // the primary content above the fold. The curated Notable
+          // section reveals beneath the dashboards grid.
           showReturningHero();
+          const notableSection = document.querySelector<HTMLElement>("[data-role='notable-section']");
+          if (notableSection) notableSection.style.display = "";
         }
 
         refresh();
@@ -639,6 +710,47 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     font-size: var(--text-xs);
     color: var(--color-neutral-500);
     margin: 4px 0 0;
+  }
+  /* List item wraps the card-anchor + the delete button as siblings,
+     so the delete button can sit on top of the corner without
+     interfering with the anchor's whole-card click target. */
+  .my-card-wrap {
+    position: relative;
+  }
+  .my-card-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-neutral-400);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    transition:
+      opacity 0.12s,
+      color 0.12s,
+      border-color 0.12s,
+      background-color 0.12s;
+  }
+  /* Reveal on card hover. Stays focusable for keyboard navigation. */
+  .my-card-wrap:hover .my-card-delete,
+  .my-card-delete:focus-visible {
+    opacity: 1;
+  }
+  .my-card-delete:hover {
+    color: var(--color-error);
+    border-color: rgba(153, 27, 27, 0.2);
+    background: rgba(253, 236, 236, 0.5);
+  }
+  .my-card-delete:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   /* Marketing zone wraps hero + featured-dashboard so we can hide both
