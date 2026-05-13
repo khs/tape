@@ -66,7 +66,17 @@ ACS_VINTAGES = list(range(2010, 2023))
 # 2020-boundary tract IDs. Earlier vintages use 2010-boundary tracts.
 TRACT2020_FIRST_VINTAGE = 2022
 
-ACS_BASE = "https://api.census.gov/data/{year}/acs/acs5"
+# Census's URL path changed mid-decade:
+#   2010-2014 ACS5: /data/{year}/acs5/     (no /acs/ subfolder)
+#   2015+   ACS5: /data/{year}/acs/acs5/  (current)
+# Both paths still exist on Census's side, but each only serves its own
+# era. Hitting the wrong path returns 404, which our `acs_fetch` treats
+# as empty data — historically that meant pre-2015 vintages silently
+# disappeared. Pick per year.
+def acs_base(year: int) -> str:
+    if year >= 2015:
+        return f"https://api.census.gov/data/{year}/acs/acs5"
+    return f"https://api.census.gov/data/{year}/acs5"
 
 
 # ---------------------------------------------------------------------
@@ -230,24 +240,40 @@ def cd_slug(state_fips: str, cd: str) -> str | None:
 def acs_fetch(year: int, var_codes: list[str], geo: str, key: str) -> list[list[str]]:
     """
     Fire one Census API request. Returns list of rows (first row = headers).
-    Empty list on failure.
+    Empty list on failure. Logs non-empty error responses so silent
+    failures (404 because of wrong URL path, "geography not supported"
+    because of wrong filter shape, etc.) are visible in workflow output.
     """
     vars_csv = ",".join(var_codes)
     url = (
-        f"{ACS_BASE.format(year=year)}?get=NAME,{vars_csv}"
+        f"{acs_base(year)}?get=NAME,{vars_csv}"
         f"&for={geo}&key={key}"
     )
     try:
         out = subprocess.run(
-            ["curl", "-s", "-S", "--max-time", "120", url],
+            ["curl", "-s", "-S", "--max-time", "120", "-w", "%{http_code}", url],
             capture_output=True, text=True, check=True,
         )
     except subprocess.CalledProcessError as e:
-        print(f"    curl failed: {e}", file=sys.stderr)
+        print(f"    curl failed for year={year} geo={geo!r}: {e}", file=sys.stderr)
+        return []
+    # `-w "%{http_code}"` appends the HTTP code at the very end of stdout.
+    body = out.stdout
+    code = body[-3:] if body[-3:].isdigit() else "???"
+    payload = body[:-3] if body[-3:].isdigit() else body
+    if code != "200":
+        # First non-200 per year is loud; subsequent ones (same state
+        # variants etc.) we trust the per-loop logging already covers.
+        if len(payload) < 500:
+            snippet = payload.strip()[:200]
+        else:
+            snippet = payload.strip()[:200] + "..."
+        print(f"    HTTP {code} for year={year} geo={geo!r}: {snippet}", file=sys.stderr)
         return []
     try:
-        data = json.loads(out.stdout)
-    except json.JSONDecodeError:
+        data = json.loads(payload)
+    except json.JSONDecodeError as e:
+        print(f"    JSON parse error year={year} geo={geo!r}: {e}", file=sys.stderr)
         return []
     return data if isinstance(data, list) else []
 
@@ -307,8 +333,15 @@ def fetch_vintage_tract(
     """
     Tract-level fetch for one state, one vintage. Returns
     {tract_geoid_11: {var_code: value}}.
+
+    Geography hierarchy: `tract:* in=state:XX county:*`. The wildcard
+    county is supported universally across ACS vintages back to 2010.
+    Earlier code used `tract:* in=state:XX` (no county), which the
+    modern API accepts but the pre-2015 API rejects — that's why our
+    pre-2017 vintages came back empty before this fix.
     """
-    rows = acs_fetch(year, var_codes, f"tract:*&in=state:{state_fips}", key)
+    geo = f"tract:*&in=state:{state_fips}%20county:*"
+    rows = acs_fetch(year, var_codes, geo, key)
     if not rows or len(rows) < 2:
         return {}
     headers = rows[0]
