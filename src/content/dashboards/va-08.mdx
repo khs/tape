@@ -35,18 +35,31 @@ sections:
 | Foreign-born share | (from ACS) | National foreign-born share ~13.9% |
 | Veteran population | (from ACS) | DoD-adjacency notwithstanding, VA-08 is a civilian-government district |
 
-The full ACS panel for the district (~12 indicators) is in the composer
+The full ACS panel for the district (~13 indicators) is in the composer
 library — search "VA-08" in the source picker. Each runs back to the
-2010 ACS 5-year (covering 2006–2010), giving 13 annual data points
-per indicator.
+2010 ACS 5-year, giving 13 annual data points per indicator.
 
-**Boundary caveat:** ACS data is published on the congressional-district
-boundaries in effect for that ACS window. Virginia's 8th was redrawn
-slightly after the 2010 and 2020 censuses, so the "VA-08" referenced
-in pre-2012 ACS vintages is a different geographic shape than the
-current 118th-Congress VA-08. The economy underneath the lines doesn't
-reshape just because the lines moved, but the trend reading deserves
-that footnote.
+**Stable-geography aggregation.** Most series here aren't fetched at
+the congressional-district level directly. They're fetched at the
+census-tract level (tracts are near-stable across redistricting
+cycles) and re-aggregated to current 118th-Congress VA-08 using
+Census block-assignment files and the 2010↔2020 block correspondence
+tables. So a "VA-08 median household income, 2014" line is computed
+on *current* VA-08 geography, not the geography in effect during the
+113th Congress when the original ACS measurement was made.
+
+For median household income specifically, the computation goes one
+step further: we sum the 16 household-income bins from the B19001
+distribution table across all tracts assigned to current VA-08, then
+compute the weighted median of the aggregated distribution. This
+gives a true CD-level median rather than the population-weighted-
+mean-of-tract-medians approximation other CD-aggregation efforts
+use.
+
+Three of the medians — median age, median home value, median gross
+rent — currently use contemporaneous-CD-level data and inherit the
+boundary-cycle caveat. Recomputing them via distribution tables is
+a future addition (the same technique as for income).
 
 ## What "federal spending in VA-08" actually means
 

@@ -12,3 +12,10 @@ __pycache__/
 .venv/
 .claude/
 
+# Crosswalk download cache — large BAF + t10t20 zips downloaded by
+# pipelines/build_crosswalks.py, parsed into compact output CSVs at
+# pipelines/_crosswalks/ that DO get checked in. Raw inputs (~1GB
+# total) stay out of the repo.
+pipelines/_crosswalks_cache/
+.tmp_*
+
