@@ -333,6 +333,9 @@ const payload = {
       emphasis: p.source.data.emphasis,
       points: p.data!.points,
       lastUpdated: p.data!.lastUpdated,
+      // Provider name from the source manifest — used by "Copy citation"
+      // to render a citation block without re-fetching the source spec.
+      provider: p.source.data.provenance?.provider ?? "Unknown",
     })),
 };
 
@@ -435,6 +438,15 @@ const mostRecentUpdate = payload.sources
       title="Open the composer with this chart already added — a starting point to build around"
     >
       Open as new dashboard
+    </button>
+    <button
+      type="button"
+      class="dialog-action-btn"
+      data-role="copy-citation"
+      aria-label="Copy citation block to clipboard"
+      title="Copy a citation block (title, providers, dates, URL) for use in a memo footnote or article reference"
+    >
+      Copy citation
     </button>
     <button type="button" class="dialog-close" aria-label="Close">
       &times;

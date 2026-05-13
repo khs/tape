@@ -6,83 +6,171 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 <BaseLayout
   title="About — Legible Markets"
-  description="What Legible Markets is, who it's for, and where the data comes from."
+  description="Why Legible Markets exists, who it's for, where the data comes from, and what it deliberately isn't."
 >
   <article class="about-root">
-    <h1>About Legible Markets</h1>
+    <p class="about-eyebrow">About</p>
+    <h1>The Bloomberg Terminal is great. It costs $32,000 per year.</h1>
 
     <p class="lead">
-      DC isn't able to understand the information coming out of financial
-      markets, except through specialized interpreters who often have their
-      own agendas. Legible Markets aims to change that by enabling people to
-      make dashboards of financial and economic information that they can
-      share, remix, and understand.
-      <a href={`${baseUrl}/compose/`}>Try it out</a>.
+      Most people who write about the economy in Washington — staffers
+      preparing briefings, journalists on deadline, think-tank analysts,
+      committee economists — don't have a Terminal. They have a Slack DM
+      asking for "a chart of CPI vs PCE going back to the 80s," due by
+      eight in the morning. They open Google, find a chart from FRED,
+      and screenshot it.
+    </p>
+
+    <p>
+      That screenshot has problems. It's bitmapped, so it pixelates in
+      the deck. It's branded for FRED, which is fine, except the
+      principal really wanted CPI <em>and</em> PCE on the same axes and
+      now there are two screenshots fighting for space. The series
+      definitions are tucked behind a tooltip the screenshot can't show.
+      There's no obvious way to share an interactive version with a
+      colleague who wants to look at the 1990s instead of the 1970s.
+    </p>
+
+    <p>
+      <strong>Legible Markets is a tool for that workflow.</strong> Free,
+      shareable by URL, composable from a library of ~1,800 sources
+      (US macro, all 435 congressional districts, OECD cross-country
+      comparisons, federal spending by state, the equity market by
+      sector and by company, crypto, foreign Treasury holdings, the
+      lot). Every chart shows the level <em>and</em> the move over a
+      window you pick. Every source has a citation block, a "last
+      updated" date, and a link back to its provider. Every dashboard
+      is a URL you can paste into a memo or send to a coworker.
+    </p>
+
+    <h2>What it deliberately isn't</h2>
+    <p>
+      Not a trading platform. Not a real-time feed (data refreshes
+      weekly; the few intraday charts you might want should come from
+      somewhere else). Not financial advice. Not a research note
+      service. Not a Bloomberg-Terminal replacement for someone whose
+      job is actually trading. If you're a portfolio manager, this is
+      probably not what you want.
+    </p>
+    <p>
+      It is, on the other hand, what we'd want when we have to write
+      something true about the economy by Monday and the screenshot
+      route isn't going to cut it.
     </p>
 
     <h2>Where the data comes from</h2>
     <ul>
-      <li><strong>FRED</strong> (St. Louis Fed) — rates, inflation, employment, GDP, and most US-macro series.</li>
-      <li><strong>Yahoo Finance</strong> (via <code>yfinance</code>) — equity tickers, ETFs, futures.</li>
-      <li><strong>World Bank Open Data</strong> — country GDP shares.</li>
-      <li><strong>EIA</strong> — retail fuel prices (where applicable). Each chart links to all data sources it uses.</li>
+      <li>
+        <strong>FRED</strong> (St. Louis Fed) — US Treasury yields,
+        inflation, employment, GDP, federal spending by function,
+        most US-macro series.
+      </li>
+      <li>
+        <strong>BLS</strong> — state-level unemployment + payrolls for
+        all 50 states and DC; productivity; CPI subcomponents.
+      </li>
+      <li>
+        <strong>USAspending.gov</strong> — federal contracts, grants,
+        loans, and direct payments by recipient state and by congressional
+        district, fiscal-year, back to FY2008.
+      </li>
+      <li>
+        <strong>Census Bureau</strong> — American Community Survey 5-year
+        estimates for income, population, poverty, and education at the
+        congressional-district level.
+      </li>
+      <li>
+        <strong>OECD</strong> — harmonized cross-country comparisons of
+        unemployment, CPI, government debt and deficit, life expectancy,
+        and health spending.
+      </li>
+      <li>
+        <strong>US Treasury</strong> — TIC system foreign-holder data for
+        US Treasury securities.
+      </li>
+      <li>
+        <strong>World Bank</strong> — country GDP series.
+      </li>
+      <li>
+        <strong>Yahoo Finance</strong> (via <code>yfinance</code>) — equity
+        tickers, ETFs, futures, FX, crypto spot prices.
+      </li>
     </ul>
     <p>
-      None of this is investment advice. Series can be revised, restated, or
-      deprecated by their providers; the site reflects whatever was current on
-      the most recent refresh.
+      Each chart's expanded view lists exactly which sources it draws on
+      and when each was last updated. Click <em>Copy citation</em> from
+      any chart to get a citation block you can paste into a footnote.
+    </p>
+
+    <h2>How fresh is the data</h2>
+    <p>
+      Data pipelines run weekly via GitHub Actions; results are
+      committed into a public repository alongside a dated snapshot
+      (<code>public/data/_archive/&lt;YYYY-MM-DD&gt;/</code>), so a
+      footnote citing a specific date can still resolve that vintage
+      indefinitely. Series can be revised, restated, or deprecated by
+      their providers; the site reflects whatever was current on the
+      most recent refresh.
     </p>
 
     <h2>Stack</h2>
     <p>
-      Astro + TypeScript on the front end (Observable Plot for charts), Python
-      pipelines for data, Vercel for hosting, Supabase (Postgres + Auth) for
-      saved dashboards.
-      <a href="https://github.com/khs/legible-markets" rel="noopener">Source on GitHub</a>.
+      Astro 5 (hybrid SSR) on the front end, Observable Plot for charts,
+      Python pipelines for data, Vercel for hosting, Supabase (Postgres
+      + Auth) for saved dashboards, PostHog for custom-event analytics.
+      <a href="https://github.com/khs/legible-markets" rel="noopener">
+        Source on GitHub
+      </a>.
     </p>
 
     <h2>Built by</h2>
     <p>
-      <a href="https://kellerscholl.com" rel="noopener">Keller Scholl</a>.
-      Notes &amp; corrections welcome at
+      <a href="https://kellerscholl.com" rel="noopener">Keller Scholl</a>,
+      based in DC. Started this because nobody else seemed to be doing it
+      and I kept needing it.
+      Notes, corrections, and suggestions at
       <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.
     </p>
 
-    <h2>Legal disclaimers</h2>
+    <h2 id="disclaimers">Legal disclaimers</h2>
     <p>
       <strong>Not investment advice.</strong> Everything on this site is
-      published for informational and educational purposes only. Nothing here
-      is investment, financial, tax, legal, or trading advice, and nothing
-      should be construed as a recommendation to buy, sell, or hold any
-      security or other financial instrument. Market and economic data can
-      be revised, delayed, restated, or simply wrong; reflected values are
-      whatever the upstream provider returned at the most recent data refresh
-      and may not be current. Do your own research, and consult a qualified
-      professional before making any financial decision. The site, its data
-      providers, and its author make no warranties of accuracy, completeness,
-      timeliness, or fitness for any particular purpose, and accept no
-      liability for losses arising from use of this information.
+      published for informational and educational purposes only. Nothing
+      here is investment, financial, tax, legal, or trading advice, and
+      nothing should be construed as a recommendation to buy, sell, or
+      hold any security or other financial instrument. Market and
+      economic data can be revised, delayed, restated, or simply wrong;
+      reflected values are whatever the upstream provider returned at
+      the most recent data refresh and may not be current. Do your own
+      research, and consult a qualified professional before making any
+      financial decision. The site, its data providers, and its author
+      make no warranties of accuracy, completeness, timeliness, or
+      fitness for any particular purpose, and accept no liability for
+      losses arising from use of this information.
     </p>
     <p>
       <strong>Privacy &amp; analytics.</strong> The site uses Vercel Web
-      Analytics to count visits and key product events (e.g. "a chart was
-      added", "a save was attempted"). Vercel's analytics is cookieless and
-      does not collect personally identifiable information &mdash; no IP
-      addresses are stored, no fingerprinting is performed, and no third-party
-      ad tracking happens on this site. If you create an account, your
-      Google-provided email is stored in our Supabase database solely so we
-      can attach your saved dashboards to you; we don't sell, share, or
-      market against this information. You can delete your account and all
-      associated saves at any time by emailing
+      Analytics for cookieless pageview counting (no IP storage, no
+      fingerprinting, no cross-site tracking) and PostHog for custom
+      product events (e.g. "a dashboard was saved", "a chart was
+      expanded"). PostHog autocapture is enabled, which records clicks
+      and form interactions with the same data-minimization defaults
+      (no third-party trackers). If you create an account, your
+      Google-provided email is stored in our Supabase database solely
+      so we can attach your saved dashboards to you; we don't sell,
+      share, or market against this information. You can delete your
+      account and all associated saves at any time by emailing
       <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.
     </p>
     <p>
-      <strong>Data licensing.</strong> Underlying series carry their providers'
-      licensing terms: FRED data is U.S. public domain; World Bank Open Data
-      is CC BY-4.0; Yahoo Finance and EIA data are used under each
-      provider's published terms of service. Charts and dashboards composed
-      from these sources inherit those terms; please credit the underlying
-      provider when reproducing data elsewhere.
+      <strong>Data licensing.</strong> Underlying series carry their
+      providers' licensing terms: FRED, BLS, USAspending.gov, Census
+      Bureau, and US Treasury data are US public domain; World Bank
+      Open Data is CC BY-4.0; OECD data is used under OECD terms;
+      Yahoo Finance is used under each provider's published terms of
+      service. Charts and dashboards composed from these sources
+      inherit those terms; please credit the underlying provider when
+      reproducing data elsewhere.
     </p>
 
     <p class="footer-note">
@@ -95,25 +183,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .about-root {
     max-width: 680px;
     margin: 0 auto;
-    padding: 48px 24px 80px;
+    padding: 64px 24px 96px;
     color: var(--color-neutral-900);
-    line-height: 1.6;
+    line-height: 1.65;
   }
-  .about-root h1 {
-    font-size: var(--text-2xl);
+  .about-eyebrow {
+    font-size: 11px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-neutral-500);
     margin: 0 0 16px;
   }
-  .about-root h2 {
-    font-size: var(--text-lg);
+  .about-root h1 {
+    font-size: var(--text-3xl);
     font-weight: 600;
-    margin: 28px 0 8px;
-    color: var(--color-neutral-900);
+    margin: 0 0 24px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+  }
+  .about-root h2 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin: 40px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-500);
   }
   .about-root p,
   .about-root ul {
-    margin: 8px 0;
+    margin: 12px 0;
     color: var(--color-neutral-700);
+    font-size: var(--text-base);
   }
   .about-root ul {
     padding-left: 20px;
@@ -122,9 +223,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     margin: 6px 0;
   }
   .about-root .lead {
-    font-size: var(--text-base);
+    font-size: var(--text-lg);
     color: var(--color-neutral-800);
     margin-top: 0;
+    line-height: 1.55;
+  }
+  .about-root strong {
+    color: var(--color-neutral-900);
+    font-weight: 600;
+  }
+  .about-root em {
+    font-style: italic;
   }
   .about-root code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -137,7 +246,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-accent);
   }
   .footer-note {
-    margin-top: 32px;
+    margin-top: 48px;
     padding-top: 16px;
     border-top: 1px solid rgba(55, 53, 47, 0.08);
     font-size: var(--text-sm);

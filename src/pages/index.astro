@@ -10,6 +10,7 @@ import {
   dashboardSupportedDeltas,
   resolveDashboardDefault,
 } from "../lib/resolve-dashboard";
+import notable from "../content/notable.json";
 
 // Server-rendered so we can pick which preset dashboard to feature based on
 // `?dash=<slug>` without pre-building N variants. The page is a pure
@@ -56,7 +57,7 @@ const tabs: TabSpec[] = sorted.map((d) => ({
 
 <BaseLayout
   title="Legible Markets"
-  description="Shareable, citation-ready financial dashboards for the analysts, journalists, and staffers who have to explain what's happening in markets to people who don't read Bloomberg."
+  description="Citation-ready charts of the US economy, congressional districts, and the world. Free, composable, and built for the desk that has to explain what just happened."
 >
   {/* Marketing zone: hero + featured-dashboard preview. Shown to new
       visitors and to signed-in users without saves; hidden client-side
@@ -66,18 +67,22 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       toggle, no flicker. */}
   <div class="marketing-zone" data-role="marketing-zone">
     <div class="hero" data-role="hero">
-      <h1 class="hero-title">Legible Markets</h1>
+      <p class="hero-eyebrow">Legible Markets</p>
+      <h1 class="hero-title">
+        Charts you can cite. Dashboards you can compose.
+      </h1>
       <p class="hero-pitch">
-        Shareable, citation-ready financial dashboards for the analysts,
-        journalists, and staffers who have to explain what's happening in
-        markets to people who don't read Bloomberg.
+        Free, source-linked charts of the US economy, all 435 congressional
+        districts, and the rest of the world. Built for the analyst,
+        journalist, or staffer who has to write the memo by Monday — not
+        for traders, and not requiring a Bloomberg subscription.
       </p>
       <p class="hero-cta-row">
         <a
           href={`${baseUrl}/compose/`}
           class="hero-cta-primary"
         >
-          Build your own dashboard &rarr;
+          Build a dashboard &rarr;
         </a>
         <a
           href={`${baseUrl}/explore/`}
@@ -93,6 +98,31 @@ const tabs: TabSpec[] = sorted.map((d) => ({
         </a>
       </p>
     </div>
+
+    {/* Editor-curated chart list — small, opinionated, refreshed
+        manually. Lives at src/content/notable.json so updates are a
+        one-line edit, not a code change. Renders as a typographic
+        list, not a row of cards (deliberately avoiding the "three
+        equal feature cards" AI default look). */}
+    <section class="notable" aria-labelledby="notable-heading">
+      <header class="notable-header">
+        <p class="notable-eyebrow">Worth a look</p>
+        <h2 id="notable-heading" class="notable-title">
+          Charts the editor thinks you should see this week
+        </h2>
+      </header>
+      <ul class="notable-list">
+        {notable.items.map((item) => (
+          <li class="notable-item">
+            <a class="notable-link" href={`${baseUrl}/chart/${item.chartId}/`}>
+              <span class="notable-item-title">{item.title}</span>
+              <span class="notable-item-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+            <p class="notable-note">{item.note}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
 
     {/* Featured-dashboard preview: tabs + the active dashboard's full
         content rendered live. Tabs are <a> links to `/?dash=<slug>`
@@ -400,21 +430,34 @@ const tabs: TabSpec[] = sorted.map((d) => ({
   .hero {
     max-width: 760px;
     margin: 0 auto;
-    padding: 56px 24px 28px;
+    padding: 64px 24px 32px;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-neutral-500);
+    margin: 0 0 18px;
   }
   .hero-title {
-    font-size: var(--text-3xl, 2.25rem);
+    /* Big-and-tight is the highest-leverage editorial typography move:
+       large display size paired with negative letter-spacing reads as
+       confident rather than corporate. */
+    font-size: var(--text-4xl, 3.25rem);
     font-weight: 600;
-    margin: 0 0 18px;
-    letter-spacing: -0.01em;
+    margin: 0 0 22px;
+    letter-spacing: -0.028em;
+    line-height: 1.05;
     color: var(--color-neutral-900);
+    max-width: 720px;
   }
   .hero-pitch {
     font-size: var(--text-lg, 1.125rem);
     line-height: 1.55;
     color: var(--color-neutral-700);
     margin: 0 0 28px;
-    max-width: 660px;
+    max-width: 640px;
   }
   .hero-cta-row {
     display: flex;
@@ -446,6 +489,79 @@ const tabs: TabSpec[] = sorted.map((d) => ({
   .hero-cta-secondary:hover {
     color: var(--color-neutral-900);
     text-decoration: underline;
+  }
+
+  /* Notable / Editor's picks. Typographic list, not card row. Sits in
+     the same column as the hero so the page reads top-down as a single
+     editorial column rather than fragmenting into card-islands. */
+  .notable {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px 8px;
+  }
+  .notable-header {
+    padding: 32px 0 14px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+    margin-top: 12px;
+  }
+  .notable-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-neutral-500);
+    margin: 0 0 6px;
+  }
+  .notable-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--color-neutral-800);
+    margin: 0;
+    letter-spacing: -0.005em;
+  }
+  .notable-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .notable-item {
+    padding: 16px 0;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .notable-item:first-child {
+    border-top-color: rgba(55, 53, 47, 0.12);
+  }
+  .notable-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--color-neutral-900);
+  }
+  .notable-item-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+  .notable-item-arrow {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    transition: transform 0.15s;
+  }
+  .notable-link:hover .notable-item-title {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-underline-offset: 3px;
+  }
+  .notable-link:hover .notable-item-arrow {
+    transform: translateX(2px);
+  }
+  .notable-note {
+    margin: 4px 0 0;
+    color: var(--color-neutral-600);
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    max-width: 660px;
   }
 
   /* "Your dashboards" lede shown to signed-in users with saves. Slimmer

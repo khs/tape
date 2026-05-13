@@ -56,6 +56,8 @@
     supportedDeltas: DeltaWindow[];
     emphasis: "level" | "change";
     lastUpdated: string;
+    /** Upstream data provider for citation block. Optional for back-compat. */
+    provider?: string;
   };
 
   type Payload = {
@@ -1493,6 +1495,61 @@
           // safe. If we ever deploy under a base prefix this should pick up
           // a baseUrl helper instead.
           window.location.href = `/compose/?d=${dParam}`;
+        });
+      }
+
+      const copyCitationBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-role='copy-citation']",
+      );
+      if (copyCitationBtn) {
+        copyCitationBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          // Citation format intentionally plain-text (not Markdown, not
+          // BibTeX) because the most common paste target is a memo
+          // footnote, a Substack body, or an email — places where rich
+          // formatting gets eaten anyway. The block reads naturally as a
+          // prose footnote and degrades to a single-line summary if
+          // line breaks are stripped.
+          const today = new Date().toISOString().slice(0, 10);
+          const providers = Array.from(
+            new Set(payload.sources.map((s) => s.provider ?? "Unknown")),
+          );
+          // Latest "as-of" date across all underlying source files —
+          // this is the data vintage the chart represents, not the
+          // retrieval date.
+          const asOf = payload.sources
+            .map((s) => (s.lastUpdated ?? "").slice(0, 10))
+            .filter(Boolean)
+            .sort()
+            .at(-1);
+          const title = payload.title ?? "Untitled chart";
+          const window = ctx.currentWindow;
+          const url = window ? `${location.origin}${location.pathname}` : location.href;
+          // Compose the block. Each line is a sentence so a reader who
+          // pastes it into a paragraph still gets readable prose.
+          const lines = [
+            `"${title}." Legible Markets.`,
+            `Data: ${providers.join("; ")}.`,
+            asOf ? `Data through ${asOf}.` : null,
+            `Retrieved ${today} from ${url}.`,
+          ].filter((x): x is string => x !== null);
+          const block = lines.join(" ");
+          try {
+            await navigator.clipboard.writeText(block);
+            const original = copyCitationBtn.textContent;
+            copyCitationBtn.textContent = "Copied";
+            setTimeout(() => {
+              copyCitationBtn.textContent = original ?? "Copy citation";
+            }, 1500);
+          } catch {
+            // Clipboard API can fail (older Safari, permissions).
+            // Surface the failure clearly rather than silently dropping.
+            alert("Copy failed. Citation block:\n\n" + block);
+          }
+          track("chart_citation_copied", {
+            chartId: payload.chartId ?? "unknown",
+            surface: payload.surface ?? "unknown",
+          });
         });
       }
 
