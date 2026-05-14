@@ -1,0 +1,123 @@
+name: Post-deploy smoke test
+
+# Verifies a production deploy actually renders before we assume it's good.
+# Fires when Vercel reports deployment_status=success for the Production
+# environment back to GitHub. The two prod outages this week (Data unavailable
+# on every chart, persisted for hours) would have triggered a red check here
+# the moment the bad deploy went live, instead of being noticed when a human
+# happened to load the site.
+#
+# What this catches that the pre-deploy CI doesn't:
+#   - Anything that only shows up at function runtime (env-var resolution,
+#     fetch URLs against the live deployment, fs paths inside the bundle).
+#   - Asset-propagation gaps between Function code and the static-asset CDN.
+#   - Regressions where a chart payload silently disables itself (e.g.,
+#     loadError suppresses the data-chart-payload script tag).
+#
+# What this does NOT catch:
+#   - Failures on routes we don't probe here. Add probes as needed.
+#   - Issues that take longer than a few seconds to manifest (slow leaks,
+#     ratelimit triggers under load) — those need a separate monitor.
+#
+# Manual trigger lets you sanity-check prod whenever (cf. domain swap,
+# environment-variable change, etc.) without needing a fresh deploy.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Site URL to smoke test (default: production)"
+        required: false
+        default: "https://legible-markets.vercel.app"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    # deployment_status fires on every status update (queued, in_progress,
+    # success, failure, error). Filter to (a) success only, and (b)
+    # Production env — preview deploys are gated behind Vercel SSO so we
+    # can't curl them from this runner anyway.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve URL to test
+        id: url
+        run: |
+          # workflow_dispatch passes inputs.url; deployment_status passes
+          # the Production env URL via target_url. Fall back to the known
+          # prod hostname if both are empty.
+          URL="${{ github.event.inputs.url }}"
+          if [ -z "$URL" ]; then URL="${{ github.event.deployment_status.target_url }}"; fi
+          if [ -z "$URL" ]; then URL="https://legible-markets.vercel.app"; fi
+          URL="${URL%/}"  # strip trailing slash
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Smoke-testing: $URL"
+
+      - name: Home page renders without data errors
+        # The home page is server-rendered (prerender = false) and loads
+        # ~32 chart tiles. The exact failure mode from this week was every
+        # tile rendering "Data unavailable: ..." because the serverless
+        # function couldn't resolve its own static-asset URL. Asserting
+        # zero "Data unavailable" + a positive chart-payload count is
+        # the same signal a human would notice eyeballing the page.
+        run: |
+          URL="${{ steps.url.outputs.url }}"
+          body=$(curl -sS --fail --max-time 30 "$URL/")
+          bad=$(printf "%s" "$body" | grep -c "Data unavailable" || true)
+          payloads=$(printf "%s" "$body" | grep -c "data-chart-payload" || true)
+          echo "Home page: 'Data unavailable' x$bad, chart payloads x$payloads"
+          if [ "$bad" -gt 0 ]; then
+            echo "::error::Home page has $bad 'Data unavailable' errors"
+            printf "%s" "$body" | grep -oE "Data unavailable: [^<]+" | head -10
+            exit 1
+          fi
+          # Threshold of 5 not 32: tolerates a couple charts being added /
+          # removed without flapping; still fails closed if the payload
+          # script tags vanish entirely (the exact symptom of the recent bug).
+          if [ "$payloads" -lt 5 ]; then
+            echo "::error::Home page has only $payloads chart payloads (expected several)"
+            exit 1
+          fi
+
+      - name: Preset dashboard /us-macro/ renders
+        # Prerendered route — failure here means a build-time render
+        # silently produced HTML with loadErrors baked in (which would
+        # happen if e.g. a data file got into a bad state during the
+        # weekly refresh).
+        run: |
+          URL="${{ steps.url.outputs.url }}"
+          body=$(curl -sS --fail --max-time 30 "$URL/us-macro/")
+          bad=$(printf "%s" "$body" | grep -c "Data unavailable" || true)
+          payloads=$(printf "%s" "$body" | grep -c "data-chart-payload" || true)
+          echo "/us-macro/: 'Data unavailable' x$bad, chart payloads x$payloads"
+          if [ "$bad" -gt 0 ]; then
+            echo "::error::/us-macro/ has $bad 'Data unavailable' errors"
+            printf "%s" "$body" | grep -oE "Data unavailable: [^<]+" | head -10
+            exit 1
+          fi
+          if [ "$payloads" -lt 3 ]; then
+            echo "::error::/us-macro/ has only $payloads chart payloads"
+            exit 1
+          fi
+
+      - name: Library manifest is reachable
+        # /library.json is a prerendered API endpoint the composer
+        # depends on. If it 404s or returns empty, /compose/ silently
+        # breaks. Cheap to probe.
+        run: |
+          URL="${{ steps.url.outputs.url }}"
+          json=$(curl -sS --fail --max-time 30 "$URL/library.json")
+          # Sanity: looks like JSON with a charts array.
+          charts=$(printf "%s" "$json" | grep -oE '"charts":\[' | head -1)
+          if [ -z "$charts" ]; then
+            echo "::error::/library.json missing charts array — got first 200 chars:"
+            printf "%s" "$json" | head -c 200
+            exit 1
+          fi
+          echo "/library.json: ok"
