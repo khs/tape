@@ -1,0 +1,17 @@
+title: Chevron vs WTI crude
+sources:
+  - yahoo_marketcap/cvx_mc
+  - yahoo/wti_crude
+seriesLabels:
+  - CVX
+  - WTI
+render: line
+defaultDelta: 1y
+normalize: rebase
+blurb: |
+  CVX and WTI crude, rebased to 100 at the window start. Like XOM, the
+  integrated-major business model means cash flow scales roughly with
+  crude. Diverging trajectories (CVX up while WTI flat, or vice versa)
+  point at company-specific drivers — buyback pacing, Permian production
+  guidance, downstream margins — rather than the commodity itself.
+tags: [us, single-name, commodities, energy]
