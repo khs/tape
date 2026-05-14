@@ -35,11 +35,13 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
   const cached = dataCache.get(dataFile);
   if (cached) return cached;
 
-  // Detect serverless runtime up front (Vercel sets VERCEL=1). In that
-  // context the data files have been stripped from the function bundle
-  // by the astro:build:done hook, so skip the fs read and go straight
-  // to HTTPS fetch. For local dev / astro build, fs works fine.
-  const isServerless = !!process.env.VERCEL;
+  // Detect function-runtime context. VERCEL_REGION is only set when
+  // executing inside a Vercel function — NOT during build (VERCEL=1
+  // is set in both contexts, so it's unsuitable for this check). In
+  // build / local-dev contexts, public/data/ is on disk so fs works.
+  // In function-runtime context, public/data/ is stripped from the
+  // bundle by the astro:build:done hook so we must HTTPS-fetch.
+  const isServerless = !!process.env.VERCEL_REGION;
   let data: SourceData | null = null;
 
   if (!isServerless) {
@@ -48,23 +50,29 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
       const raw = fs.readFileSync(fullPath, "utf-8");
       data = JSON.parse(raw) as SourceData;
     } catch (err) {
-      // ENOENT during build means the file simply isn't there — let it
-      // throw downstream so the caller knows. We don't fetch-fallback
-      // outside the serverless path because the deployment isn't live
-      // yet at build time.
+      // Build / dev failure — let it propagate. Whoever called us is in
+      // a context where the file should exist on disk and doesn't.
       throw err;
     }
   } else {
     // Serverless: fetch from this deployment's own static-asset origin.
-    // VERCEL_URL is the per-deployment hostname; SITE_URL is an
-    // explicit override (custom domain). Both work because Vercel
-    // routes all of a project's hostnames to the same static output.
-    const origin = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.SITE_URL ?? "";
+    // Preference order:
+    //   1. SITE_URL — explicit override (custom domain)
+    //   2. VERCEL_PROJECT_PRODUCTION_URL — stable production hostname
+    //      (set on production deploys, points at the canonical URL)
+    //   3. VERCEL_URL — per-deployment hash hostname
+    // All three should serve the same static assets, but the stable
+    // production URL is what the rest of the world hits, so prefer it.
+    const origin =
+      process.env.SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : "");
     if (!origin) {
       throw new Error(
-        `loadSourceData: no VERCEL_URL or SITE_URL in serverless env`,
+        `loadSourceData: no SITE_URL, VERCEL_PROJECT_PRODUCTION_URL, or VERCEL_URL in serverless env`,
       );
     }
     const url = `${origin}/${dataFile}`;
@@ -102,17 +110,34 @@ export async function loadSourceSummary(dataFile: string): Promise<TimeSeriesSum
   const cached = summaryCache.get(summaryFile);
   if (cached) return cached;
 
-  const fullPath = path.join(process.cwd(), "public", summaryFile);
+  // Same dual-mode detection as loadSourceData: function runtime is the
+  // only context where public/* isn't on disk (we strip it from the
+  // bundle in astro:build:done), so VERCEL_REGION is the cleanest
+  // signal. Anywhere else (local dev, astro build, even Vercel CI
+  // during build) the fs read works.
+  const isServerless = !!process.env.VERCEL_REGION;
   let data: TimeSeriesSummary | null = null;
-  try {
-    const raw = fs.readFileSync(fullPath, "utf-8");
-    data = JSON.parse(raw) as TimeSeriesSummary;
-  } catch (err) {
-    const code = (err as NodeJS.ErrnoException).code;
-    if (code !== "ENOENT") throw err;
-    const origin = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.SITE_URL ?? "http://localhost:4321";
+  if (!isServerless) {
+    const fullPath = path.join(process.cwd(), "public", summaryFile);
+    try {
+      const raw = fs.readFileSync(fullPath, "utf-8");
+      data = JSON.parse(raw) as TimeSeriesSummary;
+    } catch (err) {
+      const code = (err as NodeJS.ErrnoException).code;
+      // ENOENT means there's no .summary.json for this source — fine,
+      // summaries are optional. Any other fs error propagates.
+      if (code !== "ENOENT") throw err;
+      return null;
+    }
+  } else {
+    const origin =
+      process.env.SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : "");
+    if (!origin) return null;
     const url = `${origin}/${summaryFile}`;
     try {
       const res = await fetch(url);
