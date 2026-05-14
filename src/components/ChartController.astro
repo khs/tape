@@ -240,6 +240,46 @@
     return visibleRange(pts, window, 0);
   }
 
+  /**
+   * Points + start anchor for the DIALOG'S full plot. Same idea as
+   * tileVisibleAndStart but tuned for the bigger render:
+   *
+   *  - Full mode (s.points present): 0.15 lead-in buffer at the left
+   *    edge so the plot doesn't start abruptly at the window boundary.
+   *  - Low-fidelity preview mode (s.points absent, summary present):
+   *    use the precomputed ~30-point spark for this window so the
+   *    dialog renders a recognizable chart shape immediately while
+   *    the full-data fetch is in flight. Reads coarse but instant.
+   *
+   * Caller is responsible for triggering a re-render once full points
+   * arrive (see the dialog-open handler in hydrate()).
+   */
+  function dialogPlotPoints(
+    s: SourcePayload,
+    window: DeltaWindow,
+    fixed?: { start: string; end: string },
+  ): { visible: Point[]; startMs: number } {
+    if (s.points) {
+      if (fixed) {
+        return visibleRangeFixed(
+          s.points,
+          new Date(fixed.start).getTime(),
+          new Date(fixed.end).getTime(),
+        );
+      }
+      return visibleRange(s.points, window, 0.15);
+    }
+    // Fixed-range always carries full points (server guarantee); if we
+    // got here without points, the chart is broken — bail.
+    if (fixed) return { visible: [], startMs: 0 };
+    const spark = s.summary?.sparks[window];
+    if (!spark || spark.length === 0) return { visible: [], startMs: 0 };
+    return {
+      visible: spark,
+      startMs: new Date(spark[0].t).getTime(),
+    };
+  }
+
   // ---------- Lazy-fetch of full points (Phase 2) ----------
   //
   // On dialog open we hydrate full `points` for any source that only has
@@ -712,13 +752,11 @@
   ): void {
     const width = container.clientWidth || 700;
 
-    // Defensive type guard: renderFullPlot is only called after the
-    // dialog-open lazy-fetch has hydrated `points` on every source. If
-    // somehow a source still lacks points (fetch race, bug), bail
-    // rather than crashing on a downstream visibleRange(undefined, ...)
-    // call. The error-state branch in the click handler will have
-    // populated a user-visible message already.
-    if (payload.sources.some((s) => !s.points)) return;
+    // Note: renderFullPlot is called both for the low-fidelity preview
+    // (from summary.sparks, while the full-data fetch is in flight) and
+    // for the high-fidelity upgrade (after fetch resolves). The
+    // dialogPlotPoints helper handles both transparently: full points
+    // when available, otherwise the window's precomputed spark.
 
     // Dual-axis: at least 2 sources, partition into left and right groups
     // by rightAxisSources (or default = first source left, rest right).
@@ -738,21 +776,17 @@
       // generic non-dual-axis branch below.
       if (leftSrcs.length > 0 && rightSrcs.length > 0) {
         const fixed = payload.fixedRange;
-        const fStart = fixed ? new Date(fixed.start).getTime() : 0;
-        const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
-        // Materialize visible ranges per source — fixed range when set, else
-        // window-based. The `s.points!` non-null assertion is sound: the
-        // guard at the top of renderFullPlot ensures every source has
-        // points by the time we get here.
+        // Materialize visible ranges per source. dialogPlotPoints reads
+        // full points when available (0.15 lead-in), otherwise falls
+        // back to the precomputed summary spark for this window — the
+        // low-fidelity preview path.
         const matLeft = leftSrcs.map((s) => {
-          if (fixed) return { s, ...visibleRangeFixed(s.points!, fStart, fEnd) };
           const eff = closestSupported(window, s.supportedDeltas);
-          return { s, ...visibleRange(s.points!, eff, 0.15) };
+          return { s, ...dialogPlotPoints(s, eff, fixed) };
         });
         const matRight = rightSrcs.map((s) => {
-          if (fixed) return { s, ...visibleRangeFixed(s.points!, fStart, fEnd) };
           const eff = closestSupported(window, s.supportedDeltas);
-          return { s, ...visibleRange(s.points!, eff, 0.15) };
+          return { s, ...dialogPlotPoints(s, eff, fixed) };
         });
         const haveLeft = matLeft.some((m) => m.visible.length >= 2);
         const haveRight = matRight.some((m) => m.visible.length >= 2);
@@ -895,16 +929,14 @@
     const marks: any[] = [];
     let dashStartDrawn = false;
     const fixed = payload.fixedRange;
-    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
-    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
     const rebaseMode = payload.normalize === "rebase" && payload.isMulti;
     const bundleSeries: BundleSeries[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
-      // `s.points!`: top-of-function guard guarantees this is set.
-      const { visible, startMs } = fixed
-        ? visibleRangeFixed(s.points!, fStart, fEnd)
-        : visibleRange(s.points!, eff, 0.15);
+      // dialogPlotPoints: full-data slice when present (0.15 lead-in),
+      // otherwise the precomputed summary spark for this window. The
+      // low-fi preview path renders coarse but instantly.
+      const { visible, startMs } = dialogPlotPoints(s, eff, fixed);
       if (visible.length < 2) continue;
       // Compute rebase baseline up-front (same logic as rebasePoints, inlined
       // so we can build TipPoints that carry both rebased v and raw vRaw in
@@ -1476,59 +1508,76 @@
       tileContexts.push(ctx);
       updateTile(tile, payload, ctx.currentWindow);
 
-      tile.addEventListener("click", async () => {
-        // showModal() runs synchronously so the dialog frame is on-screen
-        // immediately even if we have to wait for a lazy-fetch to
-        // populate full points. Until points arrive the plot area is
-        // empty — initial readouts (current + tile-derived deltas) come
-        // from `summary` and are already correct.
+      tile.addEventListener("click", () => {
+        // Two-phase open for snappier perceived latency:
+        //
+        //   1. SYNCHRONOUS LOW-FI: showModal opens the frame; updateDialog
+        //      runs immediately. In summary mode, the plot renders from
+        //      summary.sparks[window] (precomputed ~30 points) — visually
+        //      coarser than the high-fi version, but on-screen within a
+        //      few ms instead of waiting for a network fetch.
+        //
+        //   2. BACKGROUND HIGH-FI: ensureAllFullPoints fetches the full
+        //      timeseries. When it resolves, we re-render. The Plot
+        //      library swaps the marks in place — readouts don't change
+        //      (precomputed priors are exact), so users see a smooth
+        //      "upgrade in resolution" rather than a flash of new
+        //      content.
+        //
+        // For op'd / fixed-range / derived charts, s.points was already
+        // shipped and the first render IS high-fi. The fetch returns
+        // fetched=0 and the re-render is a cheap no-op.
         dialog.showModal();
         if (!ctx.dialogInitialized) {
           const tOpen = performance.now();
-          const fetchStats = await ensureAllFullPoints(payload);
-          if (fetchStats.failed > 0) {
-            // Couldn't hydrate at least one source's full points. Render
-            // an error block instead of an empty/broken plot. The readout
-            // numbers are still correct (they came from summary), so we
-            // leave them visible.
-            const plotEl = dialog.querySelector<HTMLElement>('[data-role="plot"]');
-            if (plotEl) {
-              plotEl.textContent = `Couldn't load chart data (${fetchStats.failed} source(s) failed). Try reopening, or refresh.`;
-              plotEl.style.color = "var(--color-neutral-600)";
-              plotEl.style.padding = "12px 0";
-            }
-          } else {
-            const useFixed = ctx.selectedView === "fixed";
-            updateDialog(
-              dialog,
-              effectivePayload(payload, useFixed),
-              ctx.currentWindow,
-            );
-            setActivePill(dialog, ctx.selectedView);
-          }
+          const useFixed = ctx.selectedView === "fixed";
+          // Phase 1: low-fi (or high-fi if points are already present).
+          updateDialog(
+            dialog,
+            effectivePayload(payload, useFixed),
+            ctx.currentWindow,
+          );
+          setActivePill(dialog, ctx.selectedView);
           ctx.dialogInitialized = true;
-          // Attention signal — which charts on which dashboards actually
-          // get expanded for closer reading. Pairs with dashboard_viewed
-          // (page-level) to compute "expanded per dashboard view"
-          // engagement. lazy-fetch metrics let us tell whether Phase 2's
-          // bandwidth savings cost users any meaningful dialog-open
-          // latency — fetched > 0 only on summary-mode tiles.
-          track("chart_expanded", {
-            chartId: payload.chartId ?? "unknown",
-            surface: payload.surface ?? "unknown",
-            window: ctx.currentWindow,
-            lazy_fetched_sources: fetchStats.fetched,
-            lazy_fetch_failed: fetchStats.failed,
-            lazy_fetch_ms: fetchStats.totalMs,
-            // Total open-to-rendered wall-clock so we can see end-to-
-            // -end. Mostly mirrors lazy_fetch_ms but includes the Plot
-            // render time and any JS scheduling delay.
-            open_to_render_ms: Math.round(performance.now() - tOpen),
+          const tFirstPaintMs = Math.round(performance.now() - tOpen);
+
+          // Phase 2: high-fi upgrade. Async, but no await on the open
+          // path so the click handler itself doesn't block — we fire
+          // the perf event from inside the promise's then().
+          ensureAllFullPoints(payload).then((fetchStats) => {
+            if (fetchStats.fetched > 0) {
+              // Got real points — re-render to upgrade visual fidelity.
+              // updateDialog is idempotent; readout values are unchanged
+              // since summary.priors[w] matches the full-data prior.
+              updateDialog(
+                dialog,
+                effectivePayload(payload, useFixed),
+                ctx.currentWindow,
+              );
+            }
+            // fetchStats.failed > 0 → low-fi preview stays in place.
+            // Readouts are still correct (summary priors are exact);
+            // users get a usable chart, just coarser than ideal. Not
+            // worth a user-visible error for the rare network blip.
+
+            track("chart_expanded", {
+              chartId: payload.chartId ?? "unknown",
+              surface: payload.surface ?? "unknown",
+              window: ctx.currentWindow,
+              lazy_fetched_sources: fetchStats.fetched,
+              lazy_fetch_failed: fetchStats.failed,
+              lazy_fetch_ms: fetchStats.totalMs,
+              // Time-to-first-paint: low-fi plot on screen. The signal
+              // users actually feel when they click. Phase-2 target: <50ms.
+              time_to_first_paint_ms: tFirstPaintMs,
+              // Time-to-high-fi: when the full-resolution plot replaces
+              // the preview. Roughly tFirstPaint + fetch + Plot re-render.
+              open_to_render_ms: Math.round(performance.now() - tOpen),
+            });
           });
         } else {
-          // Second+ open after init — dialog already has full points
-          // cached; emit a lightweight event so we can still tell that
-          // it's the cheap path.
+          // Second+ open — dialog is already initialized + points cached.
+          // No fetch, no re-render needed.
           track("chart_expanded", {
             chartId: payload.chartId ?? "unknown",
             surface: payload.surface ?? "unknown",
@@ -1536,6 +1585,7 @@
             lazy_fetched_sources: 0,
             lazy_fetch_failed: 0,
             lazy_fetch_ms: 0,
+            time_to_first_paint_ms: 0,
             open_to_render_ms: 0,
           });
         }
