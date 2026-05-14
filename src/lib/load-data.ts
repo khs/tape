@@ -170,6 +170,78 @@ export async function loadSourceSummary(dataFile: string): Promise<TimeSeriesSum
   return data;
 }
 
+/**
+ * Tile-rendering data shape returned by `loadSourceForTile`. Contains
+ * just what the tile + dashboard-window-pill flow need (latest point,
+ * window-keyed priors, downsampled sparks) — no full timeseries. The
+ * full series gets lazy-fetched client-side on dialog open.
+ *
+ * Mirrors the on-disk .summary.json shape minus the file's identity
+ * metadata fields (id/name/unit/kind) — the caller already has those
+ * from the source collection entry.
+ */
+export interface TileSummary {
+  latest: TimeSeriesPoint;
+  priors: Partial<Record<string, TimeSeriesPoint>>;
+  sparks: Partial<Record<string, TimeSeriesPoint[]>>;
+  lastUpdated: string;
+}
+
+/**
+ * Load just enough data to render a chart tile (readout value, delta
+ * per supported window, sparkline). Returns null if the source has no
+ * data at all.
+ *
+ * Resolution order:
+ *   1. Read the pre-computed <id>.summary.json sibling (the common
+ *      case once pipelines/build_summaries.py has run against the
+ *      source's full data file). ~5KB per source.
+ *   2. Fall back to loading the full data and computing the summary
+ *      in-memory via computeSummaryFromPoints. Handles new sources
+ *      between data refreshes, and any one-off where the .summary.json
+ *      hasn't been generated yet.
+ *
+ * Either path produces the same TileSummary shape, so callers don't
+ * branch on which one resolved.
+ *
+ * Phase 2 of the data-payload refactor: callers that don't need the
+ * full timeseries server-side (single-source charts without op /
+ * fixedRange / derived sources) should switch to this from
+ * loadSourceData. Cuts per-tile payload from ~30-50KB to ~5KB.
+ */
+export async function loadSourceForTile(
+  dataFile: string,
+  supportedDeltas: readonly string[],
+): Promise<TileSummary | null> {
+  // Fast path: pre-computed summary file exists.
+  const summary = await loadSourceSummary(dataFile);
+  if (summary) {
+    return {
+      latest: summary.latest,
+      priors: summary.priors,
+      sparks: summary.sparks,
+      lastUpdated: summary.lastUpdated,
+    };
+  }
+  // Fallback: derive summary from full data. Costs more (we load the
+  // full file) but keeps the caller's payload shape consistent.
+  let full: SourceData;
+  try {
+    full = await loadSourceData(dataFile);
+  } catch {
+    return null;
+  }
+  if (full.kind !== "timeseries" || full.points.length === 0) return null;
+  const derived = computeSummaryFromPoints(full.points, supportedDeltas);
+  if (!derived) return null;
+  return {
+    latest: derived.latest,
+    priors: derived.priors,
+    sparks: derived.sparks,
+    lastUpdated: full.lastUpdated,
+  };
+}
+
 // Window definitions for in-memory summary computation. Mirrors the
 // DELTA_WINDOWS / DELTA_DAYS in deltas.ts so we don't have a circular
 // import. The "ytd" key is handled specially below.

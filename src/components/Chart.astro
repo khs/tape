@@ -1,6 +1,12 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { loadSourceData, currentPoint, findPriorPoint } from "../lib/load-data";
+import {
+  loadSourceData,
+  loadSourceForTile,
+  currentPoint,
+  findPriorPoint,
+  type TileSummary,
+} from "../lib/load-data";
 import {
   formatValue,
   formatDelta,
@@ -15,7 +21,7 @@ import {
   DELTA_WINDOWS,
   type DeltaWindow,
 } from "../lib/deltas";
-import type { TimeSeriesData } from "../lib/data-types";
+import type { TimeSeriesData, TimeSeriesPoint } from "../lib/data-types";
 import { seriesColor } from "../lib/series-colors";
 import { combineTwo, combineOpLabel, type CombineOp } from "../lib/derive";
 
@@ -99,7 +105,15 @@ interface PerSource {
   source: CollectionEntry<"sources">;
   label: string;
   color: string;
+  // Full timeseries — present for op'd / fixed-range / preloaded charts
+  // where downstream code (server combineTwo, server findPrior-by-date,
+  // dialog rendering) needs the full points. Null when we only loaded
+  // the tile summary.
   data: TimeSeriesData | null;
+  // Compact summary — present for "simple" single-source charts where
+  // the tile can render from precomputed priors + sparks alone. Null
+  // when `data` is the source of truth.
+  summary: TileSummary | null;
   current: { t: string; v: number } | null;
   prior: { t: string; v: number } | null;
   currentStr: string;
@@ -108,30 +122,51 @@ interface PerSource {
   loadError: string | null;
 }
 
-// Resolve every source in parallel. Each `loadSourceData` is async
-// because it falls back to HTTP fetch in serverless context (data files
-// aren't bundled with the function — see load-data.ts).
+// Decide whether we need to load the FULL timeseries for this chart, or
+// can get away with just the tile summary. Full data is required when:
+//
+//   - chartOp is set:        combineTwo(a, b, op) needs both full series
+//   - dashboardFixedRange:   priors anchored to a date pair, not a window
+//   - preloaded[s.id]:       derived source — caller already has points
+//
+// "Simple" single/multi-source charts (the bulk of the dashboard) skip
+// the full load and just read .summary.json. ~10× smaller per-tile
+// payload; full data lazy-fetched client-side on dialog open.
+const needsFullData = !!chartOp || !!dashboardFixedRange;
+
+// Resolve every source in parallel. Branches on full vs summary load
+// per the rule above. Both `loadSourceData` and `loadSourceForTile`
+// are async (HTTP fetch fallback in serverless — see load-data.ts).
 const perSourceRaw: PerSource[] = await Promise.all(sources.map(async (s, i) => {
   const label =
     chart.seriesLabels?.[i] ??
     s.data.shortName ??
     s.data.name;
   let data: TimeSeriesData | null = null;
+  let summary: TileSummary | null = null;
   let loadError: string | null = null;
-  // Prefer preloaded data when available (always for derived sources;
-  // optionally for real sources when the resolver wants to short-circuit
-  // an extra fs/fetch read).
+  // Preloaded (derived) always wins — caller already has the data.
   const preloadedHere = preloaded?.[s.id];
   if (preloadedHere) {
     data = preloadedHere;
-  } else {
+  } else if (needsFullData) {
     try {
       const raw = await loadSourceData(s.data.dataFile);
       if (raw.kind === "timeseries") data = raw;
     } catch (e) {
-      // Surface the actual exception in the rendered error so we can
-      // diagnose runtime failures (fetch vs fs, network errors, etc.)
-      // from server-side logs without needing function logs.
+      const msg = e instanceof Error ? e.message : String(e);
+      loadError = `Data unavailable: ${s.data.dataFile} — ${msg.slice(0, 200)}`;
+    }
+  } else {
+    try {
+      summary = await loadSourceForTile(
+        s.data.dataFile,
+        s.data.supportedDeltas as DeltaWindow[],
+      );
+      if (!summary) {
+        loadError = `Data unavailable: ${s.data.dataFile} — empty or missing summary`;
+      }
+    } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       loadError = `Data unavailable: ${s.data.dataFile} — ${msg.slice(0, 200)}`;
     }
@@ -141,27 +176,34 @@ const perSourceRaw: PerSource[] = await Promise.all(sources.map(async (s, i) => 
     defaultDelta,
     s.data.supportedDeltas as DeltaWindow[],
   );
-  // For a fixed-range chart, current = last point at-or-before end;
-  // prior = last point at-or-before start. (Using "at-or-before" for both
-  // matches how the UI reads "as of <end>" / "as of <start>".)
+  // Compute current/prior from whichever shape we loaded.
+  //
+  // - Fixed range (full data only): current = last point ≤ end;
+  //   prior  = last point ≤ start.
+  // - Summary mode: current = summary.latest; prior = summary.priors[w].
+  // - Full data, trailing window: identical to current/findPrior on
+  //   the full series (existing behavior).
   let current: { t: string; v: number } | null = null;
   let prior: { t: string; v: number } | null = null;
   if (dashboardFixedRange && trimmed) {
     const startMs = new Date(dashboardFixedRange.start).getTime();
     const endMs = new Date(dashboardFixedRange.end).getTime();
-    let lastBeforeEnd: { t: string; v: number } | null = null;
-    let lastBeforeStart: { t: string; v: number } | null = null;
+    let lastBeforeEnd: TimeSeriesPoint | null = null;
+    let lastBeforeStart: TimeSeriesPoint | null = null;
     for (const p of trimmed.points) {
       const t = new Date(p.t).getTime();
       if (t <= endMs) lastBeforeEnd = p;
       if (t <= startMs) lastBeforeStart = p;
-      else break; // points are sorted; nothing later will help start
+      else break;
     }
     current = lastBeforeEnd;
     prior = lastBeforeStart;
   } else if (trimmed) {
     current = currentPoint(trimmed);
     prior = findPriorPoint(trimmed, effectiveDeltaForSource);
+  } else if (summary) {
+    current = summary.latest;
+    prior = summary.priors[effectiveDeltaForSource] ?? null;
   }
   const currentStr = current
     ? formatValue(current.v, s.data.formatting)
@@ -177,6 +219,7 @@ const perSourceRaw: PerSource[] = await Promise.all(sources.map(async (s, i) => 
     label,
     color: seriesColor(i),
     data: trimmed,
+    summary,
     current,
     prior,
     currentStr,
@@ -264,6 +307,9 @@ if (chartOp && perSourceRaw.length === 2 && perSourceRaw[0].data && perSourceRaw
       label: `${a.label} ${combineOpLabel(chartOp)} ${b.label}`,
       color: seriesColor(0),
       data: combinedData,
+      // Op'd charts ship full combined points (there's no .summary.json
+      // sibling for a derived series). Summary stays null.
+      summary: null,
       current: combinedCurrent,
       prior: combinedPrior,
       currentStr,
@@ -328,22 +374,50 @@ const payload = {
   supportedDeltas: effectiveSupported,
   defaultDelta,
   fixedRange: dashboardFixedRange,
+  // Each source ships in one of two shapes:
+  //   - Full mode  ({ points }):   op'd / fixed-range / derived charts.
+  //     Server has the full timeseries; dialog renders directly without
+  //     a lazy fetch.
+  //   - Summary mode ({ summary, dataFile }): single/multi-source
+  //     trailing-window charts. Tile renders from precomputed priors +
+  //     sparks; dialog open fires a fetch against dataFile to hydrate
+  //     full `points` on demand.
+  //
+  // shortNames stay the same, formatting + supportedDeltas + emphasis
+  // are needed in both shapes (window pill switching, etc.). dataFile
+  // is included in BOTH shapes because the lazy-fetch path needs it,
+  // and "Copy embed link" / "Open as new dashboard" sometimes round-
+  // trip the source id back through the manifest.
   sources: perSource
-    .filter((p) => p.data !== null)
-    .map((p) => ({
-      id: p.id,
-      name: p.source.data.name,
-      shortName: p.label,
-      color: p.color,
-      formatting: p.source.data.formatting,
-      supportedDeltas: p.source.data.supportedDeltas,
-      emphasis: p.source.data.emphasis,
-      points: p.data!.points,
-      lastUpdated: p.data!.lastUpdated,
-      // Provider name from the source manifest — used by "Copy citation"
-      // to render a citation block without re-fetching the source spec.
-      provider: p.source.data.provenance?.provider ?? "Unknown",
-    })),
+    .filter((p) => p.data !== null || p.summary !== null)
+    .map((p) => {
+      const base = {
+        id: p.id,
+        name: p.source.data.name,
+        shortName: p.label,
+        color: p.color,
+        formatting: p.source.data.formatting,
+        supportedDeltas: p.source.data.supportedDeltas,
+        emphasis: p.source.data.emphasis,
+        dataFile: p.source.data.dataFile,
+        provider: p.source.data.provenance?.provider ?? "Unknown",
+        lastUpdated: p.data?.lastUpdated ?? p.summary!.lastUpdated,
+      };
+      if (p.data) {
+        return { ...base, points: p.data.points };
+      }
+      // Summary mode. Cast away Partial<> for client consumption — at use
+      // sites we still check defined-ness because not every window may be
+      // populated (sparse series, etc.).
+      return {
+        ...base,
+        summary: {
+          latest: p.summary!.latest,
+          priors: p.summary!.priors,
+          sparks: p.summary!.sparks,
+        },
+      };
+    }),
 };
 
 const anyLoadError = perSource.find((p) => p.loadError);

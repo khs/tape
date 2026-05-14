@@ -46,12 +46,43 @@
   type Point = { t: string; v: number };
   type Direction = "up" | "down" | "flat";
 
+  /** Compact per-window data shipped on the page for tile-only rendering. */
+  type SummaryPayload = {
+    latest: Point;
+    priors: Partial<Record<DeltaWindow, Point>>;
+    sparks: Partial<Record<DeltaWindow, Point[]>>;
+  };
+
   type SourcePayload = {
     id: string;
     name: string;
     shortName: string;
     color: string;
-    points: Point[];
+    /**
+     * Full timeseries. Either:
+     *  - present from the start (op'd / fixed-range / derived charts —
+     *    server bakes them in), OR
+     *  - injected later by the lazy-fetch on first dialog open.
+     * Tile-only code paths must NOT assume this is set; use the helpers
+     * `tileCurrent` / `tilePrior` / `tileSparkPoints` below, which fall
+     * back to `summary` automatically.
+     */
+    points?: Point[];
+    /**
+     * Per-window summary shipped for "simple" trailing-window charts so
+     * the tile renders without the full series. Mutually exclusive with
+     * `points` at server-render time; once lazy-fetch hydrates `points`
+     * both can coexist on the same payload object (the helpers prefer
+     * points when present).
+     */
+    summary?: SummaryPayload;
+    /**
+     * Static-asset path to fetch the full timeseries from. Used by the
+     * lazy-fetch path on first dialog open when only `summary` was
+     * shipped. Always set; safe to omit defensively but server should
+     * never produce a payload without it.
+     */
+    dataFile?: string;
     formatting: Formatting;
     supportedDeltas: DeltaWindow[];
     emphasis: "level" | "change";
@@ -93,6 +124,182 @@
       else break;
     }
     return best;
+  }
+
+  // ---------- Dual-mode source readers (Phase 2) ----------
+  //
+  // The page payload ships either `points` (full timeseries) or `summary`
+  // (precomputed latest + per-window priors + downsampled sparks) per
+  // source. Tile-only code paths (initial readout, sparkline, tile
+  // window-pill switch) should route through these helpers so they work
+  // in either mode. Dialog-only code paths can read `points` directly —
+  // by the time the dialog renders, the lazy-fetch below has populated
+  // it on summary-only sources.
+
+  /** Latest observation for `s`. */
+  function tileCurrent(
+    s: SourcePayload,
+    fixed?: { start: string; end: string },
+  ): Point | null {
+    if (fixed) {
+      // Fixed range: last point at-or-before `end`. Server guarantees
+      // `points` is present when fixedRange is in effect.
+      const pts = s.points;
+      if (!pts) return null;
+      const endMs = new Date(fixed.end).getTime();
+      let best: Point | null = null;
+      for (const p of pts) {
+        const t = new Date(p.t).getTime();
+        if (t <= endMs) best = p;
+        else break;
+      }
+      return best;
+    }
+    if (s.summary) return s.summary.latest;
+    const pts = s.points;
+    if (!pts || pts.length === 0) return null;
+    return pts[pts.length - 1];
+  }
+
+  /** Prior observation for the given trailing window (or fixed.start). */
+  function tilePrior(
+    s: SourcePayload,
+    window: DeltaWindow,
+    fixed?: { start: string; end: string },
+  ): Point | null {
+    if (fixed) {
+      const pts = s.points;
+      if (!pts) return null;
+      const startMs = new Date(fixed.start).getTime();
+      let best: Point | null = null;
+      for (const p of pts) {
+        const t = new Date(p.t).getTime();
+        if (t <= startMs) best = p;
+        else break;
+      }
+      return best;
+    }
+    if (s.summary) return s.summary.priors[window] ?? null;
+    const pts = s.points;
+    if (!pts || pts.length === 0) return null;
+    const last = pts[pts.length - 1];
+    const priorMs = windowStartMs(new Date(last.t).getTime(), window);
+    return findPrior(pts, priorMs);
+  }
+
+  /**
+   * Points to render the tile sparkline for the given window. In summary
+   * mode this is the precomputed ~30-point downsample; in full mode it's
+   * the live slice of the full series. Either way the returned points
+   * are already trimmed to the visible range — callers don't need to
+   * call visibleRange themselves.
+   */
+  function tileSparkPoints(
+    s: SourcePayload,
+    window: DeltaWindow,
+    fixed?: { start: string; end: string },
+  ): Point[] {
+    return tileVisibleAndStart(s, window, fixed).visible;
+  }
+
+  /**
+   * Same as tileSparkPoints, but also returns startMs — the timestamp
+   * that should be treated as "window start" for rebase-baseline math.
+   * In summary mode that's the first spark point's timestamp (close to
+   * but not exactly the nominal window start, since sparks are
+   * downsampled from real observations). In full mode it's the
+   * theoretical window-start derived from the window key.
+   */
+  function tileVisibleAndStart(
+    s: SourcePayload,
+    window: DeltaWindow,
+    fixed?: { start: string; end: string },
+  ): { visible: Point[]; startMs: number } {
+    if (fixed) {
+      const pts = s.points;
+      if (!pts) return { visible: [], startMs: 0 };
+      return visibleRangeFixed(
+        pts,
+        new Date(fixed.start).getTime(),
+        new Date(fixed.end).getTime(),
+      );
+    }
+    const summarySpark = s.summary?.sparks[window];
+    if (summarySpark && summarySpark.length > 0) {
+      return {
+        visible: summarySpark,
+        // First spark point ≈ window start. Used as the rebase anchor;
+        // for sparse series the exact value differs from windowStartMs
+        // but that's already how renderSparkMulti's inline-rebase loop
+        // works (it scans for the last point at-or-before startMs).
+        startMs: new Date(summarySpark[0].t).getTime(),
+      };
+    }
+    const pts = s.points;
+    if (!pts) return { visible: [], startMs: 0 };
+    return visibleRange(pts, window, 0);
+  }
+
+  // ---------- Lazy-fetch of full points (Phase 2) ----------
+  //
+  // On dialog open we hydrate full `points` for any source that only has
+  // `summary`. Module-scoped cache keyed by dataFile keeps repeated
+  // open/close cycles instant — once a source's points are in memory
+  // for the session, every subsequent fetch is a no-op.
+
+  const fetchPromiseCache = new Map<string, Promise<Point[] | null>>();
+
+  async function fetchFullPoints(dataFile: string): Promise<Point[] | null> {
+    const cached = fetchPromiseCache.get(dataFile);
+    if (cached) return cached;
+    const p = (async () => {
+      try {
+        // Relative URL — same origin as the rendered page, so it
+        // works for the production hostname, preview deploys, custom
+        // domains, and local astro preview without any env detection.
+        const res = await fetch(`/${dataFile}`);
+        if (!res.ok) return null;
+        const raw = (await res.json()) as { points?: Point[] } | undefined;
+        return raw?.points ?? null;
+      } catch {
+        return null;
+      }
+    })();
+    fetchPromiseCache.set(dataFile, p);
+    return p;
+  }
+
+  /**
+   * Ensures every source on the payload has `points` populated. No-op
+   * for sources that already do (op'd / fixed-range / previously
+   * fetched). Returns metrics for telemetry: how many sources were
+   * fetched and the wall-clock time for the parallel batch.
+   */
+  async function ensureAllFullPoints(
+    payload: Payload,
+  ): Promise<{ fetched: number; totalMs: number; failed: number }> {
+    const need = payload.sources.filter(
+      (s) => !s.points && s.dataFile,
+    );
+    if (need.length === 0) return { fetched: 0, totalMs: 0, failed: 0 };
+    const t0 = performance.now();
+    const results = await Promise.all(
+      need.map((s) => fetchFullPoints(s.dataFile!)),
+    );
+    let failed = 0;
+    for (let i = 0; i < need.length; i++) {
+      const pts = results[i];
+      if (pts) {
+        need[i].points = pts;
+      } else {
+        failed += 1;
+      }
+    }
+    return {
+      fetched: need.length - failed,
+      totalMs: Math.round(performance.now() - t0),
+      failed,
+    };
   }
 
   function directionWord(d: Direction): string {
@@ -258,14 +465,9 @@
     window: DeltaWindow,
     fixed?: { start: string; end: string },
   ): void {
-    if (source.points.length < 2) return;
-    const { visible } = fixed
-      ? visibleRangeFixed(
-          source.points,
-          new Date(fixed.start).getTime(),
-          new Date(fixed.end).getTime(),
-        )
-      : visibleRange(source.points, window, 0);
+    // tileSparkPoints handles both summary (precomputed) and full (live
+    // slice) modes — the returned array is already trimmed to the window.
+    const visible = tileSparkPoints(source, window, fixed);
     if (visible.length < 2) return;
 
     const width = container.clientWidth || 220;
@@ -350,18 +552,14 @@
         .filter((s) => !rightSet.has(s.id))
         .map((s) => {
           const eff = closestSupported(window, s.supportedDeltas);
-          const { visible } = fixed
-            ? visibleRangeFixed(s.points, fStart, fEnd)
-            : visibleRange(s.points, eff, 0);
+          const { visible } = tileVisibleAndStart(s, eff, fixed);
           return { s, visible };
         });
       const matRight = payload.sources
         .filter((s) => rightSet.has(s.id))
         .map((s) => {
           const eff = closestSupported(window, s.supportedDeltas);
-          const { visible } = fixed
-            ? visibleRangeFixed(s.points, fStart, fEnd)
-            : visibleRange(s.points, eff, 0);
+          const { visible } = tileVisibleAndStart(s, eff, fixed);
           return { s, visible };
         });
       const haveLeft = matLeft.some((m) => m.visible.length >= 2);
@@ -448,9 +646,10 @@
     const sparkBundles: BundleSeries[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
-      const { visible, startMs } = fixed
-        ? visibleRangeFixed(s.points, fStart, fEnd)
-        : visibleRange(s.points, eff, 0);
+      // tileVisibleAndStart returns either the precomputed summary spark
+      // (already trimmed to the window) or a live slice of the full
+      // series, with the startMs that should anchor the rebase baseline.
+      const { visible, startMs } = tileVisibleAndStart(s, eff, fixed);
       if (visible.length < 2) continue;
       // Inline the rebase math so the TipPoint keeps both raw + plotted v.
       let baseline = visible[0].v;
@@ -513,6 +712,14 @@
   ): void {
     const width = container.clientWidth || 700;
 
+    // Defensive type guard: renderFullPlot is only called after the
+    // dialog-open lazy-fetch has hydrated `points` on every source. If
+    // somehow a source still lacks points (fetch race, bug), bail
+    // rather than crashing on a downstream visibleRange(undefined, ...)
+    // call. The error-state branch in the click handler will have
+    // populated a user-visible message already.
+    if (payload.sources.some((s) => !s.points)) return;
+
     // Dual-axis: at least 2 sources, partition into left and right groups
     // by rightAxisSources (or default = first source left, rest right).
     if (
@@ -534,16 +741,18 @@
         const fStart = fixed ? new Date(fixed.start).getTime() : 0;
         const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
         // Materialize visible ranges per source — fixed range when set, else
-        // window-based.
+        // window-based. The `s.points!` non-null assertion is sound: the
+        // guard at the top of renderFullPlot ensures every source has
+        // points by the time we get here.
         const matLeft = leftSrcs.map((s) => {
-          if (fixed) return { s, ...visibleRangeFixed(s.points, fStart, fEnd) };
+          if (fixed) return { s, ...visibleRangeFixed(s.points!, fStart, fEnd) };
           const eff = closestSupported(window, s.supportedDeltas);
-          return { s, ...visibleRange(s.points, eff, 0.15) };
+          return { s, ...visibleRange(s.points!, eff, 0.15) };
         });
         const matRight = rightSrcs.map((s) => {
-          if (fixed) return { s, ...visibleRangeFixed(s.points, fStart, fEnd) };
+          if (fixed) return { s, ...visibleRangeFixed(s.points!, fStart, fEnd) };
           const eff = closestSupported(window, s.supportedDeltas);
-          return { s, ...visibleRange(s.points, eff, 0.15) };
+          return { s, ...visibleRange(s.points!, eff, 0.15) };
         });
         const haveLeft = matLeft.some((m) => m.visible.length >= 2);
         const haveRight = matRight.some((m) => m.visible.length >= 2);
@@ -692,9 +901,10 @@
     const bundleSeries: BundleSeries[] = [];
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
+      // `s.points!`: top-of-function guard guarantees this is set.
       const { visible, startMs } = fixed
-        ? visibleRangeFixed(s.points, fStart, fEnd)
-        : visibleRange(s.points, eff, 0.15);
+        ? visibleRangeFixed(s.points!, fStart, fEnd)
+        : visibleRange(s.points!, eff, 0.15);
       if (visible.length < 2) continue;
       // Compute rebase baseline up-front (same logic as rebasePoints, inlined
       // so we can build TipPoints that carry both rebased v and raw vRaw in
@@ -814,35 +1024,14 @@
       '[data-role="tile-spark"]',
     );
 
-    // For fixed-range, current = last point ≤ end; prior = last point ≤ start.
-    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
-    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
-    function pickFixed(points: Point[]): { current: Point | null; prior: Point | null } {
-      let current: Point | null = null;
-      let prior: Point | null = null;
-      for (const p of points) {
-        const t = new Date(p.t).getTime();
-        if (t <= fEnd) current = p;
-        if (t <= fStart) prior = p;
-        else if (t > fEnd) break;
-      }
-      return { current, prior };
-    }
-
+    // Tile readouts and sparkline route through tileCurrent / tilePrior /
+    // tile{Spark,VisibleAndStart} so they work in both summary mode (no
+    // full points shipped) and full mode (op'd / fixed-range / hydrated).
     if (payload.isMulti) {
       for (const s of payload.sources) {
         const eff = closestSupported(window, s.supportedDeltas);
-        let current: Point | null;
-        let prior: Point | null;
-        if (fixed) {
-          ({ current, prior } = pickFixed(s.points));
-        } else {
-          const last = s.points[s.points.length - 1];
-          if (!last) continue;
-          current = last;
-          const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
-          prior = findPrior(s.points, priorMs);
-        }
+        const current = tileCurrent(s, fixed);
+        const prior = tilePrior(s, eff, fixed);
         const row = tile.querySelector<HTMLElement>(
           `[data-role="series-delta"][data-source-id="${CSS.escape(s.id)}"]`,
         );
@@ -860,18 +1049,10 @@
       if (sparkEl) renderSparkMulti(sparkEl, payload, window);
     } else {
       const s = payload.sources[0];
-      if (!s || s.points.length === 0) return;
+      if (!s) return;
       const eff = closestSupported(window, s.supportedDeltas);
-      let current: Point | null;
-      let prior: Point | null;
-      if (fixed) {
-        ({ current, prior } = pickFixed(s.points));
-      } else {
-        const last = s.points[s.points.length - 1];
-        current = last;
-        const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
-        prior = findPrior(s.points, priorMs);
-      }
+      const current = tileCurrent(s, fixed);
+      const prior = tilePrior(s, eff, fixed);
 
       const valEl = tile.querySelector<HTMLElement>('[data-role="tile-value"]');
       if (valEl)
@@ -897,35 +1078,17 @@
     payload: Payload,
     window: DeltaWindow,
   ): void {
+    // updateDialog runs only after dialog-open lazy-fetch has hydrated
+    // `points` on every source that was shipped summary-only. So both
+    // summary and points may be present here; tileCurrent / tilePrior
+    // produce the same observation either way (summary.priors[w] is
+    // the same point findPrior would return on full points).
     const fixed = payload.fixedRange;
-    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
-    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
-    function pickFixed(points: Point[]): { current: Point | null; prior: Point | null } {
-      let current: Point | null = null;
-      let prior: Point | null = null;
-      for (const p of points) {
-        const t = new Date(p.t).getTime();
-        if (t <= fEnd) current = p;
-        if (t <= fStart) prior = p;
-        else if (t > fEnd) break;
-      }
-      return { current, prior };
-    }
-
     if (payload.isMulti) {
       for (const s of payload.sources) {
         const eff = closestSupported(window, s.supportedDeltas);
-        let current: Point | null;
-        let prior: Point | null;
-        if (fixed) {
-          ({ current, prior } = pickFixed(s.points));
-        } else {
-          const last = s.points[s.points.length - 1];
-          if (!last) continue;
-          current = last;
-          const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
-          prior = findPrior(s.points, priorMs);
-        }
+        const current = tileCurrent(s, fixed);
+        const prior = tilePrior(s, eff, fixed);
         const row = dialog.querySelector<HTMLElement>(
           `.multi-readout-row[data-source-id="${CSS.escape(s.id)}"]`,
         );
@@ -961,16 +1124,8 @@
       const s = payload.sources[0];
       if (!s) return;
       const eff = closestSupported(window, s.supportedDeltas);
-      let current: Point | null;
-      let prior: Point | null;
-      if (fixed) {
-        ({ current, prior } = pickFixed(s.points));
-      } else {
-        const last = s.points[s.points.length - 1];
-        current = last;
-        const priorMs = windowStartMs(new Date(last.t).getTime(), eff);
-        prior = findPrior(s.points, priorMs);
-      }
+      const current = tileCurrent(s, fixed);
+      const prior = tilePrior(s, eff, fixed);
 
       const currentStr = current ? formatValue(current.v, s.formatting) : "—";
       const valEl = dialog.querySelector<HTMLElement>('[data-role="value"]');
@@ -1278,6 +1433,9 @@
   }
 
   function hydrate(): void {
+    // Phase 2 telemetry: record when hydrate starts so we can emit a
+    // dashboard_perf_loaded event at the end with init wall-time.
+    const hydrateStartMs = performance.now();
     const dashRoot = document.querySelector<HTMLElement>(".dashboard-root");
     const dashDefault = (dashRoot?.dataset.dashboardDefaultWindow ??
       "1m") as DeltaWindow;
@@ -1318,26 +1476,69 @@
       tileContexts.push(ctx);
       updateTile(tile, payload, ctx.currentWindow);
 
-      tile.addEventListener("click", () => {
+      tile.addEventListener("click", async () => {
+        // showModal() runs synchronously so the dialog frame is on-screen
+        // immediately even if we have to wait for a lazy-fetch to
+        // populate full points. Until points arrive the plot area is
+        // empty — initial readouts (current + tile-derived deltas) come
+        // from `summary` and are already correct.
         dialog.showModal();
         if (!ctx.dialogInitialized) {
-          const useFixed = ctx.selectedView === "fixed";
-          updateDialog(
-            dialog,
-            effectivePayload(payload, useFixed),
-            ctx.currentWindow,
-          );
-          setActivePill(dialog, ctx.selectedView);
+          const tOpen = performance.now();
+          const fetchStats = await ensureAllFullPoints(payload);
+          if (fetchStats.failed > 0) {
+            // Couldn't hydrate at least one source's full points. Render
+            // an error block instead of an empty/broken plot. The readout
+            // numbers are still correct (they came from summary), so we
+            // leave them visible.
+            const plotEl = dialog.querySelector<HTMLElement>('[data-role="plot"]');
+            if (plotEl) {
+              plotEl.textContent = `Couldn't load chart data (${fetchStats.failed} source(s) failed). Try reopening, or refresh.`;
+              plotEl.style.color = "var(--color-neutral-600)";
+              plotEl.style.padding = "12px 0";
+            }
+          } else {
+            const useFixed = ctx.selectedView === "fixed";
+            updateDialog(
+              dialog,
+              effectivePayload(payload, useFixed),
+              ctx.currentWindow,
+            );
+            setActivePill(dialog, ctx.selectedView);
+          }
           ctx.dialogInitialized = true;
+          // Attention signal — which charts on which dashboards actually
+          // get expanded for closer reading. Pairs with dashboard_viewed
+          // (page-level) to compute "expanded per dashboard view"
+          // engagement. lazy-fetch metrics let us tell whether Phase 2's
+          // bandwidth savings cost users any meaningful dialog-open
+          // latency — fetched > 0 only on summary-mode tiles.
+          track("chart_expanded", {
+            chartId: payload.chartId ?? "unknown",
+            surface: payload.surface ?? "unknown",
+            window: ctx.currentWindow,
+            lazy_fetched_sources: fetchStats.fetched,
+            lazy_fetch_failed: fetchStats.failed,
+            lazy_fetch_ms: fetchStats.totalMs,
+            // Total open-to-rendered wall-clock so we can see end-to-
+            // -end. Mostly mirrors lazy_fetch_ms but includes the Plot
+            // render time and any JS scheduling delay.
+            open_to_render_ms: Math.round(performance.now() - tOpen),
+          });
+        } else {
+          // Second+ open after init — dialog already has full points
+          // cached; emit a lightweight event so we can still tell that
+          // it's the cheap path.
+          track("chart_expanded", {
+            chartId: payload.chartId ?? "unknown",
+            surface: payload.surface ?? "unknown",
+            window: ctx.currentWindow,
+            lazy_fetched_sources: 0,
+            lazy_fetch_failed: 0,
+            lazy_fetch_ms: 0,
+            open_to_render_ms: 0,
+          });
         }
-        // Attention signal — which charts on which dashboards actually
-        // get expanded for closer reading. Pairs with dashboard_viewed
-        // (page-level) to compute "expanded per dashboard view" engagement.
-        track("chart_expanded", {
-          chartId: payload.chartId ?? "unknown",
-          surface: payload.surface ?? "unknown",
-          window: ctx.currentWindow,
-        });
       });
 
       dialog
@@ -1345,6 +1546,13 @@
         .forEach((pill) => {
           pill.addEventListener("click", (e) => {
             e.stopPropagation();
+            // Pills become clickable as soon as showModal() runs, but the
+            // dialog's lazy-fetch (in the tile-click handler above) may
+            // still be in flight. updateDialog → renderFullPlot needs
+            // `s.points` populated; bail out until init completes. The
+            // tile-click handler is async + awaits the fetch, so this
+            // race window is sub-second.
+            if (!ctx.dialogInitialized) return;
             const w = pill.dataset.window;
             if (!w) return;
             if (w === "fixed") {
@@ -1655,6 +1863,72 @@
         });
       });
     });
+
+    // Phase 2 telemetry: emit a one-shot dashboard_perf_loaded event with
+    // payload size, mode-mix (summary vs full), and timing. Lets us A/B
+    // the bandwidth reduction in PostHog by comparing pre/post-deploy
+    // medians, and spot regressions if a future change accidentally re-
+    // bakes full data into the page payload.
+    //
+    // Deferred behind requestIdleCallback (with a setTimeout fallback)
+    // so the synchronous hydrate path stays fast — the metrics we
+    // capture are all already realized by the time hydrate returns.
+    const emitDashboardPerf = () => {
+      try {
+        let summaryCount = 0;
+        let fullCount = 0;
+        let payloadBytes = 0;
+        for (const ctx of tileContexts) {
+          // Mode classification: a tile is "summary" iff every source
+          // shipped only summary (no points); otherwise "full".
+          const anyFull = ctx.payload.sources.some((s) => s.points);
+          if (anyFull) fullCount += 1;
+          else summaryCount += 1;
+        }
+        // Sum the JSON text lengths of every data-chart-payload script
+        // on the page. This is the dominant cost the refactor targets,
+        // so it's the headline metric.
+        document
+          .querySelectorAll<HTMLScriptElement>("script[data-chart-payload]")
+          .forEach((el) => {
+            payloadBytes += el.textContent?.length ?? 0;
+          });
+        // dom_content_loaded_ms: time from navigationStart to when the
+        // browser fired DOMContentLoaded. Independent of our JS — gives
+        // a fair "how heavy did this page actually feel" number.
+        const nav = performance.getEntriesByType
+          ? (performance.getEntriesByType("navigation")[0] as
+              | PerformanceNavigationTiming
+              | undefined)
+          : undefined;
+        const dclMs = nav
+          ? Math.round(nav.domContentLoadedEventEnd)
+          : null;
+        // Surface = dashboard slug ("us-macro"), "custom", "u-<slug>",
+        // or "chart". Taken off the dashboard-root or the first chart
+        // payload as a fallback.
+        const surface =
+          dashRoot?.dataset.dashboardSlug ??
+          tileContexts[0]?.payload.surface ??
+          "unknown";
+        track("dashboard_perf_loaded", {
+          surface,
+          chart_count: tileContexts.length,
+          summary_mode_tiles: summaryCount,
+          full_mode_tiles: fullCount,
+          payload_bytes: payloadBytes,
+          hydrate_ms: Math.round(performance.now() - hydrateStartMs),
+          dom_content_loaded_ms: dclMs,
+        });
+      } catch {
+        // Telemetry is fire-and-forget; never let it crash the page.
+      }
+    };
+    if (typeof (window as any).requestIdleCallback === "function") {
+      (window as any).requestIdleCallback(emitDashboardPerf, { timeout: 2000 });
+    } else {
+      setTimeout(emitDashboardPerf, 0);
+    }
 
     let resizeTimer: number | undefined;
     window.addEventListener("resize", () => {
