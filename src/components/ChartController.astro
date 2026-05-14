@@ -241,8 +241,7 @@
   }
 
   /**
-   * Points + start anchor for the DIALOG'S full plot. Same idea as
-   * tileVisibleAndStart but tuned for the bigger render:
+   * Points + start anchor + x-axis domain for the DIALOG'S full plot.
    *
    *  - Full mode (s.points present): 0.15 lead-in buffer at the left
    *    edge so the plot doesn't start abruptly at the window boundary.
@@ -251,6 +250,16 @@
    *    dialog renders a recognizable chart shape immediately while
    *    the full-data fetch is in flight. Reads coarse but instant.
    *
+   * `domainMs` is the canonical x-axis range that the HIGH-FI render
+   * will use, returned in BOTH modes so the caller can pin Plot's
+   * x.domain. Without this pinning, the low-fi x-axis fits to the
+   * spark range (window-start → today) while the high-fi x-axis
+   * extends 0.15 of the window earlier, so when the upgrade lands
+   * the whole line appears to shift right within the plot area.
+   * Pinning the domain instead means the upgrade just fills in the
+   * empty pad on the left, without moving anything that's already
+   * drawn.
+   *
    * Caller is responsible for triggering a re-render once full points
    * arrive (see the dialog-open handler in hydrate()).
    */
@@ -258,25 +267,51 @@
     s: SourcePayload,
     window: DeltaWindow,
     fixed?: { start: string; end: string },
-  ): { visible: Point[]; startMs: number } {
-    if (s.points) {
-      if (fixed) {
-        return visibleRangeFixed(
-          s.points,
-          new Date(fixed.start).getTime(),
-          new Date(fixed.end).getTime(),
-        );
-      }
-      return visibleRange(s.points, window, 0.15);
+  ): {
+    visible: Point[];
+    startMs: number;
+    domainMs: [number, number] | null;
+  } {
+    if (fixed) {
+      const fStart = new Date(fixed.start).getTime();
+      const fEnd = new Date(fixed.end).getTime();
+      if (!s.points) return { visible: [], startMs: 0, domainMs: null };
+      const r = visibleRangeFixed(s.points, fStart, fEnd);
+      return { ...r, domainMs: [fStart, fEnd] };
     }
-    // Fixed-range always carries full points (server guarantee); if we
-    // got here without points, the chart is broken — bail.
-    if (fixed) return { visible: [], startMs: 0 };
-    const spark = s.summary?.sparks[window];
-    if (!spark || spark.length === 0) return { visible: [], startMs: 0 };
+    // For trailing windows, the high-fi x-axis runs from
+    // (windowStart − leadInDays) to lastMs. Compute that anchor once
+    // off the latest observation we have access to — full mode reads
+    // the last point of s.points; low-fi mode reads the spark's last
+    // point, which is the latest observation (sparks are right-aligned).
+    const lastMsFromFull = s.points
+      ? new Date(s.points[s.points.length - 1].t).getTime()
+      : null;
+    const spark = !s.points ? s.summary?.sparks[window] : undefined;
+    const lastMsFromSpark =
+      spark && spark.length > 0
+        ? new Date(spark[spark.length - 1].t).getTime()
+        : null;
+    const lastMs = lastMsFromFull ?? lastMsFromSpark;
+    let domainMs: [number, number] | null = null;
+    if (lastMs !== null) {
+      const winStart = windowStartMs(lastMs, window);
+      const leadInMs =
+        windowDays(window, new Date(lastMs)) * 86400000 * 0.15;
+      domainMs = [winStart - leadInMs, lastMs];
+    }
+
+    if (s.points) {
+      return { ...visibleRange(s.points, window, 0.15), domainMs };
+    }
+    if (!spark || spark.length === 0)
+      return { visible: [], startMs: 0, domainMs: null };
     return {
       visible: spark,
-      startMs: new Date(spark[0].t).getTime(),
+      // Use the theoretical window start (not spark[0].t) so the dashed
+      // window-boundary rule line lands at the same x in both renders.
+      startMs: windowStartMs(lastMs!, window),
+      domainMs,
     };
   }
 
@@ -779,7 +814,8 @@
         // Materialize visible ranges per source. dialogPlotPoints reads
         // full points when available (0.15 lead-in), otherwise falls
         // back to the precomputed summary spark for this window — the
-        // low-fidelity preview path.
+        // low-fidelity preview path. domainMs is the canonical x range
+        // we'll pin so the upgrade doesn't shift the line laterally.
         const matLeft = leftSrcs.map((s) => {
           const eff = closestSupported(window, s.supportedDeltas);
           return { s, ...dialogPlotPoints(s, eff, fixed) };
@@ -788,6 +824,14 @@
           const eff = closestSupported(window, s.supportedDeltas);
           return { s, ...dialogPlotPoints(s, eff, fixed) };
         });
+        // x.domain pinning: any source's domainMs works since they're
+        // computed from the same window. Multi-source spread (one
+        // source lags another by a few days) → up to a one-day x-axis
+        // discrepancy, visually negligible.
+        const dualDomainMs =
+          matLeft.find((m) => m.domainMs)?.domainMs ??
+          matRight.find((m) => m.domainMs)?.domainMs ??
+          null;
         const haveLeft = matLeft.some((m) => m.visible.length >= 2);
         const haveRight = matRight.some((m) => m.visible.length >= 2);
         if (haveLeft && haveRight) {
@@ -915,7 +959,13 @@
               color: "#55524C",
               background: "transparent",
             },
-            x: { label: null, ticks: 5 },
+            x: dualDomainMs
+              ? {
+                  label: null,
+                  ticks: 5,
+                  domain: [new Date(dualDomainMs[0]), new Date(dualDomainMs[1])],
+                }
+              : { label: null, ticks: 5 },
             y: { label: null, grid: true, ticks: 5 },
             marks,
           });
@@ -931,12 +981,17 @@
     const fixed = payload.fixedRange;
     const rebaseMode = payload.normalize === "rebase" && payload.isMulti;
     const bundleSeries: BundleSeries[] = [];
+    let standardDomainMs: [number, number] | null = null;
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
       // dialogPlotPoints: full-data slice when present (0.15 lead-in),
       // otherwise the precomputed summary spark for this window. The
-      // low-fi preview path renders coarse but instantly.
-      const { visible, startMs } = dialogPlotPoints(s, eff, fixed);
+      // low-fi preview path renders coarse but instantly. domainMs
+      // is the canonical x-axis range — same value in both modes —
+      // which we pin on Plot.plot below so a low→high upgrade doesn't
+      // shift the line within the plot area.
+      const { visible, startMs, domainMs } = dialogPlotPoints(s, eff, fixed);
+      if (!standardDomainMs && domainMs) standardDomainMs = domainMs;
       if (visible.length < 2) continue;
       // Compute rebase baseline up-front (same logic as rebasePoints, inlined
       // so we can build TipPoints that carry both rebased v and raw vRaw in
@@ -1020,7 +1075,16 @@
         color: "#55524C",
         background: "transparent",
       },
-      x: { label: null, ticks: 5 },
+      x: standardDomainMs
+        ? {
+            label: null,
+            ticks: 5,
+            domain: [
+              new Date(standardDomainMs[0]),
+              new Date(standardDomainMs[1]),
+            ],
+          }
+        : { label: null, ticks: 5 },
       y: {
         label: null,
         grid: true,
