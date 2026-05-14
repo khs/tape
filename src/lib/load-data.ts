@@ -10,6 +10,53 @@ import path from "node:path";
 const dataCache = new Map<string, SourceData>();
 const summaryCache = new Map<string, TimeSeriesSummary>();
 
+// ---------- Pure helpers (testable without mocking fs/fetch) ----------
+
+/**
+ * Returns true iff we're executing inside a deployed Vercel Function
+ * (i.e., request-time, not build-time).
+ *
+ * Why VERCEL_REGION and not VERCEL: VERCEL=1 is set in BOTH build and
+ * runtime contexts. Using VERCEL would make us skip the fs read at
+ * build time too, which is wrong — at build time public/data/ is on
+ * disk and we want to read it directly. VERCEL_REGION is only
+ * populated inside a running Function. Reference:
+ *   https://vercel.com/docs/projects/environment-variables/system-environment-variables
+ *
+ * This bug shipped to prod twice (commits cdf057db using VERCEL, then
+ * fixed in 157e9fb3 using VERCEL_REGION). The unit test below is what
+ * keeps it from happening a third time.
+ */
+export function isServerlessRuntime(env: NodeJS.ProcessEnv = process.env): boolean {
+  return !!env.VERCEL_REGION;
+}
+
+/**
+ * Resolves the origin (scheme + host) for HTTPS-fetching this
+ * deployment's static assets from inside its own serverless Function.
+ *
+ * Preference order, first defined wins:
+ *   1. SITE_URL — explicit override, used for custom domains. Caller
+ *      is expected to include the scheme (e.g. "https://x.com").
+ *   2. VERCEL_PROJECT_PRODUCTION_URL — stable production hostname.
+ *      Public, not gated by Vercel deployment-protection auth.
+ *   3. VERCEL_URL — per-deploy hash hostname. On team accounts these
+ *      are protected by Vercel SSO → HTTP 401 on cross-function
+ *      fetches. Only use as a last-resort fallback (e.g., preview
+ *      deploys where production URL isn't set).
+ *
+ * Returns null if no candidate is present.
+ */
+export function resolveServerlessOrigin(
+  env: NodeJS.ProcessEnv = process.env,
+): string | null {
+  if (env.SITE_URL) return env.SITE_URL;
+  if (env.VERCEL_PROJECT_PRODUCTION_URL)
+    return `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`;
+  return null;
+}
+
 /**
  * Load a Source's data JSON from public/data/.
  * `dataFile` is relative to public/ (e.g. "data/oil/wti_front.json").
@@ -35,13 +82,9 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
   const cached = dataCache.get(dataFile);
   if (cached) return cached;
 
-  // Detect function-runtime context. VERCEL_REGION is only set when
-  // executing inside a Vercel function — NOT during build (VERCEL=1
-  // is set in both contexts, so it's unsuitable for this check). In
-  // build / local-dev contexts, public/data/ is on disk so fs works.
-  // In function-runtime context, public/data/ is stripped from the
-  // bundle by the astro:build:done hook so we must HTTPS-fetch.
-  const isServerless = !!process.env.VERCEL_REGION;
+  // Function-runtime vs build/dev: see isServerlessRuntime jsdoc above
+  // for why VERCEL_REGION (not VERCEL) is the right signal.
+  const isServerless = isServerlessRuntime();
   let data: SourceData | null = null;
 
   if (!isServerless) {
@@ -55,21 +98,7 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
       throw err;
     }
   } else {
-    // Serverless: fetch from this deployment's own static-asset origin.
-    // Preference order:
-    //   1. SITE_URL — explicit override (custom domain)
-    //   2. VERCEL_PROJECT_PRODUCTION_URL — stable production hostname
-    //      (set on production deploys, points at the canonical URL)
-    //   3. VERCEL_URL — per-deployment hash hostname
-    // All three should serve the same static assets, but the stable
-    // production URL is what the rest of the world hits, so prefer it.
-    const origin =
-      process.env.SITE_URL ??
-      (process.env.VERCEL_PROJECT_PRODUCTION_URL
-        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-        : process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : "");
+    const origin = resolveServerlessOrigin();
     if (!origin) {
       throw new Error(
         `loadSourceData: no SITE_URL, VERCEL_PROJECT_PRODUCTION_URL, or VERCEL_URL in serverless env`,
@@ -110,12 +139,8 @@ export async function loadSourceSummary(dataFile: string): Promise<TimeSeriesSum
   const cached = summaryCache.get(summaryFile);
   if (cached) return cached;
 
-  // Same dual-mode detection as loadSourceData: function runtime is the
-  // only context where public/* isn't on disk (we strip it from the
-  // bundle in astro:build:done), so VERCEL_REGION is the cleanest
-  // signal. Anywhere else (local dev, astro build, even Vercel CI
-  // during build) the fs read works.
-  const isServerless = !!process.env.VERCEL_REGION;
+  // Same dual-mode detection as loadSourceData; see helpers above.
+  const isServerless = isServerlessRuntime();
   let data: TimeSeriesSummary | null = null;
   if (!isServerless) {
     const fullPath = path.join(process.cwd(), "public", summaryFile);
@@ -130,13 +155,7 @@ export async function loadSourceSummary(dataFile: string): Promise<TimeSeriesSum
       return null;
     }
   } else {
-    const origin =
-      process.env.SITE_URL ??
-      (process.env.VERCEL_PROJECT_PRODUCTION_URL
-        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-        : process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : "");
+    const origin = resolveServerlessOrigin();
     if (!origin) return null;
     const url = `${origin}/${summaryFile}`;
     try {
