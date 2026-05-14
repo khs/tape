@@ -129,7 +129,11 @@ const perSourceRaw: PerSource[] = await Promise.all(sources.map(async (s, i) => 
       const raw = await loadSourceData(s.data.dataFile);
       if (raw.kind === "timeseries") data = raw;
     } catch (e) {
-      loadError = `Data unavailable: ${s.data.dataFile}`;
+      // Surface the actual exception in the rendered error so we can
+      // diagnose runtime failures (fetch vs fs, network errors, etc.)
+      // from server-side logs without needing function logs.
+      const msg = e instanceof Error ? e.message : String(e);
+      loadError = `Data unavailable: ${s.data.dataFile} — ${msg.slice(0, 200)}`;
     }
   }
   const trimmed = data ? trimPoints(data, s.data.supportedDeltas as DeltaWindow[]) : null;

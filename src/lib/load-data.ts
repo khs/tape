@@ -35,33 +35,52 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
   const cached = dataCache.get(dataFile);
   if (cached) return cached;
 
-  // Try local filesystem first. Works during build and in any context
-  // where the data file is on disk (local dev, the prerendering step).
-  const fullPath = path.join(process.cwd(), "public", dataFile);
+  // Detect serverless runtime up front (Vercel sets VERCEL=1). In that
+  // context the data files have been stripped from the function bundle
+  // by the astro:build:done hook, so skip the fs read and go straight
+  // to HTTPS fetch. For local dev / astro build, fs works fine.
+  const isServerless = !!process.env.VERCEL;
   let data: SourceData | null = null;
-  try {
-    const raw = fs.readFileSync(fullPath, "utf-8");
-    data = JSON.parse(raw) as SourceData;
-  } catch (err) {
-    const code = (err as NodeJS.ErrnoException).code;
-    if (code !== "ENOENT") throw err;
-    // ENOENT in serverless context — the data file isn't bundled with
-    // the function. Fall back to HTTPS fetch against the deployment's
-    // own static assets. VERCEL_URL is the per-deployment hostname
-    // (the same code that produced this function was deployed with
-    // the matching data files).
+
+  if (!isServerless) {
+    const fullPath = path.join(process.cwd(), "public", dataFile);
+    try {
+      const raw = fs.readFileSync(fullPath, "utf-8");
+      data = JSON.parse(raw) as SourceData;
+    } catch (err) {
+      // ENOENT during build means the file simply isn't there — let it
+      // throw downstream so the caller knows. We don't fetch-fallback
+      // outside the serverless path because the deployment isn't live
+      // yet at build time.
+      throw err;
+    }
+  } else {
+    // Serverless: fetch from this deployment's own static-asset origin.
+    // VERCEL_URL is the per-deployment hostname; SITE_URL is an
+    // explicit override (custom domain). Both work because Vercel
+    // routes all of a project's hostnames to the same static output.
     const origin = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
-      : process.env.SITE_URL ?? "http://localhost:4321";
-    const url = `${origin}/${dataFile}`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`loadSourceData fetch failed: ${url} -> ${res.status}`);
+      : process.env.SITE_URL ?? "";
+    if (!origin) {
+      throw new Error(
+        `loadSourceData: no VERCEL_URL or SITE_URL in serverless env`,
+      );
     }
-    data = (await res.json()) as SourceData;
+    const url = `${origin}/${dataFile}`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} from ${url}`);
+      }
+      data = (await res.json()) as SourceData;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`fetch failed: ${url} (${msg})`);
+    }
   }
-  dataCache.set(dataFile, data);
-  return data;
+  if (data) dataCache.set(dataFile, data);
+  return data!;
 }
 
 /**
