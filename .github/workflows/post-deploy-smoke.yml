@@ -49,12 +49,16 @@ jobs:
       - name: Resolve URL to test
         id: url
         run: |
-          # workflow_dispatch passes inputs.url; deployment_status passes
-          # the Production env URL via target_url. Fall back to the known
-          # prod hostname if both are empty.
+          # workflow_dispatch lets the user override (e.g. a preview or
+          # custom-domain URL). On deployment_status we deliberately ignore
+          # the event's target_url — Vercel sets that to the per-deploy
+          # hash hostname (legible-markets-<hash>-...) which is gated by
+          # Vercel SSO on team accounts and returns 401 to anonymous curl.
+          # The public production URL is stable, so just hardcode it.
+          # Swap PROD_URL below if/when a custom domain ships.
+          PROD_URL="https://legible-markets.vercel.app"
           URL="${{ github.event.inputs.url }}"
-          if [ -z "$URL" ]; then URL="${{ github.event.deployment_status.target_url }}"; fi
-          if [ -z "$URL" ]; then URL="https://legible-markets.vercel.app"; fi
+          if [ -z "$URL" ]; then URL="$PROD_URL"; fi
           URL="${URL%/}"  # strip trailing slash
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Smoke-testing: $URL"
