@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: ICLN
   url: https://finance.yahoo.com/quote/ICLN
+tags:
+  - equity-index
+  - sectors

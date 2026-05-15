@@ -1,6 +1,7 @@
 name: iShares MSCI Canada ETF (EWC)
 shortName: EWC
-description: iShares MSCI Canada ETF — large- and mid-cap Canadian equities. Daily adjusted close.
+description: iShares MSCI Canada ETF — large- and mid-cap Canadian equities. 
+  Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWC.json
@@ -15,3 +16,6 @@ provenance:
   provider: Yahoo Finance
   series: EWC
   url: https://finance.yahoo.com/quote/EWC
+tags:
+  - equity-index
+  - world

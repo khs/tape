@@ -1,6 +1,7 @@
 name: RBOB gasoline front-month
 shortName: RBOB
-description: NYMEX RBOB (Reformulated Blendstock for Oxygenate Blending) gasoline futures, daily.
+description: NYMEX RBOB (Reformulated Blendstock for Oxygenate Blending) 
+  gasoline futures, daily.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/RB_F.json
@@ -14,3 +15,5 @@ provenance:
   provider: Yahoo Finance
   series: RB=F
   url: https://finance.yahoo.com/quote/RB%3DF
+tags:
+  - commodities

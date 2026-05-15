@@ -1,6 +1,8 @@
 name: Federal spending in California
 shortName: California fed $
-description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in California, by fiscal year. From USAspending.gov.
+description: Total federal contract + grant + loan + direct payment outlays 
+  where the recipient is located in California, by fiscal year. From 
+  USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_ca.json
@@ -17,3 +19,7 @@ provenance:
   series: state_ca
   url: https://www.usaspending.gov/state/CA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

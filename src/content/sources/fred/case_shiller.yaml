@@ -14,3 +14,7 @@ provenance:
   series: CSUSHPISA
   url: https://fred.stlouisfed.org/series/CSUSHPISA
   license: Public domain (US government data)
+tags:
+  - macro
+  - real-estate
+  - us

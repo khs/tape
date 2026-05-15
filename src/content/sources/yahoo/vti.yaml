@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: VTI
   url: https://finance.yahoo.com/quote/VTI
+tags:
+  - equity-index
+  - us

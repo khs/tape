@@ -1,6 +1,8 @@
 name: Vanguard Real Estate ETF (VNQ)
 shortName: VNQ
-description: Tracks the MSCI US Investable Market Real Estate 25/50 Index — broad exposure to US REITs across residential, commercial, retail, healthcare, and industrial real estate.
+description: Tracks the MSCI US Investable Market Real Estate 25/50 Index — 
+  broad exposure to US REITs across residential, commercial, retail, healthcare,
+  and industrial real estate.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/VNQ.json
@@ -15,3 +17,7 @@ provenance:
   provider: Yahoo Finance
   series: VNQ
   url: https://finance.yahoo.com/quote/VNQ
+tags:
+  - equity-index
+  - real-estate
+  - us

@@ -1,6 +1,8 @@
 name: Fairfax County, VA — unemployment rate
 shortName: Fairfax County unemployment
-description: Headline unemployment rate for Fairfax County, VA. Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) county-level data.
+description: Headline unemployment rate for Fairfax County, VA. Monthly, not 
+  seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) 
+  county-level data.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/county_unemployment_fairfax_va.json
@@ -15,3 +17,7 @@ provenance:
   series: LAUCN510590000000003
   url: https://www.bls.gov/lau/
   license: Public domain (US government data)
+tags:
+  - government
+  - labor
+  - us

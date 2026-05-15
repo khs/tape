@@ -1,5 +1,6 @@
 name: 10Y minus 2Y Treasury spread
-description: The yield curve slope between the 10-year and 2-year Treasury notes. Negative values ("inversion") have preceded most US recessions.
+description: The yield curve slope between the 10-year and 2-year Treasury 
+  notes. Negative values ("inversion") have preceded most US recessions.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/T10Y2Y.json
@@ -13,3 +14,7 @@ provenance:
   series: T10Y2Y
   url: https://fred.stlouisfed.org/series/T10Y2Y
   license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us

@@ -1,6 +1,8 @@
 name: Copper front-month
 shortName: HG
-description: COMEX front-month futures (ticker HG) for 25,000-pound contracts of Grade 1 electrolytic copper cathodes. Quoted in USD per pound; physically deliverable.
+description: COMEX front-month futures (ticker HG) for 25,000-pound contracts of
+  Grade 1 electrolytic copper cathodes. Quoted in USD per pound; physically 
+  deliverable.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/HG_F.json
@@ -15,3 +17,5 @@ provenance:
   provider: Yahoo Finance
   series: HG=F
   url: https://finance.yahoo.com/quote/HG%3DF
+tags:
+  - commodities

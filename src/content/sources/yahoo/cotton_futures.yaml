@@ -1,6 +1,8 @@
 name: Cotton No. 2 front-month
 shortName: CT
-description: ICE front-month "Cotton No. 2" futures (ticker CT) for 50,000-pound contracts of upland cotton, strict-low-middling 1-1/16-inch staple. Quoted in US cents per pound.
+description: ICE front-month "Cotton No. 2" futures (ticker CT) for 50,000-pound
+  contracts of upland cotton, strict-low-middling 1-1/16-inch staple. Quoted in 
+  US cents per pound.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/CT_F.json
@@ -14,3 +16,5 @@ provenance:
   provider: Yahoo Finance
   series: CT=F
   url: https://finance.yahoo.com/quote/CT%3DF
+tags:
+  - commodities

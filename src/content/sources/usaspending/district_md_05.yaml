@@ -1,6 +1,7 @@
 name: Federal spending — MD-05
 shortName: MD-05
-description: Total federal outlays where the recipient is in Maryland's district 5 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+description: Total federal outlays where the recipient is in Maryland's district
+  5 (118th Congress boundaries), by fiscal year. From USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_md_05.json
@@ -15,5 +16,10 @@ emphasis: change
 provenance:
   provider: USAspending.gov
   series: district_md_05
-  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=MD-05
+  url: 
+    https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=MD-05
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

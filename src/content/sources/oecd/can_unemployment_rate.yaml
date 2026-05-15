@@ -1,6 +1,9 @@
 name: Canada unemployment rate
 shortName: Canada unemployment
-description: Harmonized unemployment rate from OECD — monthly, seasonally adjusted, age 15+, both sexes. The harmonized methodology makes cross-country comparisons clean (unlike mixing national labor-force surveys with different definitions).
+description: Harmonized unemployment rate from OECD — monthly, seasonally 
+  adjusted, age 15+, both sexes. The harmonized methodology makes cross-country 
+  comparisons clean (unlike mixing national labor-force surveys with different 
+  definitions).
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/can_unemployment_rate.json
@@ -15,3 +18,6 @@ provenance:
   series: DSD_LFS@DF_IALFS_UNE_M (CAN)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use (free for non-commercial)
+tags:
+  - macro
+  - world

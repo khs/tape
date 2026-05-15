@@ -15,3 +15,6 @@ provenance:
   series: RSAFS
   url: https://fred.stlouisfed.org/series/RSAFS
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

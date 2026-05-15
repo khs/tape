@@ -1,6 +1,8 @@
 name: DC-metro nonfarm payroll employment
 shortName: DC payrolls
-description: Total nonfarm payroll employment in the Washington-Arlington-Alexandria MSA, thousands. Monthly, BLS CES, not seasonally adjusted.
+description: Total nonfarm payroll employment in the 
+  Washington-Arlington-Alexandria MSA, thousands. Monthly, BLS CES, not 
+  seasonally adjusted.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WASH911NA.json
@@ -15,3 +17,7 @@ provenance:
   series: WASH911NA
   url: https://fred.stlouisfed.org/series/WASH911NA
   license: Public domain (US government data)
+tags:
+  - government
+  - labor
+  - us

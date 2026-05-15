@@ -15,3 +15,7 @@ provenance:
   provider: Yahoo Finance
   series: XLK
   url: https://finance.yahoo.com/quote/XLK
+tags:
+  - equity-index
+  - sectors
+  - us

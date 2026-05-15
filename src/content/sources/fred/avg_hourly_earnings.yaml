@@ -1,6 +1,7 @@
 name: "Avg hourly earnings (production & nonsup.)"
 shortName: AHE
-description: "Average hourly earnings of production & nonsupervisory employees (USD), monthly."
+description: "Average hourly earnings of production & nonsupervisory employees (USD),
+  monthly."
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/AHETPI.json
@@ -14,3 +15,6 @@ provenance:
   series: AHETPI
   url: https://fred.stlouisfed.org/series/AHETPI
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

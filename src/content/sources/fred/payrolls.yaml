@@ -15,3 +15,6 @@ provenance:
   series: PAYEMS
   url: https://fred.stlouisfed.org/series/PAYEMS
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

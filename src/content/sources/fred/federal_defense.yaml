@@ -17,3 +17,8 @@ provenance:
   series: FDEFX
   url: https://fred.stlouisfed.org/series/FDEFX
   license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - macro
+  - us

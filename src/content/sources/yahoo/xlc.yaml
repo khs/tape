@@ -15,3 +15,7 @@ provenance:
   provider: Yahoo Finance
   series: XLC
   url: https://finance.yahoo.com/quote/XLC
+tags:
+  - equity-index
+  - sectors
+  - us

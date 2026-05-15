@@ -1,6 +1,7 @@
 name: Energy Select Sector SPDR (XLE)
 shortName: XLE
-description: Energy sector equity ETF (big integrated oil & gas). Daily adjusted close.
+description: Energy sector equity ETF (big integrated oil & gas). Daily adjusted
+  close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLE.json
@@ -15,3 +16,7 @@ provenance:
   provider: Yahoo Finance
   series: XLE
   url: https://finance.yahoo.com/quote/XLE
+tags:
+  - equity-index
+  - sectors
+  - us

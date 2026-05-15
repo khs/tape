@@ -15,3 +15,7 @@ provenance:
   provider: Yahoo Finance
   series: XLRE
   url: https://finance.yahoo.com/quote/XLRE
+tags:
+  - equity-index
+  - sectors
+  - us

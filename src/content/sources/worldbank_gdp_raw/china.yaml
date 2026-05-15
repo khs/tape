@@ -1,6 +1,8 @@
 name: China real GDP
 shortName: China GDP
-description: China real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, CHN). Annual, latest observation forward-filled to today; WB data lags by ~1 year.
+description: China real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, 
+  CHN). Annual, latest observation forward-filled to today; WB data lags by ~1 
+  year.
 kind: timeseries
 pipeline: worldbank_gdp_raw
 dataFile: data/worldbank_gdp_raw/FXI.json
@@ -17,3 +19,6 @@ provenance:
   series: NY.GDP.MKTP.KD (CHN)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=CN
   license: CC BY-4.0
+tags:
+  - equity-index
+  - world

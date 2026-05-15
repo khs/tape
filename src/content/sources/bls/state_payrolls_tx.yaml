@@ -1,6 +1,7 @@
 name: Texas nonfarm payroll employment
 shortName: TX payrolls
-description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS Current Employment Statistics (CES) state series, in thousands of persons.
+description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS
+  Current Employment Statistics (CES) state series, in thousands of persons.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_payrolls_tx.json
@@ -16,3 +17,7 @@ provenance:
   series: SMS48000000000000001
   url: https://www.bls.gov/sae/
   license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us

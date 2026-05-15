@@ -15,3 +15,6 @@ provenance:
   series: VIXCLS
   url: https://fred.stlouisfed.org/series/VIXCLS
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

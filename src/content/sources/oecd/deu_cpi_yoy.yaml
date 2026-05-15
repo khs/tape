@@ -1,6 +1,8 @@
 name: Germany CPI inflation (YoY)
 shortName: Germany CPI YoY
-description: Headline consumer price inflation, year-over-year, from OECD. Monthly, all items, national methodology, not seasonally adjusted. Cross-country comparable because OECD applies the same harmonization rules.
+description: Headline consumer price inflation, year-over-year, from OECD. 
+  Monthly, all items, national methodology, not seasonally adjusted. 
+  Cross-country comparable because OECD applies the same harmonization rules.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/deu_cpi_yoy.json
@@ -15,3 +17,6 @@ provenance:
   series: DSD_PRICES@DF_PRICES_ALL (DEU)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use (free for non-commercial)
+tags:
+  - macro
+  - world

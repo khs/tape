@@ -1,6 +1,7 @@
 name: iShares MSCI India ETF (INDA)
 shortName: INDA
-description: iShares MSCI India ETF — large- and mid-cap Indian equities. Daily adjusted close.
+description: iShares MSCI India ETF — large- and mid-cap Indian equities. Daily 
+  adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/INDA.json
@@ -15,3 +16,6 @@ provenance:
   provider: Yahoo Finance
   series: INDA
   url: https://finance.yahoo.com/quote/INDA
+tags:
+  - equity-index
+  - world

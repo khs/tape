@@ -1,6 +1,7 @@
 name: Marathon Digital Holdings
 shortName: MARA
-description: Bitcoin mining company. Daily close, weekends included for spot tokens since crypto trades 24/7.
+description: Bitcoin mining company. Daily close, weekends included for spot 
+  tokens since crypto trades 24/7.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/MARA.json
@@ -16,3 +17,6 @@ provenance:
   provider: Yahoo Finance
   series: MARA
   url: https://finance.yahoo.com/quote/MARA
+tags:
+  - crypto
+  - equity-index

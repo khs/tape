@@ -1,6 +1,8 @@
 name: Initial jobless claims (weekly)
 shortName: Initial claims
-description: Number of new unemployment-insurance claims filed each week. Highest-frequency labor signal published by the federal government; closely watched as an early read on layoffs.
+description: Number of new unemployment-insurance claims filed each week. 
+  Highest-frequency labor signal published by the federal government; closely 
+  watched as an early read on layoffs.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/ICSA.json
@@ -16,3 +18,7 @@ provenance:
   series: ICSA
   url: https://fred.stlouisfed.org/series/ICSA
   license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us

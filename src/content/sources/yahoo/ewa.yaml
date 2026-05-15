@@ -1,6 +1,7 @@
 name: iShares MSCI Australia ETF (EWA)
 shortName: EWA
-description: iShares MSCI Australia ETF — large- and mid-cap Australian equities. Daily adjusted close.
+description: iShares MSCI Australia ETF — large- and mid-cap Australian 
+  equities. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWA.json
@@ -15,3 +16,6 @@ provenance:
   provider: Yahoo Finance
   series: EWA
   url: https://finance.yahoo.com/quote/EWA
+tags:
+  - equity-index
+  - world

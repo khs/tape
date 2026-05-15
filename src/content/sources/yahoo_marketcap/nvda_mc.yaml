@@ -16,3 +16,6 @@ provenance:
   series: NVDA × shares outstanding
   notes: Close price × yfinance get_shares_full() forward-filled to daily.
   url: https://finance.yahoo.com/quote/NVDA
+tags:
+  - single-name
+  - us

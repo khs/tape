@@ -1,6 +1,8 @@
 name: Strategy (formerly MicroStrategy) (MSTR)
 shortName: MSTR
-description: Strategy, Inc. (formerly MicroStrategy) — a corporate Bitcoin holder that has reframed itself around its BTC treasury. Often used as a leveraged proxy for Bitcoin price moves.
+description: Strategy, Inc. (formerly MicroStrategy) — a corporate Bitcoin 
+  holder that has reframed itself around its BTC treasury. Often used as a 
+  leveraged proxy for Bitcoin price moves.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/MSTR.json
@@ -15,3 +17,7 @@ provenance:
   provider: Yahoo Finance
   series: MSTR
   url: https://finance.yahoo.com/quote/MSTR
+tags:
+  - crypto
+  - single-name
+  - us

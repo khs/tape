@@ -1,6 +1,7 @@
 name: Pennsylvania unemployment rate
 shortName: PA unemployment
-description: Headline unemployment rate, seasonally adjusted, monthly. From BLS Local Area Unemployment Statistics (LAUS).
+description: Headline unemployment rate, seasonally adjusted, monthly. From BLS 
+  Local Area Unemployment Statistics (LAUS).
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_unemployment_pa.json
@@ -15,3 +16,7 @@ provenance:
   series: LASST420000000000003
   url: https://www.bls.gov/lau/
   license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us

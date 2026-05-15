@@ -1,6 +1,8 @@
 name: Australia real GDP
 shortName: Australia GDP
-description: Australia real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, AUS). Annual, latest observation forward-filled to today; WB data lags by ~1 year.
+description: Australia real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, 
+  AUS). Annual, latest observation forward-filled to today; WB data lags by ~1 
+  year.
 kind: timeseries
 pipeline: worldbank_gdp_raw
 dataFile: data/worldbank_gdp_raw/EWA.json
@@ -17,3 +19,6 @@ provenance:
   series: NY.GDP.MKTP.KD (AUS)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=AU
   license: CC BY-4.0
+tags:
+  - equity-index
+  - world

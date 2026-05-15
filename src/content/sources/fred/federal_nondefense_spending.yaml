@@ -1,6 +1,8 @@
 name: Federal nondefense spending
 shortName: Nondefense $
-description: Federal nondefense consumption + investment, NIPA. Excludes transfers (Social Security, Medicare) — that's what congressional budget folks usually mean by "discretionary domestic."
+description: Federal nondefense consumption + investment, NIPA. Excludes 
+  transfers (Social Security, Medicare) — that's what congressional budget folks
+  usually mean by "discretionary domestic."
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/W068RCQ027SBEA.json
@@ -15,3 +17,7 @@ provenance:
   series: W068RCQ027SBEA
   url: https://fred.stlouisfed.org/series/W068RCQ027SBEA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

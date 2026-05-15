@@ -1,6 +1,8 @@
 name: Sugar No. 11 front-month
 shortName: SB
-description: ICE front-month "Sugar No. 11" futures (ticker SB) for 112,000-pound contracts of raw cane sugar, FOB an origin-country port. The global benchmark for raw sugar. Quoted in US cents per pound.
+description: ICE front-month "Sugar No. 11" futures (ticker SB) for 
+  112,000-pound contracts of raw cane sugar, FOB an origin-country port. The 
+  global benchmark for raw sugar. Quoted in US cents per pound.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/SB_F.json
@@ -14,3 +16,5 @@ provenance:
   provider: Yahoo Finance
   series: SB=F
   url: https://finance.yahoo.com/quote/SB%3DF
+tags:
+  - commodities

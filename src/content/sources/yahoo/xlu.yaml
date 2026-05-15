@@ -15,3 +15,7 @@ provenance:
   provider: Yahoo Finance
   series: XLU
   url: https://finance.yahoo.com/quote/XLU
+tags:
+  - equity-index
+  - sectors
+  - us

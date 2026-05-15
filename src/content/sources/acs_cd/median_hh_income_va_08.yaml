@@ -1,6 +1,7 @@
 name: Median household income — VA-08
 shortName: VA-08 median hh income
-description: Median household income for VA-08 (118th Congress boundaries). From the American Community Survey 5-year estimates. Released annually.
+description: Median household income for VA-08 (118th Congress boundaries). From
+  the American Community Survey 5-year estimates. Released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_hh_income_va_08.json
@@ -17,3 +18,6 @@ provenance:
   series: median_hh_income
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
+tags:
+  - government
+  - us

@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: URA
   url: https://finance.yahoo.com/quote/URA
+tags:
+  - equity-index
+  - sectors

@@ -15,3 +15,7 @@ provenance:
   series: W825RC1Q027SBEA
   url: https://fred.stlouisfed.org/series/W825RC1Q027SBEA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

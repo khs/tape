@@ -1,6 +1,8 @@
 name: Federal debt held by the public, % of GDP
 shortName: Debt / GDP
-description: Outstanding federal debt held by the public (excludes intragovernmental holdings like Social Security trust funds) divided by GDP. The standard fiscal-stress measure.
+description: Outstanding federal debt held by the public (excludes 
+  intragovernmental holdings like Social Security trust funds) divided by GDP. 
+  The standard fiscal-stress measure.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GFDEGDQ188S.json
@@ -15,3 +17,8 @@ provenance:
   series: GFDEGDQ188S
   url: https://fred.stlouisfed.org/series/GFDEGDQ188S
   license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - macro
+  - us

@@ -15,3 +15,7 @@ provenance:
   provider: Yahoo Finance
   series: XLF
   url: https://finance.yahoo.com/quote/XLF
+tags:
+  - equity-index
+  - sectors
+  - us

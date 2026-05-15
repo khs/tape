@@ -15,3 +15,6 @@ provenance:
   series: HOUST
   url: https://fred.stlouisfed.org/series/HOUST
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

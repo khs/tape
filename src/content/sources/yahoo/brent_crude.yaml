@@ -13,3 +13,5 @@ provenance:
   provider: Yahoo Finance
   series: BZ=F
   url: https://finance.yahoo.com/quote/BZ%3DF
+tags:
+  - commodities

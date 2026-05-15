@@ -15,3 +15,7 @@ provenance:
   series: RHVRUSQ156N
   url: https://fred.stlouisfed.org/series/RHVRUSQ156N
   license: Public domain (US government data)
+tags:
+  - macro
+  - real-estate
+  - us

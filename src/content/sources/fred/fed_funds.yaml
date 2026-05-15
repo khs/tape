@@ -14,3 +14,7 @@ provenance:
   series: FEDFUNDS
   url: https://fred.stlouisfed.org/series/FEDFUNDS
   license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us

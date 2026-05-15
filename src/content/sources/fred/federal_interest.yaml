@@ -1,6 +1,7 @@
 name: Federal interest payments
 shortName: Net interest
-description: Net interest paid on federal debt. Has grown sharply since 2022 as the Treasury rolls debt at higher rates.
+description: Net interest paid on federal debt. Has grown sharply since 2022 as 
+  the Treasury rolls debt at higher rates.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/A091RC1Q027SBEA.json
@@ -15,3 +16,7 @@ provenance:
   series: A091RC1Q027SBEA
   url: https://fred.stlouisfed.org/series/A091RC1Q027SBEA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

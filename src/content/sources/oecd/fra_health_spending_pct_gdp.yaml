@@ -1,6 +1,7 @@
 name: France health spending/GDP
 shortName: FR health spending/GDP
-description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual.
+description: Total current expenditure on health as % of GDP, all financing 
+  schemes. OECD System of Health Accounts. Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/fra_health_spending_pct_gdp.json
@@ -15,3 +16,7 @@ provenance:
   series: health_spending_pct_gdp (FRA)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+tags:
+  - government
+  - macro
+  - world

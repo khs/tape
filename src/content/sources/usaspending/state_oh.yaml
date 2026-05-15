@@ -1,6 +1,7 @@
 name: Federal spending in Ohio
 shortName: Ohio fed $
-description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Ohio, by fiscal year. From USAspending.gov.
+description: Total federal contract + grant + loan + direct payment outlays 
+  where the recipient is located in Ohio, by fiscal year. From USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_oh.json
@@ -17,3 +18,7 @@ provenance:
   series: state_oh
   url: https://www.usaspending.gov/state/OH
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

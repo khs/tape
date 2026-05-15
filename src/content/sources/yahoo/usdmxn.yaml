@@ -1,6 +1,7 @@
 name: USD / MXN
 shortName: USD/MXN
-description: Mexican pesos per US dollar. Up = dollar stronger / peso weaker. Sensitive to USMCA trade flows, US monetary policy, and remittance patterns.
+description: Mexican pesos per US dollar. Up = dollar stronger / peso weaker. 
+  Sensitive to USMCA trade flows, US monetary policy, and remittance patterns.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/USDMXN.json
@@ -14,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: MXN=X
   url: https://finance.yahoo.com/quote/MXN%3DX
+tags:
+  - fx
+  - world

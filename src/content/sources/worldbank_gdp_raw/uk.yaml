@@ -1,6 +1,8 @@
 name: United Kingdom real GDP
 shortName: UK GDP
-description: United Kingdom real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, GBR). Annual, latest observation forward-filled to today; WB data lags by ~1 year.
+description: United Kingdom real GDP, constant 2015 USD (World Bank, 
+  NY.GDP.MKTP.KD, GBR). Annual, latest observation forward-filled to today; WB 
+  data lags by ~1 year.
 kind: timeseries
 pipeline: worldbank_gdp_raw
 dataFile: data/worldbank_gdp_raw/EWU.json
@@ -17,3 +19,6 @@ provenance:
   series: NY.GDP.MKTP.KD (GBR)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=GB
   license: CC BY-4.0
+tags:
+  - equity-index
+  - world

@@ -1,6 +1,8 @@
 name: Federal spending in Virginia
 shortName: Virginia fed $
-description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Virginia, by fiscal year. From USAspending.gov.
+description: Total federal contract + grant + loan + direct payment outlays 
+  where the recipient is located in Virginia, by fiscal year. From 
+  USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_va.json
@@ -17,3 +19,7 @@ provenance:
   series: state_va
   url: https://www.usaspending.gov/state/VA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

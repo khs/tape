@@ -15,3 +15,6 @@ provenance:
   series: PI
   url: https://fred.stlouisfed.org/series/PI
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

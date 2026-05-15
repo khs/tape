@@ -14,3 +14,5 @@ provenance:
   provider: Yahoo Finance
   series: ZC=F
   url: https://finance.yahoo.com/quote/ZC%3DF
+tags:
+  - commodities

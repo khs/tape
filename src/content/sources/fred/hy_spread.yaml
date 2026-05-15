@@ -14,3 +14,7 @@ provenance:
   series: BAMLH0A0HYM2
   url: https://fred.stlouisfed.org/series/BAMLH0A0HYM2
   license: Public domain (US government data)
+tags:
+  - credit
+  - macro
+  - us

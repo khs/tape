@@ -1,6 +1,8 @@
 name: Continuing jobless claims
 shortName: Continuing claims
-description: Number of unemployed people receiving benefits one week after their initial claim. A read on how long unemployed workers are taking to find new jobs.
+description: Number of unemployed people receiving benefits one week after their
+  initial claim. A read on how long unemployed workers are taking to find new 
+  jobs.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CCSA.json
@@ -16,3 +18,7 @@ provenance:
   series: CCSA
   url: https://fred.stlouisfed.org/series/CCSA
   license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us

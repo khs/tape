@@ -14,3 +14,6 @@ provenance:
   series: CPILFESL
   url: https://fred.stlouisfed.org/series/CPILFESL
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

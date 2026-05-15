@@ -1,6 +1,8 @@
 name: Silver front-month
 shortName: SI
-description: COMEX front-month futures (ticker SI) for 5,000-troy-ounce contracts of 99.9%-pure silver. Quoted in USD per troy ounce; physically deliverable.
+description: COMEX front-month futures (ticker SI) for 5,000-troy-ounce 
+  contracts of 99.9%-pure silver. Quoted in USD per troy ounce; physically 
+  deliverable.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/SI_F.json
@@ -15,3 +17,5 @@ provenance:
   provider: Yahoo Finance
   series: SI=F
   url: https://finance.yahoo.com/quote/SI%3DF
+tags:
+  - commodities

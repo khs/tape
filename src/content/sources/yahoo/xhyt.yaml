@@ -1,6 +1,8 @@
 name: HY Telecom/Media/Tech bonds (XHYT)
 shortName: XHYT
-description: "BondBloxx HY Telecom/Media/Tech Sector ETF. High-yield corporate bonds from TMT issuers — NOT investment grade. Big-tech IG bonds (AAPL, MSFT etc.) are not in this index."
+description: "BondBloxx HY Telecom/Media/Tech Sector ETF. High-yield corporate bonds
+  from TMT issuers — NOT investment grade. Big-tech IG bonds (AAPL, MSFT etc.) are
+  not in this index."
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XHYT.json
@@ -15,4 +17,8 @@ provenance:
   provider: Yahoo Finance
   series: XHYT
   url: https://finance.yahoo.com/quote/XHYT
-  notes: Inception 2022-02-15. Closest free tech-adjacent bond index; no pure-tech or investment-grade-tech sector bond ETF exists at the free tier.
+  notes: Inception 2022-02-15. Closest free tech-adjacent bond index; no 
+    pure-tech or investment-grade-tech sector bond ETF exists at the free tier.
+tags:
+  - credit
+  - us

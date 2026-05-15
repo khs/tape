@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: VWO
   url: https://finance.yahoo.com/quote/VWO
+tags:
+  - equity-index
+  - world

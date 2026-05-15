@@ -14,3 +14,7 @@ provenance:
   series: MORTGAGE30US
   url: https://fred.stlouisfed.org/series/MORTGAGE30US
   license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us

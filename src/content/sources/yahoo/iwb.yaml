@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: IWB
   url: https://finance.yahoo.com/quote/IWB
+tags:
+  - equity-index
+  - us

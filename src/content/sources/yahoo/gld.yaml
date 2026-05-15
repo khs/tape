@@ -1,6 +1,8 @@
 name: SPDR Gold Shares
 shortName: GLD
-description: ETF that holds physical gold bullion in vaulted allocated storage; each share represents roughly 1/10th of a troy ounce (declining over time as the expense ratio is paid in gold). Daily adjusted close.
+description: ETF that holds physical gold bullion in vaulted allocated storage; 
+  each share represents roughly 1/10th of a troy ounce (declining over time as 
+  the expense ratio is paid in gold). Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/GLD.json
@@ -15,3 +17,5 @@ provenance:
   provider: Yahoo Finance
   series: GLD
   url: https://finance.yahoo.com/quote/GLD
+tags:
+  - commodities

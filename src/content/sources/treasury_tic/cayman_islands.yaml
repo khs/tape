@@ -1,6 +1,8 @@
 name: Cayman Islands — US Treasury holdings
 shortName: Cayman Islands
-description: US Treasury securities held by Cayman Islands, monthly. From Treasury's TIC (Treasury International Capital) major-foreign-holders release. End-of-month positions, billions of USD.
+description: US Treasury securities held by Cayman Islands, monthly. From 
+  Treasury's TIC (Treasury International Capital) major-foreign-holders release.
+  End-of-month positions, billions of USD.
 kind: timeseries
 pipeline: treasury_tic
 dataFile: data/treasury_tic/cayman_islands.json
@@ -17,3 +19,8 @@ provenance:
   series: MFH (Cayman Islands)
   url: https://home.treasury.gov/data/treasury-international-capital-tic-system
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us
+  - world

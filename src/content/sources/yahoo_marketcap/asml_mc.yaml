@@ -15,4 +15,8 @@ provenance:
   provider: Yahoo Finance (derived)
   series: ASML × shares outstanding
   url: https://finance.yahoo.com/quote/ASML
-  notes: Historical shares via yfinance get_shares_full(); shares forward-filled between quarterly observations.
+  notes: Historical shares via yfinance get_shares_full(); shares forward-filled
+    between quarterly observations.
+tags:
+  - single-name
+  - us

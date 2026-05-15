@@ -9,9 +9,18 @@ import { loadSourceData } from "../lib/load-data";
  *
  * Shape:
  *   {
- *     charts: [{ id, title, tags, sources, defaultDelta, normalize, blurb, deprecated, aliasOf }],
- *     sources: { [id]: { name, shortName, kind, supportedDeltas, emphasis, dataFile, formatting, provenance } }
+ *     charts:  [{ id, title, tags, sources, defaultDelta, normalize, blurb,
+ *                deprecated, aliasOf, searchText }],
+ *     sources: { [id]: { name, shortName, description, kind, pipeline,
+ *                        dataFile, supportedDeltas, unit, formatting,
+ *                        emphasis, provenance, firstObservation,
+ *                        lastObservation, tags, searchText } }
  *   }
+ *
+ * Tags are pre-populated by pipelines/backfill_source_tags.py: every
+ * source inherits the tags of single-source charts that reference it,
+ * plus tags from multi-source charts unless the chart's per-source
+ * override in MULTI_SOURCE_OVERRIDES restricts which tags go where.
  */
 export const prerender = true;
 
@@ -37,6 +46,23 @@ export const GET: APIRoute = async () => {
     } catch {
       // Missing data file; leave first/last undefined so callers know.
     }
+    // Per-source `searchText`: lowercased haystack the composer's source-
+    // picker greps against. Includes name/shortName/description (so a
+    // ticker like "XOM" or a pipeline-style ID matches even when typing
+    // a common name), the source-id itself, and the tags string (so
+    // typing "macro" matches every source tagged macro). Same idea as
+    // the chart-level searchText below.
+    const tagsList = s.data.tags ?? [];
+    const sourceSearchText = [
+      s.data.name,
+      s.data.shortName,
+      s.data.description,
+      s.id,
+      tagsList.join(" "),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
     sources[s.id] = {
       id: s.id,
       name: s.data.name,
@@ -52,6 +78,8 @@ export const GET: APIRoute = async () => {
       provenance: s.data.provenance,
       firstObservation,
       lastObservation,
+      tags: tagsList,
+      searchText: sourceSearchText,
     };
   }
 

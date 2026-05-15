@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: EFA
   url: https://finance.yahoo.com/quote/EFA
+tags:
+  - equity-index
+  - world

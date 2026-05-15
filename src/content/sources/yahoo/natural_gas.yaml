@@ -13,3 +13,5 @@ provenance:
   provider: Yahoo Finance
   series: NG=F
   url: https://finance.yahoo.com/quote/NG%3DF
+tags:
+  - commodities

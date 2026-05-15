@@ -14,3 +14,7 @@ provenance:
   series: NASDAQCOM
   url: https://fred.stlouisfed.org/series/NASDAQCOM
   license: Nasdaq OMX (re-distributed by FRED)
+tags:
+  - equity-index
+  - macro
+  - us

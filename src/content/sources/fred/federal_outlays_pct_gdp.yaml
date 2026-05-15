@@ -1,6 +1,7 @@
 name: Federal outlays, % of GDP
 shortName: Outlays / GDP
-description: Total federal government spending as a share of GDP. Annual. The gap between this and receipts equals the deficit.
+description: Total federal government spending as a share of GDP. Annual. The 
+  gap between this and receipts equals the deficit.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYONGDA188S.json
@@ -15,3 +16,8 @@ provenance:
   series: FYONGDA188S
   url: https://fred.stlouisfed.org/series/FYONGDA188S
   license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - macro
+  - us

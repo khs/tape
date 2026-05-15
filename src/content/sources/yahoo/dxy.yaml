@@ -1,6 +1,7 @@
 name: US Dollar Index (DXY)
 shortName: DXY
-description: Trade-weighted dollar against six major currencies (euro, yen, sterling, Canadian dollar, Swedish krona, Swiss franc). Up = stronger dollar.
+description: Trade-weighted dollar against six major currencies (euro, yen, 
+  sterling, Canadian dollar, Swedish krona, Swiss franc). Up = stronger dollar.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/DXY.json
@@ -14,3 +15,6 @@ provenance:
   provider: Yahoo Finance / ICE
   series: DX-Y.NYB
   url: https://finance.yahoo.com/quote/DX-Y.NYB
+tags:
+  - fx
+  - us

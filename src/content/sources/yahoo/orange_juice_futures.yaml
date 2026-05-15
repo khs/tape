@@ -1,6 +1,7 @@
 name: Orange juice front-month
 shortName: OJ
-description: ICE front-month futures (ticker OJ) for 15,000-pound contracts of frozen concentrated orange juice. Quoted in US cents per pound of solids.
+description: ICE front-month futures (ticker OJ) for 15,000-pound contracts of 
+  frozen concentrated orange juice. Quoted in US cents per pound of solids.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/OJ_F.json
@@ -14,3 +15,5 @@ provenance:
   provider: Yahoo Finance
   series: OJ=F
   url: https://finance.yahoo.com/quote/OJ%3DF
+tags:
+  - commodities

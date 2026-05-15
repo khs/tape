@@ -14,5 +14,10 @@ formatting:
 provenance:
   provider: Yahoo Finance (derived)
   series: META × shares outstanding
-  notes: Close price × yfinance get_shares_full() forward-filled to daily. History begins later than the ticker's IPO due to shares-outstanding data availability.
+  notes: Close price × yfinance get_shares_full() forward-filled to daily. 
+    History begins later than the ticker's IPO due to shares-outstanding data 
+    availability.
   url: https://finance.yahoo.com/quote/META
+tags:
+  - single-name
+  - us

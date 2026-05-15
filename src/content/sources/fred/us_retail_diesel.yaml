@@ -15,3 +15,5 @@ provenance:
   series: GASDESW
   url: https://fred.stlouisfed.org/series/GASDESW
   license: Public domain (US government data, EIA)
+tags:
+  - commodities

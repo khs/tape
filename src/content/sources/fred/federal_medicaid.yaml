@@ -1,6 +1,7 @@
 name: Federal Medicaid benefits
 shortName: Medicaid
-description: Federal share of Medicaid grants to states. Doesn't include state matching dollars (those land in state budgets).
+description: Federal share of Medicaid grants to states. Doesn't include state 
+  matching dollars (those land in state budgets).
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/W824RC1Q027SBEA.json
@@ -15,3 +16,7 @@ provenance:
   series: W824RC1Q027SBEA
   url: https://fred.stlouisfed.org/series/W824RC1Q027SBEA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

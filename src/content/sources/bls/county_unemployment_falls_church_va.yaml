@@ -1,6 +1,8 @@
 name: Falls Church City, VA — unemployment rate
 shortName: Falls Church City unemployment
-description: Headline unemployment rate for Falls Church City, VA. Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) county-level data.
+description: Headline unemployment rate for Falls Church City, VA. Monthly, not 
+  seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) 
+  county-level data.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/county_unemployment_falls_church_va.json
@@ -15,3 +17,7 @@ provenance:
   series: LAUCN516100000000003
   url: https://www.bls.gov/lau/
   license: Public domain (US government data)
+tags:
+  - government
+  - labor
+  - us

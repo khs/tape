@@ -1,6 +1,7 @@
 name: iShares MSCI South Korea ETF (EWY)
 shortName: EWY
-description: iShares MSCI South Korea ETF — large- and mid-cap South Korean equities. Daily adjusted close.
+description: iShares MSCI South Korea ETF — large- and mid-cap South Korean 
+  equities. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWY.json
@@ -15,3 +16,6 @@ provenance:
   provider: Yahoo Finance
   series: EWY
   url: https://finance.yahoo.com/quote/EWY
+tags:
+  - equity-index
+  - world

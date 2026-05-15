@@ -1,6 +1,7 @@
 name: iShares Bitcoin Trust ETF
 shortName: IBIT
-description: iShares spot Bitcoin ETF. Daily close, weekends included for spot tokens since crypto trades 24/7.
+description: iShares spot Bitcoin ETF. Daily close, weekends included for spot 
+  tokens since crypto trades 24/7.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/IBIT.json
@@ -16,3 +17,6 @@ provenance:
   provider: Yahoo Finance
   series: IBIT
   url: https://finance.yahoo.com/quote/IBIT
+tags:
+  - crypto
+  - equity-index

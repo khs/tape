@@ -1,6 +1,8 @@
 name: Prime-age (25-54) labor force participation
 shortName: Prime-age LFP
-description: Share of people aged 25-54 either working or actively looking for work. Strips out demographic effects (retiring boomers, students) that pollute the headline participation rate.
+description: Share of people aged 25-54 either working or actively looking for 
+  work. Strips out demographic effects (retiring boomers, students) that pollute
+  the headline participation rate.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/LNS11300060.json
@@ -15,3 +17,7 @@ provenance:
   series: LNS11300060
   url: https://fred.stlouisfed.org/series/LNS11300060
   license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us

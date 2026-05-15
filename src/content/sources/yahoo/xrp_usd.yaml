@@ -15,3 +15,5 @@ provenance:
   provider: Yahoo Finance
   series: XRP-USD
   url: https://finance.yahoo.com/quote/XRP-USD
+tags:
+  - crypto

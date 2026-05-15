@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: QQQ
   url: https://finance.yahoo.com/quote/QQQ
+tags:
+  - equity-index
+  - us

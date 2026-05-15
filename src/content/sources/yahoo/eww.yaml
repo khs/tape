@@ -1,6 +1,7 @@
 name: iShares MSCI Mexico ETF (EWW)
 shortName: EWW
-description: iShares MSCI Mexico ETF — large- and mid-cap Mexican equities. Daily adjusted close.
+description: iShares MSCI Mexico ETF — large- and mid-cap Mexican equities. 
+  Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWW.json
@@ -15,3 +16,6 @@ provenance:
   provider: Yahoo Finance
   series: EWW
   url: https://finance.yahoo.com/quote/EWW
+tags:
+  - equity-index
+  - world

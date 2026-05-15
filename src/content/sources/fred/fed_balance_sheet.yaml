@@ -15,3 +15,6 @@ provenance:
   series: WALCL
   url: https://fred.stlouisfed.org/series/WALCL
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

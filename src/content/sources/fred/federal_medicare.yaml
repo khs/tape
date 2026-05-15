@@ -1,6 +1,8 @@
 name: Federal Medicare benefits
 shortName: Medicare
-description: Federal current transfer payments for Medicare. Quarterly annualized rate. Combines hospital insurance + supplementary medical insurance.
+description: Federal current transfer payments for Medicare. Quarterly 
+  annualized rate. Combines hospital insurance + supplementary medical 
+  insurance.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/W823RC1Q027SBEA.json
@@ -15,3 +17,7 @@ provenance:
   series: W823RC1Q027SBEA
   url: https://fred.stlouisfed.org/series/W823RC1Q027SBEA
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

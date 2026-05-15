@@ -50,6 +50,12 @@ const sources = defineCollection({
     formatting,
     provenance,
     emphasis: emphasis.default("level"),
+    // Topic tags used by the composer's "Sources" filter chip strip and
+    // the derived-source-modal's tag picker. Populated initially by
+    // pipelines/backfill_source_tags.py from the tags of single-source
+    // charts that reference each source (C1 approach); multi-source
+    // charts get flagged for manual review by that script.
+    tags: z.array(z.string()).default([]),
   }),
 });
 

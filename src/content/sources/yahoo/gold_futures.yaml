@@ -1,6 +1,7 @@
 name: Gold front-month
 shortName: GC
-description: COMEX front-month futures (ticker GC) for 100-troy-ounce contracts of 99.5%-pure gold. Quoted in USD per troy ounce; physically deliverable.
+description: COMEX front-month futures (ticker GC) for 100-troy-ounce contracts 
+  of 99.5%-pure gold. Quoted in USD per troy ounce; physically deliverable.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/GC_F.json
@@ -15,3 +16,5 @@ provenance:
   provider: Yahoo Finance
   series: GC=F
   url: https://finance.yahoo.com/quote/GC%3DF
+tags:
+  - commodities

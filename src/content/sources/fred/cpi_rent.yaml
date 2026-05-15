@@ -1,6 +1,8 @@
 name: "CPI: Rent of primary residence"
 shortName: Rent CPI
-description: Rent of primary residence component of CPI. Lagged by ~12 months relative to market rents, which is why headline CPI took so long to come back down after market rents peaked in 2022.
+description: Rent of primary residence component of CPI. Lagged by ~12 months 
+  relative to market rents, which is why headline CPI took so long to come back 
+  down after market rents peaked in 2022.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUUR0000SEHA.json
@@ -15,3 +17,7 @@ provenance:
   series: CUUR0000SEHA
   url: https://fred.stlouisfed.org/series/CUUR0000SEHA
   license: Public domain (US government data)
+tags:
+  - macro
+  - real-estate
+  - us

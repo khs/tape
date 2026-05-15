@@ -13,3 +13,6 @@ provenance:
   provider: Yahoo Finance
   series: CL=F
   url: https://finance.yahoo.com/quote/CL%3DF
+tags:
+  - commodities
+  - energy

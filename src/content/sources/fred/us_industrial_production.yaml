@@ -13,3 +13,6 @@ provenance:
   series: INDPRO
   url: https://fred.stlouisfed.org/series/INDPRO
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

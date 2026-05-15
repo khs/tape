@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: DIA
   url: https://finance.yahoo.com/quote/DIA
+tags:
+  - equity-index
+  - us

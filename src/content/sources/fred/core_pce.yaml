@@ -14,3 +14,6 @@ provenance:
   series: PCEPILFE
   url: https://fred.stlouisfed.org/series/PCEPILFE
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

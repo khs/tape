@@ -16,3 +16,5 @@ provenance:
   provider: Yahoo Finance
   series: ETH-USD
   url: https://finance.yahoo.com/quote/ETH-USD
+tags:
+  - crypto

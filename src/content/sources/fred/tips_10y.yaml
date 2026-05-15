@@ -1,6 +1,8 @@
 name: 10-year TIPS yield (real)
 shortName: 10Y real
-description: Constant-maturity 10-year Treasury Inflation-Protected Securities yield. The "real" interest rate the bond market demands after stripping inflation expectations.
+description: Constant-maturity 10-year Treasury Inflation-Protected Securities 
+  yield. The "real" interest rate the bond market demands after stripping 
+  inflation expectations.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DFII10.json
@@ -15,3 +17,7 @@ provenance:
   series: DFII10
   url: https://fred.stlouisfed.org/series/DFII10
   license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us

@@ -1,6 +1,8 @@
 name: Federal spending in Florida
 shortName: Florida fed $
-description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Florida, by fiscal year. From USAspending.gov.
+description: Total federal contract + grant + loan + direct payment outlays 
+  where the recipient is located in Florida, by fiscal year. From 
+  USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_fl.json
@@ -17,3 +19,7 @@ provenance:
   series: state_fl
   url: https://www.usaspending.gov/state/FL
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

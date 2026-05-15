@@ -1,6 +1,8 @@
 name: iShares Silver Trust
 shortName: SLV
-description: ETF that holds physical silver bullion in vaulted allocated storage; each share represents roughly one troy ounce of silver (declining over time as the expense ratio is paid in silver). Daily adjusted close.
+description: ETF that holds physical silver bullion in vaulted allocated 
+  storage; each share represents roughly one troy ounce of silver (declining 
+  over time as the expense ratio is paid in silver). Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/SLV.json
@@ -15,3 +17,5 @@ provenance:
   provider: Yahoo Finance
   series: SLV
   url: https://finance.yahoo.com/quote/SLV
+tags:
+  - commodities

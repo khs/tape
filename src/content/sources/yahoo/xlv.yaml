@@ -15,3 +15,7 @@ provenance:
   provider: Yahoo Finance
   series: XLV
   url: https://finance.yahoo.com/quote/XLV
+tags:
+  - equity-index
+  - sectors
+  - us

@@ -1,6 +1,7 @@
 name: Federal spending in Texas
 shortName: Texas fed $
-description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in Texas, by fiscal year. From USAspending.gov.
+description: Total federal contract + grant + loan + direct payment outlays 
+  where the recipient is located in Texas, by fiscal year. From USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_tx.json
@@ -17,3 +18,7 @@ provenance:
   series: state_tx
   url: https://www.usaspending.gov/state/TX
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us

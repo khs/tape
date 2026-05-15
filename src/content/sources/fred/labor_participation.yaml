@@ -14,3 +14,6 @@ provenance:
   series: CIVPART
   url: https://fred.stlouisfed.org/series/CIVPART
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

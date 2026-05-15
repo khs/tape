@@ -1,6 +1,7 @@
 name: NY Harbor heating oil / ULSD front-month
 shortName: ULSD
-description: NYMEX NY Harbor ultra-low-sulfur diesel / heating oil futures, daily. Wholesale benchmark for distillate fuels.
+description: NYMEX NY Harbor ultra-low-sulfur diesel / heating oil futures, 
+  daily. Wholesale benchmark for distillate fuels.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/HO_F.json
@@ -14,3 +15,5 @@ provenance:
   provider: Yahoo Finance
   series: HO=F
   url: https://finance.yahoo.com/quote/HO%3DF
+tags:
+  - commodities

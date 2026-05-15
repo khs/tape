@@ -1,6 +1,7 @@
 name: DC-metro Case-Shiller home price index
 shortName: DC home prices
-description: Case-Shiller home price index for the Washington DC-MD-VA metro area. Monthly, seasonally adjusted, 2000=100 base.
+description: Case-Shiller home price index for the Washington DC-MD-VA metro 
+  area. Monthly, seasonally adjusted, 2000=100 base.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WDXRSA.json
@@ -15,3 +16,6 @@ provenance:
   series: WDXRSA
   url: https://fred.stlouisfed.org/series/WDXRSA
   license: Public domain (US government data)
+tags:
+  - real-estate
+  - us

@@ -14,3 +14,7 @@ provenance:
   series: DGS5
   url: https://fred.stlouisfed.org/series/DGS5
   license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us

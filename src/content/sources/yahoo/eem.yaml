@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: EEM
   url: https://finance.yahoo.com/quote/EEM
+tags:
+  - equity-index
+  - world

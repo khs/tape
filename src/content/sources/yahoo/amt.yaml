@@ -1,6 +1,8 @@
 name: American Tower (AMT)
 shortName: AMT
-description: American Tower Corporation — major US-listed REIT that owns and leases cell tower infrastructure. Useful proxy for telecom-infrastructure demand.
+description: American Tower Corporation — major US-listed REIT that owns and 
+  leases cell tower infrastructure. Useful proxy for telecom-infrastructure 
+  demand.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/AMT.json
@@ -15,3 +17,7 @@ provenance:
   provider: Yahoo Finance
   series: AMT
   url: https://finance.yahoo.com/quote/AMT
+tags:
+  - real-estate
+  - single-name
+  - us

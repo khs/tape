@@ -15,3 +15,6 @@ provenance:
   provider: Yahoo Finance
   series: VEA
   url: https://finance.yahoo.com/quote/VEA
+tags:
+  - equity-index
+  - world

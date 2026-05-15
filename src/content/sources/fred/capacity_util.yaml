@@ -14,3 +14,6 @@ provenance:
   series: TCU
   url: https://fred.stlouisfed.org/series/TCU
   license: Public domain (US government data)
+tags:
+  - macro
+  - us

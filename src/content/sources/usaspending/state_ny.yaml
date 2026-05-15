@@ -1,6 +1,8 @@
 name: Federal spending in New York
 shortName: New York fed $
-description: Total federal contract + grant + loan + direct payment outlays where the recipient is located in New York, by fiscal year. From USAspending.gov.
+description: Total federal contract + grant + loan + direct payment outlays 
+  where the recipient is located in New York, by fiscal year. From 
+  USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_ny.json
@@ -17,3 +19,7 @@ provenance:
   series: state_ny
   url: https://www.usaspending.gov/state/NY
   license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us
