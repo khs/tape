@@ -326,11 +326,18 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         return (await r.json()) as SavedRow[];
       }
 
+      // Returns either { ok: true } or { ok: false, message? } where message
+      // is the human-readable reason the patch failed. Two failure shapes:
+      //   * Rate-limit trigger raises P0001 with a message that already
+      //     contains Enterprise-upsell language; surface it verbatim.
+      //   * Anything else (RLS denial because user doesn't own the row,
+      //     row deleted between read and write, network error, 500) gets
+      //     a generic message.
       async function patchDashboard(
         slug: string,
         state: any,
         token: string,
-      ): Promise<boolean> {
+      ): Promise<{ ok: boolean; message?: string }> {
         const url = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?slug=eq.${encodeURIComponent(slug)}`;
         const r = await fetch(url, {
           method: "PATCH",
@@ -342,9 +349,23 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
           },
           body: JSON.stringify({ state_json: state }),
         });
-        if (!r.ok) return false;
+        if (!r.ok) {
+          type ErrorBody = { code?: string; message?: string };
+          let body: ErrorBody | null = null;
+          try {
+            body = (await r.clone().json()) as ErrorBody;
+          } catch {
+            body = null;
+          }
+          const message =
+            body?.code === "P0001" && typeof body.message === "string"
+              ? body.message
+              : undefined;
+          return { ok: false, message };
+        }
         const rows = await r.json().catch(() => []);
-        return Array.isArray(rows) && rows.length > 0;
+        if (Array.isArray(rows) && rows.length > 0) return { ok: true };
+        return { ok: false };
       }
 
       // Add a chart ID to a saved-dashboard state, appending to the last
@@ -408,12 +429,18 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
             btn.disabled = true;
             btn.classList.add("atd-saved-item-busy");
             const newState = addChartToState(r.state_json, lastChartId!);
-            const ok = await patchDashboard(r.slug, newState, stored.access_token);
-            if (ok) {
+            const result = await patchDashboard(r.slug, newState, stored.access_token);
+            if (result.ok) {
               btn.innerHTML = `<span class="atd-saved-title">Added! Open <a href="${(window as any).location?.origin ?? ""}/u/${encodeURIComponent(r.slug)}/" class="underline">/u/${escapeHtmlSafe(r.slug)}/</a></span>`;
               btn.classList.add("atd-saved-item-done");
             } else {
-              btn.innerHTML = `<span class="atd-saved-title">Couldn't update — you may not own this dashboard, or it may have been deleted.</span>`;
+              // Prefer the server-supplied message (rate-limit P0001
+              // includes Enterprise-upsell language); fall back to the
+              // generic ownership/race-condition explanation.
+              const msg =
+                result.message ??
+                "Couldn't update — you may not own this dashboard, or it may have been deleted.";
+              btn.innerHTML = `<span class="atd-saved-title">${escapeHtmlSafe(msg)}</span>`;
               btn.disabled = false;
               btn.classList.remove("atd-saved-item-busy");
             }

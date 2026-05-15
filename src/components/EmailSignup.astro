@@ -134,19 +134,36 @@ const resolvedBlurb = blurb ?? placeholderBlurb;
         body: JSON.stringify({ p_email: email, p_source: source }),
       });
       if (!res.ok) {
-        // 4xx other than the duplicate-handled-above case. Probably the
-        // CHECK constraint rejecting a bad-shape email that slipped past
-        // the client regex.
+        // Two failure shapes worth distinguishing:
+        //   1. PostgREST raise_exception (code P0001) — our rate-limit
+        //      tier hit a ceiling. The message body is meaningful and
+        //      includes the Enterprise upsell language; surface it
+        //      verbatim so the user sees the real reason and the path
+        //      to talk to us.
+        //   2. Everything else — bad email shape, server hiccup, etc.
+        //      Generic fallback messages.
+        type ErrorBody = { code?: string; message?: string };
+        let body: ErrorBody | null = null;
+        try {
+          body = (await res.clone().json()) as ErrorBody;
+        } catch {
+          body = null;
+        }
+        const isRateLimit =
+          body?.code === "P0001" && typeof body.message === "string";
         setStatus(
           form,
-          res.status >= 500
-            ? "Server hiccup. Try again in a bit?"
-            : "Couldn't save that. Double-check the address?",
+          isRateLimit
+            ? (body!.message as string)
+            : res.status >= 500
+              ? "Server hiccup. Try again in a bit?"
+              : "Couldn't save that. Double-check the address?",
           "error",
         );
         track("email_signup_failed", {
           source,
           status: res.status,
+          rate_limited: isRateLimit ? 1 : 0,
         });
         return;
       }
