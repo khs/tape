@@ -8,11 +8,12 @@
 /**
  * The wordmark shown on share images and exported chart PNGs. Plain text,
  * no protocol — looks better as a small footer watermark than a full URL.
+ * Update when the production custom domain ships.
  */
-export const SITE_BRAND_URL = "legiblemarkets.com";
+export const SITE_BRAND_URL = "tape.io";
 
 /** The display name we use in titles and OG cards. */
-export const SITE_BRAND_NAME = "Legible Markets";
+export const SITE_BRAND_NAME = "Tape";
 
 /**
  * Where the "Inquire about enterprise" CTA points — a Notion form or

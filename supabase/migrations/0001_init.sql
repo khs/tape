@@ -1,4 +1,4 @@
--- Legible Markets v1.1 — saved dashboards
+-- Tape v1.1 — saved dashboards (originally shipped as "Legible Markets")
 --
 -- Users come from Supabase Auth (auth.users). We don't mirror a local users
 -- table; Supabase's built-in table is fine.

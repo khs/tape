@@ -32,7 +32,7 @@ describe("isServerlessRuntime", () => {
     expect(
       isServerlessRuntime({
         VERCEL: "1",
-        VERCEL_URL: "legible-markets-abc.vercel.app",
+        VERCEL_URL: "tape-abc.vercel.app",
         VERCEL_ENV: "production",
       }),
     ).toBe(false);
@@ -56,11 +56,11 @@ describe("resolveServerlessOrigin", () => {
   it("prefers SITE_URL (verbatim, including scheme) over all Vercel vars", () => {
     expect(
       resolveServerlessOrigin({
-        SITE_URL: "https://legible-markets.com",
-        VERCEL_PROJECT_PRODUCTION_URL: "legible-markets.vercel.app",
-        VERCEL_URL: "legible-markets-abc.vercel.app",
+        SITE_URL: "https://tape.com",
+        VERCEL_PROJECT_PRODUCTION_URL: "tape.vercel.app",
+        VERCEL_URL: "tape-abc.vercel.app",
       }),
-    ).toBe("https://legible-markets.com");
+    ).toBe("https://tape.com");
   });
 
   it("prefers VERCEL_PROJECT_PRODUCTION_URL over VERCEL_URL (regression: 157e9fb3)", () => {
@@ -70,18 +70,18 @@ describe("resolveServerlessOrigin", () => {
     // matters.
     expect(
       resolveServerlessOrigin({
-        VERCEL_PROJECT_PRODUCTION_URL: "legible-markets.vercel.app",
-        VERCEL_URL: "legible-markets-1i2umj3hh-team-projects.vercel.app",
+        VERCEL_PROJECT_PRODUCTION_URL: "tape.vercel.app",
+        VERCEL_URL: "tape-1i2umj3hh-team-projects.vercel.app",
       }),
-    ).toBe("https://legible-markets.vercel.app");
+    ).toBe("https://tape.vercel.app");
   });
 
   it("falls back to VERCEL_URL as a last resort (preview deploys etc.)", () => {
     expect(
       resolveServerlessOrigin({
-        VERCEL_URL: "legible-markets-pr-42-team.vercel.app",
+        VERCEL_URL: "tape-pr-42-team.vercel.app",
       }),
-    ).toBe("https://legible-markets-pr-42-team.vercel.app");
+    ).toBe("https://tape-pr-42-team.vercel.app");
   });
 
   it("prepends https:// to bare hostnames from VERCEL_* vars", () => {

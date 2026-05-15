@@ -40,8 +40,8 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
 ---
 
 <BaseLayout
-  title={`${resolved?.chart.data.title ?? chartId} — Legible Markets`}
-  description={resolved?.chart.data.blurb ?? "A single chart from the Legible Markets library."}
+  title={`${resolved?.chart.data.title ?? chartId} — Tape`}
+  description={resolved?.chart.data.blurb ?? "A single chart from the Tape library."}
   ogImage={`/og.png?chart=${encodeURIComponent(chartId)}`}
 >
   <div class="chart-detail max-w-[880px] mx-auto px-6 pt-8 pb-16" data-chart-id={chartId}>

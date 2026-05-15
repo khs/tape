@@ -55,13 +55,13 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         "@graph": [
           {
             "@type": "Organization",
-            name: "Legible Markets",
+            name: "Tape",
             url: siteOrigin,
             logo: absoluteOgUrl,
           },
           {
             "@type": "WebSite",
-            name: "Legible Markets",
+            name: "Tape",
             url: siteOrigin,
             description:
               "Shareable, citation-ready financial dashboards for the analysts, journalists, and staffers who have to explain what's happening in markets to people who don't read Bloomberg.",
@@ -79,7 +79,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         generic site card with no chart preview — a major leak on a product
         whose primary distribution channel is shareable links. */}
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Legible Markets" />
+    <meta property="og:site_name" content="Tape" />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
     <meta property="og:url" content={absolutePageUrl} />
@@ -98,7 +98,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         class="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between"
       >
         <a href={baseUrl || "/"} class="no-underline text-neutral-900 font-medium">
-          Legible Markets
+          Tape
         </a>
         <nav class="flex items-center gap-5 text-sm">
           <a

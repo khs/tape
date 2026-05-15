@@ -1,4 +1,4 @@
-# Legible Markets — crawler rules.
+# Tape — crawler rules.
 #
 # Public, indexable: homepage, preset dashboards, individual chart pages,
 # the chart-library explore page, about. These are the URLs we want

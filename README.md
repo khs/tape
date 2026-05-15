@@ -1,4 +1,4 @@
-# Legible Markets
+# Tape
 
 A free, link-shareable financial-markets dashboard built for policy folks,
 journalists, and curious generalists — not for traders. The premise is that
