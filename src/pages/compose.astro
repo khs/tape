@@ -212,6 +212,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             <p class="muted small ds-current" data-role="ds-b-current">No source picked yet.</p>
           </div>
           <p class="cc-op-hint muted small" data-role="ds-hint">&nbsp;</p>
+          <label class="ds-add-as-chart">
+            <input type="checkbox" data-role="ds-add-as-chart" checked />
+            <span>
+              Also add as a chart to the current section
+              <span class="muted small">— uncheck if you just want the source available for other charts.</span>
+            </span>
+          </label>
         </div>
         <div class="cc-modal-footer">
           <button type="button" class="btn-secondary" data-role="ds-cancel">Cancel</button>
@@ -2306,6 +2313,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     b: string;
     aSearch: string;
     bSearch: string;
+    // When true (default), creating the derived source also creates a
+    // single-source inline chart in the current section. The "I want
+    // X / Y as a tile right now" path is the dominant use case for
+    // derived sources, so default on; user can opt out per-creation
+    // when they're stockpiling sources for a multi-derive composition.
+    addAsChart: boolean;
   }
   const dsModal: DerivedModalState = {
     name: "",
@@ -2314,6 +2327,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     b: "",
     aSearch: "",
     bSearch: "",
+    addAsChart: true,
   };
 
   // Universe of pickable source IDs: every real source from library.json
@@ -2403,31 +2417,47 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return s?.shortName ?? s?.name ?? id;
   }
 
+  // Equation-form name auto-derived from picked A, op, B. Used as both
+  // the input's placeholder (so the user sees what they'll get if they
+  // leave the field blank) and the fallback value on submit.
+  function computeDerivedDefaultName(): string {
+    if (!dsModal.a || !dsModal.b) return "";
+    const symbol = dsModal.op === "divide" ? "÷" : dsModal.op === "sum" ? "+" : "−";
+    return `${dsSourceLabel(dsModal.a)} ${symbol} ${dsSourceLabel(dsModal.b)}`;
+  }
+
   function syncDerivedHint(): void {
     const hint = shell.querySelector<HTMLElement>("[data-role='ds-hint']");
     const create = shell.querySelector<HTMLButtonElement>("[data-role='ds-create']");
+    const nameInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='ds-name']",
+    );
+    const defaultName = computeDerivedDefaultName();
+    if (nameInput) {
+      // Show the equation as the placeholder so the user sees what name
+      // they'll get if they leave the field blank.
+      nameInput.placeholder = defaultName || "e.g. Retail-gas / WTI";
+    }
     if (hint) {
-      const symbol = dsModal.op === "divide" ? "÷" : dsModal.op === "sum" ? "+" : "−";
-      const aL = dsSourceLabel(dsModal.a);
-      const bL = dsSourceLabel(dsModal.b);
-      const ready = !!(dsModal.name.trim() && dsModal.a && dsModal.b && dsModal.a !== dsModal.b);
+      const ready = !!(dsModal.a && dsModal.b && dsModal.a !== dsModal.b);
       hint.textContent = ready
-        ? `→ ${aL} ${symbol} ${bL}`
+        ? `→ ${dsModal.name.trim() || defaultName}`
         : !dsModal.a || !dsModal.b
           ? "Pick A and B."
           : dsModal.a === dsModal.b
             ? "A and B must be different."
-            : !dsModal.name.trim()
-              ? "Give the new source a name."
-              : "";
+            : "";
     }
     if (create) {
-      create.disabled = !(
-        dsModal.name.trim() &&
-        dsModal.a &&
-        dsModal.b &&
-        dsModal.a !== dsModal.b
-      );
+      const ready = !!(dsModal.a && dsModal.b && dsModal.a !== dsModal.b);
+      create.disabled = !ready;
+      if (!ready) {
+        create.title = !dsModal.a || !dsModal.b
+          ? "Pick A and B first."
+          : "A and B must be different.";
+      } else {
+        create.removeAttribute("title");
+      }
     }
   }
 
@@ -2438,13 +2468,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     dsModal.b = "";
     dsModal.aSearch = "";
     dsModal.bSearch = "";
+    dsModal.addAsChart = true;
     const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;
     const nameInput = shell.querySelector<HTMLInputElement>("[data-role='ds-name']");
     if (nameInput) {
       nameInput.value = "";
-      nameInput.focus();
+      // No initial focus on the name field — A/B picking is now the
+      // primary action and the name fills in by itself.
     }
     const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
     if (opSelect) opSelect.value = "divide";
@@ -2452,6 +2484,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const bSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-b-search']");
     if (aSearch) aSearch.value = "";
     if (bSearch) bSearch.value = "";
+    const addAsChartChk = shell.querySelector<HTMLInputElement>(
+      "[data-role='ds-add-as-chart']",
+    );
+    if (addAsChartChk) addAsChartChk.checked = true;
     // Clear any stale quick-divisor highlight from a prior open.
     shell
       .querySelectorAll<HTMLButtonElement>("[data-role='ds-quick']")
@@ -2501,6 +2537,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       dsModal.bSearch = bSearch.value;
       renderDsPicker("b");
     });
+    const addAsChartChk = shell.querySelector<HTMLInputElement>(
+      "[data-role='ds-add-as-chart']",
+    );
+    addAsChartChk?.addEventListener("change", () => {
+      dsModal.addAsChart = addAsChartChk.checked;
+    });
     // Quick-divisor chips: one-click pre-fill of op + B with a commonly
     // requested denominator (population / GDP / employment). The user
     // still picks A; we seed the name with a hint phrase if blank, and
@@ -2541,8 +2583,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     });
     createBtn?.addEventListener("click", async () => {
+      // Title is now optional — empty falls back to the auto-generated
+      // "A {op} B" name. A and B still required and must differ.
       if (
-        !dsModal.name.trim() ||
         !dsModal.a ||
         !dsModal.b ||
         dsModal.a === dsModal.b
@@ -2558,24 +2601,52 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         showSigninPrompt("create_derived_source");
         return;
       }
+      const effectiveName =
+        dsModal.name.trim() || computeDerivedDefaultName();
       const id = DERIVED_PREFIX + nanoid(8);
       state.inlineSources[id] = {
         op: dsModal.op,
         a: dsModal.a,
         b: dsModal.b,
-        name: dsModal.name.trim(),
+        name: effectiveName,
       };
+      // Optional auto-insert as a chart in the current section. The vast
+      // majority of derived-source creations are "I want this ratio as a
+      // tile now"; pre-checking the box and creating the chart here saves
+      // the user from a follow-up trip through the cc-modal. Opt-out
+      // covers the stockpiling-sources-for-later case.
+      let autoChartCreated = false;
+      if (dsModal.addAsChart) {
+        clampActiveSection();
+        const target = state.sections[activeSectionIdx];
+        if (target) {
+          const chartId = INLINE_PREFIX + nanoid(8);
+          state.inlineCharts[chartId] = {
+            title: effectiveName,
+            sources: [id],
+            normalize: "raw",
+          };
+          target.charts.push(chartId);
+          autoChartCreated = true;
+        }
+      }
       writeUrl();
       closeDerivedSourceModal();
+      // Re-render the dashboard composition if we just appended a chart;
+      // otherwise only the source-pickers need refreshing.
+      if (autoChartCreated) renderComposition();
       // Refresh anything that lists sources (custom-chart modal, if open).
       renderCustomChartSources();
       // Funnel telemetry: derived sources are a power-user feature; tracking
       // op distribution tells us whether divide-ratios dominate (the case we
       // designed for) or sum/diff get real use. Including the operand source
       // IDs lets us spot common derived-source recipes (e.g. retail-gas/WTI).
+      // `auto_chart` records whether the user opted into the "add as chart"
+      // default — useful for tuning the default if usage skews the other way.
       track("compose_derived_source_created", {
         op: dsModal.op,
         sources: packSourceIds([dsModal.a, dsModal.b]),
+        auto_chart: autoChartCreated ? 1 : 0,
       });
     });
   }
@@ -3440,6 +3511,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-accent);
   }
   .ds-current { margin-top: 4px; font-style: italic; }
+  /* Auto-insert toggle in the derived-source modal — pre-checked so the
+     dominant "I want X / Y as a tile right now" path takes zero extra
+     clicks. Indented and dim so it reads as an optional refinement,
+     not as a primary CTA. */
+  .ds-add-as-chart {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .ds-add-as-chart input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .ds-add-as-chart > span {
+    line-height: 1.4;
+  }
   /* Quick-divisor chips — one-click pre-fill of op + B in the
      derived-source modal for the common per-capita / per-worker /
      share-of-GDP recipes. Sits above Name + Operation so it reads
