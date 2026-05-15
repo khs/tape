@@ -1787,7 +1787,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       count.textContent = `${n} selected`;
     }
     if (btn) {
-      btn.disabled = !ccModal.title.trim() || ccModal.selected.size === 0;
+      const missingTitle = !ccModal.title.trim();
+      const missingSources = ccModal.selected.size === 0;
+      btn.disabled = missingTitle || missingSources;
+      // Hover hint that explains WHICH prerequisite is missing — the
+      // old behavior (button just sits disabled silently) led to
+      // "Create chart does nothing" reports.
+      if (missingTitle && missingSources) {
+        btn.title = "Add a title and pick at least one source first.";
+      } else if (missingTitle) {
+        btn.title = "Add a title first.";
+      } else if (missingSources) {
+        btn.title = "Pick at least one source first.";
+      } else {
+        btn.removeAttribute("title");
+      }
     }
   }
 
@@ -2884,6 +2898,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
   .btn-primary:hover { background: var(--color-accent-hover); }
   .btn-secondary:hover { background: var(--color-neutral-100); }
+  /* Disabled state is otherwise nearly indistinguishable from active on
+     the green accent; reported as "Create chart button does nothing"
+     when the prerequisite (title or source) hadn't been filled. Mute
+     hard so it's obvious the click won't fire. */
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .btn-primary:disabled:hover,
+  .btn-secondary:disabled:hover {
+    background: var(--color-accent);
+  }
 
   .composer-layout {
     display: grid;
