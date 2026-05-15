@@ -1787,17 +1787,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       count.textContent = `${n} selected`;
     }
     if (btn) {
-      const missingTitle = !ccModal.title.trim();
+      // Title isn't required — an empty title gets a "Unnamed chart"
+      // default on submit. Only source-picking is mandatory.
       const missingSources = ccModal.selected.size === 0;
-      btn.disabled = missingTitle || missingSources;
-      // Hover hint that explains WHICH prerequisite is missing — the
-      // old behavior (button just sits disabled silently) led to
-      // "Create chart does nothing" reports.
-      if (missingTitle && missingSources) {
-        btn.title = "Add a title and pick at least one source first.";
-      } else if (missingTitle) {
-        btn.title = "Add a title first.";
-      } else if (missingSources) {
+      btn.disabled = missingSources;
+      if (missingSources) {
         btn.title = "Pick at least one source first.";
       } else {
         btn.removeAttribute("title");
@@ -2725,7 +2719,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       for (const id of ccModal.selected) {
         if (!sourceIds.includes(id)) sourceIds.push(id);
       }
-      if (!ccModal.title.trim() || sourceIds.length === 0) return;
+      if (sourceIds.length === 0) return;
+      // Title is optional; empty (or whitespace-only) gets a default so
+      // the user isn't forced to name what might be a quick exploration.
+      // Multiple "Unnamed chart"s on one dashboard is a self-inflicted
+      // aesthetic — fixable by clicking the chart to rename — rather
+      // than a structural problem.
+      const effectiveTitle = ccModal.title.trim() || "Unnamed chart";
       // Final mode: rebase and dual-axis both need at least 2 sources to be
       // meaningful (rebasing a single series is just "indexed to 100" with no
       // comparison; dual-axis has nothing to assign to L/R). Clamp down to raw.
@@ -2761,7 +2761,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         };
         state.inlineCharts[ccModal.editingId] = {
           ...existing,
-          title: ccModal.title.trim(),
+          title: effectiveTitle,
           sources: sourceIds,
           normalize: mode,
           scale: scaleToSave,
@@ -2771,7 +2771,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       } else {
         const id = INLINE_PREFIX + nanoid(8);
         state.inlineCharts[id] = {
-          title: ccModal.title.trim(),
+          title: effectiveTitle,
           sources: sourceIds,
           normalize: mode,
           scale: scaleToSave,
