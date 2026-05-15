@@ -285,6 +285,42 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         </div>
       </div>
     </div>
+
+    <!--
+      Sign-in prompt: shown when an anonymous composer session has used
+      its per-IP action budget (chart-adds + derived-source-creates,
+      capped at 20 per 24h via the compose_action_check RPC). Real
+      humans rarely hit this; bots do, fast.
+
+      The Sign-in button reuses the existing Google OAuth flow (same as
+      the Save-to-account button) with redirectTo=window.location.href
+      so the in-progress composer state survives the round trip.
+    -->
+    <div class="cc-modal-backdrop" data-role="signin-prompt" hidden>
+      <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="signin-prompt-title">
+        <div class="cc-modal-header">
+          <h3 id="signin-prompt-title">Sign in to keep editing</h3>
+          <button type="button" class="cc-modal-close" data-role="signin-prompt-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="cc-modal-body">
+          <p>
+            You've added <strong>20 charts or sources</strong> from this network
+            without an account. To keep editing — and to save dashboards so
+            you can come back to them — sign in with Google.
+          </p>
+          <p class="muted small">
+            No charges, no spam, no resale. Sign-in only lets us tell legitimate
+            users apart from scripts so the free tier stays free. If you're on
+            a shared network (library, office) and this seems wrong, email
+            keller.scholl@gmail.com.
+          </p>
+        </div>
+        <div class="cc-modal-footer">
+          <button type="button" class="btn-secondary" data-role="signin-prompt-dismiss">Close</button>
+          <button type="button" class="btn-primary" data-role="signin-prompt-signin">Sign in with Google</button>
+        </div>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
@@ -684,7 +720,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       card.innerHTML =
         `<div class="chart-card-title">${escapeHtml(c.title)}</div>` +
         `<div class="chart-card-meta">${c.tags.map(escapeHtml).join(" \u00b7 ")}</div>`;
-      card.addEventListener("click", () => addChart(c.id));
+      card.addEventListener("click", () => {
+        void addChart(c.id);
+      });
       host.appendChild(card);
       }
     }
@@ -1098,12 +1136,70 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     });
   }
 
+  // ---- Anonymous composer rate-limit gate ----
+  //
+  // Anonymous users get 20 chart-adds + derived-source-creates per IP per
+  // day before the composer prompts them to sign in (see migration 0004,
+  // compose_action_check RPC). Signed-in users skip the roundtrip entirely.
+  //
+  // Once we've seen a denial in this tab, latch composeCapHit so subsequent
+  // attempts skip the network call and go straight to the prompt — both
+  // for UX (no roundtrip delay on each click) and to keep the per-IP
+  // counter from creeping up on every refused attempt.
+  let composeCapHit = false;
+
+  async function checkComposeAction(action: string): Promise<boolean> {
+    // Latch: once capped, stay capped until page reload (which happens
+    // automatically after OAuth sign-in via the redirectTo flow).
+    if (composeCapHit) return false;
+    // Fast path: signed-in users always pass without a roundtrip.
+    if (readStoredSession()) return true;
+    try {
+      const res = await fetch(
+        `${SUPABASE_REST_URL}/rest/v1/rpc/compose_action_check`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_REST_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_REST_ANON_KEY}`,
+          },
+          body: JSON.stringify({ p_action: action }),
+        },
+      );
+      if (!res.ok) return true; // fail-open on transport errors
+      const allowed = await res.json();
+      const ok = allowed === true;
+      if (!ok) composeCapHit = true;
+      return ok;
+    } catch {
+      return true; // fail-open on network errors
+    }
+  }
+
+  function showSigninPrompt(reason: string): void {
+    const backdrop = shell.querySelector<HTMLElement>(
+      "[data-role='signin-prompt']",
+    );
+    if (backdrop) backdrop.hidden = false;
+    // Funnel telemetry: which action triggered the prompt, so we can see
+    // whether chart-adds or derived-source-creates drive the cap-hits.
+    track("compose_signin_prompt_shown", { reason });
+  }
+
   // ---- Mutations ----
-  function addChart(chartId: string): void {
+  async function addChart(chartId: string): Promise<void> {
     clampActiveSection();
     const target = state.sections[activeSectionIdx];
     if (!target) return;
-    if (target.charts.includes(chartId)) return; // don't duplicate
+    if (target.charts.includes(chartId)) return; // don't duplicate (no budget cost)
+    // Anon rate-limit gate. Authed users always pass; anon users above
+    // their 20-per-day per-IP budget get the prompt instead of the add.
+    const allowed = await checkComposeAction("add_chart");
+    if (!allowed) {
+      showSigninPrompt("add_chart");
+      return;
+    }
     target.charts.push(chartId);
     writeUrl();
     renderComposition();
@@ -1225,6 +1321,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     wireCustomChartModal();
     wireChartBlurbModal();
     wireDerivedSourceModal();
+    wireSigninPrompt();
     const copyShare = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
     if (copyShare) {
       copyShare.addEventListener("click", async () => {
@@ -2435,7 +2532,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         if (aSearch) aSearch.focus();
       });
     });
-    createBtn?.addEventListener("click", () => {
+    createBtn?.addEventListener("click", async () => {
       if (
         !dsModal.name.trim() ||
         !dsModal.a ||
@@ -2443,6 +2540,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         dsModal.a === dsModal.b
       )
         return;
+      // Anon rate-limit gate. Derived-source creation draws from the
+      // same per-IP budget as chart-adds — bot loops that generate
+      // synthetic derived sources are the same threat shape as those
+      // adding chart after chart.
+      const allowed = await checkComposeAction("create_derived_source");
+      if (!allowed) {
+        closeDerivedSourceModal();
+        showSigninPrompt("create_derived_source");
+        return;
+      }
       const id = DERIVED_PREFIX + nanoid(8);
       state.inlineSources[id] = {
         op: dsModal.op,
@@ -2463,6 +2570,58 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         sources: packSourceIds([dsModal.a, dsModal.b]),
       });
     });
+  }
+
+  function wireSigninPrompt(): void {
+    const backdrop = shell.querySelector<HTMLElement>(
+      "[data-role='signin-prompt']",
+    );
+    const closeBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='signin-prompt-close']",
+    );
+    const dismissBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='signin-prompt-dismiss']",
+    );
+    const signinBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='signin-prompt-signin']",
+    );
+    const close = () => {
+      if (backdrop) backdrop.hidden = true;
+    };
+    closeBtn?.addEventListener("click", close);
+    dismissBtn?.addEventListener("click", close);
+    backdrop?.addEventListener("click", (e) => {
+      if (e.target === backdrop) close();
+    });
+    // Local Supabase client — same factory the save flow uses below. The
+    // module's createSupabase memoizes internally so we don't double-up.
+    const sb = isSupabaseConfigured ? createSupabase() : null;
+    if (signinBtn && sb) {
+      signinBtn.addEventListener("click", async () => {
+        // Same OAuth flow as the Save-to-account button. redirectTo back
+        // to the current URL means the composer state (encoded in ?d=)
+        // survives the round trip, so the user returns to the same
+        // in-progress dashboard with their session token attached.
+        track("compose_signin_prompt_clicked", {});
+        try {
+          await sb.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: window.location.href,
+              scopes: "openid email",
+            },
+          });
+        } catch {
+          // OAuth failure — leave the modal open so the user can retry
+          // or dismiss. Network errors and provider 4xx land here.
+        }
+      });
+    } else if (signinBtn) {
+      // Supabase isn't configured in this build (no envvars). Hide the
+      // sign-in CTA rather than offer a dead button; the close button
+      // still works.
+      signinBtn.style.display = "none";
+    }
   }
 
   function wireCustomChartModal(): void {
