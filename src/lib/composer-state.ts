@@ -77,6 +77,11 @@ const inlineSourceSchema = z.object({
   a: z.string(),
   b: z.string(),
   name: z.string(),
+  // Topic tags inherited from parents at creation time (union of A.tags
+  // and B.tags) plus a "custom" tag so the composer's source picker
+  // can offer a "show only my custom sources" filter. Optional for
+  // back-compat with older saved states; treated as empty when absent.
+  tags: z.array(z.string()).optional(),
 });
 
 export type InlineSource = z.infer<typeof inlineSourceSchema>;

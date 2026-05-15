@@ -239,6 +239,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             </select>
           </label>
           <div class="cc-field">
+            <span class="eyebrow">Filter operands by tag (optional)</span>
+            <div class="cc-source-tags lib-tag-filters" data-role="ds-source-tags"></div>
+          </div>
+          <div class="cc-field">
             <span class="eyebrow">A (first operand)</span>
             <input
               type="search"
@@ -294,7 +298,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span class="eyebrow">Sources</span>
                 <span class="cc-sources-count" data-role="cc-count">0 selected</span>
               </div>
-              <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name or ticker…" />
+              <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name, ticker, or tag…" />
+              <div class="cc-source-tags lib-tag-filters" data-role="cc-source-tags"></div>
               <div class="cc-source-list" data-role="cc-source-list"></div>
             </div>
             <fieldset class="cc-mode" data-role="cc-mode">
@@ -1961,6 +1966,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Optional curator-style commentary shown when the chart's expanded
     // dialog is open. Plain text, no markdown. Empty → no blurb saved.
     blurb: string;
+    // Tag-chip filter set for the source picker. AND across selected
+    // tags. Cleared each time the modal is opened.
+    pickerTags: Set<string>;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
@@ -1974,6 +1982,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     op: null,
     blurb: "",
     logScale: false,
+    pickerTags: new Set<string>(),
   };
 
   // True when every selected source shares the same formatting style + unit
@@ -2031,6 +2040,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.logScale =
       (existing as { scale?: string } | null)?.scale === "log";
     ccModal.blurb = existing?.blurb ?? "";
+    // Fresh tag-chip filter each time the modal opens. The user's prior
+    // selection on a previous chart's compose session isn't relevant.
+    ccModal.pickerTags = new Set<string>();
 
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
     if (!backdrop) return;
@@ -2053,9 +2065,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncModeRadioFromState();
     syncLogUI();
     syncOpUI();
+    renderCcModalTagChips();
     renderCustomChartSources();
     updateCustomChartCreateState();
     renderCustomChartPreview();
+  }
+
+  function renderCcModalTagChips(): void {
+    renderModalTagChips(
+      "[data-role='cc-source-tags']",
+      ccModal.pickerTags,
+      () => {
+        renderCcModalTagChips();
+        renderCustomChartSources();
+      },
+    );
   }
 
   // Reflect ccModal.logScale + mode onto the log-scale checkbox: log is
@@ -2171,24 +2195,41 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
   }
 
-  function filteredModalSources(): LibrarySource[] {
+  function filteredModalSources(): (LibrarySource & { tags?: string[] })[] {
     if (!library) return [];
     const q = ccModal.search.trim().toLowerCase();
+    const tagsRequired = [...ccModal.pickerTags];
     // Inject derived sources at the top of the universe so the user sees
-    // their own creations before the firehose of library sources.
-    const derivedAsLib: LibrarySource[] = Object.entries(state.inlineSources).map(
+    // their own creations before the firehose of library sources. Each
+    // derived source carries its inherited+custom tag set so the
+    // picker-tags filter works uniformly.
+    const derivedAsLib: (LibrarySource & { tags?: string[] })[] = Object.entries(
+      state.inlineSources,
+    ).map(
       ([id, spec]) => ({
         id,
         name: spec.name,
         shortName: spec.name,
         description: `Derived: ${describeDerivedExpr(id)}`,
-      } as LibrarySource),
+        tags: spec.tags ?? [],
+      } as LibrarySource & { tags?: string[] }),
     );
-    const all = [...derivedAsLib, ...Object.values(library.sources)];
-    if (!q) return all;
+    const all: (LibrarySource & { tags?: string[]; searchText?: string })[] = [
+      ...derivedAsLib,
+      ...Object.values(library.sources),
+    ];
     return all.filter((s) => {
-      const hay = `${s.name} ${s.shortName ?? ""} ${s.description ?? ""} ${s.id}`.toLowerCase();
-      return hay.includes(q);
+      const sTags = s.tags ?? [];
+      for (const t of tagsRequired) {
+        if (!sTags.includes(t)) return false;
+      }
+      if (q) {
+        const hay =
+          s.searchText ??
+          `${s.name} ${s.shortName ?? ""} ${s.description ?? ""} ${s.id} ${sTags.join(" ")}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
     });
   }
 
@@ -2684,6 +2725,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // derived sources, so default on; user can opt out per-creation
     // when they're stockpiling sources for a multi-derive composition.
     addAsChart: boolean;
+    // Shared tag-chip filter for both the A and B operand pickers.
+    // Picking from related topics is the dominant case (Canada GDP ÷
+    // US GDP — both "world", "macro"), so one shared filter strip
+    // beats two separate ones. AND across selected tags. Cleared on
+    // each open.
+    pickerTags: Set<string>;
   }
   const dsModal: DerivedModalState = {
     name: "",
@@ -2693,6 +2740,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     aSearch: "",
     bSearch: "",
     addAsChart: true,
+    pickerTags: new Set<string>(),
   };
 
   // Universe of pickable source IDs: every real source from library.json
@@ -2732,11 +2780,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const search = (side === "a" ? dsModal.aSearch : dsModal.bSearch)
       .trim()
       .toLowerCase();
+    const tagsRequired = [...dsModal.pickerTags];
     const opts = pickableSourceOptions().filter((o) => {
+      if (tagsRequired.length > 0) {
+        const oTags = sourceTagsFor(o.id);
+        for (const t of tagsRequired) {
+          if (!oTags.includes(t)) return false;
+        }
+      }
       if (!search) return true;
       return (
         o.label.toLowerCase().includes(search) ||
-        o.id.toLowerCase().includes(search)
+        o.id.toLowerCase().includes(search) ||
+        sourceTagsFor(o.id).join(" ").toLowerCase().includes(search)
       );
     });
     list.innerHTML = "";
@@ -2780,6 +2836,85 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (isDerivedId(id)) return state.inlineSources[id]?.name ?? id;
     const s = library?.sources[id];
     return s?.shortName ?? s?.name ?? id;
+  }
+
+  // Resolve the tag set of a single source ID. Real sources read from
+  // library.json (populated by pipelines/backfill_source_tags.py).
+  // Derived sources read from state.inlineSources[id].tags, which
+  // itself was inherited from its own parents at creation time, so
+  // arbitrary nesting flattens correctly without re-walking the tree.
+  function sourceTagsFor(id: string): string[] {
+    if (isDerivedId(id)) return state.inlineSources[id]?.tags ?? [];
+    const s = library?.sources[id] as
+      | (LibrarySource & { tags?: string[] })
+      | undefined;
+    return s?.tags ?? [];
+  }
+
+  // Derived sources' tag set = union(A.tags, B.tags) plus a "custom"
+  // tag. Recursive derivation just works: when a derived source's
+  // parent is itself derived, its tags already include "custom" + the
+  // ancestor's parents' tags, so the union flattens correctly.
+  function inheritedTagsForDerived(aId: string, bId: string): string[] {
+    const s = new Set<string>([...sourceTagsFor(aId), ...sourceTagsFor(bId)]);
+    s.add("custom");
+    return [...s].sort();
+  }
+
+  // Union of every tag across the universe of pickable sources (library
+  // + derived). The "custom" tag is implicitly only present when at
+  // least one derived source exists (since that's where it comes from),
+  // so we get the right "hide custom chip when there are no custom
+  // sources" behavior for free.
+  function allPickableSourceTags(): string[] {
+    const s = new Set<string>();
+    if (library) {
+      for (const id of Object.keys(library.sources)) {
+        const src = library.sources[id] as LibrarySource & { tags?: string[] };
+        for (const t of src.tags ?? []) s.add(t);
+      }
+    }
+    for (const spec of Object.values(state.inlineSources)) {
+      for (const t of spec.tags ?? []) s.add(t);
+    }
+    return [...s].sort();
+  }
+
+  // Generic chip-strip builder shared between the cc-modal source picker
+  // and the ds-modal operand pickers. Caller supplies the active-tag
+  // set + the re-render callback (different functions per modal).
+  function renderModalTagChips(
+    hostSelector: string,
+    selected: Set<string>,
+    onToggle: () => void,
+  ): void {
+    const host = shell.querySelector<HTMLElement>(hostSelector);
+    if (!host) return;
+    const tags = allPickableSourceTags();
+    host.innerHTML = "";
+    if (tags.length === 0) return;
+    const makeChip = (tag: string, label: string, active: boolean) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tag-pill" + (active ? " tag-pill-active" : "");
+      b.textContent = label;
+      b.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (tag === "") {
+          selected.clear();
+        } else if (selected.has(tag)) {
+          selected.delete(tag);
+        } else {
+          selected.add(tag);
+        }
+        onToggle();
+      });
+      return b;
+    };
+    host.appendChild(makeChip("", "all", selected.size === 0));
+    for (const t of tags) {
+      host.appendChild(makeChip(t, t, selected.has(t)));
+    }
   }
 
   // Equation-form name auto-derived from picked A, op, B. Used as both
@@ -2834,6 +2969,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     dsModal.aSearch = "";
     dsModal.bSearch = "";
     dsModal.addAsChart = true;
+    dsModal.pickerTags = new Set<string>();
     const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;
@@ -2857,9 +2993,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     shell
       .querySelectorAll<HTMLButtonElement>("[data-role='ds-quick']")
       .forEach((c) => c.classList.remove("ds-quick-chip-active"));
+    renderDsModalTagChips();
     renderDsPicker("a");
     renderDsPicker("b");
     syncDerivedHint();
+  }
+
+  function renderDsModalTagChips(): void {
+    renderModalTagChips(
+      "[data-role='ds-source-tags']",
+      dsModal.pickerTags,
+      () => {
+        renderDsModalTagChips();
+        renderDsPicker("a");
+        renderDsPicker("b");
+      },
+    );
   }
 
   function closeDerivedSourceModal(): void {
@@ -2969,11 +3118,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const effectiveName =
         dsModal.name.trim() || computeDerivedDefaultName();
       const id = DERIVED_PREFIX + nanoid(8);
+      // Inherit parent tags + add "custom" so this new source shows up
+      // under the custom-tag filter chip in the source picker (chip
+      // only renders when at least one source has it; see Phase 5).
+      const inheritedTags = inheritedTagsForDerived(dsModal.a, dsModal.b);
       state.inlineSources[id] = {
         op: dsModal.op,
         a: dsModal.a,
         b: dsModal.b,
         name: effectiveName,
+        tags: inheritedTags,
       };
       // Optional auto-insert as a chart in the current section. The vast
       // majority of derived-source creations are "I want this ratio as a
