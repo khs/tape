@@ -312,6 +312,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span><strong>Dual-axis</strong> — left and right y-axes, one per series. Available with exactly two sources.</span>
               </label>
             </fieldset>
+            <label class="cc-field">
+              <span class="eyebrow">Note (shown when expanded)</span>
+              <textarea
+                data-role="cc-blurb"
+                rows="3"
+                placeholder="What should readers notice about this chart? Plain text. Optional."
+              ></textarea>
+            </label>
             <label
               class="cc-log-opt"
               data-role="cc-log-wrap"
@@ -407,6 +415,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     tags: string[];
     sources: string[];
     defaultDelta?: DeltaWindow;
+    // Fields needed by the promote-library-to-inline path so library
+    // charts can be opened in the custom-chart modal for full editing.
+    // Optional because the schema marks them all optional too — older
+    // library.json snapshots may not carry them.
+    normalize?: "raw" | "rebase" | "dual-axis";
+    scale?: "linear" | "log";
+    rightAxisSources?: string[];
+    op?: "divide" | "sum" | "diff";
+    blurb?: string;
+    searchText?: string;
   };
   type LibrarySource = {
     id: string;
@@ -970,6 +988,52 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     track("compose_lib_tab_switched", { tab });
   }
 
+  // Promote a library chart in-place to an inline chart so the user
+  // can fully edit it (sources, scale, mode, log, blurb, etc.) via
+  // the cc-modal. Copies every editable field from the library chart's
+  // spec into a fresh state.inlineCharts entry, then swaps the section's
+  // reference to point at the new inline ID. The library chart YAML is
+  // untouched; the inline copy is the user's working version going
+  // forward.
+  //
+  // Returns the new inline chart ID (or null if the library entry was
+  // missing). Caller is responsible for re-rendering composition + URL
+  // state.
+  function promoteLibraryChartToInline(
+    libraryChartId: string,
+    secIdx: number,
+    chartIdx: number,
+  ): string | null {
+    const lib = library?.charts.find((c) => c.id === libraryChartId);
+    if (!lib) return null;
+    const inlineId = INLINE_PREFIX + nanoid(8);
+    const override = state.chartOverrides[libraryChartId];
+    // Override fields (title, blurb) win over library defaults \u2014 the
+    // user's prior tweaks shouldn't get reset by an edit.
+    state.inlineCharts[inlineId] = {
+      title: override?.title || lib.title,
+      sources: [...(lib.sources ?? [])],
+      normalize: lib.normalize as CustomChartMode | undefined,
+      scale: (lib as { scale?: "linear" | "log" }).scale,
+      rightAxisSources: (lib as { rightAxisSources?: string[] }).rightAxisSources,
+      op: (lib as { op?: ChartCombineOp }).op,
+      blurb: override?.blurb || lib.blurb,
+    };
+    const sec = state.sections[secIdx];
+    if (sec && sec.charts[chartIdx] === libraryChartId) {
+      sec.charts[chartIdx] = inlineId;
+    }
+    // The promoted inline copy now carries the title / blurb itself,
+    // so the per-chart override on the original library ID is dead
+    // weight. Drop it.
+    if (override) delete state.chartOverrides[libraryChartId];
+    track("compose_chart_promoted_to_inline", {
+      from: libraryChartId,
+      to: inlineId,
+    });
+    return inlineId;
+  }
+
   // Add a library source as a single-series inline chart to the active
   // section. This is the new dominant path for "I want to track X" \u2014
   // separate from addChart() (pregenerated multi-source compositions)
@@ -1354,18 +1418,30 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               .querySelectorAll<HTMLElement>(".comp-section-grid.drop-target")
               .forEach((g) => g.classList.remove("drop-target"));
           });
-          if (isInlineId(chartId)) {
-            // Inline-chart tiles are editable — clicking the body reopens the
-            // modal in edit mode. The × button stops propagation so remove
-            // doesn't also trigger edit.
-            tile.classList.add("comp-tile-editable");
-            tile.title = "Drag to reorder, click to edit";
-            tile.addEventListener("click", () => {
+          // Every tile is editable. Inline tiles open their existing
+          // edit flow directly; library tiles get a copy-and-promote
+          // step first (library YAML stays untouched, an inline copy
+          // becomes the editable working version).
+          tile.classList.add("comp-tile-editable");
+          tile.title = "Drag to reorder, click to edit";
+          const openEditor = (): void => {
+            if (isInlineId(chartId)) {
               openCustomChartModal(chartId);
-            });
-          } else {
-            tile.title = "Drag to reorder";
-          }
+              return;
+            }
+            const newId = promoteLibraryChartToInline(chartId, secIdx, chartIdx);
+            if (!newId) {
+              // Library entry vanished (deleted catalog file, stale
+              // saved dashboard). Fall back to the lightweight blurb
+              // modal so the user still has SOME way to edit the tile.
+              openChartBlurbModal(chartId);
+              return;
+            }
+            writeUrl();
+            renderComposition();
+            openCustomChartModal(newId);
+          };
+          tile.addEventListener("click", openEditor);
           const rm = document.createElement("button");
           rm.type = "button";
           rm.className = "comp-tile-del";
@@ -1386,18 +1462,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           edit.type = "button";
           edit.className = "comp-tile-edit";
           edit.textContent = "\u270e";
-          edit.title = isInlineId(chartId)
-            ? "Edit custom chart"
-            : "Add a note for this chart";
+          edit.title = "Edit chart";
           edit.draggable = false;
           edit.addEventListener("mousedown", (e) => e.stopPropagation());
           edit.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (isInlineId(chartId)) {
-              openCustomChartModal(chartId);
-            } else {
-              openChartBlurbModal(chartId);
-            }
+            openEditor();
           });
           tile.appendChild(edit);
           tile.appendChild(rm);
@@ -1888,6 +1958,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // with dual-axis (one-log-one-linear is misleading); the UI clears
     // this flag whenever dual-axis becomes active.
     logScale: boolean;
+    // Optional curator-style commentary shown when the chart's expanded
+    // dialog is open. Plain text, no markdown. Empty → no blurb saved.
+    blurb: string;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
@@ -1899,6 +1972,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     modeIsExplicit: false,
     rightAxisSources: new Set<string>(),
     op: null,
+    blurb: "",
     logScale: false,
   };
 
@@ -1956,12 +2030,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // (linear) which is the safe default for any value distribution.
     ccModal.logScale =
       (existing as { scale?: string } | null)?.scale === "log";
+    ccModal.blurb = existing?.blurb ?? "";
 
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cc-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;
     const heading = shell.querySelector<HTMLElement>("#cc-modal-title");
-    if (heading) heading.textContent = existing ? "Edit custom chart" : "New custom chart";
+    if (heading) heading.textContent = existing ? "Edit chart" : "New custom chart";
     const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-create']");
     if (createBtn) createBtn.textContent = existing ? "Save changes" : "Create chart";
     const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cc-title']");
@@ -1971,6 +2046,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
     if (searchInput) searchInput.value = "";
+    const blurbInput = shell.querySelector<HTMLTextAreaElement>(
+      "[data-role='cc-blurb']",
+    );
+    if (blurbInput) blurbInput.value = ccModal.blurb;
     syncModeRadioFromState();
     syncLogUI();
     syncOpUI();
@@ -3015,6 +3094,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ccModal.title = titleInput.value;
       updateCustomChartCreateState();
     });
+    const blurbInput = shell.querySelector<HTMLTextAreaElement>(
+      "[data-role='cc-blurb']",
+    );
+    blurbInput?.addEventListener("input", () => {
+      ccModal.blurb = blurbInput.value;
+    });
     searchInput?.addEventListener("input", () => {
       ccModal.search = searchInput.value;
       renderCustomChartSources();
@@ -3110,8 +3195,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // re-armed by some future UI fix).
       const scaleToSave: "linear" | "log" | undefined =
         ccModal.logScale && mode !== "dual-axis" ? "log" : undefined;
+      const blurbToSave = ccModal.blurb.trim() || undefined;
       if (ccModal.editingId) {
-        // Edit mode: preserve any fields we don't expose (e.g. render, blurb).
+        // Edit mode: preserve any fields we don't expose (e.g. render).
         const existing = state.inlineCharts[ccModal.editingId] ?? {
           title: "",
           sources: [] as string[],
@@ -3124,6 +3210,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           scale: scaleToSave,
           rightAxisSources,
           op: opToSave,
+          blurb: blurbToSave,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -3134,6 +3221,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           scale: scaleToSave,
           rightAxisSources,
           op: opToSave,
+          blurb: blurbToSave,
         };
         clampActiveSection();
         const target = state.sections[activeSectionIdx];
