@@ -1,5 +1,0 @@
-title: Cotton No. 2
-sources: ["yahoo/cotton_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

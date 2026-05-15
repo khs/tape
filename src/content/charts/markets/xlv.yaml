@@ -1,5 +1,0 @@
-title: Healthcare (XLV)
-sources: ["yahoo/xlv"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

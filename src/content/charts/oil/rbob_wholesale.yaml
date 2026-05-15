@@ -1,5 +1,0 @@
-title: RBOB gasoline (wholesale)
-sources: ["yahoo/rbob_gasoline_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

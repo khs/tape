@@ -1,5 +1,0 @@
-title: NASDAQ Composite
-sources: ["fred/nasdaq"]
-render: line
-defaultDelta: 1m
-tags: [us, equity-index]

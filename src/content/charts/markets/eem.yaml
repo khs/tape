@@ -1,5 +1,0 @@
-title: Emerging markets (EEM)
-sources: ["yahoo/eem"]
-render: line
-defaultDelta: 1m
-tags: [world, equity-index]

@@ -1,5 +1,0 @@
-title: QQQ (Nasdaq-100)
-sources: ["yahoo/qqq"]
-render: line
-defaultDelta: 1m
-tags: [us, equity-index]

@@ -1,5 +1,0 @@
-title: Total US market (VTI)
-sources: ["yahoo/vti"]
-render: line
-defaultDelta: 1m
-tags: [us, equity-index]

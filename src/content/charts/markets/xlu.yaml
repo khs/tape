@@ -1,5 +1,0 @@
-title: Utilities (XLU)
-sources: ["yahoo/xlu"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

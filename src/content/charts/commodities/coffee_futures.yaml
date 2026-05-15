@@ -1,5 +1,0 @@
-title: Coffee
-sources: ["yahoo/coffee_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

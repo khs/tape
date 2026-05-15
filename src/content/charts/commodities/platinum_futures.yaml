@@ -1,5 +1,0 @@
-title: Platinum
-sources: ["yahoo/platinum_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

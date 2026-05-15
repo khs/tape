@@ -1,5 +1,0 @@
-title: SOXX (Semiconductors)
-sources: ["yahoo/soxx"]
-render: line
-defaultDelta: 1m
-tags: [us, equity-index]

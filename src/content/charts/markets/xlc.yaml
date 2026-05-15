@@ -1,5 +1,0 @@
-title: Communications (XLC)
-sources: ["yahoo/xlc"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

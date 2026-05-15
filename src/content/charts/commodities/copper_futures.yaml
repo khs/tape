@@ -1,5 +1,0 @@
-title: Copper
-sources: ["yahoo/copper_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

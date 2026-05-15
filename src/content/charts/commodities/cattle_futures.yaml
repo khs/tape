@@ -1,5 +1,0 @@
-title: Live cattle
-sources: ["yahoo/cattle_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

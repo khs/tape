@@ -1,5 +1,0 @@
-title: ExxonMobil
-sources: ["yahoo_marketcap/xom_mc"]
-render: line
-defaultDelta: 1m
-tags: [us, single-name]

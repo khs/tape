@@ -1,5 +1,0 @@
-title: Russell 1000 (IWB)
-sources: ["yahoo/iwb"]
-render: line
-defaultDelta: 1m
-tags: [us, equity-index]

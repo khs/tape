@@ -1,5 +1,0 @@
-title: Dow Jones (DIA)
-sources: ["yahoo/dia"]
-render: line
-defaultDelta: 1m
-tags: [us, equity-index]

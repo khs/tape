@@ -1,5 +1,0 @@
-title: Real estate (XLRE)
-sources: ["yahoo/xlre"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

@@ -1,5 +1,0 @@
-title: Silver
-sources: ["yahoo/silver_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

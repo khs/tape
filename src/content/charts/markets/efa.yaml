@@ -1,5 +1,0 @@
-title: MSCI EAFE (EFA)
-sources: ["yahoo/efa"]
-render: line
-defaultDelta: 1m
-tags: [world, equity-index]

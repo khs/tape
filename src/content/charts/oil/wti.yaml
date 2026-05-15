@@ -1,5 +1,0 @@
-title: WTI crude (front-month)
-sources: ["yahoo/wti_crude"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

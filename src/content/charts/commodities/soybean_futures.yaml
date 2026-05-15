@@ -1,5 +1,0 @@
-title: Soybean
-sources: ["yahoo/soybean_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

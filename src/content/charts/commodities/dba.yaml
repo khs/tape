@@ -1,5 +1,0 @@
-title: DBA (ETF)
-sources: ["yahoo/dba"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

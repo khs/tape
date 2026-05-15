@@ -1,5 +1,0 @@
-title: Industrials (XLI)
-sources: ["yahoo/xli"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

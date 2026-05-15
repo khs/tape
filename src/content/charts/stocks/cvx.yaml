@@ -1,5 +1,0 @@
-title: Chevron
-sources: ["yahoo_marketcap/cvx_mc"]
-render: line
-defaultDelta: 1m
-tags: [us, single-name]

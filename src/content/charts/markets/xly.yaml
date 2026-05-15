@@ -1,5 +1,0 @@
-title: Consumer discretionary (XLY)
-sources: ["yahoo/xly"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

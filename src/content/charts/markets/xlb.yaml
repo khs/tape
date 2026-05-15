@@ -1,5 +1,0 @@
-title: Materials (XLB)
-sources: ["yahoo/xlb"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

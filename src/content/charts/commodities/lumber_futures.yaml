@@ -1,5 +1,0 @@
-title: Lumber
-sources: ["yahoo/lumber_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

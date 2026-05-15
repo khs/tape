@@ -1,5 +1,0 @@
-title: Financials (XLF)
-sources: ["yahoo/xlf"]
-render: line
-defaultDelta: 1m
-tags: [us, sectors, equity-index]

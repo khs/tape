@@ -1,5 +1,0 @@
-title: Cocoa
-sources: ["yahoo/cocoa_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

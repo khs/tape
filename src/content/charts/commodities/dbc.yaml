@@ -1,5 +1,0 @@
-title: DBC (ETF)
-sources: ["yahoo/dbc"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

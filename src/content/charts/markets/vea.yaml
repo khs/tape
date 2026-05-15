@@ -1,5 +1,0 @@
-title: Developed ex-US (VEA)
-sources: ["yahoo/vea"]
-render: line
-defaultDelta: 1m
-tags: [world, equity-index]

@@ -1,5 +1,0 @@
-title: GSG (ETF)
-sources: ["yahoo/gsg"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

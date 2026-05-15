@@ -1,5 +1,0 @@
-title: Energy sector (XLE)
-sources: ["yahoo/xle"]
-render: line
-defaultDelta: 1m
-tags: [sectors, equity-index]

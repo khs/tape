@@ -1,5 +1,0 @@
-title: SPDR Gold Shares (GLD)
-sources: ["yahoo/gld"]
-render: line
-defaultDelta: 1m
-tags: [commodities]

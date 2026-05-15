@@ -1,5 +1,0 @@
-title: Corn
-sources: ["yahoo/corn_futures"]
-render: line
-defaultDelta: 1m
-tags: [commodities]
