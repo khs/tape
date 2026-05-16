@@ -23,7 +23,7 @@ import {
 } from "../lib/deltas";
 import type { TimeSeriesData, TimeSeriesPoint } from "../lib/data-types";
 import { seriesColor } from "../lib/series-colors";
-import { combineTwo, combineOpLabel, type CombineOp } from "../lib/derive";
+import { combineTwo, combineOpLabel, combineOpFormatting, type CombineOp } from "../lib/derive";
 
 type ChartData = CollectionEntry<"charts">["data"];
 
@@ -237,14 +237,21 @@ let perSource: PerSource[] = perSourceRaw;
 if (chartOp && perSourceRaw.length === 2 && perSourceRaw[0].data && perSourceRaw[1].data) {
   const a = perSourceRaw[0];
   const b = perSourceRaw[1];
-  const combinedPoints = combineTwo(a.data!, b.data!, chartOp);
-  // Pick formatting: divide → unitless ratio with 4 decimals; sum/diff
-  // → reuse the first source's formatting (units typically match).
-  const baseFmt = a.source.data.formatting;
-  const opFormatting =
-    chartOp === "divide"
-      ? { ...baseFmt, style: "number" as const, decimals: 4 }
-      : baseFmt;
+  // combineOpFormatting returns the right output formatting for the
+  // (A unit, B unit, op) combination AND a multiplier we apply to the
+  // combined points before display — e.g. currency/currency divide
+  // returns percent style + ×100 so "CA federal $ / US GDP" renders
+  // as "1.10%" rather than "0.011".
+  const opFmt = combineOpFormatting(
+    a.source.data.formatting,
+    b.source.data.formatting,
+    chartOp,
+  );
+  const rawPoints = combineTwo(a.data!, b.data!, chartOp);
+  const combinedPoints = opFmt.multiplier === 1
+    ? rawPoints
+    : rawPoints.map((p) => ({ t: p.t, v: p.v * opFmt.multiplier }));
+  const opFormatting = opFmt.formatting;
   // Synthesize a single virtual perSource entry. We reuse a's source
   // collection entry as the carrier but override formatting through a
   // shadow object passed downstream where possible.
@@ -254,7 +261,12 @@ if (chartOp && perSourceRaw.length === 2 && perSourceRaw[0].data && perSourceRaw
           id: `${a.id}_${chartOp}_${b.id}`,
           name: `${a.label} ${combineOpLabel(chartOp)} ${b.label}`,
           kind: "timeseries",
-          unit: chartOp === "divide" ? "ratio" : a.data!.unit,
+          unit:
+            chartOp === "divide"
+              ? opFormatting.style === "percent"
+                ? "%"
+                : "ratio"
+              : a.data!.unit,
           lastUpdated: a.data!.lastUpdated,
           points: combinedPoints,
         }

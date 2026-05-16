@@ -1,4 +1,5 @@
 import type { TimeSeriesData, TimeSeriesPoint } from "./data-types";
+import type { Formatting } from "./format";
 
 export type CombineOp = "divide" | "sum" | "diff";
 
@@ -10,6 +11,67 @@ const OP_LABELS: Record<CombineOp, string> = {
 
 export function combineOpLabel(op: CombineOp): string {
   return OP_LABELS[op];
+}
+
+/**
+ * Output-formatting decision for a combineTwo result, plus an optional
+ * multiplier applied to the combined values to make the chosen format
+ * display sensibly.
+ *
+ * Two motivating cases the multiplier handles:
+ *
+ *   1. divide(currency, currency)
+ *      Raw output is a unitless ratio (e.g. CA federal $ / US GDP ≈
+ *      0.011). Displaying "0.011" forces the reader to mentally
+ *      multiply; displaying "1.10%" doesn't. So we pick `percent`
+ *      formatting and multiply the data by 100.
+ *
+ *   2. divide(count, count) / divide(number, number)
+ *      Same idea — "ratio of two same-style quantities" reads better
+ *      as a percent than as a 4-decimal fraction.
+ *
+ *  All other op/style combinations (sum, diff, divide across mismatched
+ *  styles) fall back to either A's formatting or the existing 4-decimal
+ *  number style with no multiplier.
+ */
+export interface OpFormatting {
+  formatting: Formatting;
+  /** Scalar applied to combineTwo's output before display. */
+  multiplier: number;
+}
+
+export function combineOpFormatting(
+  aFmt: Formatting | undefined,
+  bFmt: Formatting | undefined,
+  op: CombineOp,
+): OpFormatting {
+  const a: Formatting = aFmt ?? { style: "number", decimals: 2 };
+  const b: Formatting = bFmt ?? { style: "number", decimals: 2 };
+  if (op === "divide") {
+    // Same-style numerator + denominator → unitless ratio → display
+    // as percent with a ×100 rescale. Covers the common "share of X"
+    // case (currency/currency, count/count, even rate/rate). Side
+    // effect: WTI/Brent gives "104%" rather than "1.04", which reads
+    // a little weird for cross-commodity pairs but is technically the
+    // same number. Acceptable; users can re-format per-chart later.
+    if (a.style === b.style && (a.style === "currency" || a.style === "number" || a.style === "percent")) {
+      return {
+        formatting: { style: "percent", decimals: 2 },
+        multiplier: 100,
+      };
+    }
+    // Mixed-style divide: fall back to a generic 4-decimal number.
+    // No good general formatter for "$/person" etc. without explicit
+    // unit metadata; this at least keeps the value visible.
+    return {
+      formatting: { style: "number", decimals: 4 },
+      multiplier: 1,
+    };
+  }
+  // sum / diff: result is in A's unit if the units match, semantically
+  // nonsense if they don't but at least the display is consistent.
+  // Don't override formatting; don't rescale data.
+  return { formatting: a, multiplier: 1 };
 }
 
 /**

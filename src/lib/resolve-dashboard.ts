@@ -6,7 +6,7 @@ import {
   type DeltaWindow,
 } from "./deltas";
 import type { InlineChart, InlineSource } from "./composer-state";
-import { combineTwo, type CombineOp } from "./derive";
+import { combineTwo, combineOpFormatting, type CombineOp } from "./derive";
 import type { TimeSeriesData } from "./data-types";
 import { loadSourceData } from "./load-data";
 
@@ -63,15 +63,20 @@ async function resolveSourceById(
     const b = await resolveSourceById(spec.b, inlineSources, visited);
     visited.delete(id);
     if (!a || !b) return null;
-    const points = combineTwo(a.points, b.points, spec.op as CombineOp);
-    if (points.length === 0) return null;
-    // Pick formatting: divide → unitless 4-decimal; sum/diff → A's
-    // formatting (units typically match).
-    const baseFmt = a.entry.data.formatting;
-    const fmt =
-      spec.op === "divide"
-        ? { ...baseFmt, style: "number" as const, decimals: 4 }
-        : baseFmt;
+    // Pick output formatting + an optional ×N rescale so e.g.
+    // currency/currency divides render as "1.10%" instead of "0.011".
+    // See combineOpFormatting in lib/derive.ts for the full rule table.
+    const opFmt = combineOpFormatting(
+      a.entry.data.formatting,
+      b.entry.data.formatting,
+      spec.op as CombineOp,
+    );
+    const rawPoints = combineTwo(a.points, b.points, spec.op as CombineOp);
+    if (rawPoints.length === 0) return null;
+    const points = opFmt.multiplier === 1
+      ? rawPoints
+      : rawPoints.map((p) => ({ t: p.t, v: p.v * opFmt.multiplier }));
+    const fmt = opFmt.formatting;
     // Synthetic CollectionEntry shape carrying the derived metadata.
     // Source-level supportedDeltas: intersection of A and B (so the chart
     // window picker correctly limits the available windows).
@@ -88,7 +93,15 @@ async function resolveSourceById(
         pipeline: "derived",
         dataFile: `__derived__/${id}.json`,
         supportedDeltas: supp.length > 0 ? supp : aSupp,
-        unit: spec.op === "divide" ? "ratio" : a.entry.data.unit,
+        // Unit derived from the chosen op-formatting. Percent style (the
+        // common currency/currency-divide case) advertises "%"; the
+        // mixed-style fallback keeps the older generic "ratio" label.
+        unit:
+          spec.op === "divide"
+            ? fmt.style === "percent"
+              ? "%"
+              : "ratio"
+            : a.entry.data.unit,
         formatting: fmt,
         emphasis: "change" as const,
         provenance: {
