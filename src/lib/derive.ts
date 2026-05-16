@@ -40,6 +40,30 @@ export interface OpFormatting {
   multiplier: number;
 }
 
+/**
+ * Apply the user's per-chart `percentDisplay` preference to an op
+ * formatting decision. Only meaningful when the auto-chosen format is
+ * percent (the common "ratio of two same-style quantities" case);
+ * everywhere else the input is returned untouched.
+ *
+ * decimal mode: swap the formatting to a 4-decimal number AND drop the
+ * ×100 multiplier the percent style needed, so values display as
+ * "1.04" instead of "104%". This is the choice the user will reach for
+ * on things like WTI / Brent (cross-commodity multiplier) where the
+ * percent reading is technically correct but semantically awkward.
+ */
+export function applyPercentDisplayOverride(
+  opFmt: OpFormatting,
+  choice: "percent" | "decimal" | undefined,
+): OpFormatting {
+  if (choice !== "decimal") return opFmt;
+  if (opFmt.formatting.style !== "percent") return opFmt;
+  return {
+    formatting: { style: "number", decimals: 4 },
+    multiplier: 1,
+  };
+}
+
 export function combineOpFormatting(
   aFmt: Formatting | undefined,
   bFmt: Formatting | undefined,

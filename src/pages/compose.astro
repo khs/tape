@@ -333,6 +333,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <input type="checkbox" data-role="cc-log" />
               <span><strong>Log scale</strong> — makes exponential growth read as a straight line. Combine with raw or rebase; off with dual-axis.</span>
             </label>
+            <!--
+              percentDisplay toggle: only relevant when the chart's
+              combine output would auto-render as percent (same-style
+              divide, e.g. currency/currency). Visibility is gated in
+              JS on (op === "divide" && exactly 2 same-style sources)
+              — leaving it visible always would invite confusion when
+              it's a silent no-op.
+            -->
+            <label
+              class="cc-log-opt"
+              data-role="cc-percent-display-wrap"
+              hidden
+              title="Some divides (e.g. WTI ÷ Brent) read more naturally as a multiplier (1.04) than a percent (104%). This toggles the display only; underlying math is unchanged."
+            >
+              <input type="checkbox" data-role="cc-percent-display-decimal" />
+              <span><strong>Show as decimal</strong> — render the ratio as "1.04" instead of "104%". Use when the percent reading doesn't fit the math (e.g. cross-commodity multipliers).</span>
+            </label>
             <p class="muted small">
               Need to plot a ratio, sum, or difference?
               Click <strong>+ Derived source</strong> outside this modal
@@ -1023,6 +1040,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       rightAxisSources: (lib as { rightAxisSources?: string[] }).rightAxisSources,
       op: (lib as { op?: ChartCombineOp }).op,
       blurb: override?.blurb || lib.blurb,
+      percentDisplay: (lib as { percentDisplay?: "percent" | "decimal" })
+        .percentDisplay,
     };
     const sec = state.sections[secIdx];
     if (sec && sec.charts[chartIdx] === libraryChartId) {
@@ -1969,6 +1988,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Tag-chip filter set for the source picker. AND across selected
     // tags. Cleared each time the modal is opened.
     pickerTags: Set<string>;
+    // For divides that auto-render as percent (same-style divide):
+    // "decimal" overrides to a 4-decimal numeric display ("1.04"),
+    // "percent" or undefined keeps the default ("104%"). Only meaningful
+    // when op === "divide" with 2 same-style sources; otherwise ignored.
+    percentDisplay: "percent" | "decimal" | undefined;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
@@ -1983,6 +2007,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     blurb: "",
     logScale: false,
     pickerTags: new Set<string>(),
+    percentDisplay: undefined,
   };
 
   // True when every selected source shares the same formatting style + unit
@@ -2040,6 +2065,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.logScale =
       (existing as { scale?: string } | null)?.scale === "log";
     ccModal.blurb = existing?.blurb ?? "";
+    ccModal.percentDisplay = (existing as { percentDisplay?: "percent" | "decimal" } | null)
+      ?.percentDisplay;
     // Fresh tag-chip filter each time the modal opens. The user's prior
     // selection on a previous chart's compose session isn't relevant.
     ccModal.pickerTags = new Set<string>();
@@ -2103,12 +2130,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // Reflect ccModal.op + selected count onto the operation UI: enable
   // when 2 sources picked, fill in the dropdown value, render the A/B
   // hint, toggle Swap visibility.
+  function syncPercentDisplayUI(): void {
+    const wrap = shell.querySelector<HTMLElement>(
+      "[data-role='cc-percent-display-wrap']",
+    );
+    const checkbox = shell.querySelector<HTMLInputElement>(
+      "[data-role='cc-percent-display-decimal']",
+    );
+    if (!wrap || !checkbox) return;
+    // Visible only when the chart's combine output COULD be percent
+    // — op = divide on exactly 2 sources. Doesn't gate on source-style
+    // match (would require resolving derived sources' styles); the
+    // toggle is a no-op when the output isn't percent anyway.
+    wrap.hidden = !(ccModal.op === "divide" && ccModal.selected.size === 2);
+    checkbox.checked = ccModal.percentDisplay === "decimal";
+  }
+
   function syncOpUI(): void {
     const wrap = shell.querySelector<HTMLElement>("[data-role='cc-op-wrap']");
     const sel = shell.querySelector<HTMLSelectElement>("[data-role='cc-op-select']");
     const hint = shell.querySelector<HTMLElement>("[data-role='cc-op-hint']");
     const swap = shell.querySelector<HTMLButtonElement>("[data-role='cc-op-swap']");
     if (!wrap || !sel || !hint || !swap) return;
+    syncPercentDisplayUI();
     // Show Combine UI any time we have at least 2 selected sources.
     wrap.hidden = ccModal.selected.size < 2;
     if (ccModal.selected.size !== 2) {
@@ -3258,6 +3302,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     blurbInput?.addEventListener("input", () => {
       ccModal.blurb = blurbInput.value;
     });
+    const percentDecimalCb = shell.querySelector<HTMLInputElement>(
+      "[data-role='cc-percent-display-decimal']",
+    );
+    percentDecimalCb?.addEventListener("change", () => {
+      ccModal.percentDisplay = percentDecimalCb.checked ? "decimal" : undefined;
+      // No re-render needed — this only affects the saved spec; the
+      // chart picks up the flag at render time.
+    });
     searchInput?.addEventListener("input", () => {
       ccModal.search = searchInput.value;
       renderCustomChartSources();
@@ -3369,6 +3421,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           rightAxisSources,
           op: opToSave,
           blurb: blurbToSave,
+          // Only persist percentDisplay when the chart's combine output
+          // could actually be percent (divide on 2 sources); otherwise
+          // the flag is dead weight in the saved state.
+          percentDisplay:
+            opToSave === "divide" && sourceIds.length === 2
+              ? ccModal.percentDisplay
+              : undefined,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -3380,6 +3439,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           rightAxisSources,
           op: opToSave,
           blurb: blurbToSave,
+          percentDisplay:
+            opToSave === "divide" && sourceIds.length === 2
+              ? ccModal.percentDisplay
+              : undefined,
         };
         clampActiveSection();
         const target = state.sections[activeSectionIdx];

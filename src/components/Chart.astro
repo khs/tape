@@ -23,7 +23,13 @@ import {
 } from "../lib/deltas";
 import type { TimeSeriesData, TimeSeriesPoint } from "../lib/data-types";
 import { seriesColor } from "../lib/series-colors";
-import { combineTwo, combineOpLabel, combineOpFormatting, type CombineOp } from "../lib/derive";
+import {
+  combineTwo,
+  combineOpLabel,
+  combineOpFormatting,
+  applyPercentDisplayOverride,
+  type CombineOp,
+} from "../lib/derive";
 
 type ChartData = CollectionEntry<"charts">["data"];
 
@@ -241,11 +247,19 @@ if (chartOp && perSourceRaw.length === 2 && perSourceRaw[0].data && perSourceRaw
   // (A unit, B unit, op) combination AND a multiplier we apply to the
   // combined points before display — e.g. currency/currency divide
   // returns percent style + ×100 so "CA federal $ / US GDP" renders
-  // as "1.10%" rather than "0.011".
-  const opFmt = combineOpFormatting(
-    a.source.data.formatting,
-    b.source.data.formatting,
-    chartOp,
+  // as "1.10%" rather than "0.011". applyPercentDisplayOverride lets
+  // a chart's `percentDisplay: "decimal"` flag flip the percent
+  // output back to a raw 4-decimal ratio (e.g. WTI/Brent → "1.04"
+  // rather than "104%").
+  const userPercentDisplay = (chart as { percentDisplay?: "percent" | "decimal" })
+    .percentDisplay;
+  const opFmt = applyPercentDisplayOverride(
+    combineOpFormatting(
+      a.source.data.formatting,
+      b.source.data.formatting,
+      chartOp,
+    ),
+    userPercentDisplay,
   );
   const rawPoints = combineTwo(a.data!, b.data!, chartOp);
   const combinedPoints = opFmt.multiplier === 1

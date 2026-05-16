@@ -61,6 +61,13 @@ const inlineChartSchema = z.object({
   // Order matters for divide / diff (sources[0] op sources[1]); sum is
   // commutative. Currently restricted to 2 sources.
   op: z.enum(["divide", "sum", "diff"]).optional(),
+  // For divide-results that would auto-render as percent (same-style
+  // numerator + denominator), choose between "percent" (default,
+  // multiplies by 100 and labels with %) and "decimal" (skips the
+  // multiplier, displays raw ratio with 4 decimals). "decimal" reads
+  // better for cross-commodity ratios like WTI/Brent where "104%"
+  // implies a share-of relationship that doesn't really apply.
+  percentDisplay: z.enum(["percent", "decimal"]).optional(),
 });
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;
