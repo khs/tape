@@ -56,6 +56,22 @@ const sources = defineCollection({
     // charts that reference each source (C1 approach); multi-source
     // charts get flagged for manual review by that script.
     tags: z.array(z.string()).default([]),
+    // Coarse unit class — used by combineOpFormatting to pick the
+    // output format of a derived source (divide/sum/diff). Distinct
+    // from formatting.style because two sources can share a style
+    // ("number") but differ semantically (US GDP in billions vs Case-
+    // Shiller as an index). Populated by pipelines/backfill_unit_class.py
+    // by inferring from formatting + unit text; can be overridden
+    // per-source in YAML.
+    //
+    //   currency — denominated in $/€/etc. (raw, M, B, T)
+    //   count    — discrete things (people, jobs, claims, units)
+    //   rate     — percentage rate, basis points
+    //   index    — unitless level (CPI, market index, etc.)
+    //   ratio    — unitless ratio (the default for derived sources)
+    unitClass: z
+      .enum(["currency", "count", "rate", "index", "ratio"])
+      .optional(),
   }),
 });
 

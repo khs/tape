@@ -1,6 +1,7 @@
 name: India real-GDP share of world
 shortName: India
-description: India real GDP / world real GDP (constant 2015 USD), annual (World Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
+description: India real GDP / world real GDP (constant 2015 USD), annual (World 
+  Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/INDA.json
@@ -15,3 +16,4 @@ provenance:
   series: NY.GDP.MKTP.KD (IND) / NY.GDP.MKTP.KD (WLD)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=IN
   license: CC BY-4.0
+unitClass: rate

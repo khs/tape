@@ -19,3 +19,4 @@ provenance:
   series: state_mt
   url: https://www.usaspending.gov/state/MT
   license: Public domain (US government data)
+unitClass: currency

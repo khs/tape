@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: AVGO
   url: https://finance.yahoo.com/quote/AVGO
+unitClass: currency

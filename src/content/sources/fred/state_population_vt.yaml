@@ -17,3 +17,4 @@ provenance:
   series: VTPOP
   url: https://fred.stlouisfed.org/series/VTPOP
   license: Public domain (US government data)
+unitClass: count

@@ -1,6 +1,7 @@
 name: China real-GDP share of world
 shortName: China
-description: China real GDP / world real GDP (constant 2015 USD), annual (World Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
+description: China real GDP / world real GDP (constant 2015 USD), annual (World 
+  Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/FXI.json
@@ -15,3 +16,4 @@ provenance:
   series: NY.GDP.MKTP.KD (CHN) / NY.GDP.MKTP.KD (WLD)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=CN
   license: CC BY-4.0
+unitClass: rate

@@ -17,3 +17,4 @@ provenance:
   series: AZPOP
   url: https://fred.stlouisfed.org/series/AZPOP
   license: Public domain (US government data)
+unitClass: count

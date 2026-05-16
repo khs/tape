@@ -17,3 +17,4 @@ provenance:
   series: VAPOP
   url: https://fred.stlouisfed.org/series/VAPOP
   license: Public domain (US government data)
+unitClass: count

@@ -19,3 +19,4 @@ provenance:
   series: state_in
   url: https://www.usaspending.gov/state/IN
   license: Public domain (US government data)
+unitClass: currency

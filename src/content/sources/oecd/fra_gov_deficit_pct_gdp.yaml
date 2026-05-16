@@ -1,6 +1,7 @@
 name: France gov deficit/GDP
 shortName: FR gov deficit/GDP
-description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual.
+description: General government net lending as % of GDP (negative = deficit). 
+  OECD Economic Outlook (NLGQ). Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/fra_gov_deficit_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: gov_deficit_pct_gdp (FRA)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

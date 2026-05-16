@@ -17,3 +17,4 @@ provenance:
   series: MOPOP
   url: https://fred.stlouisfed.org/series/MOPOP
   license: Public domain (US government data)
+unitClass: count

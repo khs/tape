@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: XOM
   url: https://finance.yahoo.com/quote/XOM
+unitClass: currency

@@ -19,3 +19,4 @@ provenance:
   series: state_ky
   url: https://www.usaspending.gov/state/KY
   license: Public domain (US government data)
+unitClass: currency

@@ -19,3 +19,4 @@ provenance:
   series: state_wy
   url: https://www.usaspending.gov/state/WY
   license: Public domain (US government data)
+unitClass: currency

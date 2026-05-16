@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: PEP
   url: https://finance.yahoo.com/quote/PEP
+unitClass: currency

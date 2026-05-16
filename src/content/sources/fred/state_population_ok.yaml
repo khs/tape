@@ -17,3 +17,4 @@ provenance:
   series: OKPOP
   url: https://fred.stlouisfed.org/series/OKPOP
   license: Public domain (US government data)
+unitClass: count

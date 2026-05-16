@@ -17,3 +17,4 @@ provenance:
   license: Public domain (US government data, EIA)
 tags:
   - commodities
+unitClass: currency

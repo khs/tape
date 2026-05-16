@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: V
   url: https://finance.yahoo.com/quote/V
+unitClass: currency

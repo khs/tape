@@ -19,3 +19,4 @@ provenance:
   series: state_ne
   url: https://www.usaspending.gov/state/NE
   license: Public domain (US government data)
+unitClass: currency

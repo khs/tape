@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: CSCO
   url: https://finance.yahoo.com/quote/CSCO
+unitClass: currency

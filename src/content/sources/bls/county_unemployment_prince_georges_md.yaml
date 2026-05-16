@@ -1,6 +1,8 @@
 name: Prince George's County, MD — unemployment rate
 shortName: Prince George's County unemployment
-description: Headline unemployment rate for Prince George's County, MD. Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) county-level data.
+description: Headline unemployment rate for Prince George's County, MD. Monthly,
+  not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) 
+  county-level data.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/county_unemployment_prince_georges_md.json
@@ -15,3 +17,4 @@ provenance:
   series: LAUCN240330000000003
   url: https://www.bls.gov/lau/
   license: Public domain (US government data)
+unitClass: rate

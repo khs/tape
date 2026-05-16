@@ -1,6 +1,7 @@
 name: Total population — CA-30
 shortName: CA-30 population
-description: Total population for CA-30 (118th Congress boundaries). From the American Community Survey 5-year estimates. Released annually.
+description: Total population for CA-30 (118th Congress boundaries). From the 
+  American Community Survey 5-year estimates. Released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/population_ca_30.json
@@ -16,3 +17,4 @@ provenance:
   series: population
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
+unitClass: count

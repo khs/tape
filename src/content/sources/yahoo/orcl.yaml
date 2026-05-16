@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: ORCL
   url: https://finance.yahoo.com/quote/ORCL
+unitClass: currency

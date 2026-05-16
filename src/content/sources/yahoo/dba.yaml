@@ -20,3 +20,4 @@ provenance:
   url: https://finance.yahoo.com/quote/DBA
 tags:
   - commodities
+unitClass: currency

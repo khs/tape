@@ -21,3 +21,4 @@ provenance:
   url: https://finance.yahoo.com/quote/DBC
 tags:
   - commodities
+unitClass: currency

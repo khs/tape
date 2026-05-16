@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { combineTwo, combineOpLabel, combineOpFormatting } from "./derive";
+import {
+  combineTwo,
+  combineOpLabel,
+  combineOpFormatting,
+  inferUnitClassFromFormatting,
+} from "./derive";
 import type { TimeSeriesData } from "./data-types";
 import type { Formatting } from "./format";
 
@@ -80,6 +85,61 @@ describe("combineOpFormatting", () => {
     const r = combineOpFormatting(undefined, undefined, "divide");
     expect(r.formatting.style).toBe("percent");
     expect(r.multiplier).toBe(100);
+  });
+
+  // unitClass-aware dispatch — these are the rules combineOpFormatting
+  // gains once both sides pass an explicit unitClass alongside their
+  // formatting. The old style-based same-class detection still works
+  // (currency vs currency via formatting.style) but breaks down on
+  // sources that share style "number" while semantically differing
+  // (US GDP vs Case-Shiller, etc.).
+
+  it("currency / count → $/unit display with x1e9 multiplier (per-capita)", () => {
+    // FRED GDP-as-number + state population-as-count both stored as
+    // style: number; the rule fires off the unitClass override.
+    const fmt: Formatting = { style: "number", decimals: 0 };
+    const r = combineOpFormatting(fmt, fmt, "divide", "currency", "count");
+    expect(r.formatting.style).toBe("number");
+    expect(r.formatting.prefix).toBe("$");
+    expect(r.formatting.notation).toBe("compact");
+    // Currency in billions ÷ raw count → multiply back to natural $.
+    expect(r.multiplier).toBe(1e9);
+  });
+
+  it("currency / count via mixed formatter styles (style: currency + style: number)", () => {
+    // Same rule should fire even when only unitClass distinguishes them.
+    const aFmt: Formatting = { style: "currency", currency: "USD", decimals: 0 };
+    const bFmt: Formatting = { style: "number", decimals: 0 };
+    const r = combineOpFormatting(aFmt, bFmt, "divide", "currency", "count");
+    expect(r.multiplier).toBe(1e9);
+    expect(r.formatting.prefix).toBe("$");
+  });
+
+  it("count / count via unitClass → percent (same-class rule)", () => {
+    const fmt: Formatting = { style: "number", decimals: 0 };
+    const r = combineOpFormatting(fmt, fmt, "divide", "count", "count");
+    expect(r.formatting.style).toBe("percent");
+    expect(r.multiplier).toBe(100);
+  });
+
+  it("currency / index via unitClass → generic fallback (mixed-class)", () => {
+    // No specific rule for currency/index; goes to the generic number
+    // branch. Both stored as style: number; only unitClass tells them
+    // apart.
+    const aFmt: Formatting = { style: "number", decimals: 0 };
+    const bFmt: Formatting = { style: "number", decimals: 1 };
+    const r = combineOpFormatting(aFmt, bFmt, "divide", "currency", "index");
+    expect(r.formatting.style).toBe("number");
+    expect(r.formatting.decimals).toBe(4);
+    expect(r.multiplier).toBe(1);
+  });
+
+  it("inferUnitClassFromFormatting maps obvious styles", () => {
+    expect(inferUnitClassFromFormatting(FMT_CURRENCY)).toBe("currency");
+    expect(inferUnitClassFromFormatting(FMT_PERCENT)).toBe("rate");
+    expect(inferUnitClassFromFormatting(FMT_INDEX)).toBe("index");
+    expect(inferUnitClassFromFormatting(FMT_NUMBER)).toBe("ratio");
+    expect(inferUnitClassFromFormatting(undefined)).toBe("ratio");
   });
 });
 

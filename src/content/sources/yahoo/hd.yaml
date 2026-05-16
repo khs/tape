@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: HD
   url: https://finance.yahoo.com/quote/HD
+unitClass: currency

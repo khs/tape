@@ -17,3 +17,4 @@ provenance:
   url: https://finance.yahoo.com/quote/SOL-USD
 tags:
   - crypto
+unitClass: currency

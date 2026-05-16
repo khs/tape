@@ -19,3 +19,4 @@ provenance:
   series: state_co
   url: https://www.usaspending.gov/state/CO
   license: Public domain (US government data)
+unitClass: currency

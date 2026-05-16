@@ -80,6 +80,7 @@ export const GET: APIRoute = async () => {
       lastObservation,
       tags: tagsList,
       searchText: sourceSearchText,
+      unitClass: s.data.unitClass,
     };
   }
 

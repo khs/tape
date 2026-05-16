@@ -19,3 +19,4 @@ provenance:
   series: state_mp
   url: https://www.usaspending.gov/state/MP
   license: Public domain (US government data)
+unitClass: currency

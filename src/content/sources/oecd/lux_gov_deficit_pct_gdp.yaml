@@ -1,6 +1,7 @@
 name: Luxembourg gov deficit/GDP
 shortName: LU gov deficit/GDP
-description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual.
+description: General government net lending as % of GDP (negative = deficit). 
+  OECD Economic Outlook (NLGQ). Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/lux_gov_deficit_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: gov_deficit_pct_gdp (LUX)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

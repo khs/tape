@@ -17,3 +17,4 @@ provenance:
   series: NJPOP
   url: https://fred.stlouisfed.org/series/NJPOP
   license: Public domain (US government data)
+unitClass: count

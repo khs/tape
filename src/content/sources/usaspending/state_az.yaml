@@ -19,3 +19,4 @@ provenance:
   series: state_az
   url: https://www.usaspending.gov/state/AZ
   license: Public domain (US government data)
+unitClass: currency

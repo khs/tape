@@ -19,3 +19,4 @@ provenance:
   series: state_hi
   url: https://www.usaspending.gov/state/HI
   license: Public domain (US government data)
+unitClass: currency

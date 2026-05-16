@@ -19,3 +19,4 @@ provenance:
   url: 
     https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=WI-05
   license: Public domain (US government data)
+unitClass: currency

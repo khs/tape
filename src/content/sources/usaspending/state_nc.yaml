@@ -19,3 +19,4 @@ provenance:
   series: state_nc
   url: https://www.usaspending.gov/state/NC
   license: Public domain (US government data)
+unitClass: currency

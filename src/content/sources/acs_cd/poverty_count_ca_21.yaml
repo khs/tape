@@ -1,6 +1,7 @@
 name: People in poverty — CA-21
 shortName: CA-21 poverty count
-description: People in poverty for CA-21 (118th Congress boundaries). From the American Community Survey 5-year estimates. Released annually.
+description: People in poverty for CA-21 (118th Congress boundaries). From the 
+  American Community Survey 5-year estimates. Released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/poverty_count_ca_21.json
@@ -16,3 +17,4 @@ provenance:
   series: poverty_count
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
+unitClass: count

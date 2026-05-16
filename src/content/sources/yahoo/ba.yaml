@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: BA
   url: https://finance.yahoo.com/quote/BA
+unitClass: currency

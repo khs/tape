@@ -1,6 +1,7 @@
 name: Czech Republic life expectancy
 shortName: CZ life expectancy
-description: Life expectancy at birth, both sexes combined. OECD Health Statistics. Annual.
+description: Life expectancy at birth, both sexes combined. OECD Health 
+  Statistics. Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/cze_life_expectancy.json
@@ -16,3 +17,4 @@ provenance:
   series: life_expectancy (CZE)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: ratio

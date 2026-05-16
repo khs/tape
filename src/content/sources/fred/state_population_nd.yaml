@@ -17,3 +17,4 @@ provenance:
   series: NDPOP
   url: https://fred.stlouisfed.org/series/NDPOP
   license: Public domain (US government data)
+unitClass: count

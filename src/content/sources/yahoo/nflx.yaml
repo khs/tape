@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: NFLX
   url: https://finance.yahoo.com/quote/NFLX
+unitClass: currency

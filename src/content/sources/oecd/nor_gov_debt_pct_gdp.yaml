@@ -1,6 +1,7 @@
 name: Norway gov debt/GDP
 shortName: NO gov debt/GDP
-description: General government gross financial liabilities as % of GDP. OECD Economic Outlook (GGFLQ). Annual.
+description: General government gross financial liabilities as % of GDP. OECD 
+  Economic Outlook (GGFLQ). Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/nor_gov_debt_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: gov_debt_pct_gdp (NOR)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

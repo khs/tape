@@ -17,3 +17,4 @@ provenance:
   series: SMS05000000000000001
   url: https://www.bls.gov/sae/
   license: Public domain (US government data)
+unitClass: count

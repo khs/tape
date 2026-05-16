@@ -19,3 +19,4 @@ provenance:
   series: state_ri
   url: https://www.usaspending.gov/state/RI
   license: Public domain (US government data)
+unitClass: currency

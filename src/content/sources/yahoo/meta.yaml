@@ -13,3 +13,4 @@ provenance:
   provider: Yahoo Finance
   series: META
   url: https://finance.yahoo.com/quote/META
+unitClass: currency

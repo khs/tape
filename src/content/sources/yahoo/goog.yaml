@@ -1,6 +1,7 @@
 name: Alphabet
 shortName: GOOG
-description: Daily adjusted close of the Class C shares (GOOG, non-voting). Alphabet also has Class A (GOOGL, voting) and unlisted Class B.
+description: Daily adjusted close of the Class C shares (GOOG, non-voting). 
+  Alphabet also has Class A (GOOGL, voting) and unlisted Class B.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/GOOG.json
@@ -14,3 +15,4 @@ provenance:
   provider: Yahoo Finance
   series: GOOG
   url: https://finance.yahoo.com/quote/GOOG
+unitClass: currency

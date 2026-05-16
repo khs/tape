@@ -13,3 +13,4 @@ provenance:
   provider: Yahoo Finance
   series: AMZN
   url: https://finance.yahoo.com/quote/AMZN
+unitClass: currency

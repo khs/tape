@@ -17,3 +17,4 @@ provenance:
   url: https://finance.yahoo.com/quote/OJ%3DF
 tags:
   - commodities
+unitClass: ratio

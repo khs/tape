@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: MCD
   url: https://finance.yahoo.com/quote/MCD
+unitClass: currency

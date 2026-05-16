@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: CVX
   url: https://finance.yahoo.com/quote/CVX
+unitClass: currency

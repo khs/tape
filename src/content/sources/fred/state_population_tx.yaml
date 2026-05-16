@@ -17,3 +17,4 @@ provenance:
   series: TXPOP
   url: https://fred.stlouisfed.org/series/TXPOP
   license: Public domain (US government data)
+unitClass: count

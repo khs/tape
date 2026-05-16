@@ -17,3 +17,4 @@ provenance:
   series: UTPOP
   url: https://fred.stlouisfed.org/series/UTPOP
   license: Public domain (US government data)
+unitClass: count

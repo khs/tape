@@ -19,3 +19,4 @@ provenance:
   url: https://finance.yahoo.com/quote/AVAX-USD
 tags:
   - crypto
+unitClass: currency

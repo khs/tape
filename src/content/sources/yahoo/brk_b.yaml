@@ -1,6 +1,7 @@
 name: Berkshire Hathaway
 shortName: BRK.B
-description: Daily adjusted close of the Class B shares (BRK-B). Class A is the same company but trades at ~1500x the price per share.
+description: Daily adjusted close of the Class B shares (BRK-B). Class A is the 
+  same company but trades at ~1500x the price per share.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/BRK_B.json
@@ -14,3 +15,4 @@ provenance:
   provider: Yahoo Finance
   series: BRK-B
   url: https://finance.yahoo.com/quote/BRK-B
+unitClass: currency

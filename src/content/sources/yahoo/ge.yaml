@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: GE
   url: https://finance.yahoo.com/quote/GE
+unitClass: currency

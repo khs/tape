@@ -1,6 +1,8 @@
 name: United Arab Emirates — US Treasury holdings
 shortName: United Arab Emirates
-description: US Treasury securities held by United Arab Emirates, monthly. From Treasury's TIC (Treasury International Capital) major-foreign-holders release. End-of-month positions, billions of USD.
+description: US Treasury securities held by United Arab Emirates, monthly. From 
+  Treasury's TIC (Treasury International Capital) major-foreign-holders release.
+  End-of-month positions, billions of USD.
 kind: timeseries
 pipeline: treasury_tic
 dataFile: data/treasury_tic/uae.json
@@ -17,3 +19,4 @@ provenance:
   series: MFH (United Arab Emirates)
   url: https://home.treasury.gov/data/treasury-international-capital-tic-system
   license: Public domain (US government data)
+unitClass: currency

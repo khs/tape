@@ -17,3 +17,4 @@ provenance:
   series: CTPOP
   url: https://fred.stlouisfed.org/series/CTPOP
   license: Public domain (US government data)
+unitClass: count

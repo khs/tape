@@ -19,3 +19,4 @@ provenance:
   series: state_mn
   url: https://www.usaspending.gov/state/MN
   license: Public domain (US government data)
+unitClass: currency

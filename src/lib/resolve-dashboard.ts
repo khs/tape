@@ -64,12 +64,15 @@ async function resolveSourceById(
     visited.delete(id);
     if (!a || !b) return null;
     // Pick output formatting + an optional ×N rescale so e.g.
-    // currency/currency divides render as "1.10%" instead of "0.011".
-    // See combineOpFormatting in lib/derive.ts for the full rule table.
+    // currency/currency divides render as "1.10%" instead of "0.011",
+    // and currency/count divides render as "$X /person" instead of a
+    // tiny 4-decimal number. See combineOpFormatting in lib/derive.ts.
     const opFmt = combineOpFormatting(
       a.entry.data.formatting,
       b.entry.data.formatting,
       spec.op as CombineOp,
+      (a.entry.data as { unitClass?: import("./derive").UnitClass }).unitClass,
+      (b.entry.data as { unitClass?: import("./derive").UnitClass }).unitClass,
     );
     const rawPoints = combineTwo(a.points, b.points, spec.op as CombineOp);
     if (rawPoints.length === 0) return null;

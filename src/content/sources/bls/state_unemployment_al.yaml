@@ -1,6 +1,7 @@
 name: Alabama unemployment rate
 shortName: AL unemployment
-description: Headline unemployment rate, seasonally adjusted, monthly. From BLS Local Area Unemployment Statistics (LAUS).
+description: Headline unemployment rate, seasonally adjusted, monthly. From BLS 
+  Local Area Unemployment Statistics (LAUS).
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_unemployment_al.json
@@ -15,3 +16,4 @@ provenance:
   series: LASST010000000000003
   url: https://www.bls.gov/lau/
   license: Public domain (US government data)
+unitClass: rate

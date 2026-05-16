@@ -17,3 +17,4 @@ provenance:
   series: HIPOP
   url: https://fred.stlouisfed.org/series/HIPOP
   license: Public domain (US government data)
+unitClass: count

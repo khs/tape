@@ -1,6 +1,7 @@
 name: iShares Ethereum Trust ETF
 shortName: ETHA
-description: iShares spot Ethereum ETF. Daily close, weekends included for spot tokens since crypto trades 24/7.
+description: iShares spot Ethereum ETF. Daily close, weekends included for spot 
+  tokens since crypto trades 24/7.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/ETHA.json
@@ -16,3 +17,4 @@ provenance:
   provider: Yahoo Finance
   series: ETHA
   url: https://finance.yahoo.com/quote/ETHA
+unitClass: currency

@@ -1,6 +1,7 @@
 name: Portugal gov debt/GDP
 shortName: PT gov debt/GDP
-description: General government gross financial liabilities as % of GDP. OECD Economic Outlook (GGFLQ). Annual.
+description: General government gross financial liabilities as % of GDP. OECD 
+  Economic Outlook (GGFLQ). Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/prt_gov_debt_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: gov_debt_pct_gdp (PRT)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

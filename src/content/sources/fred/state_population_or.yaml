@@ -17,3 +17,4 @@ provenance:
   series: ORPOP
   url: https://fred.stlouisfed.org/series/ORPOP
   license: Public domain (US government data)
+unitClass: count

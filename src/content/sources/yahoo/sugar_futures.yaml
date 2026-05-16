@@ -18,3 +18,4 @@ provenance:
   url: https://finance.yahoo.com/quote/SB%3DF
 tags:
   - commodities
+unitClass: ratio

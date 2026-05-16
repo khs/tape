@@ -17,3 +17,4 @@ provenance:
   series: FLPOP
   url: https://fred.stlouisfed.org/series/FLPOP
   license: Public domain (US government data)
+unitClass: count

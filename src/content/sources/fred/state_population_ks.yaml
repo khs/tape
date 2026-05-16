@@ -17,3 +17,4 @@ provenance:
   series: KSPOP
   url: https://fred.stlouisfed.org/series/KSPOP
   license: Public domain (US government data)
+unitClass: count

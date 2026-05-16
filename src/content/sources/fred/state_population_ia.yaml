@@ -17,3 +17,4 @@ provenance:
   series: IAPOP
   url: https://fred.stlouisfed.org/series/IAPOP
   license: Public domain (US government data)
+unitClass: count

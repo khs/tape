@@ -19,3 +19,4 @@ provenance:
   series: state_vi
   url: https://www.usaspending.gov/state/VI
   license: Public domain (US government data)
+unitClass: currency

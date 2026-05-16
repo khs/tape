@@ -1,6 +1,7 @@
 name: Canada equity market vs. world
 shortName: EWC
-description: iShares MSCI Canada ETF (EWC) divided by Vanguard Total World ETF (VT), indexed to 100 at series start. Daily.
+description: iShares MSCI Canada ETF (EWC) divided by Vanguard Total World ETF 
+  (VT), indexed to 100 at series start. Daily.
 kind: timeseries
 pipeline: countries_relative
 dataFile: data/countries_relative/EWC.json
@@ -14,4 +15,6 @@ provenance:
   provider: Yahoo Finance (derived)
   series: EWC / VT
   url: https://finance.yahoo.com/quote/EWC
-  notes: Country ETF divided by VT, indexed to 100 at the first overlapping date.
+  notes: Country ETF divided by VT, indexed to 100 at the first overlapping 
+    date.
+unitClass: index

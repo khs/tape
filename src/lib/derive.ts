@@ -3,6 +3,38 @@ import type { Formatting } from "./format";
 
 export type CombineOp = "divide" | "sum" | "diff";
 
+/**
+ * Coarse semantic classification of a source's values. Distinct from
+ * Formatting.style because two sources can share a style ("number")
+ * but mean different things (US GDP in billions vs Case-Shiller HPI
+ * as an index).
+ *
+ *   currency — denominated in $/€/etc.
+ *   count    — discrete (people, jobs, claims, homes sold, …)
+ *   rate     — percentage or basis-point rate
+ *   index    — unitless level (CPI, Nasdaq composite, …)
+ *   ratio    — unitless ratio (default for derived sources)
+ *
+ * Populated on every source by pipelines/backfill_unit_class.py;
+ * inferUnitClassFromFormatting below is the fallback when callers
+ * don't have a unitClass to pass through.
+ */
+export type UnitClass = "currency" | "count" | "rate" | "index" | "ratio";
+
+export function inferUnitClassFromFormatting(
+  fmt: Formatting | undefined,
+): UnitClass {
+  if (!fmt) return "ratio";
+  if (fmt.style === "currency") return "currency";
+  if (fmt.style === "percent" || fmt.style === "bps") return "rate";
+  if (fmt.style === "index") return "index";
+  // style "number" — too vague to nail down without an explicit
+  // unitClass field. Treat as ratio so the same-class divide rule
+  // doesn't accidentally trigger between, say, a currency and an
+  // index (both stored as style: number).
+  return "ratio";
+}
+
 const OP_LABELS: Record<CombineOp, string> = {
   divide: "÷",
   sum: "+",
@@ -68,33 +100,61 @@ export function combineOpFormatting(
   aFmt: Formatting | undefined,
   bFmt: Formatting | undefined,
   op: CombineOp,
+  aUnitClass?: UnitClass,
+  bUnitClass?: UnitClass,
 ): OpFormatting {
   const a: Formatting = aFmt ?? { style: "number", decimals: 2 };
-  const b: Formatting = bFmt ?? { style: "number", decimals: 2 };
+  const aClass: UnitClass = aUnitClass ?? inferUnitClassFromFormatting(aFmt);
+  const bClass: UnitClass = bUnitClass ?? inferUnitClassFromFormatting(bFmt);
+
   if (op === "divide") {
-    // Same-style numerator + denominator → unitless ratio → display
-    // as percent with a ×100 rescale. Covers the common "share of X"
-    // case (currency/currency, count/count, even rate/rate). Side
-    // effect: WTI/Brent gives "104%" rather than "1.04", which reads
-    // a little weird for cross-commodity pairs but is technically the
-    // same number. Acceptable; users can re-format per-chart later.
-    if (a.style === b.style && (a.style === "currency" || a.style === "number" || a.style === "percent")) {
+    // Rule 1 — Same unitClass numerator + denominator → unitless
+    // ratio → display as percent with ×100 rescale. Covers the
+    // common "share of X" case across every class (currency/currency,
+    // count/count, rate/rate, index/index, ratio/ratio). Side effect:
+    // WTI/Brent gives "104%" rather than "1.04"; chart-level
+    // percentDisplay:"decimal" flips that back.
+    if (aClass === bClass) {
       return {
         formatting: { style: "percent", decimals: 2 },
         multiplier: 100,
       };
     }
-    // Mixed-style divide: fall back to a generic 4-decimal number.
-    // No good general formatter for "$/person" etc. without explicit
-    // unit metadata; this at least keeps the value visible.
+
+    // Rule 2 — currency / count → "$ per unit" display. Counts on
+    // the books are raw (post pipelines/rescale_counts_to_raw.py);
+    // currency on the books is billions (post
+    // pipelines/rescale_currency_to_billions.py). So the raw divide
+    // is "billions of $ per unit"; multiplying by 1e9 yields raw $
+    // per unit, which is what people read off the screen
+    // ("$1,463 per person"). Compact notation handles K/M magnitudes
+    // for densely-populated denominators without per-source decimals
+    // tweaking.
+    if (aClass === "currency" && bClass === "count") {
+      return {
+        formatting: {
+          style: "number",
+          decimals: 1,
+          prefix: "$",
+          notation: "compact",
+        },
+        multiplier: 1e9,
+      };
+    }
+
+    // Rule 3 — Everything else mixed: fall back to a 4-decimal
+    // number. No good general formatter for currency/rate,
+    // count/currency, count/index, etc. without per-pair semantics
+    // — at least the value is numerically visible.
     return {
       formatting: { style: "number", decimals: 4 },
       multiplier: 1,
     };
   }
-  // sum / diff: result is in A's unit if the units match, semantically
-  // nonsense if they don't but at least the display is consistent.
-  // Don't override formatting; don't rescale data.
+
+  // sum / diff: result inherits A's formatting (units typically match
+  // for a sensible sum/diff anyway; mixed-class is the user's problem
+  // to interpret). No multiplier rescale.
   return { formatting: a, multiplier: 1 };
 }
 

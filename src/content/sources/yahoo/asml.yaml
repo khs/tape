@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: ASML
   url: https://finance.yahoo.com/quote/ASML
+unitClass: currency

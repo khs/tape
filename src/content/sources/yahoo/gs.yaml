@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: GS
   url: https://finance.yahoo.com/quote/GS
+unitClass: currency

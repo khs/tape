@@ -19,3 +19,4 @@ provenance:
   series: state_ct
   url: https://www.usaspending.gov/state/CT
   license: Public domain (US government data)
+unitClass: currency

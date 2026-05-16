@@ -19,3 +19,4 @@ provenance:
   series: state_nm
   url: https://www.usaspending.gov/state/NM
   license: Public domain (US government data)
+unitClass: currency

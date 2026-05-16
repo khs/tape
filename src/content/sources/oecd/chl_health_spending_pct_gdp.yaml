@@ -1,6 +1,7 @@
 name: Chile health spending/GDP
 shortName: CL health spending/GDP
-description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual.
+description: Total current expenditure on health as % of GDP, all financing 
+  schemes. OECD System of Health Accounts. Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/chl_health_spending_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: health_spending_pct_gdp (CHL)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

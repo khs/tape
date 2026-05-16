@@ -19,3 +19,4 @@ provenance:
   series: state_al
   url: https://www.usaspending.gov/state/AL
   license: Public domain (US government data)
+unitClass: currency

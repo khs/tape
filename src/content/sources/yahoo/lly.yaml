@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: LLY
   url: https://finance.yahoo.com/quote/LLY
+unitClass: currency

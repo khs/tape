@@ -19,3 +19,4 @@ provenance:
   series: state_nd
   url: https://www.usaspending.gov/state/ND
   license: Public domain (US government data)
+unitClass: currency

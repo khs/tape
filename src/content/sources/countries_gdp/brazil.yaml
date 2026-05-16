@@ -1,6 +1,7 @@
 name: Brazil real-GDP share of world
 shortName: Brazil
-description: Brazil real GDP / world real GDP (constant 2015 USD), annual (World Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
+description: Brazil real GDP / world real GDP (constant 2015 USD), annual (World
+  Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWZ.json
@@ -15,3 +16,4 @@ provenance:
   series: NY.GDP.MKTP.KD (BRA) / NY.GDP.MKTP.KD (WLD)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=BR
   license: CC BY-4.0
+unitClass: rate

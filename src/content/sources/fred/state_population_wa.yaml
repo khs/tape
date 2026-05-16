@@ -17,3 +17,4 @@ provenance:
   series: WAPOP
   url: https://fred.stlouisfed.org/series/WAPOP
   license: Public domain (US government data)
+unitClass: count

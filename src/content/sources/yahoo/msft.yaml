@@ -13,3 +13,4 @@ provenance:
   provider: Yahoo Finance
   series: MSFT
   url: https://finance.yahoo.com/quote/MSFT
+unitClass: currency

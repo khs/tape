@@ -17,3 +17,4 @@ provenance:
   series: MTPOP
   url: https://fred.stlouisfed.org/series/MTPOP
   license: Public domain (US government data)
+unitClass: count

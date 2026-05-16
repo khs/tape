@@ -1,6 +1,8 @@
 name: CPI medical care
 shortName: CPI medical
-description: Consumer Price Index, medical-care component. Tracks the price of doctor visits, prescription drugs, and health-insurance premiums (as measured by BLS).
+description: Consumer Price Index, medical-care component. Tracks the price of 
+  doctor visits, prescription drugs, and health-insurance premiums (as measured 
+  by BLS).
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_medical.json
@@ -15,3 +17,4 @@ provenance:
   series: CUUR0000SAM
   url: https://data.bls.gov/timeseries/CUUR0000SAM
   license: U.S. public domain
+unitClass: index

@@ -17,3 +17,4 @@ provenance:
   series: NYPOP
   url: https://fred.stlouisfed.org/series/NYPOP
   license: Public domain (US government data)
+unitClass: count

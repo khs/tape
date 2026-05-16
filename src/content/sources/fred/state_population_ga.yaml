@@ -17,3 +17,4 @@ provenance:
   series: GAPOP
   url: https://fred.stlouisfed.org/series/GAPOP
   license: Public domain (US government data)
+unitClass: count

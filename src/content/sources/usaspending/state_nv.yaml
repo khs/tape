@@ -19,3 +19,4 @@ provenance:
   series: state_nv
   url: https://www.usaspending.gov/state/NV
   license: Public domain (US government data)
+unitClass: currency

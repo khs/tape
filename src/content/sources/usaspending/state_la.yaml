@@ -19,3 +19,4 @@ provenance:
   series: state_la
   url: https://www.usaspending.gov/state/LA
   license: Public domain (US government data)
+unitClass: currency

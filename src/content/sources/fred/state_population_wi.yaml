@@ -17,3 +17,4 @@ provenance:
   series: WIPOP
   url: https://fred.stlouisfed.org/series/WIPOP
   license: Public domain (US government data)
+unitClass: count

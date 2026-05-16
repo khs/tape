@@ -1,6 +1,8 @@
 name: Chile — US Treasury holdings
 shortName: Chile
-description: US Treasury securities held by Chile, monthly. From Treasury's TIC (Treasury International Capital) major-foreign-holders release. End-of-month positions, billions of USD.
+description: US Treasury securities held by Chile, monthly. From Treasury's TIC 
+  (Treasury International Capital) major-foreign-holders release. End-of-month 
+  positions, billions of USD.
 kind: timeseries
 pipeline: treasury_tic
 dataFile: data/treasury_tic/chile.json
@@ -17,3 +19,4 @@ provenance:
   series: MFH (Chile)
   url: https://home.treasury.gov/data/treasury-international-capital-tic-system
   license: Public domain (US government data)
+unitClass: currency

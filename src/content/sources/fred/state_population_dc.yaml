@@ -17,3 +17,4 @@ provenance:
   series: DCPOP
   url: https://fred.stlouisfed.org/series/DCPOP
   license: Public domain (US government data)
+unitClass: count

@@ -14,3 +14,4 @@ provenance:
   provider: Yahoo Finance
   series: KO
   url: https://finance.yahoo.com/quote/KO
+unitClass: currency

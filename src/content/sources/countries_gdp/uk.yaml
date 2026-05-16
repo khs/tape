@@ -1,6 +1,7 @@
 name: United Kingdom real-GDP share of world
 shortName: United Kingdom
-description: UK real GDP / world real GDP (constant 2015 USD), annual (World Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
+description: UK real GDP / world real GDP (constant 2015 USD), annual (World 
+  Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWU.json
@@ -15,3 +16,4 @@ provenance:
   series: NY.GDP.MKTP.KD (GBR) / NY.GDP.MKTP.KD (WLD)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=GB
   license: CC BY-4.0
+unitClass: rate

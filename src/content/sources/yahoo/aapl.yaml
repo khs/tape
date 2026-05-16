@@ -13,3 +13,4 @@ provenance:
   provider: Yahoo Finance
   series: AAPL
   url: https://finance.yahoo.com/quote/AAPL
+unitClass: currency

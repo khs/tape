@@ -17,3 +17,4 @@ provenance:
   series: INPOP
   url: https://fred.stlouisfed.org/series/INPOP
   license: Public domain (US government data)
+unitClass: count

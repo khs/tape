@@ -19,3 +19,4 @@ provenance:
   series: state_ok
   url: https://www.usaspending.gov/state/OK
   license: Public domain (US government data)
+unitClass: currency

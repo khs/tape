@@ -19,3 +19,4 @@ provenance:
   series: state_ar
   url: https://www.usaspending.gov/state/AR
   license: Public domain (US government data)
+unitClass: currency

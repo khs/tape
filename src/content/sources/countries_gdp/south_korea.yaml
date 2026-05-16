@@ -1,6 +1,8 @@
 name: South Korea real-GDP share of world
 shortName: South Korea
-description: South Korea real GDP / world real GDP (constant 2015 USD), annual (World Bank). Latest observation forward-filled to today; WB data lags by ~1 year.
+description: South Korea real GDP / world real GDP (constant 2015 USD), annual 
+  (World Bank). Latest observation forward-filled to today; WB data lags by ~1 
+  year.
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWY.json
@@ -15,3 +17,4 @@ provenance:
   series: NY.GDP.MKTP.KD (KOR) / NY.GDP.MKTP.KD (WLD)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=KR
   license: CC BY-4.0
+unitClass: rate

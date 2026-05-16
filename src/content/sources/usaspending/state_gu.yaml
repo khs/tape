@@ -18,3 +18,4 @@ provenance:
   series: state_gu
   url: https://www.usaspending.gov/state/GU
   license: Public domain (US government data)
+unitClass: currency

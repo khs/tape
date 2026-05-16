@@ -1,6 +1,7 @@
 name: Sweden gov deficit/GDP
 shortName: SE gov deficit/GDP
-description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual.
+description: General government net lending as % of GDP (negative = deficit). 
+  OECD Economic Outlook (NLGQ). Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/swe_gov_deficit_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: gov_deficit_pct_gdp (SWE)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

@@ -258,6 +258,14 @@ if (chartOp && perSourceRaw.length === 2 && perSourceRaw[0].data && perSourceRaw
       a.source.data.formatting,
       b.source.data.formatting,
       chartOp,
+      // unitClass discriminates classes that share `style: number`
+      // (US GDP-as-currency vs Case-Shiller-as-index, etc.). Each
+      // source's unitClass is populated by
+      // pipelines/backfill_unit_class.py and surfaces in library.json.
+      (a.source.data as { unitClass?: import("../lib/derive").UnitClass })
+        .unitClass,
+      (b.source.data as { unitClass?: import("../lib/derive").UnitClass })
+        .unitClass,
     ),
     userPercentDisplay,
   );

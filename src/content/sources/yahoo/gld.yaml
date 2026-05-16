@@ -19,3 +19,4 @@ provenance:
   url: https://finance.yahoo.com/quote/GLD
 tags:
   - commodities
+unitClass: currency

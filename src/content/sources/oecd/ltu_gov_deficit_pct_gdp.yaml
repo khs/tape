@@ -1,6 +1,7 @@
 name: Lithuania gov deficit/GDP
 shortName: LT gov deficit/GDP
-description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual.
+description: General government net lending as % of GDP (negative = deficit). 
+  OECD Economic Outlook (NLGQ). Annual.
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/ltu_gov_deficit_pct_gdp.json
@@ -15,3 +16,4 @@ provenance:
   series: gov_deficit_pct_gdp (LTU)
   url: https://data-explorer.oecd.org/
   license: OECD terms of use
+unitClass: rate

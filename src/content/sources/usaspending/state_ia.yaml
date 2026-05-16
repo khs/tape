@@ -18,3 +18,4 @@ provenance:
   series: state_ia
   url: https://www.usaspending.gov/state/IA
   license: Public domain (US government data)
+unitClass: currency
