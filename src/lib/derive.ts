@@ -78,20 +78,31 @@ export interface OpFormatting {
  * percent (the common "ratio of two same-style quantities" case);
  * everywhere else the input is returned untouched.
  *
- * decimal mode: swap the formatting to a 4-decimal number AND drop the
- * ×100 multiplier the percent style needed, so values display as
- * "1.04" instead of "104%". This is the choice the user will reach for
- * on things like WTI / Brent (cross-commodity multiplier) where the
- * percent reading is technically correct but semantically awkward.
+ * Three modes:
+ *   percent (default) — "104%". Multiplier ×100, percent style.
+ *   decimal           — "1.04". Multiplier ×1, 4-decimal number.
+ *   ratio             — "1.04:1". Multiplier ×1, 2-decimal with
+ *                       ":1" suffix; reads as "1.04 to 1." Useful
+ *                       when the proportion is the natural framing
+ *                       (e.g. debt-to-equity, P/E).
  */
+export type PercentDisplay = "percent" | "decimal" | "ratio";
+
 export function applyPercentDisplayOverride(
   opFmt: OpFormatting,
-  choice: "percent" | "decimal" | undefined,
+  choice: PercentDisplay | undefined,
 ): OpFormatting {
-  if (choice !== "decimal") return opFmt;
+  if (!choice || choice === "percent") return opFmt;
   if (opFmt.formatting.style !== "percent") return opFmt;
+  if (choice === "decimal") {
+    return {
+      formatting: { style: "number", decimals: 4 },
+      multiplier: 1,
+    };
+  }
+  // ratio
   return {
-    formatting: { style: "number", decimals: 4 },
+    formatting: { style: "number", decimals: 2, suffix: ":1" },
     multiplier: 1,
   };
 }
@@ -142,7 +153,25 @@ export function combineOpFormatting(
       };
     }
 
-    // Rule 3 — Everything else mixed: fall back to a 4-decimal
+    // Rule 3 — currency / index → deflated currency. Indices in this
+    // codebase are conventionally base 100 (CPI, Case-Shiller, etc.);
+    // dividing nominal currency by such an index and multiplying by
+    // 100 gives the "real" magnitude in the same base-year units.
+    // Reuse A's formatter so the deflated value reads in the same
+    // band as the nominal input ("$24,000 B" nominal → "$7,550 B"
+    // deflated by CPI ≈ 320). Caveat: indices that are NOT base-100
+    // (e.g. an absolute-level composite) produce a meaningless
+    // multiplier; user can override via the chart's percentDisplay
+    // logic doesn't apply here, but they can re-do the math with a
+    // different op or live with the caveat.
+    if (aClass === "currency" && bClass === "index") {
+      return {
+        formatting: a,
+        multiplier: 100,
+      };
+    }
+
+    // Rule 4 — Everything else mixed: fall back to a 4-decimal
     // number. No good general formatter for currency/rate,
     // count/currency, count/index, etc. without per-pair semantics
     // — at least the value is numerically visible.

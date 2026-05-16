@@ -67,7 +67,7 @@ const inlineChartSchema = z.object({
   // multiplier, displays raw ratio with 4 decimals). "decimal" reads
   // better for cross-commodity ratios like WTI/Brent where "104%"
   // implies a share-of relationship that doesn't really apply.
-  percentDisplay: z.enum(["percent", "decimal"]).optional(),
+  percentDisplay: z.enum(["percent", "decimal", "ratio"]).optional(),
 });
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;

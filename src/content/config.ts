@@ -117,10 +117,11 @@ const charts = defineCollection({
     aliasOf: z.string().optional(),
     // When a multi-source divide produces a percent-style output (e.g.
     // currency/currency, count/count), the renderer multiplies by 100 and
-    // labels as "%". For ratios where that reads awkwardly (e.g.
-    // WTI / Brent = "104%" vs the more intuitive "1.04"), set this to
-    // "decimal" to fall back to a 4-decimal numeric display.
-    percentDisplay: z.enum(["percent", "decimal"]).optional(),
+    // labels as "%". Override per chart:
+    //   percent — "104%" (default)
+    //   decimal — "1.04"  (e.g. WTI / Brent)
+    //   ratio   — "1.04:1" (e.g. debt:equity, P:E framing)
+    percentDisplay: z.enum(["percent", "decimal", "ratio"]).optional(),
   }),
 });
 

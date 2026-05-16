@@ -4,6 +4,7 @@ import {
   combineOpLabel,
   combineOpFormatting,
   inferUnitClassFromFormatting,
+  applyPercentDisplayOverride,
 } from "./derive";
 import type { TimeSeriesData } from "./data-types";
 import type { Formatting } from "./format";
@@ -66,10 +67,13 @@ describe("combineOpFormatting", () => {
     expect(r.multiplier).toBe(1);
   });
 
-  it("currency / index → fallback (mixed styles)", () => {
+  it("currency / index (style-only dispatch) → deflation rule (A's fmt, x100)", () => {
+    // Without explicit unitClass, FMT_INDEX has style: "index" which
+    // inferUnitClassFromFormatting maps to "index". FMT_CURRENCY maps
+    // to "currency". The currency/index rule kicks in.
     const r = combineOpFormatting(FMT_CURRENCY, FMT_INDEX, "divide");
-    expect(r.formatting.style).toBe("number");
-    expect(r.multiplier).toBe(1);
+    expect(r.formatting).toEqual(FMT_CURRENCY);
+    expect(r.multiplier).toBe(100);
   });
 
   it("sum/diff → A's formatting, no multiplier", () => {
@@ -122,13 +126,12 @@ describe("combineOpFormatting", () => {
     expect(r.multiplier).toBe(100);
   });
 
-  it("currency / index via unitClass → generic fallback (mixed-class)", () => {
-    // No specific rule for currency/index; goes to the generic number
-    // branch. Both stored as style: number; only unitClass tells them
-    // apart.
+  it("count / currency via unitClass → generic fallback (rare mixed-class)", () => {
+    // Inverse-per-capita pair, no specialized rule. Falls to the
+    // 4-decimal-number branch so the value at least renders.
     const aFmt: Formatting = { style: "number", decimals: 0 };
-    const bFmt: Formatting = { style: "number", decimals: 1 };
-    const r = combineOpFormatting(aFmt, bFmt, "divide", "currency", "index");
+    const bFmt: Formatting = { style: "number", decimals: 0 };
+    const r = combineOpFormatting(aFmt, bFmt, "divide", "count", "currency");
     expect(r.formatting.style).toBe("number");
     expect(r.formatting.decimals).toBe(4);
     expect(r.multiplier).toBe(1);
@@ -140,6 +143,61 @@ describe("combineOpFormatting", () => {
     expect(inferUnitClassFromFormatting(FMT_INDEX)).toBe("index");
     expect(inferUnitClassFromFormatting(FMT_NUMBER)).toBe("ratio");
     expect(inferUnitClassFromFormatting(undefined)).toBe("ratio");
+  });
+
+  it("currency / index via unitClass → A's formatting, x100 (deflation)", () => {
+    // GDP-in-billions ÷ CPI-index, treated as base-100 deflation.
+    const aFmt: Formatting = {
+      style: "currency",
+      currency: "USD",
+      decimals: 1,
+      suffix: " B",
+    };
+    const bFmt: Formatting = { style: "number", decimals: 1 };
+    const r = combineOpFormatting(aFmt, bFmt, "divide", "currency", "index");
+    expect(r.formatting).toEqual(aFmt);
+    expect(r.multiplier).toBe(100);
+  });
+});
+
+describe("applyPercentDisplayOverride", () => {
+  // Each mode is a transformation of the same baseline percent
+  // formatting. Locks down the percent/decimal/ratio dispatch and
+  // the "no-op when output isn't percent" guard.
+  const PERCENT_BASELINE = {
+    formatting: { style: "percent", decimals: 2 } as Formatting,
+    multiplier: 100,
+  };
+
+  it("'percent' or undefined → returns input unchanged", () => {
+    expect(applyPercentDisplayOverride(PERCENT_BASELINE, undefined))
+      .toEqual(PERCENT_BASELINE);
+    expect(applyPercentDisplayOverride(PERCENT_BASELINE, "percent"))
+      .toEqual(PERCENT_BASELINE);
+  });
+
+  it("'decimal' → 4-decimal number, multiplier 1", () => {
+    const r = applyPercentDisplayOverride(PERCENT_BASELINE, "decimal");
+    expect(r.formatting.style).toBe("number");
+    expect(r.formatting.decimals).toBe(4);
+    expect(r.multiplier).toBe(1);
+  });
+
+  it("'ratio' → 2-decimal number with ':1' suffix, multiplier 1", () => {
+    const r = applyPercentDisplayOverride(PERCENT_BASELINE, "ratio");
+    expect(r.formatting.style).toBe("number");
+    expect(r.formatting.decimals).toBe(2);
+    expect(r.formatting.suffix).toBe(":1");
+    expect(r.multiplier).toBe(1);
+  });
+
+  it("any choice on non-percent input → returns input unchanged", () => {
+    const nonPercent = {
+      formatting: { style: "currency", currency: "USD", decimals: 0 } as Formatting,
+      multiplier: 1,
+    };
+    expect(applyPercentDisplayOverride(nonPercent, "decimal")).toEqual(nonPercent);
+    expect(applyPercentDisplayOverride(nonPercent, "ratio")).toEqual(nonPercent);
   });
 });
 

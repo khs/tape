@@ -334,21 +334,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <span><strong>Log scale</strong> — makes exponential growth read as a straight line. Combine with raw or rebase; off with dual-axis.</span>
             </label>
             <!--
-              percentDisplay toggle: only relevant when the chart's
-              combine output would auto-render as percent (same-style
+              percentDisplay control: only relevant when the chart's
+              combine output would auto-render as percent (same-class
               divide, e.g. currency/currency). Visibility is gated in
-              JS on (op === "divide" && exactly 2 same-style sources)
-              — leaving it visible always would invite confusion when
-              it's a silent no-op.
+              JS on (op === "divide" && exactly 2 sources) — leaving
+              it visible always would invite confusion when it's a
+              silent no-op.
             -->
-            <label
-              class="cc-log-opt"
-              data-role="cc-percent-display-wrap"
-              hidden
-              title="Some divides (e.g. WTI ÷ Brent) read more naturally as a multiplier (1.04) than a percent (104%). This toggles the display only; underlying math is unchanged."
-            >
-              <input type="checkbox" data-role="cc-percent-display-decimal" />
-              <span><strong>Show as decimal</strong> — render the ratio as "1.04" instead of "104%". Use when the percent reading doesn't fit the math (e.g. cross-commodity multipliers).</span>
+            <label class="cc-field" data-role="cc-percent-display-wrap" hidden>
+              <span class="eyebrow">Show divide result as</span>
+              <select data-role="cc-percent-display-select">
+                <option value="percent">Percent (104%)</option>
+                <option value="decimal">Decimal (1.04)</option>
+                <option value="ratio">Ratio (1.04:1)</option>
+              </select>
             </label>
             <p class="muted small">
               Need to plot a ratio, sum, or difference?
@@ -1988,11 +1987,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Tag-chip filter set for the source picker. AND across selected
     // tags. Cleared each time the modal is opened.
     pickerTags: Set<string>;
-    // For divides that auto-render as percent (same-style divide):
-    // "decimal" overrides to a 4-decimal numeric display ("1.04"),
-    // "percent" or undefined keeps the default ("104%"). Only meaningful
-    // when op === "divide" with 2 same-style sources; otherwise ignored.
-    percentDisplay: "percent" | "decimal" | undefined;
+    // For divides that auto-render as percent (same-class divide):
+    //   "percent" (or undefined) → "104%"
+    //   "decimal"                → "1.04"
+    //   "ratio"                  → "1.04:1"
+    // Only meaningful when op === "divide" with 2 sources; ignored
+    // otherwise. Saved to inlineChart.percentDisplay on submit.
+    percentDisplay: "percent" | "decimal" | "ratio" | undefined;
   }
   const ccModal: CustomChartModalState = {
     editingId: null,
@@ -2065,7 +2066,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.logScale =
       (existing as { scale?: string } | null)?.scale === "log";
     ccModal.blurb = existing?.blurb ?? "";
-    ccModal.percentDisplay = (existing as { percentDisplay?: "percent" | "decimal" } | null)
+    ccModal.percentDisplay = (existing as { percentDisplay?: "percent" | "decimal" | "ratio" } | null)
       ?.percentDisplay;
     // Fresh tag-chip filter each time the modal opens. The user's prior
     // selection on a previous chart's compose session isn't relevant.
@@ -2134,16 +2135,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const wrap = shell.querySelector<HTMLElement>(
       "[data-role='cc-percent-display-wrap']",
     );
-    const checkbox = shell.querySelector<HTMLInputElement>(
-      "[data-role='cc-percent-display-decimal']",
+    const select = shell.querySelector<HTMLSelectElement>(
+      "[data-role='cc-percent-display-select']",
     );
-    if (!wrap || !checkbox) return;
+    if (!wrap || !select) return;
     // Visible only when the chart's combine output COULD be percent
-    // — op = divide on exactly 2 sources. Doesn't gate on source-style
-    // match (would require resolving derived sources' styles); the
-    // toggle is a no-op when the output isn't percent anyway.
+    // — op = divide on exactly 2 sources. Doesn't gate on unitClass
+    // match (would require resolving derived sources); the dropdown
+    // is a no-op when the output isn't percent anyway.
     wrap.hidden = !(ccModal.op === "divide" && ccModal.selected.size === 2);
-    checkbox.checked = ccModal.percentDisplay === "decimal";
+    // "percent" is the default; undefined means default.
+    select.value = ccModal.percentDisplay ?? "percent";
   }
 
   function syncOpUI(): void {
@@ -3302,11 +3304,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     blurbInput?.addEventListener("input", () => {
       ccModal.blurb = blurbInput.value;
     });
-    const percentDecimalCb = shell.querySelector<HTMLInputElement>(
-      "[data-role='cc-percent-display-decimal']",
+    const percentDisplaySelect = shell.querySelector<HTMLSelectElement>(
+      "[data-role='cc-percent-display-select']",
     );
-    percentDecimalCb?.addEventListener("change", () => {
-      ccModal.percentDisplay = percentDecimalCb.checked ? "decimal" : undefined;
+    percentDisplaySelect?.addEventListener("change", () => {
+      const v = percentDisplaySelect.value;
+      ccModal.percentDisplay =
+        v === "decimal" || v === "ratio" ? v : undefined;
       // No re-render needed — this only affects the saved spec; the
       // chart picks up the flag at render time.
     });
