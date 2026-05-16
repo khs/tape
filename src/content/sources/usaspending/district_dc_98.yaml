@@ -1,19 +1,22 @@
 name: Federal spending — DC-98
 shortName: DC-98
-description: Total federal outlays where the recipient is in District of Columbia's district 98 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+description: Total federal outlays where the recipient is in District of 
+  Columbia's district 98 (118th Congress boundaries), by fiscal year. From 
+  USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_dc_98.json
 supportedDeltas: ["1y", "5y", "10y"]
-unit: USD
+unit: billions USD
 formatting:
   style: currency
   currency: USD
-  decimals: 0
-  notation: compact
+  decimals: 1
+  suffix: ' B'
 emphasis: change
 provenance:
   provider: USAspending.gov
   series: district_dc_98
-  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=DC-98
+  url: 
+    https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=DC-98
   license: Public domain (US government data)

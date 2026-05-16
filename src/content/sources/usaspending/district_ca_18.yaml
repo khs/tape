@@ -1,19 +1,21 @@
 name: Federal spending — CA-18
 shortName: CA-18
-description: Total federal outlays where the recipient is in California's district 18 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+description: Total federal outlays where the recipient is in California's 
+  district 18 (118th Congress boundaries), by fiscal year. From USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ca_18.json
 supportedDeltas: ["1y", "5y", "10y"]
-unit: USD
+unit: billions USD
 formatting:
   style: currency
   currency: USD
-  decimals: 0
-  notation: compact
+  decimals: 1
+  suffix: ' B'
 emphasis: change
 provenance:
   provider: USAspending.gov
   series: district_ca_18
-  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=CA-18
+  url: 
+    https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=CA-18
   license: Public domain (US government data)

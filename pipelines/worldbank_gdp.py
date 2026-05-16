@@ -74,11 +74,16 @@ def fetch_wb_series(code: str) -> dict[str, float]:
 
 def _annual_to_points(series: dict[str, float]) -> list[dict]:
     """Convert {year_str: value} into a sorted points list, with today
-    appended as a forward-fill so the plot reaches the right edge."""
+    appended as a forward-fill so the plot reaches the right edge.
+
+    Values are rescaled from raw constant-2015 USD into BILLIONS so that
+    derived sources combining country GDP with FRED macro series (already
+    billions-denominated) produce numerically sane ratios. World/USA
+    magnitudes drop from 10^13 to 10^4."""
     if not series:
         return []
     years = sorted(series.keys())
-    points = [{"t": f"{y}-12-31", "v": series[y]} for y in years]
+    points = [{"t": f"{y}-12-31", "v": series[y] / 1e9} for y in years]
     today = datetime.now(timezone.utc).date().isoformat()
     if points[-1]["t"] < today:
         points.append({"t": today, "v": points[-1]["v"]})

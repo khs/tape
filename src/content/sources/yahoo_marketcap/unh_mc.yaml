@@ -5,12 +5,12 @@ kind: timeseries
 pipeline: yahoo_marketcap
 dataFile: data/yahoo_marketcap/UNH_mc.json
 supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
-unit: "USD"
+unit: "billions USD"
 formatting:
   style: currency
   currency: USD
-  decimals: 2
-  notation: compact
+  decimals: 1
+  suffix: ' B'
 provenance:
   provider: Yahoo Finance (derived)
   series: UNH × shares outstanding

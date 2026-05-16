@@ -1,19 +1,21 @@
 name: Federal spending — TX-30
 shortName: TX-30
-description: Total federal outlays where the recipient is in Texas's district 30 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+description: Total federal outlays where the recipient is in Texas's district 30
+  (118th Congress boundaries), by fiscal year. From USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_tx_30.json
 supportedDeltas: ["1y", "5y", "10y"]
-unit: USD
+unit: billions USD
 formatting:
   style: currency
   currency: USD
-  decimals: 0
-  notation: compact
+  decimals: 1
+  suffix: ' B'
 emphasis: change
 provenance:
   provider: USAspending.gov
   series: district_tx_30
-  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=TX-30
+  url: 
+    https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=TX-30
   license: Public domain (US government data)

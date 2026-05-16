@@ -134,7 +134,13 @@ def main() -> int:
             amount = state.get("aggregated_amount")
             if not code or amount is None:
                 continue
-            state_points.setdefault(code, []).append({"t": anchor, "v": float(amount)})
+            # Store in billions of USD so values combine sanely with the
+            # FRED macro series (us_real_gdp etc. are already in billions).
+            # Raw-dollar magnitudes (~10^11) blew up combineTwo divides
+            # by a factor of 10^9; rescaling here is the cheapest fix.
+            state_points.setdefault(code, []).append(
+                {"t": anchor, "v": float(amount) / 1e9}
+            )
             state_names[code] = state.get("display_name", code)
 
         for cd in call_api("district", start, end):
@@ -143,7 +149,9 @@ def main() -> int:
             amount = cd.get("aggregated_amount")
             if not slug or amount is None:
                 continue
-            cd_points.setdefault(slug, []).append({"t": anchor, "v": float(amount)})
+            cd_points.setdefault(slug, []).append(
+                {"t": anchor, "v": float(amount) / 1e9}
+            )
             cd_names[slug] = cd.get("display_name", slug)
 
     state_written = 0

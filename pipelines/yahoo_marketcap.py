@@ -171,7 +171,11 @@ def fetch_marketcap(symbol: str) -> list[dict]:
             mc = float(close_v) * float(shares_v)
             if mc <= 0:
                 continue
-            points.append({"t": ts.strftime("%Y-%m-%d"), "v": mc})
+            # Store in billions of USD so values combine sanely with the
+            # FRED macro series (already billions-denominated). Raw
+            # market-cap magnitudes (~10^11-10^13) blew up combineTwo
+            # divides by 10^9; rescaling here is the cheapest fix.
+            points.append({"t": ts.strftime("%Y-%m-%d"), "v": mc / 1e9})
     else:
         # Fallback: use current shares count × historical prices (approximation)
         current_shares = ticker.info.get("sharesOutstanding")
@@ -179,7 +183,7 @@ def fetch_marketcap(symbol: str) -> list[dict]:
             return []
         for ts, close_v in closes.items():
             mc = float(close_v) * float(current_shares)
-            points.append({"t": ts.strftime("%Y-%m-%d"), "v": mc})
+            points.append({"t": ts.strftime("%Y-%m-%d"), "v": mc / 1e9})
     return points
 
 

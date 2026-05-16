@@ -1,19 +1,21 @@
 name: Federal spending — TX-31
 shortName: TX-31
-description: Total federal outlays where the recipient is in Texas's district 31 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+description: Total federal outlays where the recipient is in Texas's district 31
+  (118th Congress boundaries), by fiscal year. From USAspending.gov.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_tx_31.json
 supportedDeltas: ["1y", "5y", "10y"]
-unit: USD
+unit: billions USD
 formatting:
   style: currency
   currency: USD
-  decimals: 0
-  notation: compact
+  decimals: 1
+  suffix: ' B'
 emphasis: change
 provenance:
   provider: USAspending.gov
   series: district_tx_31
-  url: https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=TX-31
+  url: 
+    https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=TX-31
   license: Public domain (US government data)
