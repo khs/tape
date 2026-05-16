@@ -3059,15 +3059,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     });
     // Quick-divisor chips: one-click pre-fill of op + B with a commonly
     // requested denominator (population / GDP / employment). The user
-    // still picks A; we seed the name with a hint phrase if blank, and
-    // focus the A search so the next interaction is obvious.
+    // still picks A; the auto-name handles "A ÷ B" generation. We used
+    // to also seed the name field with a template like "per capita",
+    // but that clobbered the auto-name flow — "per capita" alone loses
+    // the A's identity ("CA federal $ ÷ US population" beats just
+    // "per capita"). Templates dropped; the chip only sets op + B now.
     const quickChips = shell.querySelectorAll<HTMLButtonElement>(
       "[data-role='ds-quick']",
     );
     quickChips.forEach((chip) => {
       chip.addEventListener("click", () => {
         const id = chip.dataset.divisorId ?? "";
-        const tmpl = chip.dataset.nameTemplate ?? "";
         if (!id) return;
         dsModal.op = "divide";
         if (opSelect) opSelect.value = "divide";
@@ -3076,12 +3078,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // can't divide a source by itself, and the picker would mark
         // the row "Already picked on the other side" anyway.
         if (dsModal.a === id) dsModal.a = "";
-        // Seed the name field only if the user hasn't typed anything
-        // yet (don't trample over their work).
-        if (!dsModal.name.trim() && tmpl) {
-          dsModal.name = tmpl;
-          if (nameInput) nameInput.value = tmpl;
-        }
         // Reflect the new active chip — primarily a visual cue that
         // the click registered (the rest of the UI updates too, but
         // the chip itself is what they just touched).
@@ -3134,6 +3130,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // tile now"; pre-checking the box and creating the chart here saves
       // the user from a follow-up trip through the cc-modal. Opt-out
       // covers the stockpiling-sources-for-later case.
+      //
+      // The auto-chart references BOTH parent sources with the op set,
+      // not the freshly-created derived source. Same line either way
+      // (combineTwo applied at render), but the multi-source-with-op
+      // form preserves both component citations in the chart footer
+      // and "Copy citation" output — feels more transparent than the
+      // single-source-from-an-opaque-derived form.
       let autoChartCreated = false;
       if (dsModal.addAsChart) {
         clampActiveSection();
@@ -3142,8 +3145,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           const chartId = INLINE_PREFIX + nanoid(8);
           state.inlineCharts[chartId] = {
             title: effectiveName,
-            sources: [id],
+            sources: [dsModal.a, dsModal.b],
             normalize: "raw",
+            op: dsModal.op,
           };
           target.charts.push(chartId);
           autoChartCreated = true;
