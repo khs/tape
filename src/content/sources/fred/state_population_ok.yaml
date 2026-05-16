@@ -1,11 +1,12 @@
 name: Oklahoma population
 shortName: Oklahoma pop
-description: Annual estimate of Oklahoma's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+description: Annual estimate of Oklahoma's population, in thousands. From Census
+  Bureau Population Estimates Program via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/OKPOP.json
 supportedDeltas: ["5y", "10y", "30y", "50y"]
-unit: thousands
+unit: people
 formatting:
   style: number
   decimals: 0

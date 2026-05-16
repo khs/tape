@@ -5,11 +5,11 @@ kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/HOUST.json
 supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "thousands, SAAR"
+unit: "starts"
 formatting:
   style: number
   decimals: 0
-  suffix: "k"
+  notation: compact
 provenance:
   provider: FRED (St. Louis Fed)
   series: HOUST

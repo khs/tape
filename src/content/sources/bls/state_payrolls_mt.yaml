@@ -1,11 +1,12 @@
 name: Montana nonfarm payroll employment
 shortName: MT payrolls
-description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS Current Employment Statistics (CES) state series, in thousands of persons.
+description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS
+  Current Employment Statistics (CES) state series, in thousands of persons.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_payrolls_mt.json
 supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: thousands of persons
+unit: jobs
 formatting:
   style: number
   decimals: 0

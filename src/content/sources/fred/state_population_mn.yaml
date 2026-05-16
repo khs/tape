@@ -1,11 +1,12 @@
 name: Minnesota population
 shortName: Minnesota pop
-description: Annual estimate of Minnesota's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+description: Annual estimate of Minnesota's population, in thousands. From 
+  Census Bureau Population Estimates Program via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MNPOP.json
 supportedDeltas: ["5y", "10y", "30y", "50y"]
-unit: thousands
+unit: people
 formatting:
   style: number
   decimals: 0

@@ -346,12 +346,21 @@ def main() -> int:
         if not points:
             print(f"  {spec.series_id}: parsed 0 points", file=sys.stderr)
             continue
+        # Canonical-unit normalization: BLS state payrolls report
+        # "thousands of persons" — rescale to raw jobs so combineTwo's
+        # per-capita derivation produces sensible numbers. Mirrors
+        # FRED's rescaling in pipelines/fred_series.py and the
+        # retroactive script pipelines/rescale_counts_to_raw.py.
+        spec_unit = spec.unit
+        if "thousand" in spec.unit.lower():
+            points = [{"t": p["t"], "v": p["v"] * 1000.0} for p in points]
+            spec_unit = "jobs" if "payroll" in spec.label.lower() else "count"
         out = write_timeseries(
             pipeline="bls",
             series_id=spec.out_id,
             name=spec.label,
             points=points,
-            unit=spec.unit,
+            unit=spec_unit,
         )
         print(
             f"  {spec.series_id} -> {spec.out_id}: "

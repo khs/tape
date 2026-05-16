@@ -8,7 +8,7 @@ kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSJOL.json
 supportedDeltas: ["1y", "5y", "10y"]
-unit: thousands
+unit: openings
 formatting:
   style: number
   decimals: 0

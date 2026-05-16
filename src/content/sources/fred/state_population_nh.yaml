@@ -1,11 +1,12 @@
 name: New Hampshire population
 shortName: New Hampshire pop
-description: Annual estimate of New Hampshire's population, in thousands. From Census Bureau Population Estimates Program via FRED.
+description: Annual estimate of New Hampshire's population, in thousands. From 
+  Census Bureau Population Estimates Program via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/NHPOP.json
 supportedDeltas: ["5y", "10y", "30y", "50y"]
-unit: thousands
+unit: people
 formatting:
   style: number
   decimals: 0

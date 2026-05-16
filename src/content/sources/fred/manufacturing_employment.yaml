@@ -6,7 +6,7 @@ kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MANEMP.json
 supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: thousands
+unit: jobs
 formatting:
   style: number
   decimals: 0

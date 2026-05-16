@@ -181,6 +181,36 @@ SPECS: list[FredSpec] = [
 ]
 
 
+def _infer_raw_count_unit(series_id: str, fred_unit: str) -> str:
+    """
+    Pick a natural-language unit string for a raw-count series after
+    rescaling from "thousands". Mirrors the heuristic in
+    pipelines/rescale_counts_to_raw.py so both code paths produce the
+    same source-YAML output.
+    """
+    lower = (series_id + " " + fred_unit).lower()
+    for keyword, noun in (
+        ("population", "people"),
+        ("popthm", "people"),
+        ("payrolls", "jobs"),
+        ("payems", "jobs"),
+        ("employment", "jobs"),
+        ("claim", "claims"),
+        ("ics", "claims"),
+        ("ccs", "claims"),
+        ("opening", "openings"),
+        ("jolts", "openings"),
+        ("permit", "permits"),
+        ("starts", "starts"),
+        ("houst", "starts"),
+        ("sales", "homes sold"),
+        ("hsn", "homes sold"),
+    ):
+        if keyword in lower:
+            return noun
+    return "count"
+
+
 def fetch_series(series_id: str) -> list[dict]:
     url = FRED_CSV_URL.format(series_id=series_id)
     # urllib.request hangs on these responses in some environments; curl is reliable.
@@ -217,12 +247,27 @@ def main(argv: list[str] | None = None) -> int:
     for spec in run:
         print(f"Fetching FRED {spec.series_id}...", flush=True)
         points = fetch_series(spec.series_id)
+        # Canonical-unit normalization: FRED reports many count series in
+        # "thousands" (population, payrolls, claims, etc.). We rescale to
+        # raw counts at write time so derived sources (e.g. currency /
+        # population per-capita) get numerically sane combine results
+        # without per-source magnitude gymnastics in the renderer. Same
+        # treatment was applied retroactively via
+        # pipelines/rescale_counts_to_raw.py.
+        is_thousand_count = "thousand" in spec.unit.lower()
+        if is_thousand_count:
+            points = [{"t": p["t"], "v": p["v"] * 1000.0} for p in points]
+            # Replace the FRED-native unit string with the natural noun;
+            # mirrors rescale_counts_to_raw.py's infer_unit logic.
+            spec_unit = _infer_raw_count_unit(spec.series_id, spec.unit)
+        else:
+            spec_unit = spec.unit
         out = write_timeseries(
             pipeline="fred",
             series_id=spec.series_id,
             name=spec.name,
             points=points,
-            unit=spec.unit,
+            unit=spec_unit,
         )
         print(f"  {len(points):>6} points -> {out}")
     return 0

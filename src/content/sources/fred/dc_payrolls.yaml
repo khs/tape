@@ -7,10 +7,11 @@ kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WASH911NA.json
 supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: thousands
+unit: jobs
 formatting:
   style: number
-  decimals: 1
+  decimals: 0
+  notation: compact
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)

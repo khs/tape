@@ -6,7 +6,7 @@ kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_payrolls_oh.json
 supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: thousands of persons
+unit: jobs
 formatting:
   style: number
   decimals: 0
