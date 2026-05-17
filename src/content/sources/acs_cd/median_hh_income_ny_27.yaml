@@ -1,0 +1,23 @@
+name: Median household income — NY-27
+shortName: NY-27 median hh income
+description: Median household income for NY-27 (118th Congress boundaries). Recomputed at CD level by aggregating the B19013 household-income-distribution bin counts across tracts assigned to NY-27 via the 2020-tract crosswalk, then taking the weighted median. American Community Survey 5-year estimates, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_hh_income_ny_27.json
+supportedDeltas: ["5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_hh_income
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: currency

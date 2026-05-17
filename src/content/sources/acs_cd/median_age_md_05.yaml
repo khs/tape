@@ -1,0 +1,20 @@
+name: Median age — MD-05
+shortName: MD-05 median age
+description: Median age for MD-05, from the American Community Survey 5-year estimates (table B01002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "MD-05" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_age_md_05.json
+supportedDeltas: ["5y", "10y"]
+unit: years
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_age
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us

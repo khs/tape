@@ -1,0 +1,24 @@
+name: Median home value (owner-occupied) — MI-06
+shortName: MI-06 median home value
+description: Median home value (owner-occupied) for MI-06, from the American Community Survey 5-year estimates (table B25077). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "MI-06" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_home_value_mi_06.json
+supportedDeltas: ["5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_home_value
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: currency

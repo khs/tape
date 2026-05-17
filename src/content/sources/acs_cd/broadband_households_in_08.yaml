@@ -1,0 +1,22 @@
+name: Households with broadband internet — IN-08
+shortName: IN-08 broadband households
+description: Households with broadband internet for IN-08 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B28002). Released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/broadband_households_in_08.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: broadband_households
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

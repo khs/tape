@@ -1,0 +1,24 @@
+name: Median gross rent — TX-12
+shortName: TX-12 median gross rent
+description: Median gross rent for TX-12, from the American Community Survey 5-year estimates (table B25064). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "TX-12" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_gross_rent_tx_12.json
+supportedDeltas: ["5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_gross_rent
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: currency

@@ -1,0 +1,23 @@
+name: Renter-occupied housing units — MN-01
+shortName: MN-01 renter-occupied
+description: Renter-occupied housing units for MN-01 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B25003). Released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/renter_occupied_mn_01.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: renter_occupied
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: count
