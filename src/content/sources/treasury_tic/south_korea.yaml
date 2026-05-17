@@ -1,0 +1,27 @@
+name: South Korea — US Treasury holdings
+shortName: South Korea
+description: US Treasury securities held by South Korea, monthly. From
+  Treasury's TIC (Treasury International Capital) major-foreign-holders
+  release. End-of-month positions, billions of USD.
+kind: timeseries
+pipeline: treasury_tic
+dataFile: data/treasury_tic/south_korea.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: billions USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Treasury (TIC)
+  series: MFH (Korea, South)
+  url: https://home.treasury.gov/data/treasury-international-capital-tic-system
+  license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us
+  - world
+unitClass: currency
