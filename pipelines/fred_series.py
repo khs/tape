@@ -25,7 +25,11 @@ class FredSpec:
 SPECS: list[FredSpec] = [
     FredSpec("DGS10", "US 10-year Treasury yield", "%"),
     FredSpec("DGS2", "US 2-year Treasury yield", "%"),
-    FredSpec("T10Y2Y", "10Y minus 2Y Treasury spread", "%"),
+    # T10Y2Y removed: the 10Y−2Y spread is now rendered as a chart-level
+    # diff op over the underlying DGS10/DGS2 series rather than as a
+    # standalone FRED series. Keeping it as a separate fetch would just
+    # duplicate data we already compute on the fly. See
+    # src/content/charts/us-macro/curve_spread.yaml.
     FredSpec("UNRATE", "US unemployment rate", "%"),
     FredSpec("CPIAUCSL", "CPI, all urban consumers", "index (1982-84=100)"),
     FredSpec("UMCSENT", "UMich consumer sentiment", "index"),

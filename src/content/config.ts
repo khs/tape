@@ -122,6 +122,14 @@ const charts = defineCollection({
     //   decimal — "1.04"  (e.g. WTI / Brent)
     //   ratio   — "1.04:1" (e.g. debt:equity, P:E framing)
     percentDisplay: z.enum(["percent", "decimal", "ratio"]).optional(),
+    // Optional arithmetic combine between exactly two sources. When set,
+    // the renderer collapses the chart into a single derived series
+    // (a op b) — used for built-in spread/ratio charts whose meaning IS
+    // the combination (e.g., 10Y − 2Y treasury spread, WTI ÷ Brent ratio)
+    // rather than synthesizing a phantom source for it. Order matters
+    // for divide/diff; sources[0] is A, sources[1] is B. Same machinery
+    // as inline charts' combine op in composer-state.ts.
+    op: z.enum(["divide", "sum", "diff"]).optional(),
   }),
 });
 

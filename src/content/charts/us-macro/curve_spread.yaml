@@ -1,5 +1,18 @@
 title: 10Y–2Y yield curve
-sources: ["fred/us_2s10s"]
+sources:
+  - "fred/us_10y"
+  - "fred/us_2y"
+op: diff
 render: line
 defaultDelta: 1m
 tags: [us, rates, macro]
+blurb: |
+  The yield curve slope between the 10-year and 2-year US Treasury
+  notes (10Y − 2Y). Negative values ("inversion") have preceded most
+  US recessions, though the timing between inversion and recession
+  varies widely.
+  <br/><br/>
+  Computed on the fly from the underlying constant-maturity yields
+  rather than relying on a pre-spread series, so the curve stays in
+  sync with the components and the source notes link straight to the
+  10Y and 2Y series instead of a derived ticker.

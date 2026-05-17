@@ -9,6 +9,12 @@ import {
   metroTagsFor,
   parseMetroSourceId,
 } from "../lib/geographic-regions";
+import {
+  CD_TAG,
+  STATE_TAG,
+  parseCdSourceId,
+  parseStateSourceId,
+} from "../lib/congressional-districts";
 
 /**
  * Lightweight CBSA-code → display-name lookup, parsed from the
@@ -150,14 +156,31 @@ export const GET: APIRoute = async () => {
     // a common name), the source-id itself, and the tags string (so
     // typing "macro" matches every source tagged macro). Same idea as
     // the chart-level searchText below.
-    // Synthesize metro tags from the source ID so the composer's Metro
-    // chip can filter without every metro YAML having to declare the
-    // tag explicitly. Dedupe in case a YAML already carries them.
+    //
+    // Three classes of synthetic tags get injected here (rather than
+    // mutating thousands of source YAMLs) so the composer's geo-region
+    // chips can filter without each YAML having to declare them:
+    //   - CD_TAG ("congressional-district") for usaspending/district_*
+    //     and acs_cd/* — surfaced under the "States & districts" chip.
+    //   - STATE_TAG ("us-state") for usaspending/state_*, fred/state_*,
+    //     bls/state_* — surfaced under the same chip via "Statewide".
+    //   - METRO_TAG ("metro") + per-CBSA metro:<cbsa> for the metro
+    //     pipelines — surfaced under the "Metro area" chip. metroTagsFor
+    //     returns both the umbrella and per-CBSA tag in one call.
+    // metrosInUse tracks which CBSAs actually appear in the source
+    // universe so the manifest only ships those in the metro lookup.
+    const declaredTags = s.data.tags ?? [];
+    const synthetics: string[] = [];
+    if (parseCdSourceId(s.id)) synthetics.push(CD_TAG);
+    if (parseStateSourceId(s.id)) synthetics.push(STATE_TAG);
     const metroExtra = metroTagsFor(s.id);
+    if (metroExtra.length > 0) synthetics.push(...metroExtra);
     const parsedMetro = parseMetroSourceId(s.id);
     if (parsedMetro) metrosInUse.add(parsedMetro.cbsa);
-    const declaredTags = s.data.tags ?? [];
-    const tagsList = Array.from(new Set([...declaredTags, ...metroExtra]));
+    const tagsList =
+      synthetics.length > 0
+        ? [...new Set([...declaredTags, ...synthetics])].sort()
+        : declaredTags;
     const sourceSearchText = [
       s.data.name,
       s.data.shortName,
@@ -222,6 +245,11 @@ export const GET: APIRoute = async () => {
         render: c.data.render,
         defaultDelta: c.data.defaultDelta,
         normalize: c.data.normalize,
+        // Carry chart-level `op` so the composer's Pregenerated tab can
+        // render op-collapsed charts (10Y-2Y spread, future spread/ratio
+        // charts) the same way the published dashboards do, and so
+        // promote-library-to-inline preserves the op.
+        op: (c.data as { op?: "divide" | "sum" | "diff" }).op,
         seriesLabels: c.data.seriesLabels,
         blurb: c.data.blurb,
         emphasis: c.data.emphasis,

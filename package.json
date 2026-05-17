@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
+    "dev": "cross-env UV_THREADPOOL_SIZE=128 astro dev",
     "build": "astro build",
     "build:vercel": "npm run typecheck && npm run test && npm run build",
     "preview": "astro preview",
@@ -41,6 +41,7 @@
   "devDependencies": {
     "@types/d3": "^7.4.0",
     "@vitest/coverage-v8": "^4.1.6",
+    "cross-env": "^10.1.0",
     "vitest": "^4.1.6"
   }
 }
