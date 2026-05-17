@@ -89,9 +89,21 @@ def acs_base(year: int) -> str:
 # changes across redistricting cycles. "median_from_distribution" fetches
 # the income-bin distribution and reassembles the median on aggregated
 # geography (only used for B19013 currently).
+# "cd_level_sum" is like cd_level but sums multiple cells per indicator
+# (e.g., "population under 18" = sum of B01001 cells for each under-18
+# age group, separately for male + female). Used for the v4 expansion
+# indicators that ride contemporaneous CD boundaries.
 AGG_SUM = "sum"
 AGG_CD_LEVEL = "cd_level"
+AGG_CD_LEVEL_SUM = "cd_level_sum"
 AGG_MEDIAN_DIST = "median_from_distribution"
+# Median computed from a distribution at CD level (no tract crosswalk).
+# Fetches the bin cells via the CD-level API call and interpolates a
+# median from the per-CD distribution directly. Used for indicators
+# where the underlying bin counts are themselves CD-level published
+# values (e.g., B08303 travel time to work). Less stable-geo-accurate
+# than AGG_MEDIAN_DIST but doesn't need tract-level fetches.
+AGG_MEDIAN_CD_DIST = "median_from_cd_distribution"
 
 
 @dataclass
@@ -107,6 +119,10 @@ class AcsVar:
     # top bin's upper is typically open-ended (we use a synthetic 2x
     # lower bound as an interpolation cap).
     bins: list[tuple[str, float, float]] = field(default_factory=list)
+    # For cd_level_sum agg, list of Census variable codes whose values
+    # get summed at fetch time. var_code is left blank in that case;
+    # the sum becomes the indicator's value.
+    sum_codes: list[str] = field(default_factory=list)
 
 
 # B19001 = Household Income in the Past 12 Months. Cells 002-017 are
@@ -134,6 +150,73 @@ B19001_BINS = [
     # median is unbounded; this is best-available approximation.
     ("B19001_017E", 200_000, 400_000),
 ]
+
+
+# B08303 = "Travel Time to Work". Cells 002-013 are the 12 commute-time
+# bins; 001 is the total. Used to compute median commute time from the
+# distribution (linear interpolation across the bin containing the
+# median). Bounds are minutes.
+B08303_BINS = [
+    ("B08303_002E",  0,  5),    # <5 minutes
+    ("B08303_003E",  5,  9),
+    ("B08303_004E", 10, 14),
+    ("B08303_005E", 15, 19),
+    ("B08303_006E", 20, 24),
+    ("B08303_007E", 25, 29),
+    ("B08303_008E", 30, 34),
+    ("B08303_009E", 35, 39),
+    ("B08303_010E", 40, 44),
+    ("B08303_011E", 45, 59),
+    ("B08303_012E", 60, 89),
+    # Top bin "90+ minutes" — interpolation cap at 2x the lower bound
+    # (Pareto convention, same as we use for the top income bin).
+    ("B08303_013E", 90, 180),
+]
+
+# B01001 age-by-sex cells, used to compute under-18 + 65+ population
+# shares without storing 49 separate cells as their own sources.
+#   Males:   003 (under 5), 004 (5-9), 005 (10-14), 006 (15-17),
+#            007 (18-19), 008 (20), 009 (21), 010 (22-24),
+#            011 (25-29), 012 (30-34), 013 (35-39), 014 (40-44),
+#            015 (45-49), 016 (50-54), 017 (55-59), 018 (60-61),
+#            019 (62-64), 020 (65-66), 021 (67-69), 022 (70-74),
+#            023 (75-79), 024 (80-84), 025 (85+)
+#   Females: 027-049 (parallel structure)
+B01001_UNDER_18 = [
+    f"B01001_{cell:03d}E"
+    for cell in (3, 4, 5, 6, 27, 28, 29, 30)
+]
+B01001_65_PLUS = [
+    f"B01001_{cell:03d}E"
+    for cell in (20, 21, 22, 23, 24, 25, 44, 45, 46, 47, 48, 49)
+]
+
+# B27010 = Types of Health Insurance Coverage by Age. The "uninsured"
+# count is the sum of cells reporting "No health insurance coverage"
+# across the four published age brackets: under-19, 19-34, 35-64, 65+.
+B27010_UNINSURED = [
+    "B27010_017E",  # under-19 no coverage
+    "B27010_033E",  # 19-34 no coverage
+    "B27010_050E",  # 35-64 no coverage
+    "B27010_066E",  # 65+ no coverage
+]
+
+# B18101 = Sex by Age by Disability Status. The "with a disability"
+# count is the sum of 12 cells (6 male age groups + 6 female), one per
+# (sex, age) bin in the table.
+B18101_WITH_DISABILITY = [
+    f"B18101_{cell:03d}E"
+    for cell in (
+        # Males: under 5, 5-17, 18-34, 35-64, 65-74, 75+
+        4, 7, 10, 13, 16, 19,
+        # Females: under 5, 5-17, 18-34, 35-64, 65-74, 75+
+        23, 26, 29, 32, 35, 38,
+    )
+]
+
+# C24080 = Class of Worker. Government cells are 015 (federal),
+# 016 (state), 017 (local). C24080_001 is total employed.
+C24080_GOVERNMENT = ["C24080_015E", "C24080_016E", "C24080_017E"]
 
 
 INDICATORS = [
@@ -168,6 +251,77 @@ INDICATORS = [
            "Median home value (owner-occupied)", "USD", 0, AGG_CD_LEVEL),
     AcsVar("median_gross_rent", "B25064_001E",
            "Median gross rent", "USD", 0, AGG_CD_LEVEL),
+    # ----- v4 expansion: ratio components + new medians -----
+    # Strategy: store the underlying COUNTS so users can compose any
+    # ratio they want via the composer's derived-source modal. Direct
+    # values (Gini, median year built, median commute) are stored as
+    # single numbers. All v4 indicators fetched at contemporaneous CD
+    # boundaries (AGG_CD_LEVEL or AGG_CD_LEVEL_SUM) to keep the tract-
+    # level call's variable count under the Census API's 50-var cap.
+    AcsVar("gini_index", "B19083_001E",
+           "Income inequality (Gini index)", "ratio", 3, AGG_CD_LEVEL),
+    AcsVar("median_year_built", "B25035_001E",
+           "Median year housing structure built", "year", 0, AGG_CD_LEVEL),
+    AcsVar("households_above_200k", "B19001_017E",
+           "Households with income $200k+", "households", 0, AGG_CD_LEVEL),
+    AcsVar("households_total_income", "B19001_001E",
+           "Total households (income-table denominator)", "households",
+           0, AGG_CD_LEVEL),
+    AcsVar("workers_wfh", "B08301_021E",
+           "Workers who work from home", "workers", 0, AGG_CD_LEVEL),
+    AcsVar("workers_total_commute", "B08301_001E",
+           "Total workers (commute-table denominator)", "workers",
+           0, AGG_CD_LEVEL),
+    AcsVar("households_no_vehicle", "B08201_002E",
+           "Households with no vehicle available", "households",
+           0, AGG_CD_LEVEL),
+    AcsVar("households_total_vehicle", "B08201_001E",
+           "Total households (vehicle-table denominator)", "households",
+           0, AGG_CD_LEVEL),
+    AcsVar("insurance_universe", "B27010_001E",
+           "Total population (insurance-table denominator)", "people",
+           0, AGG_CD_LEVEL),
+    AcsVar("movers_last_year", "B07003_003E",
+           "People who moved in the last year", "people", 0, AGG_CD_LEVEL),
+    AcsVar("mobility_universe", "B07003_001E",
+           "Total population (mobility-table denominator)", "people",
+           0, AGG_CD_LEVEL),
+    AcsVar("born_same_state", "B05002_003E",
+           "Population born in current state of residence", "people",
+           0, AGG_CD_LEVEL),
+    AcsVar("workers_manufacturing", "C24070_004E",
+           "Workers in manufacturing", "workers", 0, AGG_CD_LEVEL),
+    AcsVar("workers_total_industry", "C24070_001E",
+           "Total workers (industry-table denominator)", "workers",
+           0, AGG_CD_LEVEL),
+    AcsVar("workers_class_universe", "C24080_001E",
+           "Total workers (class-of-worker-table denominator)", "workers",
+           0, AGG_CD_LEVEL),
+    AcsVar("households_below_25k", "",
+           "Households with income under $25k", "households",
+           0, AGG_CD_LEVEL_SUM,
+           sum_codes=["B19001_002E", "B19001_003E", "B19001_004E", "B19001_005E"]),
+    AcsVar("population_under_18", "",
+           "Population under 18", "people", 0, AGG_CD_LEVEL_SUM,
+           sum_codes=B01001_UNDER_18),
+    AcsVar("population_65_plus", "",
+           "Population 65 and older", "people", 0, AGG_CD_LEVEL_SUM,
+           sum_codes=B01001_65_PLUS),
+    AcsVar("people_uninsured", "",
+           "People without health insurance coverage", "people",
+           0, AGG_CD_LEVEL_SUM, sum_codes=B27010_UNINSURED),
+    AcsVar("people_with_disability", "",
+           "People with a disability", "people", 0, AGG_CD_LEVEL_SUM,
+           sum_codes=B18101_WITH_DISABILITY),
+    AcsVar("people_disability_universe", "B18101_001E",
+           "Civilian noninstitutionalized population (disability-table denominator)",
+           "people", 0, AGG_CD_LEVEL),
+    AcsVar("workers_government", "",
+           "Workers in government employment (federal + state + local)",
+           "workers", 0, AGG_CD_LEVEL_SUM, sum_codes=C24080_GOVERNMENT),
+    AcsVar("median_commute_minutes", "",
+           "Median travel time to work", "minutes", 1, AGG_MEDIAN_CD_DIST,
+           bins=B08303_BINS),
 ]
 
 
@@ -436,8 +590,22 @@ def main() -> int:
     sum_indicators = [v for v in INDICATORS if v.agg == AGG_SUM]
     sum_codes = [v.var_code for v in sum_indicators]
     median_dist_indicators = [v for v in INDICATORS if v.agg == AGG_MEDIAN_DIST]
-    median_cd_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL]
-    median_cd_codes = [v.var_code for v in median_cd_indicators]
+    cd_single_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL]
+    cd_sum_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL_SUM]
+    cd_median_dist_indicators = [v for v in INDICATORS if v.agg == AGG_MEDIAN_CD_DIST]
+    # All CD-level variable codes we need to fetch: the AGG_CD_LEVEL
+    # single-var indicators, plus every cell referenced by AGG_CD_LEVEL_SUM
+    # indicators, plus every bin cell from AGG_MEDIAN_CD_DIST indicators.
+    # Dedupe so we don't send the same code twice in one call.
+    cd_level_codes_set: set[str] = set()
+    for v in cd_single_indicators:
+        if v.var_code:
+            cd_level_codes_set.add(v.var_code)
+    for v in cd_sum_indicators:
+        cd_level_codes_set.update(v.sum_codes)
+    for v in cd_median_dist_indicators:
+        cd_level_codes_set.update(code for code, _, _ in v.bins)
+    cd_level_codes = sorted(cd_level_codes_set)
 
     # Accumulator: {(out_id, cd_slug): [{t, v}, ...]}
     series_accum: dict[tuple[str, str], list[dict]] = defaultdict(list)
@@ -500,17 +668,52 @@ def main() -> int:
                 if med is not None:
                     cd_values[slug][v.out_id] = med
 
-        # CD-level medians (no crosswalk; contemporaneous boundaries)
-        if median_cd_codes:
-            cd_level_data = fetch_vintage_cd_level(year, median_cd_codes, key)
-            for (state_fips, cd_raw), per_var in cd_level_data.items():
+        # CD-level fetch (no crosswalk; contemporaneous boundaries). Covers
+        # the AGG_CD_LEVEL single-var indicators (median_age, etc.), the
+        # AGG_CD_LEVEL_SUM cell-sum indicators (population_under_18, etc.),
+        # and the AGG_MEDIAN_CD_DIST distribution-median indicators
+        # (median_commute_minutes). Chunked into <=45-var requests to stay
+        # under the Census API's 50-variable-per-call cap; results are
+        # merged back into one per-CD dict.
+        if cd_level_codes:
+            cd_level_merged: dict[tuple[str, str], dict[str, float]] = {}
+            for chunk_start in range(0, len(cd_level_codes), 45):
+                chunk = cd_level_codes[chunk_start:chunk_start + 45]
+                chunk_data = fetch_vintage_cd_level(year, chunk, key)
+                for key_tuple, per_var in chunk_data.items():
+                    if key_tuple not in cd_level_merged:
+                        cd_level_merged[key_tuple] = {}
+                    cd_level_merged[key_tuple].update(per_var)
+            for (state_fips, cd_raw), per_var in cd_level_merged.items():
                 slug = cd_slug(state_fips, cd_raw)
                 if not slug:
                     continue
-                for v in median_cd_indicators:
+                # AGG_CD_LEVEL: store the single fetched cell directly.
+                for v in cd_single_indicators:
                     val = per_var.get(v.var_code)
                     if val is not None:
                         cd_values[slug][v.out_id] = val
+                # AGG_CD_LEVEL_SUM: sum the listed cells. Skip the
+                # indicator entirely if none of its cells came back (vs.
+                # storing 0, which would falsely imply "no people in this
+                # category" instead of "data unavailable").
+                for v in cd_sum_indicators:
+                    parts = [per_var.get(c) for c in v.sum_codes]
+                    present = [p for p in parts if p is not None]
+                    if present:
+                        cd_values[slug][v.out_id] = sum(present)
+                # AGG_MEDIAN_CD_DIST: build a {cell_code: count} dict from
+                # the per-CD fetched values and compute the linearly-
+                # interpolated median across the bin distribution.
+                for v in cd_median_dist_indicators:
+                    bins_data = {
+                        code: per_var[code]
+                        for code, _, _ in v.bins
+                        if code in per_var
+                    }
+                    med = weighted_median_from_bins(v.bins, bins_data)
+                    if med is not None:
+                        cd_values[slug][v.out_id] = med
 
         # Emit accumulated values into the main series accumulator
         for slug, values in cd_values.items():
@@ -523,11 +726,15 @@ def main() -> int:
         if not points:
             continue
         points.sort(key=lambda p: p["t"])
-        # Round counts to integers, keep medians at the indicator's decimal precision.
+        # Round counts to integers, keep medians + Gini at their declared
+        # decimal precision.
         var = next((v for v in INDICATORS if v.out_id == out_id), None)
-        if var and var.agg == AGG_SUM:
+        if var and var.agg in (AGG_SUM, AGG_CD_LEVEL_SUM):
             for p in points:
                 p["v"] = round(p["v"])
+        elif var and var.decimals > 0:
+            for p in points:
+                p["v"] = round(p["v"], var.decimals)
         name_prefix = var.name_prefix if var else out_id
         unit = var.unit if var else "value"
         series_id = f"{out_id}_{slug}"

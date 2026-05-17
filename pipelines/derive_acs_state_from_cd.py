@@ -124,6 +124,148 @@ COUNT_INDICATORS: list[dict[str, Any]] = [
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
         "notation": "compact", "table": "B28002", "extra_tags": [],
     },
+    # ----- v4 expansion: ratio-component counts -----
+    {
+        "out_id": "households_above_200k",
+        "name_prefix": "Households with income $200k+",
+        "short_suffix": "HHs $200k+", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B19001", "extra_tags": [],
+    },
+    {
+        "out_id": "households_total_income",
+        "name_prefix": "Total households (income-table denominator)",
+        "short_suffix": "HHs total (income)", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B19001", "extra_tags": [],
+    },
+    {
+        "out_id": "workers_wfh",
+        "name_prefix": "Workers who work from home",
+        "short_suffix": "WFH workers", "unit": "workers",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B08301", "extra_tags": ["labor"],
+    },
+    {
+        "out_id": "workers_total_commute",
+        "name_prefix": "Total workers (commute-table denominator)",
+        "short_suffix": "workers total (commute)", "unit": "workers",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B08301", "extra_tags": ["labor"],
+    },
+    {
+        "out_id": "households_no_vehicle",
+        "name_prefix": "Households with no vehicle available",
+        "short_suffix": "HHs no vehicle", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B08201", "extra_tags": [],
+    },
+    {
+        "out_id": "households_total_vehicle",
+        "name_prefix": "Total households (vehicle-table denominator)",
+        "short_suffix": "HHs total (vehicle)", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B08201", "extra_tags": [],
+    },
+    {
+        "out_id": "insurance_universe",
+        "name_prefix": "Total population (insurance-table denominator)",
+        "short_suffix": "pop. total (insurance)", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B27010", "extra_tags": [],
+    },
+    {
+        "out_id": "movers_last_year",
+        "name_prefix": "People who moved in the last year",
+        "short_suffix": "movers (last yr)", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B07003", "extra_tags": [],
+    },
+    {
+        "out_id": "mobility_universe",
+        "name_prefix": "Total population (mobility-table denominator)",
+        "short_suffix": "pop. total (mobility)", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B07003", "extra_tags": [],
+    },
+    {
+        "out_id": "born_same_state",
+        "name_prefix": "Population born in current state of residence",
+        "short_suffix": "born same state", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B05002", "extra_tags": [],
+    },
+    {
+        "out_id": "workers_manufacturing",
+        "name_prefix": "Workers in manufacturing",
+        "short_suffix": "mfg workers", "unit": "workers",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "C24070", "extra_tags": ["labor"],
+    },
+    {
+        "out_id": "workers_total_industry",
+        "name_prefix": "Total workers (industry-table denominator)",
+        "short_suffix": "workers total (industry)", "unit": "workers",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "C24070", "extra_tags": ["labor"],
+    },
+    {
+        "out_id": "workers_class_universe",
+        "name_prefix": "Total workers (class-of-worker-table denominator)",
+        "short_suffix": "workers total (class)", "unit": "workers",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "C24080", "extra_tags": ["labor"],
+    },
+    {
+        "out_id": "households_below_25k",
+        "name_prefix": "Households with income under $25k",
+        "short_suffix": "HHs under $25k", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B19001", "extra_tags": [],
+    },
+    {
+        "out_id": "population_under_18",
+        "name_prefix": "Population under 18",
+        "short_suffix": "pop. under 18", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B01001", "extra_tags": [],
+    },
+    {
+        "out_id": "population_65_plus",
+        "name_prefix": "Population 65 and older",
+        "short_suffix": "pop. 65+", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B01001", "extra_tags": [],
+    },
+    {
+        "out_id": "people_uninsured",
+        "name_prefix": "People without health insurance coverage",
+        "short_suffix": "uninsured", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B27010", "extra_tags": [],
+    },
+    {
+        "out_id": "people_with_disability",
+        "name_prefix": "People with a disability",
+        "short_suffix": "with disability", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B18101", "extra_tags": [],
+    },
+    {
+        "out_id": "people_disability_universe",
+        "name_prefix": "Civilian noninstitutionalized population (disability-table denominator)",
+        "short_suffix": "pop. total (disability)", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B18101", "extra_tags": [],
+    },
+    {
+        "out_id": "workers_government",
+        "name_prefix": "Workers in government employment (federal + state + local)",
+        "short_suffix": "govt workers", "unit": "workers",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "C24080",
+        "extra_tags": ["labor", "government"],
+    },
 ]
 
 MEDIAN_INDICATORS: list[dict[str, Any]] = [
@@ -156,6 +298,32 @@ MEDIAN_INDICATORS: list[dict[str, Any]] = [
         "unit_class": "currency", "fmt_style": "currency",
         "currency": "USD", "decimals": 0, "notation": "compact",
         "table": "B25064", "extra_tags": ["real-estate"],
+    },
+    # ----- v4 expansion: medians + Gini -----
+    # Aggregated via population-weighted average across CDs at state
+    # level — an approximation, not the true state value. Gini is
+    # treated as a "median-style" indicator here because it doesn't
+    # sum across CDs the way a count does.
+    {
+        "out_id": "gini_index",
+        "name_prefix": "Income inequality (Gini index)",
+        "short_suffix": "Gini index", "unit": "ratio",
+        "unit_class": "ratio", "fmt_style": "number", "decimals": 3,
+        "table": "B19083", "extra_tags": [],
+    },
+    {
+        "out_id": "median_year_built",
+        "name_prefix": "Median year housing structure built",
+        "short_suffix": "median year built", "unit": "year",
+        "unit_class": "ratio", "fmt_style": "number", "decimals": 0,
+        "table": "B25035", "extra_tags": ["real-estate"],
+    },
+    {
+        "out_id": "median_commute_minutes",
+        "name_prefix": "Median travel time to work",
+        "short_suffix": "median commute", "unit": "minutes",
+        "unit_class": "ratio", "fmt_style": "number", "decimals": 1,
+        "table": "B08303", "extra_tags": [],
     },
 ]
 

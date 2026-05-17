@@ -91,6 +91,52 @@ jobs:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         run: python pipelines/census_acs_cd.py
 
+      # Census ACS at the metropolitan-statistical-area level. Same
+      # indicator set as the CD pipeline, fetched at CBSA geography.
+      - name: Refresh Census ACS by metropolitan area
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_metro.py
+
+      # Census ACS at the US national level. Single-row-per-vintage fetch,
+      # so this is cheap. Mirrors the CD pipeline's INDICATORS list so it
+      # auto-extends when new indicators land.
+      - name: Refresh Census ACS at the national level
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_national.py
+
+      # Derive per-state ACS series by aggregating the per-CD data. Runs
+      # AFTER census_acs_cd.py so the fresh CD data feeds the rollup.
+      # Doesn't need CENSUS_API_KEY (works off the data files on disk).
+      - name: Derive Census ACS at the state level (from per-CD aggregates)
+        continue-on-error: true
+        run: python pipelines/derive_acs_state_from_cd.py
+
+      # Refresh USAspending metro federal flows. Same pattern as the
+      # CD-level USAspending refresh, aggregated to MSAs via the
+      # CBSA crosswalk built by build_cbsa_metro_crosswalk.py.
+      - name: Refresh USAspending metro federal flows
+        continue-on-error: true
+        run: python pipelines/usaspending_metro.py
+
+      # BLS metro-area employment + unemployment series.
+      - name: Refresh BLS metro series
+        continue-on-error: true
+        run: python pipelines/bls_metro.py
+
+      # Source YAMLs auto-generate from data files for the ACS pipelines.
+      # These scripts are idempotent and write only files that don't
+      # already exist, so re-running is safe; new files get committed
+      # alongside the refreshed data.
+      - name: Generate ACS-CD source YAMLs from fresh data files
+        run: python pipelines/_generate_acs_sources.py
+
+      - name: Generate ACS-national source YAMLs from fresh data files
+        run: python pipelines/_generate_acs_national_sources.py
+
       # Generate tile-summary sibling files (<id>.summary.json) from the
       # full source data. Computed BEFORE trimming so summaries capture
       # the longest available history.
@@ -116,7 +162,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Data goes under public/data/; auto-generated source YAMLs land
+          # under src/content/sources/acs_cd|acs_national|acs_state. Stage
+          # both so a single commit covers a refresh that landed new
+          # indicators or geographies.
           git add public/data/
+          git add src/content/sources/acs_cd/ src/content/sources/acs_state/ src/content/sources/acs_national/ 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No data changes to commit."
             exit 0
