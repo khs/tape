@@ -216,6 +216,24 @@ export const GET: APIRoute = async () => {
     // Hide charts tagged deprecated=true without an alias. Aliased ones still
     // expose the redirect so saved dashboards can resolve transparently.
     .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+    // Hide single-source pregenerated charts (sources.length === 1 AND no
+    // chart-level op) from the composer's Pregenerated tab. They're pure
+    // wrappers around their underlying source — users get the same chart
+    // by clicking the source in the Sources tab, which goes through
+    // addSourceAsChart and produces an inline single-series chart. Keeping
+    // them surfaces redundant cards in the picker.
+    //
+    // The chart YAMLs stay on disk because the preset dashboard pages
+    // (/us-macro/, /stocks/, /tech/, /va-08/) resolve chart IDs via
+    // getEntry("charts", id) directly, NOT through this manifest. So the
+    // preset pages keep rendering; only the composer's Pregenerated tab
+    // is affected. Charts with an `op` set (e.g. 10Y-2Y diff over 2
+    // sources) stay visible; multi-source charts always stay visible.
+    .filter((c) => {
+      const srcCount = (c.data.sources ?? []).length;
+      const hasOp = !!(c.data as { op?: string }).op;
+      return srcCount > 1 || hasOp;
+    })
     .map((c) => {
       // Build a single concatenated `searchText` field on the server to keep
       // client-side search cheap and consistent. Includes title, id, tags,
