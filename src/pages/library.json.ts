@@ -1,6 +1,98 @@
 import type { APIRoute } from "astro";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { resolve, dirname } from "node:path";
 import { getCollection } from "astro:content";
 import { loadSourceData } from "../lib/load-data";
+import {
+  METRO_TAG,
+  metroTagsFor,
+  parseMetroSourceId,
+} from "../lib/geographic-regions";
+
+/**
+ * Lightweight CBSA-code → display-name lookup, parsed from the
+ * pipelines/_crosswalks/cbsa_metro.csv that drives the metro pipelines.
+ * Shipped in the manifest so the composer's "Metro area" chip can label
+ * each CBSA without a second fetch. Read once per build.
+ */
+async function loadMetroLookup(): Promise<Record<string, { shortName: string; name: string }>> {
+  // Two candidate paths: the dev-mode path (cwd is the repo root when
+  // `astro dev` runs from the project root) and the build-time path
+  // derived from import.meta.url (cwd may differ during prerender).
+  // Try cwd first because Vite's SSR loader sometimes rewrites
+  // import.meta.url into a virtual path that fileURLToPath can't
+  // resolve.
+  const candidates = [
+    resolve(process.cwd(), "pipelines", "_crosswalks", "cbsa_metro.csv"),
+  ];
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    candidates.push(
+      resolve(here, "..", "..", "pipelines", "_crosswalks", "cbsa_metro.csv"),
+    );
+  } catch {
+    // import.meta.url not file-URL-resolvable (some bundler contexts);
+    // the cwd candidate is sufficient.
+  }
+  const out: Record<string, { shortName: string; name: string }> = {};
+  let text: string | null = null;
+  for (const p of candidates) {
+    try {
+      text = await readFile(p, "utf-8");
+      break;
+    } catch {
+      // Try next candidate.
+    }
+  }
+  if (text === null) {
+    // Crosswalk missing — composer will hide the chip. Not an error.
+    return out;
+  }
+  const lines = text.split(/\r?\n/);
+  if (lines.length < 2) return out;
+  const header = lines[0].split(",");
+  const codeIdx = header.indexOf("cbsa_code");
+  const shortIdx = header.indexOf("short_name");
+  const nameIdx = header.indexOf("name");
+  if (codeIdx < 0 || shortIdx < 0 || nameIdx < 0) return out;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim()) continue;
+    // Cheap CSV split: handle one quoted field. The crosswalk only
+    // quotes the `name` column (which contains commas). Other columns
+    // are alphanumeric / pipe-separated and don't need a full parser.
+    const cells = splitMaybeQuoted(line);
+    const code = cells[codeIdx]?.trim();
+    if (!code) continue;
+    out[code] = {
+      shortName: cells[shortIdx]?.trim() ?? code,
+      name: cells[nameIdx]?.trim() ?? code,
+    };
+  }
+  return out;
+}
+
+function splitMaybeQuoted(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuote = !inQuote;
+      continue;
+    }
+    if (ch === "," && !inQuote) {
+      out.push(cur);
+      cur = "";
+      continue;
+    }
+    cur += ch;
+  }
+  out.push(cur);
+  return out;
+}
 
 /**
  * Chart-library manifest consumed by the composer (/compose/) and the
@@ -25,10 +117,16 @@ import { loadSourceData } from "../lib/load-data";
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
-  const [chartsCol, sourcesCol] = await Promise.all([
+  const [chartsCol, sourcesCol, metroLookup] = await Promise.all([
     getCollection("charts"),
     getCollection("sources"),
+    loadMetroLookup(),
   ]);
+
+  // Restrict the manifest's metro table to CBSAs that actually have at
+  // least one source on disk — keeps the composer's metro dropdown from
+  // listing metros the pipelines haven't populated yet.
+  const metrosInUse = new Set<string>();
 
   const sources: Record<string, unknown> = {};
   for (const s of sourcesCol) {
@@ -52,7 +150,14 @@ export const GET: APIRoute = async () => {
     // a common name), the source-id itself, and the tags string (so
     // typing "macro" matches every source tagged macro). Same idea as
     // the chart-level searchText below.
-    const tagsList = s.data.tags ?? [];
+    // Synthesize metro tags from the source ID so the composer's Metro
+    // chip can filter without every metro YAML having to declare the
+    // tag explicitly. Dedupe in case a YAML already carries them.
+    const metroExtra = metroTagsFor(s.id);
+    const parsedMetro = parseMetroSourceId(s.id);
+    if (parsedMetro) metrosInUse.add(parsedMetro.cbsa);
+    const declaredTags = s.data.tags ?? [];
+    const tagsList = Array.from(new Set([...declaredTags, ...metroExtra]));
     const sourceSearchText = [
       s.data.name,
       s.data.shortName,
@@ -126,7 +231,20 @@ export const GET: APIRoute = async () => {
       };
     });
 
-  const body = JSON.stringify({ charts, sources });
+  // Trim the metro lookup to entries that appear in at least one
+  // source. Sorted by short name so the composer dropdown is
+  // alphabetical out of the box.
+  const metros: Record<string, { shortName: string; name: string }> = {};
+  const usedCodes = [...metrosInUse].sort((a, b) => {
+    const an = metroLookup[a]?.shortName ?? a;
+    const bn = metroLookup[b]?.shortName ?? b;
+    return an.localeCompare(bn);
+  });
+  for (const code of usedCodes) {
+    metros[code] = metroLookup[code] ?? { shortName: code, name: code };
+  }
+
+  const body = JSON.stringify({ charts, sources, metros, metroTag: METRO_TAG });
   return new Response(body, {
     headers: {
       "content-type": "application/json; charset=utf-8",

@@ -107,6 +107,49 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               data-role="lib-search-sources"
               placeholder="Search sources by name, ticker, or tag..."
             />
+            <!--
+              Geo drill-down strip — currently just Metro area. Hidden
+              when the library payload doesn't include any metros (i.e.
+              pipelines haven't populated metro sources yet). Designed to
+              grow: a parallel States & districts chip would slot in here.
+            -->
+            <div class="lib-geo-chips" data-role="lib-geo-chips" hidden>
+              <div class="lib-geo-chip-wrap">
+                <button
+                  type="button"
+                  class="lib-geo-chip"
+                  data-role="lib-metro-chip"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                >
+                  <span class="lib-geo-chip-label" data-role="lib-metro-label"
+                    >Metro area &#9662;</span>
+                  <span
+                    class="lib-geo-chip-clear"
+                    data-role="lib-metro-clear"
+                    hidden
+                    aria-label="Clear metro filter">&times;</span>
+                </button>
+                <div
+                  class="lib-geo-popover"
+                  data-role="lib-metro-popover"
+                  role="listbox"
+                  hidden
+                >
+                  <input
+                    type="search"
+                    class="lib-geo-search"
+                    data-role="lib-metro-search"
+                    placeholder="Search metros…"
+                    aria-label="Search metros"
+                  />
+                  <div
+                    class="lib-geo-list"
+                    data-role="lib-metro-list"
+                  ></div>
+                </div>
+              </div>
+            </div>
             <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
           </div>
           <div class="lib-results" data-role="lib-results-sources">
@@ -429,6 +472,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import * as Plot from "@observablehq/plot";
   import { track } from "../lib/track";
   import { packSourceIds } from "../lib/analytics-helpers";
+  import { METRO_TAG } from "../lib/geographic-regions";
 
   type LibraryChart = {
     id: string;
@@ -456,9 +500,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     supportedDeltas?: DeltaWindow[];
     unit?: string;
   };
+  type MetroEntry = { shortName: string; name: string };
   type LibraryPayload = {
     charts: LibraryChart[];
     sources: Record<string, LibrarySource>;
+    // Metros that appear in at least one source on disk. Empty/absent
+    // when the metro pipelines haven't run yet — the chip stays hidden.
+    metros?: Record<string, MetroEntry>;
+    // The synthetic tag prefix the server attaches to metro sources.
+    // Kept in the payload so the composer doesn't have to hardcode it
+    // separately from the library lib.
+    metroTag?: string;
   };
 
   const _shellMaybe = document.querySelector<HTMLElement>(".composer-shell");
@@ -691,6 +743,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
   let sourcesSearchQuery: string = "";
+  // Currently-selected metro CBSA code, or null when no metro filter is
+  // active. Filter is applied in filteredSources(); the Metro chip in
+  // lib-controls mirrors this state.
+  let selectedMetroCbsa: string | null = null;
+  let metroPopoverOpen: boolean = false;
+  let metroSearchQuery: string = "";
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;
 
@@ -719,7 +777,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const s = new Set<string>();
     for (const id of Object.keys(library.sources)) {
       const src = library.sources[id] as LibrarySource & { tags?: string[] };
-      for (const t of src.tags ?? []) s.add(t);
+      for (const t of src.tags ?? []) {
+        // Hide synthetic metro tags from the tag-pill strip — they're
+        // surfaced through the dedicated Metro chip + dropdown instead.
+        // Filters both the bare `metro` tag and per-CBSA `metro:35620`
+        // entries; users still see them via the geo chip's UI.
+        if (t === METRO_TAG || t.startsWith(`${METRO_TAG}:`)) continue;
+        s.add(t);
+      }
     }
     return [...s].sort();
   }
@@ -756,6 +821,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (!library) return [];
     const q = sourcesSearchQuery.trim().toLowerCase();
     const tagsRequired = [...sourcesSelectedTags];
+    // Metro filter is AND'd with the other tag selections — picking
+    // "NYC" + tag "labor" returns only labor sources in NYC.
+    const metroTagRequired = selectedMetroCbsa
+      ? `${METRO_TAG}:${selectedMetroCbsa}`
+      : null;
     const out: (LibrarySource & {
       id: string;
       tags: string[];
@@ -776,6 +846,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         }
       }
       if (!ok) continue;
+      if (metroTagRequired && !tags.includes(metroTagRequired)) continue;
       if (q) {
         const hay =
           src.searchText ??
@@ -848,6 +919,110 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const count = library.charts.filter((c) => c.tags.includes(t)).length;
       host.appendChild(makeBtn(t, `${t} (${count})`, chartsSelectedTags.has(t)));
     }
+  }
+
+  // ---- Metro-area drill-down chip ----
+  // Single chip wired up in the Sources panel header. Click opens an
+  // inline popover with a searchable list of metros; picking one sets
+  // selectedMetroCbsa and re-renders the source list filtered to that
+  // CBSA. Designed to grow: add parallel chips here for districts/
+  // counties when those pipelines wire up — each one would be a
+  // similarly-shaped function with its own state field.
+  function renderMetroChip(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='lib-geo-chips']");
+    const chip = shell.querySelector<HTMLButtonElement>("[data-role='lib-metro-chip']");
+    const label = shell.querySelector<HTMLElement>("[data-role='lib-metro-label']");
+    const clear = shell.querySelector<HTMLElement>("[data-role='lib-metro-clear']");
+    if (!wrap || !chip || !label || !clear) return;
+    const metros = library?.metros ?? {};
+    const hasMetros = Object.keys(metros).length > 0;
+    wrap.hidden = !hasMetros;
+    if (!hasMetros) return;
+    if (selectedMetroCbsa) {
+      const entry = metros[selectedMetroCbsa];
+      const short = entry?.shortName ?? selectedMetroCbsa;
+      label.textContent = short;
+      chip.classList.add("lib-geo-chip-active");
+      clear.hidden = false;
+    } else {
+      label.textContent = "Metro area ▾";
+      chip.classList.remove("lib-geo-chip-active");
+      clear.hidden = true;
+    }
+    chip.setAttribute("aria-expanded", metroPopoverOpen ? "true" : "false");
+  }
+
+  function renderMetroList(): void {
+    const list = shell.querySelector<HTMLElement>("[data-role='lib-metro-list']");
+    if (!list) return;
+    const metros = library?.metros ?? {};
+    const codes = Object.keys(metros);
+    const q = metroSearchQuery.trim().toLowerCase();
+    list.innerHTML = "";
+    let shown = 0;
+    for (const code of codes) {
+      const entry = metros[code];
+      const hay = (entry.shortName + " " + entry.name + " " + code).toLowerCase();
+      if (q && !hay.includes(q)) continue;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "lib-geo-list-item" +
+        (selectedMetroCbsa === code ? " lib-geo-list-item-active" : "");
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", selectedMetroCbsa === code ? "true" : "false");
+      btn.innerHTML =
+        `<span class="lib-geo-list-item-name">${escapeHtml(entry.shortName)}</span>` +
+        `<span class="lib-geo-list-item-code muted small">${escapeHtml(code)}</span>`;
+      btn.addEventListener("click", () => selectMetro(code));
+      list.appendChild(btn);
+      shown += 1;
+    }
+    if (shown === 0) {
+      const empty = document.createElement("p");
+      empty.className = "muted small";
+      empty.textContent = q ? "No metros match." : "No metros loaded.";
+      list.appendChild(empty);
+    }
+  }
+
+  function openMetroPopover(): void {
+    const pop = shell.querySelector<HTMLElement>("[data-role='lib-metro-popover']");
+    if (!pop) return;
+    metroPopoverOpen = true;
+    pop.hidden = false;
+    renderMetroList();
+    renderMetroChip();
+    // Defer focus until after the popover is on-screen.
+    queueMicrotask(() => {
+      const search = shell.querySelector<HTMLInputElement>(
+        "[data-role='lib-metro-search']",
+      );
+      search?.focus();
+    });
+  }
+
+  function closeMetroPopover(): void {
+    const pop = shell.querySelector<HTMLElement>("[data-role='lib-metro-popover']");
+    if (!pop) return;
+    metroPopoverOpen = false;
+    pop.hidden = true;
+    renderMetroChip();
+  }
+
+  function selectMetro(cbsa: string): void {
+    selectedMetroCbsa = cbsa;
+    closeMetroPopover();
+    renderMetroChip();
+    renderSourcesList();
+    track("compose_metro_filter_set", { cbsa });
+  }
+
+  function clearMetroFilter(): void {
+    if (!selectedMetroCbsa) return;
+    selectedMetroCbsa = null;
+    renderMetroChip();
+    renderSourcesList();
+    track("compose_metro_filter_cleared", {});
   }
 
   // Parallel tag-filter strip for the Sources tab. Same UX pattern;
@@ -1665,6 +1840,54 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderSourcesList();
       });
     }
+    // ---- Metro chip wiring ----
+    const metroChip = shell.querySelector<HTMLButtonElement>(
+      "[data-role='lib-metro-chip']",
+    );
+    const metroClear = shell.querySelector<HTMLElement>(
+      "[data-role='lib-metro-clear']",
+    );
+    const metroSearch = shell.querySelector<HTMLInputElement>(
+      "[data-role='lib-metro-search']",
+    );
+    if (metroChip) {
+      metroChip.addEventListener("click", (e) => {
+        // The clear "×" lives inside the chip — when clicked, it should
+        // clear the filter and *not* toggle the popover. event.target
+        // walks up the DOM, so test the originating element directly.
+        const target = e.target as HTMLElement | null;
+        if (target && target.closest("[data-role='lib-metro-clear']")) {
+          e.stopPropagation();
+          clearMetroFilter();
+          return;
+        }
+        if (metroPopoverOpen) closeMetroPopover();
+        else openMetroPopover();
+      });
+    }
+    if (metroClear) {
+      metroClear.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearMetroFilter();
+      });
+    }
+    if (metroSearch) {
+      metroSearch.addEventListener("input", () => {
+        metroSearchQuery = metroSearch.value;
+        renderMetroList();
+      });
+    }
+    // Click-outside to dismiss the popover, and ESC for keyboard users.
+    document.addEventListener("click", (e) => {
+      if (!metroPopoverOpen) return;
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest("[data-role='lib-geo-chips']")) return;
+      closeMetroPopover();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && metroPopoverOpen) closeMetroPopover();
+    });
     const searchInputCharts = shell.querySelector<HTMLInputElement>(
       "[data-role='lib-search-charts']",
     );
@@ -3492,6 +3715,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // immediately for the default tab (sources).
       renderTagFiltersSources();
       renderTagFiltersCharts();
+      renderMetroChip();
       renderSourcesList();
       renderComposition();
     })
@@ -3675,6 +3899,103 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-white);
     border-color: var(--color-neutral-900);
   }
+  /* Geo drill-down chip strip — currently just Metro area, sits between
+     the search input and the tag pills. Hidden when no metros are
+     loaded so the strip doesn't occupy vertical space pre-pipelines. */
+  .lib-geo-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lib-geo-chips[hidden] { display: none; }
+  .lib-geo-chip-wrap { position: relative; }
+  .lib-geo-chip {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lib-geo-chip:hover { background: var(--color-neutral-100); }
+  .lib-geo-chip-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border-color: var(--color-neutral-900);
+  }
+  .lib-geo-chip-active:hover { background: var(--color-neutral-800); }
+  .lib-geo-chip-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+  }
+  .lib-geo-chip-clear:hover { background: rgba(255, 255, 255, 0.32); }
+  .lib-geo-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 280px;
+    max-width: 90vw;
+    max-height: 320px;
+    z-index: 20;
+    background: var(--color-white);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 24px rgba(15, 15, 15, 0.12);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 6px;
+  }
+  .lib-geo-popover[hidden] { display: none; }
+  .lib-geo-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    font: inherit;
+    font-size: var(--text-sm);
+  }
+  .lib-geo-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+  }
+  .lib-geo-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font: inherit;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-800);
+  }
+  .lib-geo-list-item:hover { background: var(--color-neutral-100); }
+  .lib-geo-list-item-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+  }
+  .lib-geo-list-item-active:hover { background: var(--color-neutral-800); }
+  .lib-geo-list-item-name { font-weight: 500; }
+  .lib-geo-list-item-code { opacity: 0.7; }
+  .lib-geo-list-item-active .lib-geo-list-item-code { color: rgba(255, 255, 255, 0.7); }
   .lib-results {
     overflow-y: auto;
     display: flex;
