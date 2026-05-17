@@ -1,0 +1,23 @@
+name: Owner-occupied housing units — NH-01
+shortName: NH-01 owner-occupied
+description: Owner-occupied housing units for NH-01 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B25003). Released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/owner_occupied_nh_01.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: owner_occupied
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: count
