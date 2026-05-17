@@ -218,6 +218,15 @@ SPECS: list[FredSpec] = [
 ]
 
 
+# FRED series whose metadata label says "thousands" but whose CSV
+# endpoint returns values in raw counts already. Rescaling these would
+# inflate the data 1000x. See main()'s is_thousand_count guard.
+ALREADY_RAW_DESPITE_THOUSANDS = {
+    "CCSA",  # Continuing jobless claims (insured unemployment) — weekly
+    "ICSA",  # Initial jobless claims — weekly
+}
+
+
 def _infer_raw_count_unit(series_id: str, fred_unit: str) -> str:
     """
     Pick a natural-language unit string for a raw-count series after
@@ -285,20 +294,35 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Fetching FRED {spec.series_id}...", flush=True)
         points = fetch_series(spec.series_id)
         # Canonical-unit normalization: FRED reports many count series in
-        # "thousands" (population, payrolls, claims, etc.). We rescale to
-        # raw counts at write time so derived sources (e.g. currency /
+        # "thousands" (population, payrolls, etc.). We rescale to raw
+        # counts at write time so derived sources (e.g. currency /
         # population per-capita) get numerically sane combine results
         # without per-source magnitude gymnastics in the renderer. Same
         # treatment was applied retroactively via
         # pipelines/rescale_counts_to_raw.py.
-        is_thousand_count = "thousand" in spec.unit.lower()
+        #
+        # Wrinkle: a handful of FRED series carry "thousands" metadata
+        # in their FRED.org listing but the CSV endpoint actually returns
+        # values in raw counts (no division applied). CCSA + ICSA jobless
+        # claims are the known cases. Rescaling those by 1000 inflates
+        # the data by 1000x — caught by pipelines/audit_source_scales.py
+        # when CCSA showed 1.78B "claims" against the real ~1.78M. The
+        # ALREADY_RAW_DESPITE_THOUSANDS list pins those exceptions.
+        is_thousand_count = (
+            "thousand" in spec.unit.lower()
+            and spec.series_id not in ALREADY_RAW_DESPITE_THOUSANDS
+        )
         if is_thousand_count:
             points = [{"t": p["t"], "v": p["v"] * 1000.0} for p in points]
             # Replace the FRED-native unit string with the natural noun;
             # mirrors rescale_counts_to_raw.py's infer_unit logic.
             spec_unit = _infer_raw_count_unit(spec.series_id, spec.unit)
         else:
-            spec_unit = spec.unit
+            spec_unit = (
+                _infer_raw_count_unit(spec.series_id, spec.unit)
+                if spec.series_id in ALREADY_RAW_DESPITE_THOUSANDS
+                else spec.unit
+            )
         out = write_timeseries(
             pipeline="fred",
             series_id=spec.series_id,
