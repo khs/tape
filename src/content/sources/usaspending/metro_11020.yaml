@@ -1,16 +1,21 @@
 name: Federal spending — Altoona
 shortName: Altoona
-description: Total federal outlays where the recipient location is in the Altoona metropolitan statistical area (CBSA 11020, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+description: Total federal outlays where the recipient location is in the Altoona
+  metropolitan statistical area (CBSA 11020, OMB-defined). Aggregated up from USAspending.gov's
+  county-level results by fiscal year.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/metro_11020.json
-supportedDeltas: ["1y", "5y", "10y"]
-unit: "billions USD"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+unit: billions USD
 formatting:
   style: currency
   currency: USD
   decimals: 1
-  suffix: " B"
+  suffix: ' B'
 emphasis: change
 provenance:
   provider: USAspending.gov
@@ -18,3 +23,7 @@ provenance:
   url: https://www.usaspending.gov/search?recipient_location_cbsa=11020
   license: Public domain (US government data)
 unitClass: currency
+tags:
+- government
+- macro
+- us

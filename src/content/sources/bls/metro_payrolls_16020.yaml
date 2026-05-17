@@ -1,11 +1,18 @@
 name: Cape Girardeau — nonfarm payroll employment
 shortName: Cape Girardeau payrolls
-description: Total nonfarm payroll employment for the Cape Girardeau metropolitan statistical area (CBSA 16020). Monthly, seasonally adjusted. From BLS Current Employment Statistics (CES) state-and-area program.
+description: Total nonfarm payroll employment for the Cape Girardeau metropolitan
+  statistical area (CBSA 16020). Monthly, seasonally adjusted. From BLS Current Employment
+  Statistics (CES) state-and-area program.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/metro_payrolls_16020.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: "thousands of persons"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 0
@@ -16,3 +23,7 @@ provenance:
   url: https://www.bls.gov/sae/
   license: Public domain (US government data)
 unitClass: count
+tags:
+- labor
+- macro
+- us

@@ -1,16 +1,21 @@
 name: Federal spending — Elkhart-Goshen
 shortName: Elkhart-Goshen
-description: Total federal outlays where the recipient location is in the Elkhart-Goshen metropolitan statistical area (CBSA 21140, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+description: Total federal outlays where the recipient location is in the Elkhart-Goshen
+  metropolitan statistical area (CBSA 21140, OMB-defined). Aggregated up from USAspending.gov's
+  county-level results by fiscal year.
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/metro_21140.json
-supportedDeltas: ["1y", "5y", "10y"]
-unit: "billions USD"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+unit: billions USD
 formatting:
   style: currency
   currency: USD
   decimals: 1
-  suffix: " B"
+  suffix: ' B'
 emphasis: change
 provenance:
   provider: USAspending.gov
@@ -18,3 +23,7 @@ provenance:
   url: https://www.usaspending.gov/search?recipient_location_cbsa=21140
   license: Public domain (US government data)
 unitClass: currency
+tags:
+- government
+- macro
+- us

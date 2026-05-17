@@ -1,11 +1,18 @@
 name: Homosassa Springs — unemployment rate
 shortName: Homosassa Springs unemployment
-description: Headline unemployment rate for the Homosassa Springs metropolitan statistical area (CBSA 26140). Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS).
+description: Headline unemployment rate for the Homosassa Springs metropolitan statistical
+  area (CBSA 26140). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
+  Statistics (LAUS).
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/metro_unemployment_26140.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -16,3 +23,7 @@ provenance:
   url: https://www.bls.gov/lau/
   license: Public domain (US government data)
 unitClass: rate
+tags:
+- labor
+- macro
+- us
