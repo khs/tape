@@ -169,8 +169,21 @@ def main() -> int:
         state_written += 1
     print(f"State series: {state_written}", flush=True)
 
+    # Single-CD states (AK, DE, ND, SD, VT, WY) and DC (delegate, code
+    # 98) have one congressional "district" that's the same area as the
+    # state. The district-level file would carry identical numbers to
+    # the state-level file (usaspending/state_<st>), and we've
+    # explicitly removed the source YAMLs for those redundant ones. Skip
+    # writing them here too so the pipeline doesn't re-orphan the data.
+    SINGLE_CD_REDUNDANT = {
+        "ak_al", "de_al", "nd_al", "sd_al", "vt_al", "wy_al", "dc_98",
+    }
     cd_written = 0
+    cd_skipped_redundant = 0
     for slug, points in cd_points.items():
+        if slug in SINGLE_CD_REDUNDANT:
+            cd_skipped_redundant += 1
+            continue
         points.sort(key=lambda p: p["t"])
         name = cd_names.get(slug, slug)
         write_timeseries(
@@ -181,7 +194,7 @@ def main() -> int:
             unit="USD",
         )
         cd_written += 1
-    print(f"CD series: {cd_written}", flush=True)
+    print(f"CD series: {cd_written} (skipped {cd_skipped_redundant} single-CD-state AL/98 redundant with state-level)", flush=True)
 
     return 0
 

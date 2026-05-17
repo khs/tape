@@ -720,9 +720,22 @@ def main() -> int:
             for out_id, value in values.items():
                 series_accum[(out_id, slug)].append({"t": anchor, "v": value})
 
+    # Single-CD states (AK, DE, ND, SD, VT, WY) and DC have one
+    # congressional "district" that's the same area as the state.
+    # acs_cd files for those are redundant with acs_state/<series>_<st>
+    # (derived by derive_acs_state_from_cd.py) — explicitly retired in
+    # the v4 cleanup. Skip writing them here to avoid re-orphaning.
+    SINGLE_CD_REDUNDANT = {
+        "ak_al", "de_al", "nd_al", "sd_al", "vt_al", "wy_al", "dc_98",
+    }
+
     # Write per-(indicator, CD) time series JSON files
     written = 0
+    skipped_redundant = 0
     for (out_id, slug), points in series_accum.items():
+        if slug in SINGLE_CD_REDUNDANT:
+            skipped_redundant += 1
+            continue
         if not points:
             continue
         points.sort(key=lambda p: p["t"])
@@ -747,7 +760,9 @@ def main() -> int:
         )
         written += 1
     print(f"\nacs_cd: wrote {written} stable-geo series across "
-          f"{len(ACS_VINTAGES)} vintages", flush=True)
+          f"{len(ACS_VINTAGES)} vintages "
+          f"(skipped {skipped_redundant} single-CD-state AL/98 redundant with acs_state)",
+          flush=True)
     return 0
 
 
