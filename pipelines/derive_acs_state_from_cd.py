@@ -1,0 +1,396 @@
+"""
+Aggregate per-CD ACS data files into per-state ACS data, so every series
+the CD pipeline produces has a state-level equivalent without needing a
+second Census API trip.
+
+What this writes
+----------------
+For each of the 13 ACS indicators × 51 states (50 + DC):
+  - public/data/acs_state/<series>_<st>.json (full timeseries)
+  - public/data/acs_state/<series>_<st>.summary.json (built later by
+    build_summaries.py)
+
+Aggregation strategy
+--------------------
+Per indicator type:
+
+  * Count-aggregable (population, poverty_count, foreign_born,
+    bachelors_plus, masters_plus, owner_occupied, renter_occupied,
+    veterans, broadband_households)
+        state_value(t) = SUM over CDs of cd_value(t)
+    Exact. The same arithmetic that defines the state total from its
+    components. Identity copy for single-CD states.
+
+  * Median-style (median_hh_income, median_age, median_home_value,
+    median_gross_rent)
+        state_value(t) = SUM(cd_value(t) * cd_population(t)) /
+                         SUM(cd_population(t))
+    Population-weighted average of the CD medians. NOT the true state
+    median — Census recomputes that from raw distribution tables at
+    state level. For single-CD states the weighted average == the CD's
+    median (still exact). For multi-CD states this is a documented
+    approximation, called out in the source YAML's description.
+
+    To replace with API-fetched true state medians, run a follow-up
+    pipeline (census_acs_state.py) when CENSUS_API_KEY is available.
+
+This script is idempotent: re-running it overwrites the JSONs but
+doesn't touch source YAMLs that already exist. To regenerate YAMLs
+after a description-text tweak, delete the relevant src/content/
+sources/acs_state/<series>_<st>.yaml first.
+
+Run with: ``python pipelines/derive_acs_state_from_cd.py``
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+
+from common import write_timeseries, utc_now_iso
+
+
+ROOT = Path(__file__).resolve().parent.parent
+CD_DATA = ROOT / "public" / "data" / "acs_cd"
+STATE_DATA = ROOT / "public" / "data" / "acs_state"
+STATE_SOURCES = ROOT / "src" / "content" / "sources" / "acs_state"
+
+
+# Indicator definitions — mirrors _generate_acs_sources.py so the
+# resulting YAMLs match the CD-level ones in style.
+COUNT_INDICATORS: list[dict[str, Any]] = [
+    {
+        "out_id": "population", "name_prefix": "Total population",
+        "short_suffix": "population", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B01003", "extra_tags": [],
+    },
+    {
+        "out_id": "poverty_count", "name_prefix": "People in poverty",
+        "short_suffix": "poverty count", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B17001", "extra_tags": [],
+    },
+    {
+        "out_id": "foreign_born", "name_prefix": "Foreign-born population",
+        "short_suffix": "foreign-born", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B05002", "extra_tags": [],
+    },
+    {
+        "out_id": "bachelors_plus",
+        "name_prefix": "Adults 25+ with bachelor's degree",
+        "short_suffix": "bachelors plus", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B15003", "extra_tags": [],
+    },
+    {
+        "out_id": "masters_plus",
+        "name_prefix": "Adults 25+ with master's degree",
+        "short_suffix": "masters plus", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B15003", "extra_tags": [],
+    },
+    {
+        "out_id": "owner_occupied",
+        "name_prefix": "Owner-occupied housing units",
+        "short_suffix": "owner-occupied", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B25003",
+        "extra_tags": ["real-estate"],
+    },
+    {
+        "out_id": "renter_occupied",
+        "name_prefix": "Renter-occupied housing units",
+        "short_suffix": "renter-occupied", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B25003",
+        "extra_tags": ["real-estate"],
+    },
+    {
+        "out_id": "veterans",
+        "name_prefix": "Civilian veteran population (18+)",
+        "short_suffix": "veterans", "unit": "people",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B21001", "extra_tags": [],
+    },
+    {
+        "out_id": "broadband_households",
+        "name_prefix": "Households with broadband internet",
+        "short_suffix": "broadband", "unit": "households",
+        "unit_class": "count", "fmt_style": "number", "decimals": 0,
+        "notation": "compact", "table": "B28002", "extra_tags": [],
+    },
+]
+
+MEDIAN_INDICATORS: list[dict[str, Any]] = [
+    {
+        "out_id": "median_hh_income",
+        "name_prefix": "Median household income",
+        "short_suffix": "median hh income", "unit": "USD",
+        "unit_class": "currency", "fmt_style": "currency",
+        "currency": "USD", "decimals": 0, "notation": "compact",
+        "table": "B19013", "extra_tags": [],
+    },
+    {
+        "out_id": "median_age", "name_prefix": "Median age",
+        "short_suffix": "median age", "unit": "years",
+        "unit_class": "ratio", "fmt_style": "number", "decimals": 1,
+        "table": "B01002", "extra_tags": [],
+    },
+    {
+        "out_id": "median_home_value",
+        "name_prefix": "Median home value (owner-occupied)",
+        "short_suffix": "median home value", "unit": "USD",
+        "unit_class": "currency", "fmt_style": "currency",
+        "currency": "USD", "decimals": 0, "notation": "compact",
+        "table": "B25077", "extra_tags": ["real-estate"],
+    },
+    {
+        "out_id": "median_gross_rent",
+        "name_prefix": "Median gross rent",
+        "short_suffix": "median gross rent", "unit": "USD",
+        "unit_class": "currency", "fmt_style": "currency",
+        "currency": "USD", "decimals": 0, "notation": "compact",
+        "table": "B25064", "extra_tags": ["real-estate"],
+    },
+]
+
+ALL_INDICATORS = COUNT_INDICATORS + MEDIAN_INDICATORS
+
+
+_SLUG_RX = re.compile(r"^(?P<series>.+)_(?P<st>[a-z]{2})_(?P<dst>[a-z0-9]{2})$")
+
+
+def list_cds_per_state() -> dict[str, list[str]]:
+    """Walk acs_cd YAMLs to enumerate which districts exist per state.
+    Pulls from sources/acs_cd so the count is stable regardless of
+    whether any vintages happen to be missing for a given CD."""
+    out: dict[str, set[str]] = defaultdict(set)
+    src_root = ROOT / "src" / "content" / "sources" / "acs_cd"
+    for p in src_root.glob("*.yaml"):
+        m = _SLUG_RX.match(p.stem)
+        if m:
+            out[m.group("st")].add(m.group("dst"))
+    return {st: sorted(ds) for st, ds in out.items()}
+
+
+def load_points(path: Path) -> list[dict[str, Any]] | None:
+    """Read a timeseries JSON's points array. Returns None on miss."""
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    points = data.get("points")
+    if not isinstance(points, list):
+        return None
+    return points
+
+
+def aggregate_state(
+    indicator: dict[str, Any],
+    state: str,
+    districts: list[str],
+    pop_lookup: dict[tuple[str, str], dict[str, float]],
+    is_median: bool,
+) -> list[dict[str, Any]]:
+    """
+    Aggregate a single indicator across one state's CDs.
+
+      - Counts: state_value(t) = SUM cd_value(t)
+      - Medians: weighted by CD population at same timestamp:
+        state_value(t) = SUM(cd_value(t) * cd_pop(t)) / SUM(cd_pop(t))
+
+    Skips timestamps where no CD has a value. For medians, skips
+    timestamps with zero total weight (e.g. all CDs missing population
+    for that vintage).
+    """
+    # Collect per-timestamp values across CDs.
+    by_t: dict[str, list[tuple[float, str]]] = defaultdict(list)
+    for dst in districts:
+        path = CD_DATA / f"{indicator['out_id']}_{state}_{dst}.json"
+        points = load_points(path)
+        if not points:
+            continue
+        for p in points:
+            t = p.get("t")
+            v = p.get("v")
+            if isinstance(t, str) and isinstance(v, (int, float)):
+                by_t[t].append((float(v), dst))
+
+    out: list[dict[str, Any]] = []
+    for t in sorted(by_t.keys()):
+        entries = by_t[t]
+        if not is_median:
+            total = sum(v for v, _ in entries)
+            out.append({"t": t, "v": round(total)})
+            continue
+        # Median branch: population-weighted average over the CDs
+        # that have a value for this timestamp. If a CD has the
+        # median but not the population for this t, skip its weight
+        # (drops it from the average rather than weight it as 0).
+        num = 0.0
+        den = 0.0
+        for v, dst in entries:
+            w = pop_lookup.get((state, dst), {}).get(t)
+            if w is None or w <= 0:
+                continue
+            num += v * w
+            den += w
+        if den > 0:
+            out.append({"t": t, "v": round(num / den, indicator["decimals"])})
+    return out
+
+
+def description_for(indicator: dict[str, Any], state: str, n_cds: int) -> str:
+    """One-sentence-ish description matching the CD-level YAML tone."""
+    abbr = state.upper()
+    name = indicator["name_prefix"]
+    table = indicator["table"]
+    if indicator in COUNT_INDICATORS:
+        if n_cds == 1:
+            return (
+                f"{name} for {abbr} (statewide). From the American "
+                f"Community Survey 5-year estimates (table {table}), "
+                f"released annually. {abbr} has a single congressional "
+                f"district, so this is identical to the district-level "
+                f"series."
+            )
+        return (
+            f"{name} for {abbr} (statewide). Aggregated from the "
+            f"{n_cds} congressional-district series for this state "
+            f"(118th-Congress boundaries) via direct sum. Underlying "
+            f"source — American Community Survey 5-year estimates "
+            f"(table {table}), released annually."
+        )
+    # Median branch.
+    if n_cds == 1:
+        return (
+            f"{name} for {abbr} (statewide). From the American "
+            f"Community Survey 5-year estimates (table {table}), "
+            f"released annually. {abbr} has a single congressional "
+            f"district, so this is identical to the district-level "
+            f"series."
+        )
+    return (
+        f"{name} for {abbr} (statewide). Population-weighted average "
+        f"of the {n_cds} congressional-district {name.lower()} values "
+        f"for this state — an approximation, not the true Census "
+        f"state-level median. Underlying source — American Community "
+        f"Survey 5-year estimates (table {table}), released annually."
+    )
+
+
+def render_yaml(indicator: dict[str, Any], state: str, n_cds: int) -> str:
+    abbr = state.upper()
+    name = f"{indicator['name_prefix']} — {abbr}"
+    short = f"{abbr} {indicator['short_suffix']}"
+    desc = description_for(indicator, state, n_cds)
+    tags = ["government", "us"] + list(indicator.get("extra_tags", []))
+
+    lines: list[str] = [
+        f"name: {name}",
+        f"shortName: {short}",
+        f"description: {desc}",
+        "kind: timeseries",
+        "pipeline: derive_acs_state_from_cd",
+        f"dataFile: data/acs_state/{indicator['out_id']}_{state}.json",
+        'supportedDeltas: ["5y", "10y"]',
+        f"unit: {indicator['unit']}",
+        "formatting:",
+        f"  style: {indicator['fmt_style']}",
+    ]
+    if indicator.get("currency"):
+        lines.append(f"  currency: {indicator['currency']}")
+    lines.append(f"  decimals: {indicator['decimals']}")
+    if indicator.get("notation"):
+        lines.append(f"  notation: {indicator['notation']}")
+    lines.append("emphasis: change")
+    lines.append("provenance:")
+    lines.append("  provider: US Census Bureau (ACS 5-year)")
+    lines.append(f"  series: {indicator['out_id']}_state")
+    lines.append("  url: https://api.census.gov/data/2022/acs/acs5")
+    lines.append("  license: Public domain (US government data)")
+    lines.append("tags:")
+    for tag in tags:
+        lines.append(f"  - {tag}")
+    if indicator.get("unit_class"):
+        lines.append(f"unitClass: {indicator['unit_class']}")
+    return "\n".join(lines) + "\n"
+
+
+def main() -> int:
+    STATE_DATA.mkdir(parents=True, exist_ok=True)
+    STATE_SOURCES.mkdir(parents=True, exist_ok=True)
+
+    cds_per_state = list_cds_per_state()
+    if not cds_per_state:
+        print("No CD source YAMLs found; nothing to aggregate.", file=sys.stderr)
+        return 1
+    print(f"Aggregating {sum(len(d) for d in cds_per_state.values())} "
+          f"CDs across {len(cds_per_state)} states/DC...", flush=True)
+
+    # Build per-CD population lookup once, used for median weighting.
+    # Keyed by (state, dst) -> {timestamp: population}.
+    pop_lookup: dict[tuple[str, str], dict[str, float]] = {}
+    for state, districts in cds_per_state.items():
+        for dst in districts:
+            path = CD_DATA / f"population_{state}_{dst}.json"
+            points = load_points(path)
+            if not points:
+                continue
+            by_t = {p["t"]: float(p["v"]) for p in points
+                    if isinstance(p.get("t"), str) and isinstance(p.get("v"), (int, float))}
+            pop_lookup[(state, dst)] = by_t
+
+    written_json = 0
+    written_yaml = 0
+    skipped_yaml = 0
+    series_emitted_per_indicator: dict[str, int] = defaultdict(int)
+    for indicator in ALL_INDICATORS:
+        is_median = indicator in MEDIAN_INDICATORS
+        for state, districts in cds_per_state.items():
+            points = aggregate_state(indicator, state, districts, pop_lookup, is_median)
+            if not points:
+                continue
+            # Write data JSON via write_timeseries for consistency with the
+            # other pipelines (gets the same "id/name/kind/lastUpdated"
+            # envelope and atomic-write behavior).
+            write_timeseries(
+                pipeline="acs_state",
+                series_id=f"{indicator['out_id']}_{state}",
+                name=f"{indicator['name_prefix']} — {state.upper()}",
+                points=points,
+                unit=indicator["unit"],
+            )
+            written_json += 1
+            series_emitted_per_indicator[indicator["out_id"]] += 1
+            # Source YAML — only if absent (don't clobber hand-edits).
+            yaml_path = STATE_SOURCES / f"{indicator['out_id']}_{state}.yaml"
+            if yaml_path.exists():
+                skipped_yaml += 1
+                continue
+            yaml_path.write_text(
+                render_yaml(indicator, state, len(districts)),
+                encoding="utf-8",
+            )
+            written_yaml += 1
+
+    print(f"\nWrote {written_json} state-level data JSONs.")
+    print(f"Wrote {written_yaml} new source YAMLs ({skipped_yaml} already existed).")
+    print(f"\n{'indicator':<25}  {'series':>6}")
+    print(f"{'-'*25}  {'-'*6}")
+    for ind in ALL_INDICATORS:
+        print(f"{ind['out_id']:<25}  {series_emitted_per_indicator.get(ind['out_id'], 0):>6}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

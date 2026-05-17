@@ -1,0 +1,24 @@
+name: Median gross rent — MO
+shortName: MO median gross rent
+description: Median gross rent for MO (statewide). Population-weighted average of the 9 congressional-district median gross rent values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B25064), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/median_gross_rent_mo.json
+supportedDeltas: ["5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_gross_rent_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: currency

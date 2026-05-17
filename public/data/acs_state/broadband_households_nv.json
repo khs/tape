@@ -1,0 +1,33 @@
+{
+  "id": "broadband_households_nv",
+  "name": "Households with broadband internet \u2014 NV",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-17T19:09:06Z",
+  "points": [
+    {
+      "t": "2017-12-31",
+      "v": 839512
+    },
+    {
+      "t": "2018-12-31",
+      "v": 880180
+    },
+    {
+      "t": "2019-12-31",
+      "v": 919343
+    },
+    {
+      "t": "2020-12-31",
+      "v": 764123
+    },
+    {
+      "t": "2021-12-31",
+      "v": 783423
+    },
+    {
+      "t": "2022-12-31",
+      "v": 1032647
+    }
+  ]
+}

@@ -195,6 +195,19 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("bls/state_foo_xy")).toBeNull();
     expect(parseStateSourceId("fred/state_thing_zz")).toBeNull();
   });
+
+  it("parses acs_state/<series>_<st>", () => {
+    expect(parseStateSourceId("acs_state/bachelors_plus_tx")).toEqual({ state: "tx" });
+    expect(parseStateSourceId("acs_state/median_hh_income_ca")).toEqual({ state: "ca" });
+    expect(parseStateSourceId("acs_state/population_dc")).toEqual({ state: "dc" });
+    expect(parseStateSourceId("acs_state/poverty_count_wy")).toEqual({ state: "wy" });
+  });
+
+  it("rejects acs_state IDs that end in a non-state code", () => {
+    // Same defensive guard as fred/bls — acs_state must end in a real
+    // 2-letter state code, not just any 2 letters.
+    expect(parseStateSourceId("acs_state/bachelors_plus_xy")).toBeNull();
+  });
 });
 
 describe("formatDistrictLabel — statewide", () => {

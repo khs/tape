@@ -1,0 +1,23 @@
+name: Median household income — LA
+shortName: LA median hh income
+description: Median household income for LA (statewide). Population-weighted average of the 7 congressional-district median household income values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B19013), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/median_hh_income_la.json
+supportedDeltas: ["5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_hh_income_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: currency

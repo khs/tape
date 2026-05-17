@@ -1,0 +1,19 @@
+title: 10Y–3M yield curve
+sources:
+  - fred/us_10y
+  - fred/us_3mo
+op: diff
+render: line
+defaultDelta: 1m
+tags: [us, rates, macro]
+blurb: |
+  The yield curve slope between the 10-year and 3-month US Treasuries
+  (10Y − 3M). This is the NY Fed's preferred recession-indicator
+  spread — historically, every US recession in the modern era has been
+  preceded by an inversion (negative reading) of this curve by 6 to
+  18 months. Tends to read more cleanly than 10Y − 2Y because the
+  3-month is anchored to the current Fed funds rate.
+  <br/><br/>
+  Computed on the fly as us_10y − us_3mo so the chart stays in sync
+  with the components; click through to either constituent for the
+  raw yield series.

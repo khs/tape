@@ -1,0 +1,23 @@
+name: Owner-occupied housing units — WV
+shortName: WV owner-occupied
+description: Owner-occupied housing units for WV (statewide). Aggregated from the 3 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B25003), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/owner_occupied_wv.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: owner_occupied_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: count

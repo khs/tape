@@ -132,6 +132,10 @@ const STATE_CODE_SET = new Set(US_STATES.map((s) => s.code));
  *     (e.g. `fred/state_population_tx`)
  *   - `bls/state_<series>_<st>`             — BLS state-level series
  *     (e.g. `bls/state_unemployment_tx`)
+ *   - `acs_state/<series>_<st>`             — ACS state-level series
+ *     derived from the per-CD ACS data by
+ *     pipelines/derive_acs_state_from_cd.py (exact sum for counts,
+ *     population-weighted average for medians).
  *
  * The trailing 2 chars are validated against the US_STATES table so
  * an unrelated ID that happens to end in two letters (`bls/state_foo_xy`)
@@ -144,6 +148,10 @@ export function parseStateSourceId(id: string): { state: string } | null {
   // fred|bls /state_<series>_<st> — non-greedy series, anchored 2-letter
   // tail. STATE_CODE_SET filter rejects accidental matches.
   m = id.match(/^(?:fred|bls)\/state_.+_([a-z]{2})$/);
+  if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
+  // acs_state/<series>_<st> — no `state_` prefix on the slug since the
+  // pipeline directory already names the scope.
+  m = id.match(/^acs_state\/.+_([a-z]{2})$/);
   if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
   return null;
 }
