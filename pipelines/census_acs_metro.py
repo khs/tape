@@ -12,14 +12,14 @@ CBSA boundaries change infrequently (last major OMB revision was Bulletin
 without a tract-aggregation step. Future redelineations will introduce
 small comparability breaks; document those when they happen.
 
-Series pulled (same indicators as the CD pipeline so charts can layer
-trivially):
-  * population (B01003_001E)
-  * poverty_count (B17001_002E)
-  * bachelors_plus (B15003_022E)
-  * median_hh_income (B19013_001E)
+This pipeline reuses INDICATORS, AGG_* semantics, and the AcsVar
+dataclass from census_acs_cd.py so adding an indicator to the CD
+pipeline automatically extends metro coverage. AGG_SUM (tract-summed at
+CD level) and AGG_MEDIAN_DIST (median-from-bins-at-tract-level) collapse
+to a direct CBSA fetch here — Census publishes both as CBSA-level
+values, so there's no need for the tract-aggregation step.
 
-Outputs (per metro × per series):
+Outputs (per metro × per indicator):
   * public/data/acs_metro/<series>_<CBSA>.json
   * src/content/sources/acs_metro/<series>_<CBSA>.yaml
 
@@ -38,86 +38,30 @@ import os
 import subprocess
 import sys
 from collections import defaultdict
-from dataclasses import dataclass
 from pathlib import Path
 
 from common import write_timeseries
+from census_acs_cd import (
+    INDICATORS,
+    ACS_VINTAGES,
+    AGG_SUM,
+    AGG_CD_LEVEL,
+    AGG_CD_LEVEL_SUM,
+    AGG_MEDIAN_DIST,
+    AGG_MEDIAN_CD_DIST,
+    acs_base,
+    parse_value,
+    weighted_median_from_bins,
+)
+
+# Reuse the metadata table from the CD-level YAML generator so per-
+# indicator formatting (currency / decimals / notation / extra_tags)
+# stays in sync across pipelines without a third metadata source.
+from _generate_acs_sources import INDICATORS as IND_METADATA
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CROSSWALK_DIR = REPO_ROOT / "pipelines" / "_crosswalks"
 SOURCES_DIR = REPO_ROOT / "src" / "content" / "sources" / "acs_metro"
-
-ACS_VINTAGES = list(range(2010, 2023))
-
-
-def acs_base(year: int) -> str:
-    if year >= 2015:
-        return f"https://api.census.gov/data/{year}/acs/acs5"
-    return f"https://api.census.gov/data/{year}/acs5"
-
-
-@dataclass
-class AcsMetroVar:
-    out_id: str
-    var_code: str
-    name_prefix: str
-    unit: str
-    decimals: int
-    unit_class: str  # currency | count | rate | index | ratio
-    fmt_style: str  # number | currency | percent
-    fmt_currency: str | None  # e.g. "USD"
-    fmt_notation: str | None  # e.g. "compact"
-
-
-# Mirror the CD pipeline's series selection. Keep this list intentionally
-# small at launch — Census API caps per-call vars and adding more rows
-# inflates wall-time × ~387 metros.
-INDICATORS: list[AcsMetroVar] = [
-    AcsMetroVar(
-        out_id="population",
-        var_code="B01003_001E",
-        name_prefix="Total population",
-        unit="people",
-        decimals=0,
-        unit_class="count",
-        fmt_style="number",
-        fmt_currency=None,
-        fmt_notation="compact",
-    ),
-    AcsMetroVar(
-        out_id="poverty_count",
-        var_code="B17001_002E",
-        name_prefix="People in poverty",
-        unit="people",
-        decimals=0,
-        unit_class="count",
-        fmt_style="number",
-        fmt_currency=None,
-        fmt_notation="compact",
-    ),
-    AcsMetroVar(
-        out_id="bachelors_plus",
-        var_code="B15003_022E",
-        name_prefix="Adults 25+ with bachelor's degree",
-        unit="people",
-        decimals=0,
-        unit_class="count",
-        fmt_style="number",
-        fmt_currency=None,
-        fmt_notation="compact",
-    ),
-    AcsMetroVar(
-        out_id="median_hh_income",
-        var_code="B19013_001E",
-        name_prefix="Median household income",
-        unit="USD",
-        decimals=0,
-        unit_class="currency",
-        fmt_style="currency",
-        fmt_currency="USD",
-        fmt_notation=None,
-    ),
-]
 
 
 def load_metro_codes(path: Path) -> dict[str, tuple[str, str]]:
@@ -152,7 +96,7 @@ def acs_fetch(year: int, var_codes: list[str], key: str) -> list[list[str]]:
     )
     try:
         out = subprocess.run(
-            ["curl", "-s", "-S", "--max-time", "120", "-w", "%{http_code}", url],
+            ["curl", "-s", "-S", "--max-time", "180", "-w", "%{http_code}", url],
             capture_output=True, text=True, check=True,
         )
     except subprocess.CalledProcessError as e:
@@ -173,17 +117,6 @@ def acs_fetch(year: int, var_codes: list[str], key: str) -> list[list[str]]:
     return data if isinstance(data, list) else []
 
 
-def parse_value(s: str) -> float | None:
-    """Census sentinel-negative values mean 'no data'."""
-    try:
-        v = float(s)
-    except (TypeError, ValueError):
-        return None
-    if v < -1_000_000:
-        return None
-    return v
-
-
 def yaml_escape(s: str) -> str:
     if not s:
         return '""'
@@ -192,44 +125,59 @@ def yaml_escape(s: str) -> str:
     return s
 
 
-def write_source_yaml(var: AcsMetroVar, cbsa: str, short_name: str) -> bool:
-    out = SOURCES_DIR / f"{var.out_id}_{cbsa}.yaml"
+def write_source_yaml(out_id: str, cbsa: str, short_name: str) -> bool:
+    """Generate a source YAML for a metro × indicator combo. Pulls
+    formatting metadata from _generate_acs_sources.INDICATORS (keyed by
+    out_id) so the per-indicator unit / decimals / notation stays
+    consistent with the CD-level YAMLs."""
+    out = SOURCES_DIR / f"{out_id}_{cbsa}.yaml"
     if out.exists():
+        return False
+    meta = next((m for m in IND_METADATA if m["out_id"] == out_id), None)
+    if meta is None:
+        # Indicator missing from metadata table; skip rather than emit a
+        # half-formed YAML.
         return False
     SOURCES_DIR.mkdir(parents=True, exist_ok=True)
     description = (
-        f"{var.name_prefix} for the {short_name} metropolitan statistical "
-        f"area (CBSA {cbsa}). From the American Community Survey 5-year "
-        f"estimates. Released annually."
+        f"{meta['name_prefix']} for the {short_name} metropolitan "
+        f"statistical area (CBSA {cbsa}). From the American Community "
+        f"Survey 5-year estimates (table {meta['table']}). Released "
+        f"annually."
     )
-    short_label = f"{short_name} {var.out_id.replace('_', ' ')}"
-    name_full = f"{var.name_prefix} — {short_name}"
+    short_label = f"{short_name} {meta['short_suffix']}"
+    name_full = f"{meta['name_prefix']} — {short_name}"
+    tags = ["government", "us"] + list(meta.get("extra_tags", []))
     lines = [
         f"name: {yaml_escape(name_full)}",
         f"shortName: {yaml_escape(short_label)}",
         f"description: {yaml_escape(description)}",
         "kind: timeseries",
         "pipeline: acs_metro",
-        f"dataFile: data/acs_metro/{var.out_id}_{cbsa}.json",
+        f"dataFile: data/acs_metro/{out_id}_{cbsa}.json",
         'supportedDeltas: ["5y", "10y"]',
-        f'unit: "{var.unit}"',
+        f'unit: "{meta["unit"]}"',
         "formatting:",
-        f"  style: {var.fmt_style}",
+        f"  style: {meta['fmt_style']}",
     ]
-    if var.fmt_currency:
-        lines.append(f"  currency: {var.fmt_currency}")
-    lines.append(f"  decimals: {var.decimals}")
-    if var.fmt_notation:
-        lines.append(f"  notation: {var.fmt_notation}")
+    if meta.get("currency"):
+        lines.append(f"  currency: {meta['currency']}")
+    lines.append(f"  decimals: {meta['decimals']}")
+    if meta.get("notation"):
+        lines.append(f"  notation: {meta['notation']}")
     lines.extend([
         "emphasis: change",
         "provenance:",
         "  provider: US Census Bureau (ACS 5-year)",
-        f"  series: {var.out_id}_{cbsa}",
-        f"  url: https://api.census.gov/data/2022/acs/acs5",
+        f"  series: {out_id}_{cbsa}",
+        "  url: https://api.census.gov/data/2022/acs/acs5",
         "  license: Public domain (US government data)",
-        f"unitClass: {var.unit_class}",
+        "tags:",
     ])
+    for tag in tags:
+        lines.append(f"  - {tag}")
+    if meta.get("unit_class"):
+        lines.append(f"unitClass: {meta['unit_class']}")
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return True
 
@@ -243,81 +191,135 @@ def main() -> int:
 
     if not key:
         print(
-            "census_acs_metro: CENSUS_API_KEY not set. Writing source YAMLs "
-            "only (no data files). Register a free key at "
+            "census_acs_metro: CENSUS_API_KEY not set. Writing source "
+            "YAMLs only (no data files). Register a free key at "
             "https://api.census.gov/data/key_signup.html and re-run.",
             file=sys.stderr,
         )
+        # When no key is set we can still pre-generate empty-shell YAMLs
+        # for every indicator × CBSA so the source-collection schema
+        # validates. Data lands on the next refresh with a key.
         yaml_written = 0
-        for var in INDICATORS:
+        for ind in INDICATORS:
             for cbsa, (short_name, _) in metros.items():
-                if write_source_yaml(var, cbsa, short_name):
+                if write_source_yaml(ind.out_id, cbsa, short_name):
                     yaml_written += 1
-        print(f"  wrote {yaml_written} new source YAMLs", flush=True)
+        print(f"  wrote {yaml_written} new source YAMLs (data pending)", flush=True)
         return 0
+
+    # Build the master variable list across all indicators (deduped).
+    needed_codes: set[str] = set()
+    for v in INDICATORS:
+        if v.agg in (AGG_SUM, AGG_CD_LEVEL, AGG_MEDIAN_DIST):
+            if v.var_code:
+                needed_codes.add(v.var_code)
+        elif v.agg == AGG_CD_LEVEL_SUM:
+            needed_codes.update(v.sum_codes)
+        elif v.agg == AGG_MEDIAN_CD_DIST:
+            needed_codes.update(code for code, _, _ in v.bins)
+    var_list = sorted(needed_codes)
+    print(
+        f"census_acs_metro: fetching {len(var_list)} variables × "
+        f"{len(ACS_VINTAGES)} vintages × {len(metros)} CBSAs...",
+        flush=True,
+    )
 
     # Accumulator: {(out_id, cbsa): [{t, v}, ...]}
     series_accum: dict[tuple[str, str], list[dict]] = defaultdict(list)
-    var_codes = [v.var_code for v in INDICATORS]
 
     for year in ACS_VINTAGES:
         anchor = f"{year}-12-31"
         print(f"\nFetching ACS5 vintage {year}...", flush=True)
-        rows = acs_fetch(year, var_codes, key)
-        if not rows or len(rows) < 2:
+        # Merge chunks: {cbsa: {var_code: value}}
+        merged: dict[str, dict[str, float]] = {}
+        for chunk_start in range(0, len(var_list), 45):
+            chunk = var_list[chunk_start:chunk_start + 45]
+            rows = acs_fetch(year, chunk, key)
+            if not rows or len(rows) < 2:
+                continue
+            headers = rows[0]
+            try:
+                geo_col = headers.index(
+                    "metropolitan statistical area/micropolitan statistical area"
+                )
+            except ValueError:
+                print(f"  unexpected schema {year}: {headers}", file=sys.stderr)
+                continue
+            for row in rows[1:]:
+                if len(row) < len(headers):
+                    continue
+                cbsa = row[geo_col]
+                if cbsa not in metros:
+                    continue
+                if cbsa not in merged:
+                    merged[cbsa] = {}
+                for code in chunk:
+                    try:
+                        col = headers.index(code)
+                    except ValueError:
+                        continue
+                    val = parse_value(row[col])
+                    if val is not None:
+                        merged[cbsa][code] = val
+
+        if not merged:
             print(f"  no data for {year}", file=sys.stderr)
             continue
-        headers = rows[0]
-        try:
-            geo_col = headers.index(
-                "metropolitan statistical area/micropolitan statistical area"
-            )
-        except ValueError:
-            print(f"  unexpected schema {year}: {headers}", file=sys.stderr)
-            continue
-        for row in rows[1:]:
-            if len(row) < len(headers):
-                continue
-            cbsa = row[geo_col]
-            if cbsa not in metros:
-                # Skip micropolitan areas + any metro outside our curated list.
-                continue
-            for var in INDICATORS:
-                try:
-                    col = headers.index(var.var_code)
-                except ValueError:
-                    continue
-                v = parse_value(row[col])
-                if v is None:
-                    continue
-                series_accum[(var.out_id, cbsa)].append({"t": anchor, "v": v})
 
+        # Apply per-indicator aggregation against each CBSA's merged row.
+        for cbsa, per_var in merged.items():
+            for v in INDICATORS:
+                value: float | None = None
+                if v.agg in (AGG_SUM, AGG_CD_LEVEL, AGG_MEDIAN_DIST):
+                    value = per_var.get(v.var_code) if v.var_code else None
+                elif v.agg == AGG_CD_LEVEL_SUM:
+                    parts = [per_var.get(c) for c in v.sum_codes]
+                    present = [p for p in parts if p is not None]
+                    if present:
+                        value = sum(present)
+                elif v.agg == AGG_MEDIAN_CD_DIST:
+                    bins_data = {
+                        code: per_var[code]
+                        for code, _, _ in v.bins
+                        if code in per_var
+                    }
+                    value = weighted_median_from_bins(v.bins, bins_data)
+                if value is None:
+                    continue
+                if v.agg in (AGG_SUM, AGG_CD_LEVEL_SUM):
+                    value = round(value)
+                elif v.decimals > 0:
+                    value = round(value, v.decimals)
+                series_accum[(v.out_id, cbsa)].append({"t": anchor, "v": value})
+
+    # Write per-(indicator, CBSA) time series files.
     json_written = 0
-    for var in INDICATORS:
-        for cbsa, (short_name, _) in metros.items():
-            points = series_accum.get((var.out_id, cbsa))
-            if not points:
-                continue
-            points.sort(key=lambda p: p["t"])
-            if var.unit_class == "count":
-                for p in points:
-                    p["v"] = round(p["v"])
-            write_timeseries(
-                pipeline="acs_metro",
-                series_id=f"{var.out_id}_{cbsa}",
-                name=f"{var.name_prefix} — {short_name}",
-                points=points,
-                unit=var.unit,
-            )
-            json_written += 1
+    for (out_id, cbsa), points in series_accum.items():
+        if not points:
+            continue
+        points.sort(key=lambda p: p["t"])
+        short_name = metros.get(cbsa, ("", ""))[0]
+        var = next((v for v in INDICATORS if v.out_id == out_id), None)
+        name_prefix = var.name_prefix if var else out_id
+        unit = var.unit if var else "value"
+        write_timeseries(
+            pipeline="acs_metro",
+            series_id=f"{out_id}_{cbsa}",
+            name=f"{name_prefix} — {short_name}",
+            points=points,
+            unit=unit,
+        )
+        json_written += 1
     print(f"\nWrote {json_written} metro × series JSON files", flush=True)
 
     yaml_written = 0
-    for var in INDICATORS:
+    for ind in INDICATORS:
         for cbsa, (short_name, _) in metros.items():
-            if write_source_yaml(var, cbsa, short_name):
+            if (ind.out_id, cbsa) not in series_accum:
+                continue
+            if write_source_yaml(ind.out_id, cbsa, short_name):
                 yaml_written += 1
-    print(f"Wrote {yaml_written} new source YAMLs", flush=True)
+    print(f"Wrote {yaml_written} new source YAMLs ({len(INDICATORS)} indicators × {len(metros)} CBSAs)", flush=True)
     return 0
 
 
