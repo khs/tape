@@ -1,0 +1,22 @@
+name: SLOOS - banks tightening C and I loan standards (large/medium firms)
+shortName: SLOOS C and I tightening
+description: Senior Loan Officer Opinion Survey, share of banks reporting tightened lending standards on commercial and industrial loans to large and medium firms (net of those easing). Quarterly. Positive readings mean banks pulling back on credit; negative means easier money flowing to businesses. The Fed watches this as a forward financial-conditions input distinct from market-based stress indices.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DRTSCILM.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DRTSCILM
+  url: https://fred.stlouisfed.org/series/DRTSCILM
+  license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us
+unitClass: rate

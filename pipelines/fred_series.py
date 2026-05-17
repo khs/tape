@@ -145,6 +145,36 @@ SPECS: list[FredSpec] = [
     # Median listing price by national — useful for current-conditions
     # snapshots.
     FredSpec("MEDLISPRIUS", "US median listing price (homes for sale)", "USD"),
+    # ---- Library expansion v4: monetary plumbing, inflation detail, ----
+    # ---- recession signals, FX, fiscal level                            ----
+    # Senior Loan Officer Opinion Survey (SLOOS). Quarterly; banks
+    # tightening (positive) vs. easing (negative) credit standards.
+    # The Fed reads these obsessively as a forward financial-conditions
+    # signal.
+    FredSpec("DRTSCILM", "SLOOS — banks tightening C&I loan standards (large/medium firms)", "%"),
+    FredSpec("DRTSCLCC", "SLOOS — banks tightening credit-card standards", "%"),
+    # CPI subindexes — granularity behind the headline.
+    FredSpec("CPIUFDSL", "CPI: Food", "index (1982-84=100)"),
+    FredSpec("CPIENGSL", "CPI: Energy", "index (1982-84=100)"),
+    FredSpec("CPIMEDSL", "CPI: Medical care", "index (1982-84=100)"),
+    # GDP deflator — broadest inflation measure, distinct from CPI/PCE.
+    FredSpec("GDPDEF", "GDP price deflator", "index (2017=100)"),
+    # Recession signals. Philly Fed's Anxious Index isn't on FRED — its SPF
+    # release publishes via the Philly Fed's own site (CSV download); a
+    # follow-up pipeline could pull it directly. Skipping for now.
+    FredSpec("RECPROUSM156N", "Recession probability — NY Fed yield-curve model", "%"),
+    FredSpec("STLFSI4", "St. Louis Fed Financial Stress Index", "index (z-score)"),
+    # Labor — manufacturing weekly hours; classic leading indicator.
+    FredSpec("AWHMAN", "Average weekly hours, manufacturing", "hours"),
+    # FX — Chinese yuan / USD, the most-watched political-economy currency.
+    FredSpec("DEXCHUS", "Chinese yuan per US dollar (CNY/USD)", "CNY per USD"),
+    # Fiscal level — the absolute debt number people argue about, in
+    # millions USD. Pair with the existing GFDEGDQ188S (debt-to-GDP) for
+    # context.
+    FredSpec("GFDEBTN", "Federal debt outstanding (total public debt)", "millions USD"),
+    # Federal subsidies — direct subsidy outlays from the government to
+    # businesses + individuals, BEA NIPA Table 3.2. Quarterly.
+    FredSpec("W994RC1Q027SBEA", "Federal subsidies", "billions USD"),
     # ---- Productivity (BLS via FRED mirror) ----
     # Output per hour, nonfarm business sector — the headline productivity
     # number that wage-vs-productivity debates hinge on.

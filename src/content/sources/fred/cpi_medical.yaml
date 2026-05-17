@@ -1,0 +1,21 @@
+name: CPI - Medical care
+shortName: CPI medical
+description: Consumer Price Index for medical care (services and commodities), all urban consumers, seasonally adjusted. Monthly. Different secular trend from any other CPI component - rises faster than headline almost every year and is central to healthcare-cost debates.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CPIMEDSL.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "index (1982-84=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CPIMEDSL
+  url: https://fred.stlouisfed.org/series/CPIMEDSL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: index

@@ -1,0 +1,24 @@
+name: Federal debt outstanding (total public debt)
+shortName: Federal debt
+description: Total public debt outstanding for the federal government, in millions USD, from Treasury. Quarterly. The absolute-dollar number behind the headline 35-trillion-and-counting framing - pair with us_real_gdp via the composer's divide op to get debt to GDP at any point in time.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/GFDEBTN.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: GFDEBTN
+  url: https://fred.stlouisfed.org/series/GFDEBTN
+  license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us
+unitClass: currency

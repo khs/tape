@@ -1,0 +1,22 @@
+name: Recession probability - NY Fed yield-curve model
+shortName: NY Fed recession prob
+description: Smoothed recession probability for the US derived from the 10Y minus 3M Treasury spread by the New York Fed. Monthly. Distinct from the NBER binary indicator and the Anxious Index - this one is purely model-driven from a market signal, with no judgment input.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/RECPROUSM156N.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: RECPROUSM156N
+  url: https://fred.stlouisfed.org/series/RECPROUSM156N
+  license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us
+unitClass: rate

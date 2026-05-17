@@ -1,0 +1,22 @@
+name: CPI - Energy
+shortName: CPI energy
+description: Consumer Price Index for energy goods and services (motor fuel, fuel oil, gas and electric), all urban consumers, seasonally adjusted. Monthly. The most volatile component of headline CPI - moves on crude prices, refinery dynamics, weather.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CPIENGSL.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "index (1982-84=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CPIENGSL
+  url: https://fred.stlouisfed.org/series/CPIENGSL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - commodities
+unitClass: index

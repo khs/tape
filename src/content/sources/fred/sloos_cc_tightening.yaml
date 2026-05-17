@@ -1,0 +1,22 @@
+name: SLOOS - banks tightening credit-card standards
+shortName: SLOOS card tightening
+description: Senior Loan Officer Opinion Survey, share of banks reporting tightened standards on consumer credit-card loans (net of those easing). Quarterly. Read alongside the business-loan SLOOS to see whether tightening is hitting households, firms, or both.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DRTSCLCC.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DRTSCLCC
+  url: https://fred.stlouisfed.org/series/DRTSCLCC
+  license: Public domain (US government data)
+tags:
+  - macro
+  - rates
+  - us
+unitClass: rate

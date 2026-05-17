@@ -1,0 +1,21 @@
+name: CPI - Food
+shortName: CPI food
+description: Consumer Price Index for food, all urban consumers, seasonally adjusted. Monthly. Distinct from headline CPI in that food prices swing on commodity cycles and agricultural shocks rather than persistent labor-market dynamics.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CPIUFDSL.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "index (1982-84=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CPIUFDSL
+  url: https://fred.stlouisfed.org/series/CPIUFDSL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: index
