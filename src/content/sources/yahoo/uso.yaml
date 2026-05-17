@@ -1,0 +1,25 @@
+name: United States Oil Fund (USO)
+shortName: USO
+description: ETF that tracks the daily price movement of WTI crude oil
+  via near-month futures. Daily adjusted close. A retail-accessible proxy
+  for crude exposure — but the contango/backwardation dynamics make its
+  long-horizon performance diverge meaningfully from spot crude prices.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/USO.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: USO
+  url: https://finance.yahoo.com/quote/USO
+tags:
+  - commodities
+  - energy
+  - equity-index
+unitClass: currency
