@@ -1,0 +1,20 @@
+name: Federal spending — Longview-Kelso
+shortName: Longview-Kelso
+description: Total federal outlays where the recipient location is in the Longview-Kelso metropolitan statistical area (CBSA 31020, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_31020.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_31020
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=31020
+  license: Public domain (US government data)
+unitClass: currency

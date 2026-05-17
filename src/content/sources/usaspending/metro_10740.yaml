@@ -1,0 +1,20 @@
+name: Federal spending — Albuquerque
+shortName: Albuquerque
+description: Total federal outlays where the recipient location is in the Albuquerque metropolitan statistical area (CBSA 10740, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_10740.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_10740
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=10740
+  license: Public domain (US government data)
+unitClass: currency

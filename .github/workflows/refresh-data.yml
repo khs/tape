@@ -163,11 +163,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Data goes under public/data/; auto-generated source YAMLs land
-          # under src/content/sources/acs_cd|acs_national|acs_state. Stage
-          # both so a single commit covers a refresh that landed new
-          # indicators or geographies.
+          # under several src/content/sources/ subdirs depending on the
+          # pipeline. Stage all of them so a single commit covers a
+          # refresh that landed new indicators or geographies.
+          #   acs_cd / acs_state / acs_national  — Census ACS pipelines
+          #   acs_metro                          — Census ACS metro pipeline
+          #   usaspending                        — adds metro_<CBSA>.yaml
+          #   bls                                — adds metro_<series>_<CBSA>.yaml
           git add public/data/
-          git add src/content/sources/acs_cd/ src/content/sources/acs_state/ src/content/sources/acs_national/ 2>/dev/null || true
+          for dir in acs_cd acs_state acs_national acs_metro usaspending bls; do
+            git add "src/content/sources/$dir/" 2>/dev/null || true
+          done
           if git diff --cached --quiet; then
             echo "No data changes to commit."
             exit 0

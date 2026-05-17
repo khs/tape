@@ -1,0 +1,20 @@
+name: Federal spending — Lafayette
+shortName: Lafayette
+description: Total federal outlays where the recipient location is in the Lafayette metropolitan statistical area (CBSA 29180, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_29180.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_29180
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=29180
+  license: Public domain (US government data)
+unitClass: currency

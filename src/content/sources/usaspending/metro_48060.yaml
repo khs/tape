@@ -1,0 +1,20 @@
+name: Federal spending — Watertown-Fort Drum
+shortName: Watertown-Fort Drum
+description: Total federal outlays where the recipient location is in the Watertown-Fort Drum metropolitan statistical area (CBSA 48060, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_48060.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_48060
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=48060
+  license: Public domain (US government data)
+unitClass: currency

@@ -1,0 +1,20 @@
+name: Federal spending — Fresno
+shortName: Fresno
+description: Total federal outlays where the recipient location is in the Fresno metropolitan statistical area (CBSA 23420, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_23420.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_23420
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=23420
+  license: Public domain (US government data)
+unitClass: currency

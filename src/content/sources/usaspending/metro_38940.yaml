@@ -1,0 +1,20 @@
+name: Federal spending — Port St. Lucie
+shortName: Port St. Lucie
+description: Total federal outlays where the recipient location is in the Port St. Lucie metropolitan statistical area (CBSA 38940, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_38940.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_38940
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=38940
+  license: Public domain (US government data)
+unitClass: currency

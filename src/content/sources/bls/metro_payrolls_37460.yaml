@@ -1,0 +1,18 @@
+name: Panama City-Panama City Beach — nonfarm payroll employment
+shortName: Panama City-Panama City Beach payrolls
+description: Total nonfarm payroll employment for the Panama City-Panama City Beach metropolitan statistical area (CBSA 37460). Monthly, seasonally adjusted. From BLS Current Employment Statistics (CES) state-and-area program.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_payrolls_37460.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "thousands of persons"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BLS (CES State and Area)
+  series: SMU12374600000000001
+  url: https://www.bls.gov/sae/
+  license: Public domain (US government data)
+unitClass: count

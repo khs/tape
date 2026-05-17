@@ -1,0 +1,20 @@
+name: Federal spending — St. Louis
+shortName: St. Louis
+description: Total federal outlays where the recipient location is in the St. Louis metropolitan statistical area (CBSA 41180, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_41180.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_41180
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=41180
+  license: Public domain (US government data)
+unitClass: currency

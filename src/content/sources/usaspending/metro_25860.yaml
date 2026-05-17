@@ -1,0 +1,20 @@
+name: Federal spending — Hickory-Lenoir-Morganton
+shortName: Hickory-Lenoir-Morganton
+description: Total federal outlays where the recipient location is in the Hickory-Lenoir-Morganton metropolitan statistical area (CBSA 25860, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_25860.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_25860
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=25860
+  license: Public domain (US government data)
+unitClass: currency

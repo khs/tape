@@ -1,0 +1,20 @@
+name: Federal spending — Cedar Rapids
+shortName: Cedar Rapids
+description: Total federal outlays where the recipient location is in the Cedar Rapids metropolitan statistical area (CBSA 16300, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_16300.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_16300
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=16300
+  license: Public domain (US government data)
+unitClass: currency

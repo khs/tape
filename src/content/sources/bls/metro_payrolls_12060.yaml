@@ -1,0 +1,18 @@
+name: Atlanta-Sandy Springs-Roswell — nonfarm payroll employment
+shortName: Atlanta-Sandy Springs-Roswell payrolls
+description: Total nonfarm payroll employment for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). Monthly, seasonally adjusted. From BLS Current Employment Statistics (CES) state-and-area program.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_payrolls_12060.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "thousands of persons"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BLS (CES State and Area)
+  series: SMU13120600000000001
+  url: https://www.bls.gov/sae/
+  license: Public domain (US government data)
+unitClass: count

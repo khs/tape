@@ -1,0 +1,18 @@
+name: Kingsport-Bristol — nonfarm payroll employment
+shortName: Kingsport-Bristol payrolls
+description: Total nonfarm payroll employment for the Kingsport-Bristol metropolitan statistical area (CBSA 28700). Monthly, seasonally adjusted. From BLS Current Employment Statistics (CES) state-and-area program.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_payrolls_28700.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "thousands of persons"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BLS (CES State and Area)
+  series: SMU47287000000000001
+  url: https://www.bls.gov/sae/
+  license: Public domain (US government data)
+unitClass: count

@@ -1,0 +1,20 @@
+name: Federal spending — Modesto
+shortName: Modesto
+description: Total federal outlays where the recipient location is in the Modesto metropolitan statistical area (CBSA 33700, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_33700.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_33700
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=33700
+  license: Public domain (US government data)
+unitClass: currency

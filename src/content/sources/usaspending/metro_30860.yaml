@@ -1,0 +1,20 @@
+name: Federal spending — Logan
+shortName: Logan
+description: Total federal outlays where the recipient location is in the Logan metropolitan statistical area (CBSA 30860, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_30860.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_30860
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=30860
+  license: Public domain (US government data)
+unitClass: currency

@@ -1,0 +1,20 @@
+name: Federal spending — Bismarck
+shortName: Bismarck
+description: Total federal outlays where the recipient location is in the Bismarck metropolitan statistical area (CBSA 13900, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_13900.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_13900
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=13900
+  license: Public domain (US government data)
+unitClass: currency

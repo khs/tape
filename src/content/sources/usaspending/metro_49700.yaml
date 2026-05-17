@@ -1,0 +1,20 @@
+name: Federal spending — Yuba City
+shortName: Yuba City
+description: Total federal outlays where the recipient location is in the Yuba City metropolitan statistical area (CBSA 49700, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_49700.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_49700
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=49700
+  license: Public domain (US government data)
+unitClass: currency

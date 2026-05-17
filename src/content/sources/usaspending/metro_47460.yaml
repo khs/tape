@@ -1,0 +1,20 @@
+name: Federal spending — Walla Walla
+shortName: Walla Walla
+description: Total federal outlays where the recipient location is in the Walla Walla metropolitan statistical area (CBSA 47460, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_47460.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_47460
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=47460
+  license: Public domain (US government data)
+unitClass: currency

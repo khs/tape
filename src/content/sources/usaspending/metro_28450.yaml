@@ -1,0 +1,20 @@
+name: Federal spending — Kenosha
+shortName: Kenosha
+description: Total federal outlays where the recipient location is in the Kenosha metropolitan statistical area (CBSA 28450, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+kind: timeseries
+pipeline: usaspending
+dataFile: data/usaspending/metro_28450.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: " B"
+emphasis: change
+provenance:
+  provider: USAspending.gov
+  series: metro_28450
+  url: https://www.usaspending.gov/search?recipient_location_cbsa=28450
+  license: Public domain (US government data)
+unitClass: currency

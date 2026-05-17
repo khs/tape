@@ -1,0 +1,18 @@
+name: Bremerton-Silverdale-Port Orchard — unemployment rate
+shortName: Bremerton-Silverdale-Port Orchard unemployment
+description: Headline unemployment rate for the Bremerton-Silverdale-Port Orchard metropolitan statistical area (CBSA 14740). Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_unemployment_14740.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BLS (LAUS)
+  series: LAUMT531474000000003
+  url: https://www.bls.gov/lau/
+  license: Public domain (US government data)
+unitClass: rate
