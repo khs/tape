@@ -1,6 +1,18 @@
 title: 10-year breakeven inflation
 sources:
-  - fred/breakeven_10y
+  - fred/us_10y
+  - fred/tips_10y
+op: diff
 render: line
 defaultDelta: 1y
 tags: [rates, macro, us]
+blurb: |
+  The bond market's pricing of expected average inflation over the
+  next decade — what the Fed pays closest attention to. Computed on
+  the fly as the spread between the 10-year nominal Treasury yield
+  and the 10-year TIPS (real) yield, so the chart stays in sync with
+  the underlying components.
+  <br/><br/>
+  Equivalent to FRED's T10YIE series, but built from the constituents
+  here so users can click through to either the nominal or real
+  curve directly.

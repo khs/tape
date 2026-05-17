@@ -98,9 +98,12 @@ SPECS: list[FredSpec] = [
     FredSpec("FYONGDA188S", "Federal outlays, % of GDP", "%"),
     FredSpec("FYOIGDA188S", "Federal net interest outlays, % of GDP", "%"),
     FredSpec("FDEFX", "Federal defense outlays", "billions USD"),
-    # Inflation expectations (TIPS-derived breakevens)
-    FredSpec("T5YIE", "5-year breakeven inflation", "%"),
-    FredSpec("T10YIE", "10-year breakeven inflation", "%"),
+    # Inflation expectations (TIPS — real yields). Breakeven inflation is
+    # the spread between the nominal Treasury yield and the TIPS yield of
+    # the same maturity; rendered as chart-level diff ops in
+    # src/content/charts/us-macro/breakeven_{5y,10y}.yaml rather than as
+    # standalone FRED series. We just need to fetch the constituents.
+    FredSpec("DFII5", "5-year TIPS yield (real)", "%"),
     FredSpec("DFII10", "10-year TIPS yield (real)", "%"),
     # Labor depth
     FredSpec("LNS11300060", "Prime-age (25-54) labor force participation", "%"),
