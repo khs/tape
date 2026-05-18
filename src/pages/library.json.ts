@@ -194,6 +194,33 @@ export const GET: APIRoute = async () => {
       synthetics.push(`${COUNTRY_TAG}:${parsedCountry.code}`);
       countriesInUse.set(parsedCountry.code, parsedCountry.name);
     }
+    // Special-case: US-wide national sources get `country-specific:USA`
+    // but NOT the umbrella COUNTRY_TAG. The asymmetry is intentional —
+    // COUNTRY_TAG hides a source from the default list (the chip is how
+    // you opt back in), but US-wide sources should stay visible by
+    // default since the audience is US-focused. The per-country tag
+    // makes them ALSO surface when the user picks "United States" from
+    // the chip, which yields exactly the national-US slice.
+    //
+    // Identification: the `us` topical tag AND no other geo class
+    // already attached (CD / state / metro / foreign-country) AND
+    // no sub-national pattern in the source ID. State / CD / metro
+    // US sources stay out of the US national slice on purpose —
+    // picking "United States" means national, not "all the US sub-
+    // aggregates too". The ID-pattern check catches county-level BLS
+    // data (e.g. bls/county_unemployment_alexandria_va) that's tagged
+    // `us` but represents a sub-national geography with no
+    // synthetic-tag parser.
+    const isAlreadyGeo =
+      synthetics.includes(CD_TAG) ||
+      synthetics.includes(STATE_TAG) ||
+      synthetics.includes(COUNTRY_TAG) ||
+      metroExtra.length > 0;
+    const isSubNationalById = /\/(county|city|zip)_/.test(s.id);
+    if (!isAlreadyGeo && !isSubNationalById && declaredTags.includes("us")) {
+      synthetics.push(`${COUNTRY_TAG}:USA`);
+      countriesInUse.set("USA", "United States");
+    }
     const tagsList =
       synthetics.length > 0
         ? [...new Set([...declaredTags, ...synthetics])].sort()
