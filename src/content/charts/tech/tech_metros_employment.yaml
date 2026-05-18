@@ -1,0 +1,32 @@
+title: Tech-economy metros — payroll employment
+sources:
+  - bls/metro_payrolls_41940  # San Jose-Sunnyvale-Santa Clara (Silicon Valley proper)
+  - bls/metro_payrolls_41860  # San Francisco-Oakland
+  - bls/metro_payrolls_42660  # Seattle-Tacoma
+  - bls/metro_payrolls_14460  # Boston-Cambridge
+  - bls/metro_payrolls_12420  # Austin-Round Rock
+  - bls/metro_payrolls_35620  # New York-Newark-Jersey City
+seriesLabels: ["San Jose", "San Francisco", "Seattle", "Boston", "Austin", "New York"]
+render: line
+defaultDelta: 10y
+normalize: rebase
+tags: [labor, tech, us, world]
+blurb: |
+  Total nonfarm payroll employment across the six metropolitan areas
+  that anchor the US tech industry. BLS metro CES, monthly, seasonally
+  adjusted; rebased to 100 at the window start so absolute size
+  differences (NYC ~10M jobs vs. San Jose ~1.2M) don't compress the
+  smaller-metro story.
+  <br/><br/>
+  The 10-year window catches the long shape: Austin and Seattle pulled
+  away well before the pandemic. San Francisco never fully recovered
+  its 2019 peak — the WFH wave + AI-era hiring concentration in San
+  Jose (Silicon Valley proper) shifted Bay Area growth south. Boston
+  and NYC track the broader US labor market more closely; both bent
+  but didn't break in 2020 because tech is a smaller share of their
+  total employment.
+  <br/><br/>
+  This is TOTAL nonfarm employment, not tech-specific. BLS doesn't
+  publish tech-sector employment at metro granularity in real time;
+  total employment is the closest direct read on a tech-economy
+  metro's overall trajectory.
