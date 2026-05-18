@@ -30,6 +30,7 @@ import {
   applyPercentDisplayOverride,
   type CombineOp,
 } from "../lib/derive";
+import { SITE_BRAND_URL } from "../lib/brand";
 
 type ChartData = CollectionEntry<"charts">["data"];
 
@@ -717,6 +718,9 @@ const mostRecentUpdate = payload.sources
         )
       }
       {mostRecentUpdate && <span>Updated {formatDate(mostRecentUpdate)}</span>}
+      <span class="dialog-footer-attribution">
+        Chart made by: <strong>{SITE_BRAND_URL}</strong>
+      </span>
     </footer>
   </div>
 
