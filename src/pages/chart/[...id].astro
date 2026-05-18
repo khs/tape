@@ -12,7 +12,7 @@ import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astr
 
 export async function getStaticPaths() {
   const charts = await getCollection("charts");
-  // Skip deprecated-without-alias entries (the Explore page hides them too).
+  // Skip deprecated-without-alias entries (the composer hides them too).
   return charts
     .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
     .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
@@ -48,7 +48,7 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
     <nav class="text-xs text-neutral-500 mb-3">
       <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
       <span class="mx-1">·</span>
-      <a href={`${baseUrl}/explore/`} class="no-underline hover:text-neutral-900">Explore</a>
+      <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Compose</a>
     </nav>
 
     {
@@ -56,7 +56,7 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
         <div class="p-6 border hairline rounded bg-neutral-100 text-sm text-neutral-700 leading-relaxed">
           <p><strong>Chart not found:</strong> <code>{chartId}</code></p>
           <p class="mt-2">
-            <a href={`${baseUrl}/explore/`} class="underline">Browse the library &rarr;</a>
+            <a href={`${baseUrl}/compose/`} class="underline">Open the composer &rarr;</a>
           </p>
         </div>
       ) : (

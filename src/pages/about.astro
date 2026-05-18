@@ -6,56 +6,36 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 <BaseLayout
   title="About — Tape"
-  description="Why Tape exists, who it's for, where the data comes from, and what it deliberately isn't."
+  description="Tape is a tool for writing about the economy: shareable, citation-ready dashboards composed from public data."
 >
   <article class="about-root">
     <p class="about-eyebrow">About</p>
-    <h1>The Bloomberg Terminal is great. It costs $32,000 per year.</h1>
+    <h1>A tool for writing about the economy.</h1>
 
     <p class="lead">
-      Most people who write about the economy in Washington — staffers
-      preparing briefings, journalists on deadline, think-tank analysts,
-      committee economists — don't have a Terminal. They have a Slack DM
-      asking for "a chart of CPI vs PCE going back to the 80s," due by
-      eight in the morning. They open Google, find a chart from FRED,
-      and screenshot it.
+      It's Sunday night. A principal needs CPI and PCE on the same
+      axes, going back to the 80s, by 8 a.m. Tape gets you from
+      that ask to a chart you can paste into a memo — with a citation,
+      a last-updated date, and a URL a colleague can open and modify.
     </p>
 
     <p>
-      That screenshot has problems. It's bitmapped, so it pixelates in
-      the deck. It's branded for FRED, which is fine, except the
-      principal really wanted CPI <em>and</em> PCE on the same axes and
-      now there are two screenshots fighting for space. The series
-      definitions are tucked behind a tooltip the screenshot can't show.
-      There's no obvious way to share an interactive version with a
-      colleague who wants to look at the 1990s instead of the 1970s.
+      The library covers US macro, all 435 congressional districts,
+      OECD cross-country series, federal spending by state and
+      district, the equity market by sector and ticker, crypto,
+      foreign Treasury holdings, and ~1,800 other series. Every
+      chart shows both the current level and the move over a window
+      you pick. Every source links back to its provider. Every
+      dashboard is a URL.
     </p>
 
     <p>
-      <strong>Tape is a tool for that workflow.</strong> Free,
-      shareable by URL, composable from a library of ~1,800 sources
-      (US macro, all 435 congressional districts, OECD cross-country
-      comparisons, federal spending by state, the equity market by
-      sector and by company, crypto, foreign Treasury holdings, the
-      lot). Every chart shows the level <em>and</em> the move over a
-      window you pick. Every source has a citation block, a "last
-      updated" date, and a link back to its provider. Every dashboard
-      is a URL you can paste into a memo or send to a coworker.
-    </p>
-
-    <h2>What it deliberately isn't</h2>
-    <p>
-      Not a trading platform. Not a real-time feed (data refreshes
-      weekly; the few intraday charts you might want should come from
-      somewhere else). Not financial advice. Not a research note
-      service. Not a Bloomberg-Terminal replacement for someone whose
-      job is actually trading. If you're a portfolio manager, this is
-      probably not what you want.
-    </p>
-    <p>
-      It is, on the other hand, what we'd want when we have to write
-      something true about the economy by Monday and the screenshot
-      route isn't going to cut it.
+      You can pull a single chart, compose several into a dashboard,
+      derive new series by dividing or summing existing ones (CA
+      federal dollars per dollar of US GDP; oil priced in gold),
+      and share the whole thing by copying the address bar. Saved
+      dashboards live under your account; everything else works
+      without signing in.
     </p>
 
     <h2>Where the data comes from</h2>

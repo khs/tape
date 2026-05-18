@@ -64,12 +64,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
             name: "Tape",
             url: siteOrigin,
             description:
-              "Shareable, citation-ready financial dashboards for the analysts, journalists, and staffers who have to explain what's happening in markets to people who don't read Bloomberg.",
-            potentialAction: {
-              "@type": "SearchAction",
-              target: `${siteOrigin}/explore/?q={search_term_string}`,
-              "query-input": "required name=search_term_string",
-            },
+              "Shareable, citation-ready financial dashboards for analysts, journalists, and policy staff.",
           },
         ],
       })}
@@ -101,12 +96,6 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
           Tape
         </a>
         <nav class="flex items-center gap-5 text-sm">
-          <a
-            href={`${baseUrl}/explore/`}
-            class="text-neutral-600 no-underline hover:text-neutral-900"
-          >
-            Explore
-          </a>
           <a
             href={`${baseUrl}/compose/`}
             class="text-neutral-600 no-underline hover:text-neutral-900"
@@ -156,15 +145,14 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         <div class="site-footer-col site-footer-col-brand">
           <p class="site-footer-brand">{SITE_BRAND_NAME}</p>
           <p class="site-footer-tagline">
-            Shareable, citation-ready financial dashboards for the analysts,
-            journalists, and staffers who have to explain what's happening
-            in markets to people who don't read Bloomberg.
+            Shareable, citation-ready financial dashboards. Built for
+            analysts, journalists, and policy staff who have to write
+            the memo by Monday.
           </p>
         </div>
         <div class="site-footer-col site-footer-col-nav">
           <p class="site-footer-eyebrow">Navigate</p>
           <ul class="site-footer-links">
-            <li><a href={`${baseUrl}/explore/`}>Explore charts</a></li>
             <li><a href={`${baseUrl}/compose/`}>Compose a dashboard</a></li>
             <li><a href={`${baseUrl}/enterprise/`}>For organizations</a></li>
             <li><a href={`${baseUrl}/about/`}>About</a></li>

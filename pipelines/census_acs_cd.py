@@ -722,20 +722,23 @@ def main() -> int:
 
     # Single-CD states (AK, DE, ND, SD, VT, WY) and DC have one
     # congressional "district" that's the same area as the state.
-    # acs_cd files for those are redundant with acs_state/<series>_<st>
-    # (derived by derive_acs_state_from_cd.py) — explicitly retired in
-    # the v4 cleanup. Skip writing them here to avoid re-orphaning.
+    # The CD-level YAMLs are retired (acs_state/<series>_<st> is the
+    # public-facing series), but the DATA still has to land somewhere
+    # — derive_acs_state_from_cd.py reads acs_cd JSONs to build the
+    # state-level aggregates, and a missing CD JSON yields a single-
+    # point or empty state-level series. So for these slugs we
+    # redirect the write to acs_state/<series>_<st>.json directly,
+    # giving the state-level series full multi-vintage coverage with
+    # the CD-level YAML still retired.
     SINGLE_CD_REDUNDANT = {
-        "ak_al", "de_al", "nd_al", "sd_al", "vt_al", "wy_al", "dc_98",
+        "ak_al": "ak", "de_al": "de", "nd_al": "nd", "sd_al": "sd",
+        "vt_al": "vt", "wy_al": "wy", "dc_98": "dc",
     }
 
     # Write per-(indicator, CD) time series JSON files
     written = 0
-    skipped_redundant = 0
+    redirected = 0
     for (out_id, slug), points in series_accum.items():
-        if slug in SINGLE_CD_REDUNDANT:
-            skipped_redundant += 1
-            continue
         if not points:
             continue
         points.sort(key=lambda p: p["t"])
@@ -750,6 +753,21 @@ def main() -> int:
                 p["v"] = round(p["v"], var.decimals)
         name_prefix = var.name_prefix if var else out_id
         unit = var.unit if var else "value"
+        if slug in SINGLE_CD_REDUNDANT:
+            # Route to the state-level path. derive_acs_state_from_cd.py
+            # would otherwise produce an empty/single-point series for
+            # these because no CD JSON exists to aggregate from.
+            st = SINGLE_CD_REDUNDANT[slug]
+            series_id = f"{out_id}_{st}"
+            write_timeseries(
+                pipeline="acs_state",
+                series_id=series_id,
+                name=f"{name_prefix} — {st.upper()}",
+                points=points,
+                unit=unit,
+            )
+            redirected += 1
+            continue
         series_id = f"{out_id}_{slug}"
         write_timeseries(
             pipeline="acs_cd",
@@ -761,7 +779,7 @@ def main() -> int:
         written += 1
     print(f"\nacs_cd: wrote {written} stable-geo series across "
           f"{len(ACS_VINTAGES)} vintages "
-          f"(skipped {skipped_redundant} single-CD-state AL/98 redundant with acs_state)",
+          f"(plus {redirected} single-CD-state series redirected to acs_state)",
           flush=True)
     return 0
 

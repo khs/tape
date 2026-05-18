@@ -3737,7 +3737,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ) {
         return false;
       }
+      // Mirror filteredSources() on the Sources tab: metro-tagged and
+      // country-tagged sources are surfaced through their chips, not the
+      // default list. Without this the cc-modal would dump hundreds of
+      // poorly-named CBSA series + 244 country series into the picker.
+      // Unless the user has explicitly opted in via the matching tag in
+      // pickerTags, hide them.
+      const hasMetroTag = sTags.includes(METRO_TAG);
+      const hasCountryTag = sTags.includes(COUNTRY_TAG);
+      if (hasMetroTag && !ccModal.pickerTags.has(METRO_TAG)) return false;
+      if (hasCountryTag && !ccModal.pickerTags.has(COUNTRY_TAG)) return false;
       for (const t of tagsRequired) {
+        // METRO_TAG / COUNTRY_TAG are master toggles in pickerTags, not
+        // literal tags the source carries (every metro source carries
+        // METRO_TAG, but the user clicking the "Metros" chip shouldn't
+        // require every other tag to also be present). They've already
+        // gated visibility above; skip them in the AND-required loop.
+        if (t === METRO_TAG || t === COUNTRY_TAG) continue;
         if (!sTags.includes(t)) return false;
       }
       if (q) {
@@ -4322,8 +4338,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ) {
         return false;
       }
+      // Metro + country gates, mirroring cc-modal. Hide the firehose of
+      // CBSA series + non-US country series unless the user has clicked
+      // the corresponding master chip.
+      const hasMetroTag = oTags.includes(METRO_TAG);
+      const hasCountryTag = oTags.includes(COUNTRY_TAG);
+      if (hasMetroTag && !dsModal.pickerTags.has(METRO_TAG)) return false;
+      if (hasCountryTag && !dsModal.pickerTags.has(COUNTRY_TAG)) return false;
       if (tagsRequired.length > 0) {
         for (const t of tagsRequired) {
+          if (t === METRO_TAG || t === COUNTRY_TAG) continue;
           if (!oTags.includes(t)) return false;
         }
       }
@@ -4407,14 +4431,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // sources" behavior for free.
   function allPickableSourceTags(): string[] {
     const s = new Set<string>();
+    const addTag = (t: string) => {
+      // Synthetic per-entity tags (metro:35620, country-specific:JPN, …)
+      // never appear as standalone pills — they're surfaced through the
+      // master chips' drilldowns instead. Strip them here so the chip
+      // strip stays readable; the master METRO_TAG / COUNTRY_TAG values
+      // themselves stay so renderModalTagChips can show a "Metros" /
+      // "Countries" chip.
+      if (t.startsWith(`${METRO_TAG}:`)) return;
+      if (t.startsWith(`${COUNTRY_TAG}:`)) return;
+      s.add(t);
+    };
     if (library) {
       for (const id of Object.keys(library.sources)) {
         const src = library.sources[id] as LibrarySource & { tags?: string[] };
-        for (const t of src.tags ?? []) s.add(t);
+        for (const t of src.tags ?? []) addTag(t);
       }
     }
     for (const spec of Object.values(state.inlineSources)) {
-      for (const t of spec.tags ?? []) s.add(t);
+      for (const t of spec.tags ?? []) addTag(t);
     }
     return [...s].sort();
   }
@@ -4463,10 +4498,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return b;
     };
     host.appendChild(makeChip("", "all", selected.size === 0));
-    for (const t of tags) {
-      if (t === CD_TAG || t === STATE_TAG) continue;
-      host.appendChild(makeChip(t, t, selected.has(t)));
-    }
+    // States & districts chip rendered FIRST (mirrors the Sources tab
+    // ordering — geo prominent, ahead of topical tags).
     appendCdDrillDown(
       host,
       selected,
@@ -4476,6 +4509,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       cdGetters.setDistrict,
       onToggle,
     );
+    // Master METRO_TAG / COUNTRY_TAG chips next, ahead of topical tags.
+    // Same role as the dedicated geo chips on the Sources tab: clicking
+    // them opts into showing the (otherwise-hidden) metro/country
+    // sources in the picker list.
+    if (tags.includes(METRO_TAG)) {
+      host.appendChild(
+        makeChip(METRO_TAG, "Metros", selected.has(METRO_TAG)),
+      );
+    }
+    if (tags.includes(COUNTRY_TAG)) {
+      host.appendChild(
+        makeChip(COUNTRY_TAG, "Countries & regions", selected.has(COUNTRY_TAG)),
+      );
+    }
+    for (const t of tags) {
+      if (t === CD_TAG || t === STATE_TAG) continue;
+      if (t === METRO_TAG || t === COUNTRY_TAG) continue;
+      host.appendChild(makeChip(t, t, selected.has(t)));
+    }
   }
 
   // Equation-form name auto-derived from picked A, op, B. Used as both

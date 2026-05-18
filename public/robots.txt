@@ -1,8 +1,7 @@
 # Tape — crawler rules.
 #
 # Public, indexable: homepage, preset dashboards, individual chart pages,
-# the chart-library explore page, about. These are the URLs we want
-# search engines to surface.
+# about. These are the URLs we want search engines to surface.
 #
 # Hidden from indexing: user accounts, saved dashboards (each one is
 # specific to its owner), the composer (a tool, not content), the OG

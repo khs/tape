@@ -72,9 +72,11 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       </h1>
       <p class="hero-pitch">
         Free, source-linked charts of the US economy, all 435 congressional
-        districts, and the rest of the world. Built for the analyst,
-        journalist, or staffer who has to write the memo by Monday — not
-        for traders, and not requiring a Bloomberg subscription.
+        districts, and the rest of the world. Built for analysts,
+        journalists, and policy staff who have to write the memo by
+        Monday — every chart shows the level and the move, every
+        source is citable, every dashboard is a URL you can paste
+        into a draft.
       </p>
       <p class="hero-cta-row">
         <a
@@ -82,12 +84,6 @@ const tabs: TabSpec[] = sorted.map((d) => ({
           class="hero-cta-primary"
         >
           Build a dashboard &rarr;
-        </a>
-        <a
-          href={`${baseUrl}/explore/`}
-          class="hero-cta-secondary"
-        >
-          Browse the chart library
         </a>
         <a
           href={`${baseUrl}/enterprise/`}
@@ -210,9 +206,6 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     <p class="returning-actions">
       <a href={`${baseUrl}/compose/`} class="hero-cta-primary">
         Build another &rarr;
-      </a>
-      <a href={`${baseUrl}/explore/`} class="hero-cta-secondary">
-        Browse charts
       </a>
     </p>
   </div>

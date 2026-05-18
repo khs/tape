@@ -330,6 +330,13 @@ MEDIAN_INDICATORS: list[dict[str, Any]] = [
 ALL_INDICATORS = COUNT_INDICATORS + MEDIAN_INDICATORS
 
 
+# Single-CD states route their CD data directly to acs_state/ via
+# census_acs_cd.py. Skip them here so this script doesn't overwrite
+# census_acs_cd.py's writes with an empty/single-point aggregate
+# (there are no acs_cd JSONs to read for these states).
+SINGLE_CD_STATES = frozenset({"ak", "de", "nd", "sd", "vt", "wy", "dc"})
+
+
 _SLUG_RX = re.compile(r"^(?P<series>.+)_(?P<st>[a-z]{2})_(?P<dst>[a-z0-9]{2})$")
 
 
@@ -525,6 +532,12 @@ def main() -> int:
     for indicator in ALL_INDICATORS:
         is_median = indicator in MEDIAN_INDICATORS
         for state, districts in cds_per_state.items():
+            # Skip single-CD states — census_acs_cd.py already wrote
+            # their state-level data directly (with full multi-vintage
+            # coverage). Aggregating from non-existent acs_cd JSONs
+            # would write an empty/single-point series and clobber it.
+            if state in SINGLE_CD_STATES:
+                continue
             points = aggregate_state(indicator, state, districts, pop_lookup, is_median)
             if not points:
                 continue
