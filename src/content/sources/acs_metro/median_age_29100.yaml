@@ -1,0 +1,20 @@
+name: Median age — La Crosse-Onalaska
+shortName: La Crosse-Onalaska median age
+description: Median age for the La Crosse-Onalaska metropolitan statistical area (CBSA 29100). From the American Community Survey 5-year estimates (table B01002). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/median_age_29100.json
+supportedDeltas: ["5y", "10y"]
+unit: "years"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_age_29100
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us

@@ -3,7 +3,7 @@
   "name": "Lumber front-month (CME)",
   "kind": "timeseries",
   "unit": "USD/1000 bd-ft",
-  "lastUpdated": "2026-05-18T11:20:48Z",
+  "lastUpdated": "2026-05-17T08:11:25Z",
   "points": [
     {
       "t": "2022-08-05",
@@ -3799,7 +3799,7 @@
     },
     {
       "t": "2026-05-15",
-      "v": 590.0
+      "v": 589.0
     }
   ]
 }

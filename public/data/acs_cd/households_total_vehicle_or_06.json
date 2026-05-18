@@ -1,0 +1,13 @@
+{
+  "id": "households_total_vehicle_or_06",
+  "name": "Total households (vehicle-table denominator) \u2014 OR-06",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-18T11:24:23Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 264120.0
+    }
+  ]
+}

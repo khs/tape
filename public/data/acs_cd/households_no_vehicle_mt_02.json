@@ -1,0 +1,13 @@
+{
+  "id": "households_no_vehicle_mt_02",
+  "name": "Households with no vehicle available \u2014 MT-02",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-18T11:24:23Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 11144.0
+    }
+  ]
+}

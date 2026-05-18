@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_nh",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 NH",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:43Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 1309057
+    },
+    {
+      "t": "2016-12-31",
+      "v": 1310949
+    },
+    {
+      "t": "2017-12-31",
+      "v": 1314875
+    },
+    {
+      "t": "2018-12-31",
+      "v": 1326243
+    },
+    {
+      "t": "2019-12-31",
+      "v": 1331286
+    },
+    {
+      "t": "2020-12-31",
+      "v": 1338372
+    },
+    {
+      "t": "2021-12-31",
+      "v": 1356149
+    },
+    {
+      "t": "2022-12-31",
+      "v": 1363236
+    }
+  ]
+}

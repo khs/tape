@@ -1,0 +1,41 @@
+{
+  "id": "households_total_vehicle_14740",
+  "name": "Total households (vehicle-table denominator) \u2014 Bremerton-Silverdale-Port Orchard",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-18T11:24:34Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 97739.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 98250.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 100484.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 101662.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 103913.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 105758.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 104977.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 106031.0
+    }
+  ]
+}

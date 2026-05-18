@@ -1,0 +1,22 @@
+name: Total population — Cedar Rapids
+shortName: Cedar Rapids population
+description: Total population for the Cedar Rapids metropolitan statistical area (CBSA 16300). From the American Community Survey 5-year estimates (table B01003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_16300.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_16300
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

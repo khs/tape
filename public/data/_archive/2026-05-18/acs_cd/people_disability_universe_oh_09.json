@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_oh_09",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 OH-09",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 707385.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 705666.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 703715.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 702957.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 700174.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 697885.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 701507.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 775464.0
+    }
+  ]
+}

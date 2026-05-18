@@ -1,0 +1,23 @@
+name: Workers who work from home — US
+shortName: US WFH workers
+description: Workers who work from home (US national level). From the American Community Survey 5-year estimates (table B08301), released annually.
+kind: timeseries
+pipeline: census_acs_national
+dataFile: data/acs_national/workers_wfh_us.json
+supportedDeltas: ["5y", "10y"]
+unit: workers
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: workers_wfh_us
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - labor
+unitClass: count

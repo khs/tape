@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_ma_06",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 MA-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 741173.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 746892.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 754097.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 759940.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 762037.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 765672.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 767207.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 771213.0
+    }
+  ]
+}

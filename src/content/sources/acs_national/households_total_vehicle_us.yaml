@@ -1,0 +1,22 @@
+name: Total households (vehicle-table denominator) — US
+shortName: US HHs total (vehicle)
+description: Total households (vehicle-table denominator) (US national level). From the American Community Survey 5-year estimates (table B08201), released annually.
+kind: timeseries
+pipeline: census_acs_national
+dataFile: data/acs_national/households_total_vehicle_us.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: households_total_vehicle_us
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

@@ -1,0 +1,18 @@
+name: Wildwood-The Villages — unemployment rate
+shortName: Wildwood-The Villages unemployment
+description: Headline unemployment rate for the Wildwood-The Villages metropolitan statistical area (CBSA 48680). Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_unemployment_48680.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BLS (LAUS)
+  series: LAUMT124868000000003
+  url: https://www.bls.gov/lau/
+  license: Public domain (US government data)
+unitClass: rate

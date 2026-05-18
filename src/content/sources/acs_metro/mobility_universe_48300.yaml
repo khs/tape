@@ -1,0 +1,22 @@
+name: Total population (mobility-table denominator) — Wenatchee-East Wenatchee
+shortName: Wenatchee-East Wenatchee pop. total (mobility)
+description: Total population (mobility-table denominator) for the Wenatchee-East Wenatchee metropolitan statistical area (CBSA 48300). From the American Community Survey 5-year estimates (table B07003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/mobility_universe_48300.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: mobility_universe_48300
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

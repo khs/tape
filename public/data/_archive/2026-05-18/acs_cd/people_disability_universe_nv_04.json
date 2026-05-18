@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_nv_04",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 NV-04",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 691944.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 700649.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 713751.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 722183.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 734692.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 749933.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 762520.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 768748.0
+    }
+  ]
+}

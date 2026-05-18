@@ -1,0 +1,22 @@
+name: Population born in current state of residence — Tuscaloosa
+shortName: Tuscaloosa born same state
+description: Population born in current state of residence for the Tuscaloosa metropolitan statistical area (CBSA 46220). From the American Community Survey 5-year estimates (table B05002). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/born_same_state_46220.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: born_same_state_46220
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

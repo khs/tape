@@ -1,0 +1,23 @@
+name: Total workers (commute-table denominator) — MN-04
+shortName: MN-04 workers total (commute)
+description: Total workers (commute-table denominator) for MN-04, from the American Community Survey 5-year estimates (table B08301). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "MN-04" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/workers_total_commute_mn_04.json
+supportedDeltas: ["5y", "10y"]
+unit: workers
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: workers_total_commute
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - labor
+unitClass: count

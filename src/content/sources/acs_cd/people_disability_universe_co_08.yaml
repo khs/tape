@@ -1,0 +1,22 @@
+name: Civilian noninstitutionalized population (disability-table denominator) — CO-08
+shortName: CO-08 pop. total (disability)
+description: Civilian noninstitutionalized population (disability-table denominator) for CO-08, from the American Community Survey 5-year estimates (table B18101). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CO-08" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/people_disability_universe_co_08.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: people_disability_universe
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

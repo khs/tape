@@ -1,0 +1,22 @@
+name: Population under 18 — Hammond
+shortName: Hammond pop. under 18
+description: Population under 18 for the Hammond metropolitan statistical area (CBSA 25220). From the American Community Survey 5-year estimates (table B01001). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_under_18_25220.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_under_18_25220
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

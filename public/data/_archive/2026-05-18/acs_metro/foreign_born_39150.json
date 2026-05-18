@@ -1,0 +1,25 @@
+{
+  "id": "foreign_born_39150",
+  "name": "Foreign-born population \u2014 Prescott Valley-Prescott",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:35Z",
+  "points": [
+    {
+      "t": "2019-12-31",
+      "v": 14075
+    },
+    {
+      "t": "2020-12-31",
+      "v": 14350
+    },
+    {
+      "t": "2021-12-31",
+      "v": 15387
+    },
+    {
+      "t": "2022-12-31",
+      "v": 16094
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+name: Median travel time to work — Kalamazoo-Portage
+shortName: Kalamazoo-Portage median commute
+description: Median travel time to work for the Kalamazoo-Portage metropolitan statistical area (CBSA 28020). From the American Community Survey 5-year estimates (table B08303). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/median_commute_minutes_28020.json
+supportedDeltas: ["5y", "10y"]
+unit: "minutes"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_commute_minutes_28020
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: ratio

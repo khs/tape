@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_tx_34",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 TX-34",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 700344.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 702050.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 705222.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 707093.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 706267.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 704742.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 698348.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 768338.0
+    }
+  ]
+}

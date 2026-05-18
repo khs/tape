@@ -1,0 +1,25 @@
+{
+  "id": "mobility_universe_39150",
+  "name": "Total population (mobility-table denominator) \u2014 Prescott Valley-Prescott",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:35Z",
+  "points": [
+    {
+      "t": "2019-12-31",
+      "v": 226522.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 230788.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 232522.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 236539.0
+    }
+  ]
+}

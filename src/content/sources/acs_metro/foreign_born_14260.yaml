@@ -1,0 +1,22 @@
+name: Foreign-born population — Boise City
+shortName: Boise City foreign-born
+description: Foreign-born population for the Boise City metropolitan statistical area (CBSA 14260). From the American Community Survey 5-year estimates (table B05002). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/foreign_born_14260.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: foreign_born_14260
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

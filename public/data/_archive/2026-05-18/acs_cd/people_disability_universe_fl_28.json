@@ -1,0 +1,13 @@
+{
+  "id": "people_disability_universe_fl_28",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 FL-28",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:23Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 755918.0
+    }
+  ]
+}

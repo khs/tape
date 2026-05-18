@@ -1,0 +1,22 @@
+name: Total population — Indianapolis-Carmel-Greenwood
+shortName: Indianapolis-Carmel-Greenwood population
+description: Total population for the Indianapolis-Carmel-Greenwood metropolitan statistical area (CBSA 26900). From the American Community Survey 5-year estimates (table B01003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_26900.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_26900
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

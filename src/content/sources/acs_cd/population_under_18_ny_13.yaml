@@ -1,0 +1,22 @@
+name: Total population — UNDER-18-NY-13
+shortName: UNDER-18-NY-13 population
+description: Total population for UNDER-18-NY-13 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B01003). Released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/population_under_18_ny_13.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

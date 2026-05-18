@@ -1,0 +1,21 @@
+name: Median travel time to work — Bozeman
+shortName: Bozeman median commute
+description: Median travel time to work for the Bozeman metropolitan statistical area (CBSA 14580). From the American Community Survey 5-year estimates (table B08303). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/median_commute_minutes_14580.json
+supportedDeltas: ["5y", "10y"]
+unit: "minutes"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_commute_minutes_14580
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: ratio

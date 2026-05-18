@@ -1,0 +1,13 @@
+{
+  "id": "median_commute_minutes_co_08",
+  "name": "Median travel time to work \u2014 CO-08",
+  "kind": "timeseries",
+  "unit": "minutes",
+  "lastUpdated": "2026-05-18T11:24:23Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 27.1
+    }
+  ]
+}

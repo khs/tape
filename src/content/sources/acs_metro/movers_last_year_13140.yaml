@@ -1,0 +1,22 @@
+name: People who moved in the last year — Beaumont-Port Arthur
+shortName: Beaumont-Port Arthur movers (last yr)
+description: People who moved in the last year for the Beaumont-Port Arthur metropolitan statistical area (CBSA 13140). From the American Community Survey 5-year estimates (table B07003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/movers_last_year_13140.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: movers_last_year_13140
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

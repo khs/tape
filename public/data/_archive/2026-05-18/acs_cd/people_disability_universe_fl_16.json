@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_fl_16",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 FL-16",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 723791.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 752948.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 774309.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 796924.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 823532.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 845522.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 852869.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 766644.0
+    }
+  ]
+}

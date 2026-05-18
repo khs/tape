@@ -1,0 +1,22 @@
+name: Population 65 and older — Columbus
+shortName: Columbus pop. 65+
+description: Population 65 and older for the Columbus metropolitan statistical area (CBSA 18140). From the American Community Survey 5-year estimates (table B01001). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_65_plus_18140.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_65_plus_18140
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

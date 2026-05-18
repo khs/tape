@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_wi_04",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 WI-04",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 711137.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 710035.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 710037.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 707743.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 704978.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 702891.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 690984.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 725756.0
+    }
+  ]
+}

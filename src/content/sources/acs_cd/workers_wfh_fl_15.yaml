@@ -1,0 +1,23 @@
+name: Workers who work from home — FL-15
+shortName: FL-15 WFH workers
+description: Workers who work from home for FL-15, from the American Community Survey 5-year estimates (table B08301). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "FL-15" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/workers_wfh_fl_15.json
+supportedDeltas: ["5y", "10y"]
+unit: workers
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: workers_wfh
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - labor
+unitClass: count

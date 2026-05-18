@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_ga_10",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 GA-10",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 696788.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 707909.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 714480.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 726870.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 736815.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 742085.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 751427.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 760229.0
+    }
+  ]
+}

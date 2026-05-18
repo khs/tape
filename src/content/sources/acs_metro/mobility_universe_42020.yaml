@@ -1,0 +1,22 @@
+name: Total population (mobility-table denominator) — San Luis Obispo-Paso Robles
+shortName: San Luis Obispo-Paso Robles pop. total (mobility)
+description: Total population (mobility-table denominator) for the San Luis Obispo-Paso Robles metropolitan statistical area (CBSA 42020). From the American Community Survey 5-year estimates (table B07003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/mobility_universe_42020.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: mobility_universe_42020
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

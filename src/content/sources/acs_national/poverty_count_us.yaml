@@ -1,0 +1,22 @@
+name: People in poverty — US
+shortName: US poverty count
+description: People in poverty (US national level). From the American Community Survey 5-year estimates (table B17001), released annually.
+kind: timeseries
+pipeline: census_acs_national
+dataFile: data/acs_national/poverty_count_us.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: poverty_count_us
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

@@ -1,0 +1,21 @@
+name: Median travel time to work — FL-24
+shortName: FL-24 median commute
+description: Median travel time to work for FL-24. Computed by linearly interpolating the median across the B08303 bin distribution published at CD level. American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_commute_minutes_fl_24.json
+supportedDeltas: ["5y", "10y"]
+unit: minutes
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_commute_minutes
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: ratio

@@ -1,0 +1,22 @@
+name: People with a disability — TX-30
+shortName: TX-30 with disability
+description: People with a disability for TX-30. Aggregated at CD level by summing the relevant B18101 cells (each indicator pulls a specific subset of the table's age/sex/category breakdown). American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/people_with_disability_tx_30.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: people_with_disability
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

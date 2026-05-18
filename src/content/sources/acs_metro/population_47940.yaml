@@ -1,0 +1,22 @@
+name: Total population — Waterloo-Cedar Falls
+shortName: Waterloo-Cedar Falls population
+description: Total population for the Waterloo-Cedar Falls metropolitan statistical area (CBSA 47940). From the American Community Survey 5-year estimates (table B01003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_47940.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_47940
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

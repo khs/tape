@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_ca_25",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 CA-25",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:22Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 711028.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 712819.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 713231.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 712439.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 707793.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 703821.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 738423.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 746453.0
+    }
+  ]
+}

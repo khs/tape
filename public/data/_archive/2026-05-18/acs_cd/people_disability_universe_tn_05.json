@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_tn_05",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 TN-05",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-18T11:24:21Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 728958.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 739349.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 751458.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 757892.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 761936.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 766002.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 785211.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 763322.0
+    }
+  ]
+}

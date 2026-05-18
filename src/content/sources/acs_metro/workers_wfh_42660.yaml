@@ -1,0 +1,23 @@
+name: Workers who work from home — Seattle-Tacoma-Bellevue
+shortName: Seattle-Tacoma-Bellevue WFH workers
+description: Workers who work from home for the Seattle-Tacoma-Bellevue metropolitan statistical area (CBSA 42660). From the American Community Survey 5-year estimates (table B08301). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/workers_wfh_42660.json
+supportedDeltas: ["5y", "10y"]
+unit: "workers"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: workers_wfh_42660
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - labor
+unitClass: count

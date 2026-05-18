@@ -1,0 +1,13 @@
+{
+  "id": "median_commute_minutes_mt_01",
+  "name": "Median travel time to work \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "minutes",
+  "lastUpdated": "2026-05-18T11:24:23Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 16.2
+    }
+  ]
+}

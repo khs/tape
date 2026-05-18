@@ -1,0 +1,22 @@
+name: Foreign-born population — Santa Maria-Santa Barbara
+shortName: Santa Maria-Santa Barbara foreign-born
+description: Foreign-born population for the Santa Maria-Santa Barbara metropolitan statistical area (CBSA 42200). From the American Community Survey 5-year estimates (table B05002). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/foreign_born_42200.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: foreign_born_42200
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

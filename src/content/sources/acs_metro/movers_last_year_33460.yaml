@@ -1,0 +1,22 @@
+name: People who moved in the last year — Minneapolis-St. Paul-Bloomington
+shortName: Minneapolis-St. Paul-Bloomington movers (last yr)
+description: People who moved in the last year for the Minneapolis-St. Paul-Bloomington metropolitan statistical area (CBSA 33460). From the American Community Survey 5-year estimates (table B07003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/movers_last_year_33460.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: movers_last_year_33460
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

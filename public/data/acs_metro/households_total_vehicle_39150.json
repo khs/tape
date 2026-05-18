@@ -1,0 +1,25 @@
+{
+  "id": "households_total_vehicle_39150",
+  "name": "Total households (vehicle-table denominator) \u2014 Prescott Valley-Prescott",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-18T11:24:35Z",
+  "points": [
+    {
+      "t": "2019-12-31",
+      "v": 98386.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 101245.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 103934.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 106542.0
+    }
+  ]
+}

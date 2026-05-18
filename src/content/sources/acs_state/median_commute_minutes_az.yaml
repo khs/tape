@@ -1,0 +1,21 @@
+name: Median travel time to work — AZ
+shortName: AZ median commute
+description: Median travel time to work for AZ (statewide). Population-weighted average of the 9 congressional-district median travel time to work values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B08303), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/median_commute_minutes_az.json
+supportedDeltas: ["5y", "10y"]
+unit: minutes
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_commute_minutes_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: ratio

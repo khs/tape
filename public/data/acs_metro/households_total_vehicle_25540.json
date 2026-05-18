@@ -1,0 +1,41 @@
+{
+  "id": "households_total_vehicle_25540",
+  "name": "Total households (vehicle-table denominator) \u2014 Hartford-West Hartford-East Hartford",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-18T11:24:34Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 466946.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 468247.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 470348.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 471188.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 473062.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 477495.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 481718.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 484037.0
+    }
+  ]
+}

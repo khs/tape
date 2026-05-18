@@ -1,0 +1,22 @@
+name: Total population — Ames
+shortName: Ames population
+description: Total population for the Ames metropolitan statistical area (CBSA 11180). From the American Community Survey 5-year estimates (table B01003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_11180.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_11180
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

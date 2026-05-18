@@ -1,0 +1,13 @@
+{
+  "id": "workers_total_commute_tx_37",
+  "name": "Total workers (commute-table denominator) \u2014 TX-37",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-05-18T11:24:23Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 448847.0
+    }
+  ]
+}

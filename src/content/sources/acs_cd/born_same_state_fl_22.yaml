@@ -1,0 +1,22 @@
+name: Population born in current state of residence — FL-22
+shortName: FL-22 born same state
+description: Population born in current state of residence for FL-22, from the American Community Survey 5-year estimates (table B05002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "FL-22" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/born_same_state_fl_22.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: born_same_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

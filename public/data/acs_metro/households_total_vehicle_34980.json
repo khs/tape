@@ -1,0 +1,41 @@
+{
+  "id": "households_total_vehicle_34980",
+  "name": "Total households (vehicle-table denominator) \u2014 Nashville-Davidson--Murfreesboro--Franklin",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-18T11:24:34Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 664881.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 677129.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 691266.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 704111.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 708788.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 727452.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 749602.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 772128.0
+    }
+  ]
+}

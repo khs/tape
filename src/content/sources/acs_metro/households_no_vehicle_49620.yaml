@@ -1,0 +1,22 @@
+name: Households with no vehicle available — York-Hanover
+shortName: York-Hanover HHs no vehicle
+description: Households with no vehicle available for the York-Hanover metropolitan statistical area (CBSA 49620). From the American Community Survey 5-year estimates (table B08201). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/households_no_vehicle_49620.json
+supportedDeltas: ["5y", "10y"]
+unit: "households"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: households_no_vehicle_49620
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

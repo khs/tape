@@ -1,0 +1,20 @@
+name: Median age — Grand Forks
+shortName: Grand Forks median age
+description: Median age for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B01002). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/median_age_24220.json
+supportedDeltas: ["5y", "10y"]
+unit: "years"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_age_24220
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us

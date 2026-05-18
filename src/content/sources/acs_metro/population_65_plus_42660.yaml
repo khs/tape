@@ -1,0 +1,22 @@
+name: Population 65 and older — Seattle-Tacoma-Bellevue
+shortName: Seattle-Tacoma-Bellevue pop. 65+
+description: Population 65 and older for the Seattle-Tacoma-Bellevue metropolitan statistical area (CBSA 42660). From the American Community Survey 5-year estimates (table B01001). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_65_plus_42660.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_65_plus_42660
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

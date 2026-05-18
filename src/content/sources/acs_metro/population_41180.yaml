@@ -1,0 +1,22 @@
+name: Total population — St. Louis
+shortName: St. Louis population
+description: Total population for the St. Louis metropolitan statistical area (CBSA 41180). From the American Community Survey 5-year estimates (table B01003). Released annually.
+kind: timeseries
+pipeline: acs_metro
+dataFile: data/acs_metro/population_41180.json
+supportedDeltas: ["5y", "10y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_41180
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count
