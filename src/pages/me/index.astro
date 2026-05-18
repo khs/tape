@@ -34,12 +34,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="account-upgrade">
           <p class="account-upgrade-line">
             Need custom data sources, stability guarantees, whitelabeled
-            embeds, or dashboards built for your team?
+            embeds, or private dashboards?
           </p>
           <p class="account-upgrade-actions">
-            <a href={`${baseUrl}/enterprise/`} class="account-upgrade-link">
-              About enterprise &rarr;
-            </a>
             <a href={ENTERPRISE_INQUIRY_URL} class="account-upgrade-cta">
               Inquire about enterprise &rarr;
             </a>
@@ -311,16 +308,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     gap: 16px;
     flex-wrap: wrap;
     align-items: center;
-  }
-  .account-upgrade-link {
-    font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--color-neutral-700);
-    text-decoration: none;
-  }
-  .account-upgrade-link:hover {
-    color: var(--color-neutral-900);
-    text-decoration: underline;
   }
   .account-upgrade-cta {
     display: inline-flex;
