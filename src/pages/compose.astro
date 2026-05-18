@@ -590,6 +590,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     formatDistrictLabel,
     formatCdShortLabel,
     stateNameFor,
+    US_STATES,
   } from "../lib/congressional-districts";
 
   type LibraryChart = {
@@ -979,13 +980,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     selectedTags: Set<string>,
     cdState: string | null,
     cdDistrict: string | null,
+    query: string = "",
   ): boolean {
     const isCd = tags.includes(CD_TAG);
     const isStateLevel = tags.includes(STATE_TAG);
     const isGeo = isCd || isStateLevel;
     if (!selectedTags.has(CD_TAG)) {
-      // Chip not active → all geo sources hidden, everything else shown.
-      return !isGeo;
+      if (!isGeo) return true; // non-geo: always
+      // Chip off, geo source. Allow only if the query unlocks the
+      // source's state via a 4+-char state-name match (same pattern
+      // as the MSA unlock). Typing "Texas" surfaces TX state-level
+      // + every TX CD source; typing "tx" alone does not.
+      const unlock = unlockedStatesForQuery(query);
+      if (!unlock) return false;
+      const parsed = isCd ? parseCdSourceId(id) : parseStateSourceId(id);
+      return !!parsed && unlock.has(parsed.state);
     }
     // Chip active → only geo sources eligible, gated by state + district.
     if (!isGeo) return false;
@@ -1006,6 +1015,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (isStateLevel) return parseStateSourceId(id)?.state === cdState;
     if (isCd) return parseCdSourceId(id)?.state === cdState;
     return false;
+  }
+
+  /** Set of state codes (2-letter, lowercase) whose name contains the
+   *  search query as a substring. Returns null for queries below the
+   *  4-char threshold or with no name match. Same semantics as
+   *  unlockedMetrosForQuery — gives the user a typed-name shortcut
+   *  past the chip gate without exposing every geo source to broad
+   *  queries like "cars". */
+  function unlockedStatesForQuery(q: string): Set<string> | null {
+    if (q.length < 4) return null;
+    const matched = new Set<string>();
+    const ql = q.toLowerCase();
+    for (const s of US_STATES) {
+      if (s.name.toLowerCase().includes(ql)) matched.add(s.code);
+    }
+    return matched.size > 0 ? matched : null;
   }
 
   // Cache of CBSA codes "unlocked" by the current search query — set of
@@ -1051,17 +1076,43 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return false;
   }
 
+  /** Set of country/region codes whose display name contains the
+   *  search query as a substring. Same 4-char threshold as the metro
+   *  + state unlocks: typing "Australia" unlocks AUS-tagged sources;
+   *  typing "Aus" alone (3 chars) does not. */
+  function unlockedCountriesForQuery(q: string): Set<string> | null {
+    if (q.length < 4) return null;
+    if (!library?.countries) return null;
+    const matched = new Set<string>();
+    const ql = q.toLowerCase();
+    for (const [code, entry] of Object.entries(library.countries)) {
+      if (entry.name.toLowerCase().includes(ql)) {
+        matched.add(`${COUNTRY_TAG}:${code}`);
+      }
+    }
+    return matched.size > 0 ? matched : null;
+  }
+
   /** Returns true if a source passes the country chip's filter.
-   *  Chip-only: no 4-char unlock for country sources (the country
-   *  dropdown is right there next to the chip — easy to pick). */
+   *  Non-country sources always pass. Country sources pass when the
+   *  chip has a specific entity picked AND the source carries that
+   *  entity's tag, OR when the query unlocks the source's entity via
+   *  the 4-char name match. */
   function passesCountryFilter(
     sTags: string[],
     selectedCountryCode: string | null,
+    query: string = "",
   ): boolean {
     if (selectedCountryCode) {
       return sTags.includes(`${COUNTRY_TAG}:${selectedCountryCode}`);
     }
-    return !sTags.includes(COUNTRY_TAG);
+    if (!sTags.includes(COUNTRY_TAG)) return true;
+    const unlock = unlockedCountriesForQuery(query);
+    if (!unlock) return false;
+    for (const t of sTags) {
+      if (unlock.has(t)) return true;
+    }
+    return false;
   }
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;
@@ -1164,6 +1215,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           sourcesSelectedTags,
           sourcesCdState,
           sourcesCdDistrict,
+          q,
         )
       ) {
         continue;
@@ -1177,7 +1229,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
       if (!ok) continue;
       if (!passesMetroFilter(tags, libGeo.selectedMetroCbsa, q)) continue;
-      if (!passesCountryFilter(tags, libGeo.selectedCountryCode)) continue;
+      if (!passesCountryFilter(tags, libGeo.selectedCountryCode, q)) continue;
       if (q) {
         const hay =
           src.searchText ??
@@ -3979,17 +4031,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           ccModal.pickerTags,
           ccModal.cdState,
           ccModal.cdDistrict,
+          q,
         )
       ) {
         return false;
       }
-      // Metro / country chip drill-downs, mirroring filteredSources()
-      // on the Sources tab via the shared passesMetro/CountryFilter
-      // helpers. Includes the 4-char MSA-name unlock so typing
-      // "Abilene" reveals Abilene-tagged sources without first
+      // Metro / country / CD chip drill-downs, mirroring the Sources
+      // tab via the shared filter helpers. All three include the
+      // 4-char name-unlock so typing "Abilene" / "Australia" /
+      // "Texas" surfaces the matching geo sources without first
       // engaging the chip.
       if (!passesMetroFilter(sTags, ccModal.geo.selectedMetroCbsa, q)) return false;
-      if (!passesCountryFilter(sTags, ccModal.geo.selectedCountryCode)) return false;
+      if (!passesCountryFilter(sTags, ccModal.geo.selectedCountryCode, q)) return false;
       for (const t of tagsRequired) {
         if (!sTags.includes(t)) return false;
       }
@@ -4574,15 +4627,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           dsModal.pickerTags,
           dsModal.cdState,
           dsModal.cdDistrict,
+          search,
         )
       ) {
         return false;
       }
-      // Metro + country chip drill-downs (mirrors cc-modal + Sources
-      // tab via shared passesMetro/CountryFilter helpers). Includes
-      // the 4-char MSA-name unlock.
+      // Metro / country / CD chip drill-downs (mirrors cc-modal +
+      // Sources tab via shared filter helpers). All three include the
+      // 4-char name-unlock.
       if (!passesMetroFilter(oTags, dsModal.geo.selectedMetroCbsa, search)) return false;
-      if (!passesCountryFilter(oTags, dsModal.geo.selectedCountryCode)) return false;
+      if (!passesCountryFilter(oTags, dsModal.geo.selectedCountryCode, search)) return false;
       if (tagsRequired.length > 0) {
         for (const t of tagsRequired) {
           if (!oTags.includes(t)) return false;
