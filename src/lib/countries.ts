@@ -239,16 +239,33 @@ const WB_EXTENDED_ENTITY_SLUG: Record<string, string> = {
 export function parseCountrySourceId(
   id: string,
 ): { code: string; name: string } | null {
-  // yahoo/<TICKER> for country ETFs.
-  let m = id.match(/^yahoo\/([A-Z]+)$/);
+  // yahoo/<ticker> for country ETFs. Source IDs come from Astro's
+  // content-collection slug which lowercases filenames, so the ticker
+  // is lowercase here (yahoo/ewa, yahoo/fxi, …); uppercase it before
+  // looking up in ETF_TO_COUNTRY (which is keyed by the canonical
+  // uppercase ticker for readability).
+  let m = id.match(/^yahoo\/([a-z]+)$/);
   if (m) {
-    const code = ETF_TO_COUNTRY[m[1]];
+    const code = ETF_TO_COUNTRY[m[1].toUpperCase()];
     if (code) return { code, name: COUNTRY_NAME_BY_CODE[code] ?? code };
   }
-  // countries_relative/<TICKER> — same ETF ticker convention.
-  m = id.match(/^countries_relative\/([A-Z]+)$/);
+  // countries_relative/<ticker> — same ETF ticker convention (no
+  // current source IDs use this path; kept for forward compatibility).
+  m = id.match(/^countries_relative\/([a-z]+)$/);
   if (m) {
-    const code = ETF_TO_COUNTRY[m[1]];
+    const code = ETF_TO_COUNTRY[m[1].toUpperCase()];
+    if (code) return { code, name: COUNTRY_NAME_BY_CODE[code] ?? code };
+  }
+  // countries/<country_name> — the "country equity vs. VT" ratio
+  // pipeline (countries_relative emits its data here but the source
+  // YAMLs live at src/content/sources/countries/<name>.yaml, so the
+  // collection ID is countries/<name>). Reuse the worldbank_gdp slug
+  // table since both use the same English country-name slug convention.
+  m = id.match(/^countries\/(\w+)$/);
+  if (m) {
+    const slug = m[1];
+    if (slug === "usa" || slug === "world") return null;
+    const code = WB_GDP_SLUG_TO_COUNTRY[slug];
     if (code) return { code, name: COUNTRY_NAME_BY_CODE[code] ?? code };
   }
   // worldbank_gdp/<slug> and worldbank_gdp_raw/<slug>. USA + world are
