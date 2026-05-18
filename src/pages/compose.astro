@@ -3948,22 +3948,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ) {
         return false;
       }
-      // Metro / country chip drill-downs, mirroring the Sources tab.
-      // Without an explicit pick the matching sources stay hidden so
-      // the picker doesn't drown in 1,000+ CBSA series and 244 non-US
-      // country series. Picking a specific entity narrows to just
-      // that one.
-      const hasMetroTag = sTags.includes(METRO_TAG);
-      const hasCountryTag = sTags.includes(COUNTRY_TAG);
-      if (hasMetroTag) {
-        if (!ccModal.geo.selectedMetroCbsa) return false;
+      // Metro / country chip drill-downs, mirroring filteredSources()
+      // on the Sources tab. When a country (or metro) is selected, the
+      // source MUST carry that entity's tag — everything else is
+      // excluded, US-focused sources included. When NO entity is
+      // selected, the source must not carry the master COUNTRY_TAG /
+      // METRO_TAG (those stay hidden until the user opts in).
+      if (ccModal.geo.selectedMetroCbsa) {
         const tag = `${METRO_TAG}:${ccModal.geo.selectedMetroCbsa}`;
         if (!sTags.includes(tag)) return false;
+      } else if (sTags.includes(METRO_TAG)) {
+        return false;
       }
-      if (hasCountryTag) {
-        if (!ccModal.geo.selectedCountryCode) return false;
+      if (ccModal.geo.selectedCountryCode) {
         const tag = `${COUNTRY_TAG}:${ccModal.geo.selectedCountryCode}`;
         if (!sTags.includes(tag)) return false;
+      } else if (sTags.includes(COUNTRY_TAG)) {
+        return false;
       }
       for (const t of tagsRequired) {
         if (!sTags.includes(t)) return false;
@@ -4553,18 +4554,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ) {
         return false;
       }
-      // Metro + country chip drill-downs (mirrors cc-modal + Sources tab).
-      const hasMetroTag = oTags.includes(METRO_TAG);
-      const hasCountryTag = oTags.includes(COUNTRY_TAG);
-      if (hasMetroTag) {
-        if (!dsModal.geo.selectedMetroCbsa) return false;
+      // Metro + country chip drill-downs (mirrors cc-modal + Sources
+      // tab). When an entity is selected, the source MUST carry that
+      // tag — everything else is excluded, US-focused sources too.
+      // When nothing's selected, the master metro/country-tagged
+      // sources stay hidden.
+      if (dsModal.geo.selectedMetroCbsa) {
         const tag = `${METRO_TAG}:${dsModal.geo.selectedMetroCbsa}`;
         if (!oTags.includes(tag)) return false;
+      } else if (oTags.includes(METRO_TAG)) {
+        return false;
       }
-      if (hasCountryTag) {
-        if (!dsModal.geo.selectedCountryCode) return false;
+      if (dsModal.geo.selectedCountryCode) {
         const tag = `${COUNTRY_TAG}:${dsModal.geo.selectedCountryCode}`;
         if (!oTags.includes(tag)) return false;
+      } else if (oTags.includes(COUNTRY_TAG)) {
+        return false;
       }
       if (tagsRequired.length > 0) {
         for (const t of tagsRequired) {
