@@ -1,0 +1,22 @@
+name: Super Micro Computer (SMCI)
+shortName: SMCI
+description: AI server systems integrator — assembles GPU racks for hyperscalers and enterprises. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/SMCI.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: SMCI
+  url: https://finance.yahoo.com/quote/SMCI
+tags:
+  - single-name
+  - tech
+  - us
+unitClass: currency

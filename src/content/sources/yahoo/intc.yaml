@@ -1,0 +1,22 @@
+name: Intel (INTC)
+shortName: INTC
+description: CPU + datacenter chip maker; recent foundry pivot. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/INTC.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: INTC
+  url: https://finance.yahoo.com/quote/INTC
+tags:
+  - single-name
+  - tech
+  - us
+unitClass: currency

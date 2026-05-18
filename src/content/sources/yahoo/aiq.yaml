@@ -1,0 +1,21 @@
+name: Global X AI + Tech ETF (AIQ)
+shortName: AIQ
+description: Holds companies developing and using AI technology — broader than BOTZ; heavy in mega-cap tech (MSFT, GOOG, META) plus chipmakers. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/AIQ.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: AIQ
+  url: https://finance.yahoo.com/quote/AIQ
+tags:
+  - equity-index
+  - tech
+unitClass: currency

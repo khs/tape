@@ -175,6 +175,18 @@ SPECS: list[FredSpec] = [
     # Federal subsidies — direct subsidy outlays from the government to
     # businesses + individuals, BEA NIPA Table 3.2. Quarterly.
     FredSpec("W994RC1Q027SBEA", "Federal subsidies", "billions USD"),
+    # ---- AI + datacenter sector PPI ----
+    # Producer Price Index for semiconductor + related device manufacturing
+    # (NAICS 3344). Tracks wholesale prices in the chip-making industry —
+    # crashes during gluts, climbs during AI-driven supply tightness.
+    FredSpec("PCU33443344", "PPI — Semiconductor & related device mfg", "index (Jun 2009=100)"),
+    # PPI for data processing, hosting, and related services (NAICS 518210).
+    # The closest published-price index to "cloud + hosting wholesale
+    # prices." Lags spot pricing but trends.
+    FredSpec("PCU518210518210", "PPI — Data processing, hosting & related services", "index (Dec 2009=100)"),
+    # Industrial production: Mining (rounds out the IPMAN + IPUTIL pair —
+    # mining is the third major sub-sector and trends very differently).
+    FredSpec("IPMINE", "Industrial production — Mining", "index (2017=100)"),
     # ---- Productivity (BLS via FRED mirror) ----
     # Output per hour, nonfarm business sector — the headline productivity
     # number that wage-vs-productivity debates hinge on.

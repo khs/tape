@@ -1,0 +1,22 @@
+name: PPI — Data processing, hosting & related services
+shortName: PPI data hosting
+description: Producer Price Index for data processing, hosting, and related services (NAICS 518210). The closest published-price index to wholesale cloud-and-hosting pricing. Lags spot but tracks the secular price trend (long-run down from cloud scale, but recently bottoming as AI-compute demand chases finite supply). Monthly from BLS via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PCU518210518210.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index (Dec 2009=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PCU518210518210
+  url: https://fred.stlouisfed.org/series/PCU518210518210
+  license: Public domain (US government data)
+tags:
+  - tech
+  - macro
+  - us
+unitClass: index

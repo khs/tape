@@ -1,0 +1,22 @@
+name: Applied Materials (AMAT)
+shortName: AMAT
+description: Wafer fab equipment leader — the upstream tools that make every chip. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/AMAT.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: AMAT
+  url: https://finance.yahoo.com/quote/AMAT
+tags:
+  - single-name
+  - tech
+  - us
+unitClass: currency

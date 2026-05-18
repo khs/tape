@@ -1,0 +1,22 @@
+name: Iron Mountain (IRM)
+shortName: IRM
+description: Records-storage REIT pivoting into datacenter hosting; legacy paper business + growing digital. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/IRM.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: IRM
+  url: https://finance.yahoo.com/quote/IRM
+tags:
+  - single-name
+  - real-estate
+  - us
+unitClass: currency

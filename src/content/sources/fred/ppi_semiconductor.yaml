@@ -1,0 +1,22 @@
+name: PPI — Semiconductor & related device mfg
+shortName: PPI semiconductor
+description: Producer Price Index for semiconductor and related device manufacturing (NAICS 3344). Tracks wholesale prices in the chip-making industry — crashes during memory + commodity-chip gluts, climbs during AI-driven capacity tightness. Monthly from BLS via FRED.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PCU33443344.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index (Jun 2009=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PCU33443344
+  url: https://fred.stlouisfed.org/series/PCU33443344
+  license: Public domain (US government data)
+tags:
+  - tech
+  - macro
+  - us
+unitClass: index

@@ -1,0 +1,22 @@
+name: Constellation Energy (CEG)
+shortName: CEG
+description: Largest US nuclear operator; signed 20-year PPA with Microsoft to restart Three Mile Island Unit 1 for AI datacenter power. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/CEG.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: CEG
+  url: https://finance.yahoo.com/quote/CEG
+tags:
+  - single-name
+  - energy
+  - us
+unitClass: currency

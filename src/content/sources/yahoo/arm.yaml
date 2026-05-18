@@ -1,0 +1,21 @@
+name: Arm Holdings (ARM)
+shortName: ARM
+description: CPU architecture licensor — IP shipped in nearly every mobile chip + growing AI inference share. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/ARM.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: ARM
+  url: https://finance.yahoo.com/quote/ARM
+tags:
+  - single-name
+  - tech
+unitClass: currency

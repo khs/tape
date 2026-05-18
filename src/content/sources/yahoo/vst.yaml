@@ -1,0 +1,22 @@
+name: Vistra (VST)
+shortName: VST
+description: Gas + nuclear power producer; signed long-term deal with Microsoft to power AI datacenters from Comanche Peak nuclear plant. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/VST.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: VST
+  url: https://finance.yahoo.com/quote/VST
+tags:
+  - single-name
+  - energy
+  - us
+unitClass: currency

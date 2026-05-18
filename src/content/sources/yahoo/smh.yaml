@@ -1,0 +1,22 @@
+name: VanEck Semiconductor ETF (SMH)
+shortName: SMH
+description: Broader semiconductor ETF than SOXX; market-cap weighted, heavy NVDA + TSM concentration. Daily adjusted close.
+kind: timeseries
+pipeline: yahoo_quotes
+dataFile: data/yahoo/SMH.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Yahoo Finance
+  series: SMH
+  url: https://finance.yahoo.com/quote/SMH
+tags:
+  - equity-index
+  - tech
+  - us
+unitClass: currency

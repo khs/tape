@@ -47,6 +47,36 @@ SPECS: list[YahooSpec] = [
     YahooSpec("ICLN", "ICLN", "iShares Global Clean Energy ETF", "USD"),
     YahooSpec("TAN", "TAN", "Invesco Solar ETF", "USD"),
     YahooSpec("USO", "USO", "United States Oil Fund", "USD"),
+    # ------------------------------------------------------------------
+    # AI + datacenter expansion: chip-supply chain, colocation REITs,
+    # power producers riding the AI demand wave, and AI thematic ETFs.
+    # ------------------------------------------------------------------
+    # Semis (chip manufacturers + the upstream equipment supply chain).
+    # NVDA already covered via yahoo_marketcap; this rounds out the rest.
+    YahooSpec("AMD", "AMD", "Advanced Micro Devices", "USD"),
+    YahooSpec("INTC", "INTC", "Intel", "USD"),
+    YahooSpec("AMAT", "AMAT", "Applied Materials (semicap)", "USD"),
+    YahooSpec("KLAC", "KLAC", "KLA Corp (semicap inspection)", "USD"),
+    YahooSpec("LRCX", "LRCX", "Lam Research (semicap etch & deposition)", "USD"),
+    YahooSpec("ARM", "ARM", "Arm Holdings (CPU IP licensor)", "USD"),
+    YahooSpec("SMCI", "SMCI", "Super Micro Computer (AI server systems)", "USD"),
+    # Datacenter REITs (the physical AI buildout).
+    YahooSpec("EQIX", "EQIX", "Equinix (datacenter colocation REIT)", "USD"),
+    YahooSpec("DLR", "DLR", "Digital Realty (datacenter REIT)", "USD"),
+    YahooSpec("IRM", "IRM", "Iron Mountain (records + datacenter)", "USD"),
+    # AI-tailwind power producers. The 2024-25 datacenter electricity-
+    # demand story drove utility valuations sharply: nuclear-heavy
+    # operators got bid up first (Microsoft/Three Mile Island, AWS/Talen,
+    # MSFT/Vistra Comanche Peak), gas+coal peakers second.
+    YahooSpec("VST", "VST", "Vistra (gas + nuclear, MSFT Comanche Peak deal)", "USD"),
+    YahooSpec("CEG", "CEG", "Constellation Energy (nuclear, MSFT TMI deal)", "USD"),
+    YahooSpec("TLN", "TLN", "Talen Energy (nuclear, AWS deal)", "USD"),
+    YahooSpec("NRG", "NRG", "NRG Energy", "USD"),
+    # AI thematic ETFs (retail/institutional belief signal).
+    YahooSpec("BOTZ", "BOTZ", "Global X Robotics + AI ETF", "USD"),
+    YahooSpec("AIQ", "AIQ", "Global X Artificial Intelligence + Tech ETF", "USD"),
+    YahooSpec("ROBO", "ROBO", "ROBO Global Robotics + Automation ETF", "USD"),
+    YahooSpec("SMH", "SMH", "VanEck Semiconductor ETF (broader than SOXX)", "USD"),
     # Countries + global benchmark
     YahooSpec("VT", "VT", "Vanguard Total World Stock ETF", "USD"),
     YahooSpec("EWJ", "EWJ", "iShares MSCI Japan ETF", "USD"),
