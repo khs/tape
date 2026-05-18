@@ -15,6 +15,10 @@ import {
   parseCdSourceId,
   parseStateSourceId,
 } from "../lib/congressional-districts";
+import {
+  COUNTRY_TAG,
+  parseCountrySourceId,
+} from "../lib/countries";
 
 /**
  * Lightweight CBSA-code → display-name lookup, parsed from the
@@ -133,6 +137,9 @@ export const GET: APIRoute = async () => {
   // least one source on disk — keeps the composer's metro dropdown from
   // listing metros the pipelines haven't populated yet.
   const metrosInUse = new Set<string>();
+  // Same idea for countries / regions: code → display name, sorted by
+  // display name in the manifest emission below.
+  const countriesInUse = new Map<string, string>();
 
   const sources: Record<string, unknown> = {};
   for (const s of sourcesCol) {
@@ -177,6 +184,16 @@ export const GET: APIRoute = async () => {
     if (metroExtra.length > 0) synthetics.push(...metroExtra);
     const parsedMetro = parseMetroSourceId(s.id);
     if (parsedMetro) metrosInUse.add(parsedMetro.cbsa);
+    // Country / region tagging: non-US country sources + regional
+    // aggregates get hidden by default behind the "Countries & regions"
+    // chip. Per-country tag (`country:<CODE>`) lets the drill-down
+    // filter to a single country.
+    const parsedCountry = parseCountrySourceId(s.id);
+    if (parsedCountry) {
+      synthetics.push(COUNTRY_TAG);
+      synthetics.push(`${COUNTRY_TAG}:${parsedCountry.code}`);
+      countriesInUse.set(parsedCountry.code, parsedCountry.name);
+    }
     const tagsList =
       synthetics.length > 0
         ? [...new Set([...declaredTags, ...synthetics])].sort()
@@ -290,7 +307,24 @@ export const GET: APIRoute = async () => {
     metros[code] = metroLookup[code] ?? { shortName: code, name: code };
   }
 
-  const body = JSON.stringify({ charts, sources, metros, metroTag: METRO_TAG });
+  // Trim the country lookup to entries actually present in this manifest,
+  // sorted alphabetically by name so the composer dropdown reads naturally.
+  const countries: Record<string, { name: string }> = {};
+  const usedCountryCodes = [...countriesInUse.keys()].sort((a, b) =>
+    (countriesInUse.get(a) ?? a).localeCompare(countriesInUse.get(b) ?? b),
+  );
+  for (const code of usedCountryCodes) {
+    countries[code] = { name: countriesInUse.get(code) ?? code };
+  }
+
+  const body = JSON.stringify({
+    charts,
+    sources,
+    metros,
+    metroTag: METRO_TAG,
+    countries,
+    countryTag: COUNTRY_TAG,
+  });
   return new Response(body, {
     headers: {
       "content-type": "application/json; charset=utf-8",

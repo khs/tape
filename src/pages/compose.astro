@@ -116,10 +116,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             -->
             <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
             <!--
-              Metro chip lives below the tag-filter strip — it's a
-              separate widget (popover + search) and visually distinct
-              from the chip pills. Hidden when the library payload
-              doesn't include any metros.
+              Geo-chip strip below the tag-filter row. Hosts the Metro
+              area + Countries & regions chips — both are popover-with-
+              searchable-list widgets, visually distinct from the
+              tag-pill row above. Each chip auto-hides if its
+              underlying lookup is empty (e.g. metro pipelines haven't
+              run yet).
             -->
             <div class="lib-geo-chips" data-role="lib-geo-chips" hidden>
               <div class="lib-geo-chip-wrap">
@@ -154,6 +156,41 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   <div
                     class="lib-geo-list"
                     data-role="lib-metro-list"
+                  ></div>
+                </div>
+              </div>
+              <div class="lib-geo-chip-wrap">
+                <button
+                  type="button"
+                  class="lib-geo-chip"
+                  data-role="lib-country-chip"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                >
+                  <span class="lib-geo-chip-label" data-role="lib-country-label"
+                    >Countries &amp; regions &#9662;</span>
+                  <span
+                    class="lib-geo-chip-clear"
+                    data-role="lib-country-clear"
+                    hidden
+                    aria-label="Clear country filter">&times;</span>
+                </button>
+                <div
+                  class="lib-geo-popover"
+                  data-role="lib-country-popover"
+                  role="listbox"
+                  hidden
+                >
+                  <input
+                    type="search"
+                    class="lib-geo-search"
+                    data-role="lib-country-search"
+                    placeholder="Search countries + regions…"
+                    aria-label="Search countries + regions"
+                  />
+                  <div
+                    class="lib-geo-list"
+                    data-role="lib-country-list"
                   ></div>
                 </div>
               </div>
@@ -480,6 +517,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { track } from "../lib/track";
   import { packSourceIds } from "../lib/analytics-helpers";
   import { METRO_TAG } from "../lib/geographic-regions";
+  import { COUNTRY_TAG } from "../lib/countries";
   import {
     CD_TAG,
     STATE_TAG,
@@ -518,6 +556,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     unit?: string;
   };
   type MetroEntry = { shortName: string; name: string };
+  type CountryEntry = { name: string };
   type LibraryPayload = {
     charts: LibraryChart[];
     sources: Record<string, LibrarySource>;
@@ -528,6 +567,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Kept in the payload so the composer doesn't have to hardcode it
     // separately from the library lib.
     metroTag?: string;
+    // Country / region codes (ISO3 for countries, WB region codes for
+    // aggregates) present in at least one source. Empty/absent when
+    // the country pipelines haven't produced any non-US country data.
+    countries?: Record<string, CountryEntry>;
+    // Synthetic tag prefix for country / region sources. Used for the
+    // umbrella tag (`country-specific`) and per-country tags
+    // (`country-specific:JPN`, etc.) the server attaches.
+    countryTag?: string;
   };
 
   const _shellMaybe = document.querySelector<HTMLElement>(".composer-shell");
@@ -766,6 +813,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   let selectedMetroCbsa: string | null = null;
   let metroPopoverOpen: boolean = false;
   let metroSearchQuery: string = "";
+  // Currently-selected ISO3 country code (or WB region code), or null
+  // when no country/region filter is active. Filter is applied in
+  // filteredSources(); the Countries & regions chip mirrors this
+  // state. Mirrors the metro chip's structure on purpose so the same
+  // tested popover UX applies — see renderCountryChip / openCountryPopover
+  // below.
+  let selectedCountryCode: string | null = null;
+  let countryPopoverOpen: boolean = false;
+  let countrySearchQuery: string = "";
 
   // Per-surface state for the Congressional district drill-down. The
   // Sources tab keeps its picks across tab switches so a user browsing
@@ -915,6 +971,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // Filters both the bare `metro` tag and per-CBSA `metro:35620`
         // entries; users still see them via the geo chip's UI.
         if (t === METRO_TAG || t.startsWith(`${METRO_TAG}:`)) continue;
+        // Same idea for country/region synthetic tags — surfaced via
+        // the "Countries & regions" chip, not the topical pill strip.
+        if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue;
         s.add(t);
       }
     }
@@ -962,6 +1021,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const metroTagRequired = selectedMetroCbsa
       ? `${METRO_TAG}:${selectedMetroCbsa}`
       : null;
+    // Country filter — same pattern as metro. When a country is
+    // selected we narrow to that country's tag; otherwise we hide
+    // every country-tagged source so the default list stays US-
+    // focused. (USA + the World aggregate were intentionally NOT
+    // tagged country-specific upstream, so they remain visible.)
+    const countryTagRequired = selectedCountryCode
+      ? `${COUNTRY_TAG}:${selectedCountryCode}`
+      : null;
     const out: (LibrarySource & {
       id: string;
       tags: string[];
@@ -997,6 +1064,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
       if (!ok) continue;
       if (metroTagRequired && !tags.includes(metroTagRequired)) continue;
+      if (countryTagRequired) {
+        // Active country selection: source must carry that country's tag.
+        if (!tags.includes(countryTagRequired)) continue;
+      } else if (tags.includes(COUNTRY_TAG)) {
+        // No country selected: hide every country-tagged source so the
+        // default list doesn't drown in foreign series. The chip is
+        // how users opt back in.
+        continue;
+      }
       if (q) {
         const hay =
           src.searchText ??
@@ -1086,7 +1162,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (!wrap || !chip || !label || !clear) return;
     const metros = library?.metros ?? {};
     const hasMetros = Object.keys(metros).length > 0;
-    wrap.hidden = !hasMetros;
+    // Wrap holds both metro + country chips. Show it if either has data;
+    // hide the individual chip if its own data is missing.
+    const hasCountries = Object.keys(library?.countries ?? {}).length > 0;
+    wrap.hidden = !hasMetros && !hasCountries;
+    chip.hidden = !hasMetros;
     if (!hasMetros) return;
     if (selectedMetroCbsa) {
       const entry = metros[selectedMetroCbsa];
@@ -1175,6 +1255,114 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     track("compose_metro_filter_cleared", {});
   }
 
+  // ---- Countries & regions drill-down chip ----
+  // Mirrors the metro chip: lives in lib-geo-chips alongside the Metro
+  // chip, toggles a popover with a searchable list of countries +
+  // regional aggregates, and filters the Sources tab to the picked
+  // entity. Designed to keep non-US country data + WB regional series
+  // out of the default source list (which is overwhelmingly US-
+  // focused) without dropping the data from the manifest.
+  function renderCountryChip(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='lib-geo-chips']");
+    const chip = shell.querySelector<HTMLButtonElement>("[data-role='lib-country-chip']");
+    const label = shell.querySelector<HTMLElement>("[data-role='lib-country-label']");
+    const clear = shell.querySelector<HTMLElement>("[data-role='lib-country-clear']");
+    if (!wrap || !chip || !label || !clear) return;
+    const countries = library?.countries ?? {};
+    const hasCountries = Object.keys(countries).length > 0;
+    // Wrap visibility depends on EITHER metro OR country data existing —
+    // renderMetroChip toggles the same wrap; whoever runs last wins, so
+    // both functions OR the conditions together.
+    const hasMetros = Object.keys(library?.metros ?? {}).length > 0;
+    wrap.hidden = !hasMetros && !hasCountries;
+    chip.hidden = !hasCountries;
+    if (!hasCountries) return;
+    if (selectedCountryCode) {
+      const entry = countries[selectedCountryCode];
+      const name = entry?.name ?? selectedCountryCode;
+      label.textContent = name;
+      chip.classList.add("lib-geo-chip-active");
+      clear.hidden = false;
+    } else {
+      label.textContent = "Countries & regions ▾";
+      chip.classList.remove("lib-geo-chip-active");
+      clear.hidden = true;
+    }
+    chip.setAttribute("aria-expanded", countryPopoverOpen ? "true" : "false");
+  }
+
+  function renderCountryList(): void {
+    const list = shell.querySelector<HTMLElement>("[data-role='lib-country-list']");
+    if (!list) return;
+    const countries = library?.countries ?? {};
+    const codes = Object.keys(countries);
+    const q = countrySearchQuery.trim().toLowerCase();
+    list.innerHTML = "";
+    let shown = 0;
+    for (const code of codes) {
+      const entry = countries[code];
+      const hay = (entry.name + " " + code).toLowerCase();
+      if (q && !hay.includes(q)) continue;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "lib-geo-list-item" +
+        (selectedCountryCode === code ? " lib-geo-list-item-active" : "");
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", selectedCountryCode === code ? "true" : "false");
+      btn.innerHTML =
+        `<span class="lib-geo-list-item-name">${escapeHtml(entry.name)}</span>` +
+        `<span class="lib-geo-list-item-code muted small">${escapeHtml(code)}</span>`;
+      btn.addEventListener("click", () => selectCountry(code));
+      list.appendChild(btn);
+      shown += 1;
+    }
+    if (shown === 0) {
+      const empty = document.createElement("p");
+      empty.className = "muted small";
+      empty.textContent = q ? "No countries match." : "No countries loaded.";
+      list.appendChild(empty);
+    }
+  }
+
+  function openCountryPopover(): void {
+    const pop = shell.querySelector<HTMLElement>("[data-role='lib-country-popover']");
+    if (!pop) return;
+    countryPopoverOpen = true;
+    pop.hidden = false;
+    renderCountryList();
+    renderCountryChip();
+    queueMicrotask(() => {
+      const search = shell.querySelector<HTMLInputElement>(
+        "[data-role='lib-country-search']",
+      );
+      search?.focus();
+    });
+  }
+
+  function closeCountryPopover(): void {
+    const pop = shell.querySelector<HTMLElement>("[data-role='lib-country-popover']");
+    if (!pop) return;
+    countryPopoverOpen = false;
+    pop.hidden = true;
+    renderCountryChip();
+  }
+
+  function selectCountry(code: string): void {
+    selectedCountryCode = code;
+    closeCountryPopover();
+    renderCountryChip();
+    renderSourcesList();
+    track("compose_country_filter_set", { code });
+  }
+
+  function clearCountryFilter(): void {
+    if (!selectedCountryCode) return;
+    selectedCountryCode = null;
+    renderCountryChip();
+    renderSourcesList();
+    track("compose_country_filter_cleared", {});
+  }
+
   // Parallel tag-filter strip for the Sources tab. Same UX pattern;
   // counts run against the source universe instead of charts. The
   // `congressional-district` tag is rendered specially as a drill-down
@@ -1194,7 +1382,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     for (const id of Object.keys(library.sources)) {
       const src = library.sources[id] as LibrarySource & { tags?: string[] };
       const tags = src.tags ?? [];
-      if (!tags.includes(CD_TAG) && !tags.includes(STATE_TAG)) nonGeoCount += 1;
+      if (
+        !tags.includes(CD_TAG) &&
+        !tags.includes(STATE_TAG) &&
+        !tags.includes(COUNTRY_TAG)
+      ) {
+        nonGeoCount += 1;
+      }
     }
     const makeBtn = (tag: string, label: string, active: boolean) => {
       const b = document.createElement("button");
@@ -1242,13 +1436,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     );
     for (const t of tags) {
       if (t === CD_TAG || t === STATE_TAG) continue; // rendered specially above
+      if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue; // surfaced via country chip
       // Count visible (non-geo) sources for each tag so the chip count
       // matches what the user will actually see when they click it.
       let count = 0;
       for (const id of Object.keys(library.sources)) {
         const src = library.sources[id] as LibrarySource & { tags?: string[] };
         const sTags = src.tags ?? [];
-        if (sTags.includes(CD_TAG) || sTags.includes(STATE_TAG)) continue;
+        if (
+          sTags.includes(CD_TAG) ||
+          sTags.includes(STATE_TAG) ||
+          sTags.includes(COUNTRY_TAG)
+        ) {
+          continue;
+        }
         if (sTags.includes(t)) count += 1;
       }
       host.appendChild(makeBtn(t, `${t} (${count})`, sourcesSelectedTags.has(t)));
@@ -2642,16 +2843,59 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderMetroList();
       });
     }
-    // Click-outside to dismiss the popover, and ESC for keyboard users.
+    // ---- Country chip wiring ---- (mirrors metro chip pattern)
+    const countryChip = shell.querySelector<HTMLButtonElement>(
+      "[data-role='lib-country-chip']",
+    );
+    const countryClear = shell.querySelector<HTMLElement>(
+      "[data-role='lib-country-clear']",
+    );
+    const countrySearch = shell.querySelector<HTMLInputElement>(
+      "[data-role='lib-country-search']",
+    );
+    if (countryChip) {
+      countryChip.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement | null;
+        if (target && target.closest("[data-role='lib-country-clear']")) {
+          e.stopPropagation();
+          clearCountryFilter();
+          return;
+        }
+        // Only one geo popover open at a time — if the metro popover is
+        // open when the country chip is clicked, close it first to
+        // avoid two popovers overlapping in the same chip strip.
+        if (metroPopoverOpen) closeMetroPopover();
+        if (countryPopoverOpen) closeCountryPopover();
+        else openCountryPopover();
+      });
+    }
+    if (countryClear) {
+      countryClear.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearCountryFilter();
+      });
+    }
+    if (countrySearch) {
+      countrySearch.addEventListener("input", () => {
+        countrySearchQuery = countrySearch.value;
+        renderCountryList();
+      });
+    }
+    // Click-outside to dismiss the popovers, and ESC for keyboard users.
+    // Both metro + country share the lib-geo-chips wrap so a single
+    // outside-click handler covers both.
     document.addEventListener("click", (e) => {
-      if (!metroPopoverOpen) return;
+      if (!metroPopoverOpen && !countryPopoverOpen) return;
       const target = e.target as HTMLElement | null;
       if (!target) return;
       if (target.closest("[data-role='lib-geo-chips']")) return;
-      closeMetroPopover();
+      if (metroPopoverOpen) closeMetroPopover();
+      if (countryPopoverOpen) closeCountryPopover();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && metroPopoverOpen) closeMetroPopover();
+      if (e.key !== "Escape") return;
+      if (metroPopoverOpen) closeMetroPopover();
+      if (countryPopoverOpen) closeCountryPopover();
     });
     const searchInputCharts = shell.querySelector<HTMLInputElement>(
       "[data-role='lib-search-charts']",
@@ -4821,6 +5065,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       renderTagFiltersSources();
       renderTagFiltersCharts();
       renderMetroChip();
+      renderCountryChip();
       renderSourcesList();
       renderComposition();
     })
