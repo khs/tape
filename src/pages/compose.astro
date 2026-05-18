@@ -108,10 +108,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               placeholder="Search sources by name, ticker, or tag..."
             />
             <!--
-              Geo drill-down strip — currently just Metro area. Hidden
-              when the library payload doesn't include any metros (i.e.
-              pipelines haven't populated metro sources yet). Designed to
-              grow: a parallel States & districts chip would slot in here.
+              Tag-filter strip. The "States & districts" chip with its
+              state/district drilldown gets injected near the front
+              (right after the "all" chip) by renderTagFiltersSources →
+              appendCdDrillDown so geo filtering is prominent without
+              having to scroll past every topical tag.
+            -->
+            <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
+            <!--
+              Metro chip lives below the tag-filter strip — it's a
+              separate widget (popover + search) and visually distinct
+              from the chip pills. Hidden when the library payload
+              doesn't include any metros.
             -->
             <div class="lib-geo-chips" data-role="lib-geo-chips" hidden>
               <div class="lib-geo-chip-wrap">
@@ -150,7 +158,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 </div>
               </div>
             </div>
-            <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
           </div>
           <div class="lib-results" data-role="lib-results-sources">
             <p class="muted small">Loading sources...</p>
@@ -1212,19 +1219,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     host.appendChild(
       makeBtn("", `all (${nonGeoCount})`, sourcesSelectedTags.size === 0),
     );
-    for (const t of tags) {
-      if (t === CD_TAG || t === STATE_TAG) continue; // rendered specially below
-      // Count visible (non-geo) sources for each tag so the chip count
-      // matches what the user will actually see when they click it.
-      let count = 0;
-      for (const id of Object.keys(library.sources)) {
-        const src = library.sources[id] as LibrarySource & { tags?: string[] };
-        const sTags = src.tags ?? [];
-        if (sTags.includes(CD_TAG) || sTags.includes(STATE_TAG)) continue;
-        if (sTags.includes(t)) count += 1;
-      }
-      host.appendChild(makeBtn(t, `${t} (${count})`, sourcesSelectedTags.has(t)));
-    }
+    // States & districts chip rendered RIGHT AFTER "all" so geo
+    // filtering is the most prominent option after "show me everything"
+    // — ahead of the long list of topical tag chips + ahead of the
+    // Metro chip strip that sits below this row.
     appendCdDrillDown(
       host,
       sourcesSelectedTags,
@@ -1242,6 +1240,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderSourcesList();
       },
     );
+    for (const t of tags) {
+      if (t === CD_TAG || t === STATE_TAG) continue; // rendered specially above
+      // Count visible (non-geo) sources for each tag so the chip count
+      // matches what the user will actually see when they click it.
+      let count = 0;
+      for (const id of Object.keys(library.sources)) {
+        const src = library.sources[id] as LibrarySource & { tags?: string[] };
+        const sTags = src.tags ?? [];
+        if (sTags.includes(CD_TAG) || sTags.includes(STATE_TAG)) continue;
+        if (sTags.includes(t)) count += 1;
+      }
+      host.appendChild(makeBtn(t, `${t} (${count})`, sourcesSelectedTags.has(t)));
+    }
   }
 
   // Shared CD drill-down renderer used by all three picker surfaces. Adds
