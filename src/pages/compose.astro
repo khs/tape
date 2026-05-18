@@ -1007,6 +1007,62 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (isCd) return parseCdSourceId(id)?.state === cdState;
     return false;
   }
+
+  // Cache of CBSA codes "unlocked" by the current search query — set of
+  // metro:<cbsa> tags any of which lets a metro-tagged source through
+  // the chip gate even when the chip is inactive. A query unlocks a
+  // CBSA when it's ≥ 4 chars AND a substring of the CBSA's short or
+  // full name. Cleared when the query changes (computed lazily).
+  // Rationale: user wants the chip to be the default opt-in but typing
+  // "Abilene" should also surface Abilene-tagged sources. Typing
+  // "cars" must not surface households-with-cars-in-Abilene.
+  function unlockedMetrosForQuery(q: string): Set<string> | null {
+    if (q.length < 4) return null;
+    if (!library?.metros) return null;
+    const matched = new Set<string>();
+    const ql = q.toLowerCase();
+    for (const [code, entry] of Object.entries(library.metros)) {
+      const hay = (entry.shortName + " " + entry.name).toLowerCase();
+      if (hay.includes(ql)) matched.add(`${METRO_TAG}:${code}`);
+    }
+    return matched.size > 0 ? matched : null;
+  }
+
+  /** Returns true if a source passes the metro chip's filter for a
+   *  given surface state + search query. Non-metro sources always
+   *  pass. Metro sources pass when the chip has a specific CBSA
+   *  picked AND the source carries that CBSA's tag, OR when the
+   *  query unlocks the source's CBSA via the 4-char name match. */
+  function passesMetroFilter(
+    sTags: string[],
+    selectedCbsa: string | null,
+    query: string,
+  ): boolean {
+    if (selectedCbsa) {
+      // Active metro pick — narrows to that CBSA's sources only.
+      return sTags.includes(`${METRO_TAG}:${selectedCbsa}`);
+    }
+    if (!sTags.includes(METRO_TAG)) return true; // non-metro: always
+    const unlock = unlockedMetrosForQuery(query);
+    if (!unlock) return false;
+    for (const t of sTags) {
+      if (unlock.has(t)) return true;
+    }
+    return false;
+  }
+
+  /** Returns true if a source passes the country chip's filter.
+   *  Chip-only: no 4-char unlock for country sources (the country
+   *  dropdown is right there next to the chip — easy to pick). */
+  function passesCountryFilter(
+    sTags: string[],
+    selectedCountryCode: string | null,
+  ): boolean {
+    if (selectedCountryCode) {
+      return sTags.includes(`${COUNTRY_TAG}:${selectedCountryCode}`);
+    }
+    return !sTags.includes(COUNTRY_TAG);
+  }
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;
 
@@ -1086,19 +1142,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // already enforces the geo gate. State-level sources have STATE_TAG
     // (not CD_TAG), so leaving CD_TAG in the AND list rejects them.
     const tagsRequired = [...sourcesSelectedTags].filter((t) => t !== CD_TAG);
-    // Metro filter is AND'd with the other tag selections — picking
-    // "NYC" + tag "labor" returns only labor sources in NYC.
-    const metroTagRequired = libGeo.selectedMetroCbsa
-      ? `${METRO_TAG}:${libGeo.selectedMetroCbsa}`
-      : null;
-    // Country filter — same pattern as metro. When a country is
-    // selected we narrow to that country's tag; otherwise we hide
-    // every country-tagged source so the default list stays US-
-    // focused. (USA + the World aggregate were intentionally NOT
-    // tagged country-specific upstream, so they remain visible.)
-    const countryTagRequired = libGeo.selectedCountryCode
-      ? `${COUNTRY_TAG}:${libGeo.selectedCountryCode}`
-      : null;
     const out: (LibrarySource & {
       id: string;
       tags: string[];
@@ -1133,16 +1176,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         }
       }
       if (!ok) continue;
-      if (metroTagRequired && !tags.includes(metroTagRequired)) continue;
-      if (countryTagRequired) {
-        // Active country selection: source must carry that country's tag.
-        if (!tags.includes(countryTagRequired)) continue;
-      } else if (tags.includes(COUNTRY_TAG)) {
-        // No country selected: hide every country-tagged source so the
-        // default list doesn't drown in foreign series. The chip is
-        // how users opt back in.
-        continue;
-      }
+      if (!passesMetroFilter(tags, libGeo.selectedMetroCbsa, q)) continue;
+      if (!passesCountryFilter(tags, libGeo.selectedCountryCode)) continue;
       if (q) {
         const hay =
           src.searchText ??
@@ -3949,23 +3984,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         return false;
       }
       // Metro / country chip drill-downs, mirroring filteredSources()
-      // on the Sources tab. When a country (or metro) is selected, the
-      // source MUST carry that entity's tag — everything else is
-      // excluded, US-focused sources included. When NO entity is
-      // selected, the source must not carry the master COUNTRY_TAG /
-      // METRO_TAG (those stay hidden until the user opts in).
-      if (ccModal.geo.selectedMetroCbsa) {
-        const tag = `${METRO_TAG}:${ccModal.geo.selectedMetroCbsa}`;
-        if (!sTags.includes(tag)) return false;
-      } else if (sTags.includes(METRO_TAG)) {
-        return false;
-      }
-      if (ccModal.geo.selectedCountryCode) {
-        const tag = `${COUNTRY_TAG}:${ccModal.geo.selectedCountryCode}`;
-        if (!sTags.includes(tag)) return false;
-      } else if (sTags.includes(COUNTRY_TAG)) {
-        return false;
-      }
+      // on the Sources tab via the shared passesMetro/CountryFilter
+      // helpers. Includes the 4-char MSA-name unlock so typing
+      // "Abilene" reveals Abilene-tagged sources without first
+      // engaging the chip.
+      if (!passesMetroFilter(sTags, ccModal.geo.selectedMetroCbsa, q)) return false;
+      if (!passesCountryFilter(sTags, ccModal.geo.selectedCountryCode)) return false;
       for (const t of tagsRequired) {
         if (!sTags.includes(t)) return false;
       }
@@ -4555,22 +4579,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         return false;
       }
       // Metro + country chip drill-downs (mirrors cc-modal + Sources
-      // tab). When an entity is selected, the source MUST carry that
-      // tag — everything else is excluded, US-focused sources too.
-      // When nothing's selected, the master metro/country-tagged
-      // sources stay hidden.
-      if (dsModal.geo.selectedMetroCbsa) {
-        const tag = `${METRO_TAG}:${dsModal.geo.selectedMetroCbsa}`;
-        if (!oTags.includes(tag)) return false;
-      } else if (oTags.includes(METRO_TAG)) {
-        return false;
-      }
-      if (dsModal.geo.selectedCountryCode) {
-        const tag = `${COUNTRY_TAG}:${dsModal.geo.selectedCountryCode}`;
-        if (!oTags.includes(tag)) return false;
-      } else if (oTags.includes(COUNTRY_TAG)) {
-        return false;
-      }
+      // tab via shared passesMetro/CountryFilter helpers). Includes
+      // the 4-char MSA-name unlock.
+      if (!passesMetroFilter(oTags, dsModal.geo.selectedMetroCbsa, search)) return false;
+      if (!passesCountryFilter(oTags, dsModal.geo.selectedCountryCode)) return false;
       if (tagsRequired.length > 0) {
         for (const t of tagsRequired) {
           if (!oTags.includes(t)) return false;
