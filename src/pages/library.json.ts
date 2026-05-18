@@ -345,6 +345,52 @@ export const GET: APIRoute = async () => {
   for (const code of usedCountryCodes) {
     checkEntity("country/region", code, `${COUNTRY_TAG}:${code}`);
   }
+
+  // Topical-tag pill check: a tag that only appears on hidden sources
+  // (sources tagged CD / STATE / METRO / COUNTRY, which the default
+  // list filters out) renders as a zero-count pill in the composer.
+  // Catches things like `africa` / `europe` that used to live on
+  // worldbank_extended regional sources — those regions are surfaced
+  // via the Regions and countries chip, the topical tag added nothing.
+  // Mirrors the visibility filter in renderTagFiltersSources +
+  // filteredSources.
+  const isHiddenByDefault = (tags: string[]): boolean =>
+    tags.includes(CD_TAG) ||
+    tags.includes(STATE_TAG) ||
+    tags.includes(METRO_TAG) ||
+    tags.includes(COUNTRY_TAG);
+  const isGeoSynthetic = (t: string): boolean =>
+    t === CD_TAG ||
+    t === STATE_TAG ||
+    t === METRO_TAG ||
+    t === COUNTRY_TAG ||
+    t.startsWith(`${METRO_TAG}:`) ||
+    t.startsWith(`${COUNTRY_TAG}:`);
+  const tagsSeenAnywhere = new Set<string>();
+  const tagsWithVisibleSource = new Set<string>();
+  for (const sid of Object.keys(sources)) {
+    const tags = (sources[sid] as { tags?: string[] }).tags ?? [];
+    const visible = !isHiddenByDefault(tags);
+    for (const t of tags) {
+      if (isGeoSynthetic(t)) continue;
+      tagsSeenAnywhere.add(t);
+      if (visible) tagsWithVisibleSource.add(t);
+    }
+  }
+  const zeroCountPills: string[] = [];
+  for (const t of tagsSeenAnywhere) {
+    if (!tagsWithVisibleSource.has(t)) zeroCountPills.push(t);
+  }
+  if (zeroCountPills.length > 0) {
+    emptyEntities.push(
+      ...zeroCountPills.map((t) =>
+        `topical tag pill '${t}' would render with count 0 ` +
+        `(no source carrying that tag is visible in the default list — ` +
+        `every source with this tag is hidden behind a geo chip)`,
+      ),
+    );
+  }
+
   if (emptyEntities.length > 0) {
     // Throw, don't console.error — Astro propagates the throw and the
     // prerender step fails the build. This is intentional: shipping an

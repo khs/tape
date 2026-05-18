@@ -16,7 +16,6 @@ provenance:
   url: https://api.worldbank.org/v2/country/SSF/indicator/SP.DYN.LE00.IN
   license: CC BY 4.0
 tags:
-  - africa
   - macro
   - world
 unitClass: ratio

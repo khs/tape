@@ -18,7 +18,6 @@ provenance:
   url: https://api.worldbank.org/v2/country/ECS/indicator/NY.GDP.MKTP.CD
   license: CC BY 4.0
 tags:
-  - europe
   - macro
   - world
 unitClass: currency

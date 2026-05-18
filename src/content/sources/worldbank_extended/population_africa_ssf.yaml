@@ -17,7 +17,6 @@ provenance:
   url: https://api.worldbank.org/v2/country/SSF/indicator/SP.POP.TOTL
   license: CC BY 4.0
 tags:
-  - africa
   - macro
   - world
 unitClass: count

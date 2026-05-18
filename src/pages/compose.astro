@@ -1721,6 +1721,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         }
         if (sTags.includes(t)) count += 1;
       }
+      // Skip count-0 pills — the build gate in library.json.ts should
+      // have caught this server-side, but defending against drift at
+      // runtime is cheap and avoids ever shipping a useless pill.
+      if (count === 0) continue;
       host.appendChild(makeBtn(t, `${t} (${count})`, sourcesSelectedTags.has(t)));
     }
   }

@@ -333,7 +333,15 @@ def write_source_yaml(indicator: WbIndicator, entity: Entity) -> bool:
         f"Most regions and country aggregates available back to 1960; "
         f"individual series start dates vary."
     )
-    tags = ["macro", "world"] + indicator.extra_tags + [entity.tag_region]
+    # Regional aggregates (SSF/EUU/ECS/…) and country deep-dives (CHN)
+    # are surfaced through the composer's "Regions and countries" chip
+    # via the synthetic per-entity tag library.json.ts attaches. We
+    # deliberately do NOT also tag them with `africa`/`europe`/etc. —
+    # those topical tags would render as zero-count pills (the country-
+    # specific sources are hidden from the default list) and confuse
+    # the user. entity.tag_region stays on the dataclass in case
+    # something else wants to use it.
+    tags = ["macro", "world"] + indicator.extra_tags
     # Dedupe + sort.
     tags = sorted(set(tags))
     lines = [
