@@ -1,0 +1,17 @@
+{
+  "id": "median_gross_rent_pa_19",
+  "name": "Median gross rent \u2014 PA-19",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-13T13:50:29Z",
+  "points": [
+    {
+      "t": "2010-12-31",
+      "v": 749.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 788.0
+    }
+  ]
+}

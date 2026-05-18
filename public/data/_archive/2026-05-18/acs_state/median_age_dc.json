@@ -1,0 +1,13 @@
+{
+  "id": "median_age_dc",
+  "name": "Median age \u2014 DC",
+  "kind": "timeseries",
+  "unit": "years",
+  "lastUpdated": "2026-05-17T19:03:31Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 34.8
+    }
+  ]
+}
