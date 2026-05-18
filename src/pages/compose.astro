@@ -1344,7 +1344,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return {
         prefix: "lib",
         state: () => libGeo,
-        onChange: () => renderSourcesList(),
+        // Refresh the tag-pill counts too: a geo-chip pick changes the
+        // visible universe, so each topical tag's count must update or
+        // the user sees stale "(N)" pills.
+        onChange: () => {
+          renderTagFiltersSources();
+          renderSourcesList();
+        },
         track: (e, p) => track(e, { ...p, surface: "compose-sources" }),
         cdSelectedTags: () => sourcesSelectedTags,
         getCdState: () => sourcesCdState,
@@ -1749,20 +1755,44 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (!host || !library) return;
     const tags = allSourceTags();
     host.innerHTML = "";
-    // "all" count = non-geo sources, since CDs + state-level series are
-    // hidden by default and surfacing a "all (~2300)" count that's mostly
-    // invisible geo sources is confusing.
-    let nonGeoCount = 0;
-    for (const id of Object.keys(library.sources)) {
-      const src = library.sources[id] as LibrarySource & { tags?: string[] };
-      const tags = src.tags ?? [];
-      if (
-        !tags.includes(CD_TAG) &&
-        !tags.includes(STATE_TAG) &&
-        !tags.includes(COUNTRY_TAG)
-      ) {
-        nonGeoCount += 1;
+    // Counts must reflect the SAME filter pipeline the source list uses
+    // — chip state + search query + selected topical tags. Otherwise
+    // the user sees "fiscal (6)" with "abil" typed, clicks fiscal, and
+    // gets zero results because all six fiscal sources fail the
+    // metro-only narrowing. The helper below walks the same gates as
+    // filteredSources() and returns the count that would result if
+    // `extraTag` were added to the topical-tag AND set (null = no extra
+    // tag, used for the "all" count).
+    const q = sourcesSearchQuery.trim().toLowerCase();
+    const tagsRequiredBase = [...sourcesSelectedTags].filter((t) => t !== CD_TAG);
+    const libSources = library.sources;
+    function countMatching(extraTag: string | null): number {
+      const required = extraTag && !tagsRequiredBase.includes(extraTag)
+        ? [...tagsRequiredBase, extraTag]
+        : tagsRequiredBase;
+      let n = 0;
+      for (const id of Object.keys(libSources)) {
+        const src = libSources[id] as LibrarySource & {
+          tags?: string[];
+          searchText?: string;
+        };
+        const sTags = src.tags ?? [];
+        if (!passesCdFilter(id, sTags, sourcesSelectedTags, sourcesCdState, sourcesCdDistrict, q)) continue;
+        if (!passesMetroFilter(sTags, libGeo.selectedMetroCbsa, q)) continue;
+        if (!passesCountryFilter(sTags, libGeo.selectedCountryCode, q)) continue;
+        let ok = true;
+        for (const t of required) {
+          if (!sTags.includes(t)) { ok = false; break; }
+        }
+        if (!ok) continue;
+        if (q) {
+          const hay = src.searchText ??
+            (src.name + " " + (src.shortName ?? "") + " " + id + " " + sTags.join(" ")).toLowerCase();
+          if (!hay.includes(q)) continue;
+        }
+        n += 1;
       }
+      return n;
     }
     const makeBtn = (tag: string, label: string, active: boolean) => {
       const b = document.createElement("button");
@@ -1785,7 +1815,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return b;
     };
     host.appendChild(
-      makeBtn("", `all (${nonGeoCount})`, sourcesSelectedTags.size === 0),
+      makeBtn("", `all (${countMatching(null)})`, sourcesSelectedTags.size === 0),
     );
     // The CD / metro / country chips live in the geo strip ABOVE this
     // row (renderCdChip, renderMetroChip, renderCountryChip). Topical
@@ -1793,24 +1823,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     for (const t of tags) {
       if (t === CD_TAG || t === STATE_TAG) continue; // surfaced via CD chip
       if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue; // country chip
-      // Count visible (non-geo) sources for each tag so the chip count
-      // matches what the user will actually see when they click it.
-      let count = 0;
-      for (const id of Object.keys(library.sources)) {
-        const src = library.sources[id] as LibrarySource & { tags?: string[] };
-        const sTags = src.tags ?? [];
-        if (
-          sTags.includes(CD_TAG) ||
-          sTags.includes(STATE_TAG) ||
-          sTags.includes(COUNTRY_TAG)
-        ) {
-          continue;
-        }
-        if (sTags.includes(t)) count += 1;
-      }
-      // Skip count-0 pills — the build gate in library.json.ts should
-      // have caught this server-side, but defending against drift at
-      // runtime is cheap and avoids ever shipping a useless pill.
+      const count = countMatching(t);
+      // Skip count-0 pills — clicking would yield zero results, which is
+      // worse than the pill simply not being there.
       if (count === 0) continue;
       host.appendChild(makeBtn(t, `${t} (${count})`, sourcesSelectedTags.has(t)));
     }
@@ -3163,6 +3178,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (searchInputSources) {
       searchInputSources.addEventListener("input", () => {
         sourcesSearchQuery = searchInputSources.value;
+        // Refresh both — tag-pill counts depend on the current query
+        // because the query narrows the universe each pill could match.
+        renderTagFiltersSources();
         renderSourcesList();
       });
     }
