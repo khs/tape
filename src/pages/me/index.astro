@@ -90,7 +90,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
       const { data, error } = await sb
         .from("saved_dashboards")
-        .select("id, slug, title, visibility, updated_at")
+        .select("id, slug, title, updated_at")
         .order("updated_at", { ascending: false });
       if (error) {
         content.innerHTML = `<p class="text-sm text-error">Failed to load: ${escapeHtml(error.message)}</p>`;
@@ -98,7 +98,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
       const rows = (data ?? []) as Pick<
         DashboardRow,
-        "id" | "slug" | "title" | "visibility" | "updated_at"
+        "id" | "slug" | "title" | "updated_at"
       >[];
       if (rows.length === 0) {
         content.innerHTML =
@@ -115,15 +115,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           month: "short",
           day: "numeric",
         });
+        // Visibility annotation deliberately omitted from the row: free-tier
+        // dashboards are effectively public-by-URL anyway (no one links them,
+        // but anyone with the slug can reach them). True private dashboards
+        // are an enterprise-tier feature, not a self-serve toggle.
         item.innerHTML =
           `<div>
              <a class="text-base font-medium text-neutral-900 no-underline hover:underline" href="${baseUrl}/u/${encodeURIComponent(r.slug)}/">${escapeHtml(r.title)}</a>
-             <div class="text-xs text-neutral-500 mt-1">Updated ${dateStr} \u00b7 ${r.visibility}</div>
+             <div class="text-xs text-neutral-500 mt-1">Updated ${dateStr}</div>
            </div>
            <div class="flex gap-2 text-xs">
              <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="rename" data-id="${r.id}" data-current="${escapeHtml(r.title)}">Rename</button>
              <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="set-url" data-id="${r.id}" data-current="${escapeHtml(r.slug)}">Set URL</button>
-             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="toggle-visibility" data-id="${r.id}" data-current="${r.visibility}">Make ${r.visibility === "public" ? "private" : "public"}</button>
              <button type="button" class="underline text-error bg-transparent border-0 p-0 cursor-pointer" data-role="delete" data-id="${r.id}">Delete</button>
            </div>`;
         list.appendChild(item);
@@ -220,19 +223,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             return;
           }
           render();
-        });
-      });
-      content.querySelectorAll<HTMLButtonElement>("[data-role='toggle-visibility']").forEach((b) => {
-        b.addEventListener("click", async () => {
-          const id = b.dataset.id!;
-          const current = b.dataset.current as "public" | "private";
-          const next = current === "public" ? "private" : "public";
-          const { error } = await sb
-            .from("saved_dashboards")
-            .update({ visibility: next })
-            .eq("id", id);
-          if (error) alert(error.message);
-          else render();
         });
       });
       content.querySelectorAll<HTMLButtonElement>("[data-role='delete']").forEach((b) => {
