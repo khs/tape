@@ -1,0 +1,23 @@
+name: Total population — European Union
+shortName: European Union population
+description: Total population for European Union, annual. From World Bank World Development Indicators (series SP.POP.TOTL). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/population_europe_eu.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.POP.TOTL / EUU
+  url: https://api.worldbank.org/v2/country/EUU/indicator/SP.POP.TOTL
+  license: CC BY 4.0
+tags:
+  - europe
+  - macro
+  - world
+unitClass: count

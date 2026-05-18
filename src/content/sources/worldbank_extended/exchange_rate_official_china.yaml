@@ -1,0 +1,22 @@
+name: Official exchange rate (LCU per USD) — China
+shortName: China exchange rate official
+description: Official exchange rate (LCU per USD) for China, annual. From World Bank World Development Indicators (series PA.NUS.FCRF). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/exchange_rate_official_china.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "local currency per USD"
+formatting:
+  style: number
+  decimals: 3
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: PA.NUS.FCRF / CHN
+  url: https://api.worldbank.org/v2/country/CHN/indicator/PA.NUS.FCRF
+  license: CC BY 4.0
+tags:
+  - fx
+  - macro
+  - world
+unitClass: ratio

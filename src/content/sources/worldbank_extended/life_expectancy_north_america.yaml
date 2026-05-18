@@ -1,0 +1,21 @@
+name: Life expectancy at birth — North America
+shortName: North America life expectancy
+description: Life expectancy at birth for North America, annual. From World Bank World Development Indicators (series SP.DYN.LE00.IN). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/life_expectancy_north_america.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "years"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.DYN.LE00.IN / NAC
+  url: https://api.worldbank.org/v2/country/NAC/indicator/SP.DYN.LE00.IN
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: ratio

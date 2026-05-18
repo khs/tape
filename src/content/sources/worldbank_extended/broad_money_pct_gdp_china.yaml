@@ -1,0 +1,21 @@
+name: "Broad money (% of GDP) — China"
+shortName: China broad money pct gdp
+description: "Broad money (% of GDP) for China, annual. From World Bank World Development Indicators (series FM.LBL.BMNY.GD.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/broad_money_pct_gdp_china.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: FM.LBL.BMNY.GD.ZS / CHN
+  url: https://api.worldbank.org/v2/country/CHN/indicator/FM.LBL.BMNY.GD.ZS
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

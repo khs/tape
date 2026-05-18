@@ -1,0 +1,22 @@
+name: Total population — Latin America and Caribbean
+shortName: Latin America and Caribbean population
+description: Total population for Latin America and Caribbean, annual. From World Bank World Development Indicators (series SP.POP.TOTL). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/population_latam.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.POP.TOTL / LCN
+  url: https://api.worldbank.org/v2/country/LCN/indicator/SP.POP.TOTL
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: count

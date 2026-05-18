@@ -1,0 +1,22 @@
+name: Life expectancy at birth — Europe and Central Asia
+shortName: Europe and Central Asia life expectancy
+description: Life expectancy at birth for Europe and Central Asia, annual. From World Bank World Development Indicators (series SP.DYN.LE00.IN). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/life_expectancy_europe_central_asia.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "years"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.DYN.LE00.IN / ECS
+  url: https://api.worldbank.org/v2/country/ECS/indicator/SP.DYN.LE00.IN
+  license: CC BY 4.0
+tags:
+  - europe
+  - macro
+  - world
+unitClass: ratio

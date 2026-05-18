@@ -1,0 +1,23 @@
+name: Total foreign reserves (current USD) — China
+shortName: China reserves total usd
+description: Total foreign reserves (current USD) for China, annual. From World Bank World Development Indicators (series FI.RES.TOTL.CD). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/reserves_total_usd_china.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: FI.RES.TOTL.CD / CHN
+  url: https://api.worldbank.org/v2/country/CHN/indicator/FI.RES.TOTL.CD
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: currency

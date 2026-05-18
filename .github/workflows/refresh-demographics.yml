@@ -68,6 +68,13 @@ jobs:
         continue-on-error: true
         run: python pipelines/derive_acs_state_from_cd.py
 
+      # World Bank — China deep-dive + regional/continent aggregates
+      # (Africa, Europe, etc.). Annual data, slow-moving; lives here
+      # rather than in the weekly market-data workflow.
+      - name: Refresh World Bank extended (China + regions)
+        continue-on-error: true
+        run: python pipelines/worldbank_extended.py
+
       # Federal spending per metro. 19 fiscal years × county-level
       # fetches × CBSA rollup.
       - name: Refresh USAspending metro federal flows
@@ -121,7 +128,7 @@ jobs:
             git fetch origin main
             git reset --soft origin/main
             git add public/data/
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
               git add "src/content/sources/$dir/" 2>/dev/null || true
             done
             if git diff --cached --quiet; then

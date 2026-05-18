@@ -1,0 +1,21 @@
+name: "Urban population (% of total) — China"
+shortName: China urban population pct
+description: "Urban population (% of total) for China, annual. From World Bank World Development Indicators (series SP.URB.TOTL.IN.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/urban_population_pct_china.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.URB.TOTL.IN.ZS / CHN
+  url: https://api.worldbank.org/v2/country/CHN/indicator/SP.URB.TOTL.IN.ZS
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

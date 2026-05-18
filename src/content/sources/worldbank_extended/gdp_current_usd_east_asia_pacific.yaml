@@ -1,0 +1,23 @@
+name: GDP (current USD) — East Asia and Pacific
+shortName: East Asia and Pacific gdp current usd
+description: GDP (current USD) for East Asia and Pacific, annual. From World Bank World Development Indicators (series NY.GDP.MKTP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/gdp_current_usd_east_asia_pacific.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: NY.GDP.MKTP.CD / EAS
+  url: https://api.worldbank.org/v2/country/EAS/indicator/NY.GDP.MKTP.CD
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: currency

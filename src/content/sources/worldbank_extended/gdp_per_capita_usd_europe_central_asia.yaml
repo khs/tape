@@ -1,0 +1,23 @@
+name: GDP per capita (current USD) — Europe and Central Asia
+shortName: Europe and Central Asia gdp per capita usd
+description: GDP per capita (current USD) for Europe and Central Asia, annual. From World Bank World Development Indicators (series NY.GDP.PCAP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/gdp_per_capita_usd_europe_central_asia.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: NY.GDP.PCAP.CD / ECS
+  url: https://api.worldbank.org/v2/country/ECS/indicator/NY.GDP.PCAP.CD
+  license: CC BY 4.0
+tags:
+  - europe
+  - macro
+  - world
+unitClass: currency

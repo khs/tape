@@ -1,0 +1,21 @@
+name: Life expectancy at birth — East Asia and Pacific
+shortName: East Asia and Pacific life expectancy
+description: Life expectancy at birth for East Asia and Pacific, annual. From World Bank World Development Indicators (series SP.DYN.LE00.IN). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/life_expectancy_east_asia_pacific.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "years"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.DYN.LE00.IN / EAS
+  url: https://api.worldbank.org/v2/country/EAS/indicator/SP.DYN.LE00.IN
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: ratio
