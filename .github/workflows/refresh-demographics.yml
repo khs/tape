@@ -17,7 +17,10 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # 3-hour ceiling. Real runtime today is ~30-45 min, but the buffer
+    # lets us add more ACS indicators or new geographic pipelines (e.g.
+    # county-level Census ACS) without re-touching this file each time.
+    timeout-minutes: 180
     steps:
       - name: Check out repo
         uses: actions/checkout@v5
@@ -102,30 +105,35 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Race-safe commit pattern (see refresh-data.yml for the long
+          # explanation). Demographics workflow is especially important
+          # here: it runs for 30+ min, during which a market-data refresh
+          # commit can easily land first. The reset --soft pattern lands
+          # our fresh data on top of whatever's latest without trying to
+          # merge.
+          #
           # Data goes under public/data/; auto-generated source YAMLs
           # land under several src/content/sources/ subdirs (acs_cd,
           # acs_state, acs_national, acs_metro, plus usaspending +
-          # bls for the metro variants). Stage all of them.
-          git add public/data/
-          for dir in acs_cd acs_state acs_national acs_metro usaspending bls; do
-            git add "src/content/sources/$dir/" 2>/dev/null || true
-          done
-          if git diff --cached --quiet; then
-            echo "No data changes to commit."
-            exit 0
-          fi
-          git commit -m "chore: monthly demographics-data refresh"
+          # bls for the metro variants).
           for attempt in 1 2 3 4 5; do
             git fetch origin main
-            if git rebase origin/main; then
-              if git push origin main; then
-                echo "Pushed on attempt $attempt"
-                exit 0
-              fi
-            else
-              echo "Rebase failed on attempt $attempt — aborting and retrying"
-              git rebase --abort || true
+            git reset --soft origin/main
+            git add public/data/
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls; do
+              git add "src/content/sources/$dir/" 2>/dev/null || true
+            done
+            if git diff --cached --quiet; then
+              echo "No data changes to commit (attempt $attempt)."
+              exit 0
             fi
+            git commit -m "chore: monthly demographics-data refresh"
+            if git push origin main; then
+              echo "Pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "Push lost a race on attempt $attempt; refetching and retrying"
             sleep 5
           done
           echo "Failed to push after 5 attempts." >&2
