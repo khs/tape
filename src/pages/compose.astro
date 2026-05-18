@@ -108,20 +108,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               placeholder="Search sources by name, ticker, or tag..."
             />
             <!--
-              Tag-filter strip. The "States & districts" chip with its
-              state/district drilldown gets injected near the front
-              (right after the "all" chip) by renderTagFiltersSources →
-              appendCdDrillDown so geo filtering is prominent without
-              having to scroll past every topical tag.
-            -->
-            <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
-            <!--
-              Geo-chip strip below the tag-filter row. Hosts the Metro
-              area + Countries & regions chips — both are popover-with-
-              searchable-list widgets, visually distinct from the
-              tag-pill row above. Each chip auto-hides if its
-              underlying lookup is empty (e.g. metro pipelines haven't
-              run yet).
+              Geo-chip strip — three chips, equal billing, above the
+              topical tag pills:
+                • US metro areas      (popover-with-searchable-list)
+                • States & districts  (state + district inline dropdowns)
+                • Regions & countries (popover-with-searchable-list)
+              Order matches user-facing label order. Auto-hides only if
+              none of the three has data (in practice always shown on
+              the Sources tab).
             -->
             <div class="lib-geo-chips" data-role="lib-geo-chips" hidden>
               <div class="lib-geo-chip-wrap">
@@ -133,7 +127,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   aria-expanded="false"
                 >
                   <span class="lib-geo-chip-label" data-role="lib-metro-label"
-                    >Metro area &#9662;</span>
+                    >US metro areas &#9662;</span>
                   <span
                     class="lib-geo-chip-clear"
                     data-role="lib-metro-clear"
@@ -159,6 +153,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   ></div>
                 </div>
               </div>
+              <!--
+                CD chip + drilldown rendered by renderCdChip(surface)
+                into this host element. The chip + (when active) state
+                + district dropdowns all live inline next to the metro
+                + country chips. The host gets innerHTML-cleared and
+                re-rendered each time CD state changes, which is OK
+                because nothing else lives inside it.
+              -->
+              <div class="lib-geo-cd-host" data-role="lib-cd-chip-host"></div>
               <div class="lib-geo-chip-wrap">
                 <button
                   type="button"
@@ -168,7 +171,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   aria-expanded="false"
                 >
                   <span class="lib-geo-chip-label" data-role="lib-country-label"
-                    >Countries &amp; regions &#9662;</span>
+                    >Regions and countries &#9662;</span>
                   <span
                     class="lib-geo-chip-clear"
                     data-role="lib-country-clear"
@@ -185,8 +188,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                     type="search"
                     class="lib-geo-search"
                     data-role="lib-country-search"
-                    placeholder="Search countries + regions…"
-                    aria-label="Search countries + regions"
+                    placeholder="Search regions + countries…"
+                    aria-label="Search regions + countries"
                   />
                   <div
                     class="lib-geo-list"
@@ -195,6 +198,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 </div>
               </div>
             </div>
+            <!--
+              Tag-filter strip — "all" + topical tags only. Geo chips
+              (CD + metro + country) live in the geo strip above.
+            -->
+            <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
           </div>
           <div class="lib-results" data-role="lib-results-sources">
             <p class="muted small">Loading sources...</p>
@@ -327,15 +335,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           </label>
           <div class="cc-field">
             <span class="eyebrow">Filter operands by tag (optional)</span>
-            <div class="cc-source-tags lib-tag-filters" data-role="ds-source-tags"></div>
             <!--
-              Geo-chip strip — same pattern as the Sources tab + cc-modal.
-              Same chip behavior, scoped to the ds-modal's filter state.
+              Geo-chip strip — same three-chip layout as the Sources
+              tab + cc-modal. Above the topical tag pills.
             -->
             <div class="lib-geo-chips" data-role="ds-geo-chips" hidden>
               <div class="lib-geo-chip-wrap">
                 <button type="button" class="lib-geo-chip" data-role="ds-metro-chip" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="lib-geo-chip-label" data-role="ds-metro-label">Metro area &#9662;</span>
+                  <span class="lib-geo-chip-label" data-role="ds-metro-label">US metro areas &#9662;</span>
                   <span class="lib-geo-chip-clear" data-role="ds-metro-clear" hidden aria-label="Clear metro filter">&times;</span>
                 </button>
                 <div class="lib-geo-popover" data-role="ds-metro-popover" role="listbox" hidden>
@@ -343,17 +350,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   <div class="lib-geo-list" data-role="ds-metro-list"></div>
                 </div>
               </div>
+              <div class="lib-geo-cd-host" data-role="ds-cd-chip-host"></div>
               <div class="lib-geo-chip-wrap">
                 <button type="button" class="lib-geo-chip" data-role="ds-country-chip" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="lib-geo-chip-label" data-role="ds-country-label">Countries &amp; regions &#9662;</span>
+                  <span class="lib-geo-chip-label" data-role="ds-country-label">Regions and countries &#9662;</span>
                   <span class="lib-geo-chip-clear" data-role="ds-country-clear" hidden aria-label="Clear country filter">&times;</span>
                 </button>
                 <div class="lib-geo-popover" data-role="ds-country-popover" role="listbox" hidden>
-                  <input type="search" class="lib-geo-search" data-role="ds-country-search" placeholder="Search countries + regions…" aria-label="Search countries + regions" />
+                  <input type="search" class="lib-geo-search" data-role="ds-country-search" placeholder="Search regions + countries…" aria-label="Search regions + countries" />
                   <div class="lib-geo-list" data-role="ds-country-list"></div>
                 </div>
               </div>
             </div>
+            <div class="cc-source-tags lib-tag-filters" data-role="ds-source-tags"></div>
           </div>
           <div class="cc-field">
             <span class="eyebrow">A (first operand)</span>
@@ -412,17 +421,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span class="cc-sources-count" data-role="cc-count">0 selected</span>
               </div>
               <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name, ticker, or tag…" />
-              <div class="cc-source-tags lib-tag-filters" data-role="cc-source-tags"></div>
               <!--
-                Geo-chip strip identical to the Sources tab. Metro + country
-                pickers are popovers with searchable lists rather than flat
-                pills; sources matching those geos stay hidden until a
-                specific entity is picked.
+                Geo-chip strip — same three-chip layout as the Sources
+                tab, in the same order. Lives ABOVE the topical tag
+                pills so geo picks are the first thing users see.
               -->
               <div class="lib-geo-chips" data-role="cc-geo-chips" hidden>
                 <div class="lib-geo-chip-wrap">
                   <button type="button" class="lib-geo-chip" data-role="cc-metro-chip" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="lib-geo-chip-label" data-role="cc-metro-label">Metro area &#9662;</span>
+                    <span class="lib-geo-chip-label" data-role="cc-metro-label">US metro areas &#9662;</span>
                     <span class="lib-geo-chip-clear" data-role="cc-metro-clear" hidden aria-label="Clear metro filter">&times;</span>
                   </button>
                   <div class="lib-geo-popover" data-role="cc-metro-popover" role="listbox" hidden>
@@ -430,17 +437,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                     <div class="lib-geo-list" data-role="cc-metro-list"></div>
                   </div>
                 </div>
+                <div class="lib-geo-cd-host" data-role="cc-cd-chip-host"></div>
                 <div class="lib-geo-chip-wrap">
                   <button type="button" class="lib-geo-chip" data-role="cc-country-chip" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="lib-geo-chip-label" data-role="cc-country-label">Countries &amp; regions &#9662;</span>
+                    <span class="lib-geo-chip-label" data-role="cc-country-label">Regions and countries &#9662;</span>
                     <span class="lib-geo-chip-clear" data-role="cc-country-clear" hidden aria-label="Clear country filter">&times;</span>
                   </button>
                   <div class="lib-geo-popover" data-role="cc-country-popover" role="listbox" hidden>
-                    <input type="search" class="lib-geo-search" data-role="cc-country-search" placeholder="Search countries + regions…" aria-label="Search countries + regions" />
+                    <input type="search" class="lib-geo-search" data-role="cc-country-search" placeholder="Search regions + countries…" aria-label="Search regions + countries" />
                     <div class="lib-geo-list" data-role="cc-country-list"></div>
                   </div>
                 </div>
               </div>
+              <div class="cc-source-tags lib-tag-filters" data-role="cc-source-tags"></div>
               <div class="cc-source-list" data-role="cc-source-list"></div>
             </div>
             <fieldset class="cc-mode" data-role="cc-mode">
@@ -1231,6 +1240,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     state: () => GeoState;
     onChange: () => void;
     track: (event: string, props: Record<string, unknown>) => void;
+    // CD chip lives in the geo strip alongside metro + country. The
+    // selectedTags set tracks whether CD_TAG is the "active" chip;
+    // cdState + cdDistrict are the picked state + district codes.
+    // refreshTags re-renders the topical tag pills row so the
+    // "(N)" counts reflect the new CD-vs-not gate.
+    cdSelectedTags: () => Set<string>;
+    getCdState: () => string | null;
+    setCdState: (v: string | null) => void;
+    getCdDistrict: () => string | null;
+    setCdDistrict: (v: string | null) => void;
+    refreshTags: () => void;
   }
   function geoSurfaceConfig(surface: GeoSurface): GeoSurfaceConfig {
     if (surface === "lib") {
@@ -1239,6 +1259,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         state: () => libGeo,
         onChange: () => renderSourcesList(),
         track: (e, p) => track(e, { ...p, surface: "compose-sources" }),
+        cdSelectedTags: () => sourcesSelectedTags,
+        getCdState: () => sourcesCdState,
+        setCdState: (v) => { sourcesCdState = v; },
+        getCdDistrict: () => sourcesCdDistrict,
+        setCdDistrict: (v) => { sourcesCdDistrict = v; },
+        refreshTags: () => renderTagFiltersSources(),
       };
     }
     if (surface === "cc") {
@@ -1247,6 +1273,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         state: () => ccModal.geo,
         onChange: () => renderCustomChartSources(),
         track: (e, p) => track(e, { ...p, surface: "cc-modal" }),
+        cdSelectedTags: () => ccModal.pickerTags,
+        getCdState: () => ccModal.cdState,
+        setCdState: (v) => { ccModal.cdState = v; },
+        getCdDistrict: () => ccModal.cdDistrict,
+        setCdDistrict: (v) => { ccModal.cdDistrict = v; },
+        refreshTags: () => renderCcModalTagChips(),
       };
     }
     return {
@@ -1259,6 +1291,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderDsPicker("b");
       },
       track: (e, p) => track(e, { ...p, surface: "ds-modal" }),
+      cdSelectedTags: () => dsModal.pickerTags,
+      getCdState: () => dsModal.cdState,
+      setCdState: (v) => { dsModal.cdState = v; },
+      getCdDistrict: () => dsModal.cdDistrict,
+      setCdDistrict: (v) => { dsModal.cdDistrict = v; },
+      refreshTags: () => renderDsModalTagChips(),
     };
   }
   function geoQS<T extends HTMLElement>(prefix: string, suffix: string): T | null {
@@ -1286,7 +1324,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       chip.classList.add("lib-geo-chip-active");
       clear.hidden = false;
     } else {
-      label.textContent = "Metro area ▾";
+      label.textContent = "US metro areas ▾";
       chip.classList.remove("lib-geo-chip-active");
       clear.hidden = true;
     }
@@ -1391,7 +1429,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       chip.classList.add("lib-geo-chip-active");
       clear.hidden = false;
     } else {
-      label.textContent = "Countries & regions ▾";
+      label.textContent = "Regions and countries ▾";
       chip.classList.remove("lib-geo-chip-active");
       clear.hidden = true;
     }
@@ -1489,6 +1527,34 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     renderCountryChip(surface);
     cfg.onChange();
     cfg.track("compose_country_filter_cleared", {});
+  }
+
+  // States & districts chip rendering. Sits in the geo strip alongside
+  // the metro + country chips. Implemented as a clear-and-rebuild via
+  // the existing appendCdDrillDown helper so the chip + state dropdown
+  // + district dropdown all live as siblings inside the host element.
+  // The onToggle callback re-renders the chip itself (to reflect the
+  // new pickerTags state), the topical-tag row (counts reflect the new
+  // CD-vs-not gate), and the source list (gate now affects which
+  // sources show).
+  function renderCdChip(surface: GeoSurface = "lib"): void {
+    const cfg = geoSurfaceConfig(surface);
+    const host = geoQS<HTMLElement>(cfg.prefix, "cd-chip-host");
+    if (!host) return;
+    host.innerHTML = "";
+    appendCdDrillDown(
+      host,
+      cfg.cdSelectedTags(),
+      cfg.getCdState,
+      cfg.setCdState,
+      cfg.getCdDistrict,
+      cfg.setCdDistrict,
+      () => {
+        renderCdChip(surface);
+        cfg.refreshTags();
+        cfg.onChange();
+      },
+    );
   }
 
   // Shared wiring helper. Hooks click + clear + popover-search + outside-
@@ -1634,30 +1700,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     host.appendChild(
       makeBtn("", `all (${nonGeoCount})`, sourcesSelectedTags.size === 0),
     );
-    // States & districts chip rendered RIGHT AFTER "all" so geo
-    // filtering is the most prominent option after "show me everything"
-    // — ahead of the long list of topical tag chips + ahead of the
-    // Metro chip strip that sits below this row.
-    appendCdDrillDown(
-      host,
-      sourcesSelectedTags,
-      () => sourcesCdState,
-      (v) => {
-        sourcesCdState = v;
-        sourcesCdDistrict = null;
-      },
-      () => sourcesCdDistrict,
-      (v) => {
-        sourcesCdDistrict = v;
-      },
-      () => {
-        renderTagFiltersSources();
-        renderSourcesList();
-      },
-    );
+    // The CD / metro / country chips live in the geo strip ABOVE this
+    // row (renderCdChip, renderMetroChip, renderCountryChip). Topical
+    // tags only here.
     for (const t of tags) {
-      if (t === CD_TAG || t === STATE_TAG) continue; // rendered specially above
-      if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue; // surfaced via country chip
+      if (t === CD_TAG || t === STATE_TAG) continue; // surfaced via CD chip
+      if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue; // country chip
       // Count visible (non-geo) sources for each tag so the chip count
       // matches what the user will actually see when they click it.
       let count = 0;
@@ -3550,9 +3598,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncLogUI();
     syncOpUI();
     renderCcModalTagChips();
-    // Geo-chip strip: render chips reflecting ccModal.geo, wire event
-    // handlers idempotently (wireGeoChips guards with dataset.wired).
+    // Geo-chip strip: render all three chips reflecting modal state,
+    // wire event handlers idempotently (wireGeoChips guards via
+    // dataset.wired).
     renderMetroChip("cc");
+    renderCdChip("cc");
     renderCountryChip("cc");
     wireGeoChips("cc");
     renderCustomChartSources();
@@ -4631,7 +4681,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     hostSelector: string,
     selected: Set<string>,
     onToggle: () => void,
-    cdGetters: {
+    _cdGetters: {
       getState: () => string | null;
       setState: (v: string | null) => void;
       getDistrict: () => string | null;
@@ -4652,8 +4702,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         e.preventDefault();
         if (tag === "") {
           selected.clear();
-          cdGetters.setState(null);
-          cdGetters.setDistrict(null);
         } else if (selected.has(tag)) {
           selected.delete(tag);
         } else {
@@ -4664,20 +4712,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return b;
     };
     host.appendChild(makeChip("", "all", selected.size === 0));
-    // States & districts chip rendered FIRST (mirrors the Sources tab
-    // ordering — geo prominent, ahead of topical tags).
-    appendCdDrillDown(
-      host,
-      selected,
-      cdGetters.getState,
-      cdGetters.setState,
-      cdGetters.getDistrict,
-      cdGetters.setDistrict,
-      onToggle,
-    );
-    // METRO_TAG / COUNTRY_TAG are surfaced through the dedicated
-    // geo-chips strip below this row (see wireGeoChips in modal-open
-    // handlers), not as pills here.
+    // CD / METRO / COUNTRY chips live in the geo-chips strip ABOVE this
+    // row; topical tags only here. (See renderCdChip / renderMetroChip
+    // / renderCountryChip + wireGeoChips for the geo strip wiring.)
     for (const t of tags) {
       if (t === CD_TAG || t === STATE_TAG) continue;
       if (t === METRO_TAG || t === COUNTRY_TAG) continue;
@@ -4766,6 +4803,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       .forEach((c) => c.classList.remove("ds-quick-chip-active"));
     renderDsModalTagChips();
     renderMetroChip("ds");
+    renderCdChip("ds");
     renderCountryChip("ds");
     wireGeoChips("ds");
     renderDsPicker("a");
@@ -5276,6 +5314,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       renderTagFiltersSources();
       renderTagFiltersCharts();
       renderMetroChip();
+      renderCdChip();
       renderCountryChip();
       renderSourcesList();
       renderComposition();
@@ -5460,12 +5499,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-white);
     border-color: var(--color-neutral-900);
   }
-  /* Geo drill-down chip strip — Metro area chip, sits between the search
-     input and the tag pills. Hidden when no metros are loaded so the
-     strip doesn't occupy vertical space pre-pipelines. */
-  .lib-geo-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* Geo drill-down chip strip — US metro areas, States & districts,
+     Regions & countries. Sits between the search input and the
+     topical tag pills. Hidden when none of the three has any data. */
+  .lib-geo-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .lib-geo-chips[hidden] { display: none; }
   .lib-geo-chip-wrap { position: relative; }
+  /* The CD chip host renders inline as a flex sibling so its chip +
+     state dropdown + district dropdown all flow naturally in the
+     same row as the popover chips. */
+  .lib-geo-cd-host { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .lib-geo-chip {
     font: inherit;
     font-size: var(--text-xs);
