@@ -317,6 +317,45 @@ export const GET: APIRoute = async () => {
     countries[code] = { name: countriesInUse.get(code) ?? code };
   }
 
+  // Build-time invariant check: every UI selector option must have at
+  // least one source carrying the matching per-entity tag. By
+  // construction the lookups + tags are populated in lockstep, so a
+  // violation indicates a parser bug or a stale entity slug. Better to
+  // fail the build loudly than to ship a chip dropdown where picking
+  // "Europe" yields zero sources.
+  const emptyEntities: string[] = [];
+  const checkEntity = (
+    label: string,
+    code: string,
+    tag: string,
+  ) => {
+    let count = 0;
+    for (const sid of Object.keys(sources)) {
+      const tags = (sources[sid] as { tags?: string[] }).tags ?? [];
+      if (tags.includes(tag)) {
+        count += 1;
+        break;
+      }
+    }
+    if (count === 0) emptyEntities.push(`${label} '${code}' (tag '${tag}') has zero matching sources`);
+  };
+  for (const code of usedCodes) {
+    checkEntity("metro CBSA", code, `${METRO_TAG}:${code}`);
+  }
+  for (const code of usedCountryCodes) {
+    checkEntity("country/region", code, `${COUNTRY_TAG}:${code}`);
+  }
+  if (emptyEntities.length > 0) {
+    // Throw, don't console.error — Astro propagates the throw and the
+    // prerender step fails the build. This is intentional: shipping an
+    // empty selector option is a worse UX than a build failure.
+    const msg =
+      `library.json build failed: ${emptyEntities.length} UI selector ` +
+      `option${emptyEntities.length === 1 ? "" : "s"} would render empty.\n` +
+      emptyEntities.map((e) => `  - ${e}`).join("\n");
+    throw new Error(msg);
+  }
+
   const body = JSON.stringify({
     charts,
     sources,
