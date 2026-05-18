@@ -1,0 +1,22 @@
+name: Total population — Mexico
+shortName: Mexico population
+description: Total population for Mexico, annual. From World Bank World Development Indicators (series SP.POP.TOTL). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/population_mexico.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.POP.TOTL / MEX
+  url: https://api.worldbank.org/v2/country/MEX/indicator/SP.POP.TOTL
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: count

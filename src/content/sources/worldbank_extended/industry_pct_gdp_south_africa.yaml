@@ -1,0 +1,21 @@
+name: "Industry (incl. construction) value-added (% of GDP) — South Africa"
+shortName: South Africa industry pct gdp
+description: "Industry (incl. construction) value-added (% of GDP) for South Africa, annual. From World Bank World Development Indicators (series NV.IND.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/industry_pct_gdp_south_africa.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: NV.IND.TOTL.ZS / ZAF
+  url: https://api.worldbank.org/v2/country/ZAF/indicator/NV.IND.TOTL.ZS
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

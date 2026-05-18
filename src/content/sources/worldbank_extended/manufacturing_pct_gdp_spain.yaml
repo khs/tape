@@ -1,0 +1,21 @@
+name: "Manufacturing value-added (% of GDP) — Spain"
+shortName: Spain manufacturing pct gdp
+description: "Manufacturing value-added (% of GDP) for Spain, annual. From World Bank World Development Indicators (series NV.IND.MANF.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/manufacturing_pct_gdp_spain.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: NV.IND.MANF.ZS / ESP
+  url: https://api.worldbank.org/v2/country/ESP/indicator/NV.IND.MANF.ZS
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

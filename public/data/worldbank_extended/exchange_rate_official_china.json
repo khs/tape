@@ -3,7 +3,7 @@
   "name": "Official exchange rate (LCU per USD) \u2014 China",
   "kind": "timeseries",
   "unit": "local currency per USD",
-  "lastUpdated": "2026-05-18T11:58:49Z",
+  "lastUpdated": "2026-05-18T21:28:55Z",
   "points": [
     {
       "t": "1960-12-31",

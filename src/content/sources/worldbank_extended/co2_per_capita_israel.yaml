@@ -1,0 +1,21 @@
+name: CO2 emissions per capita (excl. land use) — Israel
+shortName: Israel co2 per capita
+description: CO2 emissions per capita (excl. land use) for Israel, annual. From World Bank World Development Indicators (series EN.GHG.CO2.PC.CE.AR5). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/co2_per_capita_israel.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "t CO2e per capita"
+formatting:
+  style: number
+  decimals: 2
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: EN.GHG.CO2.PC.CE.AR5 / ISR
+  url: https://api.worldbank.org/v2/country/ISR/indicator/EN.GHG.CO2.PC.CE.AR5
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: ratio

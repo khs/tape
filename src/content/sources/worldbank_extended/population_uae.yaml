@@ -1,0 +1,22 @@
+name: Total population — United Arab Emirates
+shortName: United Arab Emirates population
+description: Total population for United Arab Emirates, annual. From World Bank World Development Indicators (series SP.POP.TOTL). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/population_uae.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: SP.POP.TOTL / ARE
+  url: https://api.worldbank.org/v2/country/ARE/indicator/SP.POP.TOTL
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: count

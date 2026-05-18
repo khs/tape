@@ -1,0 +1,21 @@
+name: "Agriculture, forestry, fishing value-added (% of GDP) — Poland"
+shortName: Poland agriculture pct gdp
+description: "Agriculture, forestry, fishing value-added (% of GDP) for Poland, annual. From World Bank World Development Indicators (series NV.AGR.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/agriculture_pct_gdp_poland.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: NV.AGR.TOTL.ZS / POL
+  url: https://api.worldbank.org/v2/country/POL/indicator/NV.AGR.TOTL.ZS
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

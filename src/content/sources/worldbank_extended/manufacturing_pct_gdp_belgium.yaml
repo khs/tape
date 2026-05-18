@@ -1,0 +1,21 @@
+name: "Manufacturing value-added (% of GDP) — Belgium"
+shortName: Belgium manufacturing pct gdp
+description: "Manufacturing value-added (% of GDP) for Belgium, annual. From World Bank World Development Indicators (series NV.IND.MANF.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/manufacturing_pct_gdp_belgium.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: NV.IND.MANF.ZS / BEL
+  url: https://api.worldbank.org/v2/country/BEL/indicator/NV.IND.MANF.ZS
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

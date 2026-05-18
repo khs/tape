@@ -216,10 +216,12 @@ const WB_GDP_SLUG_TO_COUNTRY: Record<string, string> = {
  *   worldbank_extended/gdp_current_usd_china
  *   worldbank_extended/population_africa_ssf
  *   worldbank_extended/life_expectancy_europe_eu
- * The trailing entity slug is one of these keys.
+ * The trailing entity slug is one of these keys. Must stay aligned
+ * with the slug column of REGIONS + COUNTRY_DEEP_DIVES in
+ * pipelines/worldbank_extended.py.
  */
 const WB_EXTENDED_ENTITY_SLUG: Record<string, string> = {
-  china: "CHN",
+  // Regions
   africa_ssf: "SSF",
   europe_eu: "EUU",
   europe_central_asia: "ECS",
@@ -228,7 +230,72 @@ const WB_EXTENDED_ENTITY_SLUG: Record<string, string> = {
   north_america: "NAC",
   south_asia: "SAS",
   east_asia_pacific: "EAS",
+  // Countries (sorted ISO3 within each block; lookup order is
+  // longest-slug-first via WB_EXTENDED_ENTITY_SLUG_BY_LENGTH below)
+  australia: "AUS",
+  austria: "AUT",
+  belgium: "BEL",
+  bermuda: "BMU",
+  brazil: "BRA",
+  canada: "CAN",
+  cayman_islands: "CYM",
+  chile: "CHL",
+  china: "CHN",
+  colombia: "COL",
+  costa_rica: "CRI",
+  czechia: "CZE",
+  denmark: "DNK",
+  el_salvador: "SLV",
+  estonia: "EST",
+  finland: "FIN",
+  france: "FRA",
+  germany: "DEU",
+  greece: "GRC",
+  hong_kong: "HKG",
+  hungary: "HUN",
+  iceland: "ISL",
+  india: "IND",
+  ireland: "IRL",
+  israel: "ISR",
+  italy: "ITA",
+  japan: "JPN",
+  kuwait: "KWT",
+  latvia: "LVA",
+  lithuania: "LTU",
+  luxembourg: "LUX",
+  mexico: "MEX",
+  netherlands: "NLD",
+  new_zealand: "NZL",
+  norway: "NOR",
+  peru: "PER",
+  philippines: "PHL",
+  poland: "POL",
+  portugal: "PRT",
+  russia: "RUS",
+  saudi_arabia: "SAU",
+  singapore: "SGP",
+  slovakia: "SVK",
+  slovenia: "SVN",
+  south_africa: "ZAF",
+  south_korea: "KOR",
+  spain: "ESP",
+  sweden: "SWE",
+  switzerland: "CHE",
+  taiwan: "TWN",
+  thailand: "THA",
+  turkiye: "TUR",
+  uae: "ARE",
+  uk: "GBR",
 };
+
+// Sorted longest-first so the parser matches the most specific slug
+// before any shorter one that could be a prefix-collision (e.g.
+// `south_africa` must be tested before any hypothetical `africa`).
+// Computed once at module load.
+const WB_EXTENDED_ENTITY_SLUG_SORTED: ReadonlyArray<[string, string]> =
+  Object.entries(WB_EXTENDED_ENTITY_SLUG).sort(
+    (a, b) => b[0].length - a[0].length,
+  );
 
 /**
  * Parse a source ID to determine whether it's a country / region
@@ -297,11 +364,13 @@ export function parseCountrySourceId(
     }
   }
   // worldbank_extended/<indicator>_<entity>. Match against the
-  // entity-slug suffix table.
+  // entity-slug suffix table, longest-slug first so that e.g.
+  // `population_south_africa` matches `_south_africa` (ZAF) before
+  // any hypothetical shorter prefix-collision could fire.
   m = id.match(/^worldbank_extended\/(.+)$/);
   if (m) {
     const slug = m[1];
-    for (const [entitySlug, code] of Object.entries(WB_EXTENDED_ENTITY_SLUG)) {
+    for (const [entitySlug, code] of WB_EXTENDED_ENTITY_SLUG_SORTED) {
       if (slug.endsWith(`_${entitySlug}`)) {
         const name =
           COUNTRY_NAME_BY_CODE[code] ?? REGION_NAME_BY_CODE[code] ?? code;
