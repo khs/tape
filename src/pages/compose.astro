@@ -1022,15 +1022,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
    *  4-char threshold or with no name match. Same semantics as
    *  unlockedMetrosForQuery — gives the user a typed-name shortcut
    *  past the chip gate without exposing every geo source to broad
-   *  queries like "cars". */
+   *  queries like "cars".
+   *
+   *  Memoized by query string: this function is called from
+   *  passesCdFilter once per source per render, and renderTagFilters
+   *  / renderSourcesList both call it for every source. Without the
+   *  cache, a 4-char query rebuilds the result set ~20k times per
+   *  keystroke and freezes the UI. */
+  let _stateUnlockCache: { q: string; result: Set<string> | null } | null = null;
   function unlockedStatesForQuery(q: string): Set<string> | null {
-    if (q.length < 4) return null;
-    const matched = new Set<string>();
-    const ql = q.toLowerCase();
-    for (const s of US_STATES) {
-      if (s.name.toLowerCase().includes(ql)) matched.add(s.code);
+    if (_stateUnlockCache && _stateUnlockCache.q === q) return _stateUnlockCache.result;
+    let result: Set<string> | null = null;
+    if (q.length >= 4) {
+      const matched = new Set<string>();
+      const ql = q.toLowerCase();
+      for (const s of US_STATES) {
+        if (s.name.toLowerCase().includes(ql)) matched.add(s.code);
+      }
+      if (matched.size > 0) result = matched;
     }
-    return matched.size > 0 ? matched : null;
+    _stateUnlockCache = { q, result };
+    return result;
   }
 
   // Cache of CBSA codes "unlocked" by the current search query — set of
@@ -1041,16 +1053,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // Rationale: user wants the chip to be the default opt-in but typing
   // "Abilene" should also surface Abilene-tagged sources. Typing
   // "cars" must not surface households-with-cars-in-Abilene.
+  // Memoized — see unlockedStatesForQuery for the rationale.
+  let _metroUnlockCache: { q: string; result: Set<string> | null } | null = null;
   function unlockedMetrosForQuery(q: string): Set<string> | null {
-    if (q.length < 4) return null;
-    if (!library?.metros) return null;
-    const matched = new Set<string>();
-    const ql = q.toLowerCase();
-    for (const [code, entry] of Object.entries(library.metros)) {
-      const hay = (entry.shortName + " " + entry.name).toLowerCase();
-      if (hay.includes(ql)) matched.add(`${METRO_TAG}:${code}`);
+    if (_metroUnlockCache && _metroUnlockCache.q === q) return _metroUnlockCache.result;
+    let result: Set<string> | null = null;
+    if (q.length >= 4 && library?.metros) {
+      const matched = new Set<string>();
+      const ql = q.toLowerCase();
+      for (const [code, entry] of Object.entries(library.metros)) {
+        const hay = (entry.shortName + " " + entry.name).toLowerCase();
+        if (hay.includes(ql)) matched.add(`${METRO_TAG}:${code}`);
+      }
+      if (matched.size > 0) result = matched;
     }
-    return matched.size > 0 ? matched : null;
+    _metroUnlockCache = { q, result };
+    return result;
   }
 
   /** Returns true if a source passes the metro chip's filter for a
@@ -1079,18 +1097,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   /** Set of country/region codes whose display name contains the
    *  search query as a substring. Same 4-char threshold as the metro
    *  + state unlocks: typing "Australia" unlocks AUS-tagged sources;
-   *  typing "Aus" alone (3 chars) does not. */
+   *  typing "Aus" alone (3 chars) does not. Memoized — see
+   *  unlockedStatesForQuery for the rationale. */
+  let _countryUnlockCache: { q: string; result: Set<string> | null } | null = null;
   function unlockedCountriesForQuery(q: string): Set<string> | null {
-    if (q.length < 4) return null;
-    if (!library?.countries) return null;
-    const matched = new Set<string>();
-    const ql = q.toLowerCase();
-    for (const [code, entry] of Object.entries(library.countries)) {
-      if (entry.name.toLowerCase().includes(ql)) {
-        matched.add(`${COUNTRY_TAG}:${code}`);
+    if (_countryUnlockCache && _countryUnlockCache.q === q) return _countryUnlockCache.result;
+    let result: Set<string> | null = null;
+    if (q.length >= 4 && library?.countries) {
+      const matched = new Set<string>();
+      const ql = q.toLowerCase();
+      for (const [code, entry] of Object.entries(library.countries)) {
+        if (entry.name.toLowerCase().includes(ql)) {
+          matched.add(`${COUNTRY_TAG}:${code}`);
+        }
       }
+      if (matched.size > 0) result = matched;
     }
-    return matched.size > 0 ? matched : null;
+    _countryUnlockCache = { q, result };
+    return result;
   }
 
   /** Returns true if a source passes the country chip's filter.
@@ -1759,40 +1783,48 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // — chip state + search query + selected topical tags. Otherwise
     // the user sees "fiscal (6)" with "abil" typed, clicks fiscal, and
     // gets zero results because all six fiscal sources fail the
-    // metro-only narrowing. The helper below walks the same gates as
-    // filteredSources() and returns the count that would result if
-    // `extraTag` were added to the topical-tag AND set (null = no extra
-    // tag, used for the "all" count).
+    // metro-only narrowing.
+    //
+    // Performance: one walk of `library.sources` instead of N tags ×
+    // sources. For each source that passes the current filters, we
+    // bump a counter for each of its topical tags (so we know exactly
+    // how many results adding that tag would yield). 20k sources × ~5
+    // tags each beats 50 tags × 20k sources × 3 unlock-cost-per-source
+    // by ~3 orders of magnitude — the previous shape froze the UI
+    // around the 4-char unlock boundary.
     const q = sourcesSearchQuery.trim().toLowerCase();
-    const tagsRequiredBase = [...sourcesSelectedTags].filter((t) => t !== CD_TAG);
+    const tagsRequired = [...sourcesSelectedTags].filter((t) => t !== CD_TAG);
     const libSources = library.sources;
-    function countMatching(extraTag: string | null): number {
-      const required = extraTag && !tagsRequiredBase.includes(extraTag)
-        ? [...tagsRequiredBase, extraTag]
-        : tagsRequiredBase;
-      let n = 0;
-      for (const id of Object.keys(libSources)) {
-        const src = libSources[id] as LibrarySource & {
-          tags?: string[];
-          searchText?: string;
-        };
-        const sTags = src.tags ?? [];
-        if (!passesCdFilter(id, sTags, sourcesSelectedTags, sourcesCdState, sourcesCdDistrict, q)) continue;
-        if (!passesMetroFilter(sTags, libGeo.selectedMetroCbsa, q)) continue;
-        if (!passesCountryFilter(sTags, libGeo.selectedCountryCode, q)) continue;
-        let ok = true;
-        for (const t of required) {
-          if (!sTags.includes(t)) { ok = false; break; }
-        }
-        if (!ok) continue;
-        if (q) {
-          const hay = src.searchText ??
-            (src.name + " " + (src.shortName ?? "") + " " + id + " " + sTags.join(" ")).toLowerCase();
-          if (!hay.includes(q)) continue;
-        }
-        n += 1;
+    let allCount = 0;
+    const tagCounts = new Map<string, number>();
+    for (const id of Object.keys(libSources)) {
+      const src = libSources[id] as LibrarySource & {
+        tags?: string[];
+        searchText?: string;
+      };
+      const sTags = src.tags ?? [];
+      if (!passesCdFilter(id, sTags, sourcesSelectedTags, sourcesCdState, sourcesCdDistrict, q)) continue;
+      if (!passesMetroFilter(sTags, libGeo.selectedMetroCbsa, q)) continue;
+      if (!passesCountryFilter(sTags, libGeo.selectedCountryCode, q)) continue;
+      let ok = true;
+      for (const t of tagsRequired) {
+        if (!sTags.includes(t)) { ok = false; break; }
       }
-      return n;
+      if (!ok) continue;
+      if (q) {
+        const hay = src.searchText ??
+          (src.name + " " + (src.shortName ?? "") + " " + id + " " + sTags.join(" ")).toLowerCase();
+        if (!hay.includes(q)) continue;
+      }
+      allCount += 1;
+      // Bucket per-tag for pill counts. Skip geo synthetic tags —
+      // they're rendered through the geo chips, not as topical pills.
+      for (const t of sTags) {
+        if (t === CD_TAG || t === STATE_TAG) continue;
+        if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue;
+        if (t === METRO_TAG || t.startsWith(`${METRO_TAG}:`)) continue;
+        tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+      }
     }
     const makeBtn = (tag: string, label: string, active: boolean) => {
       const b = document.createElement("button");
@@ -1815,7 +1847,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return b;
     };
     host.appendChild(
-      makeBtn("", `all (${countMatching(null)})`, sourcesSelectedTags.size === 0),
+      makeBtn("", `all (${allCount})`, sourcesSelectedTags.size === 0),
     );
     // The CD / metro / country chips live in the geo strip ABOVE this
     // row (renderCdChip, renderMetroChip, renderCountryChip). Topical
@@ -1823,7 +1855,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     for (const t of tags) {
       if (t === CD_TAG || t === STATE_TAG) continue; // surfaced via CD chip
       if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue; // country chip
-      const count = countMatching(t);
+      const count = tagCounts.get(t) ?? 0;
       // Skip count-0 pills — clicking would yield zero results, which is
       // worse than the pill simply not being there.
       if (count === 0) continue;
