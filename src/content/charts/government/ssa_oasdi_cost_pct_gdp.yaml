@@ -1,0 +1,8 @@
+title: OASDI cost / GDP — SSA Trustees
+sources:
+  - ssa/oasdi_cost_pct_gdp
+render: line
+defaultDelta: 50y
+tags: [fiscal, government, demographics, us]
+blurb: |
+  Solid line: historical OASDI cost / GDP. Dashed line: 75-year intermediate-cost projection from the most recent SSA Trustees Report. "OASDI" = Old-Age, Survivors, and Disability Insurance — Social Security in aggregate. The Trustees Report also publishes low-cost and high-cost alternatives bracketing this central estimate.

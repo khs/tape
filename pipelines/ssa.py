@@ -71,6 +71,7 @@ Run
 """
 from __future__ import annotations
 
+import io
 import re
 import sys
 from dataclasses import dataclass
@@ -127,6 +128,13 @@ class SsaTableSpec:
     # source table reports figures that need scaling (e.g., a table
     # in percent should stay in percent; one in ratio×100 -> ratio).
     scale: float
+    # Substring keywords that should ALL appear (case-insensitive) in
+    # an HTML filename for it to be considered a manual-upload match
+    # for this table. Lets the operator save the page with whatever
+    # filename their browser defaults to (typically the page <title>)
+    # rather than needing a specific naming convention. First file
+    # whose name contains every keyword in this list is picked.
+    filename_keywords: list[str]
 
 
 # 2025 Trustees Report — Long-Range Estimates section. SSA renamed the
@@ -142,33 +150,59 @@ class SsaTableSpec:
 #   lr4b3.html  (was lr6F4.html)
 #     "Covered Workers and Beneficiaries, Calendar Years 1970-2100".
 #     Demographic-pressure ratio across the three alternatives.
+# Note on alternatives + the value_header_pattern: SSA's pages put
+# Low-cost / Intermediate / High-cost projections on the SAME table,
+# split into ROW sections labeled "Intermediate:" / "Low-cost:" /
+# "High-cost:" (or "Historical data:" for actuals). Columns DON'T
+# carry the alternative label. So the value-header regex below picks
+# the metric column (e.g. "OASDI Cost"); the parser tracks the
+# active row-section and only collects rows from Historical + the
+# Intermediate sections, discarding Low-cost and High-cost.
 TABLES: list[SsaTableSpec] = [
     SsaTableSpec(
         out_id="oasdi_cost_pct_gdp",
         name="Social Security (OASDI) cost as % of GDP",
         unit="% of GDP",
         url_suffix="VI_G2_OASDHI_GDP.html",
-        value_header_pattern=re.compile(r"OASDI[^|]*Cost.*Intermediate", re.I | re.S),
-        year_header_pattern=re.compile(r"Year", re.I),
+        # Column header (pandas-flattened): "Percentage of GDP | OASDI | Cost"
+        value_header_pattern=re.compile(r"OASDI.*Cost", re.I | re.S),
+        year_header_pattern=re.compile(r"Calendar year", re.I),
         scale=1.0,
+        # Matches "2. Estimates as a Percentage of Gross Domestic
+        # Product.html" — the default filename a browser saves the page
+        # under (from its <title>).
+        filename_keywords=["percentage", "gross domestic product"],
     ),
     SsaTableSpec(
         out_id="oasdi_income_pct_gdp",
         name="Social Security (OASDI) income as % of GDP",
         unit="% of GDP",
         url_suffix="VI_G2_OASDHI_GDP.html",
-        value_header_pattern=re.compile(r"OASDI[^|]*Income.*Intermediate", re.I | re.S),
-        year_header_pattern=re.compile(r"Year", re.I),
+        # Column header: "Percentage of GDP | OASDI | Income"
+        value_header_pattern=re.compile(r"OASDI.*Income", re.I | re.S),
+        year_header_pattern=re.compile(r"Calendar year", re.I),
         scale=1.0,
+        # Same page as oasdi_cost_pct_gdp — both series come from the
+        # one GDP percentage table.
+        filename_keywords=["percentage", "gross domestic product"],
     ),
     SsaTableSpec(
         out_id="oasdi_workers_per_beneficiary",
         name="Covered workers per OASDI beneficiary",
         unit="workers per beneficiary",
         url_suffix="lr4b3.html",
-        value_header_pattern=re.compile(r"Intermediate", re.I),
-        year_header_pattern=re.compile(r"Year", re.I),
+        # Pre-computed ratio column in the workers/beneficiaries table.
+        # Full flattened header: "Covered workers per OASDI beneficiary
+        # | Covered workers per OASDI beneficiary".
+        value_header_pattern=re.compile(
+            r"Covered\s+workers\s+per\s+OASDI\s+beneficiary",
+            re.I | re.S,
+        ),
+        year_header_pattern=re.compile(r"Calendar year", re.I),
         scale=1.0,
+        # Matches "Covered Workers and Beneficiaries — 2025 OASDI
+        # Trustees Report.html".
+        filename_keywords=["covered workers", "beneficiaries"],
     ),
 ]
 
@@ -176,18 +210,34 @@ TABLES: list[SsaTableSpec] = [
 MANUAL_DIR = ROOT / "pipelines" / "ssa_data"
 
 
-def fetch_html(year: int, suffix: str) -> str | None:
+def fetch_html(
+    year: int,
+    suffix: str,
+    filename_keywords: list[str] | None = None,
+) -> bytes | None:
     """
-    Fetch an SSA Trustees Report HTML page. Tries the live URL first
-    (cached); on the typical 403 from SSA's anti-bot we fall back to
-    operator-supplied HTML files under ``pipelines/ssa_data/``. See
-    module docstring for the manual workflow.
+    Fetch an SSA Trustees Report HTML page as raw bytes. Tries the
+    live URL first (cached); on the typical 403 from SSA's anti-bot
+    we fall back to operator-supplied HTML files under
+    ``pipelines/ssa_data/``. See module docstring for the manual
+    workflow.
+
+    Returns bytes (not str) because ``pandas.read_html`` via lxml
+    refuses unicode strings that contain an in-document encoding
+    declaration — and SSA's pages always include one. Passing the
+    raw bytes lets lxml honor the declared encoding.
+
+    ``filename_keywords``: optional list of substrings that must ALL
+    appear (case-insensitive) in a candidate HTML filename for it to
+    match. Lets the operator save the page with whatever filename
+    their browser defaults to (typically the page <title>) rather
+    than needing to rename to the SSA URL slug.
     """
     url = f"https://www.ssa.gov/oact/TR/{year}/{suffix}"
     cache_key = f"{year}_{suffix.replace('/', '_')}"
     cached = cache_get("ssa_tr_html", cache_key, CACHE_MAX_AGE_DAYS, suffix=".html")
     if cached is not None:
-        return cached.decode("utf-8", errors="replace")
+        return cached
     try:
         import urllib.request
 
@@ -214,25 +264,46 @@ def fetch_html(year: int, suffix: str) -> str | None:
             cache_put("ssa_tr_html", cache_key, body, suffix=".html")
         except OSError as e:
             print(f"  cache write failed: {e}", file=sys.stderr)
-        return body.decode("utf-8", errors="replace")
+        return body
     except Exception as e:
         print(f"  url fetch failed: {url}: {e}", file=sys.stderr)
 
-    # Fallback: operator-supplied HTML. Filename convention is
-    # ``<year>_<suffix-stem>.html`` — strip the .html so both
-    # ``2024_lr6F8.html`` and the legacy ``2024_lr6F8.html.html``
-    # both resolve.
+    # Fallback: operator-supplied HTML. We try three discovery
+    # strategies in order:
+    #
+    #   1. Exact-slug filenames matching SSA's URL convention,
+    #      optionally prefixed with the report year:
+    #        2025_VI_G2_OASDHI_GDP.html, 2025_lr4b3.html, etc.
+    #   2. Browser-default filenames identified by keyword: any
+    #      *.html file in MANUAL_DIR whose lowercase name contains
+    #      every keyword in ``filename_keywords``. Lets the operator
+    #      save without renaming — browsers default to the page
+    #      <title>, which for these tables is descriptive enough.
+    #
+    # Strategy 1 wins if multiple files match because it's more
+    # explicit; if it misses, strategy 2 covers it.
     if MANUAL_DIR.exists():
         stem = suffix.replace(".html", "")
-        candidates = [
+        exact_candidates = [
             MANUAL_DIR / f"{year}_{stem}.html",
             MANUAL_DIR / f"{year}_{suffix}",
             MANUAL_DIR / suffix,
         ]
-        for p in candidates:
+        for p in exact_candidates:
             if p.exists():
                 print(f"  using manual upload: {p.name}", flush=True)
-                return p.read_text(encoding="utf-8", errors="replace")
+                return p.read_bytes()
+        if filename_keywords:
+            kws_lower = [kw.lower() for kw in filename_keywords]
+            for p in MANUAL_DIR.glob("*.html"):
+                name_lower = p.name.lower()
+                if all(kw in name_lower for kw in kws_lower):
+                    print(
+                        f"  using manual upload by keyword match: {p.name} "
+                        f"(matched {filename_keywords})",
+                        flush=True,
+                    )
+                    return p.read_bytes()
     return None
 
 
@@ -247,20 +318,55 @@ def _flatten_column(col: object) -> str:
     return str(col)
 
 
+def _try_year(cell: object) -> int | None:
+    """Parse a 4-digit year from a cell value. Returns None for
+    non-year cells (section labels, summary spans like '2025-99',
+    blanks, etc.). Strict: requires the whole cell to be a single
+    year value, not a year embedded in a longer string."""
+    s = str(cell).strip()
+    if not s or s.lower() in ("nan", "none"):
+        return None
+    # Must be a bare year (or "2025.0" — pandas parses int cells as
+    # floats sometimes). Range spans like "2025-99" should not match
+    # because they're cumulative-summary markers we want to skip.
+    try:
+        y = int(float(s))
+    except (ValueError, TypeError):
+        return None
+    return y if 1900 < y < 2200 else None
+
+
 def parse_table(
-    html: str,
+    html_bytes: bytes,
     spec: SsaTableSpec,
 ) -> tuple[list[dict], list[dict]] | None:
     """
-    Parse a Trustees Report HTML page and return (historical_points,
-    projection_points) for the spec's series. Returns None if the
+    Parse a Trustees Report HTML page and return ``(historical_points,
+    projection_points)`` for the spec's series. Returns None if the
     table or column couldn't be located.
+
+    Structure SSA uses on these pages:
+      - One big HTML <table> with multiple ROW SECTIONS labeled
+        ``Historical data:``, ``Intermediate:``, ``Low-cost:``,
+        ``High-cost:``. Each section repeats the same columns.
+      - Some sections (the GDP page especially) end with a
+        ``Summarized rates:`` rollup with rows labeled ``25-year``,
+        ``50-year``, ``75-year`` — those are cumulative summary stats
+        we skip.
+      - The year column is sometimes col 0, sometimes col 1
+        (depending on whether the leftmost level is a label-cell).
+        We try each row's first two cells.
+
+    We collect rows ONLY from the ``Historical data`` and
+    ``Intermediate`` sections — that's the central-estimate scenario
+    SSA's Office of the Chief Actuary presents as best-estimate.
     """
     try:
-        # read_html returns a list of every <table> on the page; the
-        # long-range tables we want are usually the largest one (~130
-        # rows). Pick by row-count.
-        tables = pd.read_html(html, flavor="lxml")
+        # read_html on a bytes input lets lxml respect any in-document
+        # encoding declaration (SSA's saved pages include one); passing
+        # a unicode str triggers "Unicode strings with encoding
+        # declaration are not supported".
+        tables = pd.read_html(io.BytesIO(html_bytes), flavor="lxml")
     except Exception as e:
         print(f"  read_html failed: {e}", file=sys.stderr)
         return None
@@ -268,42 +374,82 @@ def parse_table(
         return None
     best = max(tables, key=lambda t: t.shape[0] * t.shape[1])
     cols_flat = [_flatten_column(c) for c in best.columns]
-    # Locate year + value columns by regex.
-    year_col_idx = next(
-        (i for i, c in enumerate(cols_flat) if spec.year_header_pattern.search(c)),
-        None,
-    )
     value_col_idx = next(
-        (i for i, c in enumerate(cols_flat) if spec.value_header_pattern.search(c)),
+        (
+            i
+            for i, c in enumerate(cols_flat)
+            if spec.value_header_pattern.search(c)
+        ),
         None,
     )
-    if year_col_idx is None or value_col_idx is None:
+    if value_col_idx is None:
         print(
-            f"  could not locate columns in {spec.out_id}; saw: "
-            f"{cols_flat[:10]}...",
+            f"  could not locate value column in {spec.out_id}; "
+            f"value pattern was r'{spec.value_header_pattern.pattern}', "
+            f"saw columns: {cols_flat}",
             file=sys.stderr,
         )
         return None
+
     historical: list[dict] = []
     projection: list[dict] = []
+    # Section state: "historical" | "intermediate" | "skip" (low/high
+    # cost OR a summarized-rates rollup we're walking past). Begins as
+    # None until we see the first labeled section row; rows before any
+    # section label are ignored.
+    section: str | None = None
+    SKIP_KEYWORDS = (
+        "low-cost",
+        "high-cost",
+        "summarized",
+        "25-year",
+        "50-year",
+        "75-year",
+    )
     for _, row in best.iterrows():
-        year_raw = row.iloc[year_col_idx]
-        val_raw = row.iloc[value_col_idx]
-        try:
-            year = int(float(str(year_raw).strip()))
-        except (ValueError, TypeError):
+        # Identify any section-label text in the leading cells.
+        leading_cells = [str(row.iloc[j]).strip() for j in range(min(2, best.shape[1]))]
+        label = ""
+        for cell in leading_cells:
+            if cell.lower() not in ("", "nan"):
+                label = cell
+                break
+        ll = label.lower()
+        if ll.startswith("historical data"):
+            section = "historical"
             continue
+        if ll.startswith("intermediate"):
+            section = "intermediate"
+            continue
+        if any(ll.startswith(kw) for kw in SKIP_KEYWORDS):
+            section = "skip"
+            continue
+        if section not in ("historical", "intermediate"):
+            continue
+        # Find year in the first two columns — whichever has a bare
+        # 4-digit year wins. Skip cells that look like multi-year
+        # range labels ("2025-99") since they're rollup markers.
+        year: int | None = None
+        for j in range(min(2, best.shape[1])):
+            cand = _try_year(row.iloc[j])
+            if cand is not None:
+                year = cand
+                break
+        if year is None:
+            continue
+        val_raw = row.iloc[value_col_idx]
         try:
             value = float(str(val_raw).replace(",", "").strip()) * spec.scale
         except (ValueError, TypeError):
             continue
-        if not (1900 < year < 2200):
+        if value != value:  # NaN
             continue
         point = {"t": f"{year}{ANCHOR_MONTH_DAY}", "v": round(value, 3)}
-        # SSA's Trustees Report tables include both historical actuals
-        # and projected values in the same column, with the projection
-        # starting in the report year. Split on that boundary.
-        if year < REPORT_YEAR:
+        # The "historical" section carries actuals; the "intermediate"
+        # section carries the central-estimate projection. Use that
+        # to split, rather than comparing year < REPORT_YEAR (which
+        # double-counts: historical actuals overlap the report year).
+        if section == "historical":
             historical.append(point)
         else:
             projection.append(point)
@@ -332,7 +478,10 @@ def main(argv: list[str] | None = None) -> int:
     errors = 0
     written = 0
     for suffix, specs in by_url.items():
-        html = fetch_html(REPORT_YEAR, suffix)
+        # Specs sharing a URL also share filename keywords (we pick
+        # the first spec's; they're identical when same URL).
+        keywords = specs[0].filename_keywords if specs else None
+        html = fetch_html(REPORT_YEAR, suffix, filename_keywords=keywords)
         if html is None:
             print(f"  no HTML for {suffix}; skipping {[s.out_id for s in specs]}", file=sys.stderr)
             errors += len(specs)

@@ -217,11 +217,27 @@ async function main() {
       });
       continue;
     }
-    const n = parsed.points.length;
-    if (n < MIN_POINTS_FOR_CHART) {
+    // Count BOTH historical points and projection-vintage points.
+    // Forecast-UI sources like the SSA OASDI cost/GDP series can be
+    // projection-only (their parent page on ssa.gov is structured
+    // without a historical section) — that's a valid dashed-line
+    // render, not the "blank tile" failure mode the audit was
+    // originally guarding against. Counting only `points.length`
+    // would false-fail those, so we sum across the projections map
+    // too. The renderer copes with `points.length === 0` as long as
+    // there's at least one projection vintage to draw.
+    const nHist = parsed.points.length;
+    let nProj = 0;
+    if (parsed.projections && typeof parsed.projections === "object") {
+      for (const arr of Object.values(parsed.projections)) {
+        if (Array.isArray(arr)) nProj += arr.length;
+      }
+    }
+    const total = nHist + nProj;
+    if (total < MIN_POINTS_FOR_CHART) {
       failures.push({
         id: sid,
-        reason: `only ${n} data point${n === 1 ? "" : "s"} (need at least ${MIN_POINTS_FOR_CHART} to render a chart)`,
+        reason: `only ${nHist} historical point${nHist === 1 ? "" : "s"} + ${nProj} projection point${nProj === 1 ? "" : "s"} (need at least ${MIN_POINTS_FOR_CHART} total to render a chart)`,
         charts: refs,
       });
     }

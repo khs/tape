@@ -6,12 +6,17 @@ description: "Forward-looking views of fiscal and energy series, with the projec
 aboutBlurb: "Forward-looking projections from the institutions that publish them — futures markets for energy commodities, CBO for the federal budget baseline, SSA for the long-run Social Security trajectory. The renderer draws projection segments as dashed extensions of the historical line so the past-vs-forecast boundary is visible at a glance."
 sections:
   - title: "CBO budget baseline — 10-year projections"
-    description: "Each chart's solid line is historical actuals from CBO's Budget Outlook data appendices; the dashed extension is the most recent 10-year baseline projection. The baseline holds current law fixed — actual outcomes typically diverge as expiring provisions get extended. Historical coverage is sparse (one actual year per Outlook release on file); a 1962-onward continuous line will land if we add CBO's Historical Budget Data file."
+    description: "Each chart's solid line is FY1962-onward historical actuals from CBO's Historical Budget Data; the dashed extension is the most recent 10-year baseline projection. The baseline holds current law fixed — actual outcomes typically diverge as expiring provisions get extended. Multiple Outlook release vintages ride along under each source's `projections` map for the future as-of picker."
     charts:
       - government/cbo_outlays_pct_gdp
       - government/cbo_revenues_pct_gdp
       - government/cbo_deficit_pct_gdp
       - government/cbo_debt_pct_gdp
+  - title: "Social Security — 75-year Trustees projection"
+    description: "OASDI = Old-Age, Survivors, and Disability Insurance (Social Security in aggregate). Solid lines (where available) are historical SSA actuals; dashed extensions are the intermediate-cost (Alternative II) projection from the 2025 Trustees Report. Cost / GDP rises as the worker-to-beneficiary ratio falls. The OASDI-cost-as-%-GDP series is projection-only because the source SSA page doesn't ship historical actuals in the same table."
+    charts:
+      - government/ssa_oasdi_cost_pct_gdp
+      - government/ssa_oasdi_workers_per_beneficiary
   - title: "Energy commodities — current forward curves"
     description: "Solid lines are monthly-averaged historical spot prices. Dashed extensions are today's futures curves — each future-month contract plotted at its delivery month, priced at its most-recent close. These are market-quoted contract prices, not Tape-generated forecasts."
     charts:
@@ -32,19 +37,25 @@ The scope today is the three energy commodity futures curves — WTI
 crude, Brent crude, and Henry Hub natural gas. Each refreshes on every
 pipeline run with the latest NYMEX-quoted contract prices.
 
-## What's queued
+## How the data lands
 
-One more section will land once its data files are ingested:
+The CBO and SSA pipelines both depend on operator-supplied files in
+`pipelines/cbo_data/` and `pipelines/ssa_data/` because both upstream
+sites block direct CI fetches with HTTP 403. Workflow:
 
-- **SSA Trustees Report — 75-year intermediate-cost projection** for
-  OASDI cost / GDP and covered workers per beneficiary. The Trustees
-  Report publishes annually each May/June.
+- **CBO**: drop the latest `51134-YYYY-MM-Historical-Budget-Data.xlsx`
+  and any number of `51118-YYYY-MM-*Budget-Projections*.xlsx` files
+  into `pipelines/cbo_data/`. Run `python pipelines/cbo.py`. Each
+  Outlook release becomes a separate vintage under each source's
+  `projections` map.
+- **SSA**: save the Trustees Report tables (Estimates as a Percentage
+  of GDP, Covered Workers and Beneficiaries) from a browser into
+  `pipelines/ssa_data/`. Run `python pipelines/ssa.py`. The pipeline
+  picks files up by keyword match, so the browser-default filenames
+  Just Work.
 
-The SSA pipeline (`pipelines/ssa.py`) is written and committed but
-ssa.gov blocks direct CI fetches with a 403. The pipeline falls back
-to operator-supplied HTML files under `pipelines/ssa_data/`; once
-those land on disk, running the pipeline will populate the data files
-and the chart YAMLs + dashboard section can be re-added.
+Both directories are gitignored — operator artifacts, not part of
+the repo.
 
 ## How to read a futures curve
 
