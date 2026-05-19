@@ -33,5 +33,11 @@ pipelines/cbo_data/
 # a browser into this directory. See pipelines/ssa.py for the workflow.
 pipelines/ssa_data/
 
+# Census TIGER tract shapefiles cache for the state-tract-topo
+# generator. ~50 MB total of source ZIPs + extracted shapefiles;
+# regenerable from census.gov on demand. See
+# pipelines/build_state_tract_topo.py.
+pipelines/_tract_topo_cache/
+
 .tmp_*
 
