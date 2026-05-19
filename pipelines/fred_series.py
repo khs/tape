@@ -20,6 +20,14 @@ class FredSpec:
     series_id: str
     name: str
     unit: str | None = None
+    # FRED supports server-side transformations on its CSV endpoint via
+    # `&transformation=X`. Common values:
+    #   pc1  = percent change from year ago (12-month YoY)
+    #   pca  = percent change annualized (1-period, annualized)
+    #   chg  = change in level (1-period)
+    # When set, the output file is named {series_id}_{transformation.upper()}.json
+    # so it doesn't collide with the un-transformed series.
+    transformation: str | None = None
 
 
 SPECS: list[FredSpec] = [
@@ -163,6 +171,20 @@ SPECS: list[FredSpec] = [
     # release publishes via the Philly Fed's own site (CSV download); a
     # follow-up pipeline could pull it directly. Skipping for now.
     FredSpec("RECPROUSM156N", "Recession probability — NY Fed yield-curve model", "%"),
+    # Sahm rule (Claudia Sahm, 2019). Triggers a recession indicator
+    # when the 3-month MA of the unemployment rate rises 0.5pp above
+    # its trailing-12-month minimum. SAHMREALTIME uses the data
+    # available at the time (no revisions baked in), which is the
+    # honest "would this have signaled in real time?" series. The
+    # alternative SAHMCURRENT uses the latest revised data and is
+    # easier to dismiss as backfit.
+    FredSpec("SAHMREALTIME", "Sahm rule recession indicator (real-time)", "%"),
+    # CPI YoY (12-month percent change of CPIAUCSL). Fetched via
+    # FRED's transformation=pc1 so we don't have to compute it on
+    # the client. Pairs with FEDFUNDS as the diff component for a
+    # real-fed-funds chart (op: diff).
+    FredSpec("CPIAUCSL", "CPI YoY (all urban consumers, year-over-year %)", "%",
+             transformation="pc1"),
     FredSpec("STLFSI4", "St. Louis Fed Financial Stress Index", "index (z-score)"),
     # Labor — manufacturing weekly hours; classic leading indicator.
     FredSpec("AWHMAN", "Average weekly hours, manufacturing", "hours"),
@@ -269,8 +291,10 @@ def _infer_raw_count_unit(series_id: str, fred_unit: str) -> str:
     return "count"
 
 
-def fetch_series(series_id: str) -> list[dict]:
+def fetch_series(series_id: str, transformation: str | None = None) -> list[dict]:
     url = FRED_CSV_URL.format(series_id=series_id)
+    if transformation:
+        url = f"{url}&transformation={transformation}"
     # urllib.request hangs on these responses in some environments; curl is reliable.
     # FRED blocks custom User-Agent strings; use curl default.
     result = subprocess.run(
@@ -283,10 +307,25 @@ def fetch_series(series_id: str) -> list[dict]:
 
     reader = csv.DictReader(StringIO(raw))
     points: list[dict] = []
+    # FRED's transformation endpoint returns the data column under the
+    # series_id key (NOT series_id + suffix) — verified against
+    # CPIAUCSL with transformation=pc1. We still fall back to "the first
+    # non-date column" so future transformations that change the header
+    # don't silently produce zero points.
+    date_keys = {"DATE", "observation_date", "Date"}
     for row in reader:
-        date = row.get("DATE") or row.get("observation_date") or row.get("Date")
+        date = next((row[k] for k in date_keys if k in row and row[k]), None)
+        if not date:
+            continue
         raw_v = row.get(series_id)
-        if not date or raw_v in (None, "", "."):
+        if raw_v in (None, "", "."):
+            # Fallback: pick the first non-date column with a value.
+            for k, val in row.items():
+                if k in date_keys or val in (None, "", "."):
+                    continue
+                raw_v = val
+                break
+        if raw_v in (None, "", "."):
             continue
         try:
             v = float(raw_v)
@@ -303,8 +342,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"No specs matched {selected}")
         return 2
     for spec in run:
-        print(f"Fetching FRED {spec.series_id}...", flush=True)
-        points = fetch_series(spec.series_id)
+        # Output ID gets a {_TRANSFORMATION} suffix when the spec asks
+        # for one — that way CPIAUCSL (level) and CPIAUCSL_PC1 (YoY)
+        # coexist as separate data files.
+        out_id = (
+            f"{spec.series_id}_{spec.transformation.upper()}"
+            if spec.transformation
+            else spec.series_id
+        )
+        print(f"Fetching FRED {out_id}...", flush=True)
+        points = fetch_series(spec.series_id, spec.transformation)
         # Canonical-unit normalization: FRED reports many count series in
         # "thousands" (population, payrolls, etc.). We rescale to raw
         # counts at write time so derived sources (e.g. currency /
@@ -337,7 +384,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         out = write_timeseries(
             pipeline="fred",
-            series_id=spec.series_id,
+            series_id=out_id,
             name=spec.name,
             points=points,
             unit=spec_unit,

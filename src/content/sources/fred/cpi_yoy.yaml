@@ -1,0 +1,30 @@
+name: CPI year-over-year (US, all urban consumers)
+shortName: CPI YoY
+description: |
+  Year-over-year percent change in the headline CPI (CPIAUCSL) for
+  all urban consumers. Fetched via FRED's server-side
+  transformation=pc1 endpoint so we don't recompute YoY on the
+  client. Monthly, available since 1948.
+
+  Pairs with the Federal funds effective rate via a chart-level
+  diff op to produce a real-fed-funds-rate series (nominal policy
+  rate minus realized CPI inflation).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CPIAUCSL_PC1.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CPIAUCSL (transformation=pc1)
+  url: https://fred.stlouisfed.org/series/CPIAUCSL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - inflation
+  - us
+unitClass: rate

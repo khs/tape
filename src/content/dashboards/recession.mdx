@@ -22,6 +22,16 @@ sections:
       - us-macro/initial_claims
       - us-macro/continuing_claims
       - us-macro/unemployment
+  - title: "Sahm rule"
+    description: "Single-number recession indicator from the unemployment rate. Fires when the 3-month MA of U3 rises 0.5pp above its trailing-12-month minimum. Every US recession since 1970 was preceded by a Sahm trigger; mid-2024 was the first trigger that didn't materialize into one. See the explainer below."
+    charts:
+      - us-macro/sahm_rule
+  - title: "Policy stance — real fed funds rate"
+    description: "Fed policy rate adjusted for realized inflation. Negative real rates = loose policy (borrowers paying back less in real terms than they borrowed); positive = tight. The peak real rate before each modern recession was at least +3% (Volcker era was much higher)."
+    charts:
+      - us-macro/real_fed_funds
+      - us-macro/fed_funds
+      - us-macro/cpi
   - title: "Risk pricing — equities + credit"
     description: "Equity drawdowns and credit-spread widening. High-yield spreads tend to widen 3-6 months before equity major drawdowns. The combination of widening HY + falling S&P is the classic late-cycle pair."
     charts:
@@ -102,18 +112,98 @@ structurally tighter (less worker turnover = fewer cyclical
 layoffs) or labor hoarding by post-COVID-employer-trauma
 managers has kept the cycle from showing up where it usually does.
 
+## The Sahm rule, explained
+
+Claudia Sahm published the rule in 2019 to give a fast,
+unambiguous, single-number summary of when the labor market has
+turned a recession corner. The construction:
+
+1. Take the unemployment rate (U3, monthly).
+2. Compute its 3-month moving average.
+3. Subtract the trailing 12-month minimum of that MA.
+4. The result is the Sahm-rule reading. When it crosses +0.5
+   percentage points, the rule "fires."
+
+Why those specific parameters? The 3-month MA smooths through
+noisy single-month moves; the 12-month look-back catches the
+turn-of-cycle moment (when the lowest UR is still recent enough
+to be the cycle low); the 0.5pp threshold was calibrated against
+US recessions back to 1959 and triggers cleanly before every
+NBER-dated downturn while almost never false-firing.
+
+**Historical track record:** Every US recession since 1970 was
+preceded by a Sahm-rule trigger, usually 2-5 months ahead of the
+NBER's eventual peak date. No false positives in that window. The
+1969-70 recession was the last episode where Sahm would have not
+triggered cleanly (the rule was designed before that data, so
+strictly that's a forecast not an in-sample fit).
+
+**The 2024 trigger that broke the streak.** In July 2024 the Sahm
+rule crossed 0.5pp for the first time since 2020. No recession
+followed in the subsequent year. Claudia Sahm herself argued that
+the trigger was being driven by unusual post-COVID labor-supply
+dynamics — rising prime-age participation, fast immigration
+catch-up, voluntary job-switching — rather than the cyclical
+layoff signal the rule was designed to detect. The unemployment
+rate rising while initial claims stayed low + JOLTS quits rising
+is consistent with a "more people looking for jobs" story
+rather than the "more people losing jobs" story Sahm calibrated
+against.
+
+That doesn't kill the rule — it surfaces an interpretation
+challenge. Watching the SAHMREALTIME series (which uses the
+unemployment-rate data available at each publication date) is
+the honest version: it answers "would this have signaled in
+real time" rather than "would this have signaled with the
+benefit of revisions."
+
+The chart's 30-year default window shows the 1990, 2001, 2008,
+2020, and 2024 triggers in sequence. Drag the window pill to 50y
+to see the full back-history including the 1973, 1980, and 1981
+episodes.
+
+## Why the real fed funds rate matters here
+
+The Fed's policy stance can only be evaluated against inflation.
+A 5% nominal funds rate is loose policy when inflation is 8% and
+tight policy when inflation is 2%. The real-fed-funds chart
+subtracts realized CPI YoY from the nominal rate to give the
+inflation-adjusted policy stance.
+
+A few patterns worth knowing:
+
+- **Every modern recession** was preceded by real fed funds at or
+  above +3%. The Volcker era ran much higher (+8%+).
+- **Negative real rates** (2020-22) are unambiguously stimulative.
+  Borrowers were paying back less in purchasing-power terms than
+  they borrowed.
+- **The slope matters as much as the level.** A 0% real rate
+  reached by cutting from -3% is dovish; a 0% real rate reached
+  by hiking from -5% (the 2022-23 path) is the equivalent of a
+  500bp tightening.
+
+The "subtract REALIZED CPI" framing here differs from the
+"subtract EXPECTED inflation" framing other publications use
+(typically subtracting the 10-year breakeven inflation). Both are
+defensible. Realized tells you the squeeze borrowers feel right
+now; expected tells you the squeeze the bond market thinks is
+coming. For recession-watching, realized is the more relevant
+quantity — recessions hit when current debt servicing gets
+expensive, not when forward expectations move.
+
 ## Customizing your recession framework
 
 Common composer moves:
 
-- **Sahm rule**: take the 3-month-MA of the unemployment rate
-  minus its 12-month minimum. Sahm rule fires at +0.5pp. Triggered
-  in mid-2024 — the first trigger that didn't coincide with a
-  recession. Compose via unemployment + the rolling-min derived
-  source.
 - **Conference Board LEI**: composite of 10 leading indicators
   including some of these. The proprietary version isn't on FRED
   but the constituent series mostly are; you can rebuild a rough
   version.
-- **Real Fed funds**: subtract us_cpi from fed_funds; the level
-  of policy tightness in real terms.
+- **Real fed funds vs breakeven inflation**: swap the realized
+  CPI series for breakeven_10y in the real-fed-funds chart to
+  see the policy stance vs market-implied inflation expectations.
+  Tends to lead the realized version by 6-12 months at turning
+  points.
+- **Real wages**: divide avg_hourly_earnings by us_cpi to track
+  consumer purchasing power. Recessions often start with real
+  wages turning negative.

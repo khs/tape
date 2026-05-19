@@ -1,0 +1,27 @@
+title: Real Federal funds rate (Fed funds − CPI YoY)
+sources:
+  - fred/fed_funds
+  - fred/cpi_yoy
+op: diff
+render: line
+defaultDelta: 50y
+tags: [us, macro, rates, inflation]
+blurb: |
+  The nominal Federal funds effective rate minus the trailing
+  12-month CPI inflation — what the Fed's policy rate looks like
+  in real (inflation-adjusted) terms. Computed on the fly as
+  fed_funds − cpi_yoy so the chart stays in sync with both
+  underlying series.
+  <br/><br/>
+  When real rates are negative, monetary policy is loose: borrowers
+  effectively pay back less than they borrowed in purchasing-power
+  terms. When positive, policy is tight. The 1980 Volcker spike to
+  nearly +10% real and the 2020-21 dip to roughly −7% are the two
+  most extreme readings in the modern era.
+  <br/><br/>
+  Uses REALIZED CPI rather than expected inflation. The
+  alternative "real rate based on inflation expectations" would
+  subtract the 10-year breakeven (us-macro/breakeven_10y) and
+  shows what the Fed's policy looks like vs. what investors think
+  inflation will average. Both framings are defensible; this one
+  reflects the level of squeeze borrowers are feeling right now.
