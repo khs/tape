@@ -914,9 +914,13 @@ const statesJoined = stateCodes.join(",");
         }
       }
       // Diagnostic so a screenshot of devtools tells us whether
-      // zoom failed to set up vs. failed to fire.
+      // zoom failed to set up vs. failed to fire. Build stamp lets
+      // us tell at a glance whether the user is on the right bundle
+      // — if a report still shows v1 after fix v2 ships, that's
+      // a cache, not a code, problem.
+      const CHORO_BUILD = "zoom-v2-2026-05-19";
       console.info(
-        `[choropleth] ${b.chartId} (${b.geo}, mode=${mode}): ` +
+        `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
         `zoom setup ${geoGroup ? "starting" : "SKIPPED (no paths found)"}; ` +
         `figure=${(fig as HTMLElement).tagName}, svg=${svgEl.tagName}, ` +
         `total-paths=${allPaths.length}, ` +
