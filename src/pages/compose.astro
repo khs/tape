@@ -228,6 +228,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       <main class="composer-composition">
         <div class="comp-empty" data-role="comp-empty">
           <p class="muted">Pick charts on the left to start composing. They'll appear here organized into sections.</p>
+          <p class="muted small comp-empty-hint">
+            Two ways in: click a source (or a Pregenerated chart) and it
+            becomes a tile in the current section, or click <strong>+
+            Custom chart</strong> below to combine several sources on one
+            axis. <strong>+ Derived source</strong> turns A÷B,&nbsp;A−B,
+            or A+B into a reusable source.
+          </p>
         </div>
         <div class="comp-sections" data-role="comp-sections"></div>
         <div class="comp-controls">
@@ -5870,6 +5877,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     gap: 16px;
   }
   .comp-empty p { color: var(--color-neutral-500); font-size: var(--text-sm); }
+  /* Slightly tighter + dimmer follow-up hint that explains the two
+     ways of getting a chart on screen. First-time visitors otherwise
+     don't know that "+ Custom chart" is the multi-source path. */
+  .comp-empty-hint { max-width: 56ch; margin-top: 4px; line-height: 1.5; }
+  .comp-empty-hint strong { color: var(--color-neutral-700); font-weight: 500; }
   .comp-section {
     border: 1px solid rgba(55, 53, 47, 0.08);
     border-radius: var(--radius);

@@ -25,4 +25,4 @@ export const SITE_BRAND_NAME = "Tape";
  * — keeping the URL central means one edit when the form moves.
  */
 export const ENTERPRISE_INQUIRY_URL =
-  "mailto:keller.scholl@gmail.com?subject=Legible%20Markets%20Enterprise%20Inquiry";
+  "mailto:keller.scholl@gmail.com?subject=Tape%20Enterprise%20Inquiry";

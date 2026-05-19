@@ -12,9 +12,45 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </nav>
     <h1 class="text-2xl font-semibold">My dashboards</h1>
 
+    {/*
+      Pre-paint initial state picked by the bottom script before
+      hydration runs. Signed-out visitors used to see "Loading…" for a
+      beat while the Supabase client booted, then have it replaced with
+      the sign-in prompt — a small flicker but very obviously a flicker.
+      Now the inline pre-paint script reads the cached Supabase session
+      out of localStorage and either leaves "Loading…" (so the JS can
+      fetch the dashboard list) or swaps to the sign-in prompt straight
+      away.
+    */}
     <div class="me-content mt-6" data-role="content">
       <p class="text-sm text-neutral-500">Loading…</p>
     </div>
+    <script is:inline>
+      // Synchronous, blocks paint. Cheap localStorage read so a signed-
+      // out visitor never sees "Loading…" only to have it replaced.
+      // Uses the same data-role / markup as the hydration's signed-out
+      // branch so when the async render runs, it overwrites with
+      // identical content and the click listener binds cleanly without
+      // a visible re-render.
+      (function () {
+        try {
+          var keys = Object.keys(localStorage);
+          for (var i = 0; i < keys.length; i++) {
+            // Supabase auth-token keys look like `sb-<ref>-auth-token`.
+            if (/^sb-[^-]+-auth-token$/.test(keys[i])) {
+              return; // signed in → leave "Loading…" for the list fetch
+            }
+          }
+          var host = document.querySelector("[data-me] [data-role='content']");
+          if (host) {
+            host.innerHTML = '<p class="text-sm text-neutral-600">Please <button type="button" data-role="signin" class="underline bg-transparent border-0 p-0 cursor-pointer text-accent">sign in with Google</button> to see your saved dashboards.</p>';
+          }
+        } catch (_e) {
+          // localStorage blocked → fall through to "Loading…", the
+          // async hydration will sort it out.
+        }
+      })();
+    </script>
 
     {/* Account / tier block. Free tier is the only tier accounts get
         out-of-the-box. Enterprise is unlocked by inquiry → conversation →

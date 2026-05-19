@@ -95,11 +95,13 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     </div>
 
 
-    {/* Featured-dashboard preview: tabs + the active dashboard's full
-        content rendered live. Tabs are <a> links to `/?dash=<slug>`
-        variants, so tab clicks are real navigations — same caching
-        story as visiting `/<slug>/` directly. Lets us ship one
-        dashboard's worth of data per request instead of seven. */}
+    {/* Featured-dashboard preview: one dashboard rendered inline as a
+        teaser, with sibling tabs that link straight to each preset's
+        canonical URL `/<slug>/`. The home page still uses `?dash=<slug>`
+        on the server to pick which dashboard to feature for SEO/social
+        unfurls of the home page itself, but tab clicks navigate to the
+        clean preset URL so the address-bar URL Aaron copies always
+        matches what he'd share. */}
     {active && (
       <section
         class="featured dashboard-root"
@@ -113,7 +115,7 @@ const tabs: TabSpec[] = sorted.map((d) => ({
             return (
               <a
                 role="tab"
-                href={`${baseUrl}/?dash=${encodeURIComponent(t.slug)}#featured`}
+                href={`${baseUrl}/${encodeURIComponent(t.slug)}/`}
                 class={
                   "featured-tab" + (isActive ? " featured-tab-active" : "")
                 }
