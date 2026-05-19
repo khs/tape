@@ -1,8 +1,0 @@
-title: Federal debt held by the public / GDP — CBO baseline
-sources:
-  - cbo/cbo_debt_pct_gdp
-render: line
-defaultDelta: 50y
-tags: [fiscal, government, macro, us]
-blurb: |
-  Solid line: historical debt held by the public / GDP from CBO. Dashed line: 10-year baseline projection. "Held by the public" excludes intra-governmental Treasury holdings of trust funds like Social Security. The projection's trajectory is sensitive to assumed interest rates and to whether expiring tax provisions get extended.

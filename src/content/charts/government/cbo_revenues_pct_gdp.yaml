@@ -1,8 +1,0 @@
-title: Federal revenues / GDP — CBO baseline
-sources:
-  - cbo/cbo_revenues_pct_gdp
-render: line
-defaultDelta: 30y
-tags: [fiscal, government, macro, us]
-blurb: |
-  Solid line: historical revenues / GDP from CBO. Dashed line: 10-year baseline projection. CBO holds tax-law parameters fixed in the baseline, so the projected segment captures only mechanical revenue effects from projected GDP growth.

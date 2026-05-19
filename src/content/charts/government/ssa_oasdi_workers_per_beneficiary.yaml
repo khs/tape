@@ -1,8 +1,0 @@
-title: Covered workers per OASDI beneficiary — SSA Trustees
-sources:
-  - ssa/oasdi_workers_per_beneficiary
-render: line
-defaultDelta: 50y
-tags: [fiscal, government, demographics, us]
-blurb: |
-  Solid line: historical covered workers per OASDI beneficiary. Dashed line: 75-year intermediate-cost projection from the most recent SSA Trustees Report. The classic demographic-pressure ratio — has declined from roughly 5:1 mid-20th-century toward ~2:1 by the 2030s as baby-boomer cohorts move into retirement.
