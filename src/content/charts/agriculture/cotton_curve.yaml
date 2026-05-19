@@ -1,0 +1,8 @@
+title: Cotton — spot history + futures curve
+sources:
+  - yahoo_futures/cotton_curve
+render: line
+defaultDelta: 5y
+tags: [commodities, agriculture]
+blurb: |
+  Solid line: monthly-averaged ICE cotton ("Cotton No. 2") front-month. Dashed extension: today's forward curve (Mar/May/Jul/Oct/Dec delivery). The US is the world's largest cotton exporter.

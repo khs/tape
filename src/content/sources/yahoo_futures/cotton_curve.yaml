@@ -1,0 +1,23 @@
+name: Cotton — spot history + futures curve
+shortName: Cotton curve
+description: |
+  ICE cotton ("Cotton No. 2") front-month spot history + today's forward curve. The US is the world's largest cotton exporter. Contracts deliver Mar / May / Jul / Oct / Dec. Quoted in US cents per pound.
+kind: timeseries
+pipeline: yahoo_futures
+dataFile: data/yahoo_futures/cotton_curve.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "USc/lb"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/lb"
+provenance:
+  provider: Yahoo Finance
+  series: CT=F + monthly contracts (CT[M][YY].NYB)
+  url: https://finance.yahoo.com/quote/CT%3DF
+  notes: |
+    The projection segment is the ICE forward curve at run time — actual quoted contract prices, not a Tape-generated forecast.
+tags:
+  - commodities
+  - agriculture
+unitClass: ratio

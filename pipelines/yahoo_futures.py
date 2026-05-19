@@ -71,6 +71,15 @@ DATA_ROOT = REPO_ROOT / "public" / "data"
 MONTH_CODES = ["F", "G", "H", "J", "K", "M", "N", "Q", "U", "V", "X", "Z"]
 # month_idx_1based -> code: MONTH_CODES[month - 1]
 
+# Yahoo's "VIX Monthly Futures Index" symbols (^VIXMAY, ^VIXJUN, etc.)
+# encode the delivery month as a 3-letter abbreviation with NO year
+# suffix — the symbol always points at the next-occurring contract for
+# that month. Used by VIX only; everything else uses MONTH_CODES.
+MONTH_ABBREV = [
+    "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
+]
+
 
 @dataclass
 class FuturesSpec:
@@ -82,16 +91,38 @@ class FuturesSpec:
     spot_symbol: str
     # Contract-symbol pattern. Yahoo strings these together as
     # ``<prefix><month-code><yy>.<exchange-suffix>`` — e.g. CLN26.NYM
-    # for July 2026 WTI. The suffix is .NYM for all three commodities
-    # we cover; we keep it as a field so a future commodity on a
-    # different Yahoo exchange (e.g. KC=F coffee on ICE = .NYB) can
-    # be added without touching the curve-fetch code.
+    # for July 2026 WTI. Exchange suffixes vary by commodity (.NYM
+    # for NYMEX, .CBT for CBOT grains, .NYB for ICE softs, .CME for
+    # CME livestock, .CBOE for VIX futures).
     contract_prefix: str
     contract_suffix: str
     unit: str
-    # How many monthly contracts to attempt to fetch. WTI + Brent
-    # publish liquid quotes ~24 months out; gas peters out around 12.
+    # How many monthly contracts to attempt to fetch. Energy futures
+    # publish liquid quotes ~18 months out; VIX peters out around 9;
+    # ag contracts go 12-18 months out depending on commodity.
     horizon_months: int
+    # Optional. List of 1-based month indices (Jan=1 .. Dec=12) that
+    # trade contracts for this commodity. If None, attempt all 12
+    # months — fine for energy + VIX. Ag commodities trade only in
+    # specific months (corn: Mar/May/Jul/Sep/Dec); listing them
+    # avoids ~7/12 of the API calls returning 404 with no data.
+    contract_months: list[int] | None = None
+    # When True, build contract symbols as ``<prefix><3-letter-month-
+    # abbrev>`` with no year suffix and ignore contract_suffix. This is
+    # Yahoo's "VIX Monthly Futures Index" pattern (^VIXMAY, ^VIXJUN,
+    # etc.) — the symbol always points at the next-occurring contract
+    # for that month, rolling forward yearly. Only valid for horizons
+    # <= 12 months (beyond that the symbol ambiguity wraps around).
+    month_abbrev_no_year: bool = False
+    # Optional. Hardcoded list of ``(months_ahead, yahoo_symbol)``
+    # pairs to fetch directly, overriding the prefix+code+yy
+    # construction entirely. Used for VIX where Yahoo only carries
+    # the front-month and 2nd-month continuous-rolling VIX-futures
+    # indices (^VFTW1 / ^VFTW2) — the individual monthly contract
+    # symbols on CFE are all 404 via yfinance. The result is a sparse
+    # 2-point "curve" but it captures the front-vs-second-month
+    # spread, which is the most-watched VIX-curve signal anyway.
+    fixed_curve_symbols: list[tuple[int, str]] | None = None
 
 
 SPECS: list[FuturesSpec] = [
@@ -140,6 +171,120 @@ SPECS: list[FuturesSpec] = [
         unit="USD/MMBtu",
         horizon_months=15,
     ),
+    # ---- Volatility ----
+    FuturesSpec(
+        series_id="vix_curve",
+        name="VIX volatility — spot history + futures curve",
+        description=(
+            "The CBOE Volatility Index (VIX): the market's implied "
+            "expectation of S&P 500 volatility over the next 30 days, "
+            "derived from SPX options prices. Solid line is monthly-"
+            "averaged spot ^VIX; dashed extension is the current CBOE "
+            "VIX futures curve. The term-structure shape is itself the "
+            "headline: contango (upward slope) is the calm-market "
+            "default; backwardation (downward slope) appears in crisis "
+            "episodes when traders pay a premium for immediate "
+            "protection over distant-month protection."
+        ),
+        spot_symbol="^VIX",
+        # Empirical: Yahoo only carries the rolling continuous
+        # front-month (^VFTW1) and 2nd-month (^VFTW2) VIX-futures
+        # indices via yfinance. Per-contract symbols (VXK26.CFE,
+        # ^VIXMAY, etc.) all return 404 or "no data". A 2-point
+        # curve is enough to capture the front-vs-second-month
+        # spread, which is the canonical contango/backwardation
+        # signal anyway.
+        contract_prefix="",
+        contract_suffix="",
+        unit="index",
+        horizon_months=2,
+        fixed_curve_symbols=[(1, "^VFTW1"), (2, "^VFTW2")],
+    ),
+    # ---- Agricultural — major US export commodities ----
+    FuturesSpec(
+        series_id="corn_curve",
+        name="Corn — spot history + futures curve",
+        description=(
+            "CBOT corn front-month spot + the current forward curve. "
+            "Corn is the largest US crop by acreage and one of the top "
+            "US ag exports by value. Contracts deliver Mar / May / Jul "
+            "/ Sep / Dec — the gaps reflect the planting-and-harvest "
+            "calendar (new-crop Dec contracts trade at a different "
+            "level than the prior crop year)."
+        ),
+        spot_symbol="ZC=F",
+        contract_prefix="ZC",
+        contract_suffix=".CBT",
+        # Yahoo quotes CBOT grains in US CENTS per bushel, e.g. 450 ¢/bu
+        # = $4.50/bu. We store that raw — display layer can rescale.
+        unit="USc/bu",
+        horizon_months=18,
+        contract_months=[3, 5, 7, 9, 12],
+    ),
+    FuturesSpec(
+        series_id="soybean_curve",
+        name="Soybeans — spot history + futures curve",
+        description=(
+            "CBOT soybean front-month spot + the current forward curve. "
+            "Soybeans are the #1 US ag export by value, with China the "
+            "largest buyer. Contracts deliver Jan / Mar / May / Jul / "
+            "Aug / Sep / Nov."
+        ),
+        spot_symbol="ZS=F",
+        contract_prefix="ZS",
+        contract_suffix=".CBT",
+        unit="USc/bu",
+        horizon_months=18,
+        contract_months=[1, 3, 5, 7, 8, 9, 11],
+    ),
+    FuturesSpec(
+        series_id="wheat_curve",
+        name="Wheat — spot history + futures curve",
+        description=(
+            "CBOT wheat (soft red winter) front-month spot + the "
+            "current forward curve. Wheat is a top-five US ag export "
+            "by volume; CBOT soft red is the most-traded wheat contract "
+            "globally. Same Mar/May/Jul/Sep/Dec delivery cycle as corn."
+        ),
+        spot_symbol="ZW=F",
+        contract_prefix="ZW",
+        contract_suffix=".CBT",
+        unit="USc/bu",
+        horizon_months=18,
+        contract_months=[3, 5, 7, 9, 12],
+    ),
+    FuturesSpec(
+        series_id="cotton_curve",
+        name="Cotton — spot history + futures curve",
+        description=(
+            "ICE cotton (#2 contract) front-month spot + the current "
+            "forward curve. The US is the world's largest cotton "
+            "exporter. Contracts deliver Mar / May / Jul / Oct / Dec."
+        ),
+        spot_symbol="CT=F",
+        contract_prefix="CT",
+        contract_suffix=".NYB",
+        # Cotton quotes in US cents per pound.
+        unit="USc/lb",
+        horizon_months=18,
+        contract_months=[3, 5, 7, 10, 12],
+    ),
+    FuturesSpec(
+        series_id="cattle_curve",
+        name="Live cattle — spot history + futures curve",
+        description=(
+            "CME live cattle front-month spot + the current forward "
+            "curve. Beef is a top US ag export. Contracts deliver "
+            "Feb / Apr / Jun / Aug / Oct / Dec — the bimonthly cycle "
+            "is unusual among ag futures and tied to feedlot turnover."
+        ),
+        spot_symbol="LE=F",
+        contract_prefix="LE",
+        contract_suffix=".CME",
+        unit="USc/lb",
+        horizon_months=15,
+        contract_months=[2, 4, 6, 8, 10, 12],
+    ),
 ]
 
 
@@ -178,20 +323,61 @@ def fetch_forward_curve(
     prefix: str,
     suffix: str,
     horizon: int,
+    contract_months: list[int] | None = None,
+    month_abbrev_no_year: bool = False,
+    fixed_curve_symbols: list[tuple[int, str]] | None = None,
 ) -> list[dict]:
     """
     Pull the latest close for each of the next ``horizon`` monthly
     contracts. Each contract symbol is constructed from prefix +
     month-code + 2-digit year + suffix (e.g. ``CLN26.NYM``).
 
+    ``contract_months`` (optional): list of 1-based month indices
+    (Jan=1 .. Dec=12) for commodities that don't trade every month.
+    Corn delivers in Mar/May/Jul/Sep/Dec only, so passing
+    ``[3, 5, 7, 9, 12]`` avoids hitting Yahoo with 7-out-of-12
+    guaranteed-404 contract symbols. When None, all 12 months are
+    attempted (works for energy + VIX).
+
+    ``fixed_curve_symbols`` (optional): hardcoded list of
+    ``(months_ahead, yahoo_symbol)`` pairs. When set, the symbol
+    construction is bypassed entirely. Used for sources like VIX
+    where Yahoo only carries continuous-rolling index symbols
+    (^VFTW1, ^VFTW2) rather than per-contract symbols.
+
     Contracts that return no data — illiquid back-months, expired
     fronts mid-month, or symbols Yahoo simply doesn't carry — are
-    skipped. We attempt all ``horizon`` months regardless; some
-    commodities (gas) lose liquidity past month 12 and the resulting
-    curve naturally truncates.
+    skipped. The resulting curve naturally truncates when liquidity
+    runs out.
     """
     today = datetime.now(timezone.utc)
     out: list[dict] = []
+
+    # Fixed-symbols escape hatch — used by VIX and any other source
+    # whose curve symbology doesn't fit the prefix+code+yy pattern.
+    if fixed_curve_symbols:
+        for months_ahead, sym in fixed_curve_symbols:
+            target_month = today.month + months_ahead
+            target_year = today.year + (target_month - 1) // 12
+            target_month = (target_month - 1) % 12 + 1
+            try:
+                t = yf.Ticker(sym)
+                df = t.history(period="5d", auto_adjust=False)
+                if df.empty or "Close" not in df.columns:
+                    continue
+                tail = df["Close"].dropna()
+                if tail.empty:
+                    continue
+                last_close = float(tail.iloc[-1])
+            except Exception as e:
+                print(f"  skip {sym}: {e}", file=sys.stderr)
+                continue
+            expiry_anchor = datetime(
+                target_year, target_month, 15
+            ).strftime("%Y-%m-%d")
+            out.append({"t": expiry_anchor, "v": round(last_close, 3)})
+        return out
+
     # Start at next calendar month — the current month's contract may
     # already be in delivery (front-month rolls before month-end), so
     # its quote often disappears or behaves oddly. The user wants a
@@ -201,9 +387,15 @@ def fetch_forward_curve(
         target_month = today.month + k
         target_year = today.year + (target_month - 1) // 12
         target_month = (target_month - 1) % 12 + 1
-        code = MONTH_CODES[target_month - 1]
-        yy = target_year % 100
-        sym = f"{prefix}{code}{yy:02d}{suffix}"
+        if contract_months is not None and target_month not in contract_months:
+            continue
+        if month_abbrev_no_year:
+            # Yahoo "VIX Monthly Futures Index" form: ^VIX + MAY etc.
+            sym = f"{prefix}{MONTH_ABBREV[target_month - 1]}"
+        else:
+            code = MONTH_CODES[target_month - 1]
+            yy = target_year % 100
+            sym = f"{prefix}{code}{yy:02d}{suffix}"
         try:
             t = yf.Ticker(sym)
             df = t.history(period="5d", auto_adjust=False)
@@ -290,6 +482,9 @@ def main(argv: list[str] | None = None) -> int:
                 spec.contract_prefix,
                 spec.contract_suffix,
                 spec.horizon_months,
+                contract_months=spec.contract_months,
+                month_abbrev_no_year=spec.month_abbrev_no_year,
+                fixed_curve_symbols=spec.fixed_curve_symbols,
             )
         except Exception as e:
             print(f"  curve fetch failed: {e}", file=sys.stderr)

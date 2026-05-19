@@ -1,0 +1,8 @@
+title: Wheat — spot history + futures curve
+sources:
+  - yahoo_futures/wheat_curve
+render: line
+defaultDelta: 5y
+tags: [commodities, agriculture]
+blurb: |
+  Solid line: monthly-averaged CBOT wheat (soft red winter) front-month. Dashed extension: today's forward curve (Mar/May/Jul/Sep/Dec delivery). CBOT soft red is the most-traded wheat contract globally.

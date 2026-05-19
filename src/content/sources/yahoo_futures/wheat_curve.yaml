@@ -1,0 +1,23 @@
+name: Wheat — spot history + futures curve
+shortName: Wheat curve
+description: |
+  CBOT wheat (soft red winter) front-month spot history + today's forward curve. Wheat is a top-five US ag export by volume; CBOT soft red is the most-traded wheat contract globally. Same Mar / May / Jul / Sep / Dec delivery cycle as corn. Quoted in US cents per bushel.
+kind: timeseries
+pipeline: yahoo_futures
+dataFile: data/yahoo_futures/wheat_curve.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "USc/bu"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/bu"
+provenance:
+  provider: Yahoo Finance
+  series: ZW=F + monthly contracts (ZW[M][YY].CBT)
+  url: https://finance.yahoo.com/quote/ZW%3DF
+  notes: |
+    The projection segment is the CBOT forward curve at run time — actual quoted contract prices, not a Tape-generated forecast.
+tags:
+  - commodities
+  - agriculture
+unitClass: ratio

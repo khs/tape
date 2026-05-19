@@ -1,0 +1,8 @@
+title: Corn — spot history + futures curve
+sources:
+  - yahoo_futures/corn_curve
+render: line
+defaultDelta: 5y
+tags: [commodities, agriculture]
+blurb: |
+  Solid line: monthly-averaged CBOT corn front-month. Dashed extension: today's forward curve (Mar/May/Jul/Sep/Dec delivery cycle). Discontinuities between old-crop and new-crop contracts (Sep → Dec) are normal and reflect the harvest-cycle reset.

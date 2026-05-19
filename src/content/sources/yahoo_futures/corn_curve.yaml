@@ -1,0 +1,23 @@
+name: Corn — spot history + futures curve
+shortName: Corn curve
+description: |
+  CBOT corn front-month spot history + today's NYMEX forward curve. Corn is the largest US crop by acreage and one of the top US ag exports by value. Contracts deliver Mar / May / Jul / Sep / Dec — the gaps reflect the planting-and-harvest calendar (new-crop Dec contracts trade at a different level than the prior crop year's contracts). Quoted in US cents per bushel.
+kind: timeseries
+pipeline: yahoo_futures
+dataFile: data/yahoo_futures/corn_curve.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "USc/bu"
+formatting:
+  style: number
+  decimals: 2
+  suffix: " ¢/bu"
+provenance:
+  provider: Yahoo Finance
+  series: ZC=F + monthly contracts (ZC[M][YY].CBT)
+  url: https://finance.yahoo.com/quote/ZC%3DF
+  notes: |
+    The projection segment is the CBOT forward curve at run time — actual quoted contract prices, not a Tape-generated forecast.
+tags:
+  - commodities
+  - agriculture
+unitClass: ratio

@@ -1,0 +1,8 @@
+title: Soybeans — spot history + futures curve
+sources:
+  - yahoo_futures/soybean_curve
+render: line
+defaultDelta: 5y
+tags: [commodities, agriculture]
+blurb: |
+  Solid line: monthly-averaged CBOT soybean front-month. Dashed extension: today's forward curve through ~18 months out (Jan/Mar/May/Jul/Aug/Sep/Nov delivery). Soybeans are the #1 US ag export by value.
