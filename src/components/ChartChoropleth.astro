@@ -124,7 +124,13 @@ function fmt(v: number, unit: string, decimals: number): string {
 }
 
 const tileTitle = chart.title;
-const boundaryUrl = "/maps/us-counties-albers-10m.json"; // state + county both live here
+// Use the geographic-projection counties file (lng/lat coords) rather
+// than the pre-projected albers variant — Plot's albers-usa projection
+// auto-fits to whatever width/height we give it, including Alaska +
+// Hawaii's insets. With the pre-projected file we were stuck rendering
+// at the file's native 975×610 viewport and our 600×380 SVG cropped to
+// just the western half.
+const boundaryUrl = "/maps/us-counties-10m.json";
 const colorScheme = chart.colorScheme ?? "blues";
 const colorScale = chart.colorScale ?? "linear";
 const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
@@ -135,6 +141,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
   data-chart-id={chartId}
   data-dashboard-slug={dashboardSlug}
   data-role="chart-tile"
+  data-choro="1"
 >
   <header class="chart-tile-header">
     <h3 class="chart-tile-title">{tileTitle}</h3>
@@ -145,6 +152,8 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
         {fmt(summary.min, summary.unit, summary.decimals)}
         {" – "}
         {fmt(summary.max, summary.unit, summary.decimals)}
+        {" · median "}
+        {fmt(summary.median, summary.unit, summary.decimals)}
       </p>
     )}
     {!summary && loadError && (
@@ -166,18 +175,18 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     data-value-label={summary?.valueLabel ?? ""}
     data-unit={summary?.unit ?? ""}
     data-decimals={summary?.decimals ?? 1}
+    data-mode="tile"
   >
     {summary ? null : (
       <p class="muted small">No data for this snapshot.</p>
     )}
   </div>
-  {summary && (
-    <footer class="chart-tile-footer">
-      <p class="muted small">
-        Median {fmt(summary.median, summary.unit, summary.decimals)} · ACS 5-year · updated {new Date(summary.lastUpdated).toLocaleDateString("en-US", { year: "numeric", month: "short" })}
-      </p>
-    </footer>
-  )}
+  {/*
+    No "Updated X" footer on the tile — too much visual clutter for
+    something users almost never act on. Expanded view shows it.
+    Hover-on-tile shows region name + value via a fixed tooltip
+    (wired by the script below).
+  */}
 </article>
 
 <script>
@@ -245,7 +254,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     return unit === "%" ? `${r}%` : r;
   }
 
-  async function paint(canvas: HTMLElement, b: ChoroBindings) {
+  async function paint(canvas: HTMLElement, b: ChoroBindings, mode: "tile" | "expanded") {
     const [boundary, values] = await Promise.all([
       getBoundary(b.boundaryUrl),
       getValues(b.dataUrl),
@@ -270,10 +279,6 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     if (b.bbox) {
       const [w, s, e, n] = b.bbox;
       clipped = features.filter((f) => {
-        // Naive centroid via property.cx/cy if present; else skip.
-        // us-atlas county features have no centroid property; we
-        // could compute via d3-geo but for v1 keep this branch off
-        // unless tract/block-group ships with centroids.
         const cx = (f as any).properties?.cx;
         const cy = (f as any).properties?.cy;
         if (cx == null || cy == null) return true; // can't filter; keep
@@ -296,14 +301,18 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     const hi = obs[Math.min(obs.length - 1, Math.ceil(obs.length * 0.99))];
     const colorDomain: [number, number] = [lo, hi];
     canvas.innerHTML = "";
-    // Always Albers projection so US looks right (Alaska + Hawaii in
-    // canonical insets). us-atlas albers files are pre-projected so we
-    // pass projection: "identity" + the data is already in pixel space.
-    const isAlbersPreprojected = b.boundaryUrl.includes("albers");
+    // Always project at render time. us-counties-10m.json (the
+    // geographic-coords variant) lets Plot's albers-usa projection
+    // auto-fit to whatever (width, height) we pass — including the
+    // Alaska + Hawaii insets at canonical positions, which the
+    // pre-projected file couldn't do without us also pinning the
+    // viewport to its native 975×610.
+    const width = mode === "expanded" ? 1000 : 620;
+    const height = mode === "expanded" ? 620 : 360;
     const plotSpec = {
-      projection: isAlbersPreprojected ? "identity" : "albers-usa",
-      width: 600,
-      height: 380,
+      projection: "albers-usa",
+      width,
+      height,
       margin: 6,
       color: {
         type: b.colorScale,
@@ -327,6 +336,44 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     };
     const fig = (Plot as any).plot(plotSpec);
     canvas.appendChild(fig);
+    // Wire a fixed-position tooltip on top of the SVG. Plot's built-in
+    // `title` attribute produces native browser tooltips with a 1-2s
+    // hover delay; users complain it feels broken. We bypass that with
+    // a custom mousemove handler that reads the GEOID off the hovered
+    // <path>'s data and shows a small floating div near the cursor.
+    const svg = fig.querySelector("svg") ?? fig;
+    const tooltip = document.createElement("div");
+    tooltip.className = "choro-tooltip";
+    tooltip.style.display = "none";
+    canvas.appendChild(tooltip);
+    // d3 binds the feature object to each <path> as __data__ (Plot
+    // does the same internally). Read it via (path as any).__data__.
+    svg.addEventListener("mousemove", (ev: MouseEvent) => {
+      const target = ev.target as Element | null;
+      const path = target?.closest("path");
+      if (!path) {
+        tooltip.style.display = "none";
+        return;
+      }
+      const d = (path as any).__data__ as { id?: string; properties?: { name?: string } } | undefined;
+      if (!d?.id) { tooltip.style.display = "none"; return; }
+      const v = values[d.id];
+      if (v == null || !Number.isFinite(v)) {
+        tooltip.style.display = "none";
+        return;
+      }
+      const name = d.properties?.name ?? d.id;
+      tooltip.textContent = `${name}: ${fmtValue(v, b.unit, b.decimals)}`;
+      tooltip.style.display = "block";
+      const rect = canvas.getBoundingClientRect();
+      const x = ev.clientX - rect.left + 12;
+      const y = ev.clientY - rect.top + 12;
+      tooltip.style.left = x + "px";
+      tooltip.style.top = y + "px";
+    });
+    svg.addEventListener("mouseleave", () => {
+      tooltip.style.display = "none";
+    });
   }
 
   function hydrateAll() {
@@ -336,6 +383,8 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     canvases.forEach((canvas) => {
       if (canvas.dataset.hydrated === "1") return;
       canvas.dataset.hydrated = "1";
+      const mode = (canvas.dataset.mode === "expanded" ? "expanded" : "tile") as
+        "tile" | "expanded";
       const b: ChoroBindings = {
         dataUrl: canvas.dataset.dataUrl ?? "",
         boundaryUrl: canvas.dataset.boundaryUrl ?? "",
@@ -351,16 +400,118 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
         unit: canvas.dataset.unit ?? "",
         decimals: Number(canvas.dataset.decimals ?? "1"),
       };
-      paint(canvas, b).catch((e) => {
+      paint(canvas, b, mode).catch((e) => {
         canvas.innerHTML = `<p class="muted small">Map failed to load: ${String(e?.message ?? e)}</p>`;
       });
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", hydrateAll);
-  } else {
+  // ---- Click-to-expand ----
+  // Tile clicks open a full-screen modal with a bigger version of the
+  // same map. Reuses the SAME data + boundary fetches via the module-
+  // level caches, so the expansion is instant once the tile has
+  // painted. ESC + backdrop click + the X button all dismiss.
+  function buildExpandedModal(tile: HTMLElement) {
+    const canvasSrc = tile.querySelector<HTMLElement>("[data-role='choro-canvas']");
+    const title = tile.querySelector<HTMLElement>(".chart-tile-title")?.textContent ?? "";
+    const eyebrow = tile.querySelector<HTMLElement>(".choro-eyebrow")?.textContent ?? "";
+    if (!canvasSrc) return;
+    const backdrop = document.createElement("div");
+    backdrop.className = "choro-modal-backdrop";
+    const modal = document.createElement("div");
+    modal.className = "choro-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.innerHTML = `
+      <header class="choro-modal-header">
+        <div>
+          <h3 class="choro-modal-title"></h3>
+          <p class="choro-modal-eyebrow muted small"></p>
+        </div>
+        <button type="button" class="choro-modal-close" aria-label="Close">&times;</button>
+      </header>
+      <div class="choro-modal-canvas-wrap"></div>
+      <footer class="choro-modal-footer">
+        <p class="muted small choro-modal-meta"></p>
+      </footer>
+    `;
+    (modal.querySelector(".choro-modal-title") as HTMLElement).textContent = title;
+    (modal.querySelector(".choro-modal-eyebrow") as HTMLElement).textContent = eyebrow;
+    // Copy the data attributes from the tile canvas so the expanded
+    // canvas hydrates with the same bindings + a different mode.
+    const expandedCanvas = document.createElement("div");
+    expandedCanvas.className = "choro-canvas choro-canvas-expanded";
+    expandedCanvas.setAttribute("data-role", "choro-canvas");
+    expandedCanvas.setAttribute("data-mode", "expanded");
+    for (const attr of Array.from(canvasSrc.attributes)) {
+      if (attr.name === "data-mode") continue;
+      if (attr.name === "class") continue;
+      expandedCanvas.setAttribute(attr.name, attr.value);
+    }
+    // Strip the "already hydrated" flag so paint() runs fresh.
+    expandedCanvas.removeAttribute("data-hydrated");
+    (modal.querySelector(".choro-modal-canvas-wrap") as HTMLElement).appendChild(
+      expandedCanvas,
+    );
+    // Footer metadata: pull the "Updated X" line we stripped from
+    // the tile. Read from the source data file's lastUpdated via
+    // values cache.
+    const dataUrl = canvasSrc.dataset.dataUrl ?? "";
+    fetch(dataUrl)
+      .then((r) => r.json())
+      .then((j) => {
+        const meta = modal.querySelector(".choro-modal-meta") as HTMLElement;
+        const updated = j.lastUpdated
+          ? new Date(j.lastUpdated).toLocaleDateString("en-US", {
+              year: "numeric", month: "short", day: "numeric",
+            })
+          : "";
+        meta.textContent = `ACS 5-year · vintage ${j.vintage} · ${j.geo} level · updated ${updated}`;
+      })
+      .catch(() => {});
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+    // Hydrate the new canvas.
     hydrateAll();
+    // Dismiss handlers.
+    function close() {
+      backdrop.remove();
+      document.removeEventListener("keydown", onKey);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") close();
+    }
+    document.addEventListener("keydown", onKey);
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close();
+    });
+    modal.querySelector(".choro-modal-close")?.addEventListener("click", close);
+  }
+
+  function wireExpansion() {
+    document.querySelectorAll<HTMLElement>("[data-choro='1']").forEach((tile) => {
+      if (tile.dataset.choroExpandWired === "1") return;
+      tile.dataset.choroExpandWired = "1";
+      tile.style.cursor = "zoom-in";
+      tile.addEventListener("click", (e) => {
+        // Don't expand if the click was on something inside the modal
+        // we're about to create (defensive).
+        const target = e.target as HTMLElement | null;
+        if (target?.closest(".choro-modal")) return;
+        buildExpandedModal(tile);
+      });
+    });
+  }
+
+  function init() {
+    hydrateAll();
+    wireExpansion();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
   }
 </script>
 
@@ -398,7 +549,80 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     align-items: center;
     justify-content: center;
   }
+  .choro-canvas { position: relative; }
   .choro-canvas svg { max-width: 100%; height: auto; }
-  .chart-tile-footer { margin: 0; padding-top: 4px; border-top: 1px solid rgba(55, 53, 47, 0.05); }
-  .chart-tile-footer p { margin: 0; }
+  /* Custom mousemove tooltip — bypasses the slow native SVG <title>
+     hover delay. Positioned absolutely inside the canvas wrapper so
+     scrolling doesn't desync it from the cursor. */
+  .choro-tooltip {
+    position: absolute;
+    padding: 4px 8px;
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  }
+
+  /* ---- Click-to-expand modal ---- */
+  .choro-modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+    padding: 24px;
+  }
+  .choro-modal {
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    max-width: min(1100px, 96vw);
+    max-height: 92vh;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  }
+  .choro-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px 8px;
+  }
+  .choro-modal-title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+  .choro-modal-eyebrow {
+    margin: 4px 0 0;
+  }
+  .choro-modal-close {
+    font-size: 22px;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: var(--color-neutral-500);
+  }
+  .choro-modal-close:hover { color: var(--color-neutral-900); }
+  .choro-modal-canvas-wrap {
+    flex: 1;
+    padding: 0 12px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .choro-canvas-expanded { width: 100%; }
+  .choro-canvas-expanded svg { max-width: 100%; height: auto; }
+  .choro-modal-footer {
+    padding: 8px 20px 16px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .choro-modal-footer p { margin: 0; }
 </style>
