@@ -810,6 +810,79 @@ const statesJoined = stateCodes.join(",");
       }
       svg = ((bestSvg as HTMLElement | null) ?? fig) as HTMLElement;
     }
+    // 9800-series tract presentation: hatching + "no resident
+    // population" tooltip. Census reserves 6-digit tract codes that
+    // start with "98" for special land-use areas — federal facilities
+    // (CIA Langley, military bases), parks, airports, water bodies.
+    // ACS publishes no demographics for them because nobody lives
+    // there. Without intervention they render as no-fill = white,
+    // which reads visually identical to a data-missing bug.
+    //
+    // Detection: GEOID is state(2)+county(3)+tract(6), so the tract
+    // portion's first two digits start at index 5. Block-group adds
+    // a single digit at the end (12 total), but the tract portion
+    // sits at the same index, so the same slice check works for both.
+    const isNoPopTract = (geoid: string): boolean => {
+      return geoid.length >= 7 && geoid.slice(5, 7) === "98";
+    };
+    // Only relevant at tract / block-group granularity. County-level
+    // and state-level geographies don't use 9800-series codes.
+    if (b.geo === "tract" || b.geo === "block-group") {
+      const svgEl = svg as unknown as SVGSVGElement;
+      // Inject the hatching pattern into <defs> once per dialog. The
+      // ID is per-canvas so multiple maps on the same page don't
+      // collide. patternUnits="userSpaceOnUse" + non-scaling-stroke
+      // on the line keeps the stripes visually stable across d3-zoom
+      // levels (without it, zooming in 16× turns the hatch into solid
+      // blocks of grey).
+      const safeId = b.chartId.replace(/[^a-z0-9-]/gi, "-");
+      const patternId = `choro-no-pop-${safeId}`;
+      let defs = svgEl.querySelector("defs");
+      if (!defs) {
+        defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        svgEl.insertBefore(defs, svgEl.firstChild);
+      }
+      if (!defs.querySelector(`#${patternId}`)) {
+        const pattern = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "pattern",
+        );
+        pattern.setAttribute("id", patternId);
+        pattern.setAttribute("width", "8");
+        pattern.setAttribute("height", "8");
+        pattern.setAttribute("patternUnits", "userSpaceOnUse");
+        pattern.setAttribute("patternTransform", "rotate(45)");
+        const bg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "rect",
+        );
+        bg.setAttribute("width", "8");
+        bg.setAttribute("height", "8");
+        bg.setAttribute("fill", "#ececec");
+        pattern.appendChild(bg);
+        const stripe = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line",
+        );
+        stripe.setAttribute("x1", "0");
+        stripe.setAttribute("y1", "0");
+        stripe.setAttribute("x2", "0");
+        stripe.setAttribute("y2", "8");
+        stripe.setAttribute("stroke", "#bababa");
+        stripe.setAttribute("stroke-width", "2.5");
+        stripe.setAttribute("vector-effect", "non-scaling-stroke");
+        pattern.appendChild(stripe);
+        defs.appendChild(pattern);
+      }
+      // Re-fill any path whose feature ID is a 9800-series tract.
+      const allPaths = svgEl.querySelectorAll<SVGPathElement>("path");
+      allPaths.forEach((p) => {
+        const d = (p as unknown as { __data__?: { id?: string } }).__data__;
+        if (d?.id && isNoPopTract(d.id)) {
+          p.setAttribute("fill", `url(#${patternId})`);
+        }
+      });
+    }
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
     tooltip.style.display = "none";
@@ -840,11 +913,23 @@ const statesJoined = stateCodes.join(",");
         return;
       }
       const v = values[d.id];
+      const name = d.properties?.name ?? d.id;
       if (v == null || !Number.isFinite(v)) {
+        // 9800-series tract = special land use, no resident population.
+        // Show the tooltip with a friendly explanation rather than
+        // silently hiding — otherwise the user has no way to tell what
+        // the hatched area represents.
+        if (isNoPopTract(d.id)) {
+          tooltip.textContent =
+            `${name} — special land use (no resident population, no ACS data)`;
+          tooltip.style.display = "block";
+          tooltip.style.left = (ev.clientX - rectCache.rect.left + 12) + "px";
+          tooltip.style.top = (ev.clientY - rectCache.rect.top + 12) + "px";
+          return;
+        }
         if (tooltip.style.display !== "none") tooltip.style.display = "none";
         return;
       }
-      const name = d.properties?.name ?? d.id;
       tooltip.textContent = `${name}: ${fmtValue(v, b.unit, b.decimals)}`;
       tooltip.style.display = "block";
       tooltip.style.left = (ev.clientX - rectCache.rect.left + 12) + "px";
@@ -944,7 +1029,7 @@ const statesJoined = stateCodes.join(",");
       // us tell at a glance whether the user is on the right bundle
       // — if a report still shows v1 after fix v2 ships, that's
       // a cache, not a code, problem.
-      const CHORO_BUILD = "zoom-v3-legend-svg-fix-2026-05-19";
+      const CHORO_BUILD = "zoom-v4-9800-hatching-2026-05-19";
       console.info(
         `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
         `zoom setup ${geoGroup ? "starting" : "SKIPPED (no paths found)"}; ` +
