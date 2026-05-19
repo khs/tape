@@ -1,0 +1,112 @@
+---
+title: "Inflation deep-dive"
+order: 5
+defaultDelta: 5y
+description: "Inflation past the headline number. CPI vs PCE, the six big CPI components, what the bond market is pricing for the next five and ten years, and how DC-metro inflation compares to the country."
+aboutBlurb: "Past the headline CPI number — the components that drive it (food, energy, shelter, rent, medical), how PCE differs, and what the bond market is pricing for the next 5 and 10 years."
+sections:
+  - title: "Headline measures"
+    description: "CPI vs PCE. CPI is what most people think of when they say 'inflation.' PCE is what the Fed actually targets — different basket, adjusts as consumers substitute, runs ~0.3pp below CPI most of the time."
+    charts:
+      - us-macro/cpi
+      - us-macro/core_cpi
+      - us-macro/headline_pce
+      - us-macro/core_pce
+  - title: "The big CPI components"
+    description: "Where inflation's coming from. Food + energy bounce on supply shocks (excluded from core). Shelter is a third of CPI by weight and rolls through slowly because of how BLS averages contract rents. Medical care has run above headline for decades."
+    charts:
+      - us-macro/cpi_food
+      - us-macro/cpi_energy
+      - us-macro/cpi_shelter
+      - us-macro/cpi_rent
+      - us-macro/cpi_medical
+  - title: "What the bond market expects"
+    description: "Breakeven inflation = nominal Treasury yield − TIPS yield, at each maturity. The market's forecast of average annual inflation over that horizon, embedded in current prices. Five-year picks up near-term shocks; ten-year is the Fed's preferred reference."
+    charts:
+      - us-macro/breakeven_5y
+      - us-macro/breakeven_10y
+      - us-macro/tips_10y
+  - title: "Policy + rates context"
+    description: "The Fed funds rate (the policy lever) + 10-year nominal yield (the bond market's response). Inflation pulls these in opposite directions: high inflation forces tightening; tight policy pulls long yields up via term premium; both compress as inflation expectations re-anchor."
+    charts:
+      - us-macro/fed_funds
+      - us-macro/ten_year
+      - us-macro/mortgage_30y
+---
+
+## Why so many flavors of "inflation"
+
+The cleanest answer to "what's inflation right now?" is *which*
+inflation:
+
+| Measure | Who calls this their main one | Why it's different |
+|---|---|---|
+| **Headline CPI** | Cost-of-living adjustments (Social Security, contracts) | Most familiar; volatile because food + energy are in |
+| **Core CPI** | Most journalism, common parlance | Strips out food + energy; what people mean when they say "inflation is sticky" |
+| **Headline PCE** | Fed's nominal 2% target | Different basket weight; methodology lets it move as consumers substitute |
+| **Core PCE** | Fed's effective real target | Fed funds rate decisions key on this |
+
+The four series move together over years but diverge over months
+and quarters. Headline CPI is most prone to one-off spikes
+(gas-price shock, food-supply disruption); core PCE is the smoothest.
+At any given moment one of them is almost certainly running above
+2% while another is running below — picking the "right" one is a
+framing choice as much as a measurement one.
+
+## Where the components matter
+
+The CPI-component charts split the headline number into the pieces
+that move differently:
+
+- **Food + energy** are stripped out of "core" because they bounce
+  on shocks unrelated to monetary policy. OPEC supply decisions,
+  bird flu, weather — none of which the Fed can iterate on.
+- **Shelter** is roughly a third of headline CPI by weight and the
+  single largest contributor to core. BLS measures it via Owners'
+  Equivalent Rent plus actual rents, weighted by tenure. Because
+  most leases roll over at 12 months, shelter CPI lags
+  asking-rent indices (Zillow, Apartment List) by about a year.
+  That's why core stayed elevated through 2023 even after market
+  rents had topped out in mid-2022.
+- **Medical** has run consistently above headline for decades.
+  The methodology BLS uses to capture health-insurance prices has
+  been revised twice in the last fifteen years; each revision
+  meaningfully changed the medical-CPI trajectory.
+
+## Reading the breakeven curves
+
+Breakeven inflation is the bond market's forecast, embedded in
+prices: the spread between a nominal Treasury yield and the
+TIPS yield at the same maturity gives the average annual CPI
+implied by the two. If 10-year nominals are at 4.5% and 10-year
+TIPS at 2.0%, the market is pricing 2.5% average inflation over
+the next decade.
+
+Two important caveats:
+
+1. **Breakevens include a risk premium.** Holding TIPS shifts
+   inflation risk from the holder to the Treasury, which costs
+   the Treasury extra yield. So breakevens systematically run
+   slightly above the "pure" expected-inflation number — by
+   maybe 30-50 bps.
+2. **TIPS markets can stress.** During 2008 and 2020, TIPS
+   liquidity dropped sharply and breakevens cratered — reflecting
+   market microstructure, not actual inflation expectations.
+   Filter out those windows when reading the long-run trend.
+
+The breakeven curves are nonetheless the cleanest market-derived
+view of what investors think average inflation will run, and they
+move in advance of CPI data more often than they lag.
+
+## Customizing for your inflation thesis
+
+Open the composer to swap in your own series. Common moves:
+
+- **Goods vs services CPI:** drill into BLS's published splits to
+  see whether the persistent inflation is in services (sticky,
+  domestic-economy-driven) or goods (more transitory, global-
+  supply-chain-driven).
+- **Compare to the 1970s:** add fred/us_cpi at a 50y window and
+  see how today's trajectory compares to the Volcker era.
+- **Wage growth vs CPI:** divide fred/avg_hourly_earnings by
+  fred/us_cpi to track real wage growth.

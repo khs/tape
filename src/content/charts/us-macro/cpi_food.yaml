@@ -1,0 +1,11 @@
+title: CPI — Food
+sources: ["fred/cpi_food"]
+render: line
+defaultDelta: 5y
+tags: [us, macro, inflation]
+blurb: |
+  Food CPI. One of the two components stripped out of "core" CPI
+  because supply shocks (weather, harvests, avian flu, ports) drive
+  short-term volatility that obscures underlying inflation pressure.
+  Food + energy together typically swing 3-5x as much month-to-month
+  as core CPI.

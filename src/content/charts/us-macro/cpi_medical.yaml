@@ -1,0 +1,13 @@
+title: CPI — Medical care
+sources: ["fred/cpi_medical"]
+render: line
+defaultDelta: 10y
+tags: [us, macro, inflation, healthcare]
+blurb: |
+  Medical-care CPI — covers physician services, hospital services,
+  prescription drugs, and health insurance. BLS measures health-
+  insurance prices via a residual that nets out the medical-services
+  paid for under those plans, which historically produced sharp
+  swings unrelated to what insurers were actually charging. The
+  long-term trend is consistently above headline CPI, reflecting
+  decades of healthcare-cost growth outpacing the broader economy.
