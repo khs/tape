@@ -16,27 +16,52 @@ show successive Outlooks side-by-side):
 
 Why this is awkward
 -------------------
-CBO publishes their data exclusively as XLSX files behind their website
-at cbo.gov/data/budget-economic-data. cbo.gov sits behind DataDome
-anti-bot protection — direct HTTP requests from CI return HTTP 403. We
-try anyway (sometimes the block is intermittent or scoped to particular
-ASNs); if the fetch fails, we fall back to operator-supplied XLSX files
-in ``pipelines/cbo_data/``.
+CBO publishes their data exclusively as XLSX files at
+cbo.gov/data/budget-economic-data, behind DataDome anti-bot
+protection — direct CI fetches return HTTP 403. The workflow is
+operator-driven: the operator downloads files in a browser and drops
+them in ``pipelines/cbo_data/`` (gitignored), then runs this pipeline.
 
 Manual workflow
 ~~~~~~~~~~~~~~~
 1. Browse to https://www.cbo.gov/data/budget-economic-data
-2. Download the relevant XLSX files. Each goes into ``pipelines/cbo_data/``
-   with a filename that encodes the vintage:
-     - ``historical_<YYYY-MM>.xlsx`` — Historical Budget Data
-     - ``outlook_<YYYY-MM>.xlsx``    — 10-Year Budget Projections (any
-       Outlook release; one per release date)
-3. Re-run ``python pipelines/cbo.py``. Each present file becomes one
-   data refresh; vintages accumulate across CBO releases.
+2. Each "Budget and Economic Outlook" release ships a data appendix
+   under publication ID **51118** (filename
+   ``51118-YYYY-MM-...-budgetprojections.xlsx`` or
+   ``...-Budget-Projections.xlsx`` depending on era). Download as many
+   release vintages as you want — each becomes one entry under
+   ``projections`` in the output JSON.
+3. Drop the files in ``pipelines/cbo_data/`` with their original
+   filenames (we infer the vintage from the ``51118-YYYY-MM`` prefix).
+4. Run ``python pipelines/cbo.py``.
 
-The directory is gitignored — see the ``pipelines/cbo_data/`` block in
-``.gitignore``. Files there are operator artifacts, not part of the
-repo.
+Each Outlook file contributes:
+  - The first year column ("Actual, YYYY") -> historical point in
+    ``points`` for that fiscal year. When multiple vintages report
+    overlapping actuals, the newest revision wins.
+  - The remaining 10-11 year columns -> projection segment under
+    ``projections[<YYYY-MM>]`` for that vintage.
+
+What the parser extracts
+~~~~~~~~~~~~~~~~~~~~~~~~
+From the workbook's "Table 1-1" sheet (Baseline Budget Projections),
+the parser walks rows looking for the "As a percentage of GDP" marker
+and tracks Revenues / Outlays section headers to pluck four target
+rows: revenues Total, outlays Total, "Total deficit (-)", and "Debt
+held by the public". See ``parse_table_1_1`` for the gritty bits.
+
+Supported vintages: any 51118- file whose Table 1-1 sheet uses the
+standard layout (2012 onward). Older releases (.xls) work with xlrd
+installed. The 2018-04 release is an outlier — it uses tables 2-2 /
+2-4 instead of 1-1, and is silently skipped with a per-vintage error.
+
+Historical coverage caveat
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Each 51118- Outlook only includes ONE actual year (the most recent
+completed FY). With N vintages on disk you get N historical points,
+sparsely spaced. For a continuous 1962-onward historical line, drop
+in CBO's "Historical Budget Data" (publication ID 51134) — the parser
+ignores it today but extending to cover it would be modest.
 
 License
 -------
@@ -51,9 +76,7 @@ from __future__ import annotations
 
 import re
 import sys
-import urllib.request
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
 
 import pandas as pd
@@ -61,15 +84,11 @@ import pandas as pd
 # Allow running as a script from the repo root.
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "pipelines"))
-from _cache import cache_get, cache_put  # noqa: E402
 from common import write_timeseries  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANUAL_DIR = REPO_ROOT / "pipelines" / "cbo_data"
-
-# CBO XLSX content for a given release vintage doesn't change.
-CACHE_MAX_AGE_DAYS = 365.0 * 100
 
 
 # Federal fiscal years run Oct 1 -> Sept 30. Anchor each year's value
@@ -80,211 +99,260 @@ def fy_to_date(fy: int) -> str:
 
 
 @dataclass
-class CboRelease:
-    """One Outlook release whose projections we want to ingest as a
-    distinct vintage."""
-
-    # ISO month string, e.g. "2025-01". Used as the projection vintage
-    # key in the output JSON.
-    vintage: str
-    # Filename on cbo.gov, used both for the download URL and the
-    # manual-mode lookup. Update when CBO publishes a new outlook.
-    projection_filename: str
-
-
-# Most recent CBO Outlooks. Append new entries when fresh releases drop;
-# older entries stay so the projections map accumulates history. The
-# url-fetch path tries each entry; whichever ones succeed (or have a
-# manual-mode XLSX present in cbo_data/) become vintages in the output.
-RELEASES: list[CboRelease] = [
-    CboRelease(vintage="2025-01", projection_filename="61104-2025-01-budget-projections.xlsx"),
-    CboRelease(vintage="2024-06", projection_filename="61104-2024-06-budget-projections.xlsx"),
-    CboRelease(vintage="2024-02", projection_filename="51119-2024-02-budget-projections.xlsx"),
-]
-
-# Historical Budget Data — pulled separately because CBO publishes it
-# on a different cadence than the Outlook.
-HISTORICAL_FILENAME = "51134-2025-01-Historical-Budget-Data.xlsx"
-HISTORICAL_VINTAGE = "2025-01"
-
-
-@dataclass
 class CboSeries:
+    """One headline series we pull from Table 1-1.
+
+    Each series_id corresponds to one row in Table 1-1's % of GDP
+    block. Section + label tracking in parse_table_1_1() identifies the
+    right row even though "Total" appears twice in the same block
+    (once under Revenues, once under Outlays).
+    """
+
     out_id: str
     name: str
-    # Row-label regex, matched case-insensitively against the first
-    # text-bearing column of each row in the workbook.
-    row_pattern: re.Pattern[str]
 
 
 SERIES: list[CboSeries] = [
     CboSeries(
         out_id="cbo_outlays_pct_gdp",
         name="Federal outlays as % of GDP (CBO baseline)",
-        row_pattern=re.compile(r"^\s*(Total\s+)?Outlays\s*$", re.I),
     ),
     CboSeries(
         out_id="cbo_revenues_pct_gdp",
         name="Federal revenues as % of GDP (CBO baseline)",
-        row_pattern=re.compile(r"^\s*(Total\s+)?Revenues\s*$", re.I),
     ),
     CboSeries(
         out_id="cbo_deficit_pct_gdp",
         name="Federal deficit as % of GDP (CBO baseline)",
-        # Headline row is "Deficit" or "Deficit (-) or Surplus".
-        row_pattern=re.compile(r"^\s*Deficit", re.I),
     ),
     CboSeries(
         out_id="cbo_debt_pct_gdp",
         name="Federal debt held by the public as % of GDP (CBO baseline)",
-        row_pattern=re.compile(r"^\s*Debt\s+Held\s+by\s+the\s+Public\s*$", re.I),
     ),
 ]
 
 
-def fetch_xlsx(vintage: str, filename: str) -> bytes | None:
-    """
-    Try the URL first (cached), then fall back to ``pipelines/cbo_data/``
-    for an operator-supplied copy. Manual filenames can be either the
-    exact cbo.gov filename or our shorter ``outlook_<vintage>.xlsx``
-    convention.
-    """
-    cache_key = f"{vintage}_{filename}"
-    cached = cache_get("cbo_xlsx", cache_key, CACHE_MAX_AGE_DAYS, suffix=".xlsx")
-    if cached is not None:
-        return cached
-
-    url = f"https://www.cbo.gov/system/files/{vintage}/{filename}"
-    try:
-        # Use a browser-like User-Agent. CBO's DataDome sometimes blocks
-        # bare urllib UAs; sometimes it doesn't. No silver bullet; we
-        # try, and fall through to manual mode on 403.
-        req = urllib.request.Request(
-            url,
-            headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/124.0.0.0 Safari/537.36"
-                ),
-                "Accept": (
-                    "application/vnd.openxmlformats-officedocument."
-                    "spreadsheetml.sheet,*/*;q=0.8"
-                ),
-            },
-        )
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            body = resp.read()
-        try:
-            cache_put("cbo_xlsx", cache_key, body, suffix=".xlsx")
-        except OSError as e:
-            print(f"  cache write failed: {e}", file=sys.stderr)
-        return body
-    except Exception as e:
-        print(f"  url fetch failed ({url}): {e}", file=sys.stderr)
-
-    # Fallback: operator-supplied file. Look for either the exact CBO
-    # filename or our short-vintage convention.
-    if MANUAL_DIR.exists():
-        candidates = [
-            MANUAL_DIR / filename,
-            MANUAL_DIR / f"outlook_{vintage}.xlsx",
-            MANUAL_DIR / f"historical_{vintage}.xlsx",
-        ]
-        for p in candidates:
-            if p.exists():
-                print(f"  using manual upload: {p.name}", flush=True)
-                return p.read_bytes()
-    return None
-
-
-def _extract_year(col: object) -> int | None:
-    """Extract a 4-digit fiscal year from a column header. CBO tables
-    mix int years, "YYYY", and "FY YYYY" headers."""
-    s = str(col).strip()
+def _extract_year(cell: object) -> int | None:
+    """Extract a 4-digit fiscal year from a cell value. CBO header
+    cells use a mix of int years, "YYYY", and "Actual,\\nYYYY" (with
+    embedded newline + label)."""
+    s = str(cell).strip()
     m = re.search(r"\b(19|20|21)\d{2}\b", s)
-    return int(m.group(0)) if m else None
+    if not m:
+        return None
+    y = int(m.group(0))
+    return y if 1900 <= y <= 2200 else None
 
 
-def _looks_like_pct_gdp_sheet(df: pd.DataFrame) -> bool:
-    """Heuristic: the % GDP table contains our headline row labels
-    (Outlays / Revenues / Deficit / Debt) with at least 5
-    fiscal-year-shaped column headers."""
-    if df.shape[0] < 5 or df.shape[1] < 5:
-        return False
-    year_cols = sum(1 for c in df.columns if _extract_year(c) is not None)
-    if year_cols < 5:
-        return False
-    first_col = df.iloc[:, 0].astype(str)
-    return any(
-        first_col.str.match(spec.row_pattern, na=False).any()
-        for spec in SERIES
-    )
-
-
-def find_pct_gdp_sheet(workbook: dict[str, pd.DataFrame]) -> pd.DataFrame | None:
-    """Pick the sheet that looks like the % of GDP summary table."""
-    by_name = sorted(
-        workbook.items(),
-        key=lambda kv: (
-            0 if "gdp" in kv[0].lower() else 1,
-            0 if "percent" in kv[0].lower() else 1,
-            kv[0],
-        ),
-    )
-    for _, df in by_name:
-        if _looks_like_pct_gdp_sheet(df):
-            return df
-    return None
-
-
-def parse_series_row(
+def parse_table_1_1(
     df: pd.DataFrame,
-    spec: CboSeries,
-) -> list[tuple[int, float]] | None:
-    """Find the row matching ``spec.row_pattern`` and return
-    [(year, value), ...] pairs from year-headered columns."""
-    first_col = df.iloc[:, 0].astype(str)
-    matches = first_col.str.match(spec.row_pattern, na=False)
-    if not matches.any():
-        return None
-    row = df[matches].iloc[0]
-    out: list[tuple[int, float]] = []
-    for col, val in row.items():
-        year = _extract_year(col)
-        if year is None:
-            continue
-        try:
-            v = float(str(val).replace(",", "").strip())
-        except (TypeError, ValueError):
-            continue
-        out.append((year, v))
-    out.sort(key=lambda p: p[0])
-    return out
+) -> tuple[dict[str, list[tuple[int, float]]], int] | None:
+    """Parse a CBO Outlook "Table 1-1" sheet.
 
+    Returns ``(series_data, actual_year)`` where ``series_data`` is
+    ``{series_id: [(year, value_pct_gdp), ...]}`` and ``actual_year``
+    is the most-recent-completed FY (the first year column in the
+    table; remaining year columns are 10- or 11-year projections).
+    Returns None on parse failure.
 
-def parse_workbook(body: bytes) -> dict[str, list[tuple[int, float]]] | None:
-    """Open an XLSX and return {out_id: [(year, value), ...]} per
-    series, or None on parse failure."""
-    try:
-        sheets = pd.read_excel(BytesIO(body), sheet_name=None, header=0)
-    except Exception as e:
-        print(f"  read_excel failed: {e}", file=sys.stderr)
+    Table 1-1 structure (consistent across 2012-2026 vintages):
+      Row N:      "Table 1-1. CBO's Baseline Budget Projections..."
+      Row N+1-3:  Year header — one column per year. First year is
+                  most-recent FY actual; the rest are projections.
+      Row M:      "In billions of dollars" — first data block, dollar
+                  amounts.
+      Rows M+1+:  Revenues / Outlays / Deficit / Debt / GDP rows in
+                  dollar amounts.
+      Row P:      "As a percentage of (gross domestic product|GDP)" —
+                  second data block, % of GDP. THIS is what we want.
+      Rows P+1+:  same five-row structure, in % of GDP.
+
+    "Total" appears twice in the % block (once under Revenues, once
+    under Outlays); section tracking disambiguates.
+    """
+    # 1. Find year-header row: first row whose cells contain >= 5
+    # four-digit years. CBO files include the year-row 1-3 rows below
+    # the table-title row, so we scan from the top.
+    year_row: int | None = None
+    for i in range(min(20, len(df))):
+        cells = df.iloc[i].tolist()
+        if sum(1 for c in cells if _extract_year(c) is not None) >= 5:
+            year_row = i
+            break
+    if year_row is None:
         return None
-    target = find_pct_gdp_sheet(sheets)
-    if target is None:
-        print(
-            f"  could not locate %-GDP sheet; sheets present: "
-            f"{list(sheets.keys())}",
-            file=sys.stderr,
+
+    # 2. Map each year-bearing column to its year. Some older releases
+    # tack on multi-year SUM columns at the end ("2013-2017", "2013-2022")
+    # whose header still contains a 4-digit year that re-collides with an
+    # earlier annual column. Keep only the first occurrence of each year
+    # so the sum columns don't double-write annual values.
+    year_for_col: dict[int, int] = {}
+    seen_years: set[int] = set()
+    for col_idx in range(df.shape[1]):
+        y = _extract_year(df.iloc[year_row, col_idx])
+        if y is not None and y not in seen_years:
+            year_for_col[col_idx] = y
+            seen_years.add(y)
+    if not year_for_col:
+        return None
+
+    # CBO convention: first year column is "actual" (most recent
+    # completed FY), remaining columns are 10- or 11-year projections.
+    actual_year = year_for_col[min(year_for_col.keys())]
+
+    # 3. Locate the "as a percentage of GDP" marker row anywhere after
+    # the year row. Wording shifted across releases — 2024 said
+    # "As a percentage of gross domestic product", 2026 said
+    # "As a percentage of GDP" — so match either. Position varies:
+    # modern releases put the marker in col 0 or col 1, but pre-2018
+    # releases tucked it into col 4 (the first data column). Scan
+    # every column.
+    pct_row: int | None = None
+    for i in range(year_row + 1, len(df)):
+        for j in range(df.shape[1]):
+            cell = str(df.iloc[i, j]).lower()
+            if "percent" in cell and ("gdp" in cell or "domestic" in cell):
+                pct_row = i
+                break
+        if pct_row is not None:
+            break
+    if pct_row is None:
+        return None
+
+    # 4. Walk rows after the marker, tracking which section header
+    # ("Revenues" / "Outlays") we're inside. The Totals can appear in
+    # two row layouts depending on vintage:
+    #
+    # Modern (2021+): row's col 0 holds the label, e.g.:
+    #     row N:    "Revenues"
+    #     ...
+    #     row N+M:  "Total"          (this is the row we want)
+    #     row N+M+1:"On-budget"
+    #
+    # Old (2012-2016): row's col 1 holds the sub-item labels and the
+    # Total row is UNLABELED (col 0 + col 1 both NaN), distinguished
+    # only by being the first numeric row after the section header that
+    # carries no label:
+    #     row N:    "Revenues"          (col 0)
+    #     row N+1:  ""        "Indiv income taxes"  (col 1 label)
+    #     ...
+    #     row N+5:  ""        ""        "____"         (underline marker)
+    #     row N+6:  ""        ""        15.40           (THIS is Total)
+    #     row N+7:  ""        ""        11.62           (On-budget)
+    #
+    # We detect both. ``section_total_taken`` flips once we've claimed
+    # the Total for the active section, so the unlabeled On-budget /
+    # Off-budget rows that follow don't get misclassified.
+    section: str | None = None
+    section_total_taken: bool = False
+    found: dict[str, int | None] = {
+        "cbo_revenues_pct_gdp": None,
+        "cbo_outlays_pct_gdp": None,
+        "cbo_deficit_pct_gdp": None,
+        "cbo_debt_pct_gdp": None,
+    }
+
+    def _row_has_numeric_in_year_cols(row_idx: int) -> bool:
+        for col_idx in year_for_col:
+            v = df.iloc[row_idx, col_idx]
+            try:
+                f = float(str(v).replace(",", "").strip())
+                if f == f:
+                    return True
+            except (ValueError, TypeError):
+                continue
+        return False
+
+    for i in range(pct_row + 1, len(df)):
+        label = str(df.iloc[i, 0]).strip().lower()
+        sub_label = (
+            str(df.iloc[i, 1]).strip().lower() if df.shape[1] > 1 else ""
         )
-        return None
-    out: dict[str, list[tuple[int, float]]] = {}
-    for spec in SERIES:
-        pairs = parse_series_row(target, spec)
+        # End of table.
+        if label.startswith("back to ") or label.startswith("source") or label.startswith("note:"):
+            break
+        if label == "revenues":
+            section = "revenues"
+            section_total_taken = False
+            continue
+        if label == "outlays":
+            section = "outlays"
+            section_total_taken = False
+            continue
+        # Deficit + Debt rows are always labeled in col 0; the wording
+        # varies (2024+: "Total deficit (-)"; 2012-2016: "Deficit (-) or
+        # Surplus"). Match either.
+        if (
+            "total deficit" in label
+            or label.startswith("deficit (-)")
+        ) and found["cbo_deficit_pct_gdp"] is None:
+            found["cbo_deficit_pct_gdp"] = i
+            section = None
+            continue
+        if (
+            "debt held by the public" in label
+            and found["cbo_debt_pct_gdp"] is None
+        ):
+            found["cbo_debt_pct_gdp"] = i
+            section = None
+            continue
+        # Modern-layout: explicit "Total" label in col 0.
+        if label == "total":
+            if section == "revenues" and found["cbo_revenues_pct_gdp"] is None:
+                found["cbo_revenues_pct_gdp"] = i
+                section_total_taken = True
+            elif section == "outlays" and found["cbo_outlays_pct_gdp"] is None:
+                found["cbo_outlays_pct_gdp"] = i
+                section_total_taken = True
+            continue
+        # Old-layout: while we're inside Revenues/Outlays and haven't
+        # claimed a Total yet, look for the first row that's unlabeled
+        # in col 0 AND col 1 AND carries numeric data in the year
+        # columns. The underline-marker rows ("____") fail the numeric
+        # check so we skip them naturally.
+        if (
+            section in ("revenues", "outlays")
+            and not section_total_taken
+            and (not label or label == "nan")
+            and (not sub_label or sub_label == "nan")
+            and _row_has_numeric_in_year_cols(i)
+        ):
+            if section == "revenues":
+                found["cbo_revenues_pct_gdp"] = i
+            else:
+                found["cbo_outlays_pct_gdp"] = i
+            section_total_taken = True
+            continue
+
+    # 5. Extract year-value pairs for each found row.
+    result: dict[str, list[tuple[int, float]]] = {}
+    for series_id, row_idx in found.items():
+        if row_idx is None:
+            continue
+        pairs: list[tuple[int, float]] = []
+        for col_idx, year in year_for_col.items():
+            v = df.iloc[row_idx, col_idx]
+            try:
+                v_f = float(str(v).replace(",", "").strip())
+                if v_f == v_f:  # not NaN
+                    pairs.append((year, v_f))
+            except (ValueError, TypeError):
+                continue
         if pairs:
-            out[spec.out_id] = pairs
-    return out if out else None
+            pairs.sort()
+            result[series_id] = pairs
+
+    return result, actual_year
+
+
+def vintage_from_filename(name: str) -> str | None:
+    """CBO's filenames embed the release date as ``51118-YYYY-MM-...``.
+    Some older releases use four-segment form (e.g.
+    ``51118-2021-02-11-budgetprojections.xlsx`` with a day component);
+    we still want the YYYY-MM prefix as the vintage stamp."""
+    m = re.match(r"^\d+-(\d{4}-\d{2})", name)
+    return m.group(1) if m else None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -297,64 +365,113 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    # Per-series aggregators. Each series eventually carries:
-    #   historical[id] = list of {t, v} actuals
-    #   projections[id] = {vintage_str: list of {t, v}}
-    historical: dict[str, list[dict]] = {s.out_id: [] for s in runs}
-    projections: dict[str, dict[str, list[dict]]] = {s.out_id: {} for s in runs}
-
-    # --- Historical actuals
-    print(f"Fetching CBO Historical Budget Data ({HISTORICAL_FILENAME})...", flush=True)
-    hist_body = fetch_xlsx(HISTORICAL_VINTAGE, HISTORICAL_FILENAME)
-    if hist_body is None:
+    # Auto-discover vintage files in pipelines/cbo_data/. CBO publishes
+    # the Outlook's data appendix under publication ID 51118; the
+    # filename always starts with ``51118-YYYY-MM-`` (sometimes followed
+    # by ``-DD``) and ends with ``budgetprojections.xls`` or
+    # ``Budget-Projections.xlsx`` depending on the release year.
+    if not MANUAL_DIR.exists():
         print(
-            "WARNING: could not fetch historical data; series will only "
-            "have projections (if any).",
+            f"::error::No CBO data directory at "
+            f"{MANUAL_DIR.relative_to(ROOT)}. Drop the Outlook XLSX "
+            f"files there (see module docstring for the manual workflow) "
+            f"and re-run.",
             file=sys.stderr,
         )
-    else:
-        parsed = parse_workbook(hist_body)
-        if parsed:
-            for spec in runs:
-                for year, v in parsed.get(spec.out_id, []):
-                    historical[spec.out_id].append(
-                        {"t": fy_to_date(year), "v": round(v, 3)}
-                    )
+        return 1
 
-    # --- Projections — one vintage per Outlook release
-    successful_vintages = 0
-    for rel in RELEASES:
-        print(f"Fetching CBO Outlook {rel.vintage} ({rel.projection_filename})...", flush=True)
-        body = fetch_xlsx(rel.vintage, rel.projection_filename)
-        if body is None:
+    candidates: list[tuple[str, Path]] = []
+    for p in sorted(MANUAL_DIR.glob("51118-*")):
+        # Match the budget-projections data appendix specifically;
+        # ignore other 51118-prefixed files if someone drops them in
+        # (e.g. an errata sheet).
+        if "budget" not in p.name.lower() or "projection" not in p.name.lower():
             continue
-        parsed = parse_workbook(body)
-        if not parsed:
+        if p.suffix.lower() not in (".xls", ".xlsx"):
             continue
-        successful_vintages += 1
-        rel_year = int(rel.vintage[:4])
+        v = vintage_from_filename(p.name)
+        if v is None:
+            print(f"  could not parse vintage from {p.name}; skipping",
+                  file=sys.stderr)
+            continue
+        candidates.append((v, p))
+
+    if not candidates:
+        print(
+            f"::error::No 51118-YYYY-MM-*Budget-Projections*.xls(x) files "
+            f"in {MANUAL_DIR.relative_to(ROOT)}. Download from "
+            f"https://www.cbo.gov/data/budget-economic-data — look for the "
+            f"data files accompanying each \"Budget and Economic Outlook\" "
+            f"release.",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Aggregators across vintages. Each file contributes:
+    #   - the first year column -> historical actual for that year
+    #   - remaining year columns -> projection segment under that vintage's key
+    # When multiple files report the same actual year (e.g. the 2024
+    # release's 2023 actual is later revised in the 2026 release), the
+    # newer vintage wins. We sort ascending so later overwrites stick.
+    historical_by_year: dict[str, dict[int, float]] = {
+        s.out_id: {} for s in runs
+    }
+    projections: dict[str, dict[str, list[dict]]] = {
+        s.out_id: {} for s in runs
+    }
+    parsed_vintages = 0
+    skipped_vintages: list[str] = []
+
+    for vintage, p in candidates:
+        print(f"Parsing CBO Outlook {vintage} ({p.name})...", flush=True)
+        try:
+            df = pd.read_excel(p, sheet_name="Table 1-1", header=None)
+        except ValueError as e:
+            # "Worksheet named 'Table 1-1' not found" — some older
+            # releases used different sheet numbering (e.g. the
+            # 2018-04 release has Tables 2-2, 2-4, 4-1, 4-4 instead).
+            print(f"  no Table 1-1 sheet ({e}); skipping vintage",
+                  file=sys.stderr)
+            skipped_vintages.append(vintage)
+            continue
+        except Exception as e:
+            print(f"  read failed: {e}", file=sys.stderr)
+            skipped_vintages.append(vintage)
+            continue
+        parsed = parse_table_1_1(df)
+        if parsed is None:
+            print(f"  parse_table_1_1 returned None — structure not as expected",
+                  file=sys.stderr)
+            skipped_vintages.append(vintage)
+            continue
+        series_data, actual_year = parsed
+        parsed_vintages += 1
         for spec in runs:
-            pairs = parsed.get(spec.out_id, [])
+            pairs = series_data.get(spec.out_id, [])
             if not pairs:
                 continue
-            proj_pts: list[dict] = []
-            for year, v in pairs:
-                if year >= rel_year:
-                    proj_pts.append({"t": fy_to_date(year), "v": round(v, 3)})
-            if proj_pts:
-                projections[spec.out_id][rel.vintage] = proj_pts
+            actuals = [(y, v) for (y, v) in pairs if y <= actual_year]
+            future = [(y, v) for (y, v) in pairs if y > actual_year]
+            for y, v in actuals:
+                historical_by_year[spec.out_id][y] = v
+            if future:
+                projections[spec.out_id][vintage] = [
+                    {"t": fy_to_date(y), "v": round(v, 3)}
+                    for (y, v) in future
+                ]
 
-    # --- Emit
+    # Emit
     written = 0
     for spec in runs:
-        pts = historical[spec.out_id]
+        hist = historical_by_year[spec.out_id]
         projs = projections[spec.out_id]
-        # Dedupe historical by date.
-        seen: dict[str, dict] = {p["t"]: p for p in pts}
-        pts = sorted(seen.values(), key=lambda p: p["t"])
-        if not pts and not projs:
+        if not hist and not projs:
             print(f"  {spec.out_id}: no data; skipping", file=sys.stderr)
             continue
+        pts = sorted(
+            ({"t": fy_to_date(y), "v": round(v, 3)} for y, v in hist.items()),
+            key=lambda p: p["t"],
+        )
         out = write_timeseries(
             pipeline="cbo",
             series_id=spec.out_id,
@@ -370,12 +487,19 @@ def main(argv: list[str] | None = None) -> int:
         )
         written += 1
 
-    print(f"\ncbo: wrote {written} series across {successful_vintages} Outlook vintages")
-    if not written:
+    print(
+        f"\ncbo: wrote {written} series from {parsed_vintages} parsed "
+        f"vintage(s); skipped {len(skipped_vintages)} ({skipped_vintages})"
+    )
+    if written and not historical_by_year[SERIES[0].out_id].keys():
         print(
-            "If all fetches failed, try the manual workflow: download the "
-            "XLSX files from https://www.cbo.gov/data/budget-economic-data "
-            "into pipelines/cbo_data/ and re-run.",
+            "Note: historical series is empty. Each Outlook file only "
+            "ships ONE actual year (the most-recent completed FY) — for a "
+            "richer 1962-onward historical line, download CBO's "
+            "\"Historical Budget Data\" file (publication 51134) into "
+            "pipelines/cbo_data/ and we'll extend the parser to ingest "
+            "it. Without it, ``points`` will be sparse (1 datum per "
+            "Outlook release on file).",
             file=sys.stderr,
         )
     return 0 if written else 1

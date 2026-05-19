@@ -89,7 +89,13 @@ from common import write_timeseries  # noqa: E402
 # year). The most recent intermediate-cost projection becomes the
 # default "latest vintage" the Forecast UI Phase 2 renderer shows as
 # the dashed continuation.
-REPORT_YEAR = 2024
+#
+# Note on file slugs: SSA renumbered the chapter in the 2025 report
+# (VI.F -> VI.G), so the per-table URL paths changed too. Older
+# vintages (2024 and earlier) used lr6F8 / lr6F4; 2025 uses
+# VI_G2_OASDHI_GDP.html / lr4b3.html. We point at the 2025 paths
+# below; if SSA renames again, update url_suffix in TABLES.
+REPORT_YEAR = 2025
 
 # Trustees Report data tables don't change once published. Cache the
 # raw HTML fetches for effectively permanent durations (cache key
@@ -123,27 +129,25 @@ class SsaTableSpec:
     scale: float
 
 
-# 2024 Trustees Report — Long-Range Estimates section. URL pattern is
-# stable across vintages: bump REPORT_YEAR and the same suffixes apply.
+# 2025 Trustees Report — Long-Range Estimates section. SSA renamed the
+# chapter from VI.F to VI.G in the 2025 release, so the per-table file
+# slugs changed too:
 #
-# Tables referenced below:
+#   VI_G2_OASDHI_GDP.html  (was lr6F8.html)
+#     "Estimates as a Percentage of Gross Domestic Product, Calendar
+#     Years 1970-2100". OASDI cost rate + income rate, with separate
+#     blocks for the Low (I) / Intermediate (II) / High (III)
+#     economic-assumption alternatives. We pull Intermediate.
 #
-#   lr6F8 — "OASDI and HI Income, Cost, and Balance as Percentages of
-#           Gross Domestic Product, Calendar Years 1970-2100". Contains
-#           historical + projected cost & income as % GDP for each of
-#           the three economic alternatives. The intermediate (II)
-#           column is what we want.
-#
-#   lr6F4 — "Number of Covered Workers per OASDI Beneficiary by
-#           Alternative, Calendar Years 1970-2100". Demographic-pressure
-#           ratio: rising = more workers per retiree, falling = fewer.
-#           Headlines tend to focus on the post-2030 decline.
+#   lr4b3.html  (was lr6F4.html)
+#     "Covered Workers and Beneficiaries, Calendar Years 1970-2100".
+#     Demographic-pressure ratio across the three alternatives.
 TABLES: list[SsaTableSpec] = [
     SsaTableSpec(
         out_id="oasdi_cost_pct_gdp",
         name="Social Security (OASDI) cost as % of GDP",
         unit="% of GDP",
-        url_suffix="lr6F8.html",
+        url_suffix="VI_G2_OASDHI_GDP.html",
         value_header_pattern=re.compile(r"OASDI[^|]*Cost.*Intermediate", re.I | re.S),
         year_header_pattern=re.compile(r"Year", re.I),
         scale=1.0,
@@ -152,7 +156,7 @@ TABLES: list[SsaTableSpec] = [
         out_id="oasdi_income_pct_gdp",
         name="Social Security (OASDI) income as % of GDP",
         unit="% of GDP",
-        url_suffix="lr6F8.html",
+        url_suffix="VI_G2_OASDHI_GDP.html",
         value_header_pattern=re.compile(r"OASDI[^|]*Income.*Intermediate", re.I | re.S),
         year_header_pattern=re.compile(r"Year", re.I),
         scale=1.0,
@@ -161,7 +165,7 @@ TABLES: list[SsaTableSpec] = [
         out_id="oasdi_workers_per_beneficiary",
         name="Covered workers per OASDI beneficiary",
         unit="workers per beneficiary",
-        url_suffix="lr6F4.html",
+        url_suffix="lr4b3.html",
         value_header_pattern=re.compile(r"Intermediate", re.I),
         year_header_pattern=re.compile(r"Year", re.I),
         scale=1.0,

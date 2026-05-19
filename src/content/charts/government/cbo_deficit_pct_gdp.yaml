@@ -1,0 +1,8 @@
+title: Federal deficit / GDP — CBO baseline
+sources:
+  - cbo/cbo_deficit_pct_gdp
+render: line
+defaultDelta: 30y
+tags: [fiscal, government, macro, us]
+blurb: |
+  Solid line: historical deficit / GDP from CBO. Dashed line: 10-year baseline projection. Positive values are deficits. Baseline assumes current law; realized deficits typically exceed baseline.

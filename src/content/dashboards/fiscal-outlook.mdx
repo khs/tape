@@ -5,6 +5,13 @@ defaultDelta: 5y
 description: "Forward-looking views of fiscal and energy series, with the projection segments drawn as dashed extensions of the historical line. Currently scoped to the three energy commodity futures curves; CBO and SSA projection sections are queued behind a data-ingest step (see About below)."
 aboutBlurb: "Forward-looking projections from the institutions that publish them — futures markets for energy commodities, CBO for the federal budget baseline, SSA for the long-run Social Security trajectory. The renderer draws projection segments as dashed extensions of the historical line so the past-vs-forecast boundary is visible at a glance."
 sections:
+  - title: "CBO budget baseline — 10-year projections"
+    description: "Each chart's solid line is historical actuals from CBO's Budget Outlook data appendices; the dashed extension is the most recent 10-year baseline projection. The baseline holds current law fixed — actual outcomes typically diverge as expiring provisions get extended. Historical coverage is sparse (one actual year per Outlook release on file); a 1962-onward continuous line will land if we add CBO's Historical Budget Data file."
+    charts:
+      - government/cbo_outlays_pct_gdp
+      - government/cbo_revenues_pct_gdp
+      - government/cbo_deficit_pct_gdp
+      - government/cbo_debt_pct_gdp
   - title: "Energy commodities — current forward curves"
     description: "Solid lines are monthly-averaged historical spot prices. Dashed extensions are today's futures curves — each future-month contract plotted at its delivery month, priced at its most-recent close. These are market-quoted contract prices, not Tape-generated forecasts."
     charts:
@@ -27,24 +34,17 @@ pipeline run with the latest NYMEX-quoted contract prices.
 
 ## What's queued
 
-Two additional sections will land once their data files are ingested:
+One more section will land once its data files are ingested:
 
-- **CBO Budget & Economic Outlook — 10-year baseline projections** for
-  federal outlays / GDP, revenues / GDP, deficit / GDP, and debt held
-  by the public / GDP. CBO publishes a new Outlook each January with
-  an August update.
 - **SSA Trustees Report — 75-year intermediate-cost projection** for
   OASDI cost / GDP and covered workers per beneficiary. The Trustees
   Report publishes annually each May/June.
 
-Both pipelines (`pipelines/cbo.py` + `pipelines/ssa.py`) are written
-and committed but both sites block direct CI fetches behind anti-bot
-protection — DataDome on cbo.gov, similar on ssa.gov. The pipelines
-fall back to operator-supplied files under `pipelines/cbo_data/` and
-`pipelines/ssa_data/` respectively; once those land on disk, running
-the pipelines will populate the data files and the chart YAMLs +
-dashboard sections can be re-added from git history (commits up to
-`79b7679675` carried them).
+The SSA pipeline (`pipelines/ssa.py`) is written and committed but
+ssa.gov blocks direct CI fetches with a 403. The pipeline falls back
+to operator-supplied HTML files under `pipelines/ssa_data/`; once
+those land on disk, running the pipeline will populate the data files
+and the chart YAMLs + dashboard section can be re-added.
 
 ## How to read a futures curve
 
