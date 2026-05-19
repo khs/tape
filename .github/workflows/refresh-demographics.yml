@@ -17,10 +17,13 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    # 3-hour ceiling. Real runtime today is ~30-45 min, but the buffer
-    # lets us add more ACS indicators or new geographic pipelines (e.g.
-    # county-level Census ACS) without re-touching this file each time.
-    timeout-minutes: 180
+    # 6-hour ceiling. After expanding tract + block_group to all 50
+    # states + DC, a clean (cache-empty) run takes ~3-4 hours for the
+    # API-bound fetches; most runs are much shorter because immutable
+    # vintages skip on disk-cache hit. The buffer also covers adding
+    # more ACS indicators or new geographic pipelines without
+    # re-touching this file.
+    timeout-minutes: 360
     steps:
       - name: Check out repo
         uses: actions/checkout@v5
@@ -100,39 +103,29 @@ jobs:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         run: python pipelines/census_acs_choropleth.py --geo county
 
-      # DMV tract maps span VA + MD + DC. Each --state call fetches
-      # one shard; the renderer merges them on the client. Stays a
-      # small set (3 states) by design — full-US tract is a separate
-      # one-off run because each state is ~2-4k tracts × indicators
-      # × vintages and the API call volume balloons quickly.
-      - name: Refresh ACS choropleth snapshots (tract, VA)
+      # Tract-level coverage across every state + DC. Each state's
+      # fast-path call returns all that state's tracts in one ~5MB
+      # response (3-30 sec each), so the full pull is ~30-60 min of
+      # mostly-network-bound API time. Each indicator × vintage that
+      # already has a file on disk is cache-skipped — only the latest
+      # 1-2 vintages re-fetch on a typical run.
+      - name: Refresh ACS choropleth snapshots (tract, all states)
         continue-on-error: true
         env:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
-        run: python pipelines/census_acs_choropleth.py --geo tract --state VA
+        run: python pipelines/census_acs_choropleth.py --geo tract --state all
 
-      - name: Refresh ACS choropleth snapshots (tract, MD)
+      # Block-group-level coverage across every state + DC. Heavier
+      # than tract because the per-state response is ~10MB; full pull
+      # is ~60-120 min on a clean run, much shorter when most vintages
+      # are already cache-skipped. continue-on-error kept so a partial
+      # BG failure doesn't block the rest of the commit; the pipeline
+      # exits non-zero AND prints a ##[error] line for visibility.
+      - name: Refresh ACS choropleth snapshots (block_group, all states)
         continue-on-error: true
         env:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
-        run: python pipelines/census_acs_choropleth.py --geo tract --state MD
-
-      - name: Refresh ACS choropleth snapshots (tract, DC)
-        continue-on-error: true
-        env:
-          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
-        run: python pipelines/census_acs_choropleth.py --geo tract --state DC
-
-      # Block-group fetch for VA. continue-on-error is kept so a
-      # BG-only failure doesn't block the tract+county commit, but
-      # the pipeline itself now exits non-zero AND prints a loud
-      # ##[error] line so the workflow log surfaces the failure
-      # at top-level instead of being buried in stdout.
-      - name: Refresh ACS choropleth snapshots (block_group, VA)
-        continue-on-error: true
-        env:
-          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
-        run: python pipelines/census_acs_choropleth.py --geo block_group --state VA
+        run: python pipelines/census_acs_choropleth.py --geo block_group --state all
 
       # World Bank — China deep-dive + regional/continent aggregates
       # (Africa, Europe, etc.). Annual data, slow-moving; lives here
