@@ -657,6 +657,15 @@ const statesJoined = stateCodes.join(",");
       domain: colorDomain,
       legend: true,
       label: b.valueLabel,
+      // colorDomain is trimmed to [1st, 99th] percentile to keep
+      // the legend tight; without clamp:true, Plot extrapolates
+      // the rgb-interpolated range BEYOND the endpoint stops for
+      // out-of-domain values, which produces invalid colors and
+      // renders extreme counties as transparent (read: white) on
+      // the map. Clamping pegs values below domain[0] to range[0]
+      // and values above domain[1] to range[last], so the extremes
+      // get the legend's endpoint color instead of disappearing.
+      clamp: true,
     };
     if ("scheme" in entry.plot) {
       colorSpec.scheme = entry.plot.scheme;
@@ -809,15 +818,26 @@ const statesJoined = stateCodes.join(",");
           extentMaxX = extentMinX + svgEl.viewBox.baseVal.width;
           extentMaxY = extentMinY + svgEl.viewBox.baseVal.height;
         }
-        const sel = d3select(svgEl);
+        // Attach the zoom LISTENER to the canvas wrapper (the user's
+        // .choro-canvas-expanded div), not the SVG. Reason: Plot
+        // wraps the SVG in a <figure> with a sibling color-legend
+        // group; wheel events on the legend or the figure margin
+        // don't bubble through the SVG and were getting swallowed
+        // by the dialog's scroll instead. The canvas div sits OVER
+        // the entire choropleth area + a small buffer, so any wheel
+        // inside it triggers zoom. The transform is still applied
+        // to the geo <g> inside the SVG so only the map scales,
+        // not the legend.
+        const listenerEl = canvas as unknown as Element;
+        const listenerSel = d3select<Element, unknown>(listenerEl);
         const geoSel = d3select(geoGroup);
-        const zoom: ZoomBehavior<SVGSVGElement, unknown> = d3zoom<SVGSVGElement, unknown>()
+        const zoom = d3zoom<Element, unknown>()
           .scaleExtent([1, 16])
           .translateExtent([[extentMinX, extentMinY], [extentMaxX, extentMaxY]])
           .filter((event: Event) => {
             // Allow mouse wheel for zoom, drag for pan. Block right
-            // click + dblclick (the dblclick handler would interfere
-            // with the tile's click-to-expand if zoom were on tiles).
+            // click + dblclick. Don't gate on ctrlKey for wheel
+            // (so plain scroll zooms, matching the dialog's hint).
             if (event.type === "wheel") return true;
             if (event.type === "mousedown") {
               return (event as MouseEvent).button === 0;
@@ -827,14 +847,17 @@ const statesJoined = stateCodes.join(",");
           .on("zoom", (event: { transform: ZoomTransform }) => {
             geoSel.attr("transform", event.transform.toString());
           });
-        sel.call(zoom);
+        listenerSel.call(zoom);
         // Stash the zoom binding on the canvas DOM node so the
         // dialog-level keyboard shortcut + reset button can reach
         // it. Using a hidden property avoids polluting the global
         // namespace and survives multiple maps on the page.
         (canvas as unknown as { __choroZoom?: unknown }).__choroZoom = {
-          zoom, sel,
+          zoom, sel: listenerSel,
         };
+        // Visual affordance: cursor changes to grab so the user
+        // knows the canvas is interactive.
+        (canvas.style as CSSStyleDeclaration).cursor = "grab";
       }
     }
   }
@@ -846,8 +869,8 @@ const statesJoined = stateCodes.join(",");
     if (!canvas) return null;
     return (canvas as unknown as {
       __choroZoom?: {
-        zoom: ZoomBehavior<SVGSVGElement, unknown>;
-        sel: ReturnType<typeof d3select<SVGSVGElement, unknown>>;
+        zoom: ZoomBehavior<Element, unknown>;
+        sel: ReturnType<typeof d3select<Element, unknown>>;
       };
     }).__choroZoom ?? null;
   }
@@ -869,8 +892,16 @@ const statesJoined = stateCodes.join(",");
     canvases.forEach((canvas) => {
       if (canvas.dataset.hydrated === "1") return;
       canvas.dataset.hydrated = "1";
-      const mode = (canvas.dataset.mode === "expanded" ? "expanded" : "tile") as
-        "tile" | "expanded";
+      // Three render sizes: tile (dashboard thumbnail), expanded
+      // (dialog default), fullscreen (CSS-wide dialog). Previously
+      // narrowed to two and "fullscreen" silently fell through to
+      // "tile" — that's why the Full-screen toggle visibly flipped
+      // the dialog width but the SVG inside stayed thumbnail-sized.
+      const raw = canvas.dataset.mode;
+      const mode: "tile" | "expanded" | "fullscreen" =
+        raw === "fullscreen" ? "fullscreen"
+        : raw === "expanded" ? "expanded"
+        : "tile";
       let parsedDataUrls: string[] = [];
       try {
         parsedDataUrls = JSON.parse(canvas.dataset.dataUrls ?? "[]");
@@ -978,56 +1009,18 @@ const statesJoined = stateCodes.join(",");
     dialog.querySelector(".choro-dialog-close")?.addEventListener("click", () => {
       dialog!.close();
     });
-    // Fullscreen toggle. Uses the real Fullscreen API
-    // (Element.requestFullscreen) so the OS chrome goes away and the
-    // map takes over the entire screen. Modern browsers accept this
-    // on a <dialog> when called from a user-gesture click handler.
-    //
-    // Fallback ladder if the dialog itself rejects:
-    //   1. document.documentElement.requestFullscreen() — works in
-    //      every browser the chart targets; the modal dialog sits on
-    //      top inside the fullscreen viewport.
-    //   2. CSS-only .choro-dialog-wide class — last resort if both
-    //      Fullscreen API calls reject (e.g. iframe without the
-    //      allowfullscreen attr, or a niche WebView).
-    //
-    // The fullscreenchange listener centralizes state tracking: the
-    // button label, .choro-dialog-wide CSS class (kept in sync so
-    // the dialog always fills the viewport), and the canvas re-paint
-    // at the new mode all run in one place. This handles ESC-to-
-    // exit-fullscreen as well as the button click.
+    // Fullscreen toggle — CSS-only expansion of the dialog to fill
+    // the viewport. NOT the OS Fullscreen API (which removes the
+    // browser chrome and was disorienting). The .choro-dialog-wide
+    // class flips the dialog to 100vw × 100vh; we then re-paint the
+    // canvas in "fullscreen" mode so the SVG actually grows to fill
+    // the new space.
     const fullscreenBtn = dialog.querySelector<HTMLButtonElement>(".choro-dialog-fullscreen");
-    async function enterFullscreen() {
-      try {
-        await (dialog as HTMLElement).requestFullscreen();
-        return;
-      } catch { /* try fallback */ }
-      try {
-        await document.documentElement.requestFullscreen();
-        return;
-      } catch {
-        // Last resort: CSS-only wide mode.
-        dialog!.classList.add("choro-dialog-wide");
-        syncFullscreenUI(true);
-      }
-    }
-    async function exitFullscreen() {
-      if (document.fullscreenElement) {
-        try { await document.exitFullscreen(); } catch {}
-      } else if (dialog!.classList.contains("choro-dialog-wide")) {
-        // Only the CSS fallback was active.
-        dialog!.classList.remove("choro-dialog-wide");
-        syncFullscreenUI(false);
-      }
-    }
     function syncFullscreenUI(isFs: boolean) {
       if (fullscreenBtn) {
         fullscreenBtn.textContent = isFs ? "⤡ Exit full screen" : "⤢ Full screen";
       }
       dialog!.classList.toggle("choro-dialog-wide", isFs);
-      // The Plot SVG was sized at paint time; entering/leaving
-      // fullscreen doesn't auto-resize it. Re-paint at the new mode
-      // so the map fills (or un-fills) the viewport.
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
         "[data-role='choro-canvas']",
       );
@@ -1035,30 +1028,22 @@ const statesJoined = stateCodes.join(",");
         dialogCanvas.dataset.mode = isFs ? "fullscreen" : "expanded";
         dialogCanvas.removeAttribute("data-hydrated");
         dialogCanvas.innerHTML = "";
-        hydrateAll();
+        // Defer to next frame so the new .choro-dialog-wide layout
+        // applies before paint() reads window dimensions. Without
+        // this, the SVG is sometimes sized using the pre-toggle
+        // viewport.
+        requestAnimationFrame(() => hydrateAll());
       }
     }
     fullscreenBtn?.addEventListener("click", () => {
-      const inFs =
-        document.fullscreenElement != null ||
-        dialog!.classList.contains("choro-dialog-wide");
-      if (inFs) exitFullscreen();
-      else enterFullscreen();
-    });
-    // fullscreenchange fires whether the user entered via the
-    // button or exited via ESC. document-level so we catch both
-    // dialog-fullscreen and documentElement-fullscreen paths.
-    document.addEventListener("fullscreenchange", () => {
-      if (!dialog!.isConnected) return;
-      const isFs = document.fullscreenElement != null;
-      syncFullscreenUI(isFs);
+      const isFs = dialog!.classList.contains("choro-dialog-wide");
+      syncFullscreenUI(!isFs);
     });
     dialog.addEventListener("close", () => {
       // Clear the canvas so re-opening doesn't show a stale map for
       // a moment while the new one paints.
       const wrap = dialog!.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
       if (wrap) wrap.innerHTML = "";
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       dialog!.classList.remove("choro-dialog-wide");
     });
     // Reset-zoom button: returns the map to its initial scale +
@@ -1435,6 +1420,19 @@ const statesJoined = stateCodes.join(",");
        showModal() by default. */
     top: 0;
     left: 0;
+    /* Flex column so the canvas-wrap can grow to fill whatever
+       height the header / year slider / footer don't claim. The
+       canvas inside reads window.innerHeight at paint time so the
+       SVG actually sizes to the available space instead of staying
+       at expanded-mode dimensions. */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .choro-dialog.choro-dialog-wide .choro-dialog-canvas-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
   }
   .choro-dialog-header {
     display: flex;
