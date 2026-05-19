@@ -1,0 +1,41 @@
+{
+  "id": "people_disability_universe_vt",
+  "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 VT",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-19T01:15:39Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 620457.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 620216.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 618703.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 618896.0
+    },
+    {
+      "t": "2019-12-31",
+      "v": 618266.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 618184.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 635583.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": 637608.0
+    }
+  ]
+}

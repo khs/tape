@@ -1,0 +1,13 @@
+{
+  "id": "median_gross_rent_dc",
+  "name": "Median gross rent \u2014 DC",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-17T19:03:37Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 1817.0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "median_home_value_mt_01",
+  "name": "Median home value (owner-occupied) \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-17T08:22:49Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 372500.0
+    }
+  ]
+}

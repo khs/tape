@@ -1,0 +1,18 @@
+name: Winston-Salem — unemployment rate
+shortName: Winston-Salem unemployment
+description: Headline unemployment rate for the Winston-Salem metropolitan statistical area (CBSA 49180). Monthly, not seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_unemployment_49180.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BLS (LAUS)
+  series: LAUMT374918000000003
+  url: https://www.bls.gov/lau/
+  license: Public domain (US government data)
+unitClass: rate
