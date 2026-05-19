@@ -1,0 +1,138 @@
+---
+title: "Housing market"
+order: 7
+defaultDelta: 10y
+description: "US housing through price + supply + demand + cost-of-capital lenses. Case-Shiller, listings, building permits, months supply, vacancy rates, and the mortgage rate that gates all of it. Plus DC-metro context."
+aboutBlurb: "Six angles on the US housing market: prices, listings, supply pipeline, inventory months, vacancy, and the mortgage rate. Plus a DC-metro panel because DC housing diverges enough from the national story to need its own framing."
+sections:
+  - title: "Prices"
+    description: "Case-Shiller 20-city national home-price index and median listing price for the US. Case-Shiller is the repeat-sales benchmark — same home selling twice, more accurate than median-sale price; median listing is what's currently for sale, a faster-moving demand-side signal."
+    charts:
+      - us-macro/case_shiller
+      - us-macro/median_home_price
+      - real-estate/dc_median_listing
+  - title: "Supply pipeline"
+    description: "What's being built. Building permits are the leading indicator (issued before construction starts); housing starts is what actually breaks ground. New-home sales close the loop. Each can lead or lag depending on whether the cycle is driven by rates, regulatory friction, or end-demand."
+    charts:
+      - real-estate/building_permits
+      - us-macro/housing_starts
+      - real-estate/new_home_sales
+  - title: "Inventory + vacancy"
+    description: "How much housing is sitting available. Months-supply of new homes is the inventory-relative-to-sales pace (low = sellers' market, high = buyers'). Vacancy rates split that further by rental vs owner-occupied — both ran historically tight 2020-22, started normalizing 2024."
+    charts:
+      - real-estate/months_supply
+      - real-estate/vacancy_rates
+  - title: "The cost of capital"
+    description: "30-year + 15-year fixed mortgage rates. The single biggest variable in housing demand — every percentage point on a 30-year roughly equals 10% in purchasing power. The 2022-23 rate shock created the lock-in effect: existing homeowners with sub-3% mortgages aren't moving."
+    charts:
+      - us-macro/mortgage_30y
+      - real-estate/mortgage_15y
+  - title: "DC metro context"
+    description: "Case-Shiller comparison + listing price + rent CPI. The DC-area housing market consistently runs above national in both levels and cyclical amplitude — federal-payroll income stability supports prices through downturns, and the supply pipeline has been more constrained than national average."
+    charts:
+      - real-estate/dc_case_shiller_vs_us
+      - real-estate/dc_median_listing
+      - real-estate/rent_cpi
+  - title: "Real-estate equities"
+    description: "REIT and homebuilder ETFs as a market-priced view of the sector. PLD = Prologis (industrial REIT, supply-chain proxy), VNQ = the broad REIT ETF, XHB = SPDR homebuilder ETF. AMT is American Tower, the cell-tower REIT — useful because it diverges from residential REITs even though it's in the same sector index."
+    charts:
+      - real-estate/vnq
+      - real-estate/xhb
+      - real-estate/pld
+      - real-estate/amt
+---
+
+## Five forces in the US housing cycle
+
+Most pieces about "the housing market" cover one or two of these
+and infer the rest. The dashboard separates them out:
+
+1. **Rates** — the largest single variable in monthly affordability.
+   30-year fixed mortgage rates dictate how much house a given
+   income can buy.
+2. **Supply pipeline** — what's being built. Building permits lead
+   housing starts lead completions. Constrained supply in coastal
+   metros has structurally elevated prices; permissive supply in
+   sunbelt metros has kept growth absorbing demand.
+3. **Existing-home turnover** — the lock-in effect. Homeowners
+   with mortgages locked in at sub-4% pre-2022 don't sell unless
+   forced, even when prices rise. Existing-home transaction volume
+   has been depressed since rates spiked.
+4. **Vacancy + months supply** — slack in the system. Low slack
+   means seller's market and rapid price appreciation; high slack
+   means buyer's market and prices grind.
+5. **Demand drivers** — income growth, household formation,
+   immigration, in-migration to specific metros.
+
+The first two are visible directly in the dashboard charts; the
+others show up indirectly via prices.
+
+## Reading Case-Shiller
+
+The 20-city Case-Shiller index is the gold-standard US home-price
+benchmark because it uses **repeat sales** — tracking the same
+property across two transactions, holding the property constant.
+Cleaner than median-sale price (which moves with the mix of
+properties that happen to be selling that month) and cleaner than
+average sale (which mix-shift is even worse).
+
+Two caveats:
+
+- **Geographic concentration.** It's a 20-city composite, weighted
+  toward large coastal metros. The national index gets less
+  attention but is broader.
+- **Slow.** Each data point reflects the average of three months
+  of sales lagged about two months — so the November 2024 release
+  is really September-October-November 2024 weighted. The series
+  moves slowly compared to listings data.
+
+## The lock-in effect explained
+
+When 30-year mortgage rates went from sub-3% in 2021 to 7%+ in
+2023, every homeowner with a sub-3% loan effectively saw their
+monthly housing cost double if they moved (assuming a similarly-
+priced replacement home at the new rate). That created a strong
+incentive to *not* move:
+
+- Existing-home transactions dropped ~30% nationally in 2023.
+- Total mortgage originations dropped harder — refinance volume
+  collapsed first, purchase volume followed.
+- The supply pipeline (new construction) became the only
+  meaningful source of incremental for-sale inventory.
+
+This is why "lower mortgage rates" is a structural unlock for
+housing transaction volume in a way it usually isn't. Until rates
+come back down toward where existing mortgages are locked in,
+transaction volume stays depressed.
+
+## DC-metro divergence
+
+DC-area housing runs differently from the national average for
+two structural reasons:
+
+1. **Income stability.** Federal employment is ~12% of the metro
+   workforce (vs ~2% nationally), and federal pay doesn't
+   cyclically shed during recessions. Housing demand stays
+   firmer through downturns, prices don't fall as far.
+2. **Supply constraint.** Especially in inner NoVa (Arlington,
+   Alexandria, Falls Church) and inner MD (Bethesda, Silver
+   Spring), local zoning + topography limit new construction.
+   Prices clear higher.
+
+The DC Case-Shiller-vs-US chart shows the trajectory: DC ran with
+the national index through the GFC drop, then started pulling
+ahead in 2012-13, widened the gap further through the
+federal-spending recovery and tech-policy buildout of the 2010s,
+and now sits ~30% above the national index in absolute terms.
+
+## Customizing for housing analysis
+
+Common composer moves:
+
+- **Real home prices**: divide Case-Shiller by us_cpi to net out
+  inflation; useful for "are houses actually getting more
+  expensive in real terms" questions.
+- **Affordability index**: combine mortgage_30y + median_home_price
+  + a wage series to get a payment-to-income proxy.
+- **Inventory months / new construction**: ratio of months_supply
+  to building_permits as a "is supply catching up" signal.
