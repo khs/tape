@@ -409,6 +409,33 @@ def _fetch_block_group_state(
     if values:
         return values
 
+    # Fast-path "empty" has two very different causes — distinguish them
+    # before falling back to a slow per-county iteration:
+    #
+    #   (a) API didn't return rows (HTTP error, JSON parse fail,
+    #       Census-side schema mismatch). Fall back to per-county
+    #       iteration which is more tolerant of transient issues and
+    #       sometimes succeeds when the state-wide call doesn't.
+    #   (b) API returned rows but every value cell was null. That
+    #       means the indicator is suppressed at this geo for this
+    #       vintage (Census disclosure-avoidance). Per-county
+    #       iteration won't help — it'll just return the same nulls
+    #       133 times. Skip the fallback entirely.
+    #
+    # Without this branch the workflow burns hours iterating per-
+    # county for indicators that will never produce data (poverty,
+    # foreign-born at BG).
+    if fast and len(fast) >= 2:
+        print(
+            f"    block_group: fast path returned {len(fast) - 1} rows "
+            f"with all-null values for {indicator.out_id} / {vintage} "
+            f"/ state {state_fips} — indicator suppressed at this geo, "
+            f"skipping per-county fallback",
+            file=sys.stderr,
+            flush=True,
+        )
+        return {}
+
     # Fast path failed — iterate counties. Use a separate cheap call
     # to enumerate the county FIPS for this state at this vintage.
     counties = list_counties(state_fips, vintage, api_key)
@@ -535,6 +562,33 @@ def main() -> int:
     if args.indicators:
         wanted = {x.strip() for x in args.indicators.split(",")}
         selected = [i for i in INDICATORS if i.out_id in wanted]
+
+    # Census disclosure-avoidance suppresses certain indicators at the
+    # block-group level for every vintage — running them just burns the
+    # fast-path call (returns all-null values) AND the per-county
+    # fallback (133 calls × all-null values × 51 states = ~13,500 wasted
+    # API calls per vintage). Hardcoded skip-list saves hours on each
+    # block_group --state all run. Verified empirically against the
+    # 2022 vintage; B17001 (poverty universe) and B05002 (place of
+    # birth) are the two suppressed indicators in our set.
+    if args.geo == "block_group":
+        BG_UNSUPPORTED = {"poverty_rate", "foreign_born_pct"}
+        skipped = [i.out_id for i in selected if i.out_id in BG_UNSUPPORTED]
+        if skipped:
+            print(
+                f"Skipping at block-group (Census suppresses these "
+                f"indicators here): {skipped}",
+                flush=True,
+            )
+        selected = [i for i in selected if i.out_id not in BG_UNSUPPORTED]
+        if not selected:
+            print(
+                "After BG-unsupported filter, no indicators left to "
+                "fetch. Specify --indicators with at least one of "
+                "median_hh_income or bachelors_plus_pct.",
+                file=sys.stderr,
+            )
+            return 1
 
     # Resolve state-sharding targets.
     if args.geo in ("tract", "block_group"):
