@@ -34,6 +34,28 @@ METRO_LABELS: dict[str, str] = {
     "seattle": "Seattle, WA",
 }
 
+# OMB 5-digit Core-Based Statistical Area code per Zillow slug. The
+# composer's "US metro areas" chip popover reads source tags of the
+# form ``metro:<cbsa>`` and routes them under their MSA name. Tagging
+# Zillow sources this way (instead of with a raw slug like "nyc")
+# makes them findable via the metro chip alongside any usaspending/
+# acs_metro/bls sources for the same MSA — without leaking 12 extra
+# city-name pills into the topical tag strip.
+ZILLOW_SLUG_TO_CBSA: dict[str, str] = {
+    "nyc": "35620",          # New York-Newark-Jersey City, NY-NJ
+    "la": "31080",           # Los Angeles-Long Beach-Anaheim, CA
+    "chicago": "16980",      # Chicago-Naperville-Elgin, IL-IN
+    "dallas": "19100",       # Dallas-Fort Worth-Arlington, TX
+    "houston": "26420",      # Houston-Pasadena-The Woodlands, TX
+    "dc": "47900",           # Washington-Arlington-Alexandria, DC-VA-MD-WV
+    "philadelphia": "37980", # Philadelphia-Camden-Wilmington, PA-NJ-DE-MD
+    "miami": "33100",        # Miami-Fort Lauderdale-West Palm Beach, FL
+    "atlanta": "12060",      # Atlanta-Sandy Springs-Roswell, GA
+    "boston": "14460",       # Boston-Cambridge-Newton, MA-NH
+    "sf": "41860",           # San Francisco-Oakland-Fremont, CA
+    "seattle": "42660",      # Seattle-Tacoma-Bellevue, WA
+}
+
 # Index families: (key, human label, unit, formatting style, tags).
 INDEX_FAMILIES: dict[str, dict] = {
     "zhvi": {
@@ -137,9 +159,27 @@ tags:
 """
         for t in family["tags"]:
             body += f"  - {t}\n"
-        # Add a geo tag for non-national.
+        # Geo tag: use the metro:<cbsa> convention so the composer's
+        # "US metro areas" chip popover finds the source under its MSA
+        # name, AND the topical-pill filter (which skips anything
+        # matching ^metro(:|$)) keeps the city slug out of the pill
+        # strip. A bare slug ("nyc", "dc") would leak as a clickable
+        # pill — see commit 97d3e8c201 for the original incident.
         if not is_national:
-            body += f"  - {geo_slug}\n"
+            cbsa = ZILLOW_SLUG_TO_CBSA.get(geo_slug)
+            if cbsa:
+                body += f"  - metro:{cbsa}\n"
+            else:
+                # New metro added to METRO_LABELS without a CBSA entry
+                # here. Fall through so the file at least gets written,
+                # but warn loudly so the operator notices.
+                body += f"  - {geo_slug}  # TODO: add to ZILLOW_SLUG_TO_CBSA, use metro:<cbsa>\n"
+                print(
+                    f"  WARN: {geo_slug} not in ZILLOW_SLUG_TO_CBSA; "
+                    f"wrote raw slug tag — will leak as a topical pill. "
+                    f"Add the CBSA code to ZILLOW_SLUG_TO_CBSA and "
+                    f"hand-edit the YAML to fix.",
+                )
         body += "unitClass: currency\n"
 
         out_path.write_text(body, encoding="utf-8")
