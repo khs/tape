@@ -170,13 +170,30 @@ const tabs: TabSpec[] = sorted.map((d) => ({
             </div>
           )}
 
-          {activeSections.map((section) => (
+          {activeSections.map((section) => {
+            // Per-section overrides win over the dashboard-level pill
+            // for the charts inside this section. fixedRange beats
+            // defaultDelta when both set. The user-facing pattern is
+            // "show the same chart-set across N decades with a
+            // different commentary per section" — each section can
+            // pin its own window without disturbing the others.
+            const sectionDelta = section.defaultDelta ?? activeDefaultDelta;
+            const sectionFixed = section.fixedRange ?? active.data.fixedRange;
+            return (
             <section class="dash-section">
               {section.title && (
                 <h4 class="section-heading">{section.title}</h4>
               )}
               {section.description && (
                 <p class="section-description">{section.description}</p>
+              )}
+              {(section.fixedRange || section.defaultDelta) && (
+                <p class="section-window muted small">
+                  Window:{" "}
+                  {section.fixedRange
+                    ? `${section.fixedRange.start} → ${section.fixedRange.end}`
+                    : section.defaultDelta}
+                </p>
               )}
               <div class="chart-grid">
                 {section.charts.map((c) => (
@@ -188,12 +205,15 @@ const tabs: TabSpec[] = sorted.map((d) => ({
                     )}
                     sources={c.sources}
                     dashboardSlug={active.id}
-                    dashboardWindow={activeDefaultDelta}
+                    dashboardWindow={sectionDelta}
+                    dashboardFixedRange={sectionFixed}
+                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
                   />
                 ))}
               </div>
             </section>
-          ))}
+            );
+          })}
         </div>
       </section>
     )}
@@ -757,6 +777,10 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     margin: 0 0 12px;
     max-width: 720px;
     white-space: pre-wrap;
+  }
+  .featured .section-window {
+    margin: -4px 0 12px;
+    font-variant-numeric: tabular-nums;
   }
   .featured .chart-grid {
     display: grid;

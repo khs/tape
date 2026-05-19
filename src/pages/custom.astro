@@ -277,13 +277,28 @@ const viewedChartCount = resolvedSections.reduce(
             )
           )}
 
-          {resolvedSections.map((section) => (
+          {resolvedSections.map((section) => {
+            // Section-level window override beats dashboard-level
+            // (which itself beats chart-level). See sectionSchema in
+            // src/lib/composer-state.ts — the composer lets users
+            // pin each section to its own decade or window.
+            const sectionDelta = section.defaultDelta ?? defaultDeltaRequested;
+            const sectionFixed = section.fixedRange ?? fixedRange;
+            return (
             <section class="dash-section">
               {section.title && (
                 <h2 class="section-heading">{section.title}</h2>
               )}
               {section.description && (
                 <p class="section-description">{section.description}</p>
+              )}
+              {(section.fixedRange || section.defaultDelta) && (
+                <p class="section-window muted small">
+                  Window:{" "}
+                  {section.fixedRange
+                    ? `${section.fixedRange.start} → ${section.fixedRange.end}`
+                    : section.defaultDelta}
+                </p>
               )}
               <div class="chart-grid">
                 {section.charts.map((c) => (
@@ -292,14 +307,16 @@ const viewedChartCount = resolvedSections.reduce(
                     chart={effectiveChart(c, chartOverrides?.[c.chart.id])}
                     sources={c.sources}
                     dashboardSlug="custom"
-                    dashboardWindow={defaultDeltaRequested}
-                    dashboardFixedRange={fixedRange}
+                    dashboardWindow={sectionDelta}
+                    dashboardFixedRange={sectionFixed}
+                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
                     preloaded={c.preloaded}
                   />
                 ))}
               </div>
             </section>
-          ))}
+            );
+          })}
 
           {resolvedSections.length === 0 && (
             <p class="mt-6 text-sm text-neutral-500">
@@ -376,6 +393,12 @@ const viewedChartCount = resolvedSections.reduce(
     margin: 0 0 12px;
     max-width: 720px;
     white-space: pre-wrap;
+  }
+  /* Section-level window override chip (see [...slug].astro for the
+     rationale comment). */
+  .section-window {
+    margin: -4px 0 12px;
+    font-variant-numeric: tabular-nums;
   }
   .chart-grid {
     display: grid;
