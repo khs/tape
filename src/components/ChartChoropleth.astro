@@ -70,6 +70,62 @@ const dataFileRels: string[] =
 const primaryDataFileRel = dataFileRels[0];
 const dataFileUrls = dataFileRels.map((r) => `/${r}`);
 
+// Year-slider discovery. Glob the data directory for sibling
+// vintages of the same (geo, indicator). For tract / block-group
+// where data is sharded across states, the slider should only offer
+// vintages present in ALL shards (otherwise switching to that year
+// would render an incomplete-coverage map without warning the user
+// the slider position is meaningful).
+async function discoverVintages(): Promise<string[]> {
+  const indicatorRe = new RegExp(
+    `^${indicator.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}_(\\d{4})\\.json$`,
+  );
+  function pickVintages(files: string[]): string[] {
+    const out: string[] = [];
+    for (const f of files) {
+      const m = f.match(indicatorRe);
+      if (m) out.push(m[1]);
+    }
+    return out.sort();
+  }
+  if (geo === "state" || geo === "county") {
+    try {
+      const files = await fs.readdir(
+        join(process.cwd(), "public", "data", dataDirSeg),
+      );
+      return pickVintages(files);
+    } catch { return []; }
+  }
+  // tract / block-group: intersection across state shards.
+  const perState: string[][] = [];
+  for (const st of stateCodes) {
+    try {
+      const files = await fs.readdir(
+        join(process.cwd(), "public", "data", dataDirSeg, st),
+      );
+      perState.push(pickVintages(files));
+    } catch { perState.push([]); }
+  }
+  if (perState.length === 0) return [];
+  // If any shard has no data at all, intersection would be empty —
+  // fall back to the union so the slider at least lets the user step
+  // through whatever any state has (the renderer's missing-shard
+  // path handles per-state gaps gracefully).
+  const anyEmpty = perState.some((arr) => arr.length === 0);
+  if (anyEmpty) {
+    const union = new Set<string>();
+    perState.forEach((arr) => arr.forEach((v) => union.add(v)));
+    return [...union].sort();
+  }
+  let acc = perState[0];
+  for (let i = 1; i < perState.length; i++) {
+    const s = new Set(perState[i]);
+    acc = acc.filter((v) => s.has(v));
+  }
+  return acc;
+}
+const availableVintages = await discoverVintages();
+
 // Read the data file server-side so we can compute headline numbers
 // (min, max, median) for the tile eyebrow + render an accurate legend
 // scale without a client roundtrip on first paint.
@@ -186,6 +242,8 @@ const colorScheme = chart.colorScheme ?? "blues";
 const colorScale = chart.colorScale ?? "linear";
 const bboxJson = bbox ? JSON.stringify(bbox) : "null";
 const dataUrlsJson = JSON.stringify(dataFileUrls);
+const vintagesJson = JSON.stringify(availableVintages);
+const statesJoined = stateCodes.join(",");
 ---
 
 <article
@@ -222,7 +280,7 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     data-boundary-url={boundaryUrl}
     data-geo={geo}
     data-state={stateCodes[0] ?? ""}
-    data-states={stateCodes.join(",")}
+    data-states={statesJoined}
     data-bbox={bboxJson}
     data-color-scheme={colorScheme}
     data-color-scale={colorScale}
@@ -230,6 +288,10 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     data-unit={summary?.unit ?? ""}
     data-decimals={summary?.decimals ?? 1}
     data-mode="tile"
+    data-indicator={indicator}
+    data-data-dir-seg={dataDirSeg}
+    data-vintages={vintagesJson}
+    data-vintage={vintage}
   >
     {summary ? null : (
       <p class="muted small">No data for this snapshot.</p>
@@ -492,12 +554,16 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     // when the user clicks Full screen.
     const vw = window.innerWidth || 1200;
     const vh = window.innerHeight || 800;
+    // Fullscreen caps generous enough to actually use a 2K/4K
+    // display — 1600 × 1000 was leaving 30%+ of the screen blank on
+    // common dev monitors. Expanded stays modest so the dialog still
+    // fits within the page on typical laptop widths.
     const width =
-      mode === "fullscreen" ? Math.min(vw - 80, 1600)
+      mode === "fullscreen" ? Math.min(vw - 40, 2400)
       : mode === "expanded" ? 1000
       : 620;
     const height =
-      mode === "fullscreen" ? Math.min(vh - 220, 1000)
+      mode === "fullscreen" ? Math.min(vh - 160, 1500)
       : mode === "expanded" ? 620
       : 360;
     // Resolve the scheme: user override (if any) > chart author's
@@ -688,6 +754,11 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
           <button type="button" class="choro-dialog-close" aria-label="Close">&times;</button>
         </div>
       </header>
+      <div class="choro-dialog-year" hidden>
+        <label class="muted small" for="choro-year-slider">Year</label>
+        <input class="choro-dialog-year-slider" id="choro-year-slider" type="range" min="0" max="0" value="0" step="1" aria-label="ACS 5-year vintage" />
+        <output class="choro-dialog-year-readout"></output>
+      </div>
       <details class="choro-dialog-why">
         <summary>Why no rainbow?</summary>
         <p>
@@ -726,28 +797,80 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     dialog.querySelector(".choro-dialog-close")?.addEventListener("click", () => {
       dialog!.close();
     });
-    // Fullscreen toggle. The native Element.requestFullscreen() API
-    // is finicky when called on a <dialog> that's already in modal
-    // mode — some browsers silently reject the promise. CSS-only
-    // toggle is more reliable: we just flip a class that resizes
-    // the dialog to fill the viewport. Same UX with no permission
-    // promise to lose.
+    // Fullscreen toggle. Uses the real Fullscreen API
+    // (Element.requestFullscreen) so the OS chrome goes away and the
+    // map takes over the entire screen. Modern browsers accept this
+    // on a <dialog> when called from a user-gesture click handler.
+    //
+    // Fallback ladder if the dialog itself rejects:
+    //   1. document.documentElement.requestFullscreen() — works in
+    //      every browser the chart targets; the modal dialog sits on
+    //      top inside the fullscreen viewport.
+    //   2. CSS-only .choro-dialog-wide class — last resort if both
+    //      Fullscreen API calls reject (e.g. iframe without the
+    //      allowfullscreen attr, or a niche WebView).
+    //
+    // The fullscreenchange listener centralizes state tracking: the
+    // button label, .choro-dialog-wide CSS class (kept in sync so
+    // the dialog always fills the viewport), and the canvas re-paint
+    // at the new mode all run in one place. This handles ESC-to-
+    // exit-fullscreen as well as the button click.
     const fullscreenBtn = dialog.querySelector<HTMLButtonElement>(".choro-dialog-fullscreen");
-    fullscreenBtn?.addEventListener("click", () => {
-      const wide = dialog!.classList.toggle("choro-dialog-wide");
-      fullscreenBtn.textContent = wide ? "⤡ Exit full screen" : "⤢ Full screen";
-      // The Plot SVG was sized at paint time; widening the dialog
-      // doesn't auto-resize it. Re-paint the dialog canvas at the
-      // new mode so the map fills the available space.
+    async function enterFullscreen() {
+      try {
+        await (dialog as HTMLElement).requestFullscreen();
+        return;
+      } catch { /* try fallback */ }
+      try {
+        await document.documentElement.requestFullscreen();
+        return;
+      } catch {
+        // Last resort: CSS-only wide mode.
+        dialog!.classList.add("choro-dialog-wide");
+        syncFullscreenUI(true);
+      }
+    }
+    async function exitFullscreen() {
+      if (document.fullscreenElement) {
+        try { await document.exitFullscreen(); } catch {}
+      } else if (dialog!.classList.contains("choro-dialog-wide")) {
+        // Only the CSS fallback was active.
+        dialog!.classList.remove("choro-dialog-wide");
+        syncFullscreenUI(false);
+      }
+    }
+    function syncFullscreenUI(isFs: boolean) {
+      if (fullscreenBtn) {
+        fullscreenBtn.textContent = isFs ? "⤡ Exit full screen" : "⤢ Full screen";
+      }
+      dialog!.classList.toggle("choro-dialog-wide", isFs);
+      // The Plot SVG was sized at paint time; entering/leaving
+      // fullscreen doesn't auto-resize it. Re-paint at the new mode
+      // so the map fills (or un-fills) the viewport.
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
         "[data-role='choro-canvas']",
       );
       if (dialogCanvas) {
-        dialogCanvas.dataset.mode = wide ? "fullscreen" : "expanded";
+        dialogCanvas.dataset.mode = isFs ? "fullscreen" : "expanded";
         dialogCanvas.removeAttribute("data-hydrated");
         dialogCanvas.innerHTML = "";
         hydrateAll();
       }
+    }
+    fullscreenBtn?.addEventListener("click", () => {
+      const inFs =
+        document.fullscreenElement != null ||
+        dialog!.classList.contains("choro-dialog-wide");
+      if (inFs) exitFullscreen();
+      else enterFullscreen();
+    });
+    // fullscreenchange fires whether the user entered via the
+    // button or exited via ESC. document-level so we catch both
+    // dialog-fullscreen and documentElement-fullscreen paths.
+    document.addEventListener("fullscreenchange", () => {
+      if (!dialog!.isConnected) return;
+      const isFs = document.fullscreenElement != null;
+      syncFullscreenUI(isFs);
     });
     dialog.addEventListener("close", () => {
       // Clear the canvas so re-opening doesn't show a stale map for
@@ -755,6 +878,7 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
       const wrap = dialog!.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
       if (wrap) wrap.innerHTML = "";
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      dialog!.classList.remove("choro-dialog-wide");
     });
     // Scheme picker: on change, persist the override for the chart
     // currently displayed in the dialog, then re-paint the dialog
@@ -787,6 +911,83 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
       }
       hydrateAll();
     });
+    // Year slider: split between `input` (cheap — readout follows the
+    // thumb as the user drags) and `change` (expensive — actual
+    // fetch + re-paint, fires once when the user releases). This
+    // avoids triggering a paint on every pixel of drag while still
+    // feeling responsive.
+    const slider = dialog.querySelector<HTMLInputElement>(
+      ".choro-dialog-year-slider",
+    );
+    slider?.addEventListener("input", () => {
+      const vintages = (
+        (slider.dataset.vintages ? JSON.parse(slider.dataset.vintages) : []) as string[]
+      );
+      const idx = Math.max(0, Math.min(vintages.length - 1, parseInt(slider.value, 10) || 0));
+      const newVintage = vintages[idx];
+      if (!newVintage) return;
+      const readout = dialog!.querySelector<HTMLElement>(
+        ".choro-dialog-year-readout",
+      );
+      if (readout) readout.textContent = newVintage;
+    });
+    slider?.addEventListener("change", () => {
+      const vintages = (
+        (slider.dataset.vintages ? JSON.parse(slider.dataset.vintages) : []) as string[]
+      );
+      const idx = Math.max(0, Math.min(vintages.length - 1, parseInt(slider.value, 10) || 0));
+      const newVintage = vintages[idx];
+      if (!newVintage) return;
+      const readout = dialog!.querySelector<HTMLElement>(
+        ".choro-dialog-year-readout",
+      );
+      if (readout) readout.textContent = newVintage;
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (!dialogCanvas) return;
+      // Rebuild dataUrls by swapping the vintage. URL shape:
+      //   /data/<dataDirSeg>/[<state>/]<indicator>_<vintage>.json
+      const indicatorId = dialogCanvas.dataset.indicator ?? "";
+      const dirSeg = dialogCanvas.dataset.dataDirSeg ?? "";
+      const states = (dialogCanvas.dataset.states ?? "")
+        .split(",").map((s) => s.trim()).filter(Boolean);
+      const isShardedByState =
+        dirSeg === "acs_tract" || dirSeg === "acs_block_group";
+      let urls: string[];
+      if (isShardedByState) {
+        urls = states.map((st) =>
+          `/data/${dirSeg}/${st}/${indicatorId}_${newVintage}.json`);
+      } else {
+        urls = [`/data/${dirSeg}/${indicatorId}_${newVintage}.json`];
+      }
+      dialogCanvas.dataset.dataUrls = JSON.stringify(urls);
+      dialogCanvas.dataset.vintage = newVintage;
+      dialogCanvas.removeAttribute("data-hydrated");
+      dialogCanvas.innerHTML = "";
+      // Refresh the meta footer to reflect the new vintage's
+      // lastUpdated stamp (different vintages may have been
+      // re-fetched on different workflow runs).
+      const firstUrl = urls[0];
+      if (firstUrl) {
+        fetch(firstUrl)
+          .then((r) => r.json())
+          .then((j) => {
+            const meta = dialog!.querySelector<HTMLElement>(
+              ".choro-dialog-meta",
+            );
+            if (!meta) return;
+            const updated = j.lastUpdated
+              ? new Date(j.lastUpdated).toLocaleDateString("en-US", {
+                  year: "numeric", month: "short", day: "numeric",
+                })
+              : "";
+            meta.textContent = `ACS 5-year · vintage ${j.vintage} · ${j.geo} level · updated ${updated}`;
+          })
+          .catch(() => {});
+      }
+      hydrateAll();
+    });
     return dialog;
   }
 
@@ -808,6 +1009,35 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     if (sel) {
       const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
       sel.value = effectiveScheme(chartId, authorScheme);
+    }
+    // Year slider: configure range from the tile's data-vintages.
+    // Show only when there's more than one vintage to choose from —
+    // a single-vintage indicator (or one with discovery failure)
+    // gets a hidden slider so the dialog stays uncluttered.
+    const yearWrap = dialog.querySelector<HTMLElement>(".choro-dialog-year");
+    const slider = dialog.querySelector<HTMLInputElement>(
+      ".choro-dialog-year-slider",
+    );
+    const yearReadout = dialog.querySelector<HTMLElement>(
+      ".choro-dialog-year-readout",
+    );
+    let vintages: string[] = [];
+    try {
+      vintages = JSON.parse(canvasSrc.dataset.vintages ?? "[]") as string[];
+    } catch { /* default empty */ }
+    const defaultVintage = canvasSrc.dataset.vintage ?? "";
+    if (yearWrap && slider) {
+      if (vintages.length > 1) {
+        slider.min = "0";
+        slider.max = String(vintages.length - 1);
+        slider.dataset.vintages = JSON.stringify(vintages);
+        const defaultIdx = Math.max(0, vintages.indexOf(defaultVintage));
+        slider.value = String(defaultIdx);
+        if (yearReadout) yearReadout.textContent = vintages[defaultIdx];
+        yearWrap.hidden = false;
+      } else {
+        yearWrap.hidden = true;
+      }
     }
     // Fresh canvas — copy the source tile's data-* attrs so the
     // expanded paint runs with identical bindings + mode=expanded.
@@ -1016,6 +1246,30 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     padding: 3px 8px;
     color: var(--color-neutral-800);
     cursor: pointer;
+  }
+  /* Year-slider row. Spans below the header so the slider has room
+     to breathe. Hidden when only one vintage is available — single-
+     year charts shouldn't show a slider that can't move. */
+  .choro-dialog-year {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 20px 4px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+  }
+  .choro-dialog-year[hidden] { display: none; }
+  .choro-dialog-year-slider {
+    flex: 1;
+    min-width: 200px;
+    max-width: 460px;
+    accent-color: var(--color-accent);
+  }
+  .choro-dialog-year-readout {
+    font-variant-numeric: tabular-nums;
+    min-width: 4ch;
+    color: var(--color-neutral-900);
+    font-weight: 600;
   }
   /* "Why no rainbow?" disclosure. Collapsed by default; expands
      inline above the map. Reads as a sidebar note, not a primary
