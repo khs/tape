@@ -167,10 +167,17 @@ try {
   let decimals = 0;
   let valueLabel = "";
   let lastUpdated = "";
+  // Track how many shards were attempted vs. how many readable, so
+  // the eyebrow can say "data not yet fetched" (zero shards read)
+  // vs "no values in this region" (shards read but bbox empty).
+  let shardsAttempted = 0;
+  let shardsReadable = 0;
   for (const rel of dataFileRels) {
+    shardsAttempted++;
     try {
       const raw = await fs.readFile(join(process.cwd(), "public", rel), "utf-8");
       const parsed = JSON.parse(raw) as SnapshotShape;
+      shardsReadable++;
       Object.assign(mergedValues, parsed.values);
       // Use the first shard's metadata fields; they should be
       // identical across shards since they come from the same
@@ -240,7 +247,17 @@ try {
     (v): v is number => typeof v === "number" && Number.isFinite(v),
   );
   if (vals.length === 0) {
-    loadError = "no values in snapshot";
+    // Distinguish "data not yet fetched" (no shards readable on
+    // disk — most likely cause: the workflow hasn't run since the
+    // chart was added) from "data here but nothing in the bbox"
+    // (rare; suggests the bbox is mis-specified). Specific phrasing
+    // helps the reader know whether to wait for a workflow run or
+    // fix the chart YAML.
+    if (shardsAttempted > 0 && shardsReadable === 0) {
+      loadError = "data not yet fetched (will populate on next workflow run)";
+    } else {
+      loadError = "no values in snapshot";
+    }
   } else {
     vals.sort((a, b) => a - b);
     summary = {
@@ -701,7 +718,27 @@ const statesJoined = stateCodes.join(",");
         }),
       ],
     };
-    const fig = (Plot as any).plot(plotSpec);
+    let fig: HTMLElement | null = null;
+    try {
+      fig = (Plot as any).plot(plotSpec);
+    } catch (e) {
+      // Plot can throw on malformed colorSpec (e.g. clamp option
+      // misalignment), invalid projection, or NaN in coordinates.
+      // Without this catch the failure bubbles up to hydrateAll's
+      // catch which renders a generic "Map failed to load" — but
+      // the user still wants the error visible in the console.
+      console.error("[choropleth] Plot.plot threw:", e, plotSpec);
+      canvas.innerHTML = `<p class="muted small">Map render failed: ${String((e as Error)?.message ?? e)}</p>`;
+      return;
+    }
+    if (!fig) {
+      // Plot returned undefined / null — defensive case, shouldn't
+      // normally happen but better a visible message than silent
+      // white space.
+      console.error("[choropleth] Plot.plot returned nothing", plotSpec);
+      canvas.innerHTML = `<p class="muted small">Map render produced no output (${clipped.length} regions, ${obs.length} values).</p>`;
+      return;
+    }
     canvas.appendChild(fig);
     // Tooltip on hover. Performance-tuned because the chart can carry
     // thousands of <path> elements (3,143 counties, ~74k tracts) and
@@ -718,7 +755,12 @@ const statesJoined = stateCodes.join(",");
     //      path (e.g. SVG background).
     //   3. DOM writes batched in the rAF: position + textContent +
     //      visibility flip happen together, one layout cycle.
-    const svg = fig.querySelector("svg") ?? fig;
+    // fig might be a <figure> wrapping the SVG (when legend:true) or
+    // the SVG directly. Either way we want event listeners on the
+    // map element. Cast through HTMLElement so addEventListener
+    // accepts MouseEvent listeners — without the cast TS narrows
+    // svg to Element which only types listeners as Event.
+    const svg = ((fig as HTMLElement).querySelector("svg") ?? fig) as HTMLElement;
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
     tooltip.style.display = "none";
@@ -790,11 +832,11 @@ const statesJoined = stateCodes.join(",");
     // boundary lines crisp at every zoom level (otherwise 16× zoom
     // turns them into thick smudges).
     if (b.geo !== "state" && mode !== "tile") {
-      // svg is typed `any` since it comes from Plot's untyped output
-      // (fig.querySelector("svg") returns Element | null but the
-      // surrounding chain leaks `any`). Assert once here so the
-      // d3-zoom + querySelector calls below stay strictly typed.
-      const svgEl = svg as SVGSVGElement;
+      // svg was cast to HTMLElement above so addEventListener works
+      // with MouseEvent listeners. Re-cast through unknown here
+      // since the runtime element IS an SVG; TypeScript just lost
+      // that info through the earlier HTMLElement cast.
+      const svgEl = svg as unknown as SVGSVGElement;
       const geoGroup = svgEl.querySelector<SVGGElement>(
         'g[aria-label="geo"]',
       );
@@ -858,6 +900,23 @@ const statesJoined = stateCodes.join(",");
         // Visual affordance: cursor changes to grab so the user
         // knows the canvas is interactive.
         (canvas.style as CSSStyleDeclaration).cursor = "grab";
+        // Belt-and-suspenders wheel zoom. d3-zoom registers its own
+        // wheel listener via call(zoom), but several user reports
+        // suggest that's getting swallowed by something (browser
+        // quirk, focus state, swallowed-by-dialog-scroll). Add a
+        // separate non-passive wheel listener that calls into the
+        // same zoomScaleBy helper so plain mouse-scroll always
+        // triggers some zoom action even if d3-zoom's built-in
+        // doesn't. preventDefault() blocks any browser default
+        // (e.g. dialog scroll). The factor matches the +/- button
+        // step so muscle memory translates.
+        const wheelHandler = (e: WheelEvent) => {
+          if (!e.deltaY) return;
+          e.preventDefault();
+          const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+          zoomScaleBy(canvas, factor);
+        };
+        canvas.addEventListener("wheel", wheelHandler, { passive: false });
       }
     }
   }
@@ -960,6 +1019,8 @@ const statesJoined = stateCodes.join(",");
             <span class="muted small">Color</span>
             <select class="choro-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
           </label>
+          <button type="button" class="choro-dialog-zoom-out" aria-label="Zoom out" title="Zoom out (Ctrl+−)">−</button>
+          <button type="button" class="choro-dialog-zoom-in" aria-label="Zoom in" title="Zoom in (Ctrl+=)">+</button>
           <button type="button" class="choro-dialog-zoom-reset" aria-label="Reset zoom" title="Reset zoom (Ctrl+0)">⟲ Reset zoom</button>
           <button type="button" class="choro-dialog-fullscreen" aria-label="Toggle full screen">⤢ Full screen</button>
           <button type="button" class="choro-dialog-close" aria-label="Close">&times;</button>
@@ -1058,6 +1119,28 @@ const statesJoined = stateCodes.join(",");
         "[data-role='choro-canvas']",
       );
       if (dialogCanvas) zoomReset(dialogCanvas);
+    });
+    // Manual zoom-in / zoom-out buttons. Same factor (1.5x) as the
+    // keyboard shortcuts. Useful when wheel zoom isn't behaving
+    // (touchpad-without-momentum, browser quirks, etc.) — the user
+    // can always reach the same zoom states via these.
+    const zoomInBtn = dialog.querySelector<HTMLButtonElement>(
+      ".choro-dialog-zoom-in",
+    );
+    const zoomOutBtn = dialog.querySelector<HTMLButtonElement>(
+      ".choro-dialog-zoom-out",
+    );
+    zoomInBtn?.addEventListener("click", () => {
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (dialogCanvas) zoomScaleBy(dialogCanvas, 1.5);
+    });
+    zoomOutBtn?.addEventListener("click", () => {
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (dialogCanvas) zoomScaleBy(dialogCanvas, 1 / 1.5);
     });
     // Keyboard shortcuts while the dialog has focus:
     //   Ctrl/Cmd + = / + → zoom in
@@ -1214,18 +1297,18 @@ const statesJoined = stateCodes.join(",");
       const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
       sel.value = effectiveScheme(chartId, authorScheme);
     }
-    // Reset-zoom button is only useful for county-and-finer maps —
+    // Zoom controls are only useful for county-and-finer maps —
     // state maps don't get a zoom binding. Hide accordingly so the
-    // dialog header doesn't show a dead button. Same hide-rule for
+    // dialog header doesn't show dead buttons. Same hide-rule for
     // the "scroll to zoom" hint in the footer.
-    const resetBtn = dialog.querySelector<HTMLButtonElement>(
-      ".choro-dialog-zoom-reset",
+    const zoomBtns = dialog.querySelectorAll<HTMLButtonElement>(
+      ".choro-dialog-zoom-reset, .choro-dialog-zoom-in, .choro-dialog-zoom-out",
     );
     const zoomHint = dialog.querySelector<HTMLElement>(
       ".choro-dialog-zoom-hint",
     );
     const isStateLevel = canvasSrc.dataset.geo === "state";
-    if (resetBtn) resetBtn.hidden = isStateLevel;
+    zoomBtns.forEach((b) => { b.hidden = isStateLevel; });
     if (zoomHint) zoomHint.hidden = isStateLevel;
     // Year slider: configure range from the tile's data-vintages.
     // Show only when there's more than one vintage to choose from —
@@ -1481,6 +1564,26 @@ const statesJoined = stateCodes.join(",");
   }
   .choro-dialog-zoom-reset:hover { background: var(--color-neutral-100); }
   .choro-dialog-zoom-reset[hidden] { display: none; }
+  /* Manual +/- buttons — same visual treatment as the reset, narrower
+     to keep the action row compact. Tabular-numeric padding so the
+     glyphs sit centered in their boxes. */
+  .choro-dialog-zoom-in,
+  .choro-dialog-zoom-out {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1;
+    background: transparent;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    cursor: pointer;
+    color: var(--color-neutral-700);
+    min-width: 28px;
+  }
+  .choro-dialog-zoom-in:hover,
+  .choro-dialog-zoom-out:hover { background: var(--color-neutral-100); }
+  .choro-dialog-zoom-in[hidden],
+  .choro-dialog-zoom-out[hidden] { display: none; }
   /* Color-scheme picker in the dialog actions row. Tightly styled so
      it doesn't dominate the dialog header — it's a refinement, not a
      primary action. */
