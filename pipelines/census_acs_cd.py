@@ -48,6 +48,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import _env  # noqa: F401 — load .env so CENSUS_API_KEY is available locally
 from common import write_timeseries
 
 

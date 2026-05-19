@@ -32,6 +32,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import _env  # noqa: F401 — load .env (also imported transitively via census_acs_cd)
 from census_acs_cd import (
     INDICATORS,
     ACS_VINTAGES,
