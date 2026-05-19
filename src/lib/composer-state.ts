@@ -18,23 +18,10 @@ const chartOverrideSchema = z
   })
   .partial();
 
-// Sections can carry their own time-window settings, overriding the
-// dashboard-level one for the charts inside. Two ways:
-//   - defaultDelta: pick a relative window (1y, 10y, 30y, …)
-//   - fixedRange: pin to specific dates
-// When both are present, fixedRange wins (matches the dashboard-level
-// precedence). Per-tile pill clicks still work on top of either.
-const sectionFixedRangeSchema = z.object({
-  start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-});
-
 const sectionSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   charts: z.array(z.string()).min(1),
-  defaultDelta: deltaWindowSchema.optional(),
-  fixedRange: sectionFixedRangeSchema.optional(),
 });
 
 /**

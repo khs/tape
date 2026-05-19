@@ -574,11 +574,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     type InlineChart,
     type InlineSource,
   } from "../lib/composer-state";
-  import {
-    DELTA_WINDOWS,
-    DELTA_LABELS_SHORT,
-    type DeltaWindow,
-  } from "../lib/deltas";
+  import type { DeltaWindow } from "../lib/deltas";
   import {
     createSupabase,
     isSupabaseConfigured,
@@ -673,25 +669,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     defaultDelta?: DeltaWindow;
     blurb?: string;
   };
-  // Section in the composer carries optional per-section window
-  // overrides. defaultDelta is a relative window (1y, 10y, …);
-  // fixedRange pins to a specific [start, end] pair and beats
-  // defaultDelta when both set. When neither is set, the section
-  // inherits the dashboard-level window.
-  interface UISection {
-    title: string;
-    description: string;
-    charts: string[];
-    defaultDelta?: DeltaWindow;
-    fixedRange?: { start: string; end: string };
-  }
   interface UIState {
     title: string;
     description: string;
     defaultDelta: DeltaWindow | "";
     // When set, takes precedence over defaultDelta; pinned [start, end].
     fixedRange?: { start: string; end: string };
-    sections: UISection[];
+    sections: { title: string; description: string; charts: string[] }[];
     inlineCharts: Record<string, InlineChart>;
     inlineSources: Record<string, InlineSource>;
     chartOverrides: Record<string, ChartOverride>;
@@ -749,8 +733,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         title: sec.title,
         description: sec.description ?? "",
         charts: [...sec.charts],
-        defaultDelta: sec.defaultDelta as DeltaWindow | undefined,
-        fixedRange: sec.fixedRange,
       }));
     } else if (s.charts && s.charts.length > 0) {
       state.sections = [
@@ -844,8 +826,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           title: s.title,
           description: s.description || undefined,
           charts: [...s.charts],
-          defaultDelta: s.defaultDelta,
-          fixedRange: s.fixedRange,
         })),
       inlineCharts: referencedInlineCharts(),
       inlineSources: referencedInlineSources(),
@@ -891,11 +871,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   let library: LibraryPayload | null = null;
   // Library panel has two tabs — Sources (primary) and Pregenerated
   // charts. Each tab keeps its own search query + selected-tag set so
-  // switching tabs doesn't lose the user's current filter. The active
-  // tab itself isn't kept in a module-scope variable — the DOM's
-  // [aria-selected] + .lib-tab-active class on the tab buttons is
-  // the source of truth, read on demand by setActiveLibTab callers.
+  // switching tabs doesn't lose the user's current filter.
   type LibTab = "sources" | "charts";
+  let activeLibTab: LibTab = "sources";
   const chartsSelectedTags: Set<string> = new Set<string>();
   const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
@@ -2105,6 +2083,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // has changed since last view (e.g., a derived source was just added,
   // which the Sources tab should now show in its list).
   function setActiveLibTab(tab: LibTab): void {
+    activeLibTab = tab;
     shell.querySelectorAll<HTMLButtonElement>("[data-role='lib-tab']").forEach((btn) => {
       const active = btn.dataset.tab === tab;
       btn.classList.toggle("lib-tab-active", active);
@@ -2800,94 +2779,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
       desc.addEventListener("focus", () => setActiveSection(secIdx));
       secEl.appendChild(desc);
-
-      // Section-level time-window override. Lets the composer pin
-      // each section to its own window — useful for "show the same
-      // charts across multiple decades" patterns. Mode select picks
-      // between "inherit" (dashboard window applies), one of the
-      // standard deltas (1y, 10y, 30y, …), or "custom" (date pair).
-      // Mutually exclusive — picking a delta clears the custom range
-      // and vice versa.
-      const winRow = document.createElement("div");
-      winRow.className = "comp-section-window";
-      const winLabel = document.createElement("span");
-      winLabel.className = "comp-section-window-label muted small";
-      winLabel.textContent = "Window";
-      winRow.appendChild(winLabel);
-
-      const winSelect = document.createElement("select");
-      winSelect.className = "comp-section-window-select";
-      winSelect.title = "Override the dashboard-level window for this section";
-      const optInherit = document.createElement("option");
-      optInherit.value = "";
-      optInherit.textContent = "Dashboard default";
-      winSelect.appendChild(optInherit);
-      for (const w of DELTA_WINDOWS) {
-        const o = document.createElement("option");
-        o.value = w;
-        o.textContent = DELTA_LABELS_SHORT[w];
-        winSelect.appendChild(o);
-      }
-      const optCustom = document.createElement("option");
-      optCustom.value = "__custom";
-      optCustom.textContent = "Custom dates…";
-      winSelect.appendChild(optCustom);
-      if (sec.fixedRange) winSelect.value = "__custom";
-      else if (sec.defaultDelta) winSelect.value = sec.defaultDelta;
-      else winSelect.value = "";
-      winRow.appendChild(winSelect);
-
-      // Two date inputs, shown only when "Custom dates" is the mode.
-      const startInput = document.createElement("input");
-      startInput.type = "date";
-      startInput.className = "comp-section-window-date";
-      startInput.placeholder = "Start";
-      startInput.value = sec.fixedRange?.start ?? "";
-      const endInput = document.createElement("input");
-      endInput.type = "date";
-      endInput.className = "comp-section-window-date";
-      endInput.placeholder = "End";
-      endInput.value = sec.fixedRange?.end ?? "";
-      const dateWrap = document.createElement("span");
-      dateWrap.className = "comp-section-window-dates";
-      dateWrap.appendChild(startInput);
-      const arrow = document.createElement("span");
-      arrow.textContent = "→";
-      arrow.className = "muted small";
-      dateWrap.appendChild(arrow);
-      dateWrap.appendChild(endInput);
-      dateWrap.style.display = sec.fixedRange ? "" : "none";
-      winRow.appendChild(dateWrap);
-
-      function syncDateWrap() {
-        dateWrap.style.display = winSelect.value === "__custom" ? "" : "none";
-      }
-      function applySectionWindow() {
-        const v = winSelect.value;
-        if (v === "") {
-          sec.defaultDelta = undefined;
-          sec.fixedRange = undefined;
-        } else if (v === "__custom") {
-          sec.defaultDelta = undefined;
-          if (startInput.value && endInput.value) {
-            sec.fixedRange = { start: startInput.value, end: endInput.value };
-          } else {
-            sec.fixedRange = undefined; // wait until both filled
-          }
-        } else {
-          sec.defaultDelta = v as DeltaWindow;
-          sec.fixedRange = undefined;
-        }
-        writeUrl();
-      }
-      winSelect.addEventListener("change", () => {
-        syncDateWrap();
-        applySectionWindow();
-      });
-      startInput.addEventListener("change", applySectionWindow);
-      endInput.addEventListener("change", applySectionWindow);
-
-      secEl.appendChild(winRow);
 
       const grid = document.createElement("div");
       grid.className = "comp-section-grid";
@@ -6079,40 +5970,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
   .comp-section-desc::placeholder { color: var(--color-neutral-400); }
   .comp-section-desc:focus { outline: none; }
-  /* Section-level window override row — sits between the
-     description textarea and the chart grid. Tight visual weight so
-     it doesn't compete with the title + chart tiles. */
-  .comp-section-window {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: var(--text-xs);
-    padding: 0 0 8px;
-    flex-wrap: wrap;
-  }
-  .comp-section-window-label { white-space: nowrap; }
-  .comp-section-window-select {
-    font: inherit;
-    font-size: var(--text-xs);
-    background: var(--color-white);
-    border: 1px solid rgba(55, 53, 47, 0.12);
-    border-radius: var(--radius-sm);
-    padding: 3px 6px;
-    color: var(--color-neutral-800);
-    cursor: pointer;
-  }
-  .comp-section-window-dates {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .comp-section-window-date {
-    font: inherit;
-    font-size: var(--text-xs);
-    border: 1px solid rgba(55, 53, 47, 0.12);
-    border-radius: var(--radius-sm);
-    padding: 2px 6px;
-  }
   .comp-section-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

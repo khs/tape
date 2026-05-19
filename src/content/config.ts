@@ -230,24 +230,6 @@ const sectionSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   charts: z.array(z.string()).min(1),
-  // Section-level time window override. When set, charts in this
-  // section render at this delta regardless of the dashboard-level
-  // pill — useful for stacking the same chart-set across multiple
-  // sections with different commentary per window (e.g., a "Last
-  // decade" section + a "Last 30y" section showing the same series).
-  // Per-tile pill clicks still work on top of this default.
-  defaultDelta: deltaWindow.optional(),
-  // Section-level fixed-date range. Pins every chart in the section
-  // to a specific [start, end] window — overrides defaultDelta if
-  // both are set. Lets one dashboard tell a "1990s vs 2000s vs 2010s"
-  // story by repeating the same chart list under three sections, each
-  // pinned to a different decade. ISO YYYY-MM-DD strings.
-  fixedRange: z
-    .object({
-      start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    })
-    .optional(),
 });
 
 const dashboards = defineCollection({

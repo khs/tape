@@ -9,6 +9,7 @@ import {
 } from "../lib/load-data";
 import {
   formatValue,
+  formatDelta,
   formatDeltaDisplay,
   formatDate,
 } from "../lib/format";
@@ -43,28 +44,14 @@ interface Props {
   // a trailing window. Both bounds are ISO YYYY-MM-DD. Wins over
   // dashboardWindow when present.
   dashboardFixedRange?: { start: string; end: string };
-  // True when the tile belongs to a section that has its own window
-  // override (defaultDelta or fixedRange). Surfaced as a data attr on
-  // the tile root so the dashboard-level pill click handler can skip
-  // it — section-pinned tiles shouldn't get rewindowed when the user
-  // changes the dashboard-wide selection.
-  sectionLocked?: boolean;
   // Side channel: pre-computed timeseries keyed by source ID. Used by
   // derived sources (which don't have a real data file). Real sources
   // can also be preloaded; we just won't read fs in that case.
   preloaded?: Record<string, TimeSeriesData>;
 }
 
-const {
-  chartId,
-  chart,
-  sources,
-  dashboardSlug,
-  dashboardWindow,
-  dashboardFixedRange,
-  sectionLocked,
-  preloaded,
-} = Astro.props;
+const { chartId, chart, sources, dashboardSlug, dashboardWindow, dashboardFixedRange, preloaded } =
+  Astro.props;
 
 // Pull op (arithmetic combination) off the chart if set. When valid (op
 // + exactly two sources), we collapse the chart into a single derived
@@ -485,7 +472,6 @@ const mostRecentUpdate = payload.sources
   data-emphasis={effectiveEmphasis}
   data-multi={isMulti ? "true" : "false"}
   data-series-count={String(perSource.length)}
-  data-section-locked={sectionLocked ? "1" : undefined}
   aria-haspopup="dialog"
   aria-label={`${chart.title} details`}
 >
@@ -741,7 +727,6 @@ const mostRecentUpdate = payload.sources
   {
     !anyLoadError && (
       <script
-        is:inline
         type="application/json"
         data-chart-payload
         set:html={JSON.stringify(payload)}

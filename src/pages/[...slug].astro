@@ -134,30 +134,13 @@ const forkUrl =
     </div>
 
     {
-      resolvedSections.map((section) => {
-        // Per-section overrides win over dashboard-level ones for the
-        // charts in that section. fixedRange beats defaultDelta when
-        // both are set (matches the dashboard-level precedence). The
-        // user composes the same chart list across multiple sections
-        // with different windows + commentary per window — e.g., a
-        // "1990s" section + "2000s" + "2010s" each pinned to its decade.
-        const sectionDelta = section.defaultDelta ?? dashboardDefaultDelta;
-        const sectionFixed = section.fixedRange ?? dashboard.data.fixedRange;
-        return (
+      resolvedSections.map((section) => (
         <section class="dash-section">
           {section.title && (
             <h2 class="section-heading">{section.title}</h2>
           )}
           {section.description && (
             <p class="section-description">{section.description}</p>
-          )}
-          {(section.fixedRange || section.defaultDelta) && (
-            <p class="section-window muted small">
-              Window:{" "}
-              {section.fixedRange
-                ? `${section.fixedRange.start} → ${section.fixedRange.end}`
-                : section.defaultDelta}
-            </p>
           )}
           <div class="chart-grid">
             {section.charts.map((c) => {
@@ -184,16 +167,13 @@ const forkUrl =
                   chart={effective}
                   sources={c.sources}
                   dashboardSlug={dashboard.id}
-                  dashboardWindow={sectionDelta}
-                  dashboardFixedRange={sectionFixed}
-                  sectionLocked={!!(section.defaultDelta || section.fixedRange)}
+                  dashboardWindow={dashboardDefaultDelta}
                 />
               );
             })}
           </div>
         </section>
-        );
-      })
+      ))
     }
 
     {dashboard.data.aboutBlurb && (
@@ -300,13 +280,6 @@ const forkUrl =
     margin: 0 0 12px;
     max-width: 720px;
     white-space: pre-wrap;
-  }
-  /* Section-level window override chip. Renders below the
-     description as a quiet caption — it's a structural label, not
-     a primary heading. */
-  .section-window {
-    margin: -4px 0 12px;
-    font-variant-numeric: tabular-nums;
   }
   .chart-grid {
     display: grid;
