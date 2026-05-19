@@ -49,6 +49,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         box on Google for the eventual custom domain. Lightweight and
         only rendered once per page (in <head>) — no runtime cost. */}
     <script
+      is:inline
       type="application/ld+json"
       set:html={JSON.stringify({
         "@context": "https://schema.org",

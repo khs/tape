@@ -9,7 +9,6 @@ import {
 } from "../lib/load-data";
 import {
   formatValue,
-  formatDelta,
   formatDeltaDisplay,
   formatDate,
 } from "../lib/format";
@@ -727,6 +726,7 @@ const mostRecentUpdate = payload.sources
   {
     !anyLoadError && (
       <script
+        is:inline
         type="application/json"
         data-chart-payload
         set:html={JSON.stringify(payload)}

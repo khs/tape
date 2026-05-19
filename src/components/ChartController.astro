@@ -11,7 +11,6 @@
 <script>
   import * as Plot from "@observablehq/plot";
   import {
-    DELTA_DAYS,
     DELTA_LABELS_PAST,
     closestSupported,
     windowStartMs,
@@ -20,7 +19,6 @@
   } from "../lib/deltas";
   import {
     formatValue,
-    formatDelta,
     formatDeltaDisplay,
     formatDate,
     type Formatting,
@@ -381,22 +379,10 @@
     return d === "up" ? "up" : d === "down" ? "down" : "roughly unchanged";
   }
 
-  /**
-   * Rebase a series to 100 at the window start. Baseline = latest point at or
-   * before startMs; falls back to the earliest point if all points are after
-   * startMs. This handles sparse (annual) series where no observation lies
-   * exactly at the chosen window boundary.
-   */
-  function rebasePoints(points: Point[], startMs: number): Point[] {
-    if (points.length === 0) return points;
-    let baseline: number = points[0].v;
-    for (const p of points) {
-      if (new Date(p.t).getTime() <= startMs) baseline = p.v;
-      else break;
-    }
-    if (baseline === 0) return points;
-    return points.map((p) => ({ t: p.t, v: (p.v / baseline) * 100 }));
-  }
+  // (Previously defined a standalone rebasePoints helper here; the
+  // actual rebasing logic is inlined at the render site below since
+  // it needs to thread through the same loop as bivariate / dual-axis
+  // rescaling. Function removed to silence the unused-symbol hint.)
 
   // Tip-ready point: t as a Date (Plot's preferred time format), v as the
   // value the line actually plots (raw, rebased, or rescaled depending on
@@ -603,8 +589,6 @@
     window: DeltaWindow,
   ): void {
     const fixed = payload.fixedRange;
-    const fStart = fixed ? new Date(fixed.start).getTime() : 0;
-    const fEnd = fixed ? new Date(fixed.end).getTime() : 0;
     const width = container.clientWidth || 220;
     // Spark height is driven by CSS (.chart-tile-multi[data-series-count])
     // so cards with more legend rows naturally grow a taller sparkline.

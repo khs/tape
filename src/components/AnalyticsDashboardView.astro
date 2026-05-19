@@ -27,6 +27,7 @@ const packed = packSourceIds(sources);
 ---
 
 <script
+  is:inline
   type="application/json"
   data-role="analytics-view-payload"
   set:html={JSON.stringify({ packed, surface, chartCount, slug: slug ?? null })}

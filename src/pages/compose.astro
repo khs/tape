@@ -871,9 +871,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   let library: LibraryPayload | null = null;
   // Library panel has two tabs — Sources (primary) and Pregenerated
   // charts. Each tab keeps its own search query + selected-tag set so
-  // switching tabs doesn't lose the user's current filter.
+  // switching tabs doesn't lose the user's current filter. The active
+  // tab itself isn't kept in a module-scope variable — the DOM's
+  // [aria-selected] + .lib-tab-active class on the tab buttons is
+  // the source of truth, read on demand by setActiveLibTab callers.
   type LibTab = "sources" | "charts";
-  let activeLibTab: LibTab = "sources";
   const chartsSelectedTags: Set<string> = new Set<string>();
   const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
@@ -2083,7 +2085,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // has changed since last view (e.g., a derived source was just added,
   // which the Sources tab should now show in its list).
   function setActiveLibTab(tab: LibTab): void {
-    activeLibTab = tab;
     shell.querySelectorAll<HTMLButtonElement>("[data-role='lib-tab']").forEach((btn) => {
       const active = btn.dataset.tab === tab;
       btn.classList.toggle("lib-tab-active", active);
