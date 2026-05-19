@@ -102,16 +102,33 @@ INDICATORS: list[tuple[str, str]] = [
     ("foreign_born_pct", "foreign-born share"),
 ]
 
+# Block-group indicators — Census only publishes 2 of the 4 at BG
+# level (B17001 poverty universe and B05002 place of birth are
+# suppressed at BG by disclosure-avoidance). The BG charts are
+# referenced from the chart-library directory state-bg-maps/, which
+# pipelines/_generate_state_bg_charts.py populates.
+BG_INDICATORS: list[tuple[str, str]] = [
+    ("median_hh_income", "median household income (BG)"),
+    ("bachelors_plus_pct", "bachelor's-or-higher share (BG)"),
+]
+
 
 def section_for_state(code: str, name: str) -> str:
-    """Render a single state's section: 4 charts, one per indicator."""
-    chart_ids = "\n".join(
+    """Render a single state's section: 4 tract charts + 2 BG charts.
+    Block-group charts appear after the tract charts so the user
+    reads coarser-then-finer geography down the column."""
+    tract_ids = [
         f"      - state-tract-maps/{code.lower()}_{ind}_2022"
         for ind, _ in INDICATORS
-    )
+    ]
+    bg_ids = [
+        f"      - state-bg-maps/{code.lower()}_{ind}_bg_2022"
+        for ind, _ in BG_INDICATORS
+    ]
+    chart_lines = "\n".join(tract_ids + bg_ids)
     return (
         f"  - title: \"{name}\"\n"
-        f"    charts:\n{chart_ids}\n"
+        f"    charts:\n{chart_lines}\n"
     )
 
 
