@@ -860,35 +860,67 @@ const statesJoined = stateCodes.join(",");
       // since the runtime element IS an SVG; TypeScript just lost
       // that info through the earlier HTMLElement cast.
       const svgEl = svg as unknown as SVGSVGElement;
-      // Try multiple selectors for the geo group: Plot 0.6 uses
-      // `aria-label="geo"` for `Plot.geo()`, but the wrapping
-      // structure varies with `legend:true` + future Plot updates
-      // could change the attribute. Fall back to "first <g> with
-      // <path> children other than the legend swatches" so a Plot
-      // version bump doesn't silently break zoom.
-      let geoGroup: SVGGElement | null =
-        svgEl.querySelector<SVGGElement>('g[aria-label="geo"]');
-      if (!geoGroup) {
-        // Find first g with paths that isn't a legend.
-        const groups = svgEl.querySelectorAll<SVGGElement>("g");
-        for (const g of Array.from(groups)) {
-          if (g.querySelectorAll("path").length === 0) continue;
-          const label = (g.getAttribute("aria-label") ?? "").toLowerCase();
-          if (label.includes("legend") || label.includes("swatch")) continue;
-          geoGroup = g;
-          break;
+      // Find the zoom target by following the actual path elements
+      // back to their common ancestor — DON'T rely on aria-label.
+      // Plot's diagnostic output revealed that with legend:true +
+      // a custom projection domain, the geo group's aria-label
+      // attribute isn't applied: the user saw 4 <g> elements in
+      // the SVG, all with null aria-label. The canonical d3-zoom-
+      // for-choropleth pattern (per Brett Johnson's Zoomable
+      // Choropleth + d3-zoom docs) is to bind d3-zoom to the SVG
+      // and apply the transform to a single <g> that wraps every
+      // path. We find that g empirically: walk up from path[0]
+      // until we hit either a g whose siblings are also paths or
+      // the SVG itself; that's our zoom target.
+      const allPaths = svgEl.querySelectorAll<SVGPathElement>("path");
+      let geoGroup: SVGGElement | null = null;
+      if (allPaths.length > 0) {
+        // Find the g that contains the most descendant paths — for
+        // most Plot outputs that's the geo mark group regardless of
+        // whether aria-label was applied.
+        let bestG: SVGGElement | null = null;
+        let bestCount = 0;
+        svgEl.querySelectorAll<SVGGElement>("g").forEach((g) => {
+          const c = g.querySelectorAll("path").length;
+          if (c > bestCount) {
+            bestG = g;
+            bestCount = c;
+          }
+        });
+        if (bestG && bestCount === allPaths.length) {
+          // The best g contains EVERY path in the SVG — perfect
+          // zoom target.
+          geoGroup = bestG;
+        } else {
+          // Either no g exists or the best one doesn't contain all
+          // paths. Wrap everything in a new g we create, so we have
+          // a clean zoom target.
+          const wrapper = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "g",
+          ) as SVGGElement;
+          wrapper.setAttribute("data-role", "choro-zoom-wrap");
+          // Move every direct child of the SVG except <style>,
+          // <defs>, and <title> into the wrapper. Those non-render
+          // elements should stay at the top level.
+          const skipTags = new Set(["style", "defs", "title", "desc"]);
+          const children = Array.from(svgEl.children);
+          for (const c of children) {
+            if (skipTags.has(c.tagName.toLowerCase())) continue;
+            wrapper.appendChild(c);
+          }
+          svgEl.appendChild(wrapper);
+          geoGroup = wrapper;
         }
       }
       // Diagnostic so a screenshot of devtools tells us whether
-      // zoom failed to set up vs. failed to fire. Logs once per
-      // paint at info-level — quieter than warn — so it shows in
-      // the console without polluting production logs.
+      // zoom failed to set up vs. failed to fire.
       console.info(
         `[choropleth] ${b.chartId} (${b.geo}, mode=${mode}): ` +
-        `zoom setup ${geoGroup ? "starting" : "SKIPPED (no geo group found)"}; ` +
+        `zoom setup ${geoGroup ? "starting" : "SKIPPED (no paths found)"}; ` +
         `figure=${(fig as HTMLElement).tagName}, svg=${svgEl.tagName}, ` +
-        `groups=${svgEl.querySelectorAll("g").length}, ` +
-        `g-aria-labels=[${[...svgEl.querySelectorAll("g")].map(g => g.getAttribute("aria-label")).join("|")}]`,
+        `total-paths=${allPaths.length}, ` +
+        `groups=${svgEl.querySelectorAll("g").length}`,
       );
       if (geoGroup) {
         // Apply non-scaling-stroke to every geo path. Plot doesn't
@@ -910,17 +942,17 @@ const statesJoined = stateCodes.join(",");
           extentMaxX = extentMinX + svgEl.viewBox.baseVal.width;
           extentMaxY = extentMinY + svgEl.viewBox.baseVal.height;
         }
-        // Attach the zoom LISTENER to the canvas wrapper (the user's
-        // .choro-canvas-expanded div), not the SVG. Reason: Plot
-        // wraps the SVG in a <figure> with a sibling color-legend
-        // group; wheel events on the legend or the figure margin
-        // don't bubble through the SVG and were getting swallowed
-        // by the dialog's scroll instead. The canvas div sits OVER
-        // the entire choropleth area + a small buffer, so any wheel
-        // inside it triggers zoom. The transform is still applied
-        // to the geo <g> inside the SVG so only the map scales,
-        // not the legend.
-        const listenerEl = canvas as unknown as Element;
+        // Bind d3-zoom to the SVG element itself (canonical
+        // pattern; see Brett Johnson's Zoomable Choropleth and the
+        // d3-zoom docs). Previous attempt attached to the canvas
+        // wrapper div hoping to catch wheel events on the legend
+        // area too, but d3-zoom's touch-detection probe runs on
+        // the bound element and is SVG-specific — binding to a div
+        // silently skipped touch listener registration on some
+        // browsers. Bind to SVG; the manual wheel listener below
+        // catches wheel events that hit the canvas-wrap padding
+        // outside the SVG bounds.
+        const listenerEl = svgEl as unknown as Element;
         const listenerSel = d3select<Element, unknown>(listenerEl);
         const geoSel = d3select(geoGroup);
         const zoom = d3zoom<Element, unknown>()
@@ -940,6 +972,13 @@ const statesJoined = stateCodes.join(",");
             geoSel.attr("transform", event.transform.toString());
           });
         listenerSel.call(zoom);
+        // Initialize the zoom transform to identity so subsequent
+        // .scaleBy calls have a defined baseline. Without this,
+        // d3-zoom's internal __zoom property isn't seeded and
+        // scaleBy operates on undefined transform state — sometimes
+        // working, sometimes silently no-op'ing (depends on
+        // browser-internal property iteration order).
+        listenerSel.call(zoom.transform, zoomIdentity);
         // Stash the zoom binding on the canvas DOM node so the
         // dialog-level keyboard shortcut + reset button can reach
         // it. Using a hidden property avoids polluting the global
