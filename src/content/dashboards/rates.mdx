@@ -1,0 +1,122 @@
+---
+title: "Rates & credit"
+order: 7
+defaultDelta: 5y
+description: "The full Treasury curve, the Fed funds path, breakevens for inflation expectations, credit spreads for risk pricing, and the Fed balance sheet as the supply backdrop. The bond-market view of the economy in one place."
+aboutBlurb: "What the bond market is pricing: the Treasury curve, inflation expectations from breakevens, the cost of risk via credit spreads, and the Fed's policy + balance-sheet posture that anchors all of it."
+sections:
+  - title: "The Treasury curve"
+    description: "Nominal yields at every published maturity. Read it as the bond market's pricing of expected average short-rate paths over each horizon, plus a term premium. Inversions (long below short) historically precede recessions by 12-18 months."
+    charts:
+      - us-macro/us_3mo
+      - us-macro/two_year
+      - us-macro/us_5y
+      - us-macro/ten_year
+      - us-macro/us_30y
+  - title: "Curve shape"
+    description: "The two most-watched curve spreads. 10y-2y is the classic recession signal (every US recession since 1980 was preceded by inversion). 10y-3mo is the Fed's preferred version because the 3-month is anchored to current policy. Both inverted hard 2022-24; the 3m one's normalization is the better recession-off signal."
+    charts:
+      - us-macro/curve_spread
+      - us-macro/curve_spread_3m
+  - title: "Policy + balance sheet"
+    description: "Fed funds rate (the policy lever) + Fed balance sheet (the quantitative posture). Together they describe the full monetary stance — funds rate is the price of overnight liquidity, balance sheet is the supply of it."
+    charts:
+      - us-macro/fed_funds
+      - us-macro/fed_balance_sheet
+  - title: "Inflation expectations (breakevens + TIPS)"
+    description: "Market-implied inflation forecasts at 5y and 10y horizons, derived from the spread between nominal Treasuries and TIPS. 5y picks up near-term shocks; 10y is the Fed's reference. TIPS yield itself = the market's real-rate forecast."
+    charts:
+      - us-macro/breakeven_5y
+      - us-macro/breakeven_10y
+      - us-macro/tips_10y
+  - title: "Credit spreads"
+    description: "Investment-grade and high-yield credit spreads. Difference between corporate-bond yields and matched-maturity Treasuries — what investors demand as compensation for default risk. Widening spreads signal credit-market stress before it shows up in equity drawdowns or hard economic data."
+    charts:
+      - us-macro/ig_spread
+      - us-macro/hy_spread
+  - title: "Consumer cost of capital"
+    description: "30-year fixed mortgage rate as the most-visible consumer-facing rate. Tracks the 10-year Treasury yield + a spread that itself moves with mortgage-market conditions (MBS demand, lender capacity, refi friction). The 2022-24 widening of that spread was its own story on top of the rate move."
+    charts:
+      - us-macro/mortgage_30y
+---
+
+## What the bond market is pricing — in five reads
+
+The Treasury curve carries five distinct pieces of information,
+and most public-facing rate commentary conflates them:
+
+1. **Expected short-rate path.** The 10-year is approximately the
+   average of expected fed-funds rates over the next ten years.
+   Whatever the market expects the Fed to do, that goes here.
+2. **Term premium.** Compensation for taking duration risk. Long
+   bonds bounce around more than short ones; investors want extra
+   yield for the volatility. Term premium isn't directly
+   observable but New York Fed publishes an estimate.
+3. **Inflation expectations.** Breakevens isolate this — nominal
+   minus TIPS, by maturity. The 10-year breakeven is the bond
+   market's expected average inflation rate over the next decade.
+4. **Real expected rate.** TIPS yield is approximately the real
+   expected return. When TIPS were negative (2020-21), bondholders
+   were *paying* for inflation insurance.
+5. **Risk premium.** Credit spreads measure this for corporate
+   bonds. The Treasury curve is "riskless" by convention; everything
+   else is priced relative to it.
+
+## Reading inversions
+
+The 10y-2y curve inverts when 2-year yields exceed 10-year yields
+— a market signal that the Fed is expected to tighten enough to
+cause a slowdown that will require subsequent cuts. Historically:
+
+| Inversion start | Recession start | Lead time |
+|---|---|---|
+| Aug 1978 | Jan 1980 | 17 months |
+| Sep 1980 | Jul 1981 | 10 months |
+| Jan 1989 | Jul 1990 | 18 months |
+| Jul 2000 | Mar 2001 | 8 months |
+| Feb 2006 | Dec 2007 | 22 months |
+| Jul 2022 | ??? | TBD |
+
+The 2022 inversion was the deepest and longest of the modern era,
+and as of mid-2026 it's gone uninverted without a recession yet —
+suggesting either a delayed but coming downturn, or the first
+clean "soft landing" since the 1995 episode.
+
+The 10y-3m version (Estrella-Mishkin) has a slightly stronger
+historical track record because the 3-month is fully anchored to
+current policy.
+
+## Why credit spreads matter
+
+Credit spreads price the perceived odds of corporate-bond default
+between issuance and maturity. They widen when the market thinks
+defaults are coming and tighten when the market thinks corporates
+are fine.
+
+Two reasons they're worth tracking:
+
+- **Information.** Credit investors are typically more careful than
+  equity investors about downside scenarios. When credit and equity
+  send different signals (equities rallying, credit widening),
+  credit is usually closer to right.
+- **Transmission.** Spreads widening directly tightens financial
+  conditions even before the Fed moves — corporates pay more to
+  refinance, marginal investment gets delayed, and the real
+  economy slows.
+
+HY spreads in particular tend to lead equity drawdowns by 3-6
+months in major cycles. The 2007 widening preceded the 2008 equity
+collapse; the 2015-16 energy-credit widening preceded the early-
+2016 equity correction; the 2022 widening tracked alongside the
+Nasdaq drawdown.
+
+## Customizing for rates analysis
+
+Common composer moves:
+
+- **Real fed funds**: subtract us_cpi from fed_funds to get the
+  inflation-adjusted policy rate.
+- **Mortgage spread**: subtract ten_year from mortgage_30y to see
+  how much the spread component is contributing.
+- **Curve scatter**: plot 2y vs 10y as a bivariate to see how
+  the curve's shape has evolved.
