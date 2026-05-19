@@ -1,6 +1,23 @@
-name: Recession probability - NY Fed yield-curve model
-shortName: NY Fed recession prob
-description: Smoothed recession probability for the US derived from the 10Y minus 3M Treasury spread by the New York Fed. Monthly. Distinct from the NBER binary indicator and the Anxious Index - this one is purely model-driven from a market signal, with no judgment input.
+name: Smoothed US recession probability (Chauvet-Piger model)
+shortName: Recession probability
+description: |
+  Smoothed recession probability for the US from the Chauvet-Piger
+  dynamic-factor Markov-switching model — combines nonfarm payrolls,
+  industrial production, real personal income (less transfers), and
+  real manufacturing/trade sales into a single latent-state estimate
+  of whether the economy is in recession this month. Monthly,
+  published with about a 1-month lag.
+
+  Distinct from:
+    - the NBER binary indicator (judgmental, declared months later)
+    - the NY Fed's yield-curve-derived probability (different model,
+      different underlying signal, not on FRED — see the New York
+      Fed's "Probability of US recession" web page)
+    - the SPF "Anxious Index" (a poll of forecasters)
+
+  This was previously labeled as the NY Fed yield-curve model — that
+  was wrong. RECPROUSM156N is Chauvet-Piger; the NY Fed yield-curve
+  probability isn't a single FRED series.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/RECPROUSM156N.json
@@ -17,6 +34,5 @@ provenance:
   license: Public domain (US government data)
 tags:
   - macro
-  - rates
   - us
 unitClass: rate

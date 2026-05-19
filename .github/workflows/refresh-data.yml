@@ -107,6 +107,16 @@ jobs:
       - name: Snapshot data for citation integrity
         run: python pipelines/snapshot_data.py
 
+      # FRED series-label audit. Probes the FRED series page for every
+      # source YAML and confirms the YAML's `name` overlaps the official
+      # series title. Catches the May 2026 federal-spending bug (where
+      # four YAMLs pointed at the wrong NIPA Table 3.12 lines) at
+      # workflow time rather than in a customer screenshot. --strict
+      # exits 1 if any new drift slips in — blocks the data refresh
+      # from publishing until the label is fixed.
+      - name: Audit FRED series labels against FRED's official titles
+        run: python scripts/audit_fred_series.py --strict
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"

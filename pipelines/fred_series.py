@@ -210,8 +210,11 @@ SPECS: list[FredSpec] = [
     # context.
     FredSpec("GFDEBTN", "Federal debt outstanding (total public debt)", "millions USD"),
     # Federal subsidies — direct subsidy outlays from the government to
-    # businesses + individuals, BEA NIPA Table 3.2. Quarterly.
-    FredSpec("W994RC1Q027SBEA", "Federal subsidies", "billions USD"),
+    # businesses + individuals, BEA NIPA Table 3.2 line "Subsidies."
+    # Quarterly. (Previously this spec used W994 — which is "Net lending
+    # or net borrowing, NIPAs: Private," a completely different series.
+    # B096 is the actual federal-subsidies series. May 2026 audit catch.)
+    FredSpec("B096RC1Q027SBEA", "Federal subsidies (NIPA)", "billions USD"),
     # ---- AI + datacenter sector PPI ----
     # Producer Price Index for semiconductor + related device manufacturing
     # (NAICS 3344). Tracks wholesale prices in the chip-making industry —
@@ -306,6 +309,35 @@ def _infer_raw_count_unit(series_id: str, fred_unit: str) -> str:
     return "count"
 
 
+def fetch_fred_official_title(series_id: str) -> str | None:
+    """Probe the FRED series page and extract the official title.
+    Used to record ground truth alongside each data file so a later
+    audit doesn't need network access to verify labels."""
+    url = f"https://fred.stlouisfed.org/series/{series_id}"
+    try:
+        r = subprocess.run(
+            ["curl", "-sS", "-L", "--max-time", "20", url],
+            capture_output=True, check=True,
+        )
+    except subprocess.CalledProcessError:
+        return None
+    try:
+        body = r.stdout.decode("utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return None
+    import re as _re
+    m = _re.search(r"<title>([^<]+)</title>", body, _re.IGNORECASE)
+    if not m:
+        return None
+    title = m.group(1).strip()
+    title = title.replace(" | FRED | St. Louis Fed", "").strip()
+    # Strip the parenthesized ID at the end.
+    m2 = _re.match(r"^(.+?)\s*\([A-Z0-9_]+\)\s*$", title)
+    if m2:
+        title = m2.group(1).strip()
+    return title
+
+
 def fetch_series(series_id: str, transformation: str | None = None) -> list[dict]:
     url = FRED_CSV_URL.format(series_id=series_id)
     if transformation:
@@ -350,12 +382,29 @@ def fetch_series(series_id: str, transformation: str | None = None) -> list[dict
     return points
 
 
+def _name_overlap(spec_name: str, fred_title: str) -> set[str]:
+    """Token-set intersection used as a cheap "do these refer to the
+    same thing" check. Filters out common stop words so the overlap
+    is meaningful identifiers (security, medicare, defense, …)
+    rather than connectives. Matches the heuristic in
+    scripts/audit_fred_series.py — keep them in sync."""
+    import re as _re
+    stop = {"of", "the", "and", "to", "for", "in", "us", "u", "s",
+            "by", "from", "all", "rate", "index", "level", "per",
+            "total", "current", "expenditures", "consumption",
+            "payments", "receipts"}
+    def toks(t: str) -> set[str]:
+        return {w for w in _re.findall(r"[a-z0-9]+", t.lower()) if w not in stop}
+    return toks(spec_name) & toks(fred_title)
+
+
 def main(argv: list[str] | None = None) -> int:
     selected = set((argv or [])[1:])
     run = [s for s in SPECS if not selected or s.series_id in selected]
     if not run:
         print(f"No specs matched {selected}")
         return 2
+    label_drift: list[tuple[str, str, str]] = []
     for spec in run:
         # Output ID gets a {_TRANSFORMATION} suffix when the spec asks
         # for one — that way CPIAUCSL (level) and CPIAUCSL_PC1 (YoY)
@@ -404,7 +453,26 @@ def main(argv: list[str] | None = None) -> int:
             points=points,
             unit=spec_unit,
         )
+        # Defense-in-depth: probe FRED's official series page for the
+        # human title, compare it to spec.name. If the overlap is
+        # near-zero (e.g. spec says "Social Security" but FRED says
+        # "Unemployment Insurance" — the May 2026 bug), flag for
+        # post-run reporting. We don't fail the pipeline mid-loop
+        # because partial-fetches are useful (especially on quota
+        # limits); the scripts/audit_fred_series.py --strict step in
+        # CI is the hard gate.
+        official = fetch_fred_official_title(spec.series_id)
+        if official is not None:
+            overlap = _name_overlap(spec.name, official)
+            if not overlap:
+                label_drift.append((spec.series_id, spec.name, official))
         print(f"  {len(points):>6} points -> {out}")
+    if label_drift:
+        print("\nWARNING: FRED label drift detected — spec.name doesn't "
+              "share any identifying tokens with FRED's official title:")
+        for sid, name, official in label_drift:
+            print(f"  {sid}: spec='{name}'  FRED='{official}'")
+        print("\nRun `python scripts/audit_fred_series.py` for a fuller check.")
     return 0
 
 

@@ -9,8 +9,9 @@ unit: billions USD
 formatting:
   style: currency
   currency: USD
-  decimals: 0
+  decimals: 1
   notation: compact
+  scaleFactor: 1.0e+9
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)

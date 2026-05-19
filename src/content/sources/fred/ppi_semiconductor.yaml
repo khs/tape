@@ -1,6 +1,13 @@
-name: PPI — Semiconductor & related device mfg
+name: PPI — Semiconductor & other electronic component mfg
 shortName: PPI semiconductor
-description: Producer Price Index for semiconductor and related device manufacturing (NAICS 3344). Tracks wholesale prices in the chip-making industry — crashes during memory + commodity-chip gluts, climbs during AI-driven capacity tightness. Monthly from BLS via FRED.
+description: |
+  Producer Price Index for the Semiconductor and Other Electronic
+  Component Manufacturing industry (NAICS 3344). Broader than just
+  chip-makers (NAICS 334413) — includes printed circuits, electronic
+  capacitors, etc. — but dominated by semiconductors. Tracks
+  wholesale prices; crashes during memory + commodity-chip gluts,
+  climbs during AI-driven capacity tightness. Monthly from BLS
+  via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PCU33443344.json

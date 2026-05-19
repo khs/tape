@@ -169,6 +169,15 @@ jobs:
       - name: Snapshot data for citation integrity
         run: python pipelines/snapshot_data.py
 
+      # FRED series-label audit. See refresh-data.yml for the
+      # rationale — catches the "wrong NIPA line" class of bug at
+      # workflow time. The demographics workflow doesn't add FRED
+      # series itself, but it's worth running here too: if someone
+      # adds a FRED source between weekly refreshes, this monthly
+      # run will catch the drift.
+      - name: Audit FRED series labels against FRED's official titles
+        run: python scripts/audit_fred_series.py --strict
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
