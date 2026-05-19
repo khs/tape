@@ -1,0 +1,16 @@
+title: Bachelor's-or-higher share by census block group — Arizona (2022)
+render: choropleth
+geo: block-group
+states: [AZ]
+indicator: bachelors_plus_pct
+vintage: "2022"
+boundaryFile: /maps/az-block-groups-topo.json
+colorScheme: blues
+colorScale: linear
+tags: [demographics, state-bg-map, bachelors-plus-pct, az]
+blurb: |
+  Block-group-level share of adults 25+ with at least a bachelor's degree at block-group resolution. Darker blue = higher educational attainment. ACS 5-year ending 2022.
+  Block-groups divide a census tract into 1-4 sub-units of ~600-3,000
+  residents each — the finest geography ACS publishes for income
+  and education. Click to expand; the dialog supports zoom, pan,
+  and a color-scheme picker.
