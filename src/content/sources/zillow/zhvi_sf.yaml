@@ -1,0 +1,25 @@
+name: Zillow Home Value Index — San Francisco, CA
+shortName: San Francisco ZHVI
+description: |
+  Zillow Home Value Index (ZHVI) — typical home value (35th–65th percentile band, single-family + condo, smoothed seasonally adjusted). Monthly back to January 2000. Zillow's most-cited house-price series and an alternative to the Case-Shiller index — broader geographic coverage (every ZIP code), faster release cadence, less smoothed at the local level.
+kind: timeseries
+pipeline: zillow
+dataFile: data/zillow/zhvi_sf.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "USD"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: Zillow Research
+  series: ZHVI (San Francisco, CA)
+  url: https://www.zillow.com/research/data/
+  license: Free for public use (consumers, media, analysts, academics, policymakers)
+tags:
+  - real-estate
+  - housing
+  - sf
+unitClass: currency

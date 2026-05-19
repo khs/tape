@@ -1,0 +1,30 @@
+title: Zillow Observed Rent Index — major US metros
+sources:
+  - zillow/zori_national
+  - zillow/zori_nyc
+  - zillow/zori_la
+  - zillow/zori_chicago
+  - zillow/zori_dallas
+  - zillow/zori_houston
+  - zillow/zori_dc
+  - zillow/zori_miami
+  - zillow/zori_atlanta
+  - zillow/zori_boston
+  - zillow/zori_sf
+  - zillow/zori_seattle
+render: line
+defaultDelta: 5y
+tags: [real-estate, housing, us, inflation]
+normalize: raw
+blurb: |
+  Typical observed market-rate rent (ZORI) for the US national
+  series and the twelve largest metros. Zillow's repeat-rent index,
+  weighted to the rental housing stock so it's representative of
+  market-rate inventory. Monthly back to January 2015.
+  <br/><br/>
+  Important context: ZORI tracks NEW leases at market rates. CPI
+  Shelter tracks CONTRACT rent (including renewals) with a slow-
+  rolling weight, so ZORI moves about a year before CPI does. The
+  "rents have stopped going up" headlines in 2024-25 were ZORI
+  flattening; the 2025-26 cooldown in core CPI was that ZORI move
+  finally rolling into the official inflation measure.

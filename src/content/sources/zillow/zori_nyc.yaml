@@ -1,0 +1,26 @@
+name: Zillow Observed Rent Index — New York, NY
+shortName: New York ZORI
+description: |
+  Zillow Observed Rent Index (ZORI) — typical observed market-rate rent across a region, repeat-rent index weighted to the rental housing stock. Monthly back to January 2015. Catches asking-rent changes ~12 months earlier than CPI Shelter, which uses contract rent + a slow-rolling renewal weight.
+kind: timeseries
+pipeline: zillow
+dataFile: data/zillow/zori_nyc.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "USD/mo"
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: Zillow Research
+  series: ZORI (New York, NY)
+  url: https://www.zillow.com/research/data/
+  license: Free for public use (consumers, media, analysts, academics, policymakers)
+tags:
+  - real-estate
+  - housing
+  - inflation
+  - nyc
+unitClass: currency

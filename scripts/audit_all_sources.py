@@ -28,6 +28,7 @@ PROVIDERS = [
     ("FRED",         "audit_fred_series.py",         []),
     ("World Bank",   "audit_worldbank_indicators.py", []),
     ("Yahoo",        "audit_yahoo_tickers.py",        []),
+    ("Zillow",       "audit_zillow_indexes.py",       []),
 ]
 
 
