@@ -161,6 +161,12 @@ jobs:
       - name: Build per-source tile summaries
         run: python pipelines/build_summaries.py
 
+      # Generators-tab catalog — cheap to regenerate (~2s); reads only
+      # source YAMLs so the ACS / metro / state additions from this
+      # workflow land in the catalog the composer fetches.
+      - name: Refresh generators index
+        run: python pipelines/_generate_generators_index.py
+
       - name: Trim source data files to supportedDeltas
         run: python pipelines/trim_source_data.py
 

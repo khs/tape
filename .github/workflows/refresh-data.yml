@@ -92,6 +92,14 @@ jobs:
       - name: Build per-source tile summaries
         run: python pipelines/build_summaries.py
 
+      # Generators-tab catalog — discovered (geo, template) pairs +
+      # per-entity source IDs. Cheap (~2s) and depends only on source
+      # YAMLs, but we run it post-data-refresh so a new metro / state
+      # / country source landing in this run shows up in the catalog
+      # the composer fetches.
+      - name: Refresh generators index
+        run: python pipelines/_generate_generators_index.py
+
       # Trim each source data file in place to its declared longest
       # supportedDeltas window (+10% buffer). Sources that top out at
       # 10y don't need 50 years of daily prices in their JSON; this cuts
