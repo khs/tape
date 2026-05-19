@@ -19,11 +19,18 @@ Drop screenshots here when ready. Suggested:
 
 - **Level + change, side by side.** Pick a window (1W / 1M / 1Y / 5Y / 10Y);
   every chart shows current value and the move over that window.
-- **Composable dashboards.** Six curated preset dashboards (US macro, oil &
-  energy, tech, markets, countries, commodities) plus a drag-to-reorder
-  composer where any visitor can pick from 130+ charts (or assemble new ones
-  from raw sources), add section commentary, and share via URL.
-- **Curator notes layer.** Each chart can carry a plain-language blurb
+- **Composable dashboards.** Eleven curated preset dashboards (US macro,
+  VA-08, federal budget, tech, inflation deep-dive, labor market, rates
+  & credit, recession monitor, housing market, countries, stocks) plus a
+  drag-to-reorder composer where any visitor can pick from 170+ charts
+  (or assemble new ones from raw sources), add section commentary, and
+  share via URL.
+- **Choropleth maps with zoom + year slider.** ACS demographic indicators
+  at state, county, census-tract, and block-group granularity. Click any
+  tile for an expanded dialog with mouse-wheel zoom (Ctrl+/-/0 also
+  supported), year slider through 2010-2022 vintages, color-scheme
+  picker, and real fullscreen.
+- **Curator notes layer.** Each chart carries a plain-language blurb
   explaining what to notice — that's the "legible" part.
 - **Auth + saves.** Optional Google sign-in unlocks save-to-account, custom
   URL slugs (`/u/<your-slug>/`), and in-place editing.
@@ -45,8 +52,13 @@ Drop screenshots here when ready. Suggested:
 | Source | Used for | Pipeline |
 | --- | --- | --- |
 | [FRED](https://fred.stlouisfed.org/) (St. Louis Fed) | Rates, inflation, employment, GDP, most US macro | `pipelines/fred_series.py` |
-| [Yahoo Finance](https://finance.yahoo.com/) (via `yfinance`) | Equity tickers, ETFs, futures | `pipelines/yahoo_quotes.py`, `pipelines/yahoo_marketcap.py` |
-| [World Bank Open Data](https://data.worldbank.org/) | Country GDP shares | `pipelines/worldbank_gdp.py` |
+| [BLS](https://www.bls.gov/) | State-level unemployment, payrolls, CPI subcomponents; metro labor data | `pipelines/bls.py`, `pipelines/bls_metro.py` |
+| [Census ACS 5-year](https://www.census.gov/programs-surveys/acs) | Demographic indicators at congressional-district, metro, state, county, tract, and block-group granularity | `pipelines/census_acs_cd.py`, `census_acs_metro.py`, `census_acs_state.py`, `census_acs_choropleth.py` |
+| [USAspending.gov](https://www.usaspending.gov/) | Federal contracts/grants/loans/direct payments by recipient state, CBSA, CD, fiscal year | `pipelines/usaspending.py`, `usaspending_metro.py` |
+| [OECD](https://stats.oecd.org/) | Harmonized cross-country macro comparisons | `pipelines/oecd.py` |
+| [World Bank](https://data.worldbank.org/) | Country GDP shares + extended deep-dive (53 countries × 7 indicators) | `pipelines/worldbank_gdp.py`, `worldbank_extended.py` |
+| [US Treasury (TIC)](https://home.treasury.gov/data/treasury-international-capital-tic-system) | Foreign holdings of US Treasuries | `pipelines/treasury_tic.py` |
+| [Yahoo Finance](https://finance.yahoo.com/) (via `yfinance`) | Equity tickers, ETFs, futures, market caps | `pipelines/yahoo_quotes.py`, `pipelines/yahoo_marketcap.py` |
 | EIA | Retail fuel prices (selected) | (within `fred_series.py`) |
 
 Every series writes to `public/data/<provider>/<id>.json`, gets committed back
