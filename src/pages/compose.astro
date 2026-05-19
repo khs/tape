@@ -106,6 +106,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             aria-selected="false"
             title="Build a choropleth map from ACS demographic data"
           >Maps</button>
+          <button
+            type="button"
+            class="lib-tab"
+            data-role="lib-tab"
+            data-tab="generators"
+            role="tab"
+            aria-selected="false"
+            title="Mass-compose: same series across many metros / states / countries in one click"
+          >Generators</button>
         </div>
 
         <div class="lib-panel" data-role="lib-panel-sources">
@@ -375,6 +384,120 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <button type="button" class="btn-primary map-add-btn" data-role="map-add-btn">
                 + Add map to dashboard
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!--
+          Generators tab: mass-compose a section of charts for "the
+          same series across many entities" — e.g. unemployment rate
+          across the 50 largest MSAs, median income across every state,
+          GDP across every G20 country. The catalog of available
+          (geo-type, template) pairs is shipped at build time as
+          public/generators-index.json by pipelines/_generate_generators_
+          index.py, so the form populates without ~20k YAML loads in
+          the browser.
+
+          Three-step form:
+            1. Geo-type (MSA / State / Country)
+            2. Series template (dropdown filtered to the geo-type)
+            3. Entity selection (All / preset / custom checkboxes)
+          A readout below "Generate" reports how many entities the
+          chosen template actually has data for vs how many the user
+          selected — silent-skip the missing ones.
+        -->
+        <div class="lib-panel lib-panel-generators" data-role="lib-panel-generators" hidden>
+          <div class="gen-builder">
+            <p class="muted small">
+              Mass-compose: pick a series + a set of metros / states /
+              countries, get one chart per entity dropped into your
+              active section.
+            </p>
+
+            <fieldset class="map-field">
+              <legend class="map-field-label">By</legend>
+              <div class="map-geo-radios">
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-geo" value="metro" checked data-role="gen-geo" />
+                  <span><strong>Metro</strong> &mdash; US MSAs (CBSA-keyed)</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-geo" value="state" data-role="gen-geo" />
+                  <span><strong>State</strong> &mdash; 50 + DC</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-geo" value="country" data-role="gen-geo" />
+                  <span><strong>Country</strong> &mdash; sovereigns + a few aggregates</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <label class="map-field">
+              <span class="map-field-label">Series template</span>
+              <input
+                type="search"
+                class="map-input"
+                data-role="gen-template-search"
+                placeholder="Filter templates by name…"
+              />
+              <select class="map-input gen-template-select" data-role="gen-template" size="8"></select>
+              <span class="muted small" data-role="gen-template-info">&nbsp;</span>
+            </label>
+
+            <fieldset class="map-field" data-role="gen-entity-section">
+              <legend class="map-field-label">Entities</legend>
+              <div class="map-geo-radios">
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-mode" value="all" checked data-role="gen-mode" />
+                  <span><strong>All available</strong> for this template</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-mode" value="preset" data-role="gen-mode" />
+                  <span><strong>Preset</strong> &mdash; quick groupings (region / top-12)</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-mode" value="custom" data-role="gen-mode" />
+                  <span><strong>Custom</strong> &mdash; pick specific entities</span>
+                </label>
+              </div>
+
+              <div data-role="gen-preset-wrap" class="gen-preset-wrap" hidden>
+                <select class="map-input" data-role="gen-preset"></select>
+              </div>
+
+              <div data-role="gen-custom-wrap" class="gen-custom-wrap" hidden>
+                <input
+                  type="search"
+                  class="map-input"
+                  data-role="gen-entity-search"
+                  placeholder="Search by name…"
+                />
+                <div class="gen-entity-actions">
+                  <button type="button" class="btn-tertiary" data-role="gen-entity-all">Select all visible</button>
+                  <button type="button" class="btn-tertiary" data-role="gen-entity-none">Clear</button>
+                </div>
+                <div class="gen-entity-list" data-role="gen-entity-list"></div>
+              </div>
+            </fieldset>
+
+            <label class="map-field">
+              <span class="map-field-label">Section title (optional)</span>
+              <input
+                type="text"
+                class="map-input"
+                data-role="gen-section-title"
+                placeholder="Auto-generated from selections; leave blank to append to active section"
+              />
+              <span class="muted small">
+                Blank = append into your current active section. With a title, a new section gets created.
+              </span>
+            </label>
+
+            <div class="map-actions">
+              <button type="button" class="btn-primary map-add-btn" data-role="gen-add-btn">
+                + Generate
+              </button>
+              <p class="muted small" data-role="gen-readout">&nbsp;</p>
             </div>
           </div>
         </div>
@@ -1085,7 +1208,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // tab itself isn't kept in a module-scope variable — the DOM's
   // [aria-selected] + .lib-tab-active class on the tab buttons is
   // the source of truth, read on demand by setActiveLibTab callers.
-  type LibTab = "sources" | "charts" | "maps";
+  type LibTab = "sources" | "charts" | "maps" | "generators";
   const chartsSelectedTags: Set<string> = new Set<string>();
   const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
@@ -2309,9 +2432,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const panelMaps = shell.querySelector<HTMLElement>(
       "[data-role='lib-panel-maps']",
     );
+    const panelGenerators = shell.querySelector<HTMLElement>(
+      "[data-role='lib-panel-generators']",
+    );
     if (panelSources) panelSources.hidden = tab !== "sources";
     if (panelCharts) panelCharts.hidden = tab !== "charts";
     if (panelMaps) panelMaps.hidden = tab !== "maps";
+    if (panelGenerators) panelGenerators.hidden = tab !== "generators";
     if (tab === "sources") {
       renderTagFiltersSources();
       renderSourcesList();
@@ -2320,6 +2447,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       renderChartsList();
     } else if (tab === "maps") {
       renderMapBuilder();
+    } else if (tab === "generators") {
+      void renderGeneratorsBuilder();
     }
     track("compose_lib_tab_switched", { tab });
   }
@@ -2811,6 +2940,543 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   function titleInputForReset(): HTMLInputElement | null {
     return shell.querySelector<HTMLInputElement>("[data-role='map-title']");
+  }
+
+  // ---- Generators tab --------------------------------------------------
+  //
+  // Mass-compose: pick a series template + a set of entities (MSAs /
+  // states / countries), get one inline-chart per entity dropped into
+  // a section. The catalog of templates is shipped at build time as
+  // public/generators-index.json by
+  // pipelines/_generate_generators_index.py — we lazy-fetch it on
+  // first Generators-tab open.
+
+  interface GenEntity {
+    short: string;
+    name: string;
+  }
+  interface GenPreset {
+    label: string;
+    codes: string[];
+  }
+  interface GenTemplate {
+    id: string;
+    label: string;
+    description: string;
+    tags: string[];
+    sourceMap: Record<string, string>;
+    count: number;
+  }
+  interface GenGeoBlock {
+    label: string;
+    entities: Record<string, GenEntity>;
+    presets: Record<string, GenPreset>;
+    templates: GenTemplate[];
+  }
+  interface GeneratorsIndex {
+    v: 1;
+    lastUpdated: string;
+    geoTypes: Record<"metro" | "state" | "country", GenGeoBlock>;
+  }
+
+  type GenGeo = "metro" | "state" | "country";
+  type GenMode = "all" | "preset" | "custom";
+
+  interface GeneratorsBuilderState {
+    geo: GenGeo;
+    templateId: string | null;
+    mode: GenMode;
+    preset: string | null;
+    selected: Set<string>;      // entity codes for custom mode
+    templateSearch: string;
+    entitySearch: string;
+    sectionTitle: string;
+  }
+
+  const generators: GeneratorsBuilderState = {
+    geo: "metro",
+    templateId: null,
+    mode: "all",
+    preset: null,
+    selected: new Set<string>(),
+    templateSearch: "",
+    entitySearch: "",
+    sectionTitle: "",
+  };
+
+  let generatorsIndex: GeneratorsIndex | null = null;
+  let generatorsWired = false;
+
+  async function loadGeneratorsIndex(): Promise<GeneratorsIndex | null> {
+    if (generatorsIndex) return generatorsIndex;
+    try {
+      const r = await fetch(`${baseUrl}/generators-index.json`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      generatorsIndex = (await r.json()) as GeneratorsIndex;
+      return generatorsIndex;
+    } catch (e) {
+      console.warn("generators-index fetch failed:", e);
+      return null;
+    }
+  }
+
+  function currentTemplate(): GenTemplate | null {
+    if (!generatorsIndex || !generators.templateId) return null;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    return block.templates.find((t) => t.id === generators.templateId) ?? null;
+  }
+
+  function renderGenTemplateList(): void {
+    const sel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='gen-template']",
+    );
+    const info = shell.querySelector<HTMLElement>(
+      "[data-role='gen-template-info']",
+    );
+    if (!sel || !generatorsIndex) return;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    const q = generators.templateSearch.toLowerCase().trim();
+    const matches = block.templates.filter((t) => {
+      if (!q) return true;
+      return (
+        t.label.toLowerCase().includes(q) ||
+        t.description.toLowerCase().includes(q) ||
+        t.id.toLowerCase().includes(q)
+      );
+    });
+    sel.innerHTML = matches
+      .map(
+        (t) =>
+          `<option value="${escapeHtml(t.id)}">${escapeHtml(t.label)} (${t.count})</option>`,
+      )
+      .join("");
+    // Preserve selection if still in the filtered set; else pick the
+    // first match (so the form is always actionable).
+    if (
+      generators.templateId &&
+      matches.some((t) => t.id === generators.templateId)
+    ) {
+      sel.value = generators.templateId;
+    } else if (matches.length > 0) {
+      generators.templateId = matches[0].id;
+      sel.value = matches[0].id;
+    } else {
+      generators.templateId = null;
+    }
+    // Description + entity-count summary line.
+    const t = currentTemplate();
+    if (info) {
+      if (t) {
+        info.textContent = t.description
+          ? `${t.description}  · ${t.count} ${generators.geo} entities have data.`
+          : `${t.count} ${generators.geo} entities have data.`;
+      } else if (matches.length === 0) {
+        info.textContent = "No templates match this filter.";
+      } else {
+        info.textContent = "";
+      }
+    }
+    renderGenEntityUI();
+  }
+
+  function renderGenPresets(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='gen-preset-wrap']");
+    const sel = shell.querySelector<HTMLSelectElement>("[data-role='gen-preset']");
+    if (!wrap || !sel || !generatorsIndex) return;
+    if (generators.mode !== "preset") {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    const t = currentTemplate();
+    const availableEntities = new Set(t ? Object.keys(t.sourceMap) : []);
+    const opts: string[] = [];
+    for (const [key, preset] of Object.entries(block.presets)) {
+      // Filter preset to entities that actually have this template's
+      // data on disk — keeps the count honest.
+      const overlap = t
+        ? preset.codes.filter((c) => availableEntities.has(c)).length
+        : preset.codes.length;
+      opts.push(
+        `<option value="${escapeHtml(key)}">${escapeHtml(preset.label)} (${overlap})</option>`,
+      );
+    }
+    sel.innerHTML = opts.join("");
+    if (generators.preset && opts.some((o) => o.includes(`value="${generators.preset}"`))) {
+      sel.value = generators.preset;
+    } else if (sel.options.length > 0) {
+      generators.preset = sel.options[0].value;
+      sel.value = generators.preset;
+    } else {
+      generators.preset = null;
+    }
+  }
+
+  function renderGenCustomList(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='gen-custom-wrap']");
+    const list = shell.querySelector<HTMLElement>("[data-role='gen-entity-list']");
+    if (!wrap || !list || !generatorsIndex) return;
+    if (generators.mode !== "custom") {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    const t = currentTemplate();
+    const available = t ? Object.keys(t.sourceMap) : Object.keys(block.entities);
+    const q = generators.entitySearch.toLowerCase().trim();
+    // Filter + alphabetize by name. Cap at 200 entries for the metro
+    // case (393 MSAs would otherwise drown the panel).
+    const filtered = available
+      .filter((code) => {
+        if (!q) return true;
+        const e = block.entities[code];
+        if (!e) return false;
+        return (
+          e.short.toLowerCase().includes(q) ||
+          e.name.toLowerCase().includes(q) ||
+          code.includes(q)
+        );
+      })
+      .sort((a, b) => {
+        const an = (block.entities[a]?.short ?? a).toLowerCase();
+        const bn = (block.entities[b]?.short ?? b).toLowerCase();
+        return an.localeCompare(bn);
+      });
+    const VISIBLE_CAP = 200;
+    const shown = filtered.slice(0, VISIBLE_CAP);
+    const items = shown.map((code) => {
+      const e = block.entities[code];
+      const label = e ? `${escapeHtml(e.name)} (${escapeHtml(code)})` : escapeHtml(code);
+      const checked = generators.selected.has(code) ? " checked" : "";
+      return (
+        `<label class="gen-entity-row">` +
+        `<input type="checkbox" data-role="gen-entity-check" value="${escapeHtml(code)}"${checked} />` +
+        `<span>${label}</span>` +
+        `</label>`
+      );
+    });
+    if (filtered.length > VISIBLE_CAP) {
+      items.push(
+        `<p class="muted small">Showing first ${VISIBLE_CAP} of ${filtered.length}. Refine the search.</p>`,
+      );
+    }
+    if (items.length === 0) {
+      items.push(`<p class="muted small">No entities match.</p>`);
+    }
+    list.innerHTML = items.join("");
+    // Re-wire checkbox listeners (innerHTML clobbers them).
+    list.querySelectorAll<HTMLInputElement>(
+      "input[data-role='gen-entity-check']",
+    ).forEach((el) => {
+      el.addEventListener("change", () => {
+        if (el.checked) generators.selected.add(el.value);
+        else generators.selected.delete(el.value);
+        updateGenReadout();
+      });
+    });
+  }
+
+  function renderGenEntityUI(): void {
+    renderGenPresets();
+    renderGenCustomList();
+    updateGenReadout();
+  }
+
+  function effectiveSelectedEntities(): string[] {
+    if (!generatorsIndex) return [];
+    const t = currentTemplate();
+    if (!t) return [];
+    const available = Object.keys(t.sourceMap);
+    if (generators.mode === "all") return available;
+    if (generators.mode === "preset") {
+      if (!generators.preset) return [];
+      const preset = generatorsIndex.geoTypes[generators.geo].presets[generators.preset];
+      if (!preset) return [];
+      // Silent-skip: filter to entities that the template actually has.
+      return preset.codes.filter((c) => c in t.sourceMap);
+    }
+    // custom
+    return [...generators.selected].filter((c) => c in t.sourceMap);
+  }
+
+  function updateGenReadout(): void {
+    const readout = shell.querySelector<HTMLElement>(
+      "[data-role='gen-readout']",
+    );
+    if (!readout) return;
+    const t = currentTemplate();
+    if (!t) {
+      readout.textContent = "Pick a series template first.";
+      return;
+    }
+    const eff = effectiveSelectedEntities();
+    if (eff.length === 0) {
+      readout.textContent = "No entities selected.";
+      return;
+    }
+    // Skip count: requested but unavailable.
+    let requested = 0;
+    if (generators.mode === "all") {
+      requested = Object.keys(generatorsIndex!.geoTypes[generators.geo].entities).length;
+    } else if (generators.mode === "preset") {
+      const preset = generators.preset
+        ? generatorsIndex!.geoTypes[generators.geo].presets[generators.preset]
+        : null;
+      requested = preset ? preset.codes.length : 0;
+    } else {
+      requested = generators.selected.size;
+    }
+    const skip = requested - eff.length;
+    if (skip > 0) {
+      readout.textContent =
+        `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated · ${skip} skipped (no data for this template).`;
+    } else {
+      readout.textContent =
+        `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated.`;
+    }
+  }
+
+  async function renderGeneratorsBuilder(): Promise<void> {
+    const idx = await loadGeneratorsIndex();
+    if (!idx) {
+      const panel = shell.querySelector<HTMLElement>(
+        "[data-role='lib-panel-generators']",
+      );
+      if (panel) {
+        panel.innerHTML =
+          '<p class="muted small">Could not load generators-index.json. Run `python pipelines/_generate_generators_index.py` and rebuild.</p>';
+      }
+      return;
+    }
+    if (generatorsWired) {
+      renderGenTemplateList();
+      return;
+    }
+    generatorsWired = true;
+
+    // Geo radio
+    shell.querySelectorAll<HTMLInputElement>(
+      "input[data-role='gen-geo']",
+    ).forEach((el) => {
+      if (el.value === generators.geo) el.checked = true;
+      el.addEventListener("change", () => {
+        if (!el.checked) return;
+        generators.geo = el.value as GenGeo;
+        // Reset template + mode-specific state when geo changes (an
+        // MSA-mode preset like "Northeast" doesn't translate to
+        // country mode etc.).
+        generators.templateId = null;
+        generators.preset = null;
+        generators.selected.clear();
+        renderGenTemplateList();
+      });
+    });
+    // Mode radio
+    shell.querySelectorAll<HTMLInputElement>(
+      "input[data-role='gen-mode']",
+    ).forEach((el) => {
+      if (el.value === generators.mode) el.checked = true;
+      el.addEventListener("change", () => {
+        if (!el.checked) return;
+        generators.mode = el.value as GenMode;
+        renderGenEntityUI();
+      });
+    });
+
+    // Template search + dropdown
+    const tplSearch = shell.querySelector<HTMLInputElement>(
+      "[data-role='gen-template-search']",
+    );
+    if (tplSearch) {
+      tplSearch.addEventListener("input", () => {
+        generators.templateSearch = tplSearch.value;
+        renderGenTemplateList();
+      });
+    }
+    const tplSel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='gen-template']",
+    );
+    if (tplSel) {
+      tplSel.addEventListener("change", () => {
+        generators.templateId = tplSel.value || null;
+        // Clear the custom selection — the previous template's entities
+        // may not all map to the new one.
+        generators.selected.clear();
+        renderGenTemplateList();
+      });
+    }
+
+    // Preset dropdown
+    const presetSel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='gen-preset']",
+    );
+    if (presetSel) {
+      presetSel.addEventListener("change", () => {
+        generators.preset = presetSel.value || null;
+        updateGenReadout();
+      });
+    }
+
+    // Custom search + bulk select / clear
+    const entSearch = shell.querySelector<HTMLInputElement>(
+      "[data-role='gen-entity-search']",
+    );
+    if (entSearch) {
+      entSearch.addEventListener("input", () => {
+        generators.entitySearch = entSearch.value;
+        renderGenCustomList();
+      });
+    }
+    const selAll = shell.querySelector<HTMLButtonElement>(
+      "[data-role='gen-entity-all']",
+    );
+    if (selAll) {
+      selAll.addEventListener("click", () => {
+        // Add every currently-visible entity code to the selected set.
+        const list = shell.querySelector<HTMLElement>(
+          "[data-role='gen-entity-list']",
+        );
+        if (!list) return;
+        list.querySelectorAll<HTMLInputElement>(
+          "input[data-role='gen-entity-check']",
+        ).forEach((el) => {
+          el.checked = true;
+          generators.selected.add(el.value);
+        });
+        updateGenReadout();
+      });
+    }
+    const selNone = shell.querySelector<HTMLButtonElement>(
+      "[data-role='gen-entity-none']",
+    );
+    if (selNone) {
+      selNone.addEventListener("click", () => {
+        generators.selected.clear();
+        renderGenCustomList();
+      });
+    }
+
+    // Section title input
+    const titleInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='gen-section-title']",
+    );
+    if (titleInput) {
+      titleInput.addEventListener("input", () => {
+        generators.sectionTitle = titleInput.value;
+      });
+    }
+
+    // Generate button
+    const addBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='gen-add-btn']",
+    );
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        void generateMassDashboard();
+      });
+    }
+
+    renderGenTemplateList();
+  }
+
+  async function generateMassDashboard(): Promise<void> {
+    if (!generatorsIndex) return;
+    const t = currentTemplate();
+    if (!t) {
+      const readout = shell.querySelector<HTMLElement>(
+        "[data-role='gen-readout']",
+      );
+      if (readout) readout.textContent = "Pick a series template first.";
+      return;
+    }
+    const eff = effectiveSelectedEntities();
+    if (eff.length === 0) {
+      const readout = shell.querySelector<HTMLElement>(
+        "[data-role='gen-readout']",
+      );
+      if (readout) readout.textContent = "Select at least one entity.";
+      return;
+    }
+    const allowed = await checkComposeAction("generate_mass_dashboard");
+    if (!allowed) {
+      showSigninPrompt("generate_mass_dashboard");
+      return;
+    }
+    const block = generatorsIndex.geoTypes[generators.geo];
+
+    // Decide whether to drop the generated charts into a NEW section
+    // or append to the currently-active one. Title set => new section;
+    // blank => active section.
+    let target: UISection;
+    const sectionTitle = generators.sectionTitle.trim();
+    if (sectionTitle) {
+      target = {
+        title: sectionTitle,
+        description: "",
+        charts: [],
+      };
+      state.sections.push(target);
+      activeSectionIdx = state.sections.length - 1;
+    } else {
+      clampActiveSection();
+      target = state.sections[activeSectionIdx];
+      if (!target) return;
+    }
+
+    // Mint one inline-chart per entity. Title each tile with the
+    // entity's short name (e.g. "Boston") so the section reads as
+    // a per-region grid rather than 50 copies of the same title.
+    const order = eff.slice().sort((a, b) => {
+      const an = (block.entities[a]?.short ?? a).toLowerCase();
+      const bn = (block.entities[b]?.short ?? b).toLowerCase();
+      return an.localeCompare(bn);
+    });
+    let added = 0;
+    for (const code of order) {
+      const sourceId = t.sourceMap[code];
+      if (!sourceId) continue;
+      const entity = block.entities[code];
+      const tileTitle = entity?.short ?? code;
+      const chartId = INLINE_PREFIX + nanoid(8);
+      state.inlineCharts[chartId] = {
+        title: tileTitle,
+        sources: [sourceId],
+        normalize: "raw",
+      };
+      target.charts.push(chartId);
+      added += 1;
+    }
+
+    writeUrl();
+    renderComposition();
+    track("compose_mass_dashboard_generated", {
+      geo: generators.geo,
+      template: t.id,
+      mode: generators.mode,
+      preset: generators.preset ?? "",
+      addedTiles: added,
+      newSection: !!sectionTitle,
+    });
+
+    // Reset the section-title input + custom selection so the next
+    // generate stacks cleanly (typical pattern: NE in one section,
+    // then South in the next).
+    if (sectionTitle) {
+      generators.sectionTitle = "";
+      const titleInput = shell.querySelector<HTMLInputElement>(
+        "[data-role='gen-section-title']",
+      );
+      if (titleInput) titleInput.value = "";
+    }
+    const readout = shell.querySelector<HTMLElement>(
+      "[data-role='gen-readout']",
+    );
+    if (readout) {
+      const where = sectionTitle ? `new section "${sectionTitle}"` : "active section";
+      readout.textContent = `Added ${added} chart${added === 1 ? "" : "s"} to ${where}.`;
+    }
   }
 
   // ---- Chart-spec helpers (shared by hover-merge + drag) ----
@@ -3957,7 +4623,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     shell.querySelectorAll<HTMLButtonElement>("[data-role='lib-tab']").forEach((btn) => {
       btn.addEventListener("click", () => {
         const tab = btn.dataset.tab as LibTab | undefined;
-        if (tab === "sources" || tab === "charts" || tab === "maps") {
+        if (
+          tab === "sources" ||
+          tab === "charts" ||
+          tab === "maps" ||
+          tab === "generators"
+        ) {
           setActiveLibTab(tab);
         }
       });
@@ -6444,6 +7115,69 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     width: 100%;
     padding: 10px 14px;
     font-weight: 600;
+  }
+
+  /* ---- Generators tab ---------------------------------------------- */
+  .lib-panel-generators {
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .gen-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .gen-template-select {
+    /* Make the template dropdown a scrollable listbox so users can
+       see ~8 options at once without re-opening it. */
+    height: auto;
+    min-height: 8em;
+    padding: 4px;
+    font-size: var(--text-sm);
+  }
+  .gen-preset-wrap,
+  .gen-custom-wrap {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .gen-entity-actions {
+    display: flex;
+    gap: 8px;
+    font-size: var(--text-xs);
+  }
+  .gen-entity-list {
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    background: var(--color-white);
+  }
+  .gen-entity-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .gen-entity-row input[type="checkbox"] { margin: 0; }
+  .gen-entity-row:hover { background: rgba(0, 0, 0, 0.02); }
+  .btn-tertiary {
+    font: inherit;
+    font-size: var(--text-xs);
+    background: transparent;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: var(--radius-sm);
+    padding: 3px 8px;
+    cursor: pointer;
+    color: var(--color-neutral-700);
+  }
+  .btn-tertiary:hover {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-900);
   }
 
   .lib-controls { display: flex; flex-direction: column; gap: 10px; }
