@@ -1,0 +1,13 @@
+title: SLOOS — banks tightening credit-card standards
+sources: ["fred/sloos_cc_tightening"]
+render: line
+defaultDelta: 30y
+tags: [us, macro, credit]
+blurb: |
+  Senior Loan Officer Opinion Survey — net share of banks
+  reporting tightened standards on consumer credit-card loans.
+  Quarterly. Spikes during every recession (1990, 2001, 2008-09,
+  2020) and crossed positive in 2022-23 as banks pulled in
+  household credit access ahead of expected loan-loss
+  deterioration. A leading indicator of consumer-credit
+  contraction.

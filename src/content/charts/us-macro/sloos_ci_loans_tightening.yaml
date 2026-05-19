@@ -1,0 +1,14 @@
+title: SLOOS — banks tightening C&I loan standards
+sources: ["fred/sloos_ci_loans_tightening"]
+render: line
+defaultDelta: 30y
+tags: [us, macro, credit]
+blurb: |
+  Senior Loan Officer Opinion Survey — net share of banks
+  tightening commercial-and-industrial loan standards. The
+  business-credit counterpart to the consumer SLOOS. Banks
+  tighten standards when they expect defaults to rise; tightening
+  precedes recessions by 6-9 months in most cycles. The 2022-23
+  reading was sharp enough to be consistent with a 2008-style
+  credit-driven downturn — that it didn't materialize is one of
+  the central puzzles of the recent cycle.

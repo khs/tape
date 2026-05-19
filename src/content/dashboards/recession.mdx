@@ -1,0 +1,119 @@
+---
+title: "Recession monitor"
+order: 8
+defaultDelta: 30y
+description: "The dozen indicators that historically lead US recessions — yield curve, bank tightening, claims, equities, credit spreads, sentiment, profits. Each individually has false signals; the convergence is what matters."
+aboutBlurb: "No single indicator predicts recessions reliably. This dashboard collects the dozen with the best historical track records so the convergence can be visually checked. Read the body essay for which signals to weight when."
+sections:
+  - title: "Curve + model — the bond-market signal"
+    description: "10y-3mo spread is the highest-batting-average recession indicator in modern US history — every recession since 1980 was preceded by inversion. The NY Fed publishes a model translating that spread to a recession probability."
+    charts:
+      - us-macro/curve_spread_3m
+      - us-macro/curve_spread
+      - us-macro/recession_probability_ny_fed
+  - title: "Bank tightening (SLOOS)"
+    description: "Senior Loan Officer Opinion Survey — quarterly, the Fed asks banks whether they're tightening or easing credit. Sustained tightening precedes recessions because banks pull credit in advance of expected loan losses."
+    charts:
+      - us-macro/sloos_ci_loans_tightening
+      - us-macro/sloos_cc_tightening
+  - title: "Labor — initial claims as the highest-frequency gauge"
+    description: "Weekly UI claims spike before unemployment headlines move. Sustained 4-week MA above 400-450k has historically preceded recessions; sustained 350k+ has been a warning."
+    charts:
+      - us-macro/initial_claims
+      - us-macro/continuing_claims
+      - us-macro/unemployment
+  - title: "Risk pricing — equities + credit"
+    description: "Equity drawdowns and credit-spread widening. High-yield spreads tend to widen 3-6 months before equity major drawdowns. The combination of widening HY + falling S&P is the classic late-cycle pair."
+    charts:
+      - us-macro/sp500
+      - us-macro/nasdaq
+      - us-macro/hy_spread
+      - us-macro/ig_spread
+  - title: "Real economy"
+    description: "Capacity utilization + industrial production are coincident with the business cycle. Saving rate + retail sales give the consumer view. Sentiment (UMich) often turns first and is most prone to noise."
+    charts:
+      - us-macro/capacity_util
+      - us-macro/industrial_production
+      - us-macro/saving_rate
+      - us-macro/retail_sales
+      - us-macro/umich
+---
+
+## What "recession monitor" can and can't do
+
+No single indicator predicts US recessions reliably enough to bet
+on. The 10y-2y curve is the highest-batting-average single signal
+(every modern US recession was preceded by inversion), but it's
+had false positives (1966) and its lead times vary from 8 to 22
+months. The 2022-25 episode is currently the longest lead-without-
+recession on record.
+
+What the dashboard *can* do is show the convergence — when many
+historically-reliable indicators flip the same direction, the case
+strengthens. Each panel here ranks indicators by approximate
+batting average × lead time:
+
+1. **Curve** — best single signal, ~18 months lead. Inverted hard
+   2022-24.
+2. **Bank tightening (SLOOS)** — strong leading indicator, 6-9
+   months ahead. Tightened sharply 2022-23.
+3. **Initial claims** — leading by 3-6 weeks. Has stayed
+   surprisingly low.
+4. **Risk pricing** — credit spreads lead equity drawdowns. Both
+   widened in 2022, normalized by 2024.
+5. **Real economy** — coincident or lagging. By the time these
+   confirm, the recession is already underway.
+
+## What the indicators got right (and wrong) recently
+
+**2022-25 episode summary:**
+
+| Indicator | Signal | Outcome |
+|---|---|---|
+| Yield curve | Inverted hard, NY Fed model peaked at 70%+ | False positive (so far) |
+| SLOOS C&I | Tightened to 2008-comparable | No 2008-style credit crunch |
+| Initial claims | Briefly elevated then resumed declining | No spike |
+| HY spread | Widened 2022, mostly normalized by 2024 | No sustained widening |
+| UMich sentiment | Collapsed 2022 | Recovered without recession |
+
+This is roughly the historical pattern for a "soft landing"
+sequence — early-cycle stress signals that don't propagate to
+labor + real economy. The closest historical comp is 1994-95:
+Fed hiked aggressively, curve flattened, growth wobbled, but
+unemployment stayed low and the cycle continued.
+
+The remaining question is whether the lag is just longer than
+average this time (with recession still pending) or whether
+something structural about the post-COVID economy weakened the
+predictive power of these indicators. The dashboard lets you
+track the answer as it develops.
+
+## Why claims and not the unemployment rate
+
+The headline unemployment rate (U3) is a lagging indicator —
+typically doesn't turn up until the recession has already started.
+Initial claims lead by weeks; sustained increases above ~400k
+in the 4-week moving average have historically preceded recessions.
+
+The 2022-25 surprise is that claims stayed in the 200s through
+the curve inversion, the SLOOS tightening, and the regional
+banking stress of March 2023. Either the labor market got
+structurally tighter (less worker turnover = fewer cyclical
+layoffs) or labor hoarding by post-COVID-employer-trauma
+managers has kept the cycle from showing up where it usually does.
+
+## Customizing your recession framework
+
+Common composer moves:
+
+- **Sahm rule**: take the 3-month-MA of the unemployment rate
+  minus its 12-month minimum. Sahm rule fires at +0.5pp. Triggered
+  in mid-2024 — the first trigger that didn't coincide with a
+  recession. Compose via unemployment + the rolling-min derived
+  source.
+- **Conference Board LEI**: composite of 10 leading indicators
+  including some of these. The proprietary version isn't on FRED
+  but the constituent series mostly are; you can rebuild a rough
+  version.
+- **Real Fed funds**: subtract us_cpi from fed_funds; the level
+  of policy tightness in real terms.
