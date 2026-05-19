@@ -9,7 +9,7 @@ boundaryFile: /maps/va-block-groups-topo.json
 # City, and inner Fairfax County. Bbox covers all four plus ~5%
 # padding so edge block groups breathe.
 bbox: [-77.32, 38.78, -77.04, 38.97]
-colorScheme: ylorrd
+colorScheme: reds
 colorScale: linear
 tags: [government, va-08, demographics, poverty]
 blurb: |

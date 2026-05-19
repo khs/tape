@@ -10,7 +10,7 @@ boundaryFile: /maps/dmv-tracts-topo.json
 # George's). Tracts whose any vertex falls inside this box are kept;
 # the rest are dropped pre-render so Plot auto-fits the clipped area.
 bbox: [-77.55, 38.65, -76.75, 39.30]
-colorScheme: ylorrd
+colorScheme: reds
 colorScale: linear
 tags: [government, dmv, demographics, poverty]
 blurb: |

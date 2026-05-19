@@ -3,7 +3,7 @@ render: choropleth
 geo: state
 indicator: poverty_rate
 vintage: "2022"
-colorScheme: ylorrd
+colorScheme: reds
 colorScale: linear
 tags: [government, us, demographics, poverty]
 blurb: |

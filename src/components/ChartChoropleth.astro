@@ -313,6 +313,12 @@ const statesJoined = stateCodes.join(",");
   // navigates back to a cached page.
   import * as Plot from "@observablehq/plot";
   import * as topojson from "topojson-client";
+  // d3-zoom + d3-selection are pulled from the umbrella d3 package
+  // (transitive deps but published as part of d3 itself). Importing
+  // from "d3" rather than the submodules keeps package.json tidy and
+  // sidesteps the phantom-dep lint.
+  import { select as d3select, zoom as d3zoom, zoomIdentity } from "d3";
+  import type { ZoomBehavior, ZoomTransform } from "d3-zoom";
 
   type ChoroBindings = {
     chartId: string;
@@ -490,8 +496,20 @@ const statesJoined = stateCodes.join(",");
     const fc = topojson.feature(boundary, boundary.objects[layerName]) as any;
     const features = fc.features as Array<{
       id: string;
-      properties?: { name?: string };
+      properties?: { name?: string; id?: string };
     }>;
+    // Normalize id at the feature level. Some boundary files (the
+    // DMV-tract and VA-block-group TopoJSONs we generated with
+    // mapshaper) carry the GEOID under properties.id instead of as
+    // a top-level id — topojson.feature() doesn't promote it for us,
+    // so values[f.id] would miss and the map would render with no
+    // colored regions. Promote here so the rest of paint() (and
+    // Plot's path data binding) can rely on f.id being the GEOID.
+    for (const f of features) {
+      if (!f.id && f.properties?.id) {
+        (f as { id: string }).id = f.properties.id;
+      }
+    }
     // Apply bbox clip if provided. We test whether ANY vertex of
     // each feature's polygon falls inside the bbox — that keeps the
     // tracts that straddle the edge of the bbox (which read more
@@ -682,6 +700,99 @@ const statesJoined = stateCodes.join(",");
       pendingEv = null;
       tooltip.style.display = "none";
     });
+
+    // Zoom: enabled for county-and-finer maps in the expanded /
+    // fullscreen dialog. State-level maps are already a single-
+    // screen view so zoom would be confusing; tiles stay non-zoom
+    // so a click-and-drag still passes through to the expand-tile
+    // click handler without ambiguity.
+    //
+    // Strategy: d3-zoom on the SVG element with a transform applied
+    // to Plot's geo <g> group only (NOT the color legend group).
+    // Mouse wheel zooms; click-and-drag pans; ctrl+= / ctrl+- / ctrl+0
+    // give keyboard control while the dialog is open.
+    //
+    // translateExtent is set to the SVG viewBox so pans hit the
+    // edges of the rendered area instead of wandering into empty
+    // space. scaleExtent caps zoom at 16× — beyond that, polygon
+    // rendering gets pixelated.
+    //
+    // vector-effect: non-scaling-stroke on the paths keeps the 0.3px
+    // boundary lines crisp at every zoom level (otherwise 16× zoom
+    // turns them into thick smudges).
+    if (b.geo !== "state" && mode !== "tile") {
+      const geoGroup = svg.querySelector<SVGGElement>('g[aria-label="geo"]');
+      if (geoGroup) {
+        // Apply non-scaling-stroke to every geo path. Plot doesn't
+        // expose a hook for this; the cheapest path is a one-shot
+        // attribute set after render.
+        geoGroup.querySelectorAll("path").forEach((p) =>
+          p.setAttribute("vector-effect", "non-scaling-stroke"),
+        );
+        const svgEl = svg as SVGSVGElement;
+        // ViewBox-aware translateExtent: pulled from the rendered
+        // SVG's viewBox so panning is bounded to actual content
+        // rather than an arbitrary [0, width]×[0, height] box.
+        let extentMinX = 0, extentMinY = 0;
+        let extentMaxX = (svgEl.viewBox?.baseVal?.width ?? 0) || svgEl.clientWidth;
+        let extentMaxY = (svgEl.viewBox?.baseVal?.height ?? 0) || svgEl.clientHeight;
+        if (svgEl.viewBox?.baseVal) {
+          extentMinX = svgEl.viewBox.baseVal.x;
+          extentMinY = svgEl.viewBox.baseVal.y;
+          extentMaxX = extentMinX + svgEl.viewBox.baseVal.width;
+          extentMaxY = extentMinY + svgEl.viewBox.baseVal.height;
+        }
+        const sel = d3select(svgEl);
+        const geoSel = d3select(geoGroup);
+        const zoom: ZoomBehavior<SVGSVGElement, unknown> = d3zoom<SVGSVGElement, unknown>()
+          .scaleExtent([1, 16])
+          .translateExtent([[extentMinX, extentMinY], [extentMaxX, extentMaxY]])
+          .filter((event: Event) => {
+            // Allow mouse wheel for zoom, drag for pan. Block right
+            // click + dblclick (the dblclick handler would interfere
+            // with the tile's click-to-expand if zoom were on tiles).
+            if (event.type === "wheel") return true;
+            if (event.type === "mousedown") {
+              return (event as MouseEvent).button === 0;
+            }
+            return event.type !== "dblclick";
+          })
+          .on("zoom", (event: { transform: ZoomTransform }) => {
+            geoSel.attr("transform", event.transform.toString());
+          });
+        sel.call(zoom);
+        // Stash the zoom binding on the canvas DOM node so the
+        // dialog-level keyboard shortcut + reset button can reach
+        // it. Using a hidden property avoids polluting the global
+        // namespace and survives multiple maps on the page.
+        (canvas as unknown as { __choroZoom?: unknown }).__choroZoom = {
+          zoom, sel,
+        };
+      }
+    }
+  }
+
+  // Programmatic-zoom helpers exposed for the dialog's keyboard
+  // shortcuts + reset button. They look up the zoom binding cached
+  // on the dialog canvas at paint time.
+  function getZoomCtx(canvas: HTMLElement | null) {
+    if (!canvas) return null;
+    return (canvas as unknown as {
+      __choroZoom?: {
+        zoom: ZoomBehavior<SVGSVGElement, unknown>;
+        sel: ReturnType<typeof d3select<SVGSVGElement, unknown>>;
+      };
+    }).__choroZoom ?? null;
+  }
+  function zoomScaleBy(canvas: HTMLElement, factor: number) {
+    const ctx = getZoomCtx(canvas);
+    if (!ctx) return;
+    ctx.sel.transition().duration(180).call(ctx.zoom.scaleBy, factor);
+  }
+  function zoomReset(canvas: HTMLElement) {
+    const ctx = getZoomCtx(canvas);
+    if (!ctx) return;
+    ctx.sel.transition().duration(200).call(ctx.zoom.transform, zoomIdentity);
   }
 
   function hydrateAll() {
@@ -751,6 +862,7 @@ const statesJoined = stateCodes.join(",");
             <span class="muted small">Color</span>
             <select class="choro-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
           </label>
+          <button type="button" class="choro-dialog-zoom-reset" aria-label="Reset zoom" title="Reset zoom (Ctrl+0)">⟲ Reset zoom</button>
           <button type="button" class="choro-dialog-fullscreen" aria-label="Toggle full screen">⤢ Full screen</button>
           <button type="button" class="choro-dialog-close" aria-label="Close">&times;</button>
         </div>
@@ -881,6 +993,44 @@ const statesJoined = stateCodes.join(",");
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       dialog!.classList.remove("choro-dialog-wide");
     });
+    // Reset-zoom button: returns the map to its initial scale +
+    // translate via the d3-zoom programmatic API. Visible only when
+    // there's a zoom binding active (county-and-finer); on state
+    // maps it would be a no-op so we hide it via classList.
+    const resetBtn = dialog.querySelector<HTMLButtonElement>(
+      ".choro-dialog-zoom-reset",
+    );
+    resetBtn?.addEventListener("click", () => {
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (dialogCanvas) zoomReset(dialogCanvas);
+    });
+    // Keyboard shortcuts while the dialog has focus:
+    //   Ctrl/Cmd + = / + → zoom in
+    //   Ctrl/Cmd + -     → zoom out
+    //   Ctrl/Cmd + 0     → reset
+    // We preventDefault so the browser's page-zoom shortcuts don't
+    // trigger (the user explicitly asked for those to be hijacked).
+    // Scoped to dialog.open so we don't capture the keys at other
+    // times in the page.
+    dialog.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (!dialogCanvas) return;
+      if (e.key === "=" || e.key === "+") {
+        e.preventDefault();
+        zoomScaleBy(dialogCanvas, 1.5);
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        zoomScaleBy(dialogCanvas, 1 / 1.5);
+      } else if (e.key === "0") {
+        e.preventDefault();
+        zoomReset(dialogCanvas);
+      }
+    });
     // Scheme picker: on change, persist the override for the chart
     // currently displayed in the dialog, then re-paint the dialog
     // canvas + the source tile so the user sees the new color
@@ -1010,6 +1160,15 @@ const statesJoined = stateCodes.join(",");
     if (sel) {
       const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
       sel.value = effectiveScheme(chartId, authorScheme);
+    }
+    // Reset-zoom button is only useful for county-and-finer maps —
+    // state maps don't get a zoom binding. Hide accordingly so the
+    // dialog header doesn't show a dead button.
+    const resetBtn = dialog.querySelector<HTMLButtonElement>(
+      ".choro-dialog-zoom-reset",
+    );
+    if (resetBtn) {
+      resetBtn.hidden = canvasSrc.dataset.geo === "state";
     }
     // Year slider: configure range from the tile's data-vintages.
     // Show only when there's more than one vintage to choose from —
@@ -1230,6 +1389,21 @@ const statesJoined = stateCodes.join(",");
     color: var(--color-neutral-700);
   }
   .choro-dialog-fullscreen:hover { background: var(--color-neutral-100); }
+  /* Reset-zoom button: same visual weight as fullscreen so the
+     dialog action row reads as a row of utility controls. Hidden
+     via [hidden] attr on state-level maps where there's no zoom
+     to reset. */
+  .choro-dialog-zoom-reset {
+    font-size: var(--text-xs);
+    background: transparent;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    cursor: pointer;
+    color: var(--color-neutral-700);
+  }
+  .choro-dialog-zoom-reset:hover { background: var(--color-neutral-100); }
+  .choro-dialog-zoom-reset[hidden] { display: none; }
   /* Color-scheme picker in the dialog actions row. Tightly styled so
      it doesn't dominate the dialog header — it's a refinement, not a
      primary action. */
