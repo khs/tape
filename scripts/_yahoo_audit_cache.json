@@ -1,0 +1,738 @@
+{
+  "AAPL": {
+    "instrumentType": "EQUITY",
+    "longName": "Apple Inc.",
+    "shortName": "Apple Inc."
+  },
+  "ADA-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Cardano USD",
+    "shortName": "Cardano USD"
+  },
+  "AIQ": {
+    "instrumentType": "ETF",
+    "longName": "Global X Artificial Intelligence & Technology ETF",
+    "shortName": "Global X Artificial Intelligenc"
+  },
+  "AMAT": {
+    "instrumentType": "EQUITY",
+    "longName": "Applied Materials, Inc.",
+    "shortName": "Applied Materials, Inc."
+  },
+  "AMD": {
+    "instrumentType": "EQUITY",
+    "longName": "Advanced Micro Devices, Inc.",
+    "shortName": "Advanced Micro Devices, Inc."
+  },
+  "AMT": {
+    "instrumentType": "EQUITY",
+    "longName": "American Tower Corporation",
+    "shortName": "American Tower Corporation (REI"
+  },
+  "AMZN": {
+    "instrumentType": "EQUITY",
+    "longName": "Amazon.com, Inc.",
+    "shortName": "Amazon.com, Inc."
+  },
+  "ARM": {
+    "instrumentType": "EQUITY",
+    "longName": "Arm Holdings plc",
+    "shortName": "Arm Holdings plc"
+  },
+  "ASML": {
+    "instrumentType": "EQUITY",
+    "longName": "ASML Holding N.V.",
+    "shortName": "ASML Holding N.V. - New York Re"
+  },
+  "AVAX-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Avalanche USD",
+    "shortName": "Avalanche USD"
+  },
+  "AVGO": {
+    "instrumentType": "EQUITY",
+    "longName": "Broadcom Inc.",
+    "shortName": "Broadcom Inc."
+  },
+  "BA": {
+    "instrumentType": "EQUITY",
+    "longName": "The Boeing Company",
+    "shortName": "Boeing Company (The)"
+  },
+  "BAC": {
+    "instrumentType": "EQUITY",
+    "longName": "Bank of America Corporation",
+    "shortName": "Bank of America Corporation"
+  },
+  "BNB-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "BNB USD",
+    "shortName": "BNB USD"
+  },
+  "BOTZ": {
+    "instrumentType": "ETF",
+    "longName": "Global X Robotics & Artificial Intelligence ETF",
+    "shortName": "Global X Robotics & Artificial "
+  },
+  "BRK-B": {
+    "instrumentType": "EQUITY",
+    "longName": "Berkshire Hathaway Inc.",
+    "shortName": "Berkshire Hathaway Inc. New"
+  },
+  "BTC-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Bitcoin USD",
+    "shortName": "Bitcoin USD"
+  },
+  "BZ=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Brent Crude Oil Last Day Financ"
+  },
+  "CAT": {
+    "instrumentType": "EQUITY",
+    "longName": "Caterpillar Inc.",
+    "shortName": "Caterpillar, Inc."
+  },
+  "CC=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Cocoa Sep 26"
+  },
+  "CEG": {
+    "instrumentType": "EQUITY",
+    "longName": "Constellation Energy Corporation",
+    "shortName": "Constellation Energy Corporatio"
+  },
+  "CL=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Crude Oil Jul 26"
+  },
+  "COIN": {
+    "instrumentType": "EQUITY",
+    "longName": "Coinbase Global, Inc.",
+    "shortName": "Coinbase Global, Inc."
+  },
+  "COST": {
+    "instrumentType": "EQUITY",
+    "longName": "Costco Wholesale Corporation",
+    "shortName": "Costco Wholesale Corporation"
+  },
+  "CRM": {
+    "instrumentType": "EQUITY",
+    "longName": "Salesforce, Inc.",
+    "shortName": "Salesforce, Inc."
+  },
+  "CSCO": {
+    "instrumentType": "EQUITY",
+    "longName": "Cisco Systems, Inc.",
+    "shortName": "Cisco Systems, Inc."
+  },
+  "CT=F": {
+    "instrumentType": "ALTSYMBOL",
+    "longName": "",
+    "shortName": "Cotton Mar 26"
+  },
+  "CVX": {
+    "instrumentType": "EQUITY",
+    "longName": "Chevron Corporation",
+    "shortName": "Chevron Corporation"
+  },
+  "DBA": {
+    "instrumentType": "ETF",
+    "longName": "Invesco DB Agriculture Fund",
+    "shortName": "Invesco DB Agriculture Fund"
+  },
+  "DBC": {
+    "instrumentType": "ETF",
+    "longName": "Invesco DB Commodity Index Tracking Fund",
+    "shortName": "Invesco DB Commodity Index Trac"
+  },
+  "DIA": {
+    "instrumentType": "ETF",
+    "longName": "State Street SPDR Dow Jones Industrial Average ETF Trust",
+    "shortName": "State Street SPDR Dow Jones Ind"
+  },
+  "DIS": {
+    "instrumentType": "EQUITY",
+    "longName": "The Walt Disney Company",
+    "shortName": "Walt Disney Company (The)"
+  },
+  "DLR": {
+    "instrumentType": "EQUITY",
+    "longName": "Digital Realty Trust, Inc.",
+    "shortName": "Digital Realty Trust, Inc."
+  },
+  "DOGE-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Dogecoin USD",
+    "shortName": "Dogecoin USD"
+  },
+  "DOT-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Polkadot USD",
+    "shortName": "Polkadot USD"
+  },
+  "DX-Y.NYB": {
+    "instrumentType": "INDEX",
+    "longName": "US Dollar Index",
+    "shortName": "ICE US Dollar Index - Index - C"
+  },
+  "EEM": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Emerging Markets ETF",
+    "shortName": "iShares MSCI Emerging Index Fun"
+  },
+  "EFA": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI EAFE ETF",
+    "shortName": "iShares MSCI EAFE ETF"
+  },
+  "EQIX": {
+    "instrumentType": "EQUITY",
+    "longName": "Equinix, Inc.",
+    "shortName": "Equinix, Inc."
+  },
+  "ETH-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Ethereum USD",
+    "shortName": "Ethereum USD"
+  },
+  "ETHA": {
+    "instrumentType": "ETF",
+    "longName": "iShares Ethereum Trust ETF",
+    "shortName": "iShares Ethereum Trust ETF"
+  },
+  "EURUSD": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "EWA": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Australia ETF",
+    "shortName": "iShares MSCI Australia Index Fu"
+  },
+  "EWC": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Canada ETF",
+    "shortName": "iShares MSCI Canada Index Fund"
+  },
+  "EWG": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Germany ETF",
+    "shortName": "iShares MSCI Germany Index Fund"
+  },
+  "EWJ": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Japan ETF",
+    "shortName": "iShares MSCI Japan Index Fund"
+  },
+  "EWU": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI United Kingdom ETF",
+    "shortName": "iShares MSCI"
+  },
+  "EWW": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Mexico ETF",
+    "shortName": "iShares MSCI Mexico ETF"
+  },
+  "EWY": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI South Korea ETF",
+    "shortName": "iShares MSCI South Korea ETF"
+  },
+  "EWZ": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI Brazil ETF",
+    "shortName": "iShares MSCI Brazil ETF"
+  },
+  "FBTC": {
+    "instrumentType": "ETF",
+    "longName": "Fidelity Wise Origin Bitcoin Fund",
+    "shortName": "Fidelity Wise Origin Bitcoin Fu"
+  },
+  "FXI": {
+    "instrumentType": "ETF",
+    "longName": "iShares China Large-Cap ETF",
+    "shortName": "iShares China Large-Cap ETF"
+  },
+  "GBPUSD": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "GC=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Gold Jun 26"
+  },
+  "GE": {
+    "instrumentType": "EQUITY",
+    "longName": "GE Aerospace",
+    "shortName": "GE Aerospace"
+  },
+  "GLD": {
+    "instrumentType": "ETF",
+    "longName": "SPDR\u00a0Gold Shares",
+    "shortName": "SPDR Gold Shares"
+  },
+  "GOOG": {
+    "instrumentType": "EQUITY",
+    "longName": "Alphabet Inc.",
+    "shortName": "Alphabet Inc."
+  },
+  "GS": {
+    "instrumentType": "EQUITY",
+    "longName": "The Goldman Sachs Group, Inc.",
+    "shortName": "Goldman Sachs Group, Inc. (The)"
+  },
+  "GSG": {
+    "instrumentType": "ETF",
+    "longName": "iShares S&P GSCI Commodity-Indexed Trust",
+    "shortName": "iShares GSCI Commodity-Indexed "
+  },
+  "HD": {
+    "instrumentType": "EQUITY",
+    "longName": "The Home Depot, Inc.",
+    "shortName": "Home Depot, Inc. (The)"
+  },
+  "HG=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Copper Jul 26"
+  },
+  "HO=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Heating Oil Jul 26"
+  },
+  "IBIT": {
+    "instrumentType": "ETF",
+    "longName": "iShares Bitcoin Trust ETF",
+    "shortName": "iShares Bitcoin Trust ETF"
+  },
+  "ICLN": {
+    "instrumentType": "ETF",
+    "longName": "iShares Global Clean Energy ETF",
+    "shortName": "iShares Global Clean Energy ETF"
+  },
+  "INDA": {
+    "instrumentType": "ETF",
+    "longName": "iShares MSCI India ETF",
+    "shortName": "Ishares MSCI India ETF"
+  },
+  "INTC": {
+    "instrumentType": "EQUITY",
+    "longName": "Intel Corporation",
+    "shortName": "Intel Corporation"
+  },
+  "IRM": {
+    "instrumentType": "EQUITY",
+    "longName": "Iron Mountain Incorporated",
+    "shortName": "Iron Mountain Incorporated (Del"
+  },
+  "IWB": {
+    "instrumentType": "ETF",
+    "longName": "iShares Russell 1000 ETF",
+    "shortName": "iShares Russell 1000 ETF"
+  },
+  "IWM": {
+    "instrumentType": "ETF",
+    "longName": "iShares Russell 2000 ETF",
+    "shortName": "iShares Russell 2000 Index Fund"
+  },
+  "JNJ": {
+    "instrumentType": "EQUITY",
+    "longName": "Johnson & Johnson",
+    "shortName": "Johnson & Johnson"
+  },
+  "JPM": {
+    "instrumentType": "EQUITY",
+    "longName": "JPMorgan Chase & Co.",
+    "shortName": "JP Morgan Chase & Co."
+  },
+  "KC=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Coffee Sep 26"
+  },
+  "KLAC": {
+    "instrumentType": "EQUITY",
+    "longName": "KLA Corporation",
+    "shortName": "KLA Corporation"
+  },
+  "KO": {
+    "instrumentType": "EQUITY",
+    "longName": "The Coca-Cola Company",
+    "shortName": "Coca-Cola Company (The)"
+  },
+  "LBR=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Lumber Futures,Jul-2026"
+  },
+  "LE=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Live Cattle Futures,Aug-2026"
+  },
+  "LINK-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Chainlink USD",
+    "shortName": "Chainlink USD"
+  },
+  "LLY": {
+    "instrumentType": "EQUITY",
+    "longName": "Eli Lilly and Company",
+    "shortName": "Eli Lilly and Company"
+  },
+  "LRCX": {
+    "instrumentType": "EQUITY",
+    "longName": "Lam Research Corporation",
+    "shortName": "Lam Research Corporation"
+  },
+  "LTC-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Litecoin USD",
+    "shortName": "Litecoin USD"
+  },
+  "MA": {
+    "instrumentType": "EQUITY",
+    "longName": "Mastercard Incorporated",
+    "shortName": "Mastercard Incorporated"
+  },
+  "MARA": {
+    "instrumentType": "EQUITY",
+    "longName": "MARA Holdings, Inc.",
+    "shortName": "MARA Holdings, Inc."
+  },
+  "MATIC-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Polygon USD",
+    "shortName": "Polygon USD"
+  },
+  "MCD": {
+    "instrumentType": "EQUITY",
+    "longName": "McDonald's Corporation",
+    "shortName": "McDonald's Corporation"
+  },
+  "META": {
+    "instrumentType": "EQUITY",
+    "longName": "Meta Platforms, Inc.",
+    "shortName": "Meta Platforms, Inc."
+  },
+  "MSFT": {
+    "instrumentType": "EQUITY",
+    "longName": "Microsoft Corporation",
+    "shortName": "Microsoft Corporation"
+  },
+  "MSTR": {
+    "instrumentType": "EQUITY",
+    "longName": "Strategy Inc",
+    "shortName": "Strategy Inc"
+  },
+  "NFLX": {
+    "instrumentType": "EQUITY",
+    "longName": "Netflix, Inc.",
+    "shortName": "Netflix, Inc."
+  },
+  "NG=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Natural Gas Jun 26"
+  },
+  "NRG": {
+    "instrumentType": "EQUITY",
+    "longName": "NRG Energy, Inc.",
+    "shortName": "NRG Energy, Inc."
+  },
+  "NVDA": {
+    "instrumentType": "EQUITY",
+    "longName": "NVIDIA Corporation",
+    "shortName": "NVIDIA Corporation"
+  },
+  "OJ=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Orange Juice Jul 26"
+  },
+  "ORCL": {
+    "instrumentType": "EQUITY",
+    "longName": "Oracle Corporation",
+    "shortName": "Oracle Corporation"
+  },
+  "PA=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Palladium Jun 26"
+  },
+  "PEP": {
+    "instrumentType": "EQUITY",
+    "longName": "PepsiCo, Inc.",
+    "shortName": "Pepsico, Inc."
+  },
+  "PFE": {
+    "instrumentType": "EQUITY",
+    "longName": "Pfizer Inc.",
+    "shortName": "Pfizer, Inc."
+  },
+  "PL=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Platinum Jul 26"
+  },
+  "PLD": {
+    "instrumentType": "EQUITY",
+    "longName": "Prologis, Inc.",
+    "shortName": "Prologis, Inc."
+  },
+  "QQQ": {
+    "instrumentType": "ETF",
+    "longName": "Invesco QQQ Trust",
+    "shortName": "Invesco QQQ Trust, Series 1"
+  },
+  "RB=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "RBOB Gasoline Jul 26"
+  },
+  "RIOT": {
+    "instrumentType": "EQUITY",
+    "longName": "Riot Platforms, Inc.",
+    "shortName": "Riot Platforms, Inc."
+  },
+  "ROBO": {
+    "instrumentType": "ETF",
+    "longName": "Robo Global Robotics and Automation Index ETF",
+    "shortName": "ROBO Global Robotics and Automa"
+  },
+  "SB=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Sugar #11 Jul 26"
+  },
+  "SHIB-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Shiba Inu USD",
+    "shortName": "Shiba Inu USD"
+  },
+  "SI=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Silver Jul 26"
+  },
+  "SLV": {
+    "instrumentType": "ETF",
+    "longName": "iShares Silver Trust",
+    "shortName": "iShares Silver Trust"
+  },
+  "SMCI": {
+    "instrumentType": "EQUITY",
+    "longName": "Super Micro Computer, Inc.",
+    "shortName": "Super Micro Computer, Inc."
+  },
+  "SMH": {
+    "instrumentType": "ETF",
+    "longName": "VanEck Semiconductor ETF",
+    "shortName": "VanEck Semiconductor ETF"
+  },
+  "SOL-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "Solana USD",
+    "shortName": "Solana USD"
+  },
+  "SOXX": {
+    "instrumentType": "ETF",
+    "longName": "iShares Semiconductor ETF",
+    "shortName": "iShares PHLX SOX Semiconductor "
+  },
+  "TAN": {
+    "instrumentType": "ETF",
+    "longName": "Invesco Solar ETF",
+    "shortName": "Invesco Solar ETF"
+  },
+  "TLN": {
+    "instrumentType": "EQUITY",
+    "longName": "Talen Energy Corporation",
+    "shortName": "Talen Energy Corporation"
+  },
+  "TRX-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "TRON USD",
+    "shortName": "TRON USD"
+  },
+  "TSLA": {
+    "instrumentType": "EQUITY",
+    "longName": "Tesla, Inc.",
+    "shortName": "Tesla, Inc."
+  },
+  "TSM": {
+    "instrumentType": "EQUITY",
+    "longName": "Taiwan Semiconductor Manufacturing Company Limited",
+    "shortName": "Taiwan Semiconductor Manufactur"
+  },
+  "UNH": {
+    "instrumentType": "EQUITY",
+    "longName": "UnitedHealth Group Incorporated",
+    "shortName": "UnitedHealth Group Incorporated"
+  },
+  "URA": {
+    "instrumentType": "ETF",
+    "longName": "Global X Uranium ETF",
+    "shortName": "Global X Uranium ETF"
+  },
+  "USDCAD": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "USDCNY": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "USDINR": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "USDJPY": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "USDMXN": {
+    "__error__": "yahoo error: {'code': 'Not Found', 'description': 'No data found, symbol may be delisted'}"
+  },
+  "USO": {
+    "instrumentType": "ETF",
+    "longName": "United States Oil Fund, LP",
+    "shortName": "United States Oil Fund"
+  },
+  "V": {
+    "instrumentType": "EQUITY",
+    "longName": "Visa Inc.",
+    "shortName": "Visa Inc."
+  },
+  "VEA": {
+    "instrumentType": "ETF",
+    "longName": "Vanguard FTSE Developed Markets Index Fund ETF Shares",
+    "shortName": "Vanguard FTSE Developed Markets"
+  },
+  "VNQ": {
+    "instrumentType": "ETF",
+    "longName": "Vanguard Real Estate Index Fund ETF Shares",
+    "shortName": "Vanguard Real Estate ETF"
+  },
+  "VST": {
+    "instrumentType": "EQUITY",
+    "longName": "Vistra Corp.",
+    "shortName": "Vistra Corp."
+  },
+  "VT": {
+    "instrumentType": "ETF",
+    "longName": "Vanguard Total World Stock Index Fund ETF Shares",
+    "shortName": "Vanguard Total World Stock Inde"
+  },
+  "VTI": {
+    "instrumentType": "ETF",
+    "longName": "Vanguard Total Stock Market Index Fund ETF Shares",
+    "shortName": "Vanguard Total Stock Market ETF"
+  },
+  "VWO": {
+    "instrumentType": "ETF",
+    "longName": "Vanguard Emerging Markets Stock Index Fund",
+    "shortName": "Vanguard FTSE Emerging Markets "
+  },
+  "WMT": {
+    "instrumentType": "EQUITY",
+    "longName": "Walmart Inc.",
+    "shortName": "Walmart Inc."
+  },
+  "XHB": {
+    "instrumentType": "ETF",
+    "longName": "State Street SPDR S&P Homebuilders ETF",
+    "shortName": "State Street SPDR S&P Homebuild"
+  },
+  "XHYT": {
+    "instrumentType": "ETF",
+    "longName": "BondBloxx US High Yield Telecom Media Technology Sector ETF",
+    "shortName": "BondBloxx USD High Yield Bond T"
+  },
+  "XLB": {
+    "instrumentType": "ETF",
+    "longName": "State Street Materials Select Sector SPDR ETF",
+    "shortName": "State Street Materials Select S"
+  },
+  "XLC": {
+    "instrumentType": "ETF",
+    "longName": "State Street Communication Services Select Sector SPDR ETF",
+    "shortName": "State Street Communication Serv"
+  },
+  "XLE": {
+    "instrumentType": "ETF",
+    "longName": "State Street Energy Select Sector SPDR ETF",
+    "shortName": "State Street Energy Select Sect"
+  },
+  "XLF": {
+    "instrumentType": "ETF",
+    "longName": "State Street Financial Select Sector SPDR ETF",
+    "shortName": "State Street Financial Select S"
+  },
+  "XLI": {
+    "instrumentType": "ETF",
+    "longName": "State Street Industrial Select Sector SPDR ETF",
+    "shortName": "State Street Industrial Select "
+  },
+  "XLK": {
+    "instrumentType": "ETF",
+    "longName": "State Street Technology Select Sector SPDR ETF",
+    "shortName": "State Street Technology Select "
+  },
+  "XLP": {
+    "instrumentType": "ETF",
+    "longName": "State Street Consumer Staples Select Sector SPDR ETF",
+    "shortName": "State Street Consumer Staples S"
+  },
+  "XLRE": {
+    "instrumentType": "ETF",
+    "longName": "State Street Real Estate Select Sector SPDR ETF",
+    "shortName": "State Street Real Estate Select"
+  },
+  "XLU": {
+    "instrumentType": "ETF",
+    "longName": "State Street Utilities Select Sector SPDR ETF",
+    "shortName": "State Street Utilities Select S"
+  },
+  "XLV": {
+    "instrumentType": "ETF",
+    "longName": "State Street Health Care Select Sector SPDR ETF",
+    "shortName": "State Street Health Care Select"
+  },
+  "XLY": {
+    "instrumentType": "ETF",
+    "longName": "State Street Consumer Discretionary Select Sector SPDR ETF",
+    "shortName": "State Street Consumer Discretio"
+  },
+  "XOM": {
+    "instrumentType": "EQUITY",
+    "longName": "Exxon Mobil Corporation",
+    "shortName": "Exxon Mobil Corporation"
+  },
+  "XOP": {
+    "instrumentType": "ETF",
+    "longName": "State Street SPDR S&P Oil & Gas Exploration & Production ETF",
+    "shortName": "State Street SPDR S&P Oil & Gas"
+  },
+  "XRP-USD": {
+    "instrumentType": "CRYPTOCURRENCY",
+    "longName": "XRP USD",
+    "shortName": "XRP USD"
+  },
+  "ZC=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Corn Futures,Jul-2026"
+  },
+  "ZS=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Soybean Futures,Jul-2026"
+  },
+  "ZW=F": {
+    "instrumentType": "FUTURE",
+    "longName": "",
+    "shortName": "Chicago SRW Wheat Futures,Jul-2"
+  }
+}

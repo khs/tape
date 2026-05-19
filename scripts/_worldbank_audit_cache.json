@@ -1,0 +1,21 @@
+{
+  "BX.KLT.DINV.WD.GD.ZS": "Foreign direct investment, net inflows (% of GDP)",
+  "EN.GHG.CO2.MT.CE.AR5": "Carbon dioxide (CO2) emissions (total) excluding LULUCF (Mt CO2e)",
+  "EN.GHG.CO2.PC.CE.AR5": "Carbon dioxide (CO2) emissions excluding LULUCF per capita (t CO2e/capita)",
+  "FI.RES.TOTL.CD": "Total reserves (includes gold, current US$)",
+  "FM.LBL.BMNY.GD.ZS": "Broad money (% of GDP)",
+  "FP.CPI.TOTL.ZG": "Inflation, consumer prices (annual %)",
+  "NE.EXP.GNFS.CD": "Exports of goods and services (current US$)",
+  "NE.IMP.GNFS.CD": "Imports of goods and services (current US$)",
+  "NV.AGR.TOTL.ZS": "Agriculture, forestry, and fishing, value added (% of GDP)",
+  "NV.IND.MANF.ZS": "Manufacturing, value added (% of GDP)",
+  "NV.IND.TOTL.ZS": "Industry (including construction), value added (% of GDP)",
+  "NV.SRV.TOTL.ZS": "Services, value added (% of GDP)",
+  "NY.GDP.MKTP.CD": "GDP (current US$)",
+  "NY.GDP.MKTP.KD": "GDP (constant 2015 US$)",
+  "NY.GDP.PCAP.CD": "GDP per capita (current US$)",
+  "PA.NUS.FCRF": "Official exchange rate (LCU per US$, period average)",
+  "SP.DYN.LE00.IN": "Life expectancy at birth, total (years)",
+  "SP.POP.TOTL": "Population, total",
+  "SP.URB.TOTL.IN.ZS": "Urban population (% of total population)"
+}
