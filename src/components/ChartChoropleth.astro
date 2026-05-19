@@ -165,6 +165,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
   <div
     class="choro-canvas"
     data-role="choro-canvas"
+    data-chart-id={chartId}
     data-data-url={dataFileUrl}
     data-boundary-url={boundaryUrl}
     data-geo={geo}
@@ -198,6 +199,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
   import * as topojson from "topojson-client";
 
   type ChoroBindings = {
+    chartId: string;
     dataUrl: string;
     boundaryUrl: string;
     geo: "state" | "county" | "tract" | "block-group";
@@ -209,6 +211,92 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     unit: string;
     decimals: number;
   };
+
+  // ---- Color scheme catalog ----
+  // The list users see in the dropdown. Sequential mono-hue ramps +
+  // two perceptually-uniform multi-hue options. Deliberately no
+  // rainbow / sinebow / turbo / spectral / rdylgn — those fail
+  // perceptual uniformity and/or colorblind accessibility (see the
+  // "Why no rainbow?" disclosure below).
+  //
+  // Order matches user preference: highest-priority on top.
+  type SchemeKey =
+    | "reds" | "greys" | "viridis" | "batlow"
+    | "blues" | "greens" | "oranges" | "purples";
+  interface SchemeEntry {
+    key: SchemeKey;
+    label: string;
+    // Either a Plot named scheme (string) or an explicit color stop
+    // array Plot will interpolate across via `range`. Plot ships
+    // most of these as named schemes; Batlow is vendored explicitly
+    // from Crameri's v8 scientific colour-map table.
+    plot: { scheme: string } | { range: string[] };
+  }
+  // Batlow 10-step sequential ramp from Crameri's published v8
+  // table. Perceptually-uniform multi-hue (dark navy → blue → green
+  // → yellow → orange → light beige). Crameri, F. (2018, v8.0.1):
+  //   https://www.fabiocrameri.ch/colourmaps/
+  // CC-BY-4.0; cite when published with these visuals.
+  const BATLOW_STOPS: string[] = [
+    "#011959", "#102d6a", "#1d4470", "#2b5b6c", "#3e7062",
+    "#5f8053", "#909046", "#c39c4a", "#e9aa66", "#f9c69a",
+  ];
+  const SCHEMES: SchemeEntry[] = [
+    { key: "reds",    label: "Red",     plot: { scheme: "reds" } },
+    { key: "greys",   label: "Grey",    plot: { scheme: "greys" } },
+    { key: "viridis", label: "Viridis", plot: { scheme: "viridis" } },
+    { key: "batlow",  label: "Batlow",  plot: { range: BATLOW_STOPS } },
+    { key: "blues",   label: "Blue",    plot: { scheme: "blues" } },
+    { key: "greens",  label: "Green",   plot: { scheme: "greens" } },
+    { key: "oranges", label: "Orange",  plot: { scheme: "oranges" } },
+    { key: "purples", label: "Purple",  plot: { scheme: "purples" } },
+  ];
+  function schemeByKey(key: string): SchemeEntry {
+    return SCHEMES.find((s) => s.key === key) ?? SCHEMES[0];
+  }
+
+  // ---- Per-chart scheme override (localStorage) ----
+  // Keyed by chart-id, so different charts on the same page keep
+  // their own picks. The author's chart YAML colorScheme is the
+  // default when no override exists. Multiple maps with different
+  // colors on the same page is the design goal — each user pick
+  // affects only the chart whose dialog produced it.
+  function lsKey(chartId: string): string {
+    return `tape.choro.${chartId}.scheme`;
+  }
+  function loadOverride(chartId: string): string | null {
+    try {
+      return localStorage.getItem(lsKey(chartId));
+    } catch {
+      return null;
+    }
+  }
+  function saveOverride(chartId: string, key: string): void {
+    try {
+      localStorage.setItem(lsKey(chartId), key);
+    } catch {
+      // localStorage blocked — the override is session-only.
+    }
+  }
+
+  // Returns the effective scheme key for a chart: user override if
+  // set, else the chart's author-specified default.
+  function effectiveScheme(chartId: string, authorScheme: string): SchemeKey {
+    const stored = loadOverride(chartId);
+    const known = SCHEMES.map((s) => s.key);
+    if (stored && (known as string[]).includes(stored)) {
+      return stored as SchemeKey;
+    }
+    // Author's colorScheme might be any Plot scheme name. If it
+    // happens to match one of our offered keys, use it; otherwise
+    // fall back to blues. We DO render the author's choice exactly
+    // on first paint via the data-color-scheme attr, but for the
+    // dropdown's "selected" state we round it to one of our 8.
+    if ((known as string[]).includes(authorScheme)) {
+      return authorScheme as SchemeKey;
+    }
+    return "blues";
+  }
 
   // Cache fetched boundary + values JSON across tiles on the same page
   // so a dashboard with N choropleths only does ONE boundary fetch.
@@ -309,18 +397,31 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     // viewport to its native 975×610.
     const width = mode === "expanded" ? 1000 : 620;
     const height = mode === "expanded" ? 620 : 360;
+    // Resolve the scheme: user override (if any) > chart author's
+    // colorScheme > Blues fallback. Plot's color spec accepts EITHER
+    // a named scheme string OR an explicit range[] of stops (which
+    // we need for Batlow, since Plot doesn't ship Batlow as a named
+    // scheme).
+    const sk = effectiveScheme(b.chartId, b.colorScheme);
+    const entry = schemeByKey(sk);
+    const colorSpec: Record<string, unknown> = {
+      type: b.colorScale,
+      domain: colorDomain,
+      legend: true,
+      label: b.valueLabel,
+    };
+    if ("scheme" in entry.plot) {
+      colorSpec.scheme = entry.plot.scheme;
+    } else {
+      colorSpec.range = entry.plot.range;
+      colorSpec.interpolate = "rgb";
+    }
     const plotSpec = {
       projection: "albers-usa",
       width,
       height,
       margin: 6,
-      color: {
-        type: b.colorScale,
-        scheme: b.colorScheme,
-        domain: colorDomain,
-        legend: true,
-        label: b.valueLabel,
-      },
+      color: colorSpec,
       marks: [
         Plot.geo(clipped, {
           fill: (d: any) => values[d.id] ?? null,
@@ -386,6 +487,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
       const mode = (canvas.dataset.mode === "expanded" ? "expanded" : "tile") as
         "tile" | "expanded";
       const b: ChoroBindings = {
+        chartId: canvas.dataset.chartId ?? "",
         dataUrl: canvas.dataset.dataUrl ?? "",
         boundaryUrl: canvas.dataset.boundaryUrl ?? "",
         geo: (canvas.dataset.geo ?? "county") as ChoroBindings["geo"],
@@ -423,6 +525,10 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     dialog = document.createElement("dialog");
     dialog.id = "choro-expand-dialog";
     dialog.className = "choro-dialog";
+    // Build the scheme-picker options HTML once.
+    const optsHtml = SCHEMES.map(
+      (s) => `<option value="${s.key}">${s.label}</option>`,
+    ).join("");
     dialog.innerHTML = `
       <header class="choro-dialog-header">
         <div class="choro-dialog-titles">
@@ -430,10 +536,36 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
           <p class="choro-dialog-eyebrow muted small"></p>
         </div>
         <div class="choro-dialog-actions">
+          <label class="choro-dialog-scheme">
+            <span class="muted small">Color</span>
+            <select class="choro-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
+          </label>
           <button type="button" class="choro-dialog-fullscreen" aria-label="Toggle full screen">⤢ Full screen</button>
           <button type="button" class="choro-dialog-close" aria-label="Close">&times;</button>
         </div>
       </header>
+      <details class="choro-dialog-why">
+        <summary>Why no rainbow?</summary>
+        <p>
+          Rainbow color maps look bright but mislead the reader. The
+          eye can't perceive equal steps of a value as equal steps in
+          color across a rainbow ramp — yellow regions visually pop
+          out, dim blues blur together — so a 60th-percentile region
+          can read as more extreme than an 85th-percentile one. The
+          effect is worse for the ~8% of men with red-green color
+          vision differences, who can't reliably order the yellow /
+          green / red bands at all. Mono-hue ramps preserve the
+          value's ordinal information; perceptually uniform multi-hue
+          (Viridis, Batlow) do so while still covering a wider color
+          gamut.
+        </p>
+        <p class="muted small">
+          Reference: Crameri, Shephard &amp; Heron,
+          <a href="https://doi.org/10.1038/s41467-020-19160-7"
+             target="_blank" rel="noopener">The misuse of colour in
+          science communication</a> (Nature Communications, 2020).
+        </p>
+      </details>
       <div class="choro-dialog-canvas-wrap"></div>
       <footer class="choro-dialog-footer">
         <p class="muted small choro-dialog-meta"></p>
@@ -464,6 +596,37 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
       if (wrap) wrap.innerHTML = "";
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     });
+    // Scheme picker: on change, persist the override for the chart
+    // currently displayed in the dialog, then re-paint the dialog
+    // canvas + the source tile so the user sees the new color
+    // immediately in both places.
+    const sel = dialog.querySelector<HTMLSelectElement>(
+      ".choro-dialog-scheme-select",
+    );
+    sel?.addEventListener("change", () => {
+      const chartId = dialog!.dataset.activeChartId;
+      if (!chartId || !sel.value) return;
+      saveOverride(chartId, sel.value);
+      // Re-paint dialog canvas in place.
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (dialogCanvas) {
+        dialogCanvas.removeAttribute("data-hydrated");
+        dialogCanvas.innerHTML = "";
+      }
+      // Re-paint the source tile canvas too — different charts on
+      // the page keep their own schemes, but the chart whose dialog
+      // we changed should update its tile in lockstep.
+      const tileCanvas = document.querySelector<HTMLElement>(
+        `[data-choro='1'][data-chart-id='${chartId}'] [data-role='choro-canvas']`,
+      );
+      if (tileCanvas) {
+        tileCanvas.removeAttribute("data-hydrated");
+        tileCanvas.innerHTML = "";
+      }
+      hydrateAll();
+    });
     return dialog;
   }
 
@@ -473,8 +636,19 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     const title = tile.querySelector<HTMLElement>(".chart-tile-title")?.textContent ?? "";
     const eyebrow = tile.querySelector<HTMLElement>(".choro-eyebrow")?.textContent ?? "";
     const dialog = ensureDialog();
+    const chartId = tile.dataset.chartId ?? "";
+    dialog.dataset.activeChartId = chartId;
     (dialog.querySelector(".choro-dialog-title") as HTMLElement).textContent = title;
     (dialog.querySelector(".choro-dialog-eyebrow") as HTMLElement).textContent = eyebrow;
+    // Pre-select the dropdown to the currently-effective scheme so
+    // the user sees their current choice (default OR override).
+    const sel = dialog.querySelector<HTMLSelectElement>(
+      ".choro-dialog-scheme-select",
+    );
+    if (sel) {
+      const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
+      sel.value = effectiveScheme(chartId, authorScheme);
+    }
     // Fresh canvas — copy the source tile's data-* attrs so the
     // expanded paint runs with identical bindings + mode=expanded.
     const wrap = dialog.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
@@ -650,6 +824,45 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     color: var(--color-neutral-700);
   }
   .choro-dialog-fullscreen:hover { background: var(--color-neutral-100); }
+  /* Color-scheme picker in the dialog actions row. Tightly styled so
+     it doesn't dominate the dialog header — it's a refinement, not a
+     primary action. */
+  .choro-dialog-scheme {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-xs);
+  }
+  .choro-dialog-scheme-select {
+    font-size: var(--text-xs);
+    background: var(--color-white);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 3px 8px;
+    color: var(--color-neutral-800);
+    cursor: pointer;
+  }
+  /* "Why no rainbow?" disclosure. Collapsed by default; expands
+     inline above the map. Reads as a sidebar note, not a primary
+     element of the dialog. */
+  .choro-dialog-why {
+    margin: 0 20px 8px;
+    color: var(--color-neutral-700);
+  }
+  .choro-dialog-why summary {
+    cursor: pointer;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+    user-select: none;
+  }
+  .choro-dialog-why summary:hover { color: var(--color-neutral-800); }
+  .choro-dialog-why p {
+    margin: 8px 0 0;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    max-width: 64ch;
+  }
+  .choro-dialog-why a { color: var(--color-accent); }
   .choro-dialog-close {
     font-size: 22px;
     line-height: 1;
