@@ -3957,7 +3957,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     shell.querySelectorAll<HTMLButtonElement>("[data-role='lib-tab']").forEach((btn) => {
       btn.addEventListener("click", () => {
         const tab = btn.dataset.tab as LibTab | undefined;
-        if (tab === "sources" || tab === "charts") setActiveLibTab(tab);
+        if (tab === "sources" || tab === "charts" || tab === "maps") {
+          setActiveLibTab(tab);
+        }
       });
     });
     const addSection = shell.querySelector<HTMLButtonElement>("[data-role='add-section']");
