@@ -1,0 +1,17 @@
+title: Adults 25+ with a bachelor's degree by census block group — VA-08 (2022)
+render: choropleth
+geo: block-group
+states: [VA]
+indicator: bachelors_plus_pct
+vintage: "2022"
+boundaryFile: /maps/va-block-groups-topo.json
+bbox: [-77.32, 38.78, -77.04, 38.97]
+colorScheme: blues
+colorScale: linear
+tags: [government, va-08, demographics, education]
+blurb: |
+  Block-group-level share of adults 25+ with a bachelor's degree
+  across VA-08, ACS 5-year ending 2022. Darker = higher attainment.
+  North Arlington single-family block groups push 90%+ — among the
+  highest in the country — while Route 7 corridor block groups in
+  Bailey's Crossroads run distinctly lower.

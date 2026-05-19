@@ -207,9 +207,11 @@ def _sum_pct_combine(vals: dict[str, float | None], numer_codes, denom_code):
 
 
 def fetch_acs(year: str, geo_spec: str, in_spec: str | None,
-              variables: list[str], api_key: str | None) -> list[list[str]]:
+              variables: list[str], api_key: str | None,
+              timeout: int = 180) -> list[list[str]]:
     """One Census ACS API call. Returns the raw 2D table (first row =
-    header). Empty list on failure."""
+    header). Empty list on failure. Default timeout 180s — block-group
+    state-wide responses can be 10MB+ on slow Census API days."""
     base = f"https://api.census.gov/data/{year}/acs/acs5"
     get = "NAME," + ",".join(variables)
     qs = [f"get={get}", f"for={geo_spec}"]
@@ -220,18 +222,55 @@ def fetch_acs(year: str, geo_spec: str, in_spec: str | None,
     url = f"{base}?{'&'.join(qs)}"
     try:
         result = subprocess.run(
-            ["curl", "-sS", "--max-time", "120", url],
+            ["curl", "-sS", "-L", "--max-time", str(timeout), url],
             capture_output=True, check=True, text=True,
         )
     except subprocess.CalledProcessError as e:
-        print(f"    curl failed: {e}", file=sys.stderr)
+        # Include first bit of stderr/stdout so workflow logs show
+        # WHY the call failed (timeout vs HTTP error vs DNS, etc.).
+        stderr_head = (e.stderr or "").strip()[:200]
+        stdout_head = (e.stdout or "").strip()[:200]
+        print(f"    curl failed (rc={e.returncode}) for {year} / {geo_spec}: "
+              f"{stderr_head} | {stdout_head}", file=sys.stderr)
         return []
+    body = result.stdout
     try:
-        return json.loads(result.stdout)
+        return json.loads(body)
     except json.JSONDecodeError:
-        # Census occasionally returns HTML error pages.
-        print(f"    bad JSON response for {year} / {geo_spec}", file=sys.stderr)
+        # Census occasionally returns HTML error pages (rate limit,
+        # missing key, server error). Show the head so we can tell.
+        head = body.strip()[:300].replace("\n", " ")
+        print(f"    bad JSON for {year} / {geo_spec}: {head}", file=sys.stderr)
         return []
+
+
+# Per-(state, vintage) county-FIPS list cache. Avoids re-querying the
+# same list during per-county block-group iteration across indicators.
+_COUNTIES_CACHE: dict[tuple[str, str], list[str]] = {}
+
+
+def list_counties(state_fips: str, vintage: str, api_key: str | None) -> list[str]:
+    """Return the 3-digit county FIPS list for a state at a vintage.
+    Cached per (state_fips, vintage)."""
+    key = (state_fips, vintage)
+    if key in _COUNTIES_CACHE:
+        return _COUNTIES_CACHE[key]
+    table = fetch_acs(
+        vintage, "county:*", f"state:{state_fips}",
+        ["B01001_001E"], api_key, timeout=60,
+    )
+    if not table or len(table) < 2:
+        _COUNTIES_CACHE[key] = []
+        return []
+    header = table[0]
+    try:
+        ci = header.index("county")
+    except ValueError:
+        _COUNTIES_CACHE[key] = []
+        return []
+    fips = sorted({row[ci] for row in table[1:] if row[ci]})
+    _COUNTIES_CACHE[key] = fips
+    return fips
 
 
 def geoid_from_row(geo: str, row: list[str], header: list[str]) -> str:
@@ -252,33 +291,12 @@ def geoid_from_row(geo: str, row: list[str], header: list[str]) -> str:
     raise ValueError(f"Unknown geo: {geo}")
 
 
-def fetch_indicator_vintage(
-    indicator: AcsIndicator,
-    vintage: str,
-    geo: str,
-    state_fips: str | None,
-    api_key: str | None,
+def _rows_to_values(
+    indicator: AcsIndicator, geo: str,
+    table: list[list[str]],
 ) -> dict[str, float]:
-    """Fetch one (indicator, vintage) at the given geo. Returns
-    {GEOID: value}. Empty dict on failure."""
-    # Build the for/in clauses per geo. tract + block_group require
-    # an `in` clause naming the state.
-    if geo == "state":
-        for_spec, in_spec = "state:*", None
-    elif geo == "county":
-        for_spec, in_spec = "county:*", "state:*"
-    elif geo == "tract":
-        if not state_fips:
-            raise ValueError("tract geo needs state_fips")
-        for_spec, in_spec = "tract:*", f"state:{state_fips}"
-    elif geo == "block_group":
-        if not state_fips:
-            raise ValueError("block_group geo needs state_fips")
-        for_spec, in_spec = "block group:*", f"state:{state_fips}+county:*"
-    else:
-        raise ValueError(f"Unknown geo: {geo}")
-
-    table = fetch_acs(vintage, for_spec, in_spec, indicator.variables, api_key)
+    """Convert a raw Census API table to {GEOID: value} for one
+    indicator + geo. Skips rows where the combine() returns None."""
     if not table or len(table) < 2:
         return {}
     header = table[0]
@@ -296,6 +314,96 @@ def fetch_indicator_vintage(
         result = indicator.combine(vals)
         if result is not None:
             out[geoid] = result
+    return out
+
+
+def fetch_indicator_vintage(
+    indicator: AcsIndicator,
+    vintage: str,
+    geo: str,
+    state_fips: str | None,
+    api_key: str | None,
+) -> dict[str, float]:
+    """Fetch one (indicator, vintage) at the given geo. Returns
+    {GEOID: value}. Empty dict on failure.
+
+    Block-group has a special path: we first try the state-wide
+    `county:*` wildcard (one big call), and if that returns nothing we
+    fall back to iterating counties one by one. The wildcard works on
+    recent ACS5 vintages but can time out, hit response-size limits,
+    or be rejected on older years — the per-county iteration is
+    slower but reliable."""
+    # Build the for/in clauses per geo. tract + block_group require
+    # an `in` clause naming the state.
+    if geo == "state":
+        for_spec, in_spec = "state:*", None
+    elif geo == "county":
+        for_spec, in_spec = "county:*", "state:*"
+    elif geo == "tract":
+        if not state_fips:
+            raise ValueError("tract geo needs state_fips")
+        for_spec, in_spec = "tract:*", f"state:{state_fips}"
+    elif geo == "block_group":
+        if not state_fips:
+            raise ValueError("block_group geo needs state_fips")
+        return _fetch_block_group_state(
+            indicator, vintage, state_fips, api_key,
+        )
+    else:
+        raise ValueError(f"Unknown geo: {geo}")
+
+    table = fetch_acs(vintage, for_spec, in_spec, indicator.variables, api_key)
+    return _rows_to_values(indicator, geo, table)
+
+
+def _fetch_block_group_state(
+    indicator: AcsIndicator,
+    vintage: str,
+    state_fips: str,
+    api_key: str | None,
+) -> dict[str, float]:
+    """Block-group fetcher with fast path + per-county fallback.
+
+    Fast path: one API call with `for=block group:*&in=state:NN+county:*`,
+    which the Census API supports on recent ACS5 vintages. If that
+    returns empty (rejected by API, timed out, or just had no rows),
+    we fall back to looping county FIPS one at a time. The per-county
+    path is slower (133 calls for VA) but works on every vintage and
+    won't get tripped up by per-call size limits."""
+    # Block-group state-wide responses are big (~10MB for VA across all
+    # vars). Bump timeout vs the default to give curl room.
+    fast = fetch_acs(
+        vintage, "block group:*", f"state:{state_fips}+county:*",
+        indicator.variables, api_key, timeout=300,
+    )
+    values = _rows_to_values(indicator, "block_group", fast)
+    if values:
+        return values
+
+    # Fast path failed — iterate counties. Use a separate cheap call
+    # to enumerate the county FIPS for this state at this vintage.
+    counties = list_counties(state_fips, vintage, api_key)
+    if not counties:
+        print(f"    block_group: no counties found for state {state_fips} / "
+              f"{vintage}, giving up", file=sys.stderr)
+        return {}
+    print(f"    block_group: fast path empty, iterating {len(counties)} counties",
+          flush=True)
+    out: dict[str, float] = {}
+    misses = 0
+    for cfips in counties:
+        table = fetch_acs(
+            vintage, "block group:*", f"state:{state_fips}+county:{cfips}",
+            indicator.variables, api_key, timeout=60,
+        )
+        per_county = _rows_to_values(indicator, "block_group", table)
+        if per_county:
+            out.update(per_county)
+        else:
+            misses += 1
+    if misses:
+        print(f"    block_group: {misses}/{len(counties)} counties returned no data",
+              file=sys.stderr)
     return out
 
 
