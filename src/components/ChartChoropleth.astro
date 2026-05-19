@@ -554,9 +554,20 @@ const statesJoined = stateCodes.join(",");
     // so values[f.id] would miss and the map would render with no
     // colored regions. Promote here so the rest of paint() (and
     // Plot's path data binding) can rely on f.id being the GEOID.
+    //
+    // Same trick for the display name: us-counties-2024-10m.json
+    // has the human name under properties.NAME (uppercase, from
+    // the cb_2024 Census file), our mapshaper-generated tract and
+    // block-group files have it under properties.name (lowercase).
+    // Normalize to properties.name so tooltips and titles can read
+    // one key regardless of boundary-file vintage.
     for (const f of features) {
-      if (!f.id && f.properties?.id) {
-        (f as { id: string }).id = f.properties.id;
+      const props = (f as { properties?: { id?: string; name?: string; NAME?: string } }).properties;
+      if (!f.id && props?.id) {
+        (f as { id: string }).id = props.id;
+      }
+      if (props && !props.name && props.NAME) {
+        props.name = props.NAME;
       }
     }
     // Apply bbox clip if provided. We test whether ANY vertex of
@@ -1389,7 +1400,13 @@ const statesJoined = stateCodes.join(",");
 
   /* ---- Click-to-expand dialog (native <dialog>) ---- */
   /* Browsers center <dialog> automatically when opened via
-     showModal(); they also paint a default ::backdrop. */
+     showModal(); they also paint a default ::backdrop.
+     overflow-y: auto + overscroll-behavior: contain together
+     give us scrollability for tall dialogs without letting the
+     dialog steal wheel events when the cursor is over the map —
+     d3-zoom relies on the wheel reaching the SVG to trigger
+     scroll-to-zoom. overscroll-behavior: contain stops the
+     scroll chain at the dialog boundary in either direction. */
   .choro-dialog {
     border: none;
     padding: 0;
@@ -1399,7 +1416,8 @@ const statesJoined = stateCodes.join(",");
     max-height: 92vh;
     width: min(1100px, 96vw);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
-    overflow: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .choro-dialog::backdrop {
     background: rgba(0, 0, 0, 0.45);
@@ -1543,8 +1561,20 @@ const statesJoined = stateCodes.join(",");
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Block wheel-as-scroll at the wrapper boundary so the SVG inside
+       owns all wheel events — d3-zoom captures them via preventDefault
+       on the SVG. Without this, wheel events near the edge of the
+       wrap bubble up to the scrollable dialog and the user scrolls
+       the dialog instead of zooming the map. */
+    overscroll-behavior: contain;
   }
-  .choro-canvas-expanded { width: 100%; }
+  .choro-canvas-expanded {
+    width: 100%;
+    /* touch-action: none routes trackpad pinch + two-finger pans to
+       d3-zoom instead of the browser's native page-zoom / scroll. */
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
   .choro-canvas-expanded svg { max-width: 100%; height: auto; }
   .choro-dialog-footer {
     padding: 8px 20px 16px;
