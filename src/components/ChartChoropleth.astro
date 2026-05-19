@@ -66,9 +66,9 @@ const dataFileRels: string[] =
     : stateCodes.map(
         (st) => `data/${dataDirSeg}/${st}/${indicator}_${vintage}.json`,
       );
-// First data file path used for the server-side summary read; the
-// client loads ALL paths in dataFileRels for the merged paint.
-const primaryDataFileRel = dataFileRels[0];
+// Client-facing data URLs. The server-side summary reads
+// dataFileRels directly off disk; the client fetches the URLs
+// version through choropleth-canvas's data-data-urls attr.
 const dataFileUrls = dataFileRels.map((r) => `/${r}`);
 
 // Year-slider discovery. Glob the data directory for sibling
@@ -770,15 +770,22 @@ const statesJoined = stateCodes.join(",");
     // boundary lines crisp at every zoom level (otherwise 16× zoom
     // turns them into thick smudges).
     if (b.geo !== "state" && mode !== "tile") {
-      const geoGroup = svg.querySelector<SVGGElement>('g[aria-label="geo"]');
+      // svg is typed `any` since it comes from Plot's untyped output
+      // (fig.querySelector("svg") returns Element | null but the
+      // surrounding chain leaks `any`). Assert once here so the
+      // d3-zoom + querySelector calls below stay strictly typed.
+      const svgEl = svg as SVGSVGElement;
+      const geoGroup = svgEl.querySelector<SVGGElement>(
+        'g[aria-label="geo"]',
+      );
       if (geoGroup) {
         // Apply non-scaling-stroke to every geo path. Plot doesn't
         // expose a hook for this; the cheapest path is a one-shot
         // attribute set after render.
-        geoGroup.querySelectorAll("path").forEach((p) =>
-          p.setAttribute("vector-effect", "non-scaling-stroke"),
+        geoGroup.querySelectorAll<SVGPathElement>("path").forEach(
+          (p: SVGPathElement) =>
+            p.setAttribute("vector-effect", "non-scaling-stroke"),
         );
-        const svgEl = svg as SVGSVGElement;
         // ViewBox-aware translateExtent: pulled from the rendered
         // SVG's viewBox so panning is bounded to actual content
         // rather than an arbitrary [0, width]×[0, height] box.
