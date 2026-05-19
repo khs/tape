@@ -1,0 +1,16 @@
+title: Bachelor's-or-higher share by census tract — Pennsylvania (2022)
+render: choropleth
+geo: tract
+states: [PA]
+indicator: bachelors_plus_pct
+vintage: "2022"
+boundaryFile: /maps/pa-tracts-topo.json
+colorScheme: blues
+colorScale: linear
+tags: [demographics, state-tract-map, bachelors-plus-pct, pa]
+blurb: |
+  Tract-level share of adults 25+ with at least a bachelor's degree. Darker blue = higher educational attainment. ACS 5-year ending 2022. The tract
+  boundary file is derived from Census TIGER 2024 tract shapes;
+  joined to ACS data on 11-digit GEOID. Click a tile to expand; the
+  expanded view supports zoom, pan, and a color-scheme picker for
+  alternative palettes.

@@ -1,0 +1,16 @@
+title: Median household income by census tract — Tennessee (2022)
+render: choropleth
+geo: tract
+states: [TN]
+indicator: median_hh_income
+vintage: "2022"
+boundaryFile: /maps/tn-tracts-topo.json
+colorScheme: greens
+colorScale: linear
+tags: [demographics, state-tract-map, median-hh-income, tn]
+blurb: |
+  Tract-level median pre-tax money income of the householder and other household members. Darker green = higher income. ACS 5-year ending 2022. The tract
+  boundary file is derived from Census TIGER 2024 tract shapes;
+  joined to ACS data on 11-digit GEOID. Click a tile to expand; the
+  expanded view supports zoom, pan, and a color-scheme picker for
+  alternative palettes.
