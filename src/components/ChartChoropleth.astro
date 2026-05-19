@@ -187,7 +187,56 @@ try {
       // partial map with the missing regions blank.
     }
   }
-  const vals = Object.values(mergedValues).filter(
+  // For tract / block-group charts with a bbox, the boundary file
+  // is pre-filtered to features whose bounding box intersects the
+  // chart's bbox — only those features actually get rendered on the
+  // client. To keep the eyebrow's count/range/median honest about
+  // what the user sees, restrict the stats to those features rather
+  // than reporting the full multi-state dataset.
+  let effectiveValues: Record<string, number> = mergedValues;
+  if (
+    (geo === "tract" || geo === "block-group") &&
+    chart.boundaryFile &&
+    chart.bbox
+  ) {
+    try {
+      const boundaryPath = join(
+        process.cwd(),
+        "public",
+        chart.boundaryFile.replace(/^\//, ""),
+      );
+      const boundaryRaw = await fs.readFile(boundaryPath, "utf-8");
+      const boundaryJson = JSON.parse(boundaryRaw) as {
+        objects: Record<
+          string,
+          { geometries?: Array<{ id?: string; properties?: { id?: string } }> }
+        >;
+      };
+      // Boundary IDs may live at top-level or under properties.id —
+      // mirror the renderer's normalization.
+      const boundaryIds = new Set<string>();
+      for (const layer of Object.values(boundaryJson.objects ?? {})) {
+        for (const g of layer.geometries ?? []) {
+          const id = g.id ?? g.properties?.id;
+          if (id) boundaryIds.add(id);
+        }
+      }
+      const filtered: Record<string, number> = {};
+      for (const [id, v] of Object.entries(mergedValues)) {
+        if (boundaryIds.has(id)) filtered[id] = v;
+      }
+      // Only swap in the filtered set if we actually got a non-empty
+      // intersection — otherwise fall through to the unfiltered set
+      // so a misconfigured boundaryFile doesn't accidentally blank
+      // the eyebrow.
+      if (Object.keys(filtered).length > 0) {
+        effectiveValues = filtered;
+      }
+    } catch {
+      // Boundary file unreadable — keep the unfiltered stats.
+    }
+  }
+  const vals = Object.values(effectiveValues).filter(
     (v): v is number => typeof v === "number" && Number.isFinite(v),
   );
   if (vals.length === 0) {
@@ -897,6 +946,7 @@ const statesJoined = stateCodes.join(",");
       <div class="choro-dialog-canvas-wrap"></div>
       <footer class="choro-dialog-footer">
         <p class="muted small choro-dialog-meta"></p>
+        <p class="muted small choro-dialog-zoom-hint" hidden>Scroll to zoom · drag to pan · Ctrl+0 to reset</p>
       </footer>
     `;
     document.body.appendChild(dialog);
@@ -1163,13 +1213,17 @@ const statesJoined = stateCodes.join(",");
     }
     // Reset-zoom button is only useful for county-and-finer maps —
     // state maps don't get a zoom binding. Hide accordingly so the
-    // dialog header doesn't show a dead button.
+    // dialog header doesn't show a dead button. Same hide-rule for
+    // the "scroll to zoom" hint in the footer.
     const resetBtn = dialog.querySelector<HTMLButtonElement>(
       ".choro-dialog-zoom-reset",
     );
-    if (resetBtn) {
-      resetBtn.hidden = canvasSrc.dataset.geo === "state";
-    }
+    const zoomHint = dialog.querySelector<HTMLElement>(
+      ".choro-dialog-zoom-hint",
+    );
+    const isStateLevel = canvasSrc.dataset.geo === "state";
+    if (resetBtn) resetBtn.hidden = isStateLevel;
+    if (zoomHint) zoomHint.hidden = isStateLevel;
     // Year slider: configure range from the tile's data-vintages.
     // Show only when there's more than one vintage to choose from —
     // a single-vintage indicator (or one with discovery failure)
@@ -1490,4 +1544,6 @@ const statesJoined = stateCodes.join(",");
     border-top: 1px solid rgba(55, 53, 47, 0.06);
   }
   .choro-dialog-footer p { margin: 0; }
+  .choro-dialog-zoom-hint { margin-top: 4px !important; opacity: 0.7; }
+  .choro-dialog-zoom-hint[hidden] { display: none; }
 </style>
