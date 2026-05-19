@@ -147,7 +147,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     <h3 class="chart-tile-title">{tileTitle}</h3>
     {summary && (
       <p class="choro-eyebrow muted small">
-        Vintage {vintage} · {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : "block groups"}
+        {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : "block groups"}
         {" · range "}
         {fmt(summary.min, summary.unit, summary.decimals)}
         {" – "}
@@ -407,60 +407,95 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
   }
 
   // ---- Click-to-expand ----
-  // Tile clicks open a full-screen modal with a bigger version of the
-  // same map. Reuses the SAME data + boundary fetches via the module-
-  // level caches, so the expansion is instant once the tile has
-  // painted. ESC + backdrop click + the X button all dismiss.
-  function buildExpandedModal(tile: HTMLElement) {
-    const canvasSrc = tile.querySelector<HTMLElement>("[data-role='choro-canvas']");
-    const title = tile.querySelector<HTMLElement>(".chart-tile-title")?.textContent ?? "";
-    const eyebrow = tile.querySelector<HTMLElement>(".choro-eyebrow")?.textContent ?? "";
-    if (!canvasSrc) return;
-    const backdrop = document.createElement("div");
-    backdrop.className = "choro-modal-backdrop";
-    const modal = document.createElement("div");
-    modal.className = "choro-modal";
-    modal.setAttribute("role", "dialog");
-    modal.setAttribute("aria-modal", "true");
-    modal.innerHTML = `
-      <header class="choro-modal-header">
-        <div>
-          <h3 class="choro-modal-title"></h3>
-          <p class="choro-modal-eyebrow muted small"></p>
+  //
+  // Behaves like the other dashboard chart tiles' click-to-expand —
+  // opens a native <dialog> with showModal(), so ESC dismisses for
+  // free and the focus trap is automatic. Inside the dialog: bigger
+  // version of the same map, a "Full screen" toggle, the metadata
+  // footer that used to clutter the tile.
+  //
+  // Click wiring uses document-level event delegation, which is the
+  // boring-and-correct shape: no per-tile setup ordering issues, no
+  // missed tiles that hydrated late, no double-bind risk on re-render.
+  function ensureDialog(): HTMLDialogElement {
+    let dialog = document.querySelector<HTMLDialogElement>("#choro-expand-dialog");
+    if (dialog) return dialog;
+    dialog = document.createElement("dialog");
+    dialog.id = "choro-expand-dialog";
+    dialog.className = "choro-dialog";
+    dialog.innerHTML = `
+      <header class="choro-dialog-header">
+        <div class="choro-dialog-titles">
+          <h3 class="choro-dialog-title"></h3>
+          <p class="choro-dialog-eyebrow muted small"></p>
         </div>
-        <button type="button" class="choro-modal-close" aria-label="Close">&times;</button>
+        <div class="choro-dialog-actions">
+          <button type="button" class="choro-dialog-fullscreen" aria-label="Toggle full screen">⤢ Full screen</button>
+          <button type="button" class="choro-dialog-close" aria-label="Close">&times;</button>
+        </div>
       </header>
-      <div class="choro-modal-canvas-wrap"></div>
-      <footer class="choro-modal-footer">
-        <p class="muted small choro-modal-meta"></p>
+      <div class="choro-dialog-canvas-wrap"></div>
+      <footer class="choro-dialog-footer">
+        <p class="muted small choro-dialog-meta"></p>
       </footer>
     `;
-    (modal.querySelector(".choro-modal-title") as HTMLElement).textContent = title;
-    (modal.querySelector(".choro-modal-eyebrow") as HTMLElement).textContent = eyebrow;
-    // Copy the data attributes from the tile canvas so the expanded
-    // canvas hydrates with the same bindings + a different mode.
+    document.body.appendChild(dialog);
+    // Backdrop click → close. <dialog> exposes the ::backdrop pseudo-
+    // element but its click target is the dialog itself; we detect
+    // by checking that the click landed on the dialog and not on a
+    // descendant.
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog!.close();
+    });
+    dialog.querySelector(".choro-dialog-close")?.addEventListener("click", () => {
+      dialog!.close();
+    });
+    dialog.querySelector(".choro-dialog-fullscreen")?.addEventListener("click", () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else {
+        dialog!.requestFullscreen().catch(() => {});
+      }
+    });
+    dialog.addEventListener("close", () => {
+      // Clear the canvas so re-opening doesn't show a stale map for
+      // a moment while the new one paints.
+      const wrap = dialog!.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
+      if (wrap) wrap.innerHTML = "";
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    });
+    return dialog;
+  }
+
+  function openExpanded(tile: HTMLElement) {
+    const canvasSrc = tile.querySelector<HTMLElement>("[data-role='choro-canvas']");
+    if (!canvasSrc) return;
+    const title = tile.querySelector<HTMLElement>(".chart-tile-title")?.textContent ?? "";
+    const eyebrow = tile.querySelector<HTMLElement>(".choro-eyebrow")?.textContent ?? "";
+    const dialog = ensureDialog();
+    (dialog.querySelector(".choro-dialog-title") as HTMLElement).textContent = title;
+    (dialog.querySelector(".choro-dialog-eyebrow") as HTMLElement).textContent = eyebrow;
+    // Fresh canvas — copy the source tile's data-* attrs so the
+    // expanded paint runs with identical bindings + mode=expanded.
+    const wrap = dialog.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
+    wrap.innerHTML = "";
     const expandedCanvas = document.createElement("div");
     expandedCanvas.className = "choro-canvas choro-canvas-expanded";
     expandedCanvas.setAttribute("data-role", "choro-canvas");
-    expandedCanvas.setAttribute("data-mode", "expanded");
     for (const attr of Array.from(canvasSrc.attributes)) {
-      if (attr.name === "data-mode") continue;
       if (attr.name === "class") continue;
       expandedCanvas.setAttribute(attr.name, attr.value);
     }
-    // Strip the "already hydrated" flag so paint() runs fresh.
+    expandedCanvas.setAttribute("data-mode", "expanded");
     expandedCanvas.removeAttribute("data-hydrated");
-    (modal.querySelector(".choro-modal-canvas-wrap") as HTMLElement).appendChild(
-      expandedCanvas,
-    );
-    // Footer metadata: pull the "Updated X" line we stripped from
-    // the tile. Read from the source data file's lastUpdated via
-    // values cache.
+    wrap.appendChild(expandedCanvas);
+    // Metadata footer: read the snapshot's vintage + lastUpdated.
+    // Values cache hits, so this is instant after the first paint.
     const dataUrl = canvasSrc.dataset.dataUrl ?? "";
     fetch(dataUrl)
       .then((r) => r.json())
       .then((j) => {
-        const meta = modal.querySelector(".choro-modal-meta") as HTMLElement;
+        const meta = dialog.querySelector(".choro-dialog-meta") as HTMLElement;
         const updated = j.lastUpdated
           ? new Date(j.lastUpdated).toLocaleDateString("en-US", {
               year: "numeric", month: "short", day: "numeric",
@@ -469,43 +504,34 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
         meta.textContent = `ACS 5-year · vintage ${j.vintage} · ${j.geo} level · updated ${updated}`;
       })
       .catch(() => {});
-    backdrop.appendChild(modal);
-    document.body.appendChild(backdrop);
-    // Hydrate the new canvas.
+    // Open BEFORE hydrating so the dialog's contentBoxes are
+    // measurable and Plot can size correctly.
+    if (typeof (dialog as HTMLDialogElement).showModal === "function") {
+      dialog.showModal();
+    } else {
+      // Very old browsers without <dialog>. The polyfill case is
+      // mostly safari-iOS-pre-15. Fall back to a plain open.
+      (dialog as unknown as { open: boolean }).open = true;
+    }
     hydrateAll();
-    // Dismiss handlers.
-    function close() {
-      backdrop.remove();
-      document.removeEventListener("keydown", onKey);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") close();
-    }
-    document.addEventListener("keydown", onKey);
-    backdrop.addEventListener("click", (e) => {
-      if (e.target === backdrop) close();
-    });
-    modal.querySelector(".choro-modal-close")?.addEventListener("click", close);
-  }
-
-  function wireExpansion() {
-    document.querySelectorAll<HTMLElement>("[data-choro='1']").forEach((tile) => {
-      if (tile.dataset.choroExpandWired === "1") return;
-      tile.dataset.choroExpandWired = "1";
-      tile.style.cursor = "zoom-in";
-      tile.addEventListener("click", (e) => {
-        // Don't expand if the click was on something inside the modal
-        // we're about to create (defensive).
-        const target = e.target as HTMLElement | null;
-        if (target?.closest(".choro-modal")) return;
-        buildExpandedModal(tile);
-      });
-    });
   }
 
   function init() {
     hydrateAll();
-    wireExpansion();
+    // Delegate clicks on choro tiles to the document, so we don't
+    // race the per-tile DOM-ready handler and don't miss tiles
+    // hydrated late (e.g. by routing or re-mounts).
+    document.addEventListener("click", (e) => {
+      const tile = (e.target as HTMLElement | null)?.closest<HTMLElement>(
+        "[data-choro='1']",
+      );
+      if (!tile) return;
+      // Ignore clicks that originated inside an already-open dialog
+      // (re-clicks on the expanded canvas shouldn't re-trigger
+      // the open).
+      if ((e.target as HTMLElement | null)?.closest(".choro-dialog")) return;
+      openExpanded(tile);
+    });
   }
 
   if (document.readyState === "loading") {
@@ -568,40 +594,63 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
   }
 
-  /* ---- Click-to-expand modal ---- */
-  .choro-modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 999;
-    padding: 24px;
-  }
-  .choro-modal {
+  /* ---- Click-to-expand dialog (native <dialog>) ---- */
+  /* Browsers center <dialog> automatically when opened via
+     showModal(); they also paint a default ::backdrop. */
+  .choro-dialog {
+    border: none;
+    padding: 0;
     background: var(--color-white);
     border-radius: var(--radius-md);
     max-width: min(1100px, 96vw);
     max-height: 92vh;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
+    width: min(1100px, 96vw);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+    overflow: auto;
   }
-  .choro-modal-header {
+  .choro-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .choro-dialog:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+  .choro-dialog-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
     padding: 16px 20px 8px;
   }
-  .choro-modal-title {
+  .choro-dialog-titles { flex: 1; min-width: 0; }
+  .choro-dialog-title {
     margin: 0;
     font-size: var(--text-base);
     font-weight: 600;
   }
-  .choro-modal-eyebrow {
+  .choro-dialog-eyebrow {
     margin: 4px 0 0;
   }
-  .choro-modal-close {
+  .choro-dialog-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .choro-dialog-fullscreen {
+    font-size: var(--text-xs);
+    background: transparent;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    cursor: pointer;
+    color: var(--color-neutral-700);
+  }
+  .choro-dialog-fullscreen:hover { background: var(--color-neutral-100); }
+  .choro-dialog-close {
     font-size: 22px;
     line-height: 1;
     background: transparent;
@@ -610,9 +659,8 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     padding: 4px 8px;
     color: var(--color-neutral-500);
   }
-  .choro-modal-close:hover { color: var(--color-neutral-900); }
-  .choro-modal-canvas-wrap {
-    flex: 1;
+  .choro-dialog-close:hover { color: var(--color-neutral-900); }
+  .choro-dialog-canvas-wrap {
     padding: 0 12px 12px;
     display: flex;
     align-items: center;
@@ -620,9 +668,9 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
   }
   .choro-canvas-expanded { width: 100%; }
   .choro-canvas-expanded svg { max-width: 100%; height: auto; }
-  .choro-modal-footer {
+  .choro-dialog-footer {
     padding: 8px 20px 16px;
     border-top: 1px solid rgba(55, 53, 47, 0.06);
   }
-  .choro-modal-footer p { margin: 0; }
+  .choro-dialog-footer p { margin: 0; }
 </style>
