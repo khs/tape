@@ -359,9 +359,10 @@ const statesJoined = stateCodes.join(",");
     data-data-dir-seg={dataDirSeg}
     data-vintages={vintagesJson}
     data-vintage={vintage}
+    data-skip-hydrate={summary ? undefined : "1"}
   >
-    {summary ? null : (
-      <p class="muted small">No data for this snapshot.</p>
+    {!summary && loadError && (
+      <p class="muted small">{loadError}</p>
     )}
   </div>
   {/*
@@ -693,12 +694,21 @@ const statesJoined = stateCodes.join(",");
     // Projection per geo level.
     //   • state / county: albers-usa puts Alaska + Hawaii in
     //     canonical insets at the bottom-left.
-    //   • tract / block-group: regular albers (no insets) fit to
-    //     whatever features remain after the bbox clip. The
-    //     subnational scales are always inside one contiguous
-    //     region, so insets just waste pixels.
-    const projection =
-      b.geo === "state" || b.geo === "county" ? "albers-usa" : "albers";
+    //   • tract / block-group: regular albers with an EXPLICIT
+    //     domain pointing at the clipped FeatureCollection.
+    //     Without the explicit domain, Plot's auto-fit for the
+    //     bare "albers" projection sometimes produced a viewport
+    //     with the DMV crammed into a sliver — visually that read
+    //     as a white tile because the actual polygons sat off the
+    //     visible canvas. Forcing the domain tells Plot to fit the
+    //     projection so the clipped features fill the canvas.
+    const projection: unknown =
+      b.geo === "state" || b.geo === "county"
+        ? "albers-usa"
+        : {
+            type: "albers",
+            domain: { type: "FeatureCollection", features: clipped },
+          };
     const plotSpec = {
       projection,
       width,
@@ -740,6 +750,19 @@ const statesJoined = stateCodes.join(",");
       return;
     }
     canvas.appendChild(fig);
+    // After-append diagnostic so the user (and us, if a bug-report
+    // screenshot doesn't include console output) can confirm the
+    // figure landed in the canvas with non-trivial dimensions. If
+    // this logs "0 × 0" the issue is layout/sizing, not Plot.
+    const svgChild = fig.querySelector?.("svg") as SVGSVGElement | null;
+    const svgW = svgChild?.clientWidth ?? 0;
+    const svgH = svgChild?.clientHeight ?? 0;
+    if (svgW === 0 || svgH === 0) {
+      console.warn(
+        `[choropleth] ${b.chartId}: rendered svg has zero size ` +
+        `(${svgW}×${svgH}) — features=${clipped.length}, values=${obs.length}`,
+      );
+    }
     // Tooltip on hover. Performance-tuned because the chart can carry
     // thousands of <path> elements (3,143 counties, ~74k tracts) and
     // a naive mousemove handler that runs `closest("path")` plus DOM
@@ -951,6 +974,14 @@ const statesJoined = stateCodes.join(",");
     canvases.forEach((canvas) => {
       if (canvas.dataset.hydrated === "1") return;
       canvas.dataset.hydrated = "1";
+      // When the server side already determined that no data file
+      // was readable for this chart (typically: chart was added
+      // after the last workflow run, the underlying data hasn't
+      // been fetched yet), bail out without trying to client-fetch.
+      // Otherwise the client request would 404 and overwrite the
+      // helpful "data not yet fetched" eyebrow message with a
+      // cryptic "values …json: 404" error.
+      if (canvas.dataset.skipHydrate === "1") return;
       // Three render sizes: tile (dashboard thumbnail), expanded
       // (dialog default), fullscreen (CSS-wide dialog). Previously
       // narrowed to two and "fullscreen" silently fell through to
