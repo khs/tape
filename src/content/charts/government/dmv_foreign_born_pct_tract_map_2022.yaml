@@ -1,4 +1,4 @@
-title: Foreign-born share by census tract — DC metro (2022)
+title: Foreign-born share by census tract — DC metro area (2022)
 render: choropleth
 geo: tract
 states: [VA, MD, DC]
