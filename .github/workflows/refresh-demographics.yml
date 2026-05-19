@@ -123,6 +123,11 @@ jobs:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         run: python pipelines/census_acs_choropleth.py --geo tract --state DC
 
+      # Block-group fetch for VA. continue-on-error is kept so a
+      # BG-only failure doesn't block the tract+county commit, but
+      # the pipeline itself now exits non-zero AND prints a loud
+      # ##[error] line so the workflow log surfaces the failure
+      # at top-level instead of being buried in stdout.
       - name: Refresh ACS choropleth snapshots (block_group, VA)
         continue-on-error: true
         env:

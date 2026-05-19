@@ -860,8 +860,35 @@ const statesJoined = stateCodes.join(",");
       // since the runtime element IS an SVG; TypeScript just lost
       // that info through the earlier HTMLElement cast.
       const svgEl = svg as unknown as SVGSVGElement;
-      const geoGroup = svgEl.querySelector<SVGGElement>(
-        'g[aria-label="geo"]',
+      // Try multiple selectors for the geo group: Plot 0.6 uses
+      // `aria-label="geo"` for `Plot.geo()`, but the wrapping
+      // structure varies with `legend:true` + future Plot updates
+      // could change the attribute. Fall back to "first <g> with
+      // <path> children other than the legend swatches" so a Plot
+      // version bump doesn't silently break zoom.
+      let geoGroup: SVGGElement | null =
+        svgEl.querySelector<SVGGElement>('g[aria-label="geo"]');
+      if (!geoGroup) {
+        // Find first g with paths that isn't a legend.
+        const groups = svgEl.querySelectorAll<SVGGElement>("g");
+        for (const g of Array.from(groups)) {
+          if (g.querySelectorAll("path").length === 0) continue;
+          const label = (g.getAttribute("aria-label") ?? "").toLowerCase();
+          if (label.includes("legend") || label.includes("swatch")) continue;
+          geoGroup = g;
+          break;
+        }
+      }
+      // Diagnostic so a screenshot of devtools tells us whether
+      // zoom failed to set up vs. failed to fire. Logs once per
+      // paint at info-level — quieter than warn — so it shows in
+      // the console without polluting production logs.
+      console.info(
+        `[choropleth] ${b.chartId} (${b.geo}, mode=${mode}): ` +
+        `zoom setup ${geoGroup ? "starting" : "SKIPPED (no geo group found)"}; ` +
+        `figure=${(fig as HTMLElement).tagName}, svg=${svgEl.tagName}, ` +
+        `groups=${svgEl.querySelectorAll("g").length}, ` +
+        `g-aria-labels=[${[...svgEl.querySelectorAll("g")].map(g => g.getAttribute("aria-label")).join("|")}]`,
       );
       if (geoGroup) {
         // Apply non-scaling-stroke to every geo path. Plot doesn't
@@ -958,12 +985,26 @@ const statesJoined = stateCodes.join(",");
   }
   function zoomScaleBy(canvas: HTMLElement, factor: number) {
     const ctx = getZoomCtx(canvas);
-    if (!ctx) return;
+    if (!ctx) {
+      console.warn(
+        "[choropleth] zoomScaleBy: no __choroZoom on canvas — " +
+        "zoom block didn't run during paint(). data-geo=" +
+        canvas.dataset.geo + ", mode=" + canvas.dataset.mode,
+      );
+      return;
+    }
     ctx.sel.transition().duration(180).call(ctx.zoom.scaleBy, factor);
   }
   function zoomReset(canvas: HTMLElement) {
     const ctx = getZoomCtx(canvas);
-    if (!ctx) return;
+    if (!ctx) {
+      console.warn(
+        "[choropleth] zoomReset: no __choroZoom on canvas — " +
+        "zoom block didn't run during paint(). data-geo=" +
+        canvas.dataset.geo + ", mode=" + canvas.dataset.mode,
+      );
+      return;
+    }
     ctx.sel.transition().duration(200).call(ctx.zoom.transform, zoomIdentity);
   }
 

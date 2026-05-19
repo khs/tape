@@ -372,6 +372,18 @@ def _fetch_block_group_state(
     won't get tripped up by per-call size limits."""
     # Block-group state-wide responses are big (~10MB for VA across all
     # vars). Bump timeout vs the default to give curl room.
+    if not api_key:
+        # block_group without an API key is hopeless — Census 302s
+        # every request to its "Missing Key" HTML page. Log loudly so
+        # the workflow operator sees this in the top-level error
+        # summary instead of via per-attempt "(no data)" spam.
+        print(
+            f"::error::block_group fetches require CENSUS_API_KEY but "
+            f"none is set. Add it to the repo secrets (used by the "
+            f"refresh-demographics workflow) and re-run.",
+            file=sys.stderr,
+        )
+        return {}
     fast = fetch_acs(
         vintage, "block group:*", f"state:{state_fips}+county:*",
         indicator.variables, api_key, timeout=300,
@@ -383,9 +395,17 @@ def _fetch_block_group_state(
     # Fast path failed — iterate counties. Use a separate cheap call
     # to enumerate the county FIPS for this state at this vintage.
     counties = list_counties(state_fips, vintage, api_key)
+    print(f"    block_group: fast path returned 0 rows; falling back to "
+          f"per-county iteration ({len(counties)} counties)",
+          file=sys.stderr, flush=True)
     if not counties:
-        print(f"    block_group: no counties found for state {state_fips} / "
-              f"{vintage}, giving up", file=sys.stderr)
+        print(f"::error::block_group: no counties found for state "
+              f"{state_fips} / {vintage} — list_counties returned empty. "
+              f"Likely the CENSUS_API_KEY is set but invalid, or Census "
+              f"changed an endpoint shape. Try `python pipelines/"
+              f"census_acs_choropleth.py --geo county` to see if county-"
+              f"level fetches also fail.",
+              file=sys.stderr)
         return {}
     print(f"    block_group: fast path empty, iterating {len(counties)} counties",
           flush=True)
@@ -480,9 +500,12 @@ def main() -> int:
         state_targets = [(None, None)]
 
     total_files = 0
+    attempts = 0
+    no_data_count = 0
     for indicator in selected:
         for vintage in vintages:
             for state_code, state_fips in state_targets:
+                attempts += 1
                 where = state_code or "US"
                 print(f"  {args.geo}/{where} / {indicator.out_id} / {vintage}... ",
                       end="", flush=True)
@@ -492,15 +515,43 @@ def main() -> int:
                     )
                 except Exception as e:
                     print(f"error: {e}")
+                    no_data_count += 1
                     continue
                 if not values:
                     print("(no data)")
+                    no_data_count += 1
                     continue
                 path = write_snapshot(indicator, args.geo, vintage, values,
                                       state_code=state_code)
                 print(f"{len(values)} regions → {path.relative_to(ROOT)}")
                 total_files += 1
     print(f"\nWrote {total_files} snapshot file(s).")
+    # Loud failure path: if EVERY attempt returned empty, the
+    # likely cause is a missing/invalid CENSUS_API_KEY for the
+    # endpoint (block_group requires it; the public anon endpoint
+    # 302-redirects to "Missing Key" HTML which we parse-fail).
+    # Print a GitHub-Actions-readable error annotation so the
+    # workflow log surfaces this at top-level rather than buried in
+    # the per-attempt "(no data)" spam.
+    if attempts > 0 and total_files == 0:
+        print(
+            f"\n::error::All {attempts} fetches for "
+            f"--geo {args.geo}" + (f" --state {args.state}" if args.state else "")
+            + f" returned no data. Likely CENSUS_API_KEY missing or "
+            f"invalid (this endpoint requires one; without it FRED's "
+            f"CSV-style anon endpoint 302s to a 'Missing Key' HTML "
+            f"page that fails JSON parse). Set the CENSUS_API_KEY "
+            f"secret in the repo's Actions settings + re-run.",
+            file=sys.stderr,
+        )
+        return 1
+    if attempts > 0 and no_data_count > attempts * 0.5:
+        print(
+            f"\n::warning::{no_data_count}/{attempts} fetches returned "
+            f"no data — partial coverage. Review the per-attempt log "
+            f"above for the failure pattern.",
+            file=sys.stderr,
+        )
     return 0
 
 
