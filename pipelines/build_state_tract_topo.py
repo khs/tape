@@ -1,26 +1,29 @@
 """
-Per-state tract TopoJSON generator.
+Per-state Census TIGER -> TopoJSON generator.
 
 Background
 ----------
 The choropleth renderer takes a boundaryFile path per chart and joins
-ACS values onto the topology by 11-digit GEOID. We started with a
-multi-state DMV bundle (VA + MD + DC) but the user has since asked for
-tract-level coverage of every state. Rather than ship one giant
-nation-wide topology (~50 MB, too heavy for client-side fetch), we
-generate one file per state, each ~100 KB - 3 MB depending on tract
-count. Each chart loads only the topology it needs.
+ACS values onto the topology by GEOID. We started with a multi-state
+DMV tract bundle (VA + MD + DC) and a VA-only block-group file, but
+the user has since asked for tract- AND BG-level coverage of every
+state. Rather than ship one giant nation-wide topology (~50 MB for
+tracts, ~250 MB for block groups, too heavy for client-side fetch),
+we generate one file per (state, geo) pair. Each chart loads only
+the topology it needs.
 
 Source
 ------
-US Census TIGER/Line tract shapefiles, one zip per state:
-  https://www2.census.gov/geo/tiger/TIGER<YEAR>/TRACT/tl_<YEAR>_<FIPS>_tract.zip
+US Census TIGER/Line shapefiles, one zip per state per geography:
+  TRACT: https://www2.census.gov/geo/tiger/TIGER<Y>/TRACT/tl_<Y>_<FIPS>_tract.zip
+  BG:    https://www2.census.gov/geo/tiger/TIGER<Y>/BG/tl_<Y>_<FIPS>_bg.zip
 
-Output schema (matches the bundled dmv-tracts-topo.json):
-  objects.tracts.geometries[i] = {
+Output schema (matches the existing dmv-tracts-topo / va-block-groups
+files):
+  objects.{tracts|block_groups}.geometries[i] = {
     type: "Polygon" | "MultiPolygon",
-    id: "<11-digit GEOID>",
-    properties: { name: "Census Tract X.Y" },
+    id: "<11-digit (tract) or 12-digit (BG) GEOID>",
+    properties: { name: "Census Tract X.Y" or "Block Group N..." },
     arcs: [...]
   }
 
@@ -39,8 +42,9 @@ that's already been fetched skips the download.
 
 Run
 ---
-  python pipelines/build_state_tract_topo.py --state CA
-  python pipelines/build_state_tract_topo.py --state all
+  python pipelines/build_state_tract_topo.py --state CA --geo tract
+  python pipelines/build_state_tract_topo.py --state all --geo tract
+  python pipelines/build_state_tract_topo.py --state all --geo block_group
   python pipelines/build_state_tract_topo.py --state DE --simplify 30
 """
 from __future__ import annotations
@@ -57,10 +61,40 @@ ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "public" / "maps"
 CACHE_DIR = ROOT / "pipelines" / "_tract_topo_cache"
 
-# TIGER vintage. Bump when the user wants tract boundaries from a
-# different vintage; the file naming convention is stable.
+# TIGER vintage. Bump when the user wants boundaries from a different
+# vintage; the file naming convention is stable across years.
 TIGER_YEAR = 2024
-TIGER_BASE = f"https://www2.census.gov/geo/tiger/TIGER{TIGER_YEAR}/TRACT"
+TIGER_ROOT = f"https://www2.census.gov/geo/tiger/TIGER{TIGER_YEAR}"
+
+
+def tiger_url(geo: str, fips: str) -> str:
+    """Build the TIGER zip URL for a (geo, state) pair."""
+    if geo == "tract":
+        return f"{TIGER_ROOT}/TRACT/tl_{TIGER_YEAR}_{fips}_tract.zip"
+    if geo == "block_group":
+        # BG zips are under /BG/ with a "_bg" stem.
+        return f"{TIGER_ROOT}/BG/tl_{TIGER_YEAR}_{fips}_bg.zip"
+    raise ValueError(f"Unknown geo: {geo}")
+
+
+def geo_layer_name(geo: str) -> str:
+    """Topojson layer name the renderer looks for. tract -> 'tracts',
+    block_group -> 'block_groups' (per ChartChoropleth.astro)."""
+    return {"tract": "tracts", "block_group": "block_groups"}[geo]
+
+
+def geo_file_stem(geo: str) -> str:
+    """Per-geo output-filename stem. Matches the existing files:
+    <st>-tracts-topo.json and <st>-block-groups-topo.json."""
+    return {"tract": "tracts", "block_group": "block-groups"}[geo]
+
+
+def shapefile_stem(geo: str, fips: str) -> str:
+    """Inner-shapefile name (varies by geo)."""
+    return {
+        "tract": f"tl_{TIGER_YEAR}_{fips}_tract",
+        "block_group": f"tl_{TIGER_YEAR}_{fips}_bg",
+    }[geo]
 
 # 50 states + DC, matching pipelines/census_acs_choropleth.py.
 STATE_FIPS: dict[str, str] = {
@@ -78,23 +112,24 @@ STATE_FIPS: dict[str, str] = {
 }
 
 
-def fetch_zip(fips: str) -> Path:
-    """Download a state's TIGER tract zip into the local cache."""
+def fetch_zip(geo: str, fips: str) -> Path:
+    """Download a state's TIGER zip (tract or BG) into the local cache."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    out = CACHE_DIR / f"tl_{TIGER_YEAR}_{fips}_tract.zip"
+    out = CACHE_DIR / f"{shapefile_stem(geo, fips)}.zip"
     if not out.exists():
-        url = f"{TIGER_BASE}/tl_{TIGER_YEAR}_{fips}_tract.zip"
+        url = tiger_url(geo, fips)
         print(f"  fetching {url}", flush=True)
         urlretrieve(url, out)
     return out
 
 
-def extract_shapefile(zip_path: Path, fips: str) -> Path:
+def extract_shapefile(zip_path: Path, geo: str, fips: str) -> Path:
     """Extract the shapefile + supporting files (shx, dbf, prj, cpg)
     from the zip. mapshaper needs all of them in the same directory
     even if we pass only the .shp path."""
-    extract_dir = CACHE_DIR / f"tl_{TIGER_YEAR}_{fips}_tract"
-    shp = extract_dir / f"tl_{TIGER_YEAR}_{fips}_tract.shp"
+    stem = shapefile_stem(geo, fips)
+    extract_dir = CACHE_DIR / stem
+    shp = extract_dir / f"{stem}.shp"
     if not shp.exists():
         extract_dir.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(zip_path) as z:
@@ -102,24 +137,27 @@ def extract_shapefile(zip_path: Path, fips: str) -> Path:
     return shp
 
 
-def make_topo(state_code: str, fips: str, simplify_pct: int = 10) -> Path:
-    """Convert one state's TIGER tract shapefile to TopoJSON.
+def make_topo(state_code: str, fips: str, geo: str,
+              simplify_pct: int = 10) -> Path:
+    """Convert one state's TIGER shapefile (tract OR block group) to
+    TopoJSON in the schema the renderer expects.
 
     Mapshaper pipeline:
       1. read the shapefile
-      2. simplify with `keep-shapes` so tiny polygons (small tracts)
-         don't get reduced to zero-area
+      2. simplify with `keep-shapes` so tiny polygons (small tracts /
+         BGs) don't get reduced to zero-area
       3. drop every attribute except GEOID + NAMELSAD
-      4. promote GEOID to the geometry's `id` field and copy NAMELSAD
-         to ``properties.name`` to match the existing
-         ``dmv-tracts-topo.json`` schema
-      5. rename the layer to "tracts" (renderer looks for this name)
-      6. emit topojson
+      4. copy NAMELSAD into a `name` field; the renderer reads
+         ``properties.name`` for the hover tooltip
+      5. rename the layer (tracts | block_groups)
+      6. emit topojson, promoting GEOID to geometry.id via id-field=GEOID
     """
-    zip_path = fetch_zip(fips)
-    shp = extract_shapefile(zip_path, fips)
+    zip_path = fetch_zip(geo, fips)
+    shp = extract_shapefile(zip_path, geo, fips)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUTPUT_DIR / f"{state_code.lower()}-tracts-topo.json"
+    out_path = OUTPUT_DIR / (
+        f"{state_code.lower()}-{geo_file_stem(geo)}-topo.json"
+    )
     # On Windows, the npm-installed `mapshaper` is a Unix shim with no
     # .exe/.cmd association; subprocess.run can't launch it directly.
     # shutil.which resolves to mapshaper.cmd on Windows and the plain
@@ -135,10 +173,9 @@ def make_topo(state_code: str, fips: str, simplify_pct: int = 10) -> Path:
         "-filter-fields", "GEOID,NAMELSAD",
         "-each", "name = NAMELSAD",
         "-filter-fields", "GEOID,name",
-        "-rename-layers", "tracts",
+        "-rename-layers", geo_layer_name(geo),
         # `id-field=GEOID` promotes the GEOID property to topojson's
-        # top-level geometry.id, then drops it from properties. The
-        # renderer joins on geometry.id, so this is the shape we need.
+        # top-level geometry.id. The renderer joins on geometry.id.
         "-o", "format=topojson", "id-field=GEOID", str(out_path),
     ]
     print(f"  mapshaper -> {out_path.relative_to(ROOT)}", flush=True)
@@ -151,6 +188,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--state", default="all",
         help="Two-letter state code, or 'all' to do every state + DC.",
+    )
+    ap.add_argument(
+        "--geo", default="tract", choices=["tract", "block_group"],
+        help=(
+            "Geography level: 'tract' (11-digit GEOID, ~5k features per "
+            "state) or 'block_group' (12-digit GEOID, ~5x more features "
+            "per state). Output filename suffix differs accordingly: "
+            "<st>-tracts-topo.json vs <st>-block-groups-topo.json."
+        ),
     )
     ap.add_argument(
         "--simplify", type=int, default=10,
@@ -175,9 +221,9 @@ def main(argv: list[str] | None = None) -> int:
     written = 0
     failed: list[str] = []
     for code, fips in targets:
-        print(f"\n--- {code} (FIPS {fips}) ---", flush=True)
+        print(f"\n--- {code} (FIPS {fips}) [{args.geo}] ---", flush=True)
         try:
-            path = make_topo(code, fips, args.simplify)
+            path = make_topo(code, fips, args.geo, args.simplify)
             size_kb = path.stat().st_size / 1024
             print(f"  ok: {size_kb:.0f} KB", flush=True)
             written += 1
@@ -193,7 +239,7 @@ def main(argv: list[str] | None = None) -> int:
             failed.append(code)
 
     print(
-        f"\nWrote {written}/{len(targets)} state tract topojsons "
+        f"\nWrote {written}/{len(targets)} state {args.geo} topojsons "
         f"(failed: {failed if failed else 'none'})"
     )
     return 0 if not failed else 1

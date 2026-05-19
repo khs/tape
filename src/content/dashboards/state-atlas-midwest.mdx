@@ -1,0 +1,134 @@
+---
+title: "State Atlas — Midwest"
+order: 11
+defaultDelta: 1y
+description: "Tract-level ACS demographics for the twelve Census Bureau Midwest region states. Each state has four indicator maps at vintage 2022."
+aboutBlurb: "Per-state tract maps for the four ACS 5-year indicators: poverty rate, median household income, bachelor's-or-higher share, foreign-born share. Boundaries are Census TIGER 2024 tracts, simplified for client-side render. Data is ACS 5-year ending 2022."
+sections:
+  - title: "Illinois"
+    charts:
+      - state-tract-maps/il_poverty_rate_2022
+      - state-tract-maps/il_median_hh_income_2022
+      - state-tract-maps/il_bachelors_plus_pct_2022
+      - state-tract-maps/il_foreign_born_pct_2022
+
+  - title: "Indiana"
+    charts:
+      - state-tract-maps/in_poverty_rate_2022
+      - state-tract-maps/in_median_hh_income_2022
+      - state-tract-maps/in_bachelors_plus_pct_2022
+      - state-tract-maps/in_foreign_born_pct_2022
+
+  - title: "Iowa"
+    charts:
+      - state-tract-maps/ia_poverty_rate_2022
+      - state-tract-maps/ia_median_hh_income_2022
+      - state-tract-maps/ia_bachelors_plus_pct_2022
+      - state-tract-maps/ia_foreign_born_pct_2022
+
+  - title: "Kansas"
+    charts:
+      - state-tract-maps/ks_poverty_rate_2022
+      - state-tract-maps/ks_median_hh_income_2022
+      - state-tract-maps/ks_bachelors_plus_pct_2022
+      - state-tract-maps/ks_foreign_born_pct_2022
+
+  - title: "Michigan"
+    charts:
+      - state-tract-maps/mi_poverty_rate_2022
+      - state-tract-maps/mi_median_hh_income_2022
+      - state-tract-maps/mi_bachelors_plus_pct_2022
+      - state-tract-maps/mi_foreign_born_pct_2022
+
+  - title: "Minnesota"
+    charts:
+      - state-tract-maps/mn_poverty_rate_2022
+      - state-tract-maps/mn_median_hh_income_2022
+      - state-tract-maps/mn_bachelors_plus_pct_2022
+      - state-tract-maps/mn_foreign_born_pct_2022
+
+  - title: "Missouri"
+    charts:
+      - state-tract-maps/mo_poverty_rate_2022
+      - state-tract-maps/mo_median_hh_income_2022
+      - state-tract-maps/mo_bachelors_plus_pct_2022
+      - state-tract-maps/mo_foreign_born_pct_2022
+
+  - title: "Nebraska"
+    charts:
+      - state-tract-maps/ne_poverty_rate_2022
+      - state-tract-maps/ne_median_hh_income_2022
+      - state-tract-maps/ne_bachelors_plus_pct_2022
+      - state-tract-maps/ne_foreign_born_pct_2022
+
+  - title: "North Dakota"
+    charts:
+      - state-tract-maps/nd_poverty_rate_2022
+      - state-tract-maps/nd_median_hh_income_2022
+      - state-tract-maps/nd_bachelors_plus_pct_2022
+      - state-tract-maps/nd_foreign_born_pct_2022
+
+  - title: "Ohio"
+    charts:
+      - state-tract-maps/oh_poverty_rate_2022
+      - state-tract-maps/oh_median_hh_income_2022
+      - state-tract-maps/oh_bachelors_plus_pct_2022
+      - state-tract-maps/oh_foreign_born_pct_2022
+
+  - title: "South Dakota"
+    charts:
+      - state-tract-maps/sd_poverty_rate_2022
+      - state-tract-maps/sd_median_hh_income_2022
+      - state-tract-maps/sd_bachelors_plus_pct_2022
+      - state-tract-maps/sd_foreign_born_pct_2022
+
+  - title: "Wisconsin"
+    charts:
+      - state-tract-maps/wi_poverty_rate_2022
+      - state-tract-maps/wi_median_hh_income_2022
+      - state-tract-maps/wi_bachelors_plus_pct_2022
+      - state-tract-maps/wi_foreign_born_pct_2022
+---
+
+## How to use this atlas
+
+Each state's section has the same four maps:
+
+| Map | Indicator | Source |
+|---|---|---|
+| Poverty rate | Share of population in poverty (B17001) | ACS 5-year 2018-2022 |
+| Median household income | B19013 | ACS 5-year 2018-2022 |
+| Bachelor's-or-higher | Share of 25+ adults with BA+ (B15003) | ACS 5-year 2018-2022 |
+| Foreign-born share | Born outside US (B05002) | ACS 5-year 2018-2022 |
+
+Click any tile to expand into a full-screen map with:
+
+- **Hover** over a tract to see its name + value
+- **Scroll** or **+/−** keys to zoom
+- **Drag** to pan
+- A **color-scheme picker** for alternative palettes
+- A **vintage year slider** (when older vintages are on disk for the
+  state — backfilling as the data refresh workflow runs)
+
+## Why hatched tracts?
+
+Some tracts render with grey diagonal stripes instead of a color:
+
+- **Special land-use tracts** (6-digit code starting with 98) — the
+  CIA Langley campus, military bases, national parks, water bodies,
+  airports. Census reserves 9800-series tract numbers for places with
+  no resident population, so ACS publishes no demographics for them.
+- **Newly-split tracts** (e.g., Fairfax 4405.04) — the topology
+  includes the post-2020 split but the ACS vintage's sample frame
+  didn't, so values aren't published yet.
+
+Hover any hatched tract for the specific explanation.
+
+## Other regions
+
+| Region | Dashboard |
+|---|---|
+| Northeast | [/state-atlas-northeast/](/state-atlas-northeast/) |
+| Midwest | [/state-atlas-midwest/](/state-atlas-midwest/) |
+| South | [/state-atlas-south/](/state-atlas-south/) |
+| West | [/state-atlas-west/](/state-atlas-west/) |
