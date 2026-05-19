@@ -17,5 +17,11 @@ __pycache__/
 # pipelines/_crosswalks/ that DO get checked in. Raw inputs (~1GB
 # total) stay out of the repo.
 pipelines/_crosswalks_cache/
+
+# Per-pipeline intermediate caches ("don't re-hit upstream for data
+# we already fetched recently"). Each pipeline that opts in writes
+# here; regenerable so it stays out of the repo. See pipelines/_cache.py.
+pipelines/_cache/
+
 .tmp_*
 

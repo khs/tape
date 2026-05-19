@@ -40,20 +40,69 @@ Run with: ``CENSUS_API_KEY=<key> python pipelines/census_acs_cd.py``.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import subprocess
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 import _env  # noqa: F401 — load .env so CENSUS_API_KEY is available locally
+from _cache import cache_get, cache_put
 from common import write_timeseries
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CROSSWALK_DIR = REPO_ROOT / "pipelines" / "_crosswalks"
+
+
+# ---------------------------------------------------------------------
+# Cache policy
+# ---------------------------------------------------------------------
+# ACS5 vintages don't revise once published. The per-(year, state)
+# tract pull is the dominant cost — 13 vintages × 51 states = 663 API
+# calls per fresh run. Caching turns that into a one-time bulk fetch,
+# with subsequent runs only re-fetching the most-recent vintage(s)
+# where revisions are theoretically possible during the release
+# window.
+#
+#   - vintage >= 2 years old: effectively permanent cache (the
+#     underlying data genuinely never changes; cache invalidation is
+#     "rm -rf pipelines/_cache/acs_cd_tract").
+#   - vintage in the most recent 2 years: 30-day cache window
+#     (Census sometimes issues corrections within months of release).
+#
+# Cache keys embed a hash of the variable-list so a future spec
+# expansion that requests new cells auto-invalidates stale caches.
+# A `--force-refetch` flag is intentionally NOT added here — operators
+# who really need to bypass cache should delete the cache directory.
+
+_CACHE_BUCKET_TRACT = "acs_cd_tract"
+_CACHE_BUCKET_DISTRICT = "acs_cd_district"
+
+
+def _cache_max_age_days(year: int) -> float:
+    """Immutable vintages get permanent storage; recent vintages get
+    a 30-day TTL to pick up the rare upstream correction."""
+    current_year = datetime.now().year
+    if current_year - year >= 2:
+        return 365.0 * 100  # effectively permanent
+    return 30.0
+
+
+def _vars_hash(var_codes: list[str]) -> str:
+    """Stable 10-char hash over the (sorted) variable set. Embedded in
+    cache keys so a different var-list yields a different cache file."""
+    h = hashlib.sha1(",".join(sorted(var_codes)).encode("utf-8"))
+    return h.hexdigest()[:10]
+
+
+# Module-level cache-hit counters; reset at start of main(), printed
+# at end of main() as a one-line health check.
+_cache_stats = {"tract_hit": 0, "tract_miss": 0, "cd_hit": 0, "cd_miss": 0}
 
 # Vintages we pull. Each is published as its own /data/<year>/acs/acs5
 # endpoint. Range starts at 2010 (the earliest ACS5 with CD-level data)
@@ -494,7 +543,24 @@ def fetch_vintage_tract(
     Earlier code used `tract:* in=state:XX` (no county), which the
     modern API accepts but the pre-2015 API rejects — that's why our
     pre-2017 vintages came back empty before this fix.
+
+    Cached on disk by (year, state_fips, vars_hash). For vintages
+    >= 2 years old the cache is effectively permanent (data is
+    immutable); for recent vintages a 30-day TTL applies.
     """
+    cache_key = f"{year}_state{state_fips}_{_vars_hash(var_codes)}"
+    max_age = _cache_max_age_days(year)
+    cached = cache_get(_CACHE_BUCKET_TRACT, cache_key, max_age)
+    if cached is not None:
+        try:
+            parsed = json.loads(cached.decode("utf-8"))
+            if isinstance(parsed, dict):
+                _cache_stats["tract_hit"] += 1
+                return parsed
+        except (json.JSONDecodeError, ValueError, UnicodeDecodeError):
+            pass  # Fall through; treat corrupt cache as a miss.
+
+    _cache_stats["tract_miss"] += 1
     geo = f"tract:*&in=state:{state_fips}%20county:*"
     rows = acs_fetch(year, var_codes, geo, key)
     if not rows or len(rows) < 2:
@@ -525,6 +591,18 @@ def fetch_vintage_tract(
                 per_var[code] = v
         if per_var:
             out[geoid] = per_var
+    # Only cache successful (non-empty) results — empty means upstream
+    # failure (HTTP error, malformed payload, etc.) and we want the
+    # next run to retry rather than memoize the failure.
+    if out:
+        try:
+            cache_put(
+                _CACHE_BUCKET_TRACT,
+                cache_key,
+                json.dumps(out).encode("utf-8"),
+            )
+        except OSError as e:
+            print(f"    cache write failed for {cache_key}: {e}", file=sys.stderr)
     return out
 
 
@@ -537,7 +615,28 @@ def fetch_vintage_cd_level(
     CD-level fetch (no aggregation) for one vintage. Returns
     {(state_fips, cd): {var_code: value}}. Used for medians we don't
     recompute via distribution.
+
+    Cached on disk by (year, vars_hash). JSON can't hold tuple keys,
+    so we serialize as ``"state|cd"`` strings and re-tuple on read.
     """
+    cache_key = f"{year}_cd_{_vars_hash(var_codes)}"
+    max_age = _cache_max_age_days(year)
+    cached = cache_get(_CACHE_BUCKET_DISTRICT, cache_key, max_age)
+    if cached is not None:
+        try:
+            stored = json.loads(cached.decode("utf-8"))
+            if isinstance(stored, dict):
+                _cache_stats["cd_hit"] += 1
+                # Re-tuple the "state|cd" composite keys.
+                return {
+                    tuple(k.split("|", 1)): v  # type: ignore[misc]
+                    for k, v in stored.items()
+                    if "|" in k and isinstance(v, dict)
+                }
+        except (json.JSONDecodeError, ValueError, UnicodeDecodeError):
+            pass  # Treat corrupt cache as a miss.
+
+    _cache_stats["cd_miss"] += 1
     rows = acs_fetch(year, var_codes, "congressional%20district:*", key)
     if not rows or len(rows) < 2:
         return {}
@@ -564,6 +663,16 @@ def fetch_vintage_cd_level(
                 per_var[code] = v
         if per_var:
             out[(state, cd)] = per_var
+    if out:
+        try:
+            to_cache = {f"{s}|{cd}": v for (s, cd), v in out.items()}
+            cache_put(
+                _CACHE_BUCKET_DISTRICT,
+                cache_key,
+                json.dumps(to_cache).encode("utf-8"),
+            )
+        except OSError as e:
+            print(f"    cache write failed for {cache_key}: {e}", file=sys.stderr)
     return out
 
 
@@ -581,6 +690,11 @@ def main() -> int:
             file=sys.stderr,
         )
         return 0
+
+    # Reset cache stats for this run (module-level so we don't have to
+    # thread state through every fetch helper).
+    for k in _cache_stats:
+        _cache_stats[k] = 0
 
     cw_2020 = load_crosswalk(CROSSWALK_DIR / "tract2020_to_cd118.csv")
     cw_2010 = load_crosswalk(CROSSWALK_DIR / "tract2010_to_cd118.csv")
@@ -778,6 +892,21 @@ def main() -> int:
             unit=unit,
         )
         written += 1
+    # Cache summary: how much upstream traffic did we save this run?
+    th = _cache_stats["tract_hit"]
+    tm = _cache_stats["tract_miss"]
+    ch = _cache_stats["cd_hit"]
+    cm = _cache_stats["cd_miss"]
+    tract_total = th + tm
+    cd_total = ch + cm
+    tract_pct = f"{th * 100 // tract_total}%" if tract_total else "n/a"
+    cd_pct = f"{ch * 100 // cd_total}%" if cd_total else "n/a"
+    print(
+        f"acs_cd: cache tract {th}/{tract_total} hit ({tract_pct}), "
+        f"cd {ch}/{cd_total} hit ({cd_pct})",
+        flush=True,
+    )
+
     print(f"\nacs_cd: wrote {written} stable-geo series across "
           f"{len(ACS_VINTAGES)} vintages "
           f"(plus {redirected} single-CD-state series redirected to acs_state)",
