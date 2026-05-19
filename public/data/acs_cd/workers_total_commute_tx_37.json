@@ -3,7 +3,7 @@
   "name": "Total workers (commute-table denominator) \u2014 TX-37",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-05-19T11:21:54Z",
+  "lastUpdated": "2026-05-19T12:47:58Z",
   "points": [
     {
       "t": "2022-12-31",
