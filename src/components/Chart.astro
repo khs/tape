@@ -108,6 +108,16 @@ const defaultDelta: DeltaWindow = dashboardWindow
   ? closestSupported(dashboardWindow, effectiveSupported)
   : closestSupported(chart.defaultDelta, effectiveSupported);
 
+// "Window mismatch" — the dashboard/section asked for one window
+// but this chart's data couldn't reach it, so closestSupported
+// fell back to a different one. We render the duration in bold on
+// the tile + dialog descriptor so the reader notices the chart
+// isn't actually showing what the dashboard pill claims it is.
+// Bold suppressed when dashboard didn't request a specific window
+// (the chart is rendering at its own defaultDelta, which can't be
+// "mismatched" against nothing).
+const windowMismatch: boolean = !!dashboardWindow && dashboardWindow !== defaultDelta;
+
 function trimPoints(ts: TimeSeriesData, supported: DeltaWindow[]): TimeSeriesData {
   if (ts.points.length === 0) return ts;
   const maxDays = Math.max(...supported.map((w) => DELTA_DAYS[w]));
@@ -383,14 +393,36 @@ const directionWord =
       ? "down"
       : "roughly unchanged";
 
-const singleDescriptor =
+// singleDescriptor is split into (prefix, duration, suffix) so the
+// duration can be wrapped in a span the CSS bolds when the chart's
+// effective window mismatches the dashboard-requested one. When the
+// chart has no prior reading (no over-the-X clause) the descriptor
+// is just a one-shot string and duration is null.
+type SingleDescriptorParts = {
+  prefix: string;
+  duration: string | null;
+  suffix: string;
+};
+const singleDescriptor: SingleDescriptorParts =
   primary.current && primary.prior && primary.priorStr && primary.delta
     ? primary.delta.direction === "flat"
-      ? `${primarySource.data.name} is at ${primary.currentStr}, roughly unchanged over the ${DELTA_LABELS_PAST[defaultDelta]}.`
-      : `${primarySource.data.name} is at ${primary.currentStr}, ${directionWord} from ${primary.priorStr} over the ${DELTA_LABELS_PAST[defaultDelta]} (${primary.delta.text}).`
+      ? {
+          prefix: `${primarySource.data.name} is at ${primary.currentStr}, roughly unchanged over the `,
+          duration: DELTA_LABELS_PAST[defaultDelta],
+          suffix: ".",
+        }
+      : {
+          prefix: `${primarySource.data.name} is at ${primary.currentStr}, ${directionWord} from ${primary.priorStr} over the `,
+          duration: DELTA_LABELS_PAST[defaultDelta],
+          suffix: ` (${primary.delta.text}).`,
+        }
     : primary.current
-      ? `${primarySource.data.name} is at ${primary.currentStr}.`
-      : "Data unavailable.";
+      ? {
+          prefix: `${primarySource.data.name} is at ${primary.currentStr}.`,
+          duration: null,
+          suffix: "",
+        }
+      : { prefix: "Data unavailable.", duration: null, suffix: "" };
 
 const uniqueId = `dialog-${dashboardSlug}-${chartId.replace(/[^a-z0-9-]/gi, "-")}`;
 
@@ -486,6 +518,7 @@ const mostRecentUpdate = payload.sources
   data-multi={isMulti ? "true" : "false"}
   data-series-count={String(perSource.length)}
   data-section-locked={sectionLocked ? "1" : undefined}
+  data-dashboard-window={dashboardWindow ?? undefined}
   aria-haspopup="dialog"
   aria-label={`${chart.title} details`}
 >
@@ -528,8 +561,14 @@ const mostRecentUpdate = payload.sources
   }
 
   <div class="tile-spark" data-role="tile-spark" />
-  <div class="tile-window muted">
-    over the {DELTA_LABELS_PAST[defaultDelta]}
+  <div
+    class="tile-window muted"
+    data-window-mismatch={windowMismatch ? "1" : undefined}
+  >
+    over the{" "}
+    <span class="window-duration" data-role="window-duration">
+      {DELTA_LABELS_PAST[defaultDelta]}
+    </span>
   </div>
 </button>
 
@@ -539,6 +578,7 @@ const mostRecentUpdate = payload.sources
   data-chart-ref={uniqueId}
   data-emphasis={effectiveEmphasis}
   data-multi={isMulti ? "true" : "false"}
+  data-dashboard-window={dashboardWindow ?? undefined}
   aria-labelledby={`${uniqueId}-title`}
 >
   <div class="dialog-close-bar">
@@ -615,8 +655,16 @@ const mostRecentUpdate = payload.sources
               )}
             </div>
           ))}
-          <p class="multi-caption muted" data-role="descriptor">
-            Over the {DELTA_LABELS_PAST[defaultDelta]}.
+          <p
+            class="multi-caption muted"
+            data-role="descriptor"
+            data-window-mismatch={windowMismatch ? "1" : undefined}
+          >
+            Over the{" "}
+            <span class="window-duration" data-role="window-duration">
+              {DELTA_LABELS_PAST[defaultDelta]}
+            </span>
+            .
           </p>
         </div>
       ) : (
@@ -635,8 +683,18 @@ const mostRecentUpdate = payload.sources
               </span>
             )}
           </div>
-          <p class="descriptor" data-role="descriptor">
-            {singleDescriptor}
+          <p
+            class="descriptor"
+            data-role="descriptor"
+            data-window-mismatch={windowMismatch ? "1" : undefined}
+          >
+            {singleDescriptor.prefix}
+            {singleDescriptor.duration && (
+              <span class="window-duration" data-role="window-duration">
+                {singleDescriptor.duration}
+              </span>
+            )}
+            {singleDescriptor.suffix}
           </p>
         </>
       )
@@ -907,6 +965,30 @@ const mostRecentUpdate = payload.sources
   }
   .tile-window {
     font-size: var(--text-xs);
+  }
+  /* When the dashboard/section asked for one window and this chart's
+     data couldn't reach it (closestSupported fell back), bold the
+     duration so the reader notices the chart isn't actually showing
+     what the dashboard pill claims. Same rule applies on the dialog's
+     descriptor + the multi-caption. Default rendering is regular
+     weight; bold only when the data-window-mismatch="1" attribute is
+     set by the server (initial render) or by ChartController
+     (post-pill-click recompute). */
+  .window-duration { font-weight: inherit; }
+  .tile-window[data-window-mismatch="1"] .window-duration,
+  .descriptor[data-window-mismatch="1"] .window-duration,
+  .multi-caption[data-window-mismatch="1"] .window-duration {
+    font-weight: 600;
+    color: var(--color-neutral-800);
+  }
+  /* Subtle visual cue past the bold: a thin underline. Reinforces
+     "look, this is the bit that's different from what the dashboard
+     said" without leaning on color alone. */
+  .tile-window[data-window-mismatch="1"] .window-duration,
+  .descriptor[data-window-mismatch="1"] .window-duration,
+  .multi-caption[data-window-mismatch="1"] .window-duration {
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
   }
   .muted {
     color: var(--color-neutral-500);

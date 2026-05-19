@@ -379,6 +379,23 @@
     return d === "up" ? "up" : d === "down" ? "down" : "roughly unchanged";
   }
 
+  // Minimal HTML escape — used when the dialog descriptor renderer
+  // switched from textContent to innerHTML (to wrap the duration
+  // token in a styleable span). The source name + formatted value
+  // strings come from YAML/format.ts and aren't user input today,
+  // but escaping keeps the path safe if a future source name picks
+  // up a "&" or "<" character.
+  const HTML_ESCAPES: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+  function escapeHtml(s: string): string {
+    return s.replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
+  }
+
   // (Previously defined a standalone rebasePoints helper here; the
   // actual rebasing logic is inlined at the render site below since
   // it needs to thread through the same loop as bivariate / dual-axis
@@ -1091,13 +1108,27 @@
     window: DeltaWindow,
   ): void {
     const fixed = payload.fixedRange;
+    // Window mismatch = the dashboard (or section) asked for one
+    // window but this chart ended up rendering at a different one.
+    // tile.dataset.dashboardWindow tracks the "asked-for" value (set
+    // at server render time and updated by the dashboard-pill click
+    // handler for non-section-locked tiles). When the user manually
+    // overrides via a tile/dialog pill, dashboardWindow stays put so
+    // the mismatch reflects "this isn't what the dashboard asked for."
+    const dashWanted = tile.dataset.dashboardWindow as DeltaWindow | undefined;
+    const mismatch = !fixed && !!dashWanted && dashWanted !== window;
     const captionEl = tile.querySelector<HTMLElement>(".tile-window");
     if (captionEl) {
       if (fixed) {
         captionEl.textContent = `${fixed.start} → ${fixed.end}`;
       } else {
-        captionEl.textContent = `over the ${DELTA_LABELS_PAST[window]}`;
+        // innerHTML rather than textContent so the duration wraps in
+        // the span the CSS bolds on mismatch. DELTA_LABELS_PAST keys
+        // are author-controlled (compile-time constants), no XSS risk.
+        captionEl.innerHTML = `over the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[window]}</span>`;
       }
+      if (mismatch) captionEl.setAttribute("data-window-mismatch", "1");
+      else captionEl.removeAttribute("data-window-mismatch");
     }
 
     const sparkEl = tile.querySelector<HTMLElement>(
@@ -1196,9 +1227,15 @@
         '[data-role="descriptor"]',
       );
       if (captionEl) {
-        captionEl.textContent = fixed
-          ? `${fixed.start} → ${fixed.end}.`
-          : `Over the ${DELTA_LABELS_PAST[window]}.`;
+        const dashWantedMulti = dialog.dataset.dashboardWindow as DeltaWindow | undefined;
+        const mismatchMulti = !fixed && !!dashWantedMulti && dashWantedMulti !== window;
+        if (fixed) {
+          captionEl.textContent = `${fixed.start} → ${fixed.end}.`;
+        } else {
+          captionEl.innerHTML = `Over the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[window]}</span>.`;
+        }
+        if (mismatchMulti) captionEl.setAttribute("data-window-mismatch", "1");
+        else captionEl.removeAttribute("data-window-mismatch");
       }
     } else {
       const s = payload.sources[0];
@@ -1218,6 +1255,18 @@
         '[data-role="descriptor"]',
       );
 
+      // Mismatch is computed against eff (the chart's effective
+      // window after closestSupported) so when the dashboard asked
+      // for one window and the chart's data only supports another,
+      // the duration token gets bolded in the descriptor.
+      const dashWantedSingle = dialog.dataset.dashboardWindow as DeltaWindow | undefined;
+      const mismatchSingle = !fixed && !!dashWantedSingle && dashWantedSingle !== eff;
+      // Tiny helper: emit the period phrase as either plain text
+      // (fixed-range case, no mismatch concept) or HTML with the
+      // duration span the CSS bolds on mismatch.
+      const periodHtml = fixed
+        ? `from ${escapeHtml(fixed.start)} to ${escapeHtml(fixed.end)}`
+        : `over the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[eff]}</span>`;
       if (current && prior) {
         const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
         if (deltaEl) {
@@ -1225,14 +1274,11 @@
           deltaEl.dataset.direction = dd.direction;
         }
         const priorStr = formatValue(prior.v, s.formatting);
-        const periodPhrase = fixed
-          ? `from ${fixed.start} to ${fixed.end}`
-          : `over the ${DELTA_LABELS_PAST[eff]}`;
         if (descriptorEl) {
-          descriptorEl.textContent =
+          descriptorEl.innerHTML =
             dd.direction === "flat"
-              ? `${s.name} is at ${currentStr}, roughly unchanged ${periodPhrase}.`
-              : `${s.name} is at ${currentStr}, ${directionWord(dd.direction)} from ${priorStr} ${periodPhrase} (${dd.text}).`;
+              ? `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, roughly unchanged ${periodHtml}.`
+              : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(dd.direction)} from ${escapeHtml(priorStr)} ${periodHtml} (${escapeHtml(dd.text)}).`;
         }
       } else {
         if (deltaEl) {
@@ -1240,11 +1286,15 @@
           deltaEl.dataset.direction = "flat";
         }
         if (descriptorEl) {
-          const periodPhrase = fixed
-            ? `the range ${fixed.start} → ${fixed.end}`
-            : `the ${DELTA_LABELS_PAST[eff]}`;
-          descriptorEl.textContent = `${s.name} is at ${currentStr}. History doesn't cover ${periodPhrase}.`;
+          const noHistoryPeriod = fixed
+            ? `the range ${escapeHtml(fixed.start)} → ${escapeHtml(fixed.end)}`
+            : `the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[eff]}</span>`;
+          descriptorEl.innerHTML = `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}. History doesn't cover ${noHistoryPeriod}.`;
         }
+      }
+      if (descriptorEl) {
+        if (mismatchSingle) descriptorEl.setAttribute("data-window-mismatch", "1");
+        else descriptorEl.removeAttribute("data-window-mismatch");
       }
     }
 
@@ -1955,6 +2005,13 @@
           // the dialog reflects the active selection, not the trailing
           // pre-click state.
           ctx.selectedView = w;
+          // Update the per-tile + dialog "what the dashboard asked
+          // for" memo so the window-mismatch bold-recompute inside
+          // updateTile / updateDialog uses the fresh value. After
+          // this, a tile whose data couldn't reach `want` will show
+          // the duration in bold; one that could will render normally.
+          ctx.tile.dataset.dashboardWindow = want;
+          ctx.dialog.dataset.dashboardWindow = want;
           updateTile(ctx.tile, ctx.payload, w);
           if (ctx.dialogInitialized) {
             updateDialog(ctx.dialog, ctx.payload, w);
