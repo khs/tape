@@ -342,7 +342,7 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     return unit === "%" ? `${r}%` : r;
   }
 
-  async function paint(canvas: HTMLElement, b: ChoroBindings, mode: "tile" | "expanded") {
+  async function paint(canvas: HTMLElement, b: ChoroBindings, mode: "tile" | "expanded" | "fullscreen") {
     const [boundary, values] = await Promise.all([
       getBoundary(b.boundaryUrl),
       getValues(b.dataUrl),
@@ -395,8 +395,19 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     // Alaska + Hawaii insets at canonical positions, which the
     // pre-projected file couldn't do without us also pinning the
     // viewport to its native 975×610.
-    const width = mode === "expanded" ? 1000 : 620;
-    const height = mode === "expanded" ? 620 : 360;
+    // Plot sizes per render mode. Tile is the dashboard thumbnail;
+    // expanded is the dialog default; fullscreen fills the viewport
+    // when the user clicks Full screen.
+    const vw = window.innerWidth || 1200;
+    const vh = window.innerHeight || 800;
+    const width =
+      mode === "fullscreen" ? Math.min(vw - 80, 1600)
+      : mode === "expanded" ? 1000
+      : 620;
+    const height =
+      mode === "fullscreen" ? Math.min(vh - 220, 1000)
+      : mode === "expanded" ? 620
+      : 360;
     // Resolve the scheme: user override (if any) > chart author's
     // colorScheme > Blues fallback. Plot's color spec accepts EITHER
     // a named scheme string OR an explicit range[] of stops (which
@@ -437,42 +448,70 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     };
     const fig = (Plot as any).plot(plotSpec);
     canvas.appendChild(fig);
-    // Wire a fixed-position tooltip on top of the SVG. Plot's built-in
-    // `title` attribute produces native browser tooltips with a 1-2s
-    // hover delay; users complain it feels broken. We bypass that with
-    // a custom mousemove handler that reads the GEOID off the hovered
-    // <path>'s data and shows a small floating div near the cursor.
+    // Tooltip on hover. Performance-tuned because the chart can carry
+    // thousands of <path> elements (3,143 counties, ~74k tracts) and
+    // a naive mousemove handler that runs `closest("path")` plus DOM
+    // writes on every pointer event chews 5-10ms per move — the user
+    // sees noticeable lag tracking the cursor.
+    //
+    // Three optimizations:
+    //   1. rAF-throttle: at most one tooltip update per animation
+    //      frame, even if the browser fires 60+ mousemove events.
+    //   2. Direct target check: e.target IS the path the cursor is
+    //      over (SVG pointer-events default), so we skip closest().
+    //      Falls through to closest() only when the target wasn't a
+    //      path (e.g. SVG background).
+    //   3. DOM writes batched in the rAF: position + textContent +
+    //      visibility flip happen together, one layout cycle.
     const svg = fig.querySelector("svg") ?? fig;
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
     tooltip.style.display = "none";
     canvas.appendChild(tooltip);
-    // d3 binds the feature object to each <path> as __data__ (Plot
-    // does the same internally). Read it via (path as any).__data__.
-    svg.addEventListener("mousemove", (ev: MouseEvent) => {
+    const rectCache = { rect: canvas.getBoundingClientRect() };
+    const onResize = () => { rectCache.rect = canvas.getBoundingClientRect(); };
+    window.addEventListener("resize", onResize, { passive: true });
+    let pendingEv: MouseEvent | null = null;
+    let rafQueued = false;
+    function flushTooltip() {
+      rafQueued = false;
+      const ev = pendingEv;
+      pendingEv = null;
+      if (!ev) return;
       const target = ev.target as Element | null;
-      const path = target?.closest("path");
+      // Hot path: most mousemove targets land directly on a <path>.
+      let path: Element | null =
+        target && target.tagName === "path" ? target : null;
+      if (!path && target) path = target.closest("path");
       if (!path) {
-        tooltip.style.display = "none";
+        if (tooltip.style.display !== "none") tooltip.style.display = "none";
         return;
       }
-      const d = (path as any).__data__ as { id?: string; properties?: { name?: string } } | undefined;
-      if (!d?.id) { tooltip.style.display = "none"; return; }
+      const d = (path as any).__data__ as
+        | { id?: string; properties?: { name?: string } } | undefined;
+      if (!d?.id) {
+        if (tooltip.style.display !== "none") tooltip.style.display = "none";
+        return;
+      }
       const v = values[d.id];
       if (v == null || !Number.isFinite(v)) {
-        tooltip.style.display = "none";
+        if (tooltip.style.display !== "none") tooltip.style.display = "none";
         return;
       }
       const name = d.properties?.name ?? d.id;
       tooltip.textContent = `${name}: ${fmtValue(v, b.unit, b.decimals)}`;
       tooltip.style.display = "block";
-      const rect = canvas.getBoundingClientRect();
-      const x = ev.clientX - rect.left + 12;
-      const y = ev.clientY - rect.top + 12;
-      tooltip.style.left = x + "px";
-      tooltip.style.top = y + "px";
-    });
+      tooltip.style.left = (ev.clientX - rectCache.rect.left + 12) + "px";
+      tooltip.style.top = (ev.clientY - rectCache.rect.top + 12) + "px";
+    }
+    svg.addEventListener("mousemove", (ev: MouseEvent) => {
+      pendingEv = ev;
+      if (rafQueued) return;
+      rafQueued = true;
+      requestAnimationFrame(flushTooltip);
+    }, { passive: true });
     svg.addEventListener("mouseleave", () => {
+      pendingEv = null;
       tooltip.style.display = "none";
     });
   }
@@ -582,11 +621,27 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
     dialog.querySelector(".choro-dialog-close")?.addEventListener("click", () => {
       dialog!.close();
     });
-    dialog.querySelector(".choro-dialog-fullscreen")?.addEventListener("click", () => {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      } else {
-        dialog!.requestFullscreen().catch(() => {});
+    // Fullscreen toggle. The native Element.requestFullscreen() API
+    // is finicky when called on a <dialog> that's already in modal
+    // mode — some browsers silently reject the promise. CSS-only
+    // toggle is more reliable: we just flip a class that resizes
+    // the dialog to fill the viewport. Same UX with no permission
+    // promise to lose.
+    const fullscreenBtn = dialog.querySelector<HTMLButtonElement>(".choro-dialog-fullscreen");
+    fullscreenBtn?.addEventListener("click", () => {
+      const wide = dialog!.classList.toggle("choro-dialog-wide");
+      fullscreenBtn.textContent = wide ? "⤡ Exit full screen" : "⤢ Full screen";
+      // The Plot SVG was sized at paint time; widening the dialog
+      // doesn't auto-resize it. Re-paint the dialog canvas at the
+      // new mode so the map fills the available space.
+      const dialogCanvas = dialog!.querySelector<HTMLElement>(
+        "[data-role='choro-canvas']",
+      );
+      if (dialogCanvas) {
+        dialogCanvas.dataset.mode = wide ? "fullscreen" : "expanded";
+        dialogCanvas.removeAttribute("data-hydrated");
+        dialogCanvas.innerHTML = "";
+        hydrateAll();
       }
     });
     dialog.addEventListener("close", () => {
@@ -785,12 +840,19 @@ const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
   .choro-dialog::backdrop {
     background: rgba(0, 0, 0, 0.45);
   }
-  .choro-dialog:fullscreen {
+  .choro-dialog:fullscreen,
+  .choro-dialog.choro-dialog-wide {
     width: 100vw;
     height: 100vh;
     max-width: none;
     max-height: none;
     border-radius: 0;
+    margin: 0;
+    /* Force the dialog to fill the viewport when CSS-toggled wide,
+       overriding the centered positioning the browser uses for
+       showModal() by default. */
+    top: 0;
+    left: 0;
   }
   .choro-dialog-header {
     display: flex;

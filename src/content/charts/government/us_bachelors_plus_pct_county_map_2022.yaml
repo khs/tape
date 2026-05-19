@@ -1,0 +1,13 @@
+title: Adults 25+ with a bachelor's degree by US county (2022)
+render: choropleth
+geo: county
+indicator: bachelors_plus_pct
+vintage: "2022"
+colorScheme: blues
+colorScale: linear
+tags: [government, us, demographics, education]
+blurb: |
+  County-level share of adults 25+ with a bachelor's degree or
+  higher, ACS 5-year ending 2022. Darker = higher attainment.
+  Education concentrates in university-town counties, federal-
+  worker counties, and the major coastal-metro cores.

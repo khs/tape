@@ -6,12 +6,16 @@ defaultDelta: 10y
 aboutBlurb: "A dashboard for one of the most federally-dependent congressional districts in the country — Don Beyer's VA-08, covering Arlington, Alexandria, Falls Church, and inner Fairfax County."
 sections:
   - title: "How VA-08 compares to the rest of the country (heatmaps preview)"
-    description: "Four state-level ACS snapshots (2022) for the indicators VA-08 also tracks. State-level for now while county / tract / block-group pipelines spin up. Pregenerated-only; click any tile to expand. Connecticut shows blank because the underlying ACS pipeline doesn't have a tract→CD crosswalk for CT — known gap, working on it. Section sits at the top while the design is in evaluation mode."
+    description: "Eight ACS heatmaps in evaluation mode. State-level + county-level for the same four indicators. Click any tile to expand; the dialog has a color-scheme picker. Connecticut + DC backfilled via the direct-Census state-level fetch — CT counties may still render blank pending the Planning Region crosswalk fix. Tract and block-group views (DMV + VA-08) coming in the next push once boundary data is generated."
     charts:
       - government/us_poverty_rate_map_2022
+      - government/us_poverty_rate_county_map_2022
       - government/us_median_hh_income_map_2022
+      - government/us_median_hh_income_county_map_2022
       - government/us_bachelors_plus_pct_map_2022
+      - government/us_bachelors_plus_pct_county_map_2022
       - government/us_foreign_born_pct_map_2022
+      - government/us_foreign_born_pct_county_map_2022
   - title: "Federal money flow"
     description: "VA-08 is structurally federal-spending-heavy: Pentagon-adjacent, dense with DoD prime contractors, and home to a large federal-employee population. Total federal dollars (contracts + grants + loans + direct payments) flowing to district recipients tell the story."
     charts:

@@ -1,0 +1,13 @@
+title: Poverty rate by US county (2022)
+render: choropleth
+geo: county
+indicator: poverty_rate
+vintage: "2022"
+colorScheme: ylorrd
+colorScale: linear
+tags: [government, us, demographics, poverty]
+blurb: |
+  County-level poverty rate, ACS 5-year ending 2022. ~3,140 counties.
+  Darker = higher poverty rate. The state-level view washes out
+  intra-state variation — rural Mississippi and metro Mississippi run
+  very differently. Hover to see county-level values; click to expand.

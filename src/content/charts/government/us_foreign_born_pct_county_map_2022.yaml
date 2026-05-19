@@ -1,0 +1,13 @@
+title: Foreign-born population share by US county (2022)
+render: choropleth
+geo: county
+indicator: foreign_born_pct
+vintage: "2022"
+colorScheme: purples
+colorScale: linear
+tags: [government, us, demographics, immigration]
+blurb: |
+  County-level foreign-born share, ACS 5-year ending 2022. Darker =
+  larger foreign-born share. Border counties + immigrant-gateway
+  metros (NYC, LA, Houston, Miami, DC) lead; rural interior anchors
+  the low end. Inner DC suburbs (Arlington, Falls Church) clock 25%+.

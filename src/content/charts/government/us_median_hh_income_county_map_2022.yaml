@@ -1,0 +1,13 @@
+title: Median household income by US county (2022)
+render: choropleth
+geo: county
+indicator: median_hh_income
+vintage: "2022"
+colorScheme: greens
+colorScale: linear
+tags: [government, us, demographics, income]
+blurb: |
+  County-level median household income, ACS 5-year ending 2022.
+  Darker = higher income. The federal corridor (Loudoun / Falls
+  Church / Howard MD / Arlington) and Silicon Valley anchor the
+  top tail; Black-belt South + Appalachia anchor the bottom.
