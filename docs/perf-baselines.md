@@ -8,7 +8,7 @@ compare against later. Captured with:
 for path in / /us-macro/ /tech/ /stocks/ /countries/ /va-08/; do
   curl -sS --max-time 30 -o /tmp/page.html \
     -w "%{time_total},%{size_download}\n" \
-    "https://legible-markets.vercel.app$path"
+    "https://tape.vercel.app$path"
 done
 ```
 

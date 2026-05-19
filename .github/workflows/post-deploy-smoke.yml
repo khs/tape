@@ -28,7 +28,7 @@ on:
       url:
         description: "Site URL to smoke test (default: production)"
         required: false
-        default: "https://legible-markets.vercel.app"
+        default: "https://tape.vercel.app"
 
 permissions:
   contents: read
@@ -52,11 +52,11 @@ jobs:
           # workflow_dispatch lets the user override (e.g. a preview or
           # custom-domain URL). On deployment_status we deliberately ignore
           # the event's target_url — Vercel sets that to the per-deploy
-          # hash hostname (legible-markets-<hash>-...) which is gated by
+          # hash hostname (tape-<hash>-...) which is gated by
           # Vercel SSO on team accounts and returns 401 to anonymous curl.
           # The public production URL is stable, so just hardcode it.
           # Swap PROD_URL below if/when a custom domain ships.
-          PROD_URL="https://legible-markets.vercel.app"
+          PROD_URL="https://tape.vercel.app"
           URL="${{ github.event.inputs.url }}"
           if [ -z "$URL" ]; then URL="$PROD_URL"; fi
           URL="${URL%/}"  # strip trailing slash

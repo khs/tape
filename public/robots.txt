@@ -17,4 +17,4 @@ Disallow: /custom/
 Disallow: /api/
 Disallow: /og.png
 
-Sitemap: https://legible-markets.vercel.app/sitemap-index.xml
+Sitemap: https://tape.vercel.app/sitemap-index.xml
