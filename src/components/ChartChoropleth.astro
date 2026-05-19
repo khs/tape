@@ -779,11 +779,37 @@ const statesJoined = stateCodes.join(",");
     //   3. DOM writes batched in the rAF: position + textContent +
     //      visibility flip happen together, one layout cycle.
     // fig might be a <figure> wrapping the SVG (when legend:true) or
-    // the SVG directly. Either way we want event listeners on the
-    // map element. Cast through HTMLElement so addEventListener
+    // the SVG directly. Cast through HTMLElement so addEventListener
     // accepts MouseEvent listeners — without the cast TS narrows
     // svg to Element which only types listeners as Event.
-    const svg = ((fig as HTMLElement).querySelector("svg") ?? fig) as HTMLElement;
+    //
+    // When `color.legend: true`, Plot inserts the legend as its OWN
+    // <svg> element inside the figure BEFORE the main plot svg (see
+    // node_modules/@observablehq/plot/src/plot.js: `figure.append(
+    // ...legends, svg)`). The legend svg has its own <g> groups
+    // (axis labels, gradient stops) but zero geo paths, so naively
+    // taking the first <svg> via querySelector("svg") binds the
+    // tooltip + zoom code to the WRONG svg — the map renders fine
+    // visually but pointer events + d3-zoom find 0 paths and
+    // silently no-op. Pick the svg with the most descendant <path>
+    // elements; that's the one carrying the geo marks regardless
+    // of how many legend svgs Plot decides to attach.
+    let svg: HTMLElement;
+    if (fig.tagName.toLowerCase() === "svg") {
+      svg = fig as HTMLElement;
+    } else {
+      const svgCandidates = (fig as HTMLElement).querySelectorAll("svg");
+      let bestSvg: Element | null = null;
+      let bestPathCount = -1;
+      for (const candidate of svgCandidates) {
+        const c = candidate.querySelectorAll("path").length;
+        if (c > bestPathCount) {
+          bestSvg = candidate;
+          bestPathCount = c;
+        }
+      }
+      svg = ((bestSvg as HTMLElement | null) ?? fig) as HTMLElement;
+    }
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
     tooltip.style.display = "none";
@@ -918,7 +944,7 @@ const statesJoined = stateCodes.join(",");
       // us tell at a glance whether the user is on the right bundle
       // — if a report still shows v1 after fix v2 ships, that's
       // a cache, not a code, problem.
-      const CHORO_BUILD = "zoom-v2-2026-05-19";
+      const CHORO_BUILD = "zoom-v3-legend-svg-fix-2026-05-19";
       console.info(
         `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
         `zoom setup ${geoGroup ? "starting" : "SKIPPED (no paths found)"}; ` +
