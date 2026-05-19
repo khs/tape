@@ -77,12 +77,23 @@ jobs:
         continue-on-error: true
         run: python pipelines/census_acs_choropleth_derive_state.py
 
-      # Direct Census-API choropleth fetch for county / tract / block-
-      # group. CENSUS_API_KEY required; CD pipeline above has already
-      # used it. State-level is also fetched fresh here for redundancy
-      # against the derivation step. Tract + block-group default to VA
-      # for now — full-US tract/block-group is a manual one-off run
-      # because the API call volume is large.
+      # Direct Census-API choropleth fetch for state / county / tract /
+      # block-group. CENSUS_API_KEY required. The state-level call
+      # runs AFTER the derivation step so its output OVERRIDES any
+      # derivation gaps — notably Connecticut 2022 (the tract→CD
+      # crosswalk's pre-Planning-Region county FIPS don't match the
+      # ACS API's new PR-based tract GEOIDs) and DC's missing AGG_SUM
+      # indicators (DC tracts aren't in the crosswalk at all because
+      # build_crosswalks.py filters out non-voting delegates).
+      # Tract + block-group default to VA for now — full-US fetch
+      # at those granularities is a separate manual run because the
+      # API call volume is large.
+      - name: Refresh ACS choropleth snapshots (state, direct API)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_choropleth.py --geo state
+
       - name: Refresh ACS choropleth snapshots (county)
         continue-on-error: true
         env:

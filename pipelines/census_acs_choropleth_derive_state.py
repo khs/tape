@@ -54,28 +54,53 @@ STATE_FIPS: dict[str, str] = {
 }
 
 
-def load_value_at(slug: str, st: str, vintage: str) -> float | None:
+def load_value_at(slug: str, st: str, vintage: str,
+                  fallback_years: int = 0) -> tuple[float, str] | tuple[None, None]:
     """Read public/data/acs_state/<slug>_<st>.json and pull the value
-    at the given vintage (matches the year part of the ISO date).
-    Returns None if file missing or vintage absent."""
+    at the given vintage. Returns (value, actual_vintage) — typically
+    actual_vintage == vintage, but if missing AND fallback_years > 0
+    we scan up to that many years back for the most recent earlier
+    value. Returns (None, None) if no value found in the fallback
+    window. Bundled so callers know whether they got the exact
+    vintage or a fallback (for the snapshot's metadata)."""
     path = STATE_DATA / f"{slug}_{st}.json"
     if not path.exists():
-        return None
+        return None, None
     try:
         body = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return None
+        return None, None
+    target_year = int(vintage)
+    candidates: dict[int, float] = {}
     for p in body.get("points", []):
         t = p.get("t", "")
-        if isinstance(t, str) and t.startswith(vintage + "-"):
-            v = p.get("v")
-            if isinstance(v, (int, float)):
-                return float(v)
-    return None
+        if not isinstance(t, str) or len(t) < 4:
+            continue
+        try:
+            y = int(t[:4])
+        except ValueError:
+            continue
+        v = p.get("v")
+        if isinstance(v, (int, float)):
+            candidates[y] = float(v)
+    if target_year in candidates:
+        return candidates[target_year], vintage
+    if fallback_years > 0:
+        for back in range(1, fallback_years + 1):
+            y = target_year - back
+            if y in candidates:
+                return candidates[y], str(y)
+    return None, None
 
 
-def write_snapshot(out_id: str, vintage: str, values: dict[str, float],
+def write_snapshot(out_id: str, vintage: str,
+                   values: dict[str, float],
+                   fallbacks: dict[str, str],
                    unit: str, decimals: int, value_label: str) -> Path:
+    """Write a snapshot file. `fallbacks` records {state_fips: actual_year}
+    for any state whose value came from an earlier-vintage fallback, so
+    the renderer can surface that to the user later if it wants. Most
+    entries will have actual_year == vintage and the dict will be small."""
     path = OUT_DIR / f"{out_id}_{vintage}.json"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     body = {
@@ -88,72 +113,131 @@ def write_snapshot(out_id: str, vintage: str, values: dict[str, float],
         "lastUpdated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "values": {k: round(values[k], decimals + 2) for k in sorted(values)},
     }
+    if fallbacks:
+        body["fallbacks"] = dict(sorted(fallbacks.items()))
     path.write_text(json.dumps(body) + "\n", encoding="utf-8")
     return path
 
 
 def derive_all() -> int:
+    """Walk every (state, indicator, vintage) we want; write one
+    snapshot file per (indicator, vintage). Up to 3-year fallback
+    fills gaps from a recent earlier vintage so the choropleth has
+    complete coverage — the dominant case being Connecticut 2022,
+    where the tract→CD crosswalk's pre-Planning-Region county FIPS
+    don't match the Census API's new PR-based tract GEOIDs and so
+    the tract-aggregated path yields nothing. Fallback is recorded
+    in the snapshot file's `fallbacks` block so the renderer / future
+    UI can call it out.
+
+    The numerator + all denominator series must come from the SAME
+    actual_year — mixing 2022 numerator with 2021 denominator would
+    produce a wrong ratio. So the year-resolution happens per-state,
+    not per-series.
+    """
+    # Fallback window: 3 years. CT lacks 2022 for our derivation path
+    # so the snapshot would otherwise skip CT; 2021 → 2022 drift on
+    # poverty / income / education / foreign-born is small (~0.5pp on
+    # rates, ~2-3% on dollar amounts) and well below the heatmap's
+    # color-bucket resolution.
+    FALLBACK = 3
+
+    def resolve(st: str, vintage: str, codes: list[str]) -> tuple[dict[str, float] | None, str | None]:
+        """Resolve a state to a (year-consistent) bundle of values for
+        the requested series codes. Tries the exact vintage first; if
+        ANY series is missing at that year, walks back up to FALLBACK
+        years looking for a year where ALL series have data. Returns
+        ({code: value}, actual_year) or (None, None) if no year in the
+        window has the full bundle."""
+        for back in range(0, FALLBACK + 1):
+            year = str(int(vintage) - back)
+            bundle: dict[str, float] = {}
+            ok = True
+            for code in codes:
+                v, _ = load_value_at(code, st, year)
+                if v is None:
+                    ok = False
+                    break
+                bundle[code] = v
+            if ok:
+                return bundle, year
+        return None, None
+
     written = 0
     for vintage in VINTAGES:
         # poverty_rate
         vals: dict[str, float] = {}
+        fallbacks: dict[str, str] = {}
         for st, fips in STATE_FIPS.items():
-            num = load_value_at("poverty_count", st, vintage)
-            den = load_value_at("population", st, vintage)
-            if num is None or den is None or den <= 0:
+            b, actual = resolve(st, vintage, ["poverty_count", "population"])
+            if not b or actual is None:
                 continue
-            vals[fips] = 100.0 * num / den
+            den = b["population"]
+            if den <= 0:
+                continue
+            vals[fips] = 100.0 * b["poverty_count"] / den
+            if actual != vintage:
+                fallbacks[fips] = actual
         if vals:
             write_snapshot(
-                "poverty_rate", vintage, vals, "%", 1,
+                "poverty_rate", vintage, vals, fallbacks, "%", 1,
                 "% of population below poverty line",
             )
             written += 1
 
         # median_hh_income (direct)
-        vals = {}
+        vals = {}; fallbacks = {}
         for st, fips in STATE_FIPS.items():
-            v = load_value_at("median_hh_income", st, vintage)
-            if v is None:
+            b, actual = resolve(st, vintage, ["median_hh_income"])
+            if not b or actual is None:
                 continue
-            vals[fips] = v
+            vals[fips] = b["median_hh_income"]
+            if actual != vintage:
+                fallbacks[fips] = actual
         if vals:
             write_snapshot(
-                "median_hh_income", vintage, vals, "USD", 0,
+                "median_hh_income", vintage, vals, fallbacks, "USD", 0,
                 "Median household income (USD)",
             )
             written += 1
 
         # bachelors_plus_pct (proxy 18+ denominator)
-        vals = {}
+        vals = {}; fallbacks = {}
         for st, fips in STATE_FIPS.items():
-            num = load_value_at("bachelors_plus", st, vintage)
-            pop = load_value_at("population", st, vintage)
-            under18 = load_value_at("population_under_18", st, vintage)
-            if num is None or pop is None or under18 is None:
+            b, actual = resolve(
+                st, vintage,
+                ["bachelors_plus", "population", "population_under_18"],
+            )
+            if not b or actual is None:
                 continue
-            adults = pop - under18
+            adults = b["population"] - b["population_under_18"]
             if adults <= 0:
                 continue
-            vals[fips] = 100.0 * num / adults
+            vals[fips] = 100.0 * b["bachelors_plus"] / adults
+            if actual != vintage:
+                fallbacks[fips] = actual
         if vals:
             write_snapshot(
-                "bachelors_plus_pct", vintage, vals, "%", 1,
+                "bachelors_plus_pct", vintage, vals, fallbacks, "%", 1,
                 "% of adults (18+) with bachelor's degree or higher",
             )
             written += 1
 
         # foreign_born_pct
-        vals = {}
+        vals = {}; fallbacks = {}
         for st, fips in STATE_FIPS.items():
-            num = load_value_at("foreign_born", st, vintage)
-            den = load_value_at("population", st, vintage)
-            if num is None or den is None or den <= 0:
+            b, actual = resolve(st, vintage, ["foreign_born", "population"])
+            if not b or actual is None:
                 continue
-            vals[fips] = 100.0 * num / den
+            den = b["population"]
+            if den <= 0:
+                continue
+            vals[fips] = 100.0 * b["foreign_born"] / den
+            if actual != vintage:
+                fallbacks[fips] = actual
         if vals:
             write_snapshot(
-                "foreign_born_pct", vintage, vals, "%", 1,
+                "foreign_born_pct", vintage, vals, fallbacks, "%", 1,
                 "% foreign-born",
             )
             written += 1

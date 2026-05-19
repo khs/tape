@@ -1,4 +1,4 @@
-title: Adults with a bachelor's degree by US state (2022)
+title: Adults 25+ with a bachelor's degree by US state (2022)
 render: choropleth
 geo: state
 indicator: bachelors_plus_pct
@@ -7,9 +7,6 @@ colorScheme: blues
 colorScale: linear
 tags: [government, us, demographics, education]
 blurb: |
-  Share of adults 18+ with a bachelor's degree or higher, ACS 5-year
-  ending 2022. Darker = higher education attainment. The denominator
-  here is 18+ (a proxy for the canonical 25+ universe) — the relative
-  ordering between states is preserved; absolute values run a few
-  percentage points lower than the standard 25+ figure. DC, MA, MD,
+  Share of adults 25+ with a bachelor's degree or higher, ACS 5-year
+  ending 2022. Darker = higher education attainment. DC, MA, MD,
   and CO lead; WV, MS, and KY anchor the bottom.
