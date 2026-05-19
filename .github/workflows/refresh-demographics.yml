@@ -68,6 +68,39 @@ jobs:
         continue-on-error: true
         run: python pipelines/derive_acs_state_from_cd.py
 
+      # Derive cross-sectional state-level choropleth snapshots from the
+      # state-level time-series files that the previous step produces.
+      # Output: public/data/acs_state/<indicator>_<vintage>.json — one
+      # file per (indicator, vintage), one entry per state. Feeds the
+      # choropleth chart type. Doesn't need CENSUS_API_KEY.
+      - name: Derive ACS choropleth snapshots (state level)
+        continue-on-error: true
+        run: python pipelines/census_acs_choropleth_derive_state.py
+
+      # Direct Census-API choropleth fetch for county / tract / block-
+      # group. CENSUS_API_KEY required; CD pipeline above has already
+      # used it. State-level is also fetched fresh here for redundancy
+      # against the derivation step. Tract + block-group default to VA
+      # for now — full-US tract/block-group is a manual one-off run
+      # because the API call volume is large.
+      - name: Refresh ACS choropleth snapshots (county)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_choropleth.py --geo county
+
+      - name: Refresh ACS choropleth snapshots (tract, VA)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_choropleth.py --geo tract --state VA
+
+      - name: Refresh ACS choropleth snapshots (block_group, VA)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_choropleth.py --geo block_group --state VA
+
       # World Bank — China deep-dive + regional/continent aggregates
       # (Africa, Europe, etc.). Annual data, slow-moving; lives here
       # rather than in the weekly market-data workflow.

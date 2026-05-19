@@ -216,8 +216,17 @@ export async function resolveChart(
     const target = await getEntry("charts", chart.data.aliasOf);
     if (target) chart = target;
   }
+  // Choropleth charts don't reference time-series sources — they bind
+  // to a (geo, indicator, vintage) tuple and load a cross-sectional
+  // snapshot at render time. Return them with an empty sources array;
+  // ChartChoropleth.astro handles the rest. The renderer call site
+  // dispatches on chart.data.render and never reads sources for
+  // choropleth, so an empty list is safe.
+  if (chart.data.render === "choropleth") {
+    return { chart, sources: [] };
+  }
   const sources = await Promise.all(
-    chart.data.sources.map((sid) => getEntry("sources", sid)),
+    (chart.data.sources ?? []).map((sid) => getEntry("sources", sid)),
   );
   const validSources = sources.filter(
     (s): s is CollectionEntry<"sources"> => s !== undefined,
@@ -262,11 +271,15 @@ export function perChartSupportedDeltas(
   sections: ResolvedSection[],
 ): DeltaWindow[][] {
   return sections.flatMap((sec) =>
-    sec.charts.map((c) =>
-      DELTA_WINDOWS.filter((w) =>
+    sec.charts.map((c) => {
+      // Choropleth charts are a snapshot — no time-window selector
+      // applies. Return an empty list so the dashboard-level pill
+      // computation correctly excludes them from the union.
+      if (c.chart.data.render === "choropleth") return [];
+      return DELTA_WINDOWS.filter((w) =>
         c.sources.every((s) => s.data.supportedDeltas.includes(w)),
-      ),
-    ),
+      );
+    }),
   );
 }
 

@@ -1,0 +1,14 @@
+title: Poverty rate by US state (2022)
+render: choropleth
+geo: state
+indicator: poverty_rate
+vintage: "2022"
+colorScheme: ylorrd
+colorScale: linear
+tags: [government, us, demographics, poverty]
+blurb: |
+  Share of each state's population below the federal poverty line, ACS
+  5-year ending 2022. Darker = higher poverty rate. The South + parts
+  of the Southwest run consistently higher than the Northeast +
+  Pacific. VA, MD, and DC-suburbs are near the low end thanks to
+  federal-employee + tech-corridor wage premiums.

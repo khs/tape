@@ -77,9 +77,15 @@ const sources = defineCollection({
 
 const charts = defineCollection({
   loader: glob({ pattern: "**/*.yaml", base: "./src/content/charts" }),
-  schema: z.object({
+  schema: z
+    .object({
     title: z.string(),
-    sources: z.array(z.string()).min(1),
+    // `sources` is required for everything except choropleth charts —
+    // those bind to a (geo, indicator, vintage) tuple via the
+    // dedicated fields below, not to a list of time-series source
+    // IDs. Renderer dispatch is by `render`; the refine() at the
+    // bottom enforces the right shape for each.
+    sources: z.array(z.string()).optional(),
     render: z
       .enum([
         "line",
@@ -88,6 +94,7 @@ const charts = defineCollection({
         "sparkDelta",
         "deltaGrid",
         "relativeReturns",
+        "choropleth",
       ])
       .default("line"),
     defaultDelta: deltaWindow.default("1m"),
@@ -130,7 +137,56 @@ const charts = defineCollection({
     // for divide/diff; sources[0] is A, sources[1] is B. Same machinery
     // as inline charts' combine op in composer-state.ts.
     op: z.enum(["divide", "sum", "diff"]).optional(),
-  }),
+    // ---- Choropleth-specific fields (render === "choropleth") ----
+    // Geographic granularity. State + county data ship for the full
+    // US. Tract + block-group data ship state-sharded; charts at
+    // those levels must specify `state` (and may add `bbox` to clip
+    // further). Renderer joins ACS values onto us-atlas TopoJSON via
+    // GEOID — 2-digit state FIPS, 5-digit county FIPS, 11-digit
+    // tract GEOID, 12-digit block-group GEOID.
+    geo: z.enum(["state", "county", "tract", "block-group"]).optional(),
+    // ACS indicator key (e.g., "poverty_rate", "median_hh_income",
+    // "bachelors_plus_pct", "foreign_born_pct"). Must match the
+    // out_id of one of pipelines/census_acs_choropleth.py's
+    // INDICATORS entries. Resolves to public/data/acs_<geo>/
+    // <indicator>_<vintage>.json (or the state-sharded variant for
+    // tract / block-group).
+    indicator: z.string().optional(),
+    // ACS 5-year ending year, e.g. "2022".
+    vintage: z.string().regex(/^\d{4}$/).optional(),
+    // Required for tract / block-group: 2-letter state code (e.g.
+    // "VA"). Selects the state-sharded data file.
+    state: z.string().length(2).optional(),
+    // Optional bounding box [west, south, east, north] in lng/lat,
+    // for tract / block-group charts that want to clip to a region
+    // smaller than the full state. Helps avoid death-by-polygons
+    // when zoomed-out tract views aren't useful.
+    bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
+    // Plot color scheme name (e.g., "blues", "ylorrd", "rdylgn").
+    // Defaults to "blues" for sequential indicators. See
+    // Observable Plot's scheme list.
+    colorScheme: z.string().optional(),
+    // Color-scale type. "linear" maps min→max linearly; "log" is
+    // useful for indicators with a long tail (population, GDP) so
+    // small regions don't all wash to the same dim color.
+    colorScale: z.enum(["linear", "log"]).optional(),
+  })
+    .refine(
+      (c) => {
+        if (c.render === "choropleth") {
+          return !!c.geo && !!c.indicator && !!c.vintage &&
+            // tract + block-group require a state shard
+            (c.geo === "state" || c.geo === "county" || !!c.state);
+        }
+        // Non-choropleth charts must have at least one source.
+        return (c.sources?.length ?? 0) > 0;
+      },
+      {
+        message:
+          "Chart shape mismatch: choropleth needs geo/indicator/vintage " +
+          "(and state for tract/block-group); other render types need sources.",
+      },
+    ),
 });
 
 const chartOverrideSchema = z

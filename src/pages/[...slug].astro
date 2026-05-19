@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Chart from "../components/Chart.astro";
+import ChartChoropleth from "../components/ChartChoropleth.astro";
 import ChartController from "../components/ChartController.astro";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
 import {
@@ -142,18 +143,34 @@ const forkUrl =
             <p class="section-description">{section.description}</p>
           )}
           <div class="chart-grid">
-            {section.charts.map((c) => (
-              <Chart
-                chartId={c.chart.id}
-                chart={effectiveChart(
-                  c,
-                  dashboard.data.chartOverrides?.[c.chart.id],
-                )}
-                sources={c.sources}
-                dashboardSlug={dashboard.id}
-                dashboardWindow={dashboardDefaultDelta}
-              />
-            ))}
+            {section.charts.map((c) => {
+              const effective = effectiveChart(
+                c,
+                dashboard.data.chartOverrides?.[c.chart.id],
+              );
+              // Dispatch on render type. Choropleth doesn't take a
+              // time-window or source list — only the chart's geo /
+              // indicator / vintage fields. Everything else still
+              // goes through the time-series Chart.astro.
+              if (effective.render === "choropleth") {
+                return (
+                  <ChartChoropleth
+                    chartId={c.chart.id}
+                    chart={effective}
+                    dashboardSlug={dashboard.id}
+                  />
+                );
+              }
+              return (
+                <Chart
+                  chartId={c.chart.id}
+                  chart={effective}
+                  sources={c.sources}
+                  dashboardSlug={dashboard.id}
+                  dashboardWindow={dashboardDefaultDelta}
+                />
+              );
+            })}
           </div>
         </section>
       ))

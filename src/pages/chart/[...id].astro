@@ -13,8 +13,12 @@ import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astr
 export async function getStaticPaths() {
   const charts = await getCollection("charts");
   // Skip deprecated-without-alias entries (the composer hides them too).
+  // Also skip choropleth charts — they're snapshot-only, don't fit the
+  // single-chart-detail "expand a tile" UX yet (no time series, no
+  // delta-window selector). Pregenerated-only inside presets for v1.
   return charts
     .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+    .filter((c) => c.data.render !== "choropleth")
     .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
 }
 

@@ -80,7 +80,7 @@ type Resolved = {
  * fine indexed to 100.
  */
 function resolveChartSeries(
-  chartData: { sources: string[]; seriesLabels?: string[]; normalize?: string },
+  chartData: { sources?: string[]; seriesLabels?: string[]; normalize?: string },
   sourceData: { id: string; name: string; shortName?: string; points: { t: string; v: number }[] }[],
 ): OgSeries[] {
   const out: OgSeries[] = [];
@@ -115,7 +115,7 @@ async function resolveDashSlug(slug: string): Promise<Resolved | null> {
   if (!chart)
     return { title: dash.data.title, subtitle: dash.data.description, series: [], isSingle: false };
   const sources: { id: string; name: string; shortName?: string; points: { t: string; v: number }[] }[] = [];
-  for (const sid of chart.data.sources) {
+  for (const sid of chart.data.sources ?? []) {
     const src = await getEntry("sources", sid);
     if (!src) continue;
     try {
@@ -144,7 +144,7 @@ async function resolveChartId(chartId: string): Promise<Resolved | null> {
   const chart = await getEntry("charts", chartId);
   if (!chart) return null;
   const sources: { id: string; name: string; shortName?: string; points: { t: string; v: number }[] }[] = [];
-  for (const sid of chart.data.sources) {
+  for (const sid of chart.data.sources ?? []) {
     const src = await getEntry("sources", sid);
     if (!src) continue;
     try {

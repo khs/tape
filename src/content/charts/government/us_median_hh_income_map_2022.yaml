@@ -1,0 +1,14 @@
+title: Median household income by US state (2022)
+render: choropleth
+geo: state
+indicator: median_hh_income
+vintage: "2022"
+colorScheme: greens
+colorScale: linear
+tags: [government, us, demographics, income]
+blurb: |
+  Median household income across all 50 states + DC, ACS 5-year ending
+  2022. Darker = higher median income. Maryland, New Jersey,
+  Massachusetts, and DC anchor the top; Mississippi, West Virginia, and
+  Louisiana the bottom. The federal-corridor region (MD/VA/DC) is the
+  highest-income contiguous block in the country.

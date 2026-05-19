@@ -1,0 +1,404 @@
+---
+/**
+ * Choropleth (heatmap) chart tile.
+ *
+ * Renders one US map colored by an ACS indicator at a given vintage,
+ * at one of four geographic granularities (state / county / tract /
+ * block-group). State + county data is nationwide; tract + block-group
+ * is sharded by state and may be further clipped via `bbox`.
+ *
+ * Flow:
+ *   1. At build time (this frontmatter) we resolve the data file path
+ *      from the chart's (geo, indicator, vintage, state) fields and
+ *      read it server-side so the tile ships with the min/max range
+ *      already known. Saves a roundtrip on first paint.
+ *   2. We DON'T embed the full values map into the tile HTML —
+ *      hundreds of regions × multiple tiles on a dashboard would
+ *      bloat the page. The map renders client-side after fetching
+ *      the values + the boundary TopoJSON.
+ *   3. Boundary TopoJSON for state + county comes from us-atlas (one
+ *      shared file at /maps/us-counties-albers-10m.json, contains
+ *      both states + counties). Tract + block-group will be
+ *      state-sharded TopoJSONs when those pipelines run.
+ *
+ * No time-window selector (no time series). The tile is a snapshot of
+ * one vintage. A future iteration will add a year-slider dialog that
+ * fetches sibling vintages of the same indicator.
+ */
+import type { CollectionEntry } from "astro:content";
+import { promises as fs } from "node:fs";
+import { join } from "node:path";
+
+type ChartData = CollectionEntry<"charts">["data"];
+
+interface Props {
+  chartId: string;
+  chart: ChartData;
+  dashboardSlug: string;
+}
+
+const { chartId, chart, dashboardSlug } = Astro.props;
+
+// Resolve the data file path from the chart's choropleth fields. The
+// pipeline writes:
+//   public/data/acs_state/<indicator>_<vintage>.json
+//   public/data/acs_county/<indicator>_<vintage>.json
+//   public/data/acs_tract/<state>/<indicator>_<vintage>.json
+//   public/data/acs_block_group/<state>/<indicator>_<vintage>.json
+const geo = chart.geo!;        // refine() above guarantees non-empty
+const indicator = chart.indicator!;
+const vintage = chart.vintage!;
+const stateCode = chart.state?.toLowerCase();
+const dataDirSeg = geo === "block-group" ? "acs_block_group" : `acs_${geo}`;
+const dataFileRel =
+  geo === "state" || geo === "county"
+    ? `data/${dataDirSeg}/${indicator}_${vintage}.json`
+    : `data/${dataDirSeg}/${stateCode}/${indicator}_${vintage}.json`;
+const dataFileUrl = `/${dataFileRel}`;
+
+// Read the data file server-side so we can compute headline numbers
+// (min, max, median) for the tile eyebrow + render an accurate legend
+// scale without a client roundtrip on first paint.
+//
+// Note: we only ship the SUMMARY values into the tile HTML — full
+// values map gets fetched client-side. Saves dashboard payload size.
+interface SnapshotShape {
+  geo: string;
+  indicator: string;
+  vintage: string;
+  unit: string;
+  decimals: number;
+  valueLabel: string;
+  lastUpdated: string;
+  stateCode?: string;
+  values: Record<string, number>;
+}
+
+let summary: {
+  min: number;
+  max: number;
+  median: number;
+  count: number;
+  unit: string;
+  decimals: number;
+  valueLabel: string;
+  lastUpdated: string;
+} | null = null;
+let loadError: string | null = null;
+try {
+  const fullPath = join(process.cwd(), "public", dataFileRel);
+  const raw = await fs.readFile(fullPath, "utf-8");
+  const parsed = JSON.parse(raw) as SnapshotShape;
+  const vals = Object.values(parsed.values).filter(
+    (v): v is number => typeof v === "number" && Number.isFinite(v),
+  );
+  if (vals.length === 0) {
+    loadError = "no values in snapshot";
+  } else {
+    vals.sort((a, b) => a - b);
+    summary = {
+      min: vals[0],
+      max: vals[vals.length - 1],
+      median: vals[Math.floor(vals.length / 2)],
+      count: vals.length,
+      unit: parsed.unit,
+      decimals: parsed.decimals,
+      valueLabel: parsed.valueLabel,
+      lastUpdated: parsed.lastUpdated,
+    };
+  }
+} catch (e) {
+  loadError = `data file unreadable: ${(e as Error).message}`;
+}
+
+function fmt(v: number, unit: string, decimals: number): string {
+  if (unit === "USD") {
+    return v.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    });
+  }
+  const rounded = v.toFixed(decimals);
+  return unit === "%" ? `${rounded}%` : rounded;
+}
+
+const tileTitle = chart.title;
+const boundaryUrl = "/maps/us-counties-albers-10m.json"; // state + county both live here
+const colorScheme = chart.colorScheme ?? "blues";
+const colorScale = chart.colorScale ?? "linear";
+const bboxJson = chart.bbox ? JSON.stringify(chart.bbox) : "null";
+---
+
+<article
+  class="chart-tile choro-tile"
+  data-chart-id={chartId}
+  data-dashboard-slug={dashboardSlug}
+  data-role="chart-tile"
+>
+  <header class="chart-tile-header">
+    <h3 class="chart-tile-title">{tileTitle}</h3>
+    {summary && (
+      <p class="choro-eyebrow muted small">
+        Vintage {vintage} · {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : "block groups"}
+        {" · range "}
+        {fmt(summary.min, summary.unit, summary.decimals)}
+        {" – "}
+        {fmt(summary.max, summary.unit, summary.decimals)}
+      </p>
+    )}
+    {!summary && loadError && (
+      <p class="choro-eyebrow muted small text-error">
+        Data unavailable: {loadError}
+      </p>
+    )}
+  </header>
+  <div
+    class="choro-canvas"
+    data-role="choro-canvas"
+    data-data-url={dataFileUrl}
+    data-boundary-url={boundaryUrl}
+    data-geo={geo}
+    data-state={stateCode ?? ""}
+    data-bbox={bboxJson}
+    data-color-scheme={colorScheme}
+    data-color-scale={colorScale}
+    data-value-label={summary?.valueLabel ?? ""}
+    data-unit={summary?.unit ?? ""}
+    data-decimals={summary?.decimals ?? 1}
+  >
+    {summary ? null : (
+      <p class="muted small">No data for this snapshot.</p>
+    )}
+  </div>
+  {summary && (
+    <footer class="chart-tile-footer">
+      <p class="muted small">
+        Median {fmt(summary.median, summary.unit, summary.decimals)} · ACS 5-year · updated {new Date(summary.lastUpdated).toLocaleDateString("en-US", { year: "numeric", month: "short" })}
+      </p>
+    </footer>
+  )}
+</article>
+
+<script>
+  // Client-side renderer. Fetches the snapshot values + the boundary
+  // TopoJSON in parallel, then paints a colored map via Observable
+  // Plot's geo mark. Idempotent — safe to run twice if the user
+  // navigates back to a cached page.
+  import * as Plot from "@observablehq/plot";
+  import * as topojson from "topojson-client";
+
+  type ChoroBindings = {
+    dataUrl: string;
+    boundaryUrl: string;
+    geo: "state" | "county" | "tract" | "block-group";
+    state: string;
+    bbox: [number, number, number, number] | null;
+    colorScheme: string;
+    colorScale: "linear" | "log";
+    valueLabel: string;
+    unit: string;
+    decimals: number;
+  };
+
+  // Cache fetched boundary + values JSON across tiles on the same page
+  // so a dashboard with N choropleths only does ONE boundary fetch.
+  const boundaryCache = new Map<string, Promise<unknown>>();
+  const valuesCache = new Map<string, Promise<Record<string, number>>>();
+
+  function getBoundary(url: string): Promise<any> {
+    let p = boundaryCache.get(url);
+    if (!p) {
+      p = fetch(url).then((r) => {
+        if (!r.ok) throw new Error(`boundary ${url}: ${r.status}`);
+        return r.json();
+      });
+      boundaryCache.set(url, p);
+    }
+    return p;
+  }
+
+  function getValues(url: string): Promise<Record<string, number>> {
+    let p = valuesCache.get(url);
+    if (!p) {
+      p = fetch(url)
+        .then((r) => {
+          if (!r.ok) throw new Error(`values ${url}: ${r.status}`);
+          return r.json();
+        })
+        .then((j) => j.values as Record<string, number>);
+      valuesCache.set(url, p);
+    }
+    return p;
+  }
+
+  function fmtValue(v: number | null, unit: string, decimals: number): string {
+    if (v == null || !Number.isFinite(v)) return "—";
+    if (unit === "USD") {
+      return v.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      });
+    }
+    const r = v.toFixed(decimals);
+    return unit === "%" ? `${r}%` : r;
+  }
+
+  async function paint(canvas: HTMLElement, b: ChoroBindings) {
+    const [boundary, values] = await Promise.all([
+      getBoundary(b.boundaryUrl),
+      getValues(b.dataUrl),
+    ]);
+    // Pick the right TopoJSON object layer + GEOID key based on geo.
+    // State features have id = 2-digit FIPS; county features have id
+    // = 5-digit FIPS. Tract/block-group come from state-sharded
+    // TopoJSONs we generate separately (not present in v1).
+    let layerName: string;
+    if (b.geo === "state") layerName = "states";
+    else if (b.geo === "county") layerName = "counties";
+    else if (b.geo === "tract") layerName = "tracts";
+    else layerName = "block_groups";
+    const fc = topojson.feature(boundary, boundary.objects[layerName]) as any;
+    const features = fc.features as Array<{
+      id: string;
+      properties?: { name?: string };
+    }>;
+    // Apply bbox clip if provided. Uses centroid-in-bbox for speed;
+    // boundary polygons that straddle the box edge are still drawn.
+    let clipped = features;
+    if (b.bbox) {
+      const [w, s, e, n] = b.bbox;
+      clipped = features.filter((f) => {
+        // Naive centroid via property.cx/cy if present; else skip.
+        // us-atlas county features have no centroid property; we
+        // could compute via d3-geo but for v1 keep this branch off
+        // unless tract/block-group ships with centroids.
+        const cx = (f as any).properties?.cx;
+        const cy = (f as any).properties?.cy;
+        if (cx == null || cy == null) return true; // can't filter; keep
+        return cx >= w && cx <= e && cy >= s && cy <= n;
+      });
+    }
+    // Build a domain from observed values so the legend is tight.
+    const obs: number[] = [];
+    for (const f of clipped) {
+      const v = values[f.id];
+      if (typeof v === "number" && Number.isFinite(v)) obs.push(v);
+    }
+    if (obs.length === 0) {
+      canvas.innerHTML = '<p class="muted small">No regions with values.</p>';
+      return;
+    }
+    obs.sort((a, b2) => a - b2);
+    // Trim 1% tails to keep one outlier from washing out the rest.
+    const lo = obs[Math.max(0, Math.floor(obs.length * 0.01))];
+    const hi = obs[Math.min(obs.length - 1, Math.ceil(obs.length * 0.99))];
+    const colorDomain: [number, number] = [lo, hi];
+    canvas.innerHTML = "";
+    // Always Albers projection so US looks right (Alaska + Hawaii in
+    // canonical insets). us-atlas albers files are pre-projected so we
+    // pass projection: "identity" + the data is already in pixel space.
+    const isAlbersPreprojected = b.boundaryUrl.includes("albers");
+    const plotSpec = {
+      projection: isAlbersPreprojected ? "identity" : "albers-usa",
+      width: 600,
+      height: 380,
+      margin: 6,
+      color: {
+        type: b.colorScale,
+        scheme: b.colorScheme,
+        domain: colorDomain,
+        legend: true,
+        label: b.valueLabel,
+      },
+      marks: [
+        Plot.geo(clipped, {
+          fill: (d: any) => values[d.id] ?? null,
+          stroke: "white",
+          strokeWidth: 0.3,
+          title: (d: any) => {
+            const v = values[d.id];
+            const name = d.properties?.name ?? d.id;
+            return `${name}\n${fmtValue(v ?? null, b.unit, b.decimals)}`;
+          },
+        }),
+      ],
+    };
+    const fig = (Plot as any).plot(plotSpec);
+    canvas.appendChild(fig);
+  }
+
+  function hydrateAll() {
+    const canvases = document.querySelectorAll<HTMLElement>(
+      "[data-role='choro-canvas']",
+    );
+    canvases.forEach((canvas) => {
+      if (canvas.dataset.hydrated === "1") return;
+      canvas.dataset.hydrated = "1";
+      const b: ChoroBindings = {
+        dataUrl: canvas.dataset.dataUrl ?? "",
+        boundaryUrl: canvas.dataset.boundaryUrl ?? "",
+        geo: (canvas.dataset.geo ?? "county") as ChoroBindings["geo"],
+        state: canvas.dataset.state ?? "",
+        bbox: canvas.dataset.bbox && canvas.dataset.bbox !== "null"
+          ? (JSON.parse(canvas.dataset.bbox) as [number, number, number, number])
+          : null,
+        colorScheme: canvas.dataset.colorScheme ?? "blues",
+        colorScale: (canvas.dataset.colorScale ?? "linear") as
+          ChoroBindings["colorScale"],
+        valueLabel: canvas.dataset.valueLabel ?? "",
+        unit: canvas.dataset.unit ?? "",
+        decimals: Number(canvas.dataset.decimals ?? "1"),
+      };
+      paint(canvas, b).catch((e) => {
+        canvas.innerHTML = `<p class="muted small">Map failed to load: ${String(e?.message ?? e)}</p>`;
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hydrateAll);
+  } else {
+    hydrateAll();
+  }
+</script>
+
+<style>
+  .choro-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    min-height: 320px;
+    /* Maps need width to be useful — a 220px tile would be unreadable.
+       Span two grid columns on a typical dashboard layout; the
+       chart-grid template falls back gracefully on narrow viewports
+       where there's only one column anyway. */
+    grid-column: span 2;
+  }
+  @media (max-width: 720px) {
+    .choro-tile { grid-column: span 1; }
+  }
+  .choro-tile .chart-tile-header { margin: 0; }
+  .choro-tile .chart-tile-title {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-neutral-900);
+  }
+  .choro-eyebrow { margin: 2px 0 0; }
+  .choro-canvas {
+    flex: 1;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .choro-canvas svg { max-width: 100%; height: auto; }
+  .chart-tile-footer { margin: 0; padding-top: 4px; border-top: 1px solid rgba(55, 53, 47, 0.05); }
+  .chart-tile-footer p { margin: 0; }
+</style>
