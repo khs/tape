@@ -171,9 +171,14 @@ const tileTitle = chart.title;
 // shapefiles). The TopoJSON's `objects` map must contain a layer
 // named "states", "counties", "tracts", or "block_groups" to match
 // the geo dispatch in the client paint().
+// us-counties-2024-10m.json: cb_2024 Census Cartographic Boundary
+// file, mapshaper-simplified, contains state + county layers. Newer
+// than us-atlas's vintage so CT's 2022 Planning Region county FIPS
+// (09110..09190) are present — the us-atlas file still has CT's old
+// county FIPS (09001..09015) which no longer match ACS API output.
 const defaultBoundary =
   geo === "state" || geo === "county"
-    ? "/maps/us-counties-10m.json"
+    ? "/maps/us-counties-2024-10m.json"
     : "";
 const boundaryUrl = chart.boundaryFile ?? defaultBoundary;
 const bbox = chart.bbox ?? null;

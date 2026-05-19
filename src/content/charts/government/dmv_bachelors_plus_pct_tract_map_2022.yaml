@@ -1,0 +1,17 @@
+title: Adults 25+ with a bachelor's degree by census tract — DC metro (2022)
+render: choropleth
+geo: tract
+states: [VA, MD, DC]
+indicator: bachelors_plus_pct
+vintage: "2022"
+boundaryFile: /maps/dmv-tracts-topo.json
+bbox: [-77.55, 38.65, -76.75, 39.30]
+colorScheme: blues
+colorScale: linear
+tags: [government, dmv, demographics, education]
+blurb: |
+  Tract-level share of adults 25+ with a bachelor's degree across
+  the DC metro area, ACS 5-year ending 2022. Darker = higher
+  attainment. North Arlington / inner NW DC / Bethesda anchor the
+  top of the local range; the federal-corridor effect on
+  educational concentration is visible at every tract boundary.

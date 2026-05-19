@@ -1,0 +1,18 @@
+title: Foreign-born share by census tract — DC metro (2022)
+render: choropleth
+geo: tract
+states: [VA, MD, DC]
+indicator: foreign_born_pct
+vintage: "2022"
+boundaryFile: /maps/dmv-tracts-topo.json
+bbox: [-77.55, 38.65, -76.75, 39.30]
+colorScheme: purples
+colorScale: linear
+tags: [government, dmv, demographics, immigration]
+blurb: |
+  Tract-level foreign-born share across the DC metro area, ACS
+  5-year ending 2022. Darker = larger foreign-born share. Inner
+  NoVa runs distinctly higher than DC proper or inner MD —
+  Annandale, Bailey's Crossroads, and the Route 7 corridor are
+  among the most foreign-born tracts in the country, several
+  topping 50%.
