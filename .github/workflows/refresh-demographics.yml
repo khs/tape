@@ -100,11 +100,28 @@ jobs:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         run: python pipelines/census_acs_choropleth.py --geo county
 
+      # DMV tract maps span VA + MD + DC. Each --state call fetches
+      # one shard; the renderer merges them on the client. Stays a
+      # small set (3 states) by design — full-US tract is a separate
+      # one-off run because each state is ~2-4k tracts × indicators
+      # × vintages and the API call volume balloons quickly.
       - name: Refresh ACS choropleth snapshots (tract, VA)
         continue-on-error: true
         env:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         run: python pipelines/census_acs_choropleth.py --geo tract --state VA
+
+      - name: Refresh ACS choropleth snapshots (tract, MD)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_choropleth.py --geo tract --state MD
+
+      - name: Refresh ACS choropleth snapshots (tract, DC)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_choropleth.py --geo tract --state DC
 
       - name: Refresh ACS choropleth snapshots (block_group, VA)
         continue-on-error: true

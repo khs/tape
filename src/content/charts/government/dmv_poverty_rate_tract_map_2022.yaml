@@ -1,0 +1,22 @@
+title: Poverty rate by census tract — DC metro area (2022)
+render: choropleth
+geo: tract
+states: [VA, MD, DC]
+indicator: poverty_rate
+vintage: "2022"
+boundaryFile: /maps/dmv-tracts-topo.json
+# DMV bbox: covers DC + inner NoVa (Arlington / Alexandria / Falls
+# Church / Fairfax) + inner suburban MD (Montgomery / Prince
+# George's). Tracts whose any vertex falls inside this box are kept;
+# the rest are dropped pre-render so Plot auto-fits the clipped area.
+bbox: [-77.55, 38.65, -76.75, 39.30]
+colorScheme: ylorrd
+colorScale: linear
+tags: [government, dmv, demographics, poverty]
+blurb: |
+  Tract-level poverty rate across the DC metropolitan area, ACS
+  5-year ending 2022. Darker = higher poverty rate. The big-picture
+  story: a tight wedge of high-poverty tracts inside DC (anacostia
+  + ne DC + parts of central DC), surrounded by very-low-poverty
+  inner-NoVa + inner-Bethesda suburbs, with outer-suburban tracts
+  bouncing back toward national medians.

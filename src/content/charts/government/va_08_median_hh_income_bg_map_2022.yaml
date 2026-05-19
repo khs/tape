@@ -1,0 +1,18 @@
+title: Median household income by census block group — VA-08 (2022)
+render: choropleth
+geo: block-group
+states: [VA]
+indicator: median_hh_income
+vintage: "2022"
+boundaryFile: /maps/va-block-groups-topo.json
+bbox: [-77.32, 38.78, -77.04, 38.97]
+colorScheme: greens
+colorScale: linear
+tags: [government, va-08, demographics, income]
+blurb: |
+  Block-group-level median household income across VA-08, ACS
+  5-year ending 2022. Darker = higher income. Pulls apart the
+  "VA-08 = uniformly high income" tract-level story into actual
+  pockets: high-rise apartment-dense block groups along the
+  Metro Orange line read lower; single-family neighborhoods
+  in McLean / Falls Church anchor the top.

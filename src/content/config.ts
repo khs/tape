@@ -154,13 +154,24 @@ const charts = defineCollection({
     indicator: z.string().optional(),
     // ACS 5-year ending year, e.g. "2022".
     vintage: z.string().regex(/^\d{4}$/).optional(),
-    // Required for tract / block-group: 2-letter state code (e.g.
-    // "VA"). Selects the state-sharded data file.
+    // Required for tract / block-group when only one state's worth of
+    // data is needed: 2-letter state code (e.g. "VA"). Selects the
+    // state-sharded data file. Use `states` instead when a chart
+    // spans multiple states (DMV-area tract maps span VA + MD + DC).
     state: z.string().length(2).optional(),
+    states: z.array(z.string().length(2)).optional(),
+    // For tract / block-group charts: path to a custom TopoJSON
+    // boundary file (e.g. "/maps/dmv-tracts-topo.json"). State and
+    // county charts reuse the bundled us-counties-10m.json so this
+    // field is unused for those. The TopoJSON's top-level objects
+    // map should contain a layer named "tracts" or "block_groups".
+    boundaryFile: z.string().optional(),
     // Optional bounding box [west, south, east, north] in lng/lat,
     // for tract / block-group charts that want to clip to a region
     // smaller than the full state. Helps avoid death-by-polygons
-    // when zoomed-out tract views aren't useful.
+    // when zoomed-out tract views aren't useful. Polygons whose
+    // any vertex falls inside the bbox are kept; others are dropped
+    // pre-render so Plot's projection auto-fits the clipped area.
     bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
     // Plot color scheme name (e.g., "blues", "ylorrd", "rdylgn").
     // Defaults to "blues" for sequential indicators. See
@@ -174,9 +185,13 @@ const charts = defineCollection({
     .refine(
       (c) => {
         if (c.render === "choropleth") {
-          return !!c.geo && !!c.indicator && !!c.vintage &&
-            // tract + block-group require a state shard
-            (c.geo === "state" || c.geo === "county" || !!c.state);
+          if (!c.geo || !c.indicator || !c.vintage) return false;
+          // tract + block-group require either `state` (single) or
+          // `states` (multi-state span like DMV).
+          if (c.geo === "tract" || c.geo === "block-group") {
+            return !!c.state || (c.states && c.states.length > 0);
+          }
+          return true;
         }
         // Non-choropleth charts must have at least one source.
         return (c.sources?.length ?? 0) > 0;
