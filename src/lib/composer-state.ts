@@ -106,6 +106,48 @@ const inlineSourceSchema = z.object({
 
 export type InlineSource = z.infer<typeof inlineSourceSchema>;
 
+/**
+ * An ad-hoc choropleth map built in the composer's Maps tab.
+ *
+ * Choropleth charts don't fit the standard `inlineChartSchema` (which
+ * requires a `sources` list and uses `render` to dispatch a renderer).
+ * Maps are dispatched by `render === "choropleth"` at the existing
+ * Chart.astro / ChartChoropleth.astro boundary; we encode them as
+ * their own schema here so the composer + renderer share the same
+ * field set without overloading the time-series shape.
+ *
+ * Referenced from section chart lists by `inlinemap:<id>`. Lives in
+ * `composedState.inlineMaps`, mirroring how `inlineCharts` works.
+ *
+ * Field semantics match `src/content/config.ts`'s choropleth-chart
+ * shape exactly — see that file for the canonical reference. Briefly:
+ *   geo            tract | block-group | county | state
+ *   indicator      out_id from census_acs_choropleth.py's INDICATORS
+ *   vintage        "YYYY" of ACS 5-year vintage
+ *   state          2-letter code (required when geo is tract / BG)
+ *   bbox           [west, south, east, north] in lng/lat; clips view
+ *   boundaryFile   path under public/ to a TopoJSON with the polygons
+ *   colorScheme    Plot color-scheme name, e.g. "reds"
+ *   colorScale     "linear" or "log"
+ */
+const inlineMapSchema = z.object({
+  title: z.string(),
+  geo: z.enum(["state", "county", "tract", "block-group"]),
+  indicator: z.string(),
+  vintage: z.string().regex(/^\d{4}$/),
+  state: z.string().length(2).optional(),
+  states: z.array(z.string().length(2)).optional(),
+  bbox: z
+    .tuple([z.number(), z.number(), z.number(), z.number()])
+    .optional(),
+  boundaryFile: z.string().optional(),
+  colorScheme: z.string().optional(),
+  colorScale: z.enum(["linear", "log"]).optional(),
+  blurb: z.string().optional(),
+});
+
+export type InlineMap = z.infer<typeof inlineMapSchema>;
+
 // Fixed-date range that pins both the visible window and the delta-prior
 // anchor to a specific [start, end] pair. When set, overrides defaultDelta
 // and the per-viewer window pills entirely so the dashboard reads the same
@@ -127,6 +169,7 @@ export const composedStateSchema = z.object({
   chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),
   inlineCharts: z.record(z.string(), inlineChartSchema).optional(),
   inlineSources: z.record(z.string(), inlineSourceSchema).optional(),
+  inlineMaps: z.record(z.string(), inlineMapSchema).optional(),
 });
 
 export type ComposedState = z.infer<typeof composedStateSchema>;

@@ -5,7 +5,7 @@ import {
   closestSupported,
   type DeltaWindow,
 } from "./deltas";
-import type { InlineChart, InlineSource } from "./composer-state";
+import type { InlineChart, InlineMap, InlineSource } from "./composer-state";
 import { combineTwo, combineOpFormatting, type CombineOp } from "./derive";
 import type { TimeSeriesData } from "./data-types";
 import { loadSourceData } from "./load-data";
@@ -46,10 +46,12 @@ export type DashboardShape = {
   >;
   inlineCharts?: Record<string, InlineChart>;
   inlineSources?: Record<string, InlineSource>;
+  inlineMaps?: Record<string, InlineMap>;
   defaultDelta?: DeltaWindow;
 };
 
 export const INLINE_CHART_PREFIX = "inline:";
+export const INLINE_MAP_PREFIX = "inlinemap:";
 export const DERIVED_SOURCE_PREFIX = "derived:";
 
 /**
@@ -161,7 +163,37 @@ export async function resolveChart(
   id: string,
   inlineCharts?: Record<string, InlineChart>,
   inlineSources?: Record<string, InlineSource>,
+  inlineMaps?: Record<string, InlineMap>,
 ): Promise<ResolvedChart | null> {
+  if (id.startsWith(INLINE_MAP_PREFIX)) {
+    const spec = inlineMaps?.[id];
+    if (!spec) return null;
+    // Synthesize a CollectionEntry-shaped chart object so the
+    // downstream render dispatch (Chart.astro for line, ChartChoropleth
+    // for "choropleth") can treat inline maps identically to library
+    // choropleth charts. Only `data.render` + the geo/indicator/vintage
+    // fields are read by ChartChoropleth.
+    const fakeChart = {
+      id,
+      data: {
+        title: spec.title,
+        render: "choropleth" as const,
+        geo: spec.geo,
+        indicator: spec.indicator,
+        vintage: spec.vintage,
+        state: spec.state,
+        states: spec.states,
+        bbox: spec.bbox,
+        boundaryFile: spec.boundaryFile,
+        colorScheme: spec.colorScheme,
+        colorScale: spec.colorScale,
+        blurb: spec.blurb,
+        defaultDelta: "1m" as const,
+        tags: [] as string[],
+      },
+    } as unknown as CollectionEntry<"charts">;
+    return { chart: fakeChart, sources: [] };
+  }
   if (id.startsWith(INLINE_CHART_PREFIX)) {
     const spec = inlineCharts?.[id];
     if (!spec) return null;
@@ -261,7 +293,12 @@ export async function resolveSections(
   for (const s of sectionsRaw) {
     const resolved = await Promise.all(
       s.charts.map((cid) =>
-        resolveChart(cid, dashboard.inlineCharts, dashboard.inlineSources),
+        resolveChart(
+          cid,
+          dashboard.inlineCharts,
+          dashboard.inlineSources,
+          dashboard.inlineMaps,
+        ),
       ),
     );
     const valid = resolved.filter((r): r is ResolvedChart => r !== null);

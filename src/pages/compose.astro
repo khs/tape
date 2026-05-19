@@ -97,6 +97,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             role="tab"
             aria-selected="false"
           >Pregenerated charts</button>
+          <button
+            type="button"
+            class="lib-tab"
+            data-role="lib-tab"
+            data-tab="maps"
+            role="tab"
+            aria-selected="false"
+            title="Build a choropleth map from ACS demographic data"
+          >Maps</button>
         </div>
 
         <div class="lib-panel" data-role="lib-panel-sources">
@@ -221,6 +230,152 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           </div>
           <div class="lib-results" data-role="lib-results-charts">
             <p class="muted small">Loading pregenerated charts...</p>
+          </div>
+        </div>
+
+        <!--
+          Maps tab: build a choropleth map from ACS demographic data.
+          Form-driven (not search-driven like the other two tabs) because
+          the input set is a 5-axis cross-product (indicator × vintage ×
+          geo × state × color) rather than a list to filter. Form values
+          are written to a local mapBuilder state object; clicking "Add
+          map" creates a `inlinemap:<id>` entry in state.inlineMaps and
+          appends the reference to the active section.
+        -->
+        <div class="lib-panel lib-panel-maps" data-role="lib-panel-maps" hidden>
+          <div class="map-builder">
+            <p class="muted small map-builder-intro">
+              Build a choropleth map of one of the four ACS demographic
+              indicators. The map is added to your current section
+              like any other tile.
+            </p>
+
+            <label class="map-field">
+              <span class="map-field-label">Indicator</span>
+              <select class="map-input" data-role="map-indicator">
+                <option value="poverty_rate">Poverty rate</option>
+                <option value="median_hh_income">Median household income</option>
+                <option value="bachelors_plus_pct">Bachelor's degree or higher (% adults 25+)</option>
+                <option value="foreign_born_pct">Foreign-born share</option>
+              </select>
+            </label>
+
+            <div class="map-field">
+              <span class="map-field-label">Vintage</span>
+              <div class="map-vintage-row">
+                <input
+                  type="range"
+                  min="2010"
+                  max="2022"
+                  value="2022"
+                  step="1"
+                  data-role="map-vintage"
+                  aria-label="ACS 5-year vintage end-year"
+                />
+                <span class="map-vintage-readout" data-role="map-vintage-readout">2022</span>
+              </div>
+              <span class="muted small">
+                ACS 5-year estimate ending in the selected calendar year.
+              </span>
+            </div>
+
+            <fieldset class="map-field">
+              <legend class="map-field-label">Geography level</legend>
+              <div class="map-geo-radios">
+                <label class="map-radio-row">
+                  <input type="radio" name="map-geo" value="state" data-role="map-geo" />
+                  <span><strong>State</strong> &mdash; one tile per state</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="map-geo" value="county" checked data-role="map-geo" />
+                  <span><strong>County</strong> &mdash; ~3,140 US counties</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="map-geo" value="tract" data-role="map-geo" />
+                  <span><strong>Tract</strong> &mdash; ~500&ndash;9,000 per state</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="map-geo" value="block-group" data-role="map-geo" />
+                  <span><strong>Block group</strong> &mdash; up to ~30,000 per state (only median income + education are published at this level)</span>
+                </label>
+              </div>
+              <p class="muted small map-geo-warning" data-role="map-geo-warning" hidden>
+                ⚠ Tract and block-group maps render thousands of polygons.
+                On slower devices the map may take a few seconds to draw.
+                Use the bbox section below to clip to an area of interest
+                if scrolling feels sluggish.
+              </p>
+            </fieldset>
+
+            <label class="map-field" data-role="map-state-field" hidden>
+              <span class="map-field-label">State</span>
+              <select class="map-input" data-role="map-state"></select>
+              <span class="muted small">
+                Tract and block-group maps need a state shard — each state
+                ships its own TopoJSON.
+              </span>
+            </label>
+
+            <label class="map-field">
+              <span class="map-field-label">Color scheme</span>
+              <select class="map-input" data-role="map-color-scheme">
+                <option value="reds">Reds</option>
+                <option value="blues">Blues</option>
+                <option value="greens">Greens</option>
+                <option value="purples">Purples</option>
+                <option value="oranges">Oranges</option>
+                <option value="ylorrd">Yellow–Orange–Red</option>
+                <option value="rdylgn">Red–Yellow–Green (diverging)</option>
+                <option value="viridis">Viridis (perceptually uniform)</option>
+                <option value="batlow">Batlow (perceptually uniform)</option>
+              </select>
+            </label>
+
+            <fieldset class="map-field">
+              <legend class="map-field-label">Color scale</legend>
+              <div class="map-scale-radios">
+                <label class="map-radio-row">
+                  <input type="radio" name="map-scale" value="linear" checked data-role="map-scale" />
+                  <span><strong>Linear</strong> &mdash; default</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="map-scale" value="log" data-role="map-scale" />
+                  <span><strong>Log</strong> &mdash; better for long-tailed indicators (income, population)</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <details class="map-bbox-section" data-role="map-bbox-details">
+              <summary>Area of interest (optional)</summary>
+              <p class="muted small">
+                Draw a rectangle on the preview to clip the map to a sub-area
+                of the selected state. Useful for metro-level views inside
+                large states. Leave empty for whole-state coverage.
+              </p>
+              <div class="map-bbox-preview" data-role="map-bbox-preview">
+                <p class="muted small">Pick a state above to enable bbox drawing.</p>
+              </div>
+              <div class="map-bbox-controls">
+                <span class="muted small" data-role="map-bbox-readout">No area selected</span>
+                <button type="button" class="btn-secondary map-bbox-clear" data-role="map-bbox-clear">Clear</button>
+              </div>
+            </details>
+
+            <label class="map-field">
+              <span class="map-field-label">Title (optional)</span>
+              <input
+                type="text"
+                class="map-input"
+                data-role="map-title"
+                placeholder="Auto-generated from your selections"
+              />
+            </label>
+
+            <div class="map-actions">
+              <button type="button" class="btn-primary map-add-btn" data-role="map-add-btn">
+                + Add map to dashboard
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -572,6 +727,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     decodeComposedState,
     type ComposedState,
     type InlineChart,
+    type InlineMap,
     type InlineSource,
   } from "../lib/composer-state";
   import {
@@ -587,6 +743,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     SUPABASE_REST_ANON_KEY,
   } from "../lib/supabase";
   import { nanoid } from "nanoid";
+  // d3 + topojson are used by the Maps tab's bbox-drawing preview only.
+  // Bundler tree-shakes to just these submodules so the home-page bundle
+  // doesn't pay the cost.
+  import { geoAlbers, geoPath } from "d3-geo";
+  import { select as d3select } from "d3-selection";
+  import { brush as d3brush } from "d3-brush";
+  import { feature as topoFeature } from "topojson-client";
   import * as Plot from "@observablehq/plot";
   import { track } from "../lib/track";
   import { packSourceIds } from "../lib/analytics-helpers";
@@ -694,6 +857,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     sections: UISection[];
     inlineCharts: Record<string, InlineChart>;
     inlineSources: Record<string, InlineSource>;
+    // Ad-hoc choropleth maps built in the Maps tab. Parallel to
+    // inlineCharts but for the choropleth render path. Keyed by
+    // `inlinemap:<id>`; referenced from sections.charts with the
+    // same prefix, dispatched server-side in resolve-dashboard.ts.
+    inlineMaps: Record<string, InlineMap>;
     chartOverrides: Record<string, ChartOverride>;
   }
 
@@ -708,16 +876,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     sections: defaultSections(),
     inlineCharts: {},
     inlineSources: {},
+    inlineMaps: {},
     chartOverrides: {},
   };
 
   const INLINE_PREFIX = "inline:";
+  const INLINEMAP_PREFIX = "inlinemap:";
   const DERIVED_PREFIX = "derived:";
   function isDerivedId(id: string): boolean {
     return id.startsWith(DERIVED_PREFIX);
   }
   function isInlineId(id: string): boolean {
     return id.startsWith(INLINE_PREFIX);
+  }
+  function isInlineMapId(id: string): boolean {
+    return id.startsWith(INLINEMAP_PREFIX);
   }
 
   // ---- Load library ----
@@ -761,6 +934,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     state.inlineCharts = { ...(s.inlineCharts ?? {}) };
     state.inlineSources = { ...(s.inlineSources ?? {}) };
+    state.inlineMaps = { ...(s.inlineMaps ?? {}) };
     state.chartOverrides = {
       ...((s.chartOverrides as Record<string, ChartOverride>) ?? {}),
     };
@@ -777,6 +951,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       for (const cid of sec.charts) {
         if (isInlineId(cid) && state.inlineCharts[cid]) {
           refs[cid] = state.inlineCharts[cid];
+        }
+      }
+    }
+    return Object.keys(refs).length > 0 ? refs : undefined;
+  }
+
+  // Parallel to referencedInlineCharts but for inline maps. Drops any
+  // map spec whose ID isn't referenced by a section's chart list.
+  function referencedInlineMaps(): Record<string, InlineMap> | undefined {
+    const refs: Record<string, InlineMap> = {};
+    for (const sec of state.sections) {
+      for (const cid of sec.charts) {
+        if (isInlineMapId(cid) && state.inlineMaps[cid]) {
+          refs[cid] = state.inlineMaps[cid];
         }
       }
     }
@@ -849,11 +1037,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         })),
       inlineCharts: referencedInlineCharts(),
       inlineSources: referencedInlineSources(),
+      inlineMaps: referencedInlineMaps(),
       chartOverrides: referencedChartOverrides(),
     };
     if (!clean.sections || clean.sections.length === 0) delete clean.sections;
     if (!clean.inlineCharts) delete clean.inlineCharts;
     if (!clean.inlineSources) delete clean.inlineSources;
+    if (!clean.inlineMaps) delete clean.inlineMaps;
     if (!clean.chartOverrides) delete clean.chartOverrides;
     const encoded = encodeComposedState(clean);
     const url = new URL(window.location.href);
@@ -895,7 +1085,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // tab itself isn't kept in a module-scope variable — the DOM's
   // [aria-selected] + .lib-tab-active class on the tab buttons is
   // the source of truth, read on demand by setActiveLibTab callers.
-  type LibTab = "sources" | "charts";
+  type LibTab = "sources" | "charts" | "maps";
   const chartsSelectedTags: Set<string> = new Set<string>();
   const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
@@ -2116,14 +2306,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const panelCharts = shell.querySelector<HTMLElement>(
       "[data-role='lib-panel-charts']",
     );
+    const panelMaps = shell.querySelector<HTMLElement>(
+      "[data-role='lib-panel-maps']",
+    );
     if (panelSources) panelSources.hidden = tab !== "sources";
     if (panelCharts) panelCharts.hidden = tab !== "charts";
+    if (panelMaps) panelMaps.hidden = tab !== "maps";
     if (tab === "sources") {
       renderTagFiltersSources();
       renderSourcesList();
-    } else {
+    } else if (tab === "charts") {
       renderTagFiltersCharts();
       renderChartsList();
+    } else if (tab === "maps") {
+      renderMapBuilder();
     }
     track("compose_lib_tab_switched", { tab });
   }
@@ -2205,6 +2401,416 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       sourceId,
       source: "library",
     });
+  }
+
+  // ---- Maps tab ---------------------------------------------------------
+  //
+  // The Maps tab is form-driven (not search-driven): the input set is
+  // a 5-axis cross-product (indicator × vintage × geo × state × color)
+  // plus an optional bbox. The form's values live in `mapBuilder`,
+  // a module-scope state object that survives tab switches (the form
+  // DOM gets re-shown without losing the user's progress).
+  //
+  // "Add map to dashboard" snapshots the current mapBuilder values
+  // into a fresh `inlinemap:<id>` entry on `state.inlineMaps`, appends
+  // the reference to the active section, and writes URL state. The
+  // server-side `resolve-dashboard.ts` synthesizes a CollectionEntry
+  // shape from the InlineMap spec; ChartChoropleth.astro takes it from
+  // there.
+
+  type MapGeo = "state" | "county" | "tract" | "block-group";
+
+  // 50 states + DC, matching the per-state data + topology coverage.
+  const MAP_STATES: ReadonlyArray<readonly [string, string]> = [
+    ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"],
+    ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"],
+    ["CT", "Connecticut"], ["DE", "Delaware"], ["DC", "District of Columbia"],
+    ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"],
+    ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"],
+    ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"],
+    ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"],
+    ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"],
+    ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"],
+    ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"],
+    ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"],
+    ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"],
+    ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"],
+    ["RI", "Rhode Island"], ["SC", "South Carolina"],
+    ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"],
+    ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"],
+    ["WA", "Washington"], ["WV", "West Virginia"],
+    ["WI", "Wisconsin"], ["WY", "Wyoming"],
+  ];
+
+  const MAP_INDICATOR_LABELS: Record<string, string> = {
+    poverty_rate: "Poverty rate",
+    median_hh_income: "Median household income",
+    bachelors_plus_pct: "Bachelor's+ share",
+    foreign_born_pct: "Foreign-born share",
+  };
+
+  interface MapBuilderState {
+    indicator: string;
+    vintage: string;
+    geo: MapGeo;
+    state: string;
+    colorScheme: string;
+    colorScale: "linear" | "log";
+    bbox: [number, number, number, number] | null;
+    customTitle: string;
+  }
+
+  const mapBuilder: MapBuilderState = {
+    indicator: "poverty_rate",
+    vintage: "2022",
+    geo: "county",
+    state: "VA",
+    colorScheme: "reds",
+    colorScale: "linear",
+    bbox: null,
+    customTitle: "",
+  };
+
+  // First tab-switch into "maps" wires up event listeners. Subsequent
+  // switches re-call renderMapBuilder() which is a no-op past this point;
+  // the form DOM retains its values.
+  let mapBuilderWired = false;
+
+  // Cache fetched topojsons across re-renders. Keyed by URL.
+  const mapBboxTopoCache: Map<string, unknown> = new Map();
+
+  function defaultMapTitle(): string {
+    const ind = MAP_INDICATOR_LABELS[mapBuilder.indicator] ?? mapBuilder.indicator;
+    if (mapBuilder.geo === "state" || mapBuilder.geo === "county") {
+      const geoLabel = mapBuilder.geo === "state" ? "state" : "county";
+      return `${ind} by ${geoLabel} — US (${mapBuilder.vintage})`;
+    }
+    const stateName =
+      MAP_STATES.find(([c]) => c === mapBuilder.state)?.[1] ?? mapBuilder.state;
+    const geoLabel = mapBuilder.geo === "block-group" ? "block group" : "tract";
+    return `${ind} by ${geoLabel} — ${stateName} (${mapBuilder.vintage})`;
+  }
+
+  function updateMapBboxReadout(): void {
+    const readout = shell.querySelector<HTMLElement>(
+      "[data-role='map-bbox-readout']",
+    );
+    if (!readout) return;
+    if (!mapBuilder.bbox) {
+      readout.textContent = "No area selected — full state shown";
+      return;
+    }
+    const [w, s, e, n] = mapBuilder.bbox;
+    readout.textContent =
+      `bbox: W ${w.toFixed(2)}° S ${s.toFixed(2)}° E ${e.toFixed(2)}° N ${n.toFixed(2)}°`;
+  }
+
+  function updateMapBuilderUI(): void {
+    const needsState =
+      mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
+    const stateField = shell.querySelector<HTMLElement>(
+      "[data-role='map-state-field']",
+    );
+    if (stateField) stateField.hidden = !needsState;
+    const warning = shell.querySelector<HTMLElement>(
+      "[data-role='map-geo-warning']",
+    );
+    if (warning) warning.hidden = !needsState;
+    // Refresh the auto-title placeholder so the user sees what the
+    // default would be at a glance.
+    const titleInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='map-title']",
+    );
+    if (titleInput) titleInput.placeholder = defaultMapTitle();
+    // If the bbox preview is currently open, re-render it with the new
+    // state/geo selection.
+    const bboxDetails = shell.querySelector<HTMLDetailsElement>(
+      "[data-role='map-bbox-details']",
+    );
+    if (bboxDetails && bboxDetails.open) {
+      void renderMapBboxPreview();
+    }
+    updateMapBboxReadout();
+  }
+
+  async function renderMapBboxPreview(): Promise<void> {
+    const preview = shell.querySelector<HTMLElement>(
+      "[data-role='map-bbox-preview']",
+    );
+    if (!preview) return;
+    const needsState =
+      mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
+    if (!needsState) {
+      preview.innerHTML =
+        '<p class="muted small">bbox is only useful at tract or block-group resolution. State and county maps already cover the whole area at a glance.</p>';
+      return;
+    }
+    preview.innerHTML = '<p class="muted small">Loading state outline…</p>';
+    // Always use the TRACT topology for the preview, even when the
+    // user picked block-group — tracts are 1/5 the size, render fast,
+    // and give the user the same sense of state shape for drawing.
+    const topoUrl = `/maps/${mapBuilder.state.toLowerCase()}-tracts-topo.json`;
+    // Topojson and d3-geo types are picky about Topology<Objects<...>>
+    // generics; the actual JSON we ship is plain JSON. The runtime cast
+    // is unavoidable since we don't carry the full type generic
+    // through fetch + JSON.parse.
+    let topo = mapBboxTopoCache.get(topoUrl) as
+      | { type: "Topology"; objects: Record<string, unknown>; arcs: unknown[] }
+      | undefined;
+    if (!topo) {
+      try {
+        const resp = await fetch(topoUrl);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        topo = await resp.json();
+        mapBboxTopoCache.set(topoUrl, topo);
+      } catch (e) {
+        preview.innerHTML =
+          `<p class="muted small">Could not load topology for ${mapBuilder.state}: ${(e as Error).message}</p>`;
+        return;
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fc = topoFeature(topo as any, (topo as any).objects.tracts) as
+      unknown as { features: unknown[]; type: "FeatureCollection" };
+    const width = 360, height = 280;
+    const projection = geoAlbers().fitSize([width, height], fc as never);
+    const pathGen = geoPath(projection);
+
+    preview.innerHTML = "";
+    const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgEl.setAttribute("width", String(width));
+    svgEl.setAttribute("height", String(height));
+    svgEl.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svgEl.classList.add("map-bbox-svg");
+    preview.appendChild(svgEl);
+    const tractsG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svgEl.appendChild(tractsG);
+    for (const f of (fc.features as Array<{ id?: string }>)) {
+      const d = pathGen(f as never);
+      if (!d) continue;
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", d);
+      path.setAttribute("fill", "#eef0f3");
+      path.setAttribute("stroke", "#cbd0d5");
+      path.setAttribute("stroke-width", "0.3");
+      tractsG.appendChild(path);
+    }
+    const brushG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    brushG.classList.add("map-bbox-brush");
+    svgEl.appendChild(brushG);
+
+    const brush = d3brush()
+      .extent([[0, 0], [width, height]])
+      .on("end", (event: { selection?: [[number, number], [number, number]] }) => {
+        if (!event.selection) {
+          mapBuilder.bbox = null;
+          updateMapBboxReadout();
+          return;
+        }
+        const [[x0, y0], [x1, y1]] = event.selection;
+        // y0 is the TOP edge of the brush rectangle (smaller pixel y =
+        // higher latitude). projection.invert([px, py]) returns [lng, lat].
+        const tl = projection.invert?.([x0, y0]);
+        const br = projection.invert?.([x1, y1]);
+        if (!tl || !br) return;
+        const [west, north] = tl;
+        const [east, south] = br;
+        mapBuilder.bbox = [
+          Math.min(west, east),
+          Math.min(south, north),
+          Math.max(west, east),
+          Math.max(south, north),
+        ];
+        updateMapBboxReadout();
+      });
+    d3select(brushG as unknown as Element).call(
+      brush as unknown as (s: unknown) => unknown,
+    );
+    // Restore prior brush selection if a bbox was previously set.
+    if (mapBuilder.bbox) {
+      const [w, s, e, n] = mapBuilder.bbox;
+      const tl = projection([w, n]);
+      const br = projection([e, s]);
+      if (tl && br) {
+        brush.move(
+          d3select(brushG as unknown as Element) as unknown as never,
+          [[tl[0], tl[1]], [br[0], br[1]]] as never,
+        );
+      }
+    }
+  }
+
+  function renderMapBuilder(): void {
+    if (mapBuilderWired) {
+      updateMapBuilderUI();
+      return;
+    }
+    mapBuilderWired = true;
+
+    // Populate state dropdown.
+    const stateSelect = shell.querySelector<HTMLSelectElement>(
+      "[data-role='map-state']",
+    );
+    if (stateSelect) {
+      stateSelect.innerHTML = MAP_STATES.map(
+        ([code, name]) => `<option value="${code}">${name}</option>`,
+      ).join("");
+      stateSelect.value = mapBuilder.state;
+    }
+
+    // Wire each form input.
+    const indicatorSel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='map-indicator']",
+    );
+    if (indicatorSel) {
+      indicatorSel.value = mapBuilder.indicator;
+      indicatorSel.addEventListener("change", () => {
+        mapBuilder.indicator = indicatorSel.value;
+        updateMapBuilderUI();
+      });
+    }
+    if (stateSelect) {
+      stateSelect.addEventListener("change", () => {
+        mapBuilder.state = stateSelect.value;
+        // State changes invalidate any drawn bbox (different coords).
+        mapBuilder.bbox = null;
+        updateMapBuilderUI();
+      });
+    }
+    const colorSel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='map-color-scheme']",
+    );
+    if (colorSel) {
+      colorSel.value = mapBuilder.colorScheme;
+      colorSel.addEventListener("change", () => {
+        mapBuilder.colorScheme = colorSel.value;
+      });
+    }
+    shell.querySelectorAll<HTMLInputElement>(
+      "input[data-role='map-geo']",
+    ).forEach((el) => {
+      if (el.value === mapBuilder.geo) el.checked = true;
+      el.addEventListener("change", () => {
+        if (el.checked) {
+          mapBuilder.geo = el.value as MapGeo;
+          updateMapBuilderUI();
+        }
+      });
+    });
+    shell.querySelectorAll<HTMLInputElement>(
+      "input[data-role='map-scale']",
+    ).forEach((el) => {
+      if (el.value === mapBuilder.colorScale) el.checked = true;
+      el.addEventListener("change", () => {
+        if (el.checked) {
+          mapBuilder.colorScale = el.value as "linear" | "log";
+        }
+      });
+    });
+    const vintageInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='map-vintage']",
+    );
+    const vintageReadout = shell.querySelector<HTMLElement>(
+      "[data-role='map-vintage-readout']",
+    );
+    if (vintageInput && vintageReadout) {
+      vintageInput.value = mapBuilder.vintage;
+      vintageReadout.textContent = mapBuilder.vintage;
+      vintageInput.addEventListener("input", () => {
+        mapBuilder.vintage = vintageInput.value;
+        vintageReadout.textContent = vintageInput.value;
+        updateMapBuilderUI();
+      });
+    }
+    const titleInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='map-title']",
+    );
+    if (titleInput) {
+      titleInput.value = mapBuilder.customTitle;
+      titleInput.addEventListener("input", () => {
+        mapBuilder.customTitle = titleInput.value;
+      });
+    }
+    // BBox: render on first details-open. The preview is heavy (~360px
+    // svg + a few thousand tract polygons for big states) so lazy-load
+    // it rather than always rendering.
+    const bboxDetails = shell.querySelector<HTMLDetailsElement>(
+      "[data-role='map-bbox-details']",
+    );
+    if (bboxDetails) {
+      bboxDetails.addEventListener("toggle", () => {
+        if (bboxDetails.open) void renderMapBboxPreview();
+      });
+    }
+    const bboxClear = shell.querySelector<HTMLButtonElement>(
+      "[data-role='map-bbox-clear']",
+    );
+    if (bboxClear) {
+      bboxClear.addEventListener("click", () => {
+        mapBuilder.bbox = null;
+        // Re-render so the brush rectangle disappears too.
+        void renderMapBboxPreview();
+      });
+    }
+    const addBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='map-add-btn']",
+    );
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        void addMapToDashboard();
+      });
+    }
+
+    updateMapBuilderUI();
+  }
+
+  async function addMapToDashboard(): Promise<void> {
+    clampActiveSection();
+    const target = state.sections[activeSectionIdx];
+    if (!target) return;
+    const allowed = await checkComposeAction("add_map_to_dashboard");
+    if (!allowed) {
+      showSigninPrompt("add_map_to_dashboard");
+      return;
+    }
+    const mapId = INLINEMAP_PREFIX + nanoid(8);
+    const needsState =
+      mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
+    const title = mapBuilder.customTitle.trim() || defaultMapTitle();
+    const boundaryFile = needsState
+      ? mapBuilder.geo === "block-group"
+        ? `/maps/${mapBuilder.state.toLowerCase()}-block-groups-topo.json`
+        : `/maps/${mapBuilder.state.toLowerCase()}-tracts-topo.json`
+      : undefined;
+    const entry: InlineMap = {
+      title,
+      geo: mapBuilder.geo,
+      indicator: mapBuilder.indicator,
+      vintage: mapBuilder.vintage,
+      state: needsState ? mapBuilder.state : undefined,
+      bbox: mapBuilder.bbox ?? undefined,
+      boundaryFile,
+      colorScheme: mapBuilder.colorScheme,
+      colorScale: mapBuilder.colorScale,
+    };
+    state.inlineMaps[mapId] = entry;
+    target.charts.push(mapId);
+    writeUrl();
+    renderComposition();
+    track("compose_map_added", {
+      indicator: mapBuilder.indicator,
+      geo: mapBuilder.geo,
+      vintage: mapBuilder.vintage,
+      state: needsState ? mapBuilder.state : "",
+      hasBbox: mapBuilder.bbox != null,
+    });
+    // Reset custom title so the next add gets the auto-generated default.
+    mapBuilder.customTitle = "";
+    if (titleInputForReset()) titleInputForReset()!.value = "";
+  }
+
+  function titleInputForReset(): HTMLInputElement | null {
+    return shell.querySelector<HTMLInputElement>("[data-role='map-title']");
   }
 
   // ---- Chart-spec helpers (shared by hover-merge + drag) ----
@@ -5712,6 +6318,131 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     min-height: 0;
   }
   .lib-panel[hidden] { display: none; }
+
+  /* ---- Maps tab ---------------------------------------------------- */
+  .lib-panel-maps {
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .map-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .map-builder-intro {
+    margin: 0;
+  }
+  .map-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .map-field-label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--color-neutral-700);
+  }
+  .map-input,
+  .map-builder select.map-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    font: inherit;
+    font-size: var(--text-sm);
+  }
+  .map-vintage-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .map-vintage-row input[type="range"] { flex: 1; }
+  .map-vintage-readout {
+    min-width: 3em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .map-geo-radios,
+  .map-scale-radios {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .map-radio-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .map-radio-row input[type="radio"] { margin-top: 4px; }
+  .map-geo-warning {
+    margin: 4px 0 0;
+    padding: 6px 10px;
+    background: #fff8e6;
+    border-left: 3px solid #d4a017;
+    border-radius: var(--radius-sm);
+    line-height: 1.45;
+  }
+  .map-bbox-section {
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+  }
+  .map-bbox-section summary {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 0;
+  }
+  .map-bbox-section[open] summary { margin-bottom: 8px; }
+  .map-bbox-preview {
+    margin: 8px 0;
+    min-height: 100px;
+    background: #fafbfc;
+    border-radius: var(--radius-sm);
+    padding: 6px;
+  }
+  .map-bbox-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  .map-bbox-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--text-xs);
+  }
+  .map-bbox-clear {
+    padding: 4px 10px;
+    font-size: var(--text-xs);
+  }
+  /* d3-brush styling: light-blue translucent rectangle with a darker
+     border. Matches the rest of the composer's selection visuals. */
+  .map-bbox-brush .selection {
+    fill: rgba(80, 130, 220, 0.22);
+    stroke: rgba(80, 130, 220, 0.85);
+    stroke-width: 1.5;
+  }
+  .map-bbox-brush .handle {
+    fill: rgba(80, 130, 220, 0.45);
+  }
+  .map-actions {
+    margin-top: 8px;
+  }
+  .map-add-btn {
+    width: 100%;
+    padding: 10px 14px;
+    font-weight: 600;
+  }
 
   .lib-controls { display: flex; flex-direction: column; gap: 10px; }
   .lib-search {

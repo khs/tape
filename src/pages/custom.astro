@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Chart from "../components/Chart.astro";
+import ChartChoropleth from "../components/ChartChoropleth.astro";
 import ChartController from "../components/ChartController.astro";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
 import {
@@ -301,18 +302,37 @@ const viewedChartCount = resolvedSections.reduce(
                 </p>
               )}
               <div class="chart-grid">
-                {section.charts.map((c) => (
-                  <Chart
-                    chartId={c.chart.id}
-                    chart={effectiveChart(c, chartOverrides?.[c.chart.id])}
-                    sources={c.sources}
-                    dashboardSlug="custom"
-                    dashboardWindow={sectionDelta}
-                    dashboardFixedRange={sectionFixed}
-                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                    preloaded={c.preloaded}
-                  />
-                ))}
+                {section.charts.map((c) => {
+                  const eff = effectiveChart(c, chartOverrides?.[c.chart.id]);
+                  // Same dispatch as the preset-dashboard renderer in
+                  // pages/[...slug].astro: choropleth charts bind to a
+                  // (geo, indicator, vintage) tuple instead of a list
+                  // of time-series sources, so route them to
+                  // ChartChoropleth. Composed maps from the Maps tab
+                  // arrive here as inline-map chart IDs whose synthetic
+                  // chart entry has render="choropleth".
+                  if (eff.render === "choropleth") {
+                    return (
+                      <ChartChoropleth
+                        chartId={c.chart.id}
+                        chart={eff}
+                        dashboardSlug="custom"
+                      />
+                    );
+                  }
+                  return (
+                    <Chart
+                      chartId={c.chart.id}
+                      chart={eff}
+                      sources={c.sources}
+                      dashboardSlug="custom"
+                      dashboardWindow={sectionDelta}
+                      dashboardFixedRange={sectionFixed}
+                      sectionLocked={!!(section.defaultDelta || section.fixedRange)}
+                      preloaded={c.preloaded}
+                    />
+                  );
+                })}
               </div>
             </section>
             );
