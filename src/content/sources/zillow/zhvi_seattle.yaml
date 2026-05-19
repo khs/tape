@@ -21,5 +21,5 @@ provenance:
 tags:
   - real-estate
   - housing
-  - seattle
+  - metro:42660
 unitClass: currency
