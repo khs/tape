@@ -23,6 +23,11 @@ const formatting = z
     suffix: z.string().optional(),
     // "compact" renders big numbers as "$3.41T", "$500M" etc. (uses Intl compact).
     notation: z.enum(["standard", "compact"]).optional(),
+    // Display-time multiplier. Used when a series is stored in
+    // billions (canonical FRED convention) but should render compact
+    // as raw dollars — `scaleFactor: 1e9` turns a stored 1631 into
+    // a displayed "$1.63T" under notation:compact.
+    scaleFactor: z.number().positive().optional(),
   })
   .default({});
 

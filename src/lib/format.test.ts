@@ -28,6 +28,48 @@ describe("formatValue — basic styles", () => {
   });
 });
 
+describe("formatValue — scaleFactor", () => {
+  // scaleFactor lets a series stored in billions render as raw
+  // dollars under compact notation, so 1631 (billions of dollars)
+  // becomes "$1.63T" via scaleFactor: 1e9 instead of the wrong
+  // "$1.63K" you'd get without scaling.
+
+  it("multiplies before compact formatting (billions stored → trillions displayed)", () => {
+    expect(
+      formatValue(1631, {
+        style: "currency",
+        decimals: 1,
+        notation: "compact",
+        scaleFactor: 1e9,
+      }),
+    ).toBe("$1.63T");
+  });
+
+  it("applies scaleFactor to non-currency styles too", () => {
+    // 5.5 (count, in millions) × 1e6 → 5,500,000 → "5.50M" (the
+    // smart-decimal rule picks 2 dp because the leading-digit count
+    // is 1).
+    expect(
+      formatValue(5.5, {
+        style: "number",
+        decimals: 1,
+        notation: "compact",
+        scaleFactor: 1e6,
+      }),
+    ).toBe("5.50M");
+  });
+
+  it("treats missing scaleFactor as 1 (no scaling)", () => {
+    expect(
+      formatValue(456_000_000_000, {
+        style: "currency",
+        decimals: 2,
+        notation: "compact",
+      }),
+    ).toBe("$456B");
+  });
+});
+
 describe("formatValue — compact notation smart decimals", () => {
   // The smart-decimal rule for compact notation: 3 leading digits → 0 decimals,
   // 2 → 1, 1 → 2. Goal is ~3 significant figures in the rendered string.

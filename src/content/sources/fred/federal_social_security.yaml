@@ -1,19 +1,22 @@
 name: Federal Social Security benefits
 shortName: Social Security
-description: OASDI benefit payments. Quarterly annualized rate.
+description: OASDI (old-age, survivors, disability insurance) benefits paid by the federal government. NIPA Table 3.12 line "Social security." Quarterly annualized rate, billions USD. (W825 — which this YAML used to point to — is actually Unemployment Insurance.)
 kind: timeseries
 pipeline: fred_series
-dataFile: data/fred/W825RC1Q027SBEA.json
+dataFile: data/fred/W823RC1Q027SBEA.json
 supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
 unit: billions USD
 formatting:
-  style: number
-  decimals: 0
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+  scaleFactor: 1.0e+9
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
-  series: W825RC1Q027SBEA
-  url: https://fred.stlouisfed.org/series/W825RC1Q027SBEA
+  series: W823RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/W823RC1Q027SBEA
   license: Public domain (US government data)
 tags:
   - government

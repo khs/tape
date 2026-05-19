@@ -133,11 +133,26 @@ SPECS: list[FredSpec] = [
     # about: defense vs entitlements vs interest. These are nominal $B
     # annual rates. For ratio-to-GDP analyses, pair with us_real_gdp +
     # the divide quick-action in the composer.
+    # Federal-spending-by-function series. Series IDs corrected in May
+    # 2026 after a chart-tooltip bug surfaced the prior mismapping —
+    # SS, Medicare, Medicaid, and nondefense were all pointing at the
+    # wrong NIPA series:
+    #   W823 = Social security (was labeled Medicare)
+    #   W824 = Medicare        (was labeled Medicaid)
+    #   W729 = Medicaid        (wasn't fetched at all)
+    #   W825 = Unemployment    (was labeled Social Security)
+    #   FNDEFX = Federal nondefense (was W068 = TOTAL government,
+    #            including state + local, ~$11T/yr)
+    # The W825 + W068 specs are kept (with corrected labels) below in
+    # case other charts want to surface them — they're real series,
+    # just not what we thought.
     FredSpec("FDEFX", "Federal defense spending (NIPA)", "billions USD"),
-    FredSpec("W068RCQ027SBEA", "Federal nondefense consumption + investment", "billions USD"),
-    FredSpec("W823RC1Q027SBEA", "Federal Medicare benefits", "billions USD"),
-    FredSpec("W824RC1Q027SBEA", "Federal Medicaid benefits", "billions USD"),
-    FredSpec("W825RC1Q027SBEA", "Federal Social Security benefits", "billions USD"),
+    FredSpec("FNDEFX", "Federal nondefense consumption + investment (NIPA)", "billions USD"),
+    FredSpec("W823RC1Q027SBEA", "Federal Social Security benefits (NIPA)", "billions USD"),
+    FredSpec("W824RC1Q027SBEA", "Federal Medicare benefits (NIPA)", "billions USD"),
+    FredSpec("W729RC1Q027SBEA", "Federal Medicaid benefits (NIPA)", "billions USD"),
+    FredSpec("W825RC1Q027SBEA", "Federal unemployment insurance benefits (NIPA)", "billions USD"),
+    FredSpec("W068RCQ027SBEA", "Government total expenditures (federal + state + local)", "billions USD"),
     FredSpec("A091RC1Q027SBEA", "Federal interest payments", "billions USD"),
     # ---- Real estate fundamentals ----
     # Rent CPI is on FRED as part of CPI; separately, this is the

@@ -1,20 +1,22 @@
 name: Federal Medicaid benefits
 shortName: Medicaid
-description: Federal share of Medicaid grants to states. Doesn't include state 
-  matching dollars (those land in state budgets).
+description: Federal share of Medicaid grants to states. Doesn't include state matching dollars (those land in state budgets). NIPA Table 3.12 line "Medicaid." Quarterly annualized rate, billions USD. (Previously this YAML pointed to W824 — which is actually Medicare; W729 is the real Medicaid series.)
 kind: timeseries
 pipeline: fred_series
-dataFile: data/fred/W824RC1Q027SBEA.json
+dataFile: data/fred/W729RC1Q027SBEA.json
 supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
 unit: billions USD
 formatting:
-  style: number
-  decimals: 0
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+  scaleFactor: 1.0e+9
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
-  series: W824RC1Q027SBEA
-  url: https://fred.stlouisfed.org/series/W824RC1Q027SBEA
+  series: W729RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/W729RC1Q027SBEA
   license: Public domain (US government data)
 tags:
   - government

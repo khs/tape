@@ -5,6 +5,20 @@ export interface Formatting {
   prefix?: string;
   suffix?: string;
   notation?: "standard" | "compact";
+  /**
+   * Multiplier applied to the raw value before formatting. Lets a series
+   * stored in billions render as raw dollars (`scaleFactor: 1e9`) so
+   * notation: "compact" can produce "$1.63T" instead of "$1.63K". Defaults
+   * to 1 (no scaling) so existing sources are unaffected.
+   *
+   * Why not just store raw dollars: the system invariant (see
+   * pipelines/rescale_currency_to_billions.py) keeps currency series in
+   * billions so derived-source math (X/Y where one is dollars and the
+   * other is millions of people) doesn't overflow the float ranges
+   * Intl.NumberFormat handles cleanly. scaleFactor is a display-only
+   * adapter that lets compact notation render trillions the right way.
+   */
+  scaleFactor?: number;
 }
 
 /**
@@ -37,8 +51,13 @@ function compactDecimalsFor(v: number): number {
 }
 
 export function formatValue(v: number, fmt: Formatting): string {
+  // Apply the scaleFactor (if any) before everything else — both the
+  // compact-decimals heuristic and Intl.NumberFormat use the scaled
+  // value. Defaults to 1 so existing-no-scaleFactor sources are
+  // unchanged.
+  const scaled = v * (fmt.scaleFactor ?? 1);
   const isCompact = fmt.notation === "compact";
-  const decimals = isCompact ? compactDecimalsFor(v) : fmt.decimals;
+  const decimals = isCompact ? compactDecimalsFor(scaled) : fmt.decimals;
   const opts: Intl.NumberFormatOptions = {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -55,19 +74,19 @@ export function formatValue(v: number, fmt: Formatting): string {
         ...opts,
         style: "currency",
         currency: fmt.currency ?? "USD",
-      }).format(v);
+      }).format(scaled);
       break;
     case "percent":
       // Values are already in percentage terms (e.g., 4.42 means 4.42%).
-      formatted = new Intl.NumberFormat("en-US", opts).format(v) + "%";
+      formatted = new Intl.NumberFormat("en-US", opts).format(scaled) + "%";
       break;
     case "bps":
-      formatted = `${new Intl.NumberFormat("en-US", opts).format(v)} bps`;
+      formatted = `${new Intl.NumberFormat("en-US", opts).format(scaled)} bps`;
       break;
     case "index":
     case "number":
     default:
-      formatted = new Intl.NumberFormat("en-US", opts).format(v);
+      formatted = new Intl.NumberFormat("en-US", opts).format(scaled);
   }
 
   if (fmt.prefix) formatted = fmt.prefix + formatted;

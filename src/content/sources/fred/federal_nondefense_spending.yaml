@@ -1,21 +1,22 @@
 name: Federal nondefense spending
-shortName: Nondefense $
-description: Federal nondefense consumption + investment, NIPA. Excludes 
-  transfers (Social Security, Medicare) — that's what congressional budget folks
-  usually mean by "discretionary domestic."
+shortName: Nondefense
+description: Federal nondefense consumption + gross investment, NIPA Table 3.9.5. Excludes transfers (Social Security, Medicare) — what congressional budget folks usually mean by "discretionary domestic." Quarterly annualized rate, billions USD. (Previously pointed to W068 — which is Government TOTAL expenditures, including state + local; FNDEFX is the federal-nondefense series.)
 kind: timeseries
 pipeline: fred_series
-dataFile: data/fred/W068RCQ027SBEA.json
+dataFile: data/fred/FNDEFX.json
 supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
 unit: billions USD
 formatting:
-  style: number
-  decimals: 0
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+  scaleFactor: 1.0e+9
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
-  series: W068RCQ027SBEA
-  url: https://fred.stlouisfed.org/series/W068RCQ027SBEA
+  series: FNDEFX
+  url: https://fred.stlouisfed.org/series/FNDEFX
   license: Public domain (US government data)
 tags:
   - government
