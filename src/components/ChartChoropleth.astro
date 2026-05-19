@@ -21,9 +21,10 @@
  *      both states + counties). Tract + block-group will be
  *      state-sharded TopoJSONs when those pipelines run.
  *
- * No time-window selector (no time series). The tile is a snapshot of
- * one vintage. A future iteration will add a year-slider dialog that
- * fetches sibling vintages of the same indicator.
+ * The tile is fixed at the chart's author-specified vintage. The
+ * expanded dialog includes a year slider that swaps in sibling
+ * vintages of the same indicator (server-side discovery globs the
+ * data dir; slider hides when only one vintage is available).
  */
 import type { CollectionEntry } from "astro:content";
 import { promises as fs } from "node:fs";
