@@ -23,10 +23,22 @@ export type ResolvedSection = {
   title: string | null;
   description?: string;
   charts: ResolvedChart[];
+  // Section-level time-window overrides. When set, override the
+  // dashboard-level pill for charts inside. See sectionSchema in
+  // src/content/config.ts + src/lib/composer-state.ts for the source
+  // shapes. fixedRange wins over defaultDelta if both present.
+  defaultDelta?: DeltaWindow;
+  fixedRange?: { start: string; end: string };
 };
 
 export type DashboardShape = {
-  sections?: { title: string; description?: string; charts: string[] }[];
+  sections?: {
+    title: string;
+    description?: string;
+    charts: string[];
+    defaultDelta?: DeltaWindow;
+    fixedRange?: { start: string; end: string };
+  }[];
   charts?: string[];
   chartOverrides?: Record<
     string,
@@ -258,6 +270,8 @@ export async function resolveSections(
         title: s.title ?? null,
         description: s.description,
         charts: valid,
+        defaultDelta: s.defaultDelta,
+        fixedRange: s.fixedRange,
       });
     }
   }

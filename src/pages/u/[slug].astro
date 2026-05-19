@@ -230,13 +230,27 @@ const ogD = state
           )
         )}
 
-        {resolvedSections.map((section) => (
+        {resolvedSections.map((section) => {
+          // Section-level window override beats dashboard-level. See
+          // the comment on the equivalent block in [...slug].astro for
+          // the rationale ("repeat the same chart-set across decades").
+          const sectionDelta = section.defaultDelta ?? defaultDelta;
+          const sectionFixed = section.fixedRange ?? state.fixedRange;
+          return (
           <section class="dash-section">
             {section.title && (
               <h2 class="section-heading">{section.title}</h2>
             )}
             {section.description && (
               <p class="section-description">{section.description}</p>
+            )}
+            {(section.fixedRange || section.defaultDelta) && (
+              <p class="section-window muted small">
+                Window:{" "}
+                {section.fixedRange
+                  ? `${section.fixedRange.start} → ${section.fixedRange.end}`
+                  : section.defaultDelta}
+              </p>
             )}
             <div class="chart-grid">
               {section.charts.map((c) => (
@@ -248,14 +262,16 @@ const ogD = state
                   )}
                   sources={c.sources}
                   dashboardSlug={`u-${slug}`}
-                  dashboardWindow={defaultDelta}
-                  dashboardFixedRange={state.fixedRange}
+                  dashboardWindow={sectionDelta}
+                  dashboardFixedRange={sectionFixed}
+                  sectionLocked={!!(section.defaultDelta || section.fixedRange)}
                   preloaded={c.preloaded}
                 />
               ))}
             </div>
           </section>
-        ))}
+          );
+        })}
 
         {resolvedSections.length === 0 && (
           <p class="mt-6 text-sm text-neutral-500">
@@ -385,6 +401,9 @@ const ogD = state
   .dash-section { margin-bottom: 32px; }
   .section-heading { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 0 0 4px; }
   .section-description { font-size: var(--text-sm); color: var(--color-neutral-600); line-height: 1.5; margin: 0 0 12px; max-width: 720px; white-space: pre-wrap; }
+  /* Section-level window override chip (see [...slug].astro for the
+     rationale comment). */
+  .section-window { margin: -4px 0 12px; font-variant-numeric: tabular-nums; }
   .chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
   @media (min-width: 768px) { .chart-grid { grid-template-columns: repeat(3, 1fr); } }
   .post-save-prompt {

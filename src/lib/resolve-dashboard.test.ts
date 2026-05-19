@@ -39,8 +39,11 @@ function makeChart(
   };
 }
 
-function sectionWith(charts: ResolvedChart[]): ResolvedSection {
-  return { title: null, charts };
+function sectionWith(
+  charts: ResolvedChart[],
+  overrides: Partial<Pick<ResolvedSection, "defaultDelta" | "fixedRange">> = {},
+): ResolvedSection {
+  return { title: null, charts, ...overrides };
 }
 
 describe("perChartSupportedDeltas", () => {
@@ -121,5 +124,49 @@ describe("dashboardSupportedDeltas", () => {
     ]);
     const supported = dashboardSupportedDeltas([section]);
     expect(supported).toEqual(["1y", "10y"]);
+  });
+});
+
+describe("ResolvedSection — per-section window overrides", () => {
+  // These are interface-level checks: the dashboard renderers
+  // (index.astro, [...slug].astro, u/[slug].astro, custom.astro) read
+  // section.defaultDelta / section.fixedRange and pass them to the
+  // Chart component as dashboardWindow / dashboardFixedRange. The
+  // tests just confirm the ResolvedSection shape carries those fields
+  // through; the runtime behavior lives in the templates.
+  it("carries defaultDelta when set", () => {
+    const section = sectionWith(
+      [makeChart("line", [["1y", "10y", "30y"]])],
+      { defaultDelta: "10y" },
+    );
+    expect(section.defaultDelta).toBe("10y");
+    expect(section.fixedRange).toBeUndefined();
+  });
+
+  it("carries fixedRange when set", () => {
+    const range = { start: "1990-01-01", end: "1999-12-31" };
+    const section = sectionWith(
+      [makeChart("line", [["10y", "30y"]])],
+      { fixedRange: range },
+    );
+    expect(section.fixedRange).toEqual(range);
+  });
+
+  it("can carry both — renderer is responsible for precedence", () => {
+    // The schema doesn't forbid setting both (e.g. while user is
+    // mid-edit in the composer). The renderer picks fixedRange over
+    // defaultDelta when both are present.
+    const section = sectionWith(
+      [makeChart("line", [["1y", "10y"]])],
+      {
+        defaultDelta: "10y",
+        fixedRange: { start: "2000-01-01", end: "2009-12-31" },
+      },
+    );
+    expect(section.defaultDelta).toBe("10y");
+    expect(section.fixedRange).toEqual({
+      start: "2000-01-01",
+      end: "2009-12-31",
+    });
   });
 });

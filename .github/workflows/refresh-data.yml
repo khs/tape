@@ -112,27 +112,30 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Race-safe commit pattern. The pipelines just wrote fresh data
-          # to the working tree; another commit may have landed on origin
-          # during the long pipeline run. We pull the latest origin AT
-          # THE END (here, not at workflow start) and land our fresh data
-          # on top of it via reset --soft, which preserves all our
-          # changes in the staging area while rewinding HEAD.
+          # Race-safe commit pattern. The pipelines just wrote fresh
+          # data to the working tree; other commits may have landed on
+          # origin during the long pipeline run. Strategy:
+          #   1. Snapshot the data dirs we own to a tmp location.
+          #   2. reset --hard to origin/main — discards stale src/
+          #      from the workflow's initial checkout.
+          #   3. Replay the data snapshot into place.
+          #   4. Stage + commit ONLY the data paths we explicitly add.
           #
-          # Why reset --soft instead of rebase: rebase tries to MERGE our
-          # changes with origin's changes, and conflicts get stuck in a
-          # loop (the existing files-vs-files conflict won't resolve by
-          # retrying). reset --soft just discards the local HEAD,
-          # preserves staged + working-tree state, and lets us commit
-          # cleanly on top of whatever's latest. Our pipelines' output is
-          # always the authoritative version for the files they touch.
+          # The earlier `reset --soft` pattern silently kept stale
+          # src/ in the working tree; if the index ever drifted, a
+          # subsequent git add could pull those reverted files into
+          # the commit. The May 2026 incident (commit 46e3bb012
+          # reverted ~380 src/ lines under a "data refresh" message)
+          # was caused by exactly that. The reset --hard pattern
+          # guarantees src/ matches origin/main at commit time.
           for attempt in 1 2 3 4 5; do
             git fetch origin main
-            # Rewind any prior failed-attempt commit; preserve all our
-            # working-tree + staged changes from the pipelines.
-            git reset --soft origin/main
-            # Re-stage in case --soft cleared something (it shouldn't,
-            # but defensive).
+            tmp=$(mktemp -d)
+            cp -r public/data "$tmp/" 2>/dev/null || true
+            git reset --hard origin/main
+            rm -rf public/data
+            cp -r "$tmp/data" public/
+            rm -rf "$tmp"
             git add public/data/
             if git diff --cached --quiet; then
               echo "No data changes to commit (attempt $attempt)."

@@ -174,20 +174,47 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Race-safe commit pattern (see refresh-data.yml for the long
-          # explanation). Demographics workflow is especially important
-          # here: it runs for 30+ min, during which a market-data refresh
-          # commit can easily land first. The reset --soft pattern lands
-          # our fresh data on top of whatever's latest without trying to
-          # merge.
+          # Race-safe commit pattern. Demographics workflow runs for
+          # 30+ min during which lots of src/ changes can land on main.
+          # We reset to the LATEST origin/main and then add ONLY the
+          # data + auto-generated source paths we touched — anything
+          # else in the workflow's working tree (stale src/, stale
+          # scripts/, etc.) is restored to origin/main's version so
+          # we never accidentally revert other people's commits.
           #
-          # Data goes under public/data/; auto-generated source YAMLs
-          # land under several src/content/sources/ subdirs (acs_cd,
-          # acs_state, acs_national, acs_metro, plus usaspending +
-          # bls for the metro variants).
+          # Earlier versions used `reset --soft` and relied on the
+          # index/working-tree match — but reset --soft keeps the
+          # workflow's initial-checkout src/ in the worktree, and a
+          # subsequent `git add public/data/` followed by a commit
+          # could still pull in modified src/ files if anything else
+          # had changed them. The May 2026 incident (commit 46e3bb012
+          # reverted 11 hand-edited src/ files) was caused by exactly
+          # that path. Switched to `reset --hard` + selective add
+          # below: data paths are explicitly re-staged from disk,
+          # everything else is whatever's on origin/main.
           for attempt in 1 2 3 4 5; do
             git fetch origin main
-            git reset --soft origin/main
+            # Snapshot the data dirs we modified before we reset (so
+            # reset --hard doesn't wipe them).
+            tmp=$(mktemp -d)
+            mkdir -p "$tmp/public" "$tmp/src/content/sources"
+            cp -r public/data "$tmp/public/" 2>/dev/null || true
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
+              if [ -d "src/content/sources/$dir" ]; then
+                cp -r "src/content/sources/$dir" "$tmp/src/content/sources/" 2>/dev/null || true
+              fi
+            done
+            git reset --hard origin/main
+            # Replay only the paths the workflow generates.
+            rm -rf public/data
+            cp -r "$tmp/public/data" public/
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
+              if [ -d "$tmp/src/content/sources/$dir" ]; then
+                rm -rf "src/content/sources/$dir"
+                cp -r "$tmp/src/content/sources/$dir" "src/content/sources/"
+              fi
+            done
+            rm -rf "$tmp"
             git add public/data/
             for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
               git add "src/content/sources/$dir/" 2>/dev/null || true
