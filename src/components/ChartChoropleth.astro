@@ -245,8 +245,6 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
   // navigates back to a cached page.
   import * as Plot from "@observablehq/plot";
   import * as topojson from "topojson-client";
-  import { zoom, zoomIdentity } from "d3-zoom";
-  import { select } from "d3-selection";
 
   type ChoroBindings = {
     chartId: string;
@@ -546,62 +544,6 @@ const dataUrlsJson = JSON.stringify(dataFileUrls);
     };
     const fig = (Plot as any).plot(plotSpec);
     canvas.appendChild(fig);
-    // ---- Constrained pan/zoom (tract + block-group only) ----
-    //
-    // State + county views show the whole US at once, so pan/zoom
-    // wouldn't earn its keep. Sub-state views (tract, block-group)
-    // benefit: users can wheel-in on a neighborhood, drag-pan
-    // around, and the bbox constraints keep them inside the data
-    // we actually shipped — no panning to blank ocean, no zooming
-    // out past the bbox to see fake context.
-    //
-    // The data-savings story matters here: boundary files for these
-    // views are pre-filtered by mapshaper to keep only features
-    // intersecting the chart's bbox. The user constrained-zoom
-    // INSIDE that bbox = the data they have on hand; there's
-    // nothing to pan to beyond it because it was never downloaded.
-    //
-    // Implementation: d3-zoom on the main map SVG, transform
-    // applied to a wrapper <g>. vector-effect="non-scaling-stroke"
-    // keeps boundary lines a constant pixel width regardless of
-    // zoom level (otherwise lines get fat when zoomed in).
-    if (b.geo === "tract" || b.geo === "block-group") {
-      // Plot returns a <figure> when there's a legend, with the map
-      // SVG as one of the children. Pick the SVG that's holding the
-      // geo paths.
-      const svgs = Array.from(fig.querySelectorAll("svg")) as SVGSVGElement[];
-      const mapSvg = (fig.tagName === "svg" ? fig as SVGSVGElement
-        : svgs.find((s) => s.querySelectorAll("path[d]").length > 5))
-        ?? svgs[svgs.length - 1];
-      if (mapSvg) {
-        const ns = "http://www.w3.org/2000/svg";
-        const zoomG = mapSvg.ownerDocument.createElementNS(ns, "g");
-        zoomG.setAttribute("class", "choro-zoom-target");
-        while (mapSvg.firstChild) zoomG.appendChild(mapSvg.firstChild);
-        mapSvg.appendChild(zoomG);
-        // Boundary strokes stay 1 pixel-ish at every zoom level.
-        mapSvg.querySelectorAll("path").forEach((p) => {
-          p.setAttribute("vector-effect", "non-scaling-stroke");
-        });
-        const vbAttr = mapSvg.getAttribute("viewBox") || `0 0 ${width} ${height}`;
-        const [vbX, vbY, vbW, vbH] = vbAttr.split(/\s+/).map(Number);
-        const z = zoom<SVGSVGElement, unknown>()
-          .scaleExtent([1, 12])
-          .translateExtent([[vbX, vbY], [vbX + vbW, vbY + vbH]])
-          .extent([[vbX, vbY], [vbX + vbW, vbY + vbH]])
-          .on("zoom", (event) => {
-            zoomG.setAttribute("transform", event.transform.toString());
-          });
-        select(mapSvg)
-          .call(z)
-          // Disable d3-zoom's default double-click handler — users
-          // expect double-click on a region to do nothing special.
-          .on("dblclick.zoom", null);
-        mapSvg.style.cursor = "grab";
-        mapSvg.addEventListener("mousedown", () => { mapSvg.style.cursor = "grabbing"; });
-        mapSvg.addEventListener("mouseup", () => { mapSvg.style.cursor = "grab"; });
-      }
-    }
     // Tooltip on hover. Performance-tuned because the chart can carry
     // thousands of <path> elements (3,143 counties, ~74k tracts) and
     // a naive mousemove handler that runs `closest("path")` plus DOM
