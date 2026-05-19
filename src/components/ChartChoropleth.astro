@@ -1247,6 +1247,16 @@ const statesJoined = stateCodes.join(",");
       const wrap = dialog!.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
       if (wrap) wrap.innerHTML = "";
       dialog!.classList.remove("choro-dialog-wide");
+      // Reset the fullscreen button text. The dialog is SHARED across
+      // every choropleth chart on the page (single #choro-expand-dialog
+      // node via ensureDialog), so leaving the text as "Exit full screen"
+      // means the next chart that opens this dialog shows stale label
+      // text — and the next click reads classList (correctly NOT wide
+      // after the line above) and toggles INTO fullscreen, even though
+      // the button claims it'll exit. That's why entering fullscreen on
+      // a chart felt like it required two clicks: the first click
+      // matched the stale "exit" text to the actually-not-wide state.
+      if (fullscreenBtn) fullscreenBtn.textContent = "⤢ Full screen";
     });
     // Reset-zoom button: returns the map to its initial scale +
     // translate via the d3-zoom programmatic API. Visible only when

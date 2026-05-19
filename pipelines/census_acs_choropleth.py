@@ -213,12 +213,27 @@ def fetch_acs(year: str, geo_spec: str, in_spec: str | None,
               timeout: int = 180) -> list[list[str]]:
     """One Census ACS API call. Returns the raw 2D table (first row =
     header). Empty list on failure. Default timeout 180s — block-group
-    state-wide responses can be 10MB+ on slow Census API days."""
+    state-wide responses can be 10MB+ on slow Census API days.
+
+    URL encoding: ``geo_spec`` and ``in_spec`` can contain literal
+    spaces (the block-group spec is ``"block group:*"``), which modern
+    curl (8.x+) refuses to send as raw URL bytes with
+    ``URL rejected: Malformed input to a URL function``. The Census
+    API expects the space percent-encoded as ``%20``, so we route
+    both through ``quote()`` with the API's delimiter characters
+    (``:``, ``*``, ``+``, ``,``) kept literal. This is the bug that
+    kept block-group VA data empty for months — the URL never even
+    left the local machine.
+    """
+    from urllib.parse import quote
+
     base = f"https://api.census.gov/data/{year}/acs/acs5"
     get = "NAME," + ",".join(variables)
-    qs = [f"get={get}", f"for={geo_spec}"]
+    safe = ":*+,"
+    qs = [f"get={quote(get, safe=safe)}",
+          f"for={quote(geo_spec, safe=safe)}"]
     if in_spec:
-        qs.append(f"in={in_spec}")
+        qs.append(f"in={quote(in_spec, safe=safe)}")
     if api_key:
         qs.append(f"key={api_key}")
     url = f"{base}?{'&'.join(qs)}"
@@ -581,7 +596,10 @@ def main() -> int:
                     continue
                 path = write_snapshot(indicator, args.geo, vintage, values,
                                       state_code=state_code)
-                print(f"{len(values)} regions → {path.relative_to(ROOT)}")
+                # ASCII arrow — Windows console defaults to cp1252 which
+                # can't encode U+2192. Linux + macOS workflows are fine
+                # either way; ASCII keeps the local-dev story working too.
+                print(f"{len(values)} regions -> {path.relative_to(ROOT)}")
                 total_files += 1
     print(f"\nWrote {total_files} snapshot file(s); "
           f"skipped {cached_skipped} immutable cached vintages "
@@ -599,14 +617,28 @@ def main() -> int:
     # tried + failed, not the share that was skipped via cache.
     actual_attempts = attempts - cached_skipped
     if actual_attempts > 0 and total_files == 0:
+        # Several possible causes — list them in likelihood order so
+        # the operator can triage quickly without re-deriving them.
+        geo_clause = f" --state {args.state}" if args.state else ""
         print(
             f"\n::error::All {actual_attempts} live fetches for "
-            f"--geo {args.geo}" + (f" --state {args.state}" if args.state else "")
-            + f" returned no data. Likely CENSUS_API_KEY missing or "
-            f"invalid (this endpoint requires one; without it FRED's "
-            f"CSV-style anon endpoint 302s to a 'Missing Key' HTML "
-            f"page that fails JSON parse). Set the CENSUS_API_KEY "
-            f"secret in the repo's Actions settings + re-run.",
+            f"--geo {args.geo}{geo_clause} returned no data. Common causes:\n"
+            f"  1. The indicator isn't published at this geography. "
+            f"Census disclosure-avoidance suppresses certain indicators "
+            f"at finer geographies — notably B17001 (poverty) and "
+            f"B05002 (place of birth) are NOT published at block-group "
+            f"level. If this is `--geo block_group` and the indicator "
+            f"is poverty_rate or foreign_born_pct, this is the cause; "
+            f"the data is fetchable at `--geo tract` instead.\n"
+            f"  2. CENSUS_API_KEY missing or invalid. Census's modern "
+            f"endpoint requires a key for tract / block-group; without "
+            f"one it 302s to a 'Missing Key' HTML page that fails JSON "
+            f"parse. Check the repo's Actions secrets.\n"
+            f"  3. URL encoding broken. If curl logged "
+            f"'Malformed input to a URL function' above, the fetch_acs "
+            f"helper lost its quote() call — block-group specs contain "
+            f"a literal space ('block group:*') that modern curl rejects "
+            f"unencoded.",
             file=sys.stderr,
         )
         return 1
