@@ -1,0 +1,24 @@
+name: Social Security (OASDI) income as % of GDP
+shortName: OASDI income / GDP
+description: |
+  OASDI program income (payroll taxes plus interest earned on trust-fund assets) as a percentage of GDP. Historical values are SSA actuals; the dashed extension is the intermediate-cost projection from the most recent OASDI Trustees Report. The gap between income and cost (cost charted separately) is the program's annual cash-flow balance.
+kind: timeseries
+pipeline: ssa
+dataFile: data/ssa/oasdi_income_pct_gdp.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "% of GDP"
+formatting:
+  style: percent
+  decimals: 2
+provenance:
+  provider: Social Security Administration
+  series: OASDI Trustees Report Long-Range Estimates, Table VI.F8 (Alternative II)
+  url: https://www.ssa.gov/oact/TR/2024/
+  notes: |
+    Income projection includes only currently scheduled revenue (payroll-tax rate held at present law). Policy changes that raise revenue would shift the projected segment up.
+tags:
+  - fiscal
+  - government
+  - demographics
+  - us
+unitClass: rate

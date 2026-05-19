@@ -1,0 +1,25 @@
+name: Social Security (OASDI) cost as % of GDP
+shortName: OASDI cost / GDP
+description: |
+  OASDI = Old-Age, Survivors, and Disability Insurance (Social Security in aggregate). Combined-program costs as a percentage of GDP — the most-cited measure of long-term program scale. Historical values are SSA actuals; the dashed extension is the intermediate-cost ("Alternative II") long-range projection from the most recent OASDI Trustees Report.
+kind: timeseries
+pipeline: ssa
+dataFile: data/ssa/oasdi_cost_pct_gdp.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "% of GDP"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Social Security Administration
+  series: OASDI Trustees Report Long-Range Estimates, Table VI.F8 (Alternative II)
+  url: https://www.ssa.gov/oact/TR/2024/
+  notes: |
+    Projection scenario shown is intermediate-cost (Alternative II), the SSA Office of the Chief Actuary's best-estimate. The Trustees Report also publishes low-cost (I) and high-cost (III) alternatives that bracket this central estimate.
+tags:
+  - fiscal
+  - government
+  - demographics
+  - us
+unitClass: rate

@@ -36,23 +36,38 @@ def write_timeseries(
     name: str,
     points: list[dict[str, Any]],
     unit: str | None = None,
+    projections: dict[str, list[dict[str, Any]]] | None = None,
 ) -> Path:
     """
     Write a timeseries JSON file. ``points`` is a list of ``{"t": iso_date, "v": float}``
     ordered chronologically (oldest first).
+
+    ``projections`` is an optional map of ``vintage_date -> [{t, v}]`` for
+    forecast-bearing sources (CBO outlook, SSA Trustees Report, market
+    futures curves, etc.). Each vintage is the forecast that was
+    published on that date; multiple vintages can live side-by-side so
+    a future "as of" picker (Phase 3) can show historical perspectives.
+    The renderer's Phase 2 behavior is to draw the latest vintage as a
+    dashed extension after the last historical point.
+
+    See ``src/lib/data-types.ts`` for the TypeScript-side schema.
     """
     out = DATA_ROOT / pipeline / f"{series_id}.json"
-    _write_json(
-        out,
-        {
-            "id": series_id,
-            "name": name,
-            "kind": "timeseries",
-            "unit": unit,
-            "lastUpdated": utc_now_iso(),
-            "points": points,
-        },
-    )
+    payload: dict[str, Any] = {
+        "id": series_id,
+        "name": name,
+        "kind": "timeseries",
+        "unit": unit,
+        "lastUpdated": utc_now_iso(),
+        "points": points,
+    }
+    if projections:
+        # Sort the vintage keys so JSON diffs across runs are stable
+        # (Python dicts preserve insertion order; pipelines that build
+        # vintages in some non-deterministic order shouldn't show up
+        # as gratuitous noise in CI diffs).
+        payload["projections"] = {k: projections[k] for k in sorted(projections)}
+    _write_json(out, payload)
     return out
 
 

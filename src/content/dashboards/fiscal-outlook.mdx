@@ -1,0 +1,108 @@
+---
+title: "Fiscal outlook"
+order: 4
+defaultDelta: 30y
+description: "Where the federal fiscal picture is going, based on the projections published by the people who do the projecting — CBO for the 10-year budget baseline, SSA for the 75-year Social Security trajectory, and the futures market for energy commodity prices."
+aboutBlurb: "Forward-looking views of fiscal and energy commodities, with the projection segments drawn as dashed extensions of the historical line. CBO publishes a new budget outlook each January (with an August update); the SSA Trustees Report releases annually in May/June; the energy curves refresh every pipeline run."
+sections:
+  - title: "CBO budget baseline — 10-year projections"
+    description: "Each chart's solid line is historical actuals from CBO's Historical Budget Data; the dashed extension is the most recent 10-year baseline projection. The baseline holds current law fixed — actual outcomes typically diverge as expiring provisions get extended."
+    charts:
+      - government/cbo_outlays_pct_gdp
+      - government/cbo_revenues_pct_gdp
+      - government/cbo_deficit_pct_gdp
+      - government/cbo_debt_pct_gdp
+  - title: "Social Security — 75-year Trustees projection"
+    description: "OASDI = Old-Age, Survivors, and Disability Insurance (Social Security in aggregate). Solid lines are historical SSA actuals; dashed extensions are the intermediate-cost (Alternative II) long-range projection from the most recent Trustees Report. Cost / GDP rises as the worker-to-beneficiary ratio falls."
+    charts:
+      - government/ssa_oasdi_cost_pct_gdp
+      - government/ssa_oasdi_workers_per_beneficiary
+  - title: "Energy commodities — current forward curves"
+    description: "Solid lines are monthly-averaged historical spot prices. Dashed extensions are today's futures curves — each future-month contract plotted at its delivery month, priced at its most-recent close. These are market-quoted contract prices, not Tape-generated forecasts."
+    charts:
+      - energy/wti_curve
+      - energy/brent_curve
+      - energy/natgas_curve
+---
+
+## What's on this dashboard
+
+Three sets of forward-looking series, each from the institution that
+publishes the projection — not a Tape-generated forecast.
+
+| Set | Projection horizon | Vintage cadence |
+|---|---|---|
+| **CBO budget baseline** | 10 years | Twice yearly (Jan + Aug) |
+| **SSA Trustees Report** | 75 years | Annual (May/June) |
+| **Energy futures curves** | ~18 months | Every pipeline refresh |
+
+In every chart, the solid line is historical actuals and the dashed
+line is the projection. The renderer extends the x-axis automatically
+to fit the projection's last point.
+
+## How to read a "baseline" projection
+
+CBO and SSA baselines are mechanically defined: they assume current
+law is followed exactly, with no extension of expiring provisions and
+no new legislation. That's a useful counterfactual but it's not a
+realistic forecast — Congress routinely extends expiring tax
+provisions, modifies spending caps, and passes new programs. Realized
+outcomes usually diverge from the baseline, typically in the direction
+of higher outlays and bigger deficits.
+
+The CBO charts here show **only the baseline**. CBO also publishes
+alternative scenarios that incorporate likely policy changes — those
+aren't included on Tape (yet); the agency itself notes that the
+alternative scenarios involve more judgment.
+
+## How to read a "Trustees Report" projection
+
+The SSA Office of the Chief Actuary publishes three scenarios each
+year — low-cost (I), intermediate (II), and high-cost (III) — based
+on alternative assumptions about fertility, mortality, immigration,
+labor force participation, and productivity growth. The intermediate
+scenario is presented as the actuary's best estimate, and is what
+every external commentator cites by default. That's what's plotted
+here as the dashed extension.
+
+The trustees themselves describe the long-range projections as "an
+indication of the program's likely future direction under a fairly
+wide range of conditions" — they aren't precise predictions, and the
+75-year horizon means small assumption changes compound to big
+differences at the end. The famous "trust fund depletion year" has
+moved back and forth by several years across successive reports.
+
+## How to read a futures curve
+
+A futures curve isn't a forecast in the same sense as a CBO baseline
+or an SSA projection. It's the actual price at which market
+participants are willing to buy and sell contracts that deliver the
+commodity in each future month. So it represents:
+
+- **A consensus of market participants' expected prices**, weighted
+  by who is willing to put money behind each view.
+- **A risk-adjusted view** — buyers value certainty, sellers value
+  storage costs and convenience yield, so the curve incorporates
+  more than pure expectation.
+- **An option to act**: anyone who disagrees with the curve can
+  trade against it, which is why persistent curve mispricings tend
+  to be eaten.
+
+For oil specifically, the curve is the cleanest public price-forecast
+available. It's not always right (1- to 4-month errors average $8-10
+per barrel in WTI backtests), but it's the best price-discovery
+mechanism we have.
+
+## Customizing this dashboard
+
+Every source on this dashboard is in the composer library. The
+"Customize" link at the top opens this dashboard pre-loaded in the
+composer so you can swap in CBO scenarios against the SSA cost
+trajectory, overlay current futures curves against the most recent
+EIA outlook, or build your own scenario stack.
+
+The vintage picker (Phase 3 of the Forecast UI) is not yet shipped —
+when it lands, you'll be able to compare "what CBO thought in 2023"
+vs "what CBO thinks now" on the same chart. The vintage history is
+already being captured by the pipelines, so when the picker ships
+it'll pick up the back-data automatically.

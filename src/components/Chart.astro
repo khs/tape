@@ -484,17 +484,31 @@ const payload = {
         lastUpdated: p.data?.lastUpdated ?? p.summary!.lastUpdated,
       };
       if (p.data) {
-        return { ...base, points: p.data.points };
+        // Full mode: include all projection vintages so the dialog can
+        // render the latest and (Phase 3) let the user pick an older one.
+        // Op'd / combined series never carry projections — combineTwo
+        // produces a derived points-only series.
+        const projections = (p.data as { projections?: import("../lib/data-types").Projections })
+          .projections;
+        return projections
+          ? { ...base, points: p.data.points, projections }
+          : { ...base, points: p.data.points };
       }
       // Summary mode. Cast away Partial<> for client consumption — at use
       // sites we still check defined-ness because not every window may be
       // populated (sparse series, etc.).
+      //
+      // latestProjection ships per-tile when the source has projections;
+      // the full vintage history isn't loaded until dialog-open lazy-fetch.
       return {
         ...base,
         summary: {
           latest: p.summary!.latest,
           priors: p.summary!.priors,
           sparks: p.summary!.sparks,
+          ...(p.summary!.latestProjection
+            ? { latestProjection: p.summary!.latestProjection }
+            : {}),
         },
       };
     }),

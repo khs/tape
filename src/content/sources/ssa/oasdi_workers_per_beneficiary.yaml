@@ -1,0 +1,25 @@
+name: Covered workers per OASDI beneficiary
+shortName: Workers per beneficiary
+description: |
+  Number of workers covered by Social Security per one OASDI beneficiary. The classic demographic-pressure ratio — historically declining as life expectancy has risen and baby-boomer cohorts have moved into retirement. Historical values are SSA actuals; the dashed extension is the intermediate-cost projection from the most recent OASDI Trustees Report.
+kind: timeseries
+pipeline: ssa
+dataFile: data/ssa/oasdi_workers_per_beneficiary.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: workers per beneficiary
+formatting:
+  style: number
+  decimals: 2
+  suffix: " workers"
+provenance:
+  provider: Social Security Administration
+  series: OASDI Trustees Report Long-Range Estimates, Table VI.F4 (Alternative II)
+  url: https://www.ssa.gov/oact/TR/2024/
+  notes: |
+    Projection assumes intermediate fertility, mortality, and immigration assumptions. Higher immigration or fertility would lift the ratio; lower would lower it.
+tags:
+  - fiscal
+  - government
+  - demographics
+  - us
+unitClass: ratio

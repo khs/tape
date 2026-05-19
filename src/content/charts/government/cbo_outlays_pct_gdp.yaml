@@ -1,0 +1,8 @@
+title: Federal outlays / GDP — CBO baseline
+sources:
+  - cbo/cbo_outlays_pct_gdp
+render: line
+defaultDelta: 30y
+tags: [fiscal, government, macro, us]
+blurb: |
+  Solid line: historical federal outlays as % of GDP from CBO's Historical Budget Data. Dashed line: the 10-year baseline projection from the most recent CBO Budget & Economic Outlook. CBO baselines assume current law is followed exactly — actual outlays typically run higher because expiring provisions tend to get extended.

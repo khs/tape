@@ -3,6 +3,28 @@ export interface TimeSeriesPoint {
   v: number;
 }
 
+/**
+ * Forward-looking projections, keyed by vintage date (the date the
+ * forecast was published — "YYYY-MM" or "YYYY-MM-DD"). Each entry's
+ * array is the full forecast as of that vintage, ordered chronologically
+ * with the same shape as historical `points`.
+ *
+ * Multiple vintages can coexist on a single source so a future "as of"
+ * picker (Phase 3) can show "what the forecast looked like in Feb 2024".
+ *
+ * Use cases this covers today:
+ *   - CBO Budget & Economic Outlook (Feb + Aug releases each year)
+ *   - SSA Trustees Report (annual, intermediate-cost projection)
+ *   - Yahoo / NYMEX futures curves (snapshotted per pipeline run; the
+ *     curve at expiry T is recorded with `t = T's mid-month date`)
+ *   - CMS NHE projections (annual)
+ *
+ * Renderer default (Phase 2): pick the latest vintage by key sort, draw
+ * its points as a dashed extension of the historical line. Earlier
+ * vintages are stored but not rendered until Phase 3 ships the picker.
+ */
+export type Projections = Record<string, TimeSeriesPoint[]>;
+
 export interface TimeSeriesData {
   id: string;
   name: string;
@@ -10,6 +32,7 @@ export interface TimeSeriesData {
   unit?: string;
   lastUpdated: string;
   points: TimeSeriesPoint[];
+  projections?: Projections;
 }
 
 export interface CurvePoint {
@@ -58,4 +81,16 @@ export interface TimeSeriesSummary {
   latest: TimeSeriesPoint;
   priors: Partial<Record<string, TimeSeriesPoint>>;
   sparks: Partial<Record<string, TimeSeriesPoint[]>>;
+  /**
+   * The most recent projection vintage, baked into the summary so the
+   * tile sparkline can show a forward-looking dashed extension without
+   * a full-data fetch. Older vintages live in the full data file's
+   * `projections` map and are loaded lazily on dialog open.
+   *
+   * Absent when the source has no projections.
+   */
+  latestProjection?: {
+    vintage: string;
+    points: TimeSeriesPoint[];
+  };
 }

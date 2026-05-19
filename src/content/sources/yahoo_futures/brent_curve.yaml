@@ -1,0 +1,23 @@
+name: Brent crude oil — spot history + futures curve
+shortName: Brent curve
+description: |
+  Brent crude (North Sea) — the global oil benchmark, priced off about two-thirds of internationally traded crude. The solid line is monthly-averaged spot front-month price; the dashed extension is the current forward curve out ~18 months, each contract plotted at its delivery month with its most-recent close.
+kind: timeseries
+pipeline: yahoo_futures
+dataFile: data/yahoo_futures/brent_curve.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: USD/bbl
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: BZ=F + monthly contracts (BZ[M][YY].NYM)
+  url: https://finance.yahoo.com/quote/BZ%3DF
+  notes: |
+    The projection segment is the forward curve at run time — actual market-quoted contract prices, not a Tape-generated forecast.
+tags:
+  - commodities
+  - energy
+unitClass: currency

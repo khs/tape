@@ -1,0 +1,23 @@
+name: WTI crude oil — spot history + futures curve
+shortName: WTI curve
+description: |
+  WTI (West Texas Intermediate) crude oil. The solid line is monthly-averaged spot front-month price (NYMEX CL=F). The dashed extension is the current NYMEX forward curve — each future-month contract plotted at its delivery month with its most-recent close. The curve represents the market's current price expectation for the next ~18 months and rolls forward with every refresh.
+kind: timeseries
+pipeline: yahoo_futures
+dataFile: data/yahoo_futures/wti_curve.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: USD/bbl
+formatting:
+  style: currency
+  currency: USD
+  decimals: 2
+provenance:
+  provider: Yahoo Finance
+  series: CL=F + monthly contracts (CL[M][YY].NYM)
+  url: https://finance.yahoo.com/quote/CL%3DF
+  notes: |
+    The projection segment is the NYMEX forward curve at run time — actual quoted contract prices, not a Tape-generated forecast. The market's price expectations can shift quickly with geopolitical news, OPEC announcements, and inventory data.
+tags:
+  - commodities
+  - energy
+unitClass: currency

@@ -1,0 +1,26 @@
+name: Federal outlays as % of GDP — CBO baseline
+shortName: CBO outlays / GDP
+description: |
+  Total federal outlays as a percentage of GDP. Historical values come from CBO's Historical Budget Data; the dashed extension is the 10-year baseline projection from the most recent CBO Budget & Economic Outlook. CBO publishes a new Outlook each January with a mid-year update each August.
+kind: timeseries
+pipeline: cbo
+dataFile: data/cbo/cbo_outlays_pct_gdp.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "% of GDP"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: Congressional Budget Office
+  series: Budget & Economic Outlook + Historical Budget Data
+  url: https://www.cbo.gov/data/budget-economic-data
+  license: Public domain (per cbo.gov copyright statement)
+  notes: |
+    CBO baseline projections assume current law is followed exactly (no extension of expiring provisions, no new policy). Realized outlays typically track higher than baseline because of routine legislative extensions.
+tags:
+  - fiscal
+  - government
+  - macro
+  - us
+unitClass: rate

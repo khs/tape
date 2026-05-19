@@ -23,5 +23,10 @@ pipelines/_crosswalks_cache/
 # here; regenerable so it stays out of the repo. See pipelines/_cache.py.
 pipelines/_cache/
 
+# CBO XLSX uploads. cbo.gov is behind DataDome and often blocks CI
+# fetches; the manual fallback is to drop browser-downloaded files
+# here. Operator artifact, not part of the repo. See pipelines/cbo.py.
+pipelines/cbo_data/
+
 .tmp_*
 

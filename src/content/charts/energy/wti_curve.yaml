@@ -1,0 +1,8 @@
+title: WTI crude — history + futures curve
+sources:
+  - yahoo_futures/wti_curve
+render: line
+defaultDelta: 5y
+tags: [commodities, energy]
+blurb: |
+  Solid line: monthly-averaged spot price (NYMEX front-month). Dashed line: today's NYMEX forward curve — each future-month contract plotted at its delivery month, priced at its most-recent close. The curve is the market's current price expectation, not a Tape-generated forecast.

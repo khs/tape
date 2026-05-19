@@ -185,6 +185,17 @@ export interface TileSummary {
   priors: Partial<Record<string, TimeSeriesPoint>>;
   sparks: Partial<Record<string, TimeSeriesPoint[]>>;
   lastUpdated: string;
+  /**
+   * Latest projection vintage, baked into the summary by
+   * pipelines/build_summaries.py when the full source has projections.
+   * Lets the tile show a dashed forward-looking extension without
+   * loading the full series. Older vintages remain in the full data
+   * file for the future "as of" picker (Phase 3).
+   */
+  latestProjection?: {
+    vintage: string;
+    points: TimeSeriesPoint[];
+  };
 }
 
 /**
@@ -221,6 +232,7 @@ export async function loadSourceForTile(
       priors: summary.priors,
       sparks: summary.sparks,
       lastUpdated: summary.lastUpdated,
+      latestProjection: summary.latestProjection,
     };
   }
   // Fallback: derive summary from full data. Costs more (we load the
@@ -234,11 +246,24 @@ export async function loadSourceForTile(
   if (full.kind !== "timeseries" || full.points.length === 0) return null;
   const derived = computeSummaryFromPoints(full.points, supportedDeltas);
   if (!derived) return null;
+  // Mirror build_summaries.py: if the full data has projections, surface
+  // just the latest vintage in the tile summary. Lex-max sort keeps this
+  // consistent with the offline pre-computed path (vintage keys are ISO).
+  let latestProjection: TileSummary["latestProjection"] | undefined;
+  if (full.projections) {
+    const vintages = Object.keys(full.projections);
+    if (vintages.length > 0) {
+      vintages.sort();
+      const latest = vintages[vintages.length - 1];
+      latestProjection = { vintage: latest, points: full.projections[latest] };
+    }
+  }
   return {
     latest: derived.latest,
     priors: derived.priors,
     sparks: derived.sparks,
     lastUpdated: full.lastUpdated,
+    latestProjection,
   };
 }
 

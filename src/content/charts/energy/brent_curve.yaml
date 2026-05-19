@@ -1,0 +1,8 @@
+title: Brent crude — history + futures curve
+sources:
+  - yahoo_futures/brent_curve
+render: line
+defaultDelta: 5y
+tags: [commodities, energy]
+blurb: |
+  Solid line: monthly-averaged spot Brent. Dashed line: today's forward curve — each future-month contract plotted at delivery month, priced at most-recent close. About two-thirds of internationally traded crude prices off Brent.

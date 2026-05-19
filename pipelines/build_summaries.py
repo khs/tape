@@ -180,7 +180,7 @@ def build_summary(full: dict[str, Any]) -> dict[str, Any] | None:
         spark = downsample(points, parsed_times, latest_t, window, SPARK_POINTS)
         if spark:
             sparks[window] = spark
-    return {
+    summary: dict[str, Any] = {
         "id": full.get("id"),
         "name": full.get("name"),
         "kind": "timeseries",
@@ -190,6 +190,23 @@ def build_summary(full: dict[str, Any]) -> dict[str, Any] | None:
         "priors": priors,
         "sparks": sparks,
     }
+    # If the full file carries projections, bake just the latest vintage
+    # into the summary so the tile sparkline can render a forward-looking
+    # dashed extension without a lazy fetch. Older vintages stay in the
+    # full data file for the future "as of" picker. Latest = lex-max of
+    # the vintage keys (they're ISO-shaped YYYY-MM or YYYY-MM-DD).
+    projections = full.get("projections")
+    if isinstance(projections, dict) and projections:
+        try:
+            latest_vintage = max(projections.keys())
+        except ValueError:
+            latest_vintage = None
+        if latest_vintage and isinstance(projections[latest_vintage], list):
+            summary["latestProjection"] = {
+                "vintage": latest_vintage,
+                "points": projections[latest_vintage],
+            }
+    return summary
 
 
 def main() -> int:

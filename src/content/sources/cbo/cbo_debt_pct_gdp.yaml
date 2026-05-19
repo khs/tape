@@ -1,0 +1,25 @@
+name: Federal debt held by the public as % of GDP — CBO baseline
+shortName: CBO debt / GDP
+description: |
+  Federal debt held by the public as a percentage of GDP. "Debt held by the public" excludes intra-governmental debt (Treasury holdings of trust funds like Social Security and Medicare) — it's the figure most often cited in fiscal-sustainability discussions. Historical values come from CBO's Historical Budget Data; the dashed extension is the 10-year baseline projection from the most recent CBO Budget & Economic Outlook.
+kind: timeseries
+pipeline: cbo
+dataFile: data/cbo/cbo_debt_pct_gdp.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "% of GDP"
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: Congressional Budget Office
+  series: Budget & Economic Outlook + Historical Budget Data
+  url: https://www.cbo.gov/data/budget-economic-data
+  license: Public domain (per cbo.gov copyright statement)
+  notes: |
+    Baseline projections hold current law fixed. The projection's slope is sensitive to assumed interest rates and to whether expiring tax provisions get extended — both are areas where realized policy has historically diverged from the baseline assumption.
+tags:
+  - fiscal
+  - government
+  - macro
+  - us
+unitClass: rate

@@ -49,7 +49,24 @@
     latest: Point;
     priors: Partial<Record<DeltaWindow, Point>>;
     sparks: Partial<Record<DeltaWindow, Point[]>>;
+    /**
+     * Most recent projection vintage, baked in for tile-mode rendering.
+     * Full vintage history (older as-of dates) lives in the full data
+     * file and is loaded lazily on dialog open.
+     */
+    latestProjection?: {
+      vintage: string;
+      points: Point[];
+    };
   };
+
+  /**
+   * Projections (vintage_date -> points) for full-mode sources. Same
+   * shape as `TimeSeriesData.projections` in src/lib/data-types.ts.
+   * Phase 2 renderer uses only the latest vintage; older vintages
+   * ride along for future Phase 3 vintage-picker work.
+   */
+  type ProjectionMap = Record<string, Point[]>;
 
   type SourcePayload = {
     id: string;
@@ -81,6 +98,13 @@
      * never produce a payload without it.
      */
     dataFile?: string;
+    /**
+     * Full projection map (every vintage). Only present in full mode —
+     * summary-mode payloads carry just the latest vintage inside
+     * `summary.latestProjection` instead. The lazy-fetch path on dialog
+     * open populates this when hydrating a summary-mode payload.
+     */
+    projections?: ProjectionMap;
     formatting: Formatting;
     supportedDeltas: DeltaWindow[];
     emphasis: "level" | "change";
@@ -313,6 +337,55 @@
     };
   }
 
+  // ---------- Projections (Phase 2 of Forecast UI) ----------
+  //
+  // A source can ship forward-looking projections in two shapes:
+  //   - Full mode: every vintage on `s.projections` (lex-max picked).
+  //   - Summary mode: just the latest vintage on `s.summary.latestProjection`.
+  // The lazy-fetch on dialog open hydrates `s.projections` from the full
+  // file when present, so dialog renders always have all vintages.
+  //
+  // For Phase 2 we render the latest vintage only (no picker — that's
+  // Phase 3). The dashed continuation begins at the last historical
+  // point so the solid/dashed transition visually connects.
+
+  /**
+   * Return the dashed-line tail to draw for `s` after the last historical
+   * point in `hist`, or null if there's nothing forward-looking to add.
+   *
+   * The returned `tail` includes the last historical point (`hist`'s
+   * final entry) prepended, so the dashed Plot.lineY connects to the
+   * solid line at the seam without a gap.
+   */
+  function projectionTail(
+    s: SourcePayload,
+    hist: Point[],
+  ): { tail: Point[]; vintage: string } | null {
+    let vintage: string | null = null;
+    let projPts: Point[] | null = null;
+    if (s.projections) {
+      const keys = Object.keys(s.projections);
+      if (keys.length > 0) {
+        keys.sort();
+        vintage = keys[keys.length - 1];
+        projPts = s.projections[vintage];
+      }
+    } else if (s.summary?.latestProjection) {
+      vintage = s.summary.latestProjection.vintage;
+      projPts = s.summary.latestProjection.points;
+    }
+    if (!projPts || projPts.length === 0 || !vintage) return null;
+    // Cutoff = last historical point's timestamp. We want STRICTLY-after
+    // projection points (anything at or before is already on the solid
+    // line and would just overdraw it).
+    const lastHist = hist.length > 0 ? hist[hist.length - 1] : null;
+    const cutoffMs = lastHist ? new Date(lastHist.t).getTime() : -Infinity;
+    const forward = projPts.filter((p) => new Date(p.t).getTime() > cutoffMs);
+    if (forward.length === 0) return null;
+    const tail = lastHist ? [lastHist, ...forward] : forward;
+    return { tail, vintage };
+  }
+
   // ---------- Lazy-fetch of full points (Phase 2) ----------
   //
   // On dialog open we hydrate full `points` for any source that only has
@@ -320,9 +393,14 @@
   // open/close cycles instant — once a source's points are in memory
   // for the session, every subsequent fetch is a no-op.
 
-  const fetchPromiseCache = new Map<string, Promise<Point[] | null>>();
+  type FetchedFull = {
+    points: Point[];
+    projections?: ProjectionMap;
+  };
 
-  async function fetchFullPoints(dataFile: string): Promise<Point[] | null> {
+  const fetchPromiseCache = new Map<string, Promise<FetchedFull | null>>();
+
+  async function fetchFullPoints(dataFile: string): Promise<FetchedFull | null> {
     const cached = fetchPromiseCache.get(dataFile);
     if (cached) return cached;
     const p = (async () => {
@@ -332,8 +410,13 @@
         // domains, and local astro preview without any env detection.
         const res = await fetch(`/${dataFile}`);
         if (!res.ok) return null;
-        const raw = (await res.json()) as { points?: Point[] } | undefined;
-        return raw?.points ?? null;
+        const raw = (await res.json()) as
+          | { points?: Point[]; projections?: ProjectionMap }
+          | undefined;
+        if (!raw?.points) return null;
+        return raw.projections
+          ? { points: raw.points, projections: raw.projections }
+          : { points: raw.points };
       } catch {
         return null;
       }
@@ -347,6 +430,11 @@
    * for sources that already do (op'd / fixed-range / previously
    * fetched). Returns metrics for telemetry: how many sources were
    * fetched and the wall-clock time for the parallel batch.
+   *
+   * Also hydrates `projections` when present on the fetched payload —
+   * the dialog plot can then show the full vintage history (Phase 3
+   * picker uses this), and the dashed extension upgrade-renders from
+   * the same source of truth that the tile used.
    */
   async function ensureAllFullPoints(
     payload: Payload,
@@ -361,9 +449,10 @@
     );
     let failed = 0;
     for (let i = 0; i < need.length; i++) {
-      const pts = results[i];
-      if (pts) {
-        need[i].points = pts;
+      const fetched = results[i];
+      if (fetched) {
+        need[i].points = fetched.points;
+        if (fetched.projections) need[i].projections = fetched.projections;
       } else {
         failed += 1;
       }
@@ -562,6 +651,49 @@
       iso: p.t,
     }));
     const bundles = buildBundles([{ source, pts }]);
+    // Phase 2 projection: dashed forward extension on the sparkline so
+    // the tile previews the same forecast shape the dialog will show.
+    // For futures-curve sources, this IS the headline information.
+    const sparkMarks: any[] = [
+      Plot.lineY(pts, {
+        x: "t",
+        y: "v",
+        stroke: source.color,
+        strokeWidth: 1.5,
+      }),
+    ];
+    const sparkTail = projectionTail(source, visible);
+    if (sparkTail) {
+      const projPts = sparkTail.tail.map((p) => ({ t: new Date(p.t), v: p.v }));
+      sparkMarks.push(
+        Plot.lineY(projPts, {
+          x: "t",
+          y: "v",
+          stroke: source.color,
+          strokeWidth: 1.25,
+          strokeDasharray: "4,2.5",
+          strokeOpacity: 0.65,
+        }),
+      );
+    }
+    if (bundles.length > 0) {
+      sparkMarks.push(
+        Plot.tip(
+          bundles,
+          Plot.pointerX({
+            x: "t",
+            // Anchor the tip's y to the bundle's mean displayed-y so
+            // it floats up/down with the chart line instead of sitting
+            // at a fixed vertical position. Plot's auto anchor logic
+            // then picks above/below based on available space, so the
+            // tip naturally avoids covering the line cluster.
+            y: "y",
+            title: (b: Bundle) => bundleTitle(b, TILE_HINT),
+            ...TIP_STYLE,
+          }),
+        ),
+      );
+    }
     const plot = Plot.plot({
       height,
       width,
@@ -570,32 +702,7 @@
       marginRight: 0,
       marginTop: 2,
       marginBottom: 2,
-      marks: [
-        Plot.lineY(pts, {
-          x: "t",
-          y: "v",
-          stroke: source.color,
-          strokeWidth: 1.5,
-        }),
-        ...(bundles.length > 0
-          ? [
-              Plot.tip(
-                bundles,
-                Plot.pointerX({
-                  x: "t",
-                  // Anchor the tip's y to the bundle's mean displayed-y so
-                  // it floats up/down with the chart line instead of sitting
-                  // at a fixed vertical position. Plot's auto anchor logic
-                  // then picks above/below based on available space, so the
-                  // tip naturally avoids covering the line cluster.
-                  y: "y",
-                  title: (b: Bundle) => bundleTitle(b, TILE_HINT),
-                  ...TIP_STYLE,
-                }),
-              ),
-            ]
-          : []),
-      ],
+      marks: sparkMarks,
     });
     container.replaceChildren(plot);
   }
@@ -1032,6 +1139,35 @@
           r: 3.5,
         }),
       );
+      // Forecast UI Phase 2: render the latest projection vintage as a
+      // dashed continuation past the last historical point. Apply the
+      // same rebase divisor used for the solid line so multi-source
+      // rebased plots stay self-consistent.
+      const tail = projectionTail(s, visible);
+      if (tail) {
+        const projPts: TipPoint[] = tail.tail.map((p) => ({
+          t: new Date(p.t),
+          v: useRebase ? (p.v / baseline) * 100 : p.v,
+          vRaw: p.v,
+          iso: p.t,
+        }));
+        marks.push(
+          Plot.lineY(projPts, {
+            x: "t",
+            y: "v",
+            stroke: s.color,
+            strokeWidth: 1.5,
+            strokeDasharray: "5,3",
+            strokeOpacity: 0.7,
+          }),
+        );
+        // Extend the canonical x-domain to include the latest projection
+        // date so the dashed tail actually fits in the plot frame.
+        const lastProjMs = projPts[projPts.length - 1].t.getTime();
+        if (standardDomainMs && lastProjMs > standardDomainMs[1]) {
+          standardDomainMs = [standardDomainMs[0], lastProjMs];
+        }
+      }
       bundleSeries.push({ source: s, pts, rebased: useRebase });
     }
     const bundles = buildBundles(bundleSeries);
