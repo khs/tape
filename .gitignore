@@ -28,5 +28,10 @@ pipelines/_cache/
 # here. Operator artifact, not part of the repo. See pipelines/cbo.py.
 pipelines/cbo_data/
 
+# SSA HTML uploads. ssa.gov returns 403 to non-browser User-Agents;
+# the manual fallback is to save the Trustees Report HTML pages from
+# a browser into this directory. See pipelines/ssa.py for the workflow.
+pipelines/ssa_data/
+
 .tmp_*
 

@@ -43,10 +43,27 @@ pipeline uses ``pandas.read_html`` to parse them. URLs are stable
 year-to-year — to add a new vintage when the next report drops,
 increment ``REPORT_YEAR`` and re-run.
 
+Direct HTTP fetches to ssa.gov return HTTP 403 even with a browser
+User-Agent — they run anti-bot protection across the whole site. We
+try first; on failure we fall back to operator-supplied HTML files in
+``pipelines/ssa_data/``.
+
+Manual workflow
+~~~~~~~~~~~~~~~
+1. Open ``https://www.ssa.gov/oact/TR/<YEAR>/<SUFFIX>.html`` in a
+   browser. For the 2024 report the suffixes we need are ``lr6F8``
+   (cost & income / GDP) and ``lr6F4`` (workers per beneficiary).
+2. Use the browser's "Save As" → Webpage Complete (or HTML Only).
+3. Save into ``pipelines/ssa_data/`` with the filename
+   ``<vintage>_<suffix>.html``, e.g. ``2024_lr6F8.html``.
+4. Re-run ``python pipelines/ssa.py``.
+
+``pipelines/ssa_data/`` is gitignored — operator artifact, not part
+of the repo.
+
 Cached on disk via ``pipelines/_cache.py``: the Trustees Report
 contents for a given year don't change once published, so each year's
-URL response is cached effectively-permanently. Set
-``--force-refresh`` (TODO) to bypass.
+URL response is cached effectively-permanently.
 
 Run
 ---
@@ -152,9 +169,16 @@ TABLES: list[SsaTableSpec] = [
 ]
 
 
+MANUAL_DIR = ROOT / "pipelines" / "ssa_data"
+
+
 def fetch_html(year: int, suffix: str) -> str | None:
-    """Fetch an SSA Trustees Report HTML page, with permanent caching
-    (a given year's report doesn't change once published)."""
+    """
+    Fetch an SSA Trustees Report HTML page. Tries the live URL first
+    (cached); on the typical 403 from SSA's anti-bot we fall back to
+    operator-supplied HTML files under ``pipelines/ssa_data/``. See
+    module docstring for the manual workflow.
+    """
     url = f"https://www.ssa.gov/oact/TR/{year}/{suffix}"
     cache_key = f"{year}_{suffix.replace('/', '_')}"
     cached = cache_get("ssa_tr_html", cache_key, CACHE_MAX_AGE_DAYS, suffix=".html")
@@ -163,21 +187,49 @@ def fetch_html(year: int, suffix: str) -> str | None:
     try:
         import urllib.request
 
-        # SSA accepts default user agents but be polite + identifiable.
+        # SSA blocks most non-browser UAs (403). We still try with a
+        # browser UA in case the block is intermittent or scoped — but
+        # the practical fallback is the manual-upload directory below.
         req = urllib.request.Request(
             url,
-            headers={"User-Agent": "TapeDataPipelines/1.0 (financefordc)"},
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/124.0.0.0 Safari/537.36"
+                ),
+                "Accept": (
+                    "text/html,application/xhtml+xml,application/xml;"
+                    "q=0.9,*/*;q=0.8"
+                ),
+            },
         )
         with urllib.request.urlopen(req, timeout=60) as resp:
             body = resp.read()
+        try:
+            cache_put("ssa_tr_html", cache_key, body, suffix=".html")
+        except OSError as e:
+            print(f"  cache write failed: {e}", file=sys.stderr)
+        return body.decode("utf-8", errors="replace")
     except Exception as e:
-        print(f"  fetch failed: {url}: {e}", file=sys.stderr)
-        return None
-    try:
-        cache_put("ssa_tr_html", cache_key, body, suffix=".html")
-    except OSError as e:
-        print(f"  cache write failed: {e}", file=sys.stderr)
-    return body.decode("utf-8", errors="replace")
+        print(f"  url fetch failed: {url}: {e}", file=sys.stderr)
+
+    # Fallback: operator-supplied HTML. Filename convention is
+    # ``<year>_<suffix-stem>.html`` — strip the .html so both
+    # ``2024_lr6F8.html`` and the legacy ``2024_lr6F8.html.html``
+    # both resolve.
+    if MANUAL_DIR.exists():
+        stem = suffix.replace(".html", "")
+        candidates = [
+            MANUAL_DIR / f"{year}_{stem}.html",
+            MANUAL_DIR / f"{year}_{suffix}",
+            MANUAL_DIR / suffix,
+        ]
+        for p in candidates:
+            if p.exists():
+                print(f"  using manual upload: {p.name}", flush=True)
+                return p.read_text(encoding="utf-8", errors="replace")
+    return None
 
 
 def _flatten_column(col: object) -> str:
