@@ -1,0 +1,192 @@
+---
+/**
+ * Iframe-embeddable single chart.
+ *
+ * URL: `/embed/chart/<chart-id>?delta=<window>`
+ *   chart-id: any library chart ID (us-macro/sp500, government/…, etc.)
+ *   delta:    optional. One of 1w / 1m / ytd / 1y / 5y / 10y / 30y /
+ *             50y. Falls back to the chart's defaultDelta.
+ *
+ * Renders the chart's TILE (not the full dialog), sized to fill the
+ * iframe. The host page picks an iframe height (typically 280–400px)
+ * and gets a snapshot the visiting reader can scan in a glance: title,
+ * current value, delta over the picked window, sparkline. Clicking
+ * the tile opens the full dialog with sources, pills, larger plot.
+ *
+ * Design choice: tile-mode rather than auto-opened-dialog because
+ *   1. Tile renders synchronously without a JS-trigger race against
+ *      the ChartController's tile-click wiring.
+ *   2. The TILE is what an editorial reader needs at a glance — the
+ *      DIALOG is an interactive deep-dive most readers won't want.
+ *      The author already framed the chart's context by picking
+ *      the delta; readers don't need a window picker in the embed.
+ *   3. Sizing is simpler — fill 100% × 100% of the iframe with the
+ *      tile, no fullscreen-modal CSS surgery needed.
+ */
+import { getCollection } from "astro:content";
+import EmbedLayout from "../../../layouts/EmbedLayout.astro";
+import Chart from "../../../components/Chart.astro";
+import ChartController from "../../../components/ChartController.astro";
+import {
+  resolveChart,
+  effectiveChart,
+} from "../../../lib/resolve-dashboard";
+import { DELTA_WINDOWS, type DeltaWindow } from "../../../lib/deltas";
+
+export async function getStaticPaths() {
+  const charts = await getCollection("charts");
+  return charts
+    .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+    // Choropleth charts don't render through the time-series Chart
+    // component; could ship later as `/embed/map/<id>` if there's demand.
+    .filter((c) => c.data.render !== "choropleth")
+    .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
+}
+
+interface Props {
+  chartId: string;
+}
+
+const { chartId } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Pull the requested delta from the query string; defensively clamp
+// to the canonical DeltaWindow set so a typo (?delta=foo) falls back
+// to the chart's natural default.
+const rawDelta = Astro.url.searchParams.get("delta") ?? "";
+const requestedDelta: DeltaWindow | undefined =
+  (DELTA_WINDOWS as readonly string[]).includes(rawDelta)
+    ? (rawDelta as DeltaWindow)
+    : undefined;
+
+const resolved = await resolveChart(chartId);
+
+// Attribution chip on the EmbedLayout points at the canonical chart-
+// detail page so a curious reader has a one-click path to the full
+// site experience.
+const attributionHref = `${baseUrl}/chart/${chartId}/`;
+const title = resolved?.chart.data.title ?? chartId;
+---
+
+<EmbedLayout title={title} attributionHref={attributionHref}>
+  <div class="embed-shell" data-chart-id={chartId}>
+    {
+      !resolved ? (
+        <div class="embed-error">
+          <p>
+            Chart not found: <code>{chartId}</code>
+          </p>
+          <p>
+            <a href={attributionHref}>Browse the chart library &rarr;</a>
+          </p>
+        </div>
+      ) : (
+        <div class="embed-tile-wrap">
+          <Chart
+            chartId={chartId}
+            chart={effectiveChart(resolved)}
+            sources={resolved.sources}
+            dashboardSlug="embed"
+            dashboardWindow={requestedDelta}
+          />
+        </div>
+      )
+    }
+  </div>
+
+  <ChartController />
+</EmbedLayout>
+
+<style is:global>
+  /* Embed-mode size override: the tile by default is sized for a
+     ~220-wide column inside a 3-up grid. Inside an iframe we want
+     it to fill the host's chosen dimensions. The shell flex-grows
+     and the tile picks up 100% height/width. */
+  body.embed-body {
+    overflow: hidden;
+  }
+  .embed-shell {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    padding: 14px 16px 24px;
+    box-sizing: border-box;
+  }
+  .embed-shell .embed-tile-wrap {
+    width: 100%;
+    height: 100%;
+  }
+  /* The tile itself: take the full iframe area. Remove the hover
+     ring and pointer-down affordance that the in-app tile has
+     (visual noise without an in-app context). */
+  .embed-shell .chart-tile {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border-radius: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+  /* Sparkline grows to fill leftover vertical space below the
+     readout — gives the reader the longest visible sparkline the
+     iframe can fit. Chart.astro's scoped CSS pins .tile-spark to a
+     fixed 36px (or larger for multi-series); override here with
+     auto-height + flex-grow so the sparkline stretches to fill the
+     iframe's chosen dimensions. */
+  .embed-shell .tile-spark,
+  .embed-shell [data-role="tile-spark"] {
+    height: auto !important;
+    flex: 1 1 auto;
+    min-height: 80px;
+  }
+  /* Tile title can wrap if the chart name is long; cap the
+     amount of vertical real estate it claims. */
+  .embed-shell .tile-title {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  /* When the user clicks the embedded tile to expand, the dialog
+     fills the iframe edge-to-edge. Embedding contexts have no
+     surrounding page to dim, so the backdrop is transparent and
+     the "open as dashboard" / "copy citation" actions are hidden
+     (they'd link out of the iframe to a different surface — let
+     the attribution chip handle that instead). */
+  body.embed-body dialog[open] {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fffdf9 !important;
+  }
+  body.embed-body dialog[open]::backdrop {
+    background: rgba(0, 0, 0, 0.35);
+  }
+  body.embed-body dialog[open] [data-role="open-as-dashboard"],
+  body.embed-body dialog[open] [data-role="copy-embed-link"],
+  body.embed-body dialog[open] [data-role="copy-citation"],
+  body.embed-body dialog[open] [data-role="copy-embed-iframe"] {
+    display: none !important;
+  }
+  .embed-error {
+    padding: 24px;
+    font-size: 13px;
+    color: #6f6c66;
+    max-width: 520px;
+    margin: 40px auto;
+    text-align: center;
+  }
+  .embed-error code {
+    background: #f1efe9;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-family: ui-monospace, monospace;
+    color: #1c1c1a;
+  }
+</style>

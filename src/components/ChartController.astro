@@ -2087,6 +2087,72 @@
         });
       }
 
+      // "Copy embed code" — generates the iframe HTML snippet that
+      // renders this chart live inside a Substack post / blog / wiki.
+      // Carries the current window selection in ?delta= so the embed
+      // reproduces what the user is seeing on screen right now (not
+      // the chart's default window).
+      const embedIframeBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-role='copy-embed-iframe']",
+      );
+      if (embedIframeBtn) {
+        embedIframeBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (embedIframeBtn.disabled) return;
+          const chartId = payload.chartId ?? "";
+          const isInline = chartId.startsWith("inline:");
+          if (isInline) {
+            // Inline charts have no stable URL — the iframe-embed
+            // path only makes sense for library charts. Tell the user
+            // and bail.
+            embedIframeBtn.disabled = true;
+            const orig = embedIframeBtn.textContent ?? "Copy embed code";
+            embedIframeBtn.textContent = "Save first";
+            setTimeout(() => {
+              embedIframeBtn.disabled = false;
+              embedIframeBtn.textContent = orig;
+            }, 1500);
+            return;
+          }
+          // Build the iframe snippet against window.location.origin.
+          // ChartController doesn't know about SITE_BRAND_URL —
+          // origin is the deployed Vercel URL today, the real tape.io
+          // host once that DNS is in place.
+          const origin = window.location.origin;
+          const params = new URLSearchParams();
+          if (ctx.currentWindow) params.set("delta", ctx.currentWindow);
+          const qs = params.toString();
+          const url = `${origin}/embed/chart/${chartId}/${qs ? `?${qs}` : ""}`;
+          // Iframe dims: 700×420 is a sensible default that fits
+          // most blog column widths AND leaves enough vertical room
+          // for the title + readout + sparkline at readable scale.
+          // The user can resize in their host editor as needed.
+          const snippet =
+            `<iframe src="${url}" width="700" height="420" ` +
+            `style="border:0; max-width:100%;" loading="lazy" ` +
+            `title="${(payload.title ?? chartId).replace(/"/g, "&quot;")}" ` +
+            `allow="clipboard-write"></iframe>`;
+          const originalLabel = embedIframeBtn.textContent ?? "Copy embed code";
+          embedIframeBtn.disabled = true;
+          try {
+            await navigator.clipboard.writeText(snippet);
+            embedIframeBtn.textContent = "Copied!";
+            track("chart_embed_iframe_copied", {
+              chartId,
+              window: ctx.currentWindow,
+              surface: payload.surface ?? "",
+            });
+          } catch {
+            embedIframeBtn.textContent = "Copy failed";
+          } finally {
+            setTimeout(() => {
+              embedIframeBtn.disabled = false;
+              embedIframeBtn.textContent = originalLabel;
+            }, 1500);
+          }
+        });
+      }
+
       const openAsDashBtn = dialog.querySelector<HTMLButtonElement>(
         "[data-role='open-as-dashboard']",
       );

@@ -1,0 +1,103 @@
+---
+/**
+ * Minimal layout for `/embed/...` routes — strips nav, footer, OG meta,
+ * JSON-LD, sign-in modals, and the analytics shell. The host page (a
+ * Substack post, a blog, a Confluence wiki) is already styled and only
+ * cares about the chart rendering inside the iframe.
+ *
+ * What we keep:
+ *   - Font (Inter Variable, the rest of the site's identity)
+ *   - The global stylesheet (so tile / dialog colors match)
+ *   - A small "Tape" attribution in the corner, linking back to the
+ *     full chart page. Required by the spirit of "every embed should
+ *     advertise the source" — and gives the host page's reader a
+ *     one-click path into the full site if they want to explore.
+ *
+ * What we drop:
+ *   - <BaseLayout>'s nav, footer, JSON-LD, OG meta, social link
+ *     unfurl machinery — none of it is useful inside an iframe.
+ *   - The add-to-dashboard / sign-in modals.
+ *   - The analytics dashboard-view ping. Embeds get their own
+ *     `embed_chart_view` event from the embed page directly.
+ *
+ * Sized to fit the iframe — body fills 100% height/width with no
+ * scrollbars; the chart sizes to whatever the iframe's outer
+ * dimensions are.
+ */
+import "@fontsource-variable/inter";
+import "../styles/global.css";
+import { SITE_BRAND_NAME, SITE_BRAND_URL } from "../lib/brand";
+
+interface Props {
+  title: string;
+  /** The full-site URL the attribution chip links back to. */
+  attributionHref: string;
+}
+
+const { title, attributionHref } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — {SITE_BRAND_NAME} embed</title>
+    {/* Hint to embedding pages that this is safe to iframe.
+        Don't set X-Frame-Options here (header-level); Vercel handles
+        framing policy globally. */}
+    <meta name="robots" content="noindex, nofollow" />
+  </head>
+  <body class="embed-body">
+    <slot />
+    <a
+      class="embed-attribution"
+      href={attributionHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Open this chart on {SITE_BRAND_NAME}"
+    >
+      {SITE_BRAND_NAME} &rarr; {SITE_BRAND_URL}
+    </a>
+  </body>
+</html>
+
+<style>
+  html,
+  body.embed-body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+  body.embed-body {
+    /* Editorial baseline so the embedded chart inherits the same
+       feel as the main app — no surprise font swaps inside an
+       iframe sitting on a host page's serif body text. */
+    font-family:
+      "Inter Variable", Inter, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    color: #1c1c1a;
+  }
+  /* Attribution chip sits in the lower-right of the iframe. Small,
+     muted, links back to the canonical chart page. */
+  .embed-attribution {
+    position: fixed;
+    bottom: 8px;
+    right: 10px;
+    font-size: 10px;
+    line-height: 1;
+    color: #888782;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    padding: 4px 6px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    z-index: 100;
+  }
+  .embed-attribution:hover {
+    color: #1c1c1a;
+    background: rgba(255, 255, 255, 0.95);
+  }
+</style>
