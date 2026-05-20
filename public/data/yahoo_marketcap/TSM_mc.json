@@ -3,7 +3,7 @@
   "name": "Taiwan Semiconductor (ADR) market cap",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-20T03:59:41Z",
+  "lastUpdated": "2026-05-20T14:14:48Z",
   "points": [
     {
       "t": "2017-05-02",
@@ -9104,6 +9104,10 @@
     {
       "t": "2026-05-19",
       "v": 2036.2807598869804
+    },
+    {
+      "t": "2026-05-20",
+      "v": 2069.195622721985
     }
   ]
 }

@@ -26,6 +26,10 @@ step() {
 # --- Market data (weekly cadence equivalent) ---
 step "FRED series" python pipelines/fred_series.py
 step "Yahoo quotes" python pipelines/yahoo_quotes.py
+# SEC EDGAR shares-outstanding feeds yahoo_marketcap (must run BEFORE
+# it). Pulls quarterly XBRL filings back to 2009 — extends marketcap
+# history well beyond yfinance's ~2017 floor.
+step "SEC shares outstanding" python pipelines/sec_shares.py
 step "Yahoo market caps" python pipelines/yahoo_marketcap.py
 step "Countries relative" python pipelines/countries_relative.py
 step "World Bank GDP" python pipelines/worldbank_gdp.py

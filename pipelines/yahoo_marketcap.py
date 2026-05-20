@@ -4,22 +4,41 @@ Compute historical market capitalization (valuation) for a set of tickers.
 Approach:
   market_cap(t) = unadjusted_close(t) * shares_outstanding(t)
 
-yfinance's ``get_shares_full()`` returns point-in-time share counts at roughly
-quarterly cadence; we forward-fill to align with daily closing prices. We use
-UNADJUSTED prices here — adjusted prices are backward-corrected for splits,
-which would double-count against the actual (pre-split) share count in history.
+Shares-outstanding comes from two sources, merged by date (latest reading
+at-or-before each daily close wins):
+  * **SEC EDGAR XBRL** (sec_shares.py) — the authoritative source for
+    US-listed companies and large foreign filers. Covers 2009-onward at
+    quarterly cadence (10-Q / 10-K filers) or annual cadence (20-F
+    filers like ASML, TSM). Pulled by the sibling sec_shares pipeline;
+    this pipeline reads its on-disk JSONs.
+  * **yfinance get_shares_full()** — fallback for the bleeding-edge
+    (dates after the most recent SEC filing reaches the API) and for
+    tickers where SEC tagging is sparse or absent (BRK-B's dei tag
+    tracks Class A only and stopped in 2011; pre-merger DIS lives
+    under a different CIK; etc.). Returns point-in-time share counts
+    going back to roughly 2017.
 
-Run AFTER yahoo_quotes.py (they can also run independently).
+We use UNADJUSTED prices throughout — adjusted prices are backward-
+corrected for splits, which would double-count against the actual
+(pre-split) share count in history. The future-split-factor adjustment
+below recovers true unadjusted prices from yfinance's silently-split-
+adjusted "Close" column.
+
+Run AFTER yahoo_quotes.py (they can also run independently). When SEC
+data is desired, run pipelines/sec_shares.py first; this pipeline still
+works without it (it just falls back to yfinance-only history).
 """
 from __future__ import annotations
 
+import json
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
 
-from common import write_timeseries
+from common import DATA_ROOT, write_timeseries
 
 
 @dataclass
@@ -76,6 +95,50 @@ SPECS: list[MarketCapSpec] = [
 ]
 
 
+# Tickers where the SEC share-count is NOT the right multiplier for the
+# yfinance close price, even when ample data exists. Common reasons:
+#
+#   * **ADRs with non-1:1 ratios.** TSM trades as a 5:1 ADR — each NYSE
+#     "TSM" share is 5 Taiwanese ordinary shares. SEC reports ~26B
+#     ordinary shares; the ADR market cap is (ordinary / 5) × ADR price.
+#     We don't try to track the ADR ratio (it can change rarely but
+#     does), so we skip SEC and use yfinance which natively reports
+#     the ADR-equivalent share count.
+#   * **Dual-class structures where dei tracks one class only.** When
+#     this matters, it's usually caught by the MIN_SEC_OBS / staleness
+#     gating below — but the canonical pin for the case lives here so
+#     future maintainers can reason about it without re-deriving it.
+#
+# ASML is NOT here: its NASDAQ listing is 1:1 with the Amsterdam
+# ordinary shares (not an ADR), so the SEC ordinary-share count is
+# directly compatible with the NASDAQ price.
+SEC_EXCLUDED_TICKERS: set[str] = {"TSM"}
+
+
+def _load_sec_shares(symbol: str) -> pd.Series | None:
+    """Load the SEC-derived shares-outstanding timeseries for ``symbol``
+    written by pipelines/sec_shares.py. Returns a pd.Series indexed by
+    pd.Timestamp (one observation per filing), or None when no JSON
+    exists. The series is dense at filing dates only — caller is
+    responsible for reindexing onto daily price dates via forward-fill."""
+    sec_path = DATA_ROOT / "sec_shares" / f"{symbol.replace('-', '_')}_shares.json"
+    if not sec_path.exists():
+        return None
+    try:
+        payload = json.loads(sec_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    points = payload.get("points")
+    if not isinstance(points, list) or not points:
+        return None
+    series = pd.Series(
+        {pd.Timestamp(p["t"]): float(p["v"]) for p in points if "t" in p and "v" in p},
+    )
+    series = series.sort_index()
+    series.index = series.index.tz_localize(None).normalize()
+    return series
+
+
 def fetch_marketcap(symbol: str) -> list[dict]:
     ticker = yf.Ticker(symbol)
     # Note: even with auto_adjust=False, modern yfinance returns "Close" that
@@ -101,6 +164,54 @@ def fetch_marketcap(symbol: str) -> list[dict]:
         future_factor = rev_cumprod / splits_clean
         future_factor = future_factor.reindex(closes.index, method="ffill").fillna(1.0)
         closes = closes * future_factor
+
+    # SEC-derived shares: authoritative, generally extends history back
+    # to 2009 (start of XBRL mandate). May be None for tickers without
+    # SEC coverage (re-pull pipelines/sec_shares.py to populate). Indexed
+    # by filing-end date, sparse cadence (quarterly for 10-Q filers,
+    # annual for 20-F filers).
+    sec_series = (
+        _load_sec_shares(symbol) if symbol not in SEC_EXCLUDED_TICKERS else None
+    )
+    sec_daily: pd.Series | None = None
+    sec_first_ts: pd.Timestamp | None = None
+    if symbol in SEC_EXCLUDED_TICKERS:
+        print(f"  (skipping SEC for {symbol}: in SEC_EXCLUDED_TICKERS)", flush=True)
+    # Gating thresholds — we'd rather use yfinance than a misleading SEC
+    # series. Cases this catches:
+    #   * BRK-B: dei tag tracks Class A only (different scale) and
+    #     stopped in 2011 — only 7 rows, last 15 years ago. Skip.
+    #   * V, MA: handful of rows in 2009-2010 then SEC abandons the
+    #     dei tag. Forward-filling those across modern dates gives a
+    #     constant 2009 share count for 16 years — wrong.
+    #   * Foreign-filer ADRs that fall off the tag for some period.
+    # Annual filers (20-F like ASML / TSM) pass the min-obs bar with
+    # plenty of headroom (17 / 9 rows).
+    MIN_SEC_OBS = 8
+    MAX_SEC_STALENESS_YEARS = 3
+    if sec_series is not None and len(sec_series) >= MIN_SEC_OBS:
+        last_ts = sec_series.index.max()
+        now_ts = pd.Timestamp.utcnow().tz_localize(None)
+        staleness_years = (now_ts - last_ts).days / 365.25
+        if staleness_years <= MAX_SEC_STALENESS_YEARS:
+            # Forward-fill SEC observations onto every trading day so we
+            # can look up the as-of-filing share count for any close-date.
+            # ffill is correct semantically — a filed count remains the
+            # company's official outstanding figure until the next filing.
+            sec_daily = sec_series.reindex(closes.index, method="ffill")
+            sec_first_ts = sec_series.index.min()
+        else:
+            print(
+                f"  (skipping SEC for {symbol}: last filing "
+                f"{last_ts.date()} is {staleness_years:.1f}y stale)",
+                flush=True,
+            )
+    elif sec_series is not None:
+        print(
+            f"  (skipping SEC for {symbol}: only {len(sec_series)} "
+            f"observations, below MIN_SEC_OBS={MIN_SEC_OBS})",
+            flush=True,
+        )
 
     raw_shares = ticker.get_shares_full(start="1980-01-01")
     points: list[dict] = []
@@ -165,16 +276,45 @@ def fetch_marketcap(symbol: str) -> list[dict]:
                     clean[ts] = last_known
 
         for ts, close_v in closes.items():
-            shares_v = clean.get(ts)
-            if shares_v is None or pd.isna(shares_v):
+            # Prefer SEC's filed share count when it's published for this
+            # date (sec_first_ts onwards). Falls through to the yfinance
+            # clean dict for the pre-SEC-coverage tail (some tickers'
+            # listings predate the XBRL mandate; SEC has no opinion).
+            shares_v: float | None = None
+            if (
+                sec_daily is not None
+                and sec_first_ts is not None
+                and ts >= sec_first_ts
+            ):
+                sec_v = sec_daily.get(ts)
+                if sec_v is not None and not pd.isna(sec_v):
+                    shares_v = float(sec_v)
+            if shares_v is None:
+                yf_v = clean.get(ts)
+                if yf_v is not None and not pd.isna(yf_v):
+                    shares_v = float(yf_v)
+            if shares_v is None:
                 continue
-            mc = float(close_v) * float(shares_v)
+            mc = float(close_v) * shares_v
             if mc <= 0:
                 continue
             # Store in billions of USD so values combine sanely with the
             # FRED macro series (already billions-denominated). Raw
             # market-cap magnitudes (~10^11-10^13) blew up combineTwo
             # divides by 10^9; rescaling here is the cheapest fix.
+            points.append({"t": ts.strftime("%Y-%m-%d"), "v": mc / 1e9})
+    elif sec_daily is not None and sec_first_ts is not None:
+        # No yfinance shares at all (uncommon) — SEC alone carries the
+        # series from its first filing forward.
+        for ts, close_v in closes.items():
+            if ts < sec_first_ts:
+                continue
+            sec_v = sec_daily.get(ts)
+            if sec_v is None or pd.isna(sec_v):
+                continue
+            mc = float(close_v) * float(sec_v)
+            if mc <= 0:
+                continue
             points.append({"t": ts.strftime("%Y-%m-%d"), "v": mc / 1e9})
     else:
         # Fallback: use current shares count × historical prices (approximation)
@@ -218,8 +358,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         first_v = points[0]["v"]
         last_v = points[-1]["v"]
+        # v is already stored in billions of USD (see comment in
+        # fetch_marketcap where mc / 1e9 is applied) — print directly.
         print(
-            f"  {len(points):>6} points, ${first_v / 1e9:.1f}B -> ${last_v / 1e9:.1f}B  [{out}]"
+            f"  {len(points):>6} points, {points[0]['t']}=${first_v:.1f}B -> "
+            f"{points[-1]['t']}=${last_v:.1f}B  [{out}]"
         )
     return 1 if errors else 0
 

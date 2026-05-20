@@ -1,0 +1,17 @@
+{
+  "id": "V_shares",
+  "name": "V shares outstanding (SEC)",
+  "kind": "timeseries",
+  "unit": "shares",
+  "lastUpdated": "2026-05-20T14:08:04Z",
+  "points": [
+    {
+      "t": "2009-11-13",
+      "v": 470210301
+    },
+    {
+      "t": "2010-01-27",
+      "v": 469280842
+    }
+  ]
+}

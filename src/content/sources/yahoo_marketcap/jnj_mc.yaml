@@ -4,7 +4,7 @@ description: Unadjusted close × historical shares outstanding (yfinance).
 kind: timeseries
 pipeline: yahoo_marketcap
 dataFile: data/yahoo_marketcap/JNJ_mc.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "billions USD"
 formatting:
   style: currency
