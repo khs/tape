@@ -21,6 +21,7 @@
     formatValue,
     formatDeltaDisplay,
     formatDate,
+    magnitudeFromFormatting,
     type Formatting,
   } from "../lib/format";
   import { SITE_BRAND_URL } from "../lib/brand";
@@ -136,6 +137,56 @@
     // mode entirely; tile delta and full plot both use these bounds.
     fixedRange?: { start: string; end: string };
   };
+
+  /**
+   * Multi-source raw-mode axis rescaling.
+   *
+   * When a multi-source chart is in "raw" mode AND its sources are
+   * stored at meaningfully different magnitudes (e.g. one in raw
+   * dollars, another in billions of dollars), the natural plot puts
+   * the smaller-magnitude series TINY and the larger-magnitude one
+   * dominant — even though the on-screen face value of the smaller
+   * one (700) is "bigger" than the face value of the larger one (300
+   * for "300B"). Without intervention, a $700 share price plots
+   * higher than a $300B market cap, which is the wrong intuition.
+   *
+   * Fix: detect the magnitude split via the suffix in each source's
+   * formatting block (' B' = 1e9, ' M' = 1e6, etc — see
+   * magnitudeFromFormatting), then multiply each series' plotted v by
+   * `mag / maxMag` so all values share the LARGEST-magnitude source's
+   * unit. The y-axis tick formatter uses the largest-magnitude
+   * source's formatting (e.g. ' B' suffix), so tick labels read as
+   * "$300B" and the smaller series plots as essentially zero at the
+   * bottom of the chart.
+   *
+   * Returns null when not applicable — single-source, rebase mode,
+   * dual-axis mode, or all sources already share a magnitude. In those
+   * cases callers preserve the existing branch behavior.
+   *
+   * Tooltips are unaffected: TipPoint.vRaw carries the un-scaled value
+   * and the per-source `formatting` block formats it natively, so
+   * hovering still reads "$700.00" and "$300.0 B" on the two series.
+   */
+  function rawAxisRescaleFor(payload: Payload): {
+    scales: Map<string, number>;
+    axisFormatting: Formatting;
+  } | null {
+    if (!payload.isMulti) return null;
+    if (payload.normalize !== "raw") return null;
+    if (payload.sources.length < 2) return null;
+    const mags = payload.sources.map((s) => ({
+      id: s.id,
+      mag: magnitudeFromFormatting(s.formatting),
+      fmt: s.formatting,
+    }));
+    const max = Math.max(...mags.map((m) => m.mag));
+    const min = Math.min(...mags.map((m) => m.mag));
+    if (max <= min) return null;
+    const scales = new Map<string, number>();
+    for (const m of mags) scales.set(m.id, m.mag / max);
+    const top = mags.find((m) => m.mag === max)!;
+    return { scales, axisFormatting: top.fmt };
+  }
 
   function findPrior(points: Point[], targetMs: number): Point | null {
     if (points.length === 0) return null;
@@ -827,6 +878,11 @@
 
     const marks: any[] = [];
     const sparkBundles: BundleSeries[] = [];
+    // Mixed-magnitude rescale: applied in raw mode when the chart's
+    // sources span unit magnitudes (e.g. share price + market cap).
+    // See rawAxisRescaleFor for the contract; null in rebase / dual /
+    // single-source / same-magnitude cases.
+    const sparkRescale = rawAxisRescaleFor(payload);
     for (const s of payload.sources) {
       const eff = closestSupported(window, s.supportedDeltas);
       // tileVisibleAndStart returns either the precomputed summary spark
@@ -841,9 +897,10 @@
         else break;
       }
       const useRebase = payload.normalize === "rebase" && baseline !== 0;
+      const axisScale = sparkRescale?.scales.get(s.id) ?? 1;
       const pts: TipPoint[] = visible.map((p) => ({
         t: new Date(p.t),
-        v: useRebase ? (p.v / baseline) * 100 : p.v,
+        v: useRebase ? (p.v / baseline) * 100 : p.v * axisScale,
         vRaw: p.v,
         iso: p.t,
       }));
@@ -1088,6 +1145,9 @@
     let dashStartDrawn = false;
     const fixed = payload.fixedRange;
     const rebaseMode = payload.normalize === "rebase" && payload.isMulti;
+    // Mixed-magnitude raw-mode rescale. Null in rebase/dual-axis/
+    // single-source/same-magnitude cases. See rawAxisRescaleFor.
+    const fullRescale = rawAxisRescaleFor(payload);
     const bundleSeries: BundleSeries[] = [];
     let standardDomainMs: [number, number] | null = null;
     for (const s of payload.sources) {
@@ -1110,9 +1170,10 @@
         else break;
       }
       const useRebase = rebaseMode && baseline !== 0;
+      const axisScale = fullRescale?.scales.get(s.id) ?? 1;
       const pts: TipPoint[] = visible.map((p) => ({
         t: new Date(p.t),
-        v: useRebase ? (p.v / baseline) * 100 : p.v,
+        v: useRebase ? (p.v / baseline) * 100 : p.v * axisScale,
         vRaw: p.v,
         iso: p.t,
       }));
@@ -1147,7 +1208,7 @@
       if (tail) {
         const projPts: TipPoint[] = tail.tail.map((p) => ({
           t: new Date(p.t),
-          v: useRebase ? (p.v / baseline) * 100 : p.v,
+          v: useRebase ? (p.v / baseline) * 100 : p.v * axisScale,
           vRaw: p.v,
           iso: p.t,
         }));
@@ -1189,14 +1250,19 @@
     }
     // For single-source plots, use the source's own formatting for y-axis ticks
     // so big numbers compact down to "$3T" etc. For multi-source rebased, leave
-    // default (values are always around 100).
+    // default (values are always around 100). For multi-source raw with
+    // mixed magnitudes (fullRescale active), use the largest-magnitude
+    // source's formatting so the ticks render in the natural axis unit
+    // (e.g. share-price + market-cap → ticks read "$300B").
     const singleSource =
       !payload.isMulti && payload.sources.length === 1
         ? payload.sources[0]
         : null;
     const tickFormat = singleSource
       ? (v: number) => formatValue(v, { ...singleSource.formatting, decimals: 1 })
-      : undefined;
+      : fullRescale
+        ? (v: number) => formatValue(v, { ...fullRescale.axisFormatting, decimals: 1 })
+        : undefined;
 
     const plot = Plot.plot({
       height: 280,

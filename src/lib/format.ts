@@ -50,6 +50,45 @@ function compactDecimalsFor(v: number): number {
   return Math.max(0, 3 - leadingDigits);
 }
 
+/**
+ * Infer the storage magnitude of a series from its formatting suffix.
+ *
+ * Returns the factor F such that the underlying raw value (in base units —
+ * raw dollars, raw people, etc.) equals `stored × F`. Pure heuristic that
+ * reads `formatting.suffix` for canonical ' B', ' M', ' T', ' K' markers.
+ * Everything else returns 1 (treated as raw).
+ *
+ * Used by the multi-source chart renderer to put mixed-magnitude series
+ * on a common y-axis — without this, a $700 share price plots HIGHER
+ * than a 300 (=$300B) market cap because both are read at face value.
+ *
+ * Bias note: this only catches sources that opted into a suffix in their
+ * formatting block. Sources that store billions but rely on
+ * `notation: "compact"` to render the unit have `scaleFactor` set to 1e9
+ * instead — fall back to that as the secondary signal.
+ */
+export function magnitudeFromFormatting(fmt: Formatting): number {
+  const suffix = (fmt.suffix ?? "").trim();
+  switch (suffix) {
+    case "T":
+      return 1e12;
+    case "B":
+      return 1e9;
+    case "M":
+      return 1e6;
+    case "K":
+      return 1e3;
+  }
+  // Compact notation that pulls its rendered suffix from scaleFactor.
+  // e.g. a series stored in billions can opt to ship as `notation: compact,
+  // scaleFactor: 1e9` so the formatted readout autoselects T/B/M based on
+  // magnitude. The scaleFactor itself IS the storage magnitude.
+  if (fmt.notation === "compact" && fmt.scaleFactor && fmt.scaleFactor > 1) {
+    return fmt.scaleFactor;
+  }
+  return 1;
+}
+
 export function formatValue(v: number, fmt: Formatting): string {
   // Apply the scaleFactor (if any) before everything else — both the
   // compact-decimals heuristic and Intl.NumberFormat use the scaled

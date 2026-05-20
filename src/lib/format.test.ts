@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatValue, formatDelta } from "./format";
+import { formatValue, formatDelta, magnitudeFromFormatting } from "./format";
 
 describe("formatValue — basic styles", () => {
   it("renders percent values with explicit %", () => {
@@ -114,6 +114,76 @@ describe("formatValue — compact notation smart decimals", () => {
     });
     expect(out).toMatch(/^\$42\.5/);
     expect(out).not.toMatch(/[TBMK]$/);
+  });
+});
+
+describe("magnitudeFromFormatting", () => {
+  // Reads the suffix to infer how many raw base units a stored value
+  // represents. ChartController uses this to rescale mixed-magnitude
+  // series onto a common axis (e.g. raw share price + market cap in
+  // billions). Per-suffix mapping below; everything else returns 1.
+
+  it("' B' suffix → 1e9 (billions)", () => {
+    expect(
+      magnitudeFromFormatting({
+        style: "currency",
+        decimals: 1,
+        suffix: " B",
+      }),
+    ).toBe(1e9);
+  });
+
+  it("' M' suffix → 1e6 (millions)", () => {
+    expect(
+      magnitudeFromFormatting({
+        style: "number",
+        decimals: 1,
+        suffix: " M",
+      }),
+    ).toBe(1e6);
+  });
+
+  it("' T' suffix → 1e12 (trillions)", () => {
+    expect(
+      magnitudeFromFormatting({
+        style: "currency",
+        decimals: 2,
+        suffix: " T",
+      }),
+    ).toBe(1e12);
+  });
+
+  it("no suffix → 1 (raw)", () => {
+    expect(
+      magnitudeFromFormatting({
+        style: "currency",
+        decimals: 2,
+      }),
+    ).toBe(1);
+  });
+
+  it("falls back to scaleFactor when notation=compact", () => {
+    // Compact-notation series that store in billions but render via
+    // Intl's compact suffix-picker still need a magnitude. scaleFactor
+    // IS the storage magnitude in that case.
+    expect(
+      magnitudeFromFormatting({
+        style: "currency",
+        decimals: 1,
+        notation: "compact",
+        scaleFactor: 1e9,
+      }),
+    ).toBe(1e9);
+  });
+
+  it("unknown suffix (' bps') → 1 (treat as raw)", () => {
+    expect(
+      magnitudeFromFormatting({
+        style: "bps",
+        decimals: 0,
+        suffix: " bps",
+      }),
+    ).toBe(1);
   });
 });
 
