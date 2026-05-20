@@ -5,7 +5,7 @@ sources:
 op: diff
 render: line
 defaultDelta: 30y
-tags: [us, macro, rates, recession]
+tags: [us, macro, derived, spread, rates, recession]
 blurb: |
   The slope of the front of the yield curve, computed as the
   10-year Treasury yield minus the federal funds effective rate.

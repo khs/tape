@@ -1,0 +1,21 @@
+title: Personal income as % of GDP
+sources:
+  - fred/personal_income
+  - fred/us_real_gdp
+op: divide
+render: line
+defaultDelta: 50y
+tags: [us, macro, derived, ratio, income]
+shading: [recessions]
+blurb: |
+  Total personal income (SAAR) divided by real GDP. Reads above
+  100% because personal income includes transfer payments (Social
+  Security, Medicaid, etc.) on top of wages + investment returns,
+  while GDP measures value-added production. The gap between this
+  ratio and 100% is roughly the transfer-payment share of household
+  income, which has trended up over the last 50 years.
+  <br/><br/>
+  Big spikes during recessions — COVID's $5T stimulus drove this
+  briefly to 130%+ — reflect Congress writing checks faster than
+  output recovers. A useful supplement to the headline savings-rate
+  series for "how much of household income is government-funded?"

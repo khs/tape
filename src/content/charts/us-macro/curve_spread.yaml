@@ -5,7 +5,7 @@ sources:
 op: diff
 render: line
 defaultDelta: 1m
-tags: [us, rates, macro]
+tags: [us, macro, derived, spread, rates, recession]
 blurb: |
   The yield curve slope between the 10-year and 2-year US Treasury
   notes (10Y − 2Y). Negative values ("inversion") have preceded most

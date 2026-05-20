@@ -5,7 +5,7 @@ sources:
 op: sum
 render: line
 defaultDelta: 30y
-tags: [us, macro, inflation, labor]
+tags: [us, macro, derived, inflation, labor]
 blurb: |
   The classic Arthur-Okun "misery index": headline CPI inflation
   (year-over-year %) plus the civilian unemployment rate (%).

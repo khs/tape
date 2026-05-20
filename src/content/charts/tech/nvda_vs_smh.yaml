@@ -6,7 +6,7 @@ op: divide
 percentDisplay: decimal
 render: line
 defaultDelta: 5y
-tags: [single-name, tech, equity-index, us]
+tags: [single-name, tech, equity-index, us, derived, ratio]
 blurb: |
   How many shares of the broad semiconductor ETF (SMH) one share of
   NVDA is worth, over time. A pure relative-strength chart — when the

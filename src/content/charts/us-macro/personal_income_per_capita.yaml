@@ -1,0 +1,19 @@
+title: Personal income per capita
+sources:
+  - fred/personal_income
+  - fred/us_population
+op: divide
+render: line
+defaultDelta: 50y
+tags: [us, macro, derived, ratio, income]
+shading: [recessions]
+blurb: |
+  Total personal income (nominal, SAAR) divided by US population.
+  Includes wages, transfer payments, and investment income — so
+  it's a broader measure than wage data alone. Reads as the average
+  per-person income flow at an annualized rate.
+  <br/><br/>
+  Nominal (not inflation-adjusted), so the long-run trend is up-
+  sloping in part because of price growth. For the real-purchasing-
+  power version, divide by CPI. Pairs naturally with real_gdp_per_capita
+  for "average output" vs "average income" comparison.

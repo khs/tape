@@ -1,0 +1,20 @@
+title: M2 money supply as % of GDP
+sources:
+  - fred/m2
+  - fred/us_real_gdp
+op: divide
+render: line
+defaultDelta: 30y
+tags: [us, macro, derived, ratio, money]
+shading: [recessions]
+blurb: |
+  M2 money stock divided by real GDP, expressed as a percent. A
+  rough measure of monetary "looseness" — how much liquid money is
+  outstanding per unit of real economic output. Climbs during
+  quantitative easing (2008–2014, 2020–22) and falls during
+  tightening cycles (2022–2024).
+  <br/><br/>
+  Macrotrends-style ratio. Both inputs are stored in canonical
+  billions of USD, so the same-class divide auto-formats as a
+  percent of GDP. Pair this with M2 levels and GDP growth side-
+  by-side to see what's driving each move.

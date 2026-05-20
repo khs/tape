@@ -5,7 +5,7 @@ sources:
 op: divide
 render: line
 defaultDelta: 30y
-tags: [us, macro, gdp]
+tags: [us, macro, derived, ratio, gdp]
 blurb: |
   Real GDP (chained 2017 dollars, quarterly) divided by US
   population (monthly). Reads as roughly real per-person economic

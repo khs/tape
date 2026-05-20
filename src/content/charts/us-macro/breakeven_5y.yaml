@@ -5,7 +5,7 @@ sources:
 op: diff
 render: line
 defaultDelta: 1y
-tags: [rates, macro, us]
+tags: [us, macro, derived, spread, rates, inflation]
 blurb: |
   The bond market's pricing of expected average inflation over the
   next five years. Shorter-horizon counterpart to the 10-year

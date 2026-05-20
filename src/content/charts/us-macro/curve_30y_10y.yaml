@@ -1,0 +1,20 @@
+title: 30Y–10Y yield curve (long-end slope)
+sources:
+  - fred/us_30y
+  - fred/us_10y
+op: diff
+render: line
+defaultDelta: 10y
+tags: [us, macro, derived, spread, rates]
+shading: [recessions]
+blurb: |
+  The slope of the LONG end of the US Treasury curve — 30-year
+  yield minus 10-year yield. Reflects term-premium expectations
+  and the market's read on long-horizon inflation + growth, vs.
+  the more Fed-policy-driven front of the curve (10Y–2Y, 10Y–3M).
+  <br/><br/>
+  Long-end inversion (negative readings) is rare and historically
+  signals deflationary pressure or a flight to long-duration
+  safety. The 30Y has frequently traded below the 10Y during
+  late-cycle compression episodes. Pair with the 10Y–2Y curve
+  spread for the full term-structure picture.
