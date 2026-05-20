@@ -7671,7 +7671,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .lib-panel-maps {
     overflow: visible;
   }
-  .composer-library[data-active-tab='maps'] {
+  /* Same treatment for the Maps and Generators tabs — both are
+     form-driven panels that end in a primary "+ Add" / "+ Generate"
+     button. Letting the panel scroll internally tucks the action
+     button under a scrollbar and users miss it. With the panel-local
+     overflow gone (here) and the library-shell max-height cancelled
+     (below), the whole composer column grows as tall as the form
+     needs and the WHOLE PAGE scrolls. Sources / Pregenerated stay
+     bounded because their result lists run to hundreds of rows. */
+  .composer-library[data-active-tab='maps'],
+  .composer-library[data-active-tab='generators'] {
     max-height: none;
     overflow: visible;
   }
@@ -7802,8 +7811,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   /* ---- Generators tab ---------------------------------------------- */
   .lib-panel-generators {
-    overflow-y: auto;
-    padding-right: 4px;
+    /* No internal scrollbar — matches the Maps panel's behavior so
+       the "+ Generate" button at the bottom of the form is never
+       tucked under a scrollbar. The library-shell max-height
+       cancellation lives in the shared
+       [data-active-tab='maps'], [data-active-tab='generators']
+       rule above. */
+    overflow: visible;
   }
   .gen-builder {
     display: flex;
