@@ -1,0 +1,111 @@
+---
+title: "walkthrough — explanation here"
+# Stuck at the back of the home-page tab strip (state atlases occupy
+# 14-17; the next data-refresh might add more curated dashboards in
+# 11-13, hence the 20 cushion).
+order: 20
+defaultDelta: 1y
+description: "A tour of what Tape can do — read this if you've just landed and want to know which knobs are where. Each section below shows a real chart + a short note about the feature it demonstrates."
+aboutBlurb: "Curated demo dashboard. Every section below is a real Tape feature, shown via real charts; the headings are the explanations. Click any tile to see its expanded view + the per-tile controls."
+sections:
+  - title: "Every tile shows the level and the move"
+    description: "Each tile is a chart. The big number is today's value; the small number is how it's changed across the current window (set by the pills above). Click any tile to open the expanded dialog — that's where the full chart, per-tile window pills, color-scheme picker, and the citation footer live."
+    charts:
+      - us-macro/unemployment
+      - us-macro/ten_year
+      - us-macro/sp500
+
+  - title: "Same data, different windows"
+    description: "The dashboard-wide pills above (1W, 1M, YTD, 1Y, 5Y, 10Y, 30Y, 50Y) flip every tile to that lookback in lockstep. A section can pin its own window — these three render at 30Y regardless of where the top pills are set, useful for stacking 'last decade' + 'last thirty years' commentary side by side."
+    defaultDelta: 30y
+    charts:
+      - us-macro/real_gdp
+      - us-macro/fed_funds
+      - us-macro/core_cpi
+
+  - title: "Multi-source charts"
+    description: "A single tile can combine two or more series via the composer's '+ Custom chart' or '+ Derived source' buttons. The chart below is the 5-year breakeven inflation rate — computed on the fly as (5y nominal yield) − (5y TIPS yield). Multi-source charts can be raw, rebased to 100, dual-axis, or operator-derived (divide / sum / difference)."
+    charts:
+      - us-macro/breakeven_5y
+
+  - title: "Forecasts ship as a dashed line"
+    description: "When a series has an official projection, it renders as a dashed extension of the historical line — same axis, same tooltip, no extra controls. CBO's deficit projection below extends ~30 years past the last historical fiscal year. Same treatment for the Social Security trustees' OASDI projection and the futures curves we ship for oil, VIX, and ag commodities."
+    charts:
+      - government/cbo_deficit_pct_gdp
+
+  - title: "Maps: choropleths at four resolutions"
+    description: "Census ACS demographic data renders as interactive choropleth maps at four geographic scales: state (one tile per state), county (~3,140), tract (~500–9,000 per state), and block group (up to ~30,000 per state). Click any region for the value + name. The state-level dropdown in the composer has 20+ indicators; finer geographies have 4 (county/tract) or 2 (block-group, the set Census actually publishes that deep)."
+    charts:
+      - government/us_median_hh_income_county_map_2022
+      - government/us_poverty_rate_county_map_2022
+
+  - title: "Multi-state regions"
+    description: "Tract and block-group maps can stitch up to 4 states into one regional view. The DMV tract map below combines VA, MD, and DC. The composer's Maps tab has region preset chips for DMV, NY tri-state, New England, Mid-Atlantic, and Pacific Northwest, plus a multi-select for any combination you want."
+    charts:
+      - government/dmv_median_hh_income_tract_map_2022
+
+---
+
+## What's outside the chart grid
+
+A few things this dashboard's tiles can't demonstrate inline — open
+the relevant page in another tab to play with them.
+
+### Composer (top right → **Compose**)
+
+The composer is where you build a custom dashboard:
+
+- **Sources tab** — every individual data series we have (~9,000 of
+  them: FRED economic series, Yahoo equities + futures, ACS demographics
+  by congressional district / state / metro / county / tract / block
+  group, World Bank country indicators, BLS subseries, Treasury TIC,
+  USAspending federal flows). Click any source to drop it into your
+  active section as a single-series tile.
+- **Pregenerated charts tab** — curated multi-source comparisons
+  (breakeven inflation rates, country GDP-share ratios, etc.). Drag in
+  whole; edit inline by clicking the tile.
+- **Maps tab** — build a choropleth without leaving the page. Pick
+  geography first, then indicator, then optional state(s), color
+  scheme, and an area-of-interest bbox.
+- **Generators tab** — mass-compose. Pick one series template
+  ("nonfarm payroll employment", "median household income", "CO2 emissions per
+  capita") plus a set of MSAs / states / countries, and the composer
+  drops one tile per entity into your section. Useful for "unemployment
+  across all 51 states" or "GDP per capita across every G20 country".
+
+### Saving + sharing
+
+- **Just the URL is enough** — your composition is encoded into
+  `?d=<blob>` so a fresh browser opening the URL sees the same
+  dashboard. Up to about 70 tiles fit in the URL; past that you'll
+  get a banner asking you to save to your account.
+- **Save to my account** — signs in via Google, persists the
+  composition at `/u/<slug>/` with a short URL you can share. Edit it
+  later from the **My dashboards** page (top right when signed in).
+- **Set as default** — on the home page row actions for any saved
+  dashboard. Pins it to a hero card above the list so it's a
+  one-click open on every home-page visit.
+- **Make a copy** — clones a dashboard to a fresh slug. Useful for
+  forking a curated dashboard like this one and editing it without
+  losing the original.
+
+### Citation rigor
+
+- Every chart has a source label + a link out to the upstream
+  provider (FRED, World Bank, Census, BLS, etc.). The expanded chart
+  dialog shows the data file path so anyone reading your saved
+  dashboard can verify the numbers themselves.
+- Data is refreshed weekly (market data) or monthly (demographics).
+  Each refresh commits to git, so any historical vintage of any
+  series can be resurrected from the repo's commit log if a
+  researcher ever needs to reproduce a chart at the value it had on
+  a specific date.
+
+### Where to go next
+
+- **`/compose/`** — start a new dashboard from scratch
+- **`/me/`** — the canonical list of your saved dashboards
+- **`/us-macro/`** — the most comprehensive single-dashboard
+  example, if you want to see how the pieces fit together
+- **`/state-atlas-northeast/`** through `/state-atlas-west/` — the
+  regional ACS map atlases, one per Census Bureau region
