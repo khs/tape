@@ -83,91 +83,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   </div>
 
   <script>
-    import { createSupabase, isSupabaseConfigured, type DashboardRow } from "../../lib/supabase";
-    import { encodeComposedState, composedStateSchema } from "../../lib/composer-state";
+    import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
+    import { renderSavedDashboardList } from "../../lib/render-saved-dashboards";
 
     const host = document.querySelector<HTMLElement>("[data-me]");
     if (!host) throw new Error("me host missing");
     const baseUrl = host.dataset.baseUrl ?? "";
     const content = host.querySelector<HTMLElement>("[data-role='content']");
-
-    // Build the "Make new dashboard" tile that always appears at the top
-    // of the list. Same chrome as the dashboard rows so it reads as a
-    // peer entry rather than a chip. Pulled into its own function so
-    // the empty-state path (no dashboards yet) can reuse the markup.
-    function makeNewDashboardTile(): HTMLLIElement {
-      const li = document.createElement("li");
-      li.className =
-        "border hairline rounded p-4 bg-white flex items-center justify-between";
-      li.innerHTML =
-        `<div>
-           <a class="text-base font-medium text-accent no-underline hover:underline" href="${baseUrl}/compose/">+ Make new dashboard</a>
-           <div class="text-xs text-neutral-500 mt-1">Compose from scratch in the composer.</div>
-         </div>
-         <div class="flex gap-2 text-xs">
-           <a class="underline text-neutral-500 no-underline hover:underline" href="${baseUrl}/compose/">Open composer &rarr;</a>
-         </div>`;
-      return li;
-    }
-
-    // Resolve a row's full state_json on click of Edit or Make-a-copy,
-    // base64url-encode it, and navigate to the composer with the
-    // appropriate flags. Lazy fetch keeps the initial list-render
-    // payload small (no state_json for every row up front, just
-    // id/slug/title/updated_at).
-    async function openInComposer(
-      sb: ReturnType<typeof createSupabase>,
-      id: string,
-      mode: "edit" | "copy",
-      slug: string,
-    ): Promise<void> {
-      if (!sb) return;
-      const { data, error } = await sb
-        .from("saved_dashboards")
-        .select("state_json")
-        .eq("id", id)
-        .single();
-      if (error) {
-        alert(`Couldn't open dashboard: ${error.message}`);
-        return;
-      }
-      // The DB may carry an older schema version, but the composer
-      // only handles the current one. Run the row through the same
-      // Zod validation that /u/<slug>/ uses so we either fail loud
-      // here or hand the composer a guaranteed-valid blob.
-      const parsed = composedStateSchema.safeParse(data?.state_json);
-      if (!parsed.success) {
-        alert(
-          "This dashboard's saved state can't be opened in the composer (schema mismatch).",
-        );
-        return;
-      }
-      const encoded = encodeComposedState({
-        title: parsed.data.title,
-        description: parsed.data.description,
-        defaultDelta: parsed.data.defaultDelta,
-        fixedRange: parsed.data.fixedRange,
-        sections: parsed.data.sections,
-        charts: parsed.data.charts,
-        chartOverrides: parsed.data.chartOverrides,
-        inlineCharts: parsed.data.inlineCharts,
-        inlineSources: parsed.data.inlineSources,
-        inlineMaps: parsed.data.inlineMaps,
-      });
-      const params =
-        mode === "edit"
-          ? `?d=${encoded}&edit=${encodeURIComponent(slug)}`
-          : `?d=${encoded}&copy=1`;
-      window.location.href = `${baseUrl}/compose/${params}`;
-    }
-
-    function escapeHtml(s: string): string {
-      return s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
 
     async function render(): Promise<void> {
       if (!content) return;
@@ -194,184 +116,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         });
         return;
       }
-
-      const { data, error } = await sb
-        .from("saved_dashboards")
-        .select("id, slug, title, updated_at")
-        .order("updated_at", { ascending: false });
-      if (error) {
-        content.innerHTML = `<p class="text-sm text-error">Failed to load: ${escapeHtml(error.message)}</p>`;
-        return;
-      }
-      const rows = (data ?? []) as Pick<
-        DashboardRow,
-        "id" | "slug" | "title" | "updated_at"
-      >[];
+      // /me/ is the canonical "all your dashboards" view — no default
+      // hero, no exclusions. The home page wraps this same renderer
+      // with its own excludeSlug + onSetDefault wiring.
       const list = document.createElement("ul");
       list.className = "list-none p-0 m-0 flex flex-col gap-3";
-      // Always lead with the "+ Make new dashboard" tile, even on the
-      // empty-state path. Eliminates the bare "No saved dashboards yet"
-      // paragraph that previously appeared in its place — the affordance
-      // (compose a dashboard) is right there as a peer entry.
-      list.appendChild(makeNewDashboardTile());
-      if (rows.length === 0) {
-        const hint = document.createElement("li");
-        hint.className = "text-sm text-neutral-500 px-1";
-        hint.textContent =
-          "No saved dashboards yet — start one above.";
-        list.appendChild(hint);
-      }
-      for (const r of rows) {
-        const item = document.createElement("li");
-        item.className = "border hairline rounded p-4 bg-white flex items-center justify-between";
-        const dateStr = new Date(r.updated_at).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
-        // Visibility annotation deliberately omitted from the row: free-tier
-        // dashboards are effectively public-by-URL anyway (no one links them,
-        // but anyone with the slug can reach them). True private dashboards
-        // are an enterprise-tier feature, not a self-serve toggle.
-        item.innerHTML =
-          `<div>
-             <a class="text-base font-medium text-neutral-900 no-underline hover:underline" href="${baseUrl}/u/${encodeURIComponent(r.slug)}/">${escapeHtml(r.title)}</a>
-             <div class="text-xs text-neutral-500 mt-1">Updated ${dateStr}</div>
-           </div>
-           <div class="flex gap-2 text-xs">
-             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="edit" data-id="${r.id}" data-slug="${escapeHtml(r.slug)}">Edit</button>
-             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="copy" data-id="${r.id}" data-slug="${escapeHtml(r.slug)}">Make a copy</button>
-             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="rename" data-id="${r.id}" data-current="${escapeHtml(r.title)}">Rename</button>
-             <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="set-url" data-id="${r.id}" data-current="${escapeHtml(r.slug)}">Set URL</button>
-             <button type="button" class="underline text-error bg-transparent border-0 p-0 cursor-pointer" data-role="delete" data-id="${r.id}">Delete</button>
-           </div>`;
-        list.appendChild(item);
-      }
-      content.innerHTML = "";
-      content.appendChild(list);
-
-      // Edit / Make a copy: lazy-fetch the row's state_json, then
-      // hand off to the composer with the right flags. Two buttons
-      // share one handler because the only difference is the param.
-      content.querySelectorAll<HTMLButtonElement>(
-        "[data-role='edit'], [data-role='copy']",
-      ).forEach((b) => {
-        b.addEventListener("click", async () => {
-          const id = b.dataset.id;
-          const slug = b.dataset.slug;
-          if (!id || !slug) return;
-          const mode = b.dataset.role === "copy" ? "copy" : "edit";
-          b.disabled = true;
-          const orig = b.textContent;
-          b.textContent = "Opening…";
-          try {
-            await openInComposer(sb, id, mode, slug);
-          } finally {
-            b.disabled = false;
-            b.textContent = orig;
-          }
-        });
-      });
-
-      content.querySelectorAll<HTMLButtonElement>("[data-role='rename']").forEach((b) => {
-        b.addEventListener("click", async () => {
-          const id = b.dataset.id!;
-          const current = b.dataset.current ?? "";
-          const next = prompt("New name:", current);
-          if (next === null) return;
-          const title = next.trim();
-          if (title === "" || title === current) return;
-          const { data: row, error: fetchErr } = await sb
-            .from("saved_dashboards")
-            .select("state_json")
-            .eq("id", id)
-            .single();
-          if (fetchErr) {
-            alert(fetchErr.message);
-            return;
-          }
-          const state = { ...((row?.state_json as Record<string, unknown>) ?? {}), title };
-          const { error } = await sb
-            .from("saved_dashboards")
-            .update({ title, state_json: state })
-            .eq("id", id);
-          if (error) alert(error.message);
-          else render();
-        });
-      });
-      // Reserved slugs that must never be claimed — they collide with our
-      // own routes or near-future ones. Lower-cased, no leading slash.
-      const RESERVED_SLUGS = new Set([
-        "me",
-        "compose",
-        "custom",
-        "api",
-        "auth",
-        "u",
-        "admin",
-        "settings",
-        "login",
-        "logout",
-        "signin",
-        "signout",
-        "_astro",
-        "library.json",
-        "favicon.ico",
-        "robots.txt",
-        "sitemap.xml",
-      ]);
-
-      function validateSlug(s: string): string | null {
-        if (!s) return "Custom URL can't be empty.";
-        if (s.length < 3) return "Custom URL must be at least 3 characters.";
-        if (s.length > 60) return "Custom URL must be 60 characters or fewer.";
-        if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(s)) {
-          return "Custom URL must be lowercase letters, digits, and dashes — and can't start or end with a dash.";
-        }
-        if (RESERVED_SLUGS.has(s)) return `"${s}" is a reserved URL.`;
-        return null;
-      }
-
-      content.querySelectorAll<HTMLButtonElement>("[data-role='set-url']").forEach((b) => {
-        b.addEventListener("click", async () => {
-          const id = b.dataset.id!;
-          const current = b.dataset.current ?? "";
-          const raw = prompt(
-            "Custom URL — lowercase letters, digits, and dashes. Will be available at /u/<slug>/. Renaming makes the old URL free again, so anyone (including you) could grab it later.",
-            current,
-          );
-          if (raw === null) return;
-          const next = raw.trim().toLowerCase();
-          if (next === "" || next === current) return;
-          const err = validateSlug(next);
-          if (err) {
-            alert(err);
-            return;
-          }
-          const { error } = await sb
-            .from("saved_dashboards")
-            .update({ slug: next })
-            .eq("id", id);
-          if (error) {
-            // 23505 = Postgres unique-violation. Surface as friendly text.
-            const msg =
-              error.code === "23505"
-                ? `"/u/${next}/" is already taken — pick another.`
-                : error.message;
-            alert(msg);
-            return;
-          }
-          render();
-        });
-      });
-      content.querySelectorAll<HTMLButtonElement>("[data-role='delete']").forEach((b) => {
-        b.addEventListener("click", async () => {
-          if (!confirm("Delete this dashboard?")) return;
-          const id = b.dataset.id!;
-          const { error } = await sb.from("saved_dashboards").delete().eq("id", id);
-          if (error) alert(error.message);
-          else render();
-        });
+      content.replaceChildren(list);
+      await renderSavedDashboardList({
+        host: list,
+        baseUrl,
+        sb,
+        onMutate: () => render(),
       });
     }
 

@@ -232,6 +232,46 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     </p>
   </div>
 
+  {/* Default-dashboard hero. Replaces the slim "Your dashboards" lede
+      when the user has picked a default via the "Set as default" row
+      action below. The slug lives in localStorage (tape:default-
+      dashboard-slug); the script populates the title/meta/href from
+      the matching saved_dashboards row and hides this section when
+      no default is set OR the default points at a slug that no longer
+      exists. Click-through navigates to /u/<slug>/ for the full
+      rendered dashboard. */}
+  <div class="default-hero" data-role="default-hero" hidden>
+    <p class="default-hero-eyebrow">Default dashboard</p>
+    <a
+      class="default-hero-title-link"
+      href="#"
+      data-role="default-hero-link"
+    >
+      <h1 class="default-hero-title" data-role="default-hero-title">&nbsp;</h1>
+    </a>
+    <p class="default-hero-meta" data-role="default-hero-meta">&nbsp;</p>
+    <p class="default-hero-actions">
+      <a
+        class="hero-cta-primary"
+        href="#"
+        data-role="default-hero-open"
+      >
+        Open dashboard &rarr;
+      </a>
+      <button
+        type="button"
+        class="hero-cta-secondary default-hero-clear"
+        data-role="default-hero-clear"
+        title="Stop pinning this dashboard to the top of the home page"
+      >
+        Clear default
+      </button>
+      <a href={`${baseUrl}/compose/`} class="hero-cta-secondary">
+        Build another &rarr;
+      </a>
+    </p>
+  </div>
+
   {/* Synchronous, blocking pre-paint check: if the visitor already has a
       Supabase session in localStorage, hide the marketing zone (hero +
       featured-dashboard) immediately so they don't see a flash of
@@ -259,15 +299,25 @@ const tabs: TabSpec[] = sorted.map((d) => ({
   </script>
 
   <div class="page-cols" data-base-url={baseUrl}>
-    {/* Auth-injected "My dashboards" section. Stays at the top of the
-        content area so returning users see their work first. */}
+    {/* Auth-injected "My dashboards" section. Hosts the same /me/-style
+        card list (shared module: src/lib/render-saved-dashboards.ts)
+        — Edit / Make a copy / Rename / Set URL / Set as default /
+        Delete on each row, "+ Make new dashboard" tile leading the
+        list. Previously this was a thinner card-grid view that the
+        user said felt worse than /me/; the rebuild brings them to
+        parity. The default-hero above is fed by the same data and
+        the row whose slug matches the stored default is excluded
+        from this list. */}
     <section
       class="my-section"
       data-role="my-section"
       style="display: none"
     >
       <h2 class="section-eyebrow">My dashboards</h2>
-      <ul class="my-grid" data-role="my-list"></ul>
+      <ul
+        class="my-list list-none p-0 m-0 flex flex-col gap-3"
+        data-role="my-list"
+      ></ul>
     </section>
 
   </div>
@@ -279,9 +329,8 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       createSupabase,
       isSupabaseConfigured,
       readStoredSession,
-      SUPABASE_REST_URL,
-      SUPABASE_REST_ANON_KEY,
     } from "../lib/supabase";
+    import { renderSavedDashboardList } from "../lib/render-saved-dashboards";
     import { track } from "../lib/track";
 
     // --- Featured-dashboard tab telemetry ---------------------------------
@@ -299,44 +348,97 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       });
     }
 
+    // --- Default-dashboard slot ------------------------------------------
+    // Slug lives in localStorage (per-browser, intentionally not synced
+    // to Supabase — this is a personal pin, not part of the dashboard's
+    // own state). Keys + helpers are isolated so a future "sync to
+    // user metadata" change is contained.
+    const DEFAULT_SLUG_KEY = "tape:default-dashboard-slug";
+    function readDefaultSlug(): string | null {
+      try {
+        return localStorage.getItem(DEFAULT_SLUG_KEY);
+      } catch {
+        return null;
+      }
+    }
+    function writeDefaultSlug(slug: string | null): void {
+      try {
+        if (slug) localStorage.setItem(DEFAULT_SLUG_KEY, slug);
+        else localStorage.removeItem(DEFAULT_SLUG_KEY);
+      } catch {
+        /* localStorage blocked — silently no-op; the default just won't
+           persist across page loads on this browser. */
+      }
+    }
+
     // --- Auth-gated "My dashboards" section -------------------------------
-    // Same behavior as before: hidden by default, populated client-side
-    // when there's a stored session.
     const host = document.querySelector<HTMLElement>("[data-base-url]");
     if (host && isSupabaseConfigured) {
       const baseUrl = host.dataset.baseUrl ?? "";
-      const sb = createSupabase();
-      if (sb) {
-        function escapeHtml(s: string): string {
-          return s
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-        }
-
-        // Helpers to swap the page lede between the marketing zone (hero
-        // + featured dashboard, for new visitors / signed-in users with
-        // no saves) and the slim "Your dashboards" header (for returning
-        // users with at least one save). The inline pre-paint script may
-        // have already hidden the zone; these calls make sure the right
-        // one is visible after the saves-fetch resolves.
+      // Non-null inside this block; the alias keeps TypeScript's
+      // narrowing across the async refresh() closure (otherwise the
+      // captured `sb` widens back to SupabaseClient | null when
+      // referenced inside an async function).
+      const sbMaybe = createSupabase();
+      if (sbMaybe) {
+        const sb = sbMaybe;
         const marketingZone = document.querySelector<HTMLElement>(
           "[data-role='marketing-zone']",
         );
         const returningHero = document.querySelector<HTMLElement>(
           "[data-role='returning-hero']",
         );
+        const defaultHero = document.querySelector<HTMLElement>(
+          "[data-role='default-hero']",
+        );
         function showMarketingZone(): void {
           if (marketingZone) marketingZone.hidden = false;
           if (returningHero) returningHero.hidden = true;
+          if (defaultHero) defaultHero.hidden = true;
         }
-        function showReturningHero(): void {
+        function showReturningHero(useDefault: boolean): void {
           if (marketingZone) marketingZone.hidden = true;
-          if (returningHero) returningHero.hidden = false;
+          if (useDefault) {
+            if (returningHero) returningHero.hidden = true;
+            if (defaultHero) defaultHero.hidden = false;
+          } else {
+            if (returningHero) returningHero.hidden = false;
+            if (defaultHero) defaultHero.hidden = true;
+          }
         }
 
-        async function refresh() {
+        function populateDefaultHero(row: {
+          slug: string;
+          title: string;
+          updated_at: string;
+        }): void {
+          if (!defaultHero) return;
+          const url = `${baseUrl}/u/${encodeURIComponent(row.slug)}/`;
+          const titleEl = defaultHero.querySelector<HTMLElement>(
+            "[data-role='default-hero-title']",
+          );
+          if (titleEl) titleEl.textContent = row.title || "Untitled dashboard";
+          const titleLink = defaultHero.querySelector<HTMLAnchorElement>(
+            "[data-role='default-hero-link']",
+          );
+          if (titleLink) titleLink.href = url;
+          const openLink = defaultHero.querySelector<HTMLAnchorElement>(
+            "[data-role='default-hero-open']",
+          );
+          if (openLink) openLink.href = url;
+          const metaEl = defaultHero.querySelector<HTMLElement>(
+            "[data-role='default-hero-meta']",
+          );
+          if (metaEl) {
+            const dateStr = new Date(row.updated_at).toLocaleDateString(
+              "en-US",
+              { year: "numeric", month: "short", day: "numeric" },
+            );
+            metaEl.textContent = `Pinned to your home page. Last updated ${dateStr}. Click the title or "Open dashboard" to view.`;
+          }
+        }
+
+        async function refresh(): Promise<void> {
           const mySection = host!.querySelector<HTMLElement>(
             "[data-role='my-section']",
           );
@@ -346,130 +448,76 @@ const tabs: TabSpec[] = sorted.map((d) => ({
           if (!mySection || !myList) return;
 
           const stored = readStoredSession();
-          console.log(
-            "[home] stored session user:",
-            stored?.user?.email ?? null,
-          );
           if (!stored) {
             mySection.style.display = "none";
             showMarketingZone();
             return;
           }
 
-          // Direct REST fetch — bypass supabase-js client to avoid any
-          // getSession()/refresh deadlock. RLS enforces owner-or-public reads.
-          const restUrl = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?select=slug,title,visibility,updated_at&order=updated_at.desc`;
-          let data: Array<{
-            slug: string;
-            title: string;
-            visibility: string;
-            updated_at: string;
-          }> | null = null;
-          let errorMsg: string | null = null;
-          try {
-            const res = await fetch(restUrl, {
-              headers: {
-                apikey: SUPABASE_REST_ANON_KEY,
-                Authorization: `Bearer ${stored.access_token}`,
-              },
-            });
-            if (!res.ok) {
-              errorMsg = `HTTP ${res.status}`;
-            } else {
-              data = await res.json();
-            }
-          } catch (e) {
-            errorMsg = String(e);
-          }
-          console.log(
-            "[home] saved_dashboards:",
-            errorMsg ? `error: ${errorMsg}` : `${data?.length ?? 0} rows`,
-          );
-          if (errorMsg || !data || data.length === 0) {
+          const defaultSlug = readDefaultSlug();
+
+          // Wire the shared list renderer. excludeSlug pulls the
+          // default-dashboard row out of the list so the hero above
+          // is the only place it appears. onSetDefault is the
+          // "Set as default" / "Clear default" row-button handler.
+          const result = await renderSavedDashboardList({
+            host: myList,
+            baseUrl,
+            sb,
+            excludeSlug: defaultSlug,
+            defaultSlug,
+            onSetDefault: (slug) => {
+              writeDefaultSlug(slug);
+              track("home_default_dashboard_set", { slug: slug ?? "<cleared>" });
+              void refresh();
+            },
+            onMutate: () => void refresh(),
+          });
+
+          if (!result || result.rows.length === 0) {
             // Signed in but no saves yet → re-show marketing hero so they
-            // see the value prop + Build-your-own CTA again. (Pre-paint
-            // script optimistically hid the hero on session presence.)
+            // see the value prop + Build-your-own CTA again. (The pre-
+            // paint script optimistically hid it on session presence.)
             mySection.style.display = "none";
             showMarketingZone();
             return;
           }
 
-          myList.innerHTML = "";
-          for (const row of data) {
-            const li = document.createElement("li");
-            li.className = "my-card-wrap";
-            li.dataset.slug = row.slug;
-            // The card body is an anchor (whole card clickable). The
-            // delete button is a sibling positioned absolute in the
-            // top-right corner — preventDefault + stopPropagation on
-            // click so it doesn't also navigate.
-            li.innerHTML =
-              `<a href="${baseUrl}/u/${encodeURIComponent(row.slug)}/" class="my-card">
-                <h3>${escapeHtml(row.title ?? "Untitled dashboard")}</h3>
-                <p>${row.visibility === "private" ? "private · " : ""}updated ${new Date(row.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
-              </a>` +
-              `<button
-                type="button"
-                class="my-card-delete"
-                data-role="delete-dashboard"
-                aria-label="Delete this dashboard"
-                title="Delete this dashboard">&times;</button>`;
-            myList.appendChild(li);
+          // Excluded-row is the default the user picked. If the slug
+          // they had stored no longer exists (deleted, renamed), the
+          // shared module sees nothing to exclude — we drop the stale
+          // pin so the hero isn't broken on next render.
+          if (defaultSlug && !result.excludedRow) {
+            writeDefaultSlug(null);
+            void refresh();
+            return;
           }
-          // Wire delete buttons. Single delegated listener on the list
-          // so we don't have to attach individually + we pick up any
-          // future rows automatically.
-          myList.addEventListener("click", async (e) => {
-            const target = e.target as HTMLElement;
-            if (!target.matches("[data-role='delete-dashboard']")) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const wrapper = target.closest<HTMLElement>(".my-card-wrap");
-            if (!wrapper) return;
-            const slug = wrapper.dataset.slug;
-            if (!slug) return;
-            const titleEl = wrapper.querySelector("h3");
-            const title = titleEl?.textContent ?? "this dashboard";
-            if (!confirm(`Delete "${title}"? This can't be undone.`)) return;
-            // Optimistic UI: fade the row, then do the network call.
-            // If the call fails we re-show it with an error.
-            wrapper.style.opacity = "0.4";
-            wrapper.style.pointerEvents = "none";
-            try {
-              const stored2 = readStoredSession();
-              if (!stored2?.access_token) throw new Error("not signed in");
-              const delUrl = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?slug=eq.${encodeURIComponent(slug)}`;
-              const res = await fetch(delUrl, {
-                method: "DELETE",
-                headers: {
-                  apikey: SUPABASE_REST_ANON_KEY,
-                  Authorization: `Bearer ${stored2.access_token}`,
-                },
-              });
-              if (!res.ok) throw new Error(`HTTP ${res.status}`);
-              wrapper.remove();
-              track("dashboard_deleted", { slug });
-              // If list is empty after delete, flip back to marketing
-              // zone so the user gets the Build-your-own CTA again.
-              if (myList.children.length === 0) {
-                mySection.style.display = "none";
-                showMarketingZone();
-              }
-            } catch (err) {
-              wrapper.style.opacity = "";
-              wrapper.style.pointerEvents = "";
-              alert(`Delete failed: ${String(err)}`);
-            }
-          });
+
           mySection.style.display = "";
-          // Signed in *and* has saves: the marketing pitch isn't for them.
-          // Swap to the slim "Your dashboards" lede so their saved work is
-          // the primary content above the fold.
-          showReturningHero();
+          if (result.excludedRow) {
+            populateDefaultHero(result.excludedRow);
+            showReturningHero(true);
+          } else {
+            showReturningHero(false);
+          }
         }
 
-        refresh();
-        sb.auth.onAuthStateChange(() => refresh());
+        // Wire the "Clear default" button once — the element is static
+        // markup, not re-rendered each refresh, so a single listener
+        // is correct. (The earlier delegate-listener-inside-refresh
+        // pattern is what made the X-delete button fire its confirm
+        // three times.)
+        const clearBtn = defaultHero?.querySelector<HTMLButtonElement>(
+          "[data-role='default-hero-clear']",
+        );
+        clearBtn?.addEventListener("click", () => {
+          writeDefaultSlug(null);
+          track("home_default_dashboard_cleared", {});
+          void refresh();
+        });
+
+        void refresh();
+        sb.auth.onAuthStateChange(() => void refresh());
       }
     }
   </script>
@@ -581,81 +629,80 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     margin: 0 0 14px;
   }
 
-  /* My dashboards section */
+  /* My dashboards section. The list inside is built by
+     renderSavedDashboardList from src/lib/render-saved-dashboards.ts
+     using Tailwind utility classes (border / rounded / flex / ...).
+     The CSS below is mostly margin / sectioning; the card chrome
+     itself comes from Tailwind. */
   .my-section {
     margin-bottom: 40px;
   }
-  .my-grid {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  .my-list {
     list-style: none;
-    padding: 0;
-    margin: 0;
   }
-  .my-card {
-    display: block;
-    padding: 16px;
-    border: 1px solid rgba(55, 53, 47, 0.1);
-    border-radius: var(--radius-sm);
-    background: var(--color-white);
-    text-decoration: none;
-    color: var(--color-neutral-900);
-    transition: border-color 0.12s;
+
+  /* Default-dashboard hero — shown when the user has pinned a
+     dashboard via the "Set as default" row action. Sits in place of
+     the slim "Your dashboards" lede; same .page-cols wrapping width
+     so it doesn't compete with the list below. */
+  .default-hero {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px 24px 20px;
   }
-  .my-card:hover {
-    border-color: rgba(55, 53, 47, 0.25);
+  .default-hero[hidden] {
+    display: none;
   }
-  .my-card h3 {
-    font-size: var(--text-base);
+  .default-hero-eyebrow {
+    font-size: 11px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-neutral-500);
+    margin: 0 0 8px;
+  }
+  .default-hero-title-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  .default-hero-title-link:hover .default-hero-title {
+    color: var(--color-accent);
+  }
+  .default-hero-title {
+    font-size: var(--text-2xl, 1.5rem);
+    font-weight: 600;
+    margin: 0 0 6px;
+    letter-spacing: -0.005em;
+    color: var(--color-neutral-900);
+    transition: color 0.12s ease;
+  }
+  .default-hero-meta {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+    line-height: 1.5;
+    margin: 0 0 14px;
+    max-width: 640px;
+  }
+  .default-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
     margin: 0;
   }
-  .my-card p {
-    font-size: var(--text-xs);
-    color: var(--color-neutral-500);
-    margin: 4px 0 0;
-  }
-  /* List item wraps the card-anchor + the delete button as siblings,
-     so the delete button can sit on top of the corner without
-     interfering with the anchor's whole-card click target. */
-  .my-card-wrap {
-    position: relative;
-  }
-  .my-card-delete {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 22px;
-    height: 22px;
-    padding: 0;
-    border: 1px solid transparent;
+  .default-hero-clear {
     background: transparent;
-    color: var(--color-neutral-400);
-    font-size: 18px;
-    line-height: 1;
+    border: none;
+    padding: 0;
     cursor: pointer;
-    border-radius: var(--radius-sm);
-    opacity: 0;
-    transition:
-      opacity 0.12s,
-      color 0.12s,
-      border-color 0.12s,
-      background-color 0.12s;
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-neutral-700);
   }
-  /* Reveal on card hover. Stays focusable for keyboard navigation. */
-  .my-card-wrap:hover .my-card-delete,
-  .my-card-delete:focus-visible {
-    opacity: 1;
-  }
-  .my-card-delete:hover {
-    color: var(--color-error);
-    border-color: rgba(153, 27, 27, 0.2);
-    background: rgba(253, 236, 236, 0.5);
-  }
-  .my-card-delete:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+  .default-hero-clear:hover {
+    color: var(--color-neutral-900);
+    text-decoration: underline;
   }
 
   /* Marketing zone wraps hero + featured-dashboard so we can hide both
