@@ -15,3 +15,8 @@ provenance:
   series: AVGO
   url: https://finance.yahoo.com/quote/AVGO
 unitClass: currency
+# Hidden from the composer's source-list: tickers in yahoo_marketcap
+# are the canonical valuation series; the raw share price source
+# is kept on disk so existing dashboards that reference it still
+# resolve, but new dashboards should discover yahoo_marketcap/<X>_mc.
+hidden: true

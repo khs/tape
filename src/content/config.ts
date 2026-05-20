@@ -77,6 +77,15 @@ const sources = defineCollection({
     unitClass: z
       .enum(["currency", "count", "rate", "index", "ratio"])
       .optional(),
+    // When true, library.json drops the source from the composer's
+    // browse + search surface. Existing dashboards that reference the
+    // source by id still resolve normally (resolve-dashboard.ts looks
+    // them up directly, not through library.json). Used to suppress
+    // raw share-price sources for tickers where the marketcap series
+    // is the canonical one we want users to discover — without
+    // deleting the data files, breaking any saved dashboard, or
+    // pruning git history. Set to true via YAML.
+    hidden: z.boolean().optional(),
   }),
 });
 

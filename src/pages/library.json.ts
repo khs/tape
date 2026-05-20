@@ -143,6 +143,14 @@ export const GET: APIRoute = async () => {
 
   const sources: Record<string, unknown> = {};
   for (const s of sourcesCol) {
+    // YAML-declared `hidden: true` removes the source from the
+    // composer's discovery surface. Existing dashboards that pin
+    // this source ID via their state_json still resolve correctly —
+    // resolve-dashboard.ts walks the content collection directly,
+    // not library.json. See src/content/config.ts for the schema
+    // field's rationale (mostly: yahoo/<ticker> raw-price sources
+    // suppressed in favor of yahoo_marketcap/<ticker>_mc).
+    if ((s.data as { hidden?: boolean }).hidden) continue;
     // Read first / last observation dates from the source's data file at
     // build time so the composer can flag charts whose data doesn't cover
     // a fixed-range request without having to fetch each JSON itself.

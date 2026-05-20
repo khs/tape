@@ -1576,7 +1576,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // Active metro pick — narrows to that CBSA's sources only.
       return sTags.includes(`${METRO_TAG}:${selectedCbsa}`);
     }
-    if (!sTags.includes(METRO_TAG)) return true; // non-metro: always
+    // A source counts as metro-tagged when it carries EITHER the bare
+    // METRO_TAG (synthetic, injected by library.json for sources whose
+    // IDs match metroTagsFor's regex) OR a per-CBSA `metro:<cbsa>` tag
+    // declared directly in YAML. Older code only checked the bare
+    // umbrella tag and missed sources like Zillow that declare the
+    // per-CBSA tag without the umbrella — they leaked Atlanta /
+    // Boston / Miami etc. into the default Sources list even when the
+    // user hadn't picked the metro chip OR typed a 4-char query.
+    const hasMetroTag = sTags.some(
+      (t) => t === METRO_TAG || t.startsWith(`${METRO_TAG}:`),
+    );
+    if (!hasMetroTag) return true; // non-metro: always
     const unlock = unlockedMetrosForQuery(query);
     if (!unlock) return false;
     for (const t of sTags) {
