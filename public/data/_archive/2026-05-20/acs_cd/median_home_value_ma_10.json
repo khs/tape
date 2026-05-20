@@ -1,0 +1,17 @@
+{
+  "id": "median_home_value_ma_10",
+  "name": "Median home value (owner-occupied) \u2014 MA-10",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-05-13T13:50:29Z",
+  "points": [
+    {
+      "t": "2010-12-31",
+      "v": 391900.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 382700.0
+    }
+  ]
+}
