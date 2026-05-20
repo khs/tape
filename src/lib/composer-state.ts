@@ -10,11 +10,23 @@ export const COMPOSER_STATE_VERSION = 1 as const;
 
 const deltaWindowSchema = z.enum(DELTA_WINDOWS as unknown as [DeltaWindow, ...DeltaWindow[]]);
 
+const shadingSchema = z.array(
+  z.enum([
+    "recessions",
+    "president_party",
+    "senate_majority",
+    "house_majority",
+    "bear_markets",
+    "fed_chairs",
+  ]),
+);
+
 const chartOverrideSchema = z
   .object({
     title: z.string(),
     defaultDelta: deltaWindowSchema,
     blurb: z.string(),
+    shading: shadingSchema,
   })
   .partial();
 
@@ -81,6 +93,11 @@ const inlineChartSchema = z.object({
   // better for cross-commodity ratios like WTI/Brent where "104%"
   // implies a share-of relationship that doesn't really apply.
   percentDisplay: z.enum(["percent", "decimal", "ratio"]).optional(),
+  // Background shading layers — see src/lib/shading-presets.ts. Each
+  // preset paints semi-transparent rectangles BEHIND the line on the
+  // dialog plot. Multiple stack via alpha compositing. Optional —
+  // omitted means no shading; an empty array also means no shading.
+  shading: shadingSchema.optional(),
 });
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;

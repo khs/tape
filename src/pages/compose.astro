@@ -873,6 +873,46 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <option value="ratio">Ratio (1.04:1)</option>
               </select>
             </label>
+            <!--
+              Background shading: semi-transparent date bands rendered
+              BEHIND the line on the expanded chart. Multiple stack via
+              alpha compositing. See src/lib/shading-presets.ts for the
+              band definitions; the checkboxes mirror SHADING_LABELS.
+              The 6 preset keys (recessions, president_party,
+              senate_majority, house_majority, bear_markets, fed_chairs)
+              are wired into the inline-chart state on save.
+            -->
+            <fieldset class="cc-field cc-shading" data-role="cc-shading">
+              <legend class="eyebrow">Background shading</legend>
+              <p class="muted small" style="margin-top: 0">
+                Optional date-band overlays behind the line on the
+                expanded chart. Stack as many as make sense.
+              </p>
+              <label class="cc-mode-opt">
+                <input type="checkbox" data-role="cc-shading-recessions" value="recessions" />
+                <span><strong>NBER recessions</strong> — gray bands during US recessions (1945-present).</span>
+              </label>
+              <label class="cc-mode-opt">
+                <input type="checkbox" data-role="cc-shading-president" value="president_party" />
+                <span><strong>Presidential party</strong> — blue during Democratic presidencies, red during Republican.</span>
+              </label>
+              <label class="cc-mode-opt">
+                <input type="checkbox" data-role="cc-shading-senate" value="senate_majority" />
+                <span><strong>Senate majority</strong> — blue / red by Senate party control.</span>
+              </label>
+              <label class="cc-mode-opt">
+                <input type="checkbox" data-role="cc-shading-house" value="house_majority" />
+                <span><strong>House majority</strong> — blue / red by House party control.</span>
+              </label>
+              <label class="cc-mode-opt">
+                <input type="checkbox" data-role="cc-shading-bear" value="bear_markets" />
+                <span><strong>S&amp;P 500 bear markets</strong> — drawdowns of at least 20% from prior peak.</span>
+              </label>
+              <label class="cc-mode-opt">
+                <input type="checkbox" data-role="cc-shading-fed" value="fed_chairs" />
+                <span><strong>Fed Chair tenures</strong> — Volcker onward.</span>
+              </label>
+            </fieldset>
             <p class="muted small">
               Need to plot a ratio, sum, or difference?
               Click <strong>+ Derived source</strong> outside this modal
@@ -5757,6 +5797,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Only meaningful when op === "divide" with 2 sources; ignored
     // otherwise. Saved to inlineChart.percentDisplay on submit.
     percentDisplay: "percent" | "decimal" | "ratio" | undefined;
+    // Background-shading layers (recessions, president_party, etc.).
+    // Each key references a preset in src/lib/shading-presets.ts.
+    // Stacks via alpha compositing in the renderer. Persisted on the
+    // inline chart's `shading` field; empty array = no shading.
+    shading: string[];
     // Set when the modal was opened via hover-merge (or the touch
     // Combine-with menu). On Create, the new chart replaces the BASE
     // chart in its section slot and the DRAGGED chart is removed from
@@ -5791,6 +5836,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     cdDistrict: null,
     geo: newGeoState(),
     percentDisplay: undefined,
+    shading: [],
     pendingMerge: null,
   };
 
@@ -5851,6 +5897,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.blurb = existing?.blurb ?? "";
     ccModal.percentDisplay = (existing as { percentDisplay?: "percent" | "decimal" | "ratio" } | null)
       ?.percentDisplay;
+    // Carry existing shading layers over so editing a chart keeps its
+    // bands. New charts start with an empty list (no shading).
+    const existingShading = (existing as { shading?: string[] } | null)?.shading;
+    ccModal.shading = Array.isArray(existingShading) ? [...existingShading] : [];
     // Fresh tag-chip filter each time the modal opens. The user's prior
     // selection on a previous chart's compose session isn't relevant.
     ccModal.pickerTags = new Set<string>();
@@ -5935,6 +5985,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncModeRadioFromState();
     syncLogUI();
     syncOpUI();
+    syncShadingUI();
     renderCcModalTagChips();
     // Geo-chip strip: render all three chips reflecting modal state,
     // wire event handlers idempotently (wireGeoChips guards via
@@ -6005,6 +6056,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     wrap.hidden = !(ccModal.op === "divide" && ccModal.selected.size === 2);
     // "percent" is the default; undefined means default.
     select.value = ccModal.percentDisplay ?? "percent";
+  }
+
+  // Reflect ccModal.shading onto the six checkbox inputs each time the
+  // modal opens or shading state changes elsewhere (e.g. via Hover-
+  // Merge defaults later). Pure state-to-DOM sync; no event wiring.
+  function syncShadingUI(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='cc-shading']");
+    if (!wrap) return;
+    const have = new Set(ccModal.shading);
+    wrap
+      .querySelectorAll<HTMLInputElement>("input[type='checkbox']")
+      .forEach((cb) => {
+        cb.checked = have.has(cb.value);
+      });
   }
 
   function syncOpUI(): void {
@@ -6198,6 +6263,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncModeRadioFromState();
     syncLogUI();
     syncOpUI();
+    syncShadingUI();
     renderCcModalTagChips();
     renderCustomChartSources();
     updateCustomChartCreateState();
@@ -7412,6 +7478,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // No re-render needed — this only affects the saved spec; the
       // chart picks up the flag at render time.
     });
+
+    // Background-shading checkboxes. Each toggle splices its key in or
+    // out of ccModal.shading; the array is persisted as inlineChart.shading
+    // on Create. Re-render the preview so the user sees the bands without
+    // needing to close + reopen.
+    const shadingWrap = shell.querySelector<HTMLElement>("[data-role='cc-shading']");
+    shadingWrap?.querySelectorAll<HTMLInputElement>("input[type='checkbox']").forEach(
+      (cb) => {
+        cb.addEventListener("change", () => {
+          const key = cb.value;
+          const idx = ccModal.shading.indexOf(key);
+          if (cb.checked && idx < 0) ccModal.shading.push(key);
+          else if (!cb.checked && idx >= 0) ccModal.shading.splice(idx, 1);
+          renderCustomChartPreview();
+        });
+      },
+    );
     searchInput?.addEventListener("input", () => {
       ccModal.search = searchInput.value;
       renderCustomChartSources();
@@ -7530,6 +7613,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             opToSave === "divide" && sourceIds.length === 2
               ? ccModal.percentDisplay
               : undefined,
+          // Persist shading layers — empty array stored as undefined so
+          // the serialized state stays compact when no bands are picked.
+          shading:
+            ccModal.shading.length > 0
+              ? [...ccModal.shading] as InlineChart["shading"]
+              : undefined,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -7544,6 +7633,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           percentDisplay:
             opToSave === "divide" && sourceIds.length === 2
               ? ccModal.percentDisplay
+              : undefined,
+          shading:
+            ccModal.shading.length > 0
+              ? [...ccModal.shading] as InlineChart["shading"]
               : undefined,
         };
         // Hover-merge path: the new chart replaces the BASE chart at its

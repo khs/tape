@@ -24,6 +24,11 @@
     magnitudeFromFormatting,
     type Formatting,
   } from "../lib/format";
+  import {
+    bandsFor,
+    SHADING_FILL_OPACITY,
+    type ShadingKey,
+  } from "../lib/shading-presets";
   import { SITE_BRAND_URL } from "../lib/brand";
   import { readStoredSession } from "../lib/supabase";
   import {
@@ -136,7 +141,60 @@
     // Fixed [start, end] date range. When set, overrides the trailing-window
     // mode entirely; tile delta and full plot both use these bounds.
     fixedRange?: { start: string; end: string };
+    /**
+     * Background shading layers. Each entry is a preset key resolved
+     * via bandsFor() — `recessions`, `president_party`, `senate_majority`,
+     * `house_majority`, `bear_markets`, `fed_chairs`. The renderer adds
+     * Plot.rectX marks for the bands BEFORE the line marks so the
+     * line stays on top. Multiple stack via alpha compositing.
+     */
+    shading?: ShadingKey[];
   };
+
+  /**
+   * Build Plot.rectX marks for every requested shading preset, clipped
+   * to the visible date window so a "1y" tile doesn't paint 80 years
+   * of recession bands behind it.
+   */
+  function shadingMarks(
+    shading: ShadingKey[] | undefined,
+    domainStart: Date | null,
+    domainEnd: Date | null,
+  ): any[] {
+    if (!shading || shading.length === 0) return [];
+    const marks: any[] = [];
+    const startMs = domainStart ? domainStart.getTime() : -Infinity;
+    const endMs = domainEnd ? domainEnd.getTime() : Infinity;
+    for (const key of shading) {
+      const bands = bandsFor(key);
+      if (bands.length === 0) continue;
+      // Filter to bands that overlap the visible window. A band overlaps
+      // when its [start, end] intersects [domainStart, domainEnd].
+      const visible = bands
+        .map((b) => ({
+          ...b,
+          startDate: new Date(b.start),
+          endDate: new Date(b.end),
+        }))
+        .filter(
+          (b) =>
+            b.endDate.getTime() >= startMs && b.startDate.getTime() <= endMs,
+        );
+      if (visible.length === 0) continue;
+      marks.push(
+        Plot.rectX(visible, {
+          x1: "startDate",
+          x2: "endDate",
+          fill: "fill",
+          fillOpacity: SHADING_FILL_OPACITY,
+          // Title (hover tooltip) shows the band's label, e.g.
+          // "2007-09 to 2009-06: Great Recession" or "Obama (Democratic)".
+          title: "label",
+        }),
+      );
+    }
+    return marks;
+  }
 
   /**
    * Multi-source raw-mode axis rescaling.
@@ -682,6 +740,7 @@
     source: SourcePayload,
     window: DeltaWindow,
     fixed?: { start: string; end: string },
+    shading?: ShadingKey[],
   ): void {
     // tileSparkPoints handles both summary (precomputed) and full (live
     // slice) modes — the returned array is already trimmed to the window.
@@ -705,14 +764,23 @@
     // Phase 2 projection: dashed forward extension on the sparkline so
     // the tile previews the same forecast shape the dialog will show.
     // For futures-curve sources, this IS the headline information.
-    const sparkMarks: any[] = [
+    const sparkMarks: any[] = [];
+    // Shading goes BEFORE the line so the band is rendered behind it.
+    // Clip to the visible window for the tile sparkline so a 1y view
+    // doesn't paint 80 years of background context.
+    if (pts.length > 0) {
+      sparkMarks.push(
+        ...shadingMarks(shading, pts[0].t, pts[pts.length - 1].t),
+      );
+    }
+    sparkMarks.push(
       Plot.lineY(pts, {
         x: "t",
         y: "v",
         stroke: source.color,
         strokeWidth: 1.5,
       }),
-    ];
+    );
     const sparkTail = projectionTail(source, visible);
     if (sparkTail) {
       const projPts = sparkTail.tail.map((p) => ({ t: new Date(p.t), v: p.v }));
@@ -878,6 +946,12 @@
 
     const marks: any[] = [];
     const sparkBundles: BundleSeries[] = [];
+    // Shading goes first so bands render BEHIND the line marks. Domain
+    // bounds derived later inside the source loop — we use the FIRST
+    // populated visible[] to set the bounds since all sources share
+    // the same x-window in non-dual sparklines.
+    let sparkDomainStart: Date | null = null;
+    let sparkDomainEnd: Date | null = null;
     // Mixed-magnitude rescale: applied in raw mode when the chart's
     // sources span unit magnitudes (e.g. share price + market cap).
     // See rawAxisRescaleFor for the contract; null in rebase / dual /
@@ -904,6 +978,11 @@
         vRaw: p.v,
         iso: p.t,
       }));
+      if (sparkDomainStart === null) sparkDomainStart = pts[0].t;
+      const tEnd = pts[pts.length - 1].t;
+      if (sparkDomainEnd === null || tEnd.getTime() > sparkDomainEnd.getTime()) {
+        sparkDomainEnd = tEnd;
+      }
       marks.push(
         Plot.lineY(pts, {
           x: "t",
@@ -913,6 +992,12 @@
         }),
       );
       sparkBundles.push({ source: s, pts, rebased: useRebase });
+    }
+    // Prepend shading marks so they paint behind the lines we just
+    // pushed. (Splice-at-0 keeps the existing mark order otherwise.)
+    if (marks.length > 0) {
+      const sh = shadingMarks(payload.shading, sparkDomainStart, sparkDomainEnd);
+      if (sh.length > 0) marks.unshift(...sh);
     }
     const bundles = buildBundles(sparkBundles);
     if (bundles.length > 0) {
@@ -1012,6 +1097,16 @@
           const unscaleR = (yPos: number) =>
             rMin + ((yPos - lMin) / dL) * dR;
           const marks: any[] = [];
+          // Shading goes first so it paints BEHIND the lines pushed below.
+          if (dualDomainMs) {
+            marks.push(
+              ...shadingMarks(
+                payload.shading,
+                new Date(dualDomainMs[0]),
+                new Date(dualDomainMs[1]),
+              ),
+            );
+          }
           // Per-series TipPoints collected into a single bundle so the tip
           // box can show all series' values at the hovered x in one box,
           // rather than four overlapping boxes (the previous bug).
@@ -1231,6 +1326,17 @@
       }
       bundleSeries.push({ source: s, pts, rebased: useRebase });
     }
+    // Prepend shading marks so they paint BEHIND the line marks already
+    // pushed. Domain bounds derived from standardDomainMs (which spans
+    // the visible window incl. any projection-tail extension).
+    if (marks.length > 0 && standardDomainMs) {
+      const sh = shadingMarks(
+        payload.shading,
+        new Date(standardDomainMs[0]),
+        new Date(standardDomainMs[1]),
+      );
+      if (sh.length > 0) marks.unshift(...sh);
+    }
     const bundles = buildBundles(bundleSeries);
     if (bundles.length > 0) {
       // One combined tip showing all series at the hovered x. Previously we
@@ -1382,7 +1488,7 @@
         deltaEl.textContent = "";
       }
 
-      if (sparkEl) renderSparkSingle(sparkEl, s, eff, fixed);
+      if (sparkEl) renderSparkSingle(sparkEl, s, eff, fixed, payload.shading);
     }
   }
 
@@ -2311,7 +2417,7 @@
                 ctx.currentWindow,
                 s.supportedDeltas,
               );
-              renderSparkSingle(sparkEl, s, eff);
+              renderSparkSingle(sparkEl, s, eff, undefined, ctx.payload.shading);
             }
           }
         });

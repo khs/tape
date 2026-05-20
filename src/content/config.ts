@@ -151,6 +151,26 @@ const charts = defineCollection({
     // for divide/diff; sources[0] is A, sources[1] is B. Same machinery
     // as inline charts' combine op in composer-state.ts.
     op: z.enum(["divide", "sum", "diff"]).optional(),
+    // Optional background shading layers. Each entry references a
+    // preset in src/lib/shading-presets.ts and renders as semi-
+    // transparent rectangles BEHIND the line(s) on the dialog plot —
+    // recession bands, presidential-party tinting, Fed-Chair tenures,
+    // etc. Multiple entries stack via alpha compositing so e.g.
+    // ["recessions", "president_party"] paints recessions on top of
+    // a party-tinted background. Tile sparklines stay un-shaded; the
+    // bands are too small to read at thumbnail scale.
+    shading: z
+      .array(
+        z.enum([
+          "recessions",
+          "president_party",
+          "senate_majority",
+          "house_majority",
+          "bear_markets",
+          "fed_chairs",
+        ]),
+      )
+      .optional(),
     // ---- Choropleth-specific fields (render === "choropleth") ----
     // Geographic granularity. State + county data ship for the full
     // US. Tract + block-group data ship state-sharded; charts at
@@ -237,6 +257,19 @@ const chartOverrideSchema = z
     scale: z.enum(["linear", "log"]),
     seriesLabels: z.array(z.string()),
     percentDisplay: z.enum(["percent", "decimal"]),
+    // Mirror of the chart-level `shading` field. Lets a dashboard
+    // override the bands on a specific tile (e.g. all-charts use
+    // recessions, but ONE chart wants party shading instead).
+    shading: z.array(
+      z.enum([
+        "recessions",
+        "president_party",
+        "senate_majority",
+        "house_majority",
+        "bear_markets",
+        "fed_chairs",
+      ]),
+    ),
   })
   .partial();
 

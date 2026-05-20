@@ -3,3 +3,5 @@ sources: ["fred/sp500"]
 render: line
 defaultDelta: 1m
 tags: [us, equity-index, macro]
+# Bear-market shading is the canonical equity-chart context.
+shading: [bear_markets]

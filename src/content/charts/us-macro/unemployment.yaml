@@ -3,3 +3,6 @@ sources: ["fred/us_unemployment"]
 render: line
 defaultDelta: 1y
 tags: [us, macro]
+# Recession shading: unemployment ALWAYS spikes during recessions —
+# the canonical use case for the NBER background context.
+shading: [recessions]

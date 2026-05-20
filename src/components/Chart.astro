@@ -451,6 +451,11 @@ const payload = {
   // original chart spec faithfully for inline charts.
   op: (chart as { op?: "divide" | "sum" | "diff" }).op,
   rightAxisSources: (chart as { rightAxisSources?: string[] }).rightAxisSources,
+  // Background shading layers (see src/lib/shading-presets.ts). Each
+  // preset key resolves to a list of date bands rendered as semi-
+  // transparent rects behind the line on the dialog plot. Optional —
+  // when omitted/empty, no bands draw.
+  shading: (chart as { shading?: string[] }).shading,
   supportedDeltas: effectiveSupported,
   defaultDelta,
   fixedRange: dashboardFixedRange,

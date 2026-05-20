@@ -3,3 +3,4 @@ sources: ["fred/us_real_gdp"]
 render: line
 defaultDelta: 1y
 tags: [us, macro]
+shading: [recessions]

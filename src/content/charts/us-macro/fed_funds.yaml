@@ -3,3 +3,7 @@ sources: ["fred/fed_funds"]
 render: line
 defaultDelta: 1y
 tags: [us, rates, macro]
+# Recession shading is the canonical macro-chart context cue: every
+# rate cycle plays out against (or leading into) an NBER recession,
+# and seeing them side-by-side is the headline story.
+shading: [recessions]
