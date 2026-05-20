@@ -200,6 +200,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         isSupabaseConfigured,
         readStoredSession,
       } from "../lib/supabase";
+      import { maybeSeedTutorial } from "../lib/seed-tutorial";
       if (isSupabaseConfigured) {
         const sb = createSupabase();
         if (sb) {
@@ -221,6 +222,10 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
               if (signin) signin.style.display = "none";
               if (signout) signout.style.display = "";
               if (meLink) meLink.style.display = "";
+              // First-sign-in tutorial seed. Self-gated: idempotent +
+              // bails out if the user already has any saved dashboards.
+              // See src/lib/seed-tutorial.ts for the contract.
+              void maybeSeedTutorial(stored);
             } else {
               if (signin) signin.style.display = "";
               if (signout) signout.style.display = "none";
