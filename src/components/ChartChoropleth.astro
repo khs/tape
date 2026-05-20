@@ -29,6 +29,40 @@
 import type { CollectionEntry } from "astro:content";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
+import {
+  isServerlessRuntime,
+  resolveServerlessOrigin,
+} from "../lib/load-data";
+
+// Dual-mode read for files under public/. At build time / dev, reads
+// directly from disk. At Vercel function runtime, public/data/ has
+// been stripped from the function bundle (see astro.config.mjs's
+// strip-data-from-function hook) — falls back to fetching from the
+// deployment's own static-assets URL.
+//
+// load-data.ts has the same pattern for the SourceData + summary
+// loaders; this is the choropleth-flavored equivalent for snapshot
+// JSON + boundary TopoJSON reads. Without the fetch fallback the
+// /custom/ + /u/<slug>/ paths show "data not yet fetched" even though
+// the files ARE in the static bundle.
+async function readPublicFileText(rel: string): Promise<string | null> {
+  if (!isServerlessRuntime()) {
+    try {
+      return await fs.readFile(join(process.cwd(), "public", rel), "utf-8");
+    } catch {
+      return null;
+    }
+  }
+  const origin = resolveServerlessOrigin();
+  if (!origin) return null;
+  try {
+    const r = await fetch(`${origin}/${rel.replace(/^\//, "")}`);
+    if (!r.ok) return null;
+    return await r.text();
+  } catch {
+    return null;
+  }
+}
 
 type ChartData = CollectionEntry<"charts">["data"];
 
@@ -51,7 +85,7 @@ const indicator = chart.indicator!;
 const vintage = chart.vintage!;
 const stateCodes: string[] =
   (chart.states && chart.states.length > 0
-    ? chart.states.map((s) => s.toLowerCase())
+    ? chart.states.map((s: string) => s.toLowerCase())
     : chart.state
       ? [chart.state.toLowerCase()]
       : []);
@@ -174,8 +208,15 @@ try {
   let shardsReadable = 0;
   for (const rel of dataFileRels) {
     shardsAttempted++;
+    const raw = await readPublicFileText(rel);
+    if (!raw) {
+      // Missing shard — either the workflow hasn't fetched it yet, or
+      // the file's not in the static bundle. Either way, fall through;
+      // the renderer paints whatever IS available + the user sees a
+      // partial map with missing regions blank.
+      continue;
+    }
     try {
-      const raw = await fs.readFile(join(process.cwd(), "public", rel), "utf-8");
       const parsed = JSON.parse(raw) as SnapshotShape;
       shardsReadable++;
       Object.assign(mergedValues, parsed.values);
@@ -189,9 +230,7 @@ try {
         lastUpdated = parsed.lastUpdated;
       }
     } catch {
-      // Skip missing shards — they fill on the next workflow run.
-      // The renderer paints whatever's available; the user sees a
-      // partial map with the missing regions blank.
+      // Malformed JSON — skip the shard.
     }
   }
   // For tract / block-group charts with a bbox, the boundary file
@@ -207,12 +246,17 @@ try {
     chart.bbox
   ) {
     try {
-      const boundaryPath = join(
-        process.cwd(),
-        "public",
+      // Dual-mode boundary read: same dance as the shard reads above.
+      // Build / dev hits disk; the Vercel function falls back to the
+      // deployment's static-assets URL since the boundary TopoJSONs
+      // (some are 10+ MB) get stripped from the function bundle to
+      // stay under the 250MB function-size limit.
+      const boundaryRaw = await readPublicFileText(
         chart.boundaryFile.replace(/^\//, ""),
       );
-      const boundaryRaw = await fs.readFile(boundaryPath, "utf-8");
+      if (!boundaryRaw) {
+        throw new Error("boundary read returned null");
+      }
       const boundaryJson = JSON.parse(boundaryRaw) as {
         objects: Record<
           string,
