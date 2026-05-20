@@ -1,0 +1,21 @@
+title: Real GDP per capita (US)
+sources:
+  - fred/us_real_gdp
+  - fred/us_population
+op: divide
+render: line
+defaultDelta: 30y
+tags: [us, macro, gdp]
+blurb: |
+  Real GDP (chained 2017 dollars, quarterly) divided by US
+  population (monthly). Reads as roughly real per-person economic
+  output: about $30K in 1970, $80K+ today. Doesn't account for
+  distribution; useful as a long-run trend benchmark for how
+  productive the average American has become.
+  <br/><br/>
+  This is the walkthrough's <strong>division</strong> example —
+  pick any aggregate-by-country / aggregate-by-state / aggregate-
+  by-metro plus the matching population series in the composer's
+  "+ Custom chart" with op=divide and you'll get the per-capita
+  view for free. The renderer infers the result unit from the
+  inputs' unitClass.

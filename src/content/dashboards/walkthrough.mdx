@@ -8,10 +8,10 @@ defaultDelta: 1y
 description: "A tour of what Tape can do — read this if you've just landed and want to know which knobs are where. Each section below shows a real chart + a short note about the feature it demonstrates."
 aboutBlurb: "Curated demo dashboard. Every section below is a real Tape feature, shown via real charts; the headings are the explanations. Click any tile to see its expanded view + the per-tile controls."
 sections:
-  - title: "Every tile shows the level and the move"
-    description: "Each tile is a chart. The big number is today's value; the small number is how it's changed across the current window (set by the pills above). Click any tile to open the expanded dialog — that's where the full chart, per-tile window pills, color-scheme picker, and the citation footer live."
+  - title: "Every mini-chart shows the level and the change"
+    description: "The big number is today's value; the small number is how it's changed across the current window (set by the options above). You can also click any of them to expand: try it on US unemployment rate to find out more."
     charts:
-      - us-macro/unemployment
+      - us-macro/unemployment_walkthrough
       - us-macro/ten_year
       - us-macro/sp500
 
@@ -23,10 +23,12 @@ sections:
       - us-macro/fed_funds
       - us-macro/core_cpi
 
-  - title: "Multi-source charts"
-    description: "A single tile can combine two or more series via the composer's '+ Custom chart' or '+ Derived source' buttons. The chart below is the 5-year breakeven inflation rate — computed on the fly as (5y nominal yield) − (5y TIPS yield). Multi-source charts can be raw, rebased to 100, dual-axis, or operator-derived (divide / sum / difference)."
+  - title: "Multi-source charts: combine series with math"
+    description: "A tile can combine two or more series via the composer's '+ Custom chart' or '+ Derived source' button. Pick raw / rebased-to-100 / dual-axis, or pick an operator (sum, difference, division) to collapse the inputs into one derived line. The three tiles below are the canonical examples — addition (misery index = inflation + unemployment), subtraction (yield-curve recession signal = 10Y minus fed funds), and division (real GDP per capita = real GDP ÷ population)."
     charts:
-      - us-macro/breakeven_5y
+      - us-macro/misery_index
+      - us-macro/yield_curve_spread
+      - us-macro/real_gdp_per_capita
 
   - title: "Forecasts ship as a dashed line"
     description: "When a series has an official projection, it renders as a dashed extension of the historical line — same axis, same tooltip, no extra controls. CBO's deficit projection below extends ~30 years past the last historical fiscal year. Same treatment for the Social Security trustees' OASDI projection and the futures curves we ship for oil, VIX, and ag commodities."

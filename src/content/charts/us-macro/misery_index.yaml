@@ -1,0 +1,19 @@
+title: Misery index (CPI YoY + unemployment)
+sources:
+  - fred/cpi_yoy
+  - fred/us_unemployment
+op: sum
+render: line
+defaultDelta: 30y
+tags: [us, macro, inflation, labor]
+blurb: |
+  The classic Arthur-Okun "misery index": headline CPI inflation
+  (year-over-year %) plus the civilian unemployment rate (%).
+  Higher = households feel more squeezed. Reads as a single
+  percentage because both inputs are already percentages, so the
+  sum is too.
+  <br/><br/>
+  This is the walkthrough's <strong>addition</strong> example —
+  two existing single-source series, combined on the fly with
+  op=sum. Try the composer's "+ Custom chart" to build others
+  (e.g., a regional CPI + a different unemployment series).

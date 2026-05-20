@@ -1,0 +1,22 @@
+title: 10Y Treasury minus fed funds (yield-curve recession signal)
+sources:
+  - fred/us_10y
+  - fred/fed_funds
+op: diff
+render: line
+defaultDelta: 30y
+tags: [us, macro, rates, recession]
+blurb: |
+  The slope of the front of the yield curve, computed as the
+  10-year Treasury yield minus the federal funds effective rate.
+  When this goes <strong>negative</strong> the curve has
+  "inverted" — long rates below the policy rate — and a recession
+  has historically followed every NBER cycle since 1969 within
+  about 12–18 months. False positives are rare; the late-1960s
+  inversion was the last one that didn't lead to a downturn.
+  <br/><br/>
+  This is the walkthrough's <strong>subtraction</strong> example
+  — same on-the-fly diff machinery as the 5-year breakeven
+  inflation chart, applied to two policy-relevant rates instead
+  of two parts of the same maturity. Build your own from any pair
+  of percentage-unit series via the composer's "+ Custom chart".

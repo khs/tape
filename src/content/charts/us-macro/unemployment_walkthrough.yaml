@@ -1,0 +1,24 @@
+title: US unemployment rate
+# Walkthrough variant of us-macro/unemployment. Same single source +
+# render, but ships with a `blurb` that the dashboard surfaces in the
+# expanded-tile dialog — the walkthrough page tells the reader to
+# click this tile to see what a chart-level description looks like.
+# Pure curated curiosity; if you need the indicator on a real
+# dashboard, prefer us-macro/unemployment so editorial-blurb edits
+# made for the walkthrough don't bleed into production tiles.
+sources: ["fred/us_unemployment"]
+render: line
+defaultDelta: 1y
+tags: [us, macro]
+blurb: |
+  This is what a chart's custom description looks like — each
+  chart can carry its own prose visible to anyone who clicks the
+  tile to expand it. Useful spot for the basic information about
+  the data source plus a link to the underlying provider.
+  <br/><br/>
+  This series is the headline US civilian unemployment rate
+  (seasonally adjusted), published monthly by the Bureau of Labor
+  Statistics. Source:
+  <a href="https://fred.stlouisfed.org/series/UNRATE">FRED's UNRATE
+  page</a>. You can also play around with the timeframe using the
+  pills above; the chart re-renders with whichever window you pick.
