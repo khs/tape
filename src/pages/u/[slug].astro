@@ -66,6 +66,12 @@ if (state) {
     charts: state.charts,
     inlineCharts: state.inlineCharts,
     inlineSources: state.inlineSources,
+    // Inline maps need an explicit hand-off, same as inlineCharts —
+    // resolve-dashboard.ts looks them up by `inlinemap:<id>` reference
+    // and synthesizes a choropleth CollectionEntry. Without this the
+    // map tiles silently disappear from saved dashboards while still
+    // rendering in the composer.
+    inlineMaps: state.inlineMaps,
   });
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDelta = resolveDashboardDefault(state.defaultDelta, supported);
@@ -94,6 +100,7 @@ const ogD = state
       charts: state.charts,
       inlineCharts: state.inlineCharts,
       inlineSources: state.inlineSources,
+      inlineMaps: state.inlineMaps,
     })
   : null;
 ---
@@ -106,7 +113,12 @@ const ogD = state
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
     data-dashboard-default-window={defaultDelta ?? "1m"}
   >
-    <nav class="text-xs text-neutral-500 mb-3">
+    {/* Breadcrumb shortcuts. Hidden client-side for signed-in users —
+        the BaseLayout header already exposes "Compose" + "My dashboards"
+        in the top-right, so this nav is just noise for anyone who has
+        a session. Anonymous viewers still see it (they don't have the
+        signed-in header links). */}
+    <nav class="text-xs text-neutral-500 mb-3" data-role="dashboard-breadcrumb">
       <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
       <span class="mx-1">·</span>
       <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Composer</a>
@@ -174,6 +186,12 @@ const ogD = state
                     charts: state.charts,
                     chartOverrides: state.chartOverrides,
                     inlineCharts: state.inlineCharts,
+                    inlineSources: state.inlineSources,
+                    // Carry inlineMaps through to the composer when
+                    // the user clicks Edit / Make a copy — without
+                    // this they'd lose every map tile on the trip
+                    // back to /compose/.
+                    inlineMaps: state.inlineMaps,
                   });
                   return (
                     <>
@@ -187,10 +205,11 @@ const ogD = state
                         Edit &rarr;
                       </a>
                       <a
-                        href={`${baseUrl}/compose/?d=${encoded}`}
+                        href={`${baseUrl}/compose/?d=${encoded}&copy=1`}
                         class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
+                        title={`Open the composer with a copy of "${state.title ?? "this dashboard"}" — Save creates a new dashboard at a fresh URL.`}
                       >
-                        Customize this &rarr;
+                        Make a copy &rarr;
                       </a>
                     </>
                   );
@@ -302,12 +321,24 @@ const ogD = state
           const editLink = document.querySelector<HTMLAnchorElement>(
             "[data-role='edit-link']",
           );
+          const sessionForUi = readStoredSession();
           if (editLink) {
             const ownerId = editLink.dataset.ownerId ?? "";
-            const stored = readStoredSession();
-            if (ownerId && stored && stored.user.id === ownerId) {
+            if (ownerId && sessionForUi && sessionForUi.user.id === ownerId) {
               editLink.style.display = "";
             }
+          }
+
+          // Hide the "All dashboards · Composer" breadcrumb for signed-in
+          // viewers — those shortcuts already live in the top-right header
+          // ("Compose" + "My dashboards"), so the in-page nav is duplicate
+          // chrome for anyone with a session. Anonymous viewers keep it
+          // since they don't see the signed-in header links.
+          if (sessionForUi) {
+            const breadcrumb = document.querySelector<HTMLElement>(
+              "[data-role='dashboard-breadcrumb']",
+            );
+            if (breadcrumb) breadcrumb.style.display = "none";
           }
         </script>
       </>

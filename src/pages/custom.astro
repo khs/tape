@@ -21,6 +21,17 @@ export const prerender = false;
 const dParam = Astro.url.searchParams.get("d");
 const decoded = decodeComposedState(dParam);
 
+// When the composer's Preview link hands off an edit context (i.e.
+// the composer was launched from /u/<slug>/'s Edit button), the
+// editingSlug ride along here. /custom/ uses it to:
+//   - Show a "previewing edits to /u/<slug>/" banner instead of the
+//     usual orphan-fork chrome.
+//   - Switch the Save button to "Update dashboard", which UPDATES the
+//     existing saved_dashboards row instead of INSERTing a new one.
+// Bare /custom/?d=… without `&edit=` is the pre-existing path
+// (anyone sharing a composer link gets a fresh copy on Save).
+const editingSlug = Astro.url.searchParams.get("edit");
+
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 let title = "Composed dashboard";
@@ -46,10 +57,23 @@ if (!decoded.ok) {
     charts: st.charts,
     inlineCharts: st.inlineCharts,
     inlineSources: st.inlineSources,
+    // Inline maps are a parallel registry to inlineCharts — resolve-
+    // dashboard.ts dispatches `inlinemap:<id>` references through this
+    // map and synthesizes a CollectionEntry with render="choropleth".
+    // Without passing it here, every inline map silently drops out of
+    // the resolved sections (filtered as "unresolved chart") and the
+    // tile vanishes on Preview while still appearing in the composer.
+    inlineMaps: st.inlineMaps,
   });
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDeltaRequested = resolveDashboardDefault(st.defaultDelta, supported);
   forkUrl = baseUrl + "/compose/?d=" + (dParam ?? "");
+  // If we're previewing an edit, the "Open in composer" link should
+  // keep the edit-slug context so the user lands back where they
+  // started (Save still updates /u/<slug>/, not insert).
+  if (editingSlug) {
+    forkUrl += `&edit=${encodeURIComponent(editingSlug)}`;
+  }
 }
 
 // Flatten resolved sources for the dashboard_viewed telemetry event.
@@ -75,7 +99,12 @@ const viewedChartCount = resolvedSections.reduce(
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
     data-dashboard-default-window={defaultDeltaRequested ?? "1m"}
   >
-    <nav class="text-xs text-neutral-500 mb-3">
+    {/* Breadcrumb shortcuts. Hidden client-side for signed-in users —
+        the BaseLayout header already exposes "Compose" + "My dashboards"
+        in the top-right, so this nav is duplicate chrome for anyone
+        with a session. Anonymous viewers still see it (they don't
+        have the signed-in header links). */}
+    <nav class="text-xs text-neutral-500 mb-3" data-role="dashboard-breadcrumb">
       <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
       <span class="mx-1">·</span>
       <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Composer</a>
@@ -107,15 +136,16 @@ const viewedChartCount = resolvedSections.reduce(
                   type="button"
                   class="text-xs text-neutral-600 hover:text-neutral-900 border hairline rounded-sm px-2 py-1 bg-white cursor-pointer"
                   data-role="save"
+                  data-editing-slug={editingSlug ?? ""}
                 >
-                  Save to my account
+                  {editingSlug ? "Update dashboard" : "Save to my account"}
                 </button>
                 {forkUrl && (
                   <a
                     href={forkUrl}
                     class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
                   >
-                    Open in composer &rarr;
+                    {editingSlug ? "Back to editing" : "Open in composer"} &rarr;
                   </a>
                 )}
               </div>
@@ -131,16 +161,44 @@ const viewedChartCount = resolvedSections.reduce(
                 data-role="custom-base-url"
                 set:html={JSON.stringify(baseUrl)}
               />
+              <script
+                is:inline
+                type="application/json"
+                data-role="custom-editing-slug"
+                set:html={JSON.stringify(editingSlug ?? null)}
+              />
             </div>
             {description && (
               <p class="mt-2 text-sm text-neutral-600 max-w-[640px]">{description}</p>
             )}
+            {editingSlug && (
+              <p class="mt-2 text-xs text-neutral-600 max-w-[640px]" data-role="edit-preview-banner">
+                Previewing unsaved edits to <a
+                  href={`${baseUrl}/u/${editingSlug}/`}
+                  class="underline"
+                >{`/u/${editingSlug}/`}</a>.
+                <strong>Update dashboard</strong> applies them; <strong>Back
+                to editing</strong> returns to the composer with your changes
+                intact.
+              </p>
+            )}
           </header>
 
           <script>
-            import { createSupabase, isSupabaseConfigured } from "../lib/supabase";
+            import { createSupabase, isSupabaseConfigured, readStoredSession } from "../lib/supabase";
             import { nanoid } from "nanoid";
             import { track } from "../lib/track";
+
+            // Hide the "All dashboards · Composer" breadcrumb for
+            // signed-in viewers — those shortcuts already live in the
+            // top-right BaseLayout header. Same logic lives on
+            // src/pages/u/[slug].astro; keep them in sync.
+            if (readStoredSession()) {
+              const breadcrumb = document.querySelector<HTMLElement>(
+                "[data-role='dashboard-breadcrumb']",
+              );
+              if (breadcrumb) breadcrumb.style.display = "none";
+            }
 
             // --- Copy link ---
             const copyBtn = document.querySelector<HTMLButtonElement>(
@@ -213,10 +271,67 @@ const viewedChartCount = resolvedSections.reduce(
                       (baseUrlEl?.textContent &&
                         JSON.parse(baseUrlEl.textContent)) ||
                       "";
+                    // Read the edit-slug embedded in the SSR JSON
+                    // sidecar. If set, we're updating an existing
+                    // saved_dashboards row (the user came in through
+                    // the composer's edit flow → Preview); otherwise
+                    // we mint a fresh slug.
+                    const editingSlugEl =
+                      document.querySelector<HTMLScriptElement>(
+                        "[data-role='custom-editing-slug']",
+                      );
+                    const editingSlug = editingSlugEl?.textContent
+                      ? (JSON.parse(editingSlugEl.textContent) as string | null)
+                      : null;
+                    const restoreLabel = editingSlug
+                      ? "Update dashboard"
+                      : "Save to my account";
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = editingSlug
+                      ? "Updating…"
+                      : "Saving…";
+                    if (editingSlug) {
+                      // UPDATE path — the existing /u/<slug>/ row is
+                      // overwritten with the edited state. RLS on the
+                      // saved_dashboards table guarantees only the
+                      // owner's update will succeed; if the user isn't
+                      // the owner (e.g. someone forged the &edit param
+                      // on a shared link), the update affects zero
+                      // rows and we fall back to insert as a fresh
+                      // copy.
+                      console.log("[custom save] updating slug:", editingSlug);
+                      const { data: upd, error: updErr } = await sb
+                        .from("saved_dashboards")
+                        .update({
+                          title: state.title || "Untitled dashboard",
+                          state_json: state,
+                        })
+                        .eq("slug", editingSlug)
+                        .select();
+                      console.log("[custom save] update result:", { upd, updErr });
+                      if (updErr) {
+                        alert(`Update failed: ${updErr.message}`);
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = restoreLabel;
+                        return;
+                      }
+                      if (!upd || upd.length === 0) {
+                        // RLS rejected the update — fall through to an
+                        // insert as a fresh copy so the user's edits
+                        // don't get lost.
+                        console.warn(
+                          "[custom save] update affected 0 rows (likely RLS / not owner); inserting as fresh copy",
+                        );
+                      } else {
+                        track("custom_save_succeeded", {
+                          slug: editingSlug, mode: "update",
+                        });
+                        window.location.href = `${baseUrl}/u/${editingSlug}/`;
+                        return;
+                      }
+                    }
                     const slug = nanoid(10);
                     console.log("[custom save] inserting slug:", slug);
-                    saveBtn.disabled = true;
-                    saveBtn.textContent = "Saving…";
                     const { data: ins, error } = await sb
                       .from("saved_dashboards")
                       .insert({
@@ -228,12 +343,12 @@ const viewedChartCount = resolvedSections.reduce(
                       .select();
                     console.log("[custom save] insert result:", { ins, error });
                     saveBtn.disabled = false;
-                    saveBtn.textContent = "Save to my account";
+                    saveBtn.textContent = restoreLabel;
                     if (error) {
                       alert(`Save failed: ${error.message}`);
                       return;
                     }
-                    track("custom_save_succeeded", { slug });
+                    track("custom_save_succeeded", { slug, mode: "create" });
                     // ?just-saved=1 triggers the post-save email-capture
                     // prompt on the /u/<slug>/ page; the param is stripped
                     // after first read so it doesn't survive refresh/share.
