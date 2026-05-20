@@ -828,10 +828,9 @@ const statesJoined = stateCodes.join(",");
     // as a hole in the map:
     //
     //   1. 9800-series tracts: Census reserves 6-digit tract codes
-    //      starting with "98" for special land-use areas — federal
-    //      facilities (CIA Langley = 51059980300), military bases,
-    //      parks, airports, water bodies. By design these have no
-    //      resident population and ACS publishes nothing for them.
+    //      starting with "98" for special land-use areas — military
+    //      bases, parks, airports, water bodies. By design these have
+    //      no resident population and ACS publishes nothing for them.
     //   2. Tract splits and missing-data gaps: the topology file may
     //      include tracts (e.g., Fairfax 4405.04) that the ACS vintage
     //      didn't publish — typically because the tract was newly
