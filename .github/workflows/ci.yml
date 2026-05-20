@@ -67,14 +67,22 @@ jobs:
         run: python -m pip install pyyaml
 
       - name: Pipeline unit tests (unittest)
-        # pipelines/test_generators_index.py guards the country-label /
-        # multi-word-slug / template-leak logic in
-        # _generate_generators_index.py. Pre-fix bugs that shipped to prod:
-        # "Uk" / "Uae" capitalization, "kong"/"rica" truncated slugs,
-        # "Sub-Saharan Africa" leaking as a template label. The test file
-        # also audits the checked-in public/generators-index.json so any
-        # regeneration that breaks the rules trips CI before merge.
-        run: python -m unittest pipelines.test_generators_index -v
+        # Two test modules:
+        #   - test_generators_index.py: guards the country-label /
+        #     multi-word-slug / template-leak logic in
+        #     _generate_generators_index.py. Pre-fix bugs that shipped
+        #     to prod: "Uk"/"Uae" capitalization, "kong"/"rica"
+        #     truncated slugs, "Sub-Saharan Africa" leaking as a
+        #     template label. Also audits the checked-in
+        #     generators-index.json.
+        #   - test_common.py: locks down the merge-on-write semantics
+        #     in write_timeseries / write_curve and the TTL cache in
+        #     cached_get. Without these tests it would be easy to
+        #     silently regress to "overwrite, drop history" in a
+        #     future common.py edit.
+        run: |
+          python -m unittest pipelines.test_generators_index -v
+          python -m unittest pipelines.test_common -v
 
       - name: Build
         # SITE_URL is unset here, so Astro.site is undefined and sitemap()

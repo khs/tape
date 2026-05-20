@@ -23,6 +23,13 @@ pipelines/_crosswalks_cache/
 # here; regenerable so it stays out of the repo. See pipelines/_cache.py.
 pipelines/_cache/
 
+# HTTP response cache used by pipelines/common.py's cached_get().
+# TTL-keyed; same regenerable-so-not-committed story as the other
+# cache dirs. Local-only; never deploys, never commits. Useful for
+# laptop iteration; doesn't help much on the weekly CI cadence
+# because last fetch was ~7 days ago anyway.
+pipelines/_response_cache/
+
 # CBO XLSX uploads. cbo.gov is behind DataDome and often blocks CI
 # fetches; the manual fallback is to drop browser-downloaded files
 # here. Operator artifact, not part of the repo. See pipelines/cbo.py.
