@@ -310,7 +310,28 @@ const defaultBoundary =
   geo === "state" || geo === "county"
     ? "/maps/us-counties-2024-10m.json"
     : "";
-const boundaryUrl = chart.boundaryFile ?? defaultBoundary;
+// Boundary resolution order:
+//   1. Explicit chart.boundaryFile (pre-built regional bundle like
+//      /maps/dmv-tracts-topo.json — used by curated dashboards that
+//      stitched a custom region ahead of time).
+//   2. Multi-state tract/BG: derive one /maps/<st>-<seg>-topo.json
+//      per state in stateCodes. The client merges the FeatureCollections
+//      after loading so a four-state region (DMV, NY-tri-state, etc.)
+//      renders as one map.
+//   3. defaultBoundary (state / county US-wide file).
+const boundaryDirSeg =
+  geo === "block-group" ? "block-groups" : "tracts";
+const boundaryUrls: string[] = chart.boundaryFile
+  ? [chart.boundaryFile]
+  : geo === "tract" || geo === "block-group"
+    ? stateCodes.map(
+        (st) => `/maps/${st}-${boundaryDirSeg}-topo.json`,
+      )
+    : [defaultBoundary];
+// Single-URL alias kept for back-compat with existing renderer code
+// paths + the data-boundary-url attribute the dialog reuses.
+const boundaryUrl = boundaryUrls[0] ?? defaultBoundary;
+const boundaryUrlsJson = JSON.stringify(boundaryUrls);
 const bbox = chart.bbox ?? null;
 const colorScheme = chart.colorScheme ?? "blues";
 const colorScale = chart.colorScale ?? "linear";
@@ -352,6 +373,7 @@ const statesJoined = stateCodes.join(",");
     data-chart-id={chartId}
     data-data-urls={dataUrlsJson}
     data-boundary-url={boundaryUrl}
+    data-boundary-urls={boundaryUrlsJson}
     data-geo={geo}
     data-state={stateCodes[0] ?? ""}
     data-states={statesJoined}
@@ -397,7 +419,11 @@ const statesJoined = stateCodes.join(",");
   type ChoroBindings = {
     chartId: string;
     dataUrls: string[];   // 1+ shard files merged client-side
-    boundaryUrl: string;
+    boundaryUrl: string;  // Kept for back-compat with dialog code paths.
+    /** Boundary URLs to load. Length 1 for single-state / pre-built
+     *  regional bundles; length > 1 for multi-state regions composed
+     *  ad-hoc from per-state TopoJSONs. */
+    boundaryUrls: string[];
     geo: "state" | "county" | "tract" | "block-group";
     state: string;
     bbox: [number, number, number, number] | null;
@@ -561,24 +587,52 @@ const statesJoined = stateCodes.join(",");
   }
 
   async function paint(canvas: HTMLElement, b: ChoroBindings, mode: "tile" | "expanded" | "fullscreen") {
-    const [boundary, values] = await Promise.all([
-      getBoundary(b.boundaryUrl),
-      getMergedValues(b.dataUrls),
-    ]);
     // Pick the right TopoJSON object layer + GEOID key based on geo.
     // State features have id = 2-digit FIPS; county features have id
-    // = 5-digit FIPS. Tract/block-group come from state-sharded
-    // TopoJSONs we generate separately (not present in v1).
+    // = 5-digit FIPS. Tract/block-group come from per-state TopoJSONs
+    // we generated via mapshaper.
     let layerName: string;
     if (b.geo === "state") layerName = "states";
     else if (b.geo === "county") layerName = "counties";
     else if (b.geo === "tract") layerName = "tracts";
     else layerName = "block_groups";
-    const fc = topojson.feature(boundary, boundary.objects[layerName]) as any;
-    const features = fc.features as Array<{
+    const urls = b.boundaryUrls && b.boundaryUrls.length > 0
+      ? b.boundaryUrls
+      : [b.boundaryUrl];
+    // Multi-state regional maps: load N per-state TopoJSONs and
+    // concatenate their FeatureCollections. Single-state and
+    // pre-built regional bundles are the urls.length === 1 case
+    // (still goes through the same path so failures behave
+    // consistently). Per-shard failures are swallowed so a
+    // partially-broken region still renders the states that DID
+    // load — better than a blank tile if one state's topology
+    // 404s.
+    const topos = await Promise.all(urls.map(async (u) => {
+      try { return await getBoundary(u); }
+      catch (err) {
+        console.warn(`[choro] boundary fetch failed for ${u}:`, err);
+        return null;
+      }
+    }));
+    const values = await getMergedValues(b.dataUrls);
+    const features: Array<{
       id: string;
       properties?: { name?: string; id?: string };
-    }>;
+    }> = [];
+    for (const topo of topos) {
+      if (!topo) continue;
+      const obj = (topo as { objects: Record<string, unknown> }).objects[layerName];
+      if (!obj) continue;
+      // topojson.feature's return type is typed as Feature<Point>
+      // by default — at runtime it returns a FeatureCollection when
+      // passed a GeometryCollection (which `objects[layerName]` always
+      // is for our boundary files). Cast through `unknown` to bypass
+      // the (technically correct) "no overlap" check.
+      const fcShard = topojson.feature(topo as never, obj as never) as unknown as {
+        features: typeof features;
+      };
+      features.push(...fcShard.features);
+    }
     // Normalize id at the feature level. Some boundary files (the
     // DMV-tract and VA-block-group TopoJSONs we generated with
     // mapshaper) carry the GEOID under properties.id instead of as
@@ -1239,10 +1293,18 @@ const statesJoined = stateCodes.join(",");
       try {
         parsedDataUrls = JSON.parse(canvas.dataset.dataUrls ?? "[]");
       } catch { /* leave empty; canvas will render "no data" */ }
+      let parsedBoundaryUrls: string[] = [];
+      try {
+        parsedBoundaryUrls = JSON.parse(canvas.dataset.boundaryUrls ?? "[]");
+      } catch { /* leave empty; falls back to single boundaryUrl below */ }
+      if (parsedBoundaryUrls.length === 0 && canvas.dataset.boundaryUrl) {
+        parsedBoundaryUrls = [canvas.dataset.boundaryUrl];
+      }
       const b: ChoroBindings = {
         chartId: canvas.dataset.chartId ?? "",
         dataUrls: parsedDataUrls,
         boundaryUrl: canvas.dataset.boundaryUrl ?? "",
+        boundaryUrls: parsedBoundaryUrls,
         geo: (canvas.dataset.geo ?? "county") as ChoroBindings["geo"],
         state: canvas.dataset.state ?? "",
         bbox: canvas.dataset.bbox && canvas.dataset.bbox !== "null"

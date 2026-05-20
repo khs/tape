@@ -323,12 +323,57 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             </label>
 
             <label class="map-field" data-role="map-state-field" hidden>
-              <span class="map-field-label">State</span>
-              <select class="map-input" data-role="map-state"></select>
+              <span class="map-field-label">State(s)</span>
+              <div class="map-region-presets" data-role="map-region-presets">
+                <span class="muted small">Quick regions:</span>
+                <button
+                  type="button"
+                  class="map-region-chip"
+                  data-role="map-region-preset"
+                  data-states="DC,MD,VA"
+                  title="DC + Maryland + Virginia"
+                >DMV</button>
+                <button
+                  type="button"
+                  class="map-region-chip"
+                  data-role="map-region-preset"
+                  data-states="NY,NJ,CT"
+                  title="New York + New Jersey + Connecticut"
+                >NY tri-state</button>
+                <button
+                  type="button"
+                  class="map-region-chip"
+                  data-role="map-region-preset"
+                  data-states="MA,CT,RI,NH"
+                  title="Massachusetts + Connecticut + Rhode Island + New Hampshire"
+                >New England</button>
+                <button
+                  type="button"
+                  class="map-region-chip"
+                  data-role="map-region-preset"
+                  data-states="PA,NJ,DE,MD"
+                  title="Pennsylvania + New Jersey + Delaware + Maryland"
+                >Mid-Atlantic</button>
+                <button
+                  type="button"
+                  class="map-region-chip"
+                  data-role="map-region-preset"
+                  data-states="WA,OR,ID"
+                  title="Washington + Oregon + Idaho"
+                >Pac NW</button>
+              </div>
+              <select
+                class="map-input map-state-multi"
+                data-role="map-state"
+                multiple
+                size="6"
+              ></select>
               <span class="muted small">
-                Tract and block-group maps need a state shard — each state
-                ships its own TopoJSON.
+                Pick up to 4 states. Use a region chip for quick fills,
+                or <kbd>Ctrl</kbd>-click (<kbd>⌘</kbd>-click on Mac) for
+                multi-select.
               </span>
+              <span class="muted small" data-role="map-state-readout">&nbsp;</span>
             </label>
 
             <label class="map-field">
@@ -2792,18 +2837,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     indicator: string;
     vintage: string;
     geo: MapGeo;
-    state: string;
+    /** Selected state codes (uppercase 2-letter) for tract/BG geos.
+     *  Empty for state/county. Capped at 4 to keep regional bundles
+     *  (DMV, NY-tri-state, SF-Bay-area, Bos-Wash corridor) inside a
+     *  reasonable payload — four state TopoJSONs at tract resolution
+     *  is ~40-60MB raw, ~10-15MB gzipped, which is the upper bound
+     *  we want to ship to a tile. */
+    states: string[];
     colorScheme: string;
     colorScale: "linear" | "log";
     bbox: [number, number, number, number] | null;
     customTitle: string;
   }
 
+  // Cap on number of states the multi-select accepts. Beyond ~4 the
+  // boundary payload + render time degrade noticeably; the user can
+  // always switch to county geo (US-wide) for broader coverage.
+  const MAP_MAX_STATES = 4;
+
   const mapBuilder: MapBuilderState = {
     indicator: "poverty_rate",
     vintage: "2022",
     geo: "county",
-    state: "VA",
+    states: ["VA"],
     colorScheme: "reds",
     colorScale: "linear",
     bbox: null,
@@ -2824,10 +2880,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const geoLabel = mapBuilder.geo === "state" ? "state" : "county";
       return `${ind} by ${geoLabel} — US (${mapBuilder.vintage})`;
     }
-    const stateName =
-      MAP_STATES.find(([c]) => c === mapBuilder.state)?.[1] ?? mapBuilder.state;
     const geoLabel = mapBuilder.geo === "block-group" ? "block group" : "tract";
-    return `${ind} by ${geoLabel} — ${stateName} (${mapBuilder.vintage})`;
+    if (mapBuilder.states.length === 0) {
+      return `${ind} by ${geoLabel} — pick a state (${mapBuilder.vintage})`;
+    }
+    // Multi-state titles use the state codes joined by "+" to keep the
+    // tile heading scannable (e.g., "Poverty rate by tract — VA+MD+DC
+    // (2022)"). Single-state uses the full state name for readability.
+    const regionName =
+      mapBuilder.states.length === 1
+        ? (MAP_STATES.find(([c]) => c === mapBuilder.states[0])?.[1]
+            ?? mapBuilder.states[0])
+        : mapBuilder.states.join("+");
+    return `${ind} by ${geoLabel} — ${regionName} (${mapBuilder.vintage})`;
   }
 
   function updateMapBboxReadout(): void {
@@ -2946,7 +3011,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Always use the TRACT topology for the preview, even when the
     // user picked block-group — tracts are 1/5 the size, render fast,
     // and give the user the same sense of state shape for drawing.
-    const topoUrl = `/maps/${mapBuilder.state.toLowerCase()}-tracts-topo.json`;
+    // For multi-state selections, preview the FIRST state (drawing a
+    // bbox over a stitched multi-state image at this preview size is
+    // hard to do precisely; the bbox itself still clips features
+    // from all selected states at render time).
+    const previewState = mapBuilder.states[0];
+    if (!previewState) {
+      preview.innerHTML =
+        '<p class="muted small">Pick at least one state above to enable bbox drawing.</p>';
+      return;
+    }
+    const topoUrl = `/maps/${previewState.toLowerCase()}-tracts-topo.json`;
     // Topojson and d3-geo types are picky about Topology<Objects<...>>
     // generics; the actual JSON we ship is plain JSON. The runtime cast
     // is unavoidable since we don't carry the full type generic
@@ -2962,7 +3037,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         mapBboxTopoCache.set(topoUrl, topo);
       } catch (e) {
         preview.innerHTML =
-          `<p class="muted small">Could not load topology for ${mapBuilder.state}: ${(e as Error).message}</p>`;
+          `<p class="muted small">Could not load topology for ${previewState}: ${(e as Error).message}</p>`;
         return;
       }
     }
@@ -3044,15 +3119,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     mapBuilderWired = true;
 
-    // Populate state dropdown.
+    // Populate state multi-select.
     const stateSelect = shell.querySelector<HTMLSelectElement>(
       "[data-role='map-state']",
     );
+    const stateReadout = shell.querySelector<HTMLElement>(
+      "[data-role='map-state-readout']",
+    );
+    function syncStateSelectFromBuilder(): void {
+      if (!stateSelect) return;
+      const selected = new Set(mapBuilder.states);
+      Array.from(stateSelect.options).forEach((opt) => {
+        opt.selected = selected.has(opt.value);
+      });
+      if (stateReadout) {
+        if (mapBuilder.states.length === 0) {
+          stateReadout.textContent = "No states selected.";
+        } else if (mapBuilder.states.length === 1) {
+          const name =
+            MAP_STATES.find(([c]) => c === mapBuilder.states[0])?.[1]
+              ?? mapBuilder.states[0];
+          stateReadout.textContent = `Selected: ${name}.`;
+        } else {
+          stateReadout.textContent =
+            `Selected: ${mapBuilder.states.join(", ")} (${mapBuilder.states.length} of ${MAP_MAX_STATES} max).`;
+        }
+      }
+    }
     if (stateSelect) {
       stateSelect.innerHTML = MAP_STATES.map(
         ([code, name]) => `<option value="${code}">${name}</option>`,
       ).join("");
-      stateSelect.value = mapBuilder.state;
+      syncStateSelectFromBuilder();
     }
 
     // Wire each form input.
@@ -3068,12 +3166,55 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     if (stateSelect) {
       stateSelect.addEventListener("change", () => {
-        mapBuilder.state = stateSelect.value;
-        // State changes invalidate any drawn bbox (different coords).
+        const picked = Array.from(stateSelect.selectedOptions).map(
+          (o) => o.value,
+        );
+        if (picked.length > MAP_MAX_STATES) {
+          // User over-selected — keep the first N (in option-list
+          // order), then push the trimmed set back to the <select> so
+          // the cap is visible. The native multi-select doesn't have
+          // a "disable past N" mode; rebuilding the selection here is
+          // the cheapest fix.
+          mapBuilder.states = picked.slice(0, MAP_MAX_STATES);
+          syncStateSelectFromBuilder();
+          if (stateReadout) {
+            stateReadout.textContent =
+              `${MAP_MAX_STATES}-state max — extras unselected.`;
+          }
+        } else {
+          mapBuilder.states = picked;
+          syncStateSelectFromBuilder();
+        }
+        // State set changes invalidate any drawn bbox (different coords).
         mapBuilder.bbox = null;
         updateMapBuilderUI();
       });
     }
+
+    // Region-preset chips. Each carries a comma-separated state list
+    // in data-states; clicking pushes it through the same set/cap path
+    // as the multi-select to keep validation centralized.
+    shell.querySelectorAll<HTMLButtonElement>(
+      "[data-role='map-region-preset']",
+    ).forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const raw = (chip.dataset.states ?? "").trim();
+        if (!raw) return;
+        const picks = raw
+          .split(",")
+          .map((s) => s.trim().toUpperCase())
+          .filter(Boolean)
+          .slice(0, MAP_MAX_STATES);
+        mapBuilder.states = picks;
+        mapBuilder.bbox = null;
+        syncStateSelectFromBuilder();
+        updateMapBuilderUI();
+        track("compose_map_region_preset_picked", {
+          label: chip.textContent ?? "",
+          states: picks.join(","),
+        });
+      });
+    });
     const colorSel = shell.querySelector<HTMLSelectElement>(
       "[data-role='map-color-scheme']",
     );
@@ -3173,23 +3314,43 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const mapId = INLINEMAP_PREFIX + nanoid(8);
     const needsState =
       mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
+    if (needsState && mapBuilder.states.length === 0) {
+      alert("Pick at least one state for a tract or block-group map.");
+      return;
+    }
     const title = mapBuilder.customTitle.trim() || defaultMapTitle();
-    const boundaryFile = needsState
-      ? mapBuilder.geo === "block-group"
-        ? `/maps/${mapBuilder.state.toLowerCase()}-block-groups-topo.json`
-        : `/maps/${mapBuilder.state.toLowerCase()}-tracts-topo.json`
-      : undefined;
+    // Single-state tract/BG: keep `state` for back-compat (existing
+    // saved dashboards + the choropleth renderer's pre-multi paths
+    // both read state when states[] is absent). Multi-state: set
+    // states[] and leave boundaryFile undefined so the renderer
+    // derives one `/maps/<st>-<seg>-topo.json` per state and merges
+    // the FeatureCollections client-side.
     const entry: InlineMap = {
       title,
       geo: mapBuilder.geo,
       indicator: mapBuilder.indicator,
       vintage: mapBuilder.vintage,
-      state: needsState ? mapBuilder.state : undefined,
       bbox: mapBuilder.bbox ?? undefined,
-      boundaryFile,
       colorScheme: mapBuilder.colorScheme,
       colorScale: mapBuilder.colorScale,
     };
+    if (needsState) {
+      if (mapBuilder.states.length === 1) {
+        entry.state = mapBuilder.states[0];
+        // boundaryFile kept for back-compat — existing /u/<slug>/
+        // dashboards reference state-specific boundary URLs and the
+        // single-state pre-multi render path still uses it.
+        entry.boundaryFile =
+          mapBuilder.geo === "block-group"
+            ? `/maps/${mapBuilder.states[0].toLowerCase()}-block-groups-topo.json`
+            : `/maps/${mapBuilder.states[0].toLowerCase()}-tracts-topo.json`;
+      } else {
+        entry.states = [...mapBuilder.states];
+        // boundaryFile intentionally absent — ChartChoropleth derives
+        // per-state URLs from states[] when the explicit file isn't
+        // set and merges the topologies client-side.
+      }
+    }
     state.inlineMaps[mapId] = entry;
     target.charts.push(mapId);
     writeUrl();
@@ -3198,7 +3359,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       indicator: mapBuilder.indicator,
       geo: mapBuilder.geo,
       vintage: mapBuilder.vintage,
-      state: needsState ? mapBuilder.state : "",
+      states: needsState ? mapBuilder.states.join(",") : "",
+      stateCount: needsState ? mapBuilder.states.length : 0,
       hasBbox: mapBuilder.bbox != null,
     });
     // Reset custom title so the next add gets the auto-generated default.
@@ -4404,6 +4566,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     } else if (spec.boundaryFile) {
       boundaryUrl = `${baseUrl}${spec.boundaryFile.startsWith("/") ? "" : "/"}${spec.boundaryFile}`;
       layerName = spec.geo === "block-group" ? "block_groups" : "tracts";
+    } else if (spec.states && spec.states.length > 0) {
+      // Multi-state inline map (no pre-built boundaryFile). The tile
+      // preview only renders ONE state's silhouette — full multi-state
+      // merging would burn through 4 fetches for a thumbnail. The
+      // /custom/ + /u/<slug>/ render paths still load all states; this
+      // is a deliberate compromise for the preview chrome.
+      const previewState = spec.states[0].toLowerCase();
+      const seg = spec.geo === "block-group" ? "block-groups" : "tracts";
+      boundaryUrl = `${baseUrl}/maps/${previewState}-${seg}-topo.json`;
+      layerName = spec.geo === "block-group" ? "block_groups" : "tracts";
+    } else if (spec.state) {
+      const seg = spec.geo === "block-group" ? "block-groups" : "tracts";
+      boundaryUrl = `${baseUrl}/maps/${spec.state.toLowerCase()}-${seg}-topo.json`;
+      layerName = spec.geo === "block-group" ? "block_groups" : "tracts";
     } else {
       return;
     }
@@ -4429,9 +4605,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
     // Try to load the data file so the preview can paint values, not
     // just outlines. Same path scheme ChartChoropleth.astro uses.
+    // Multi-state preview only loads the FIRST state's values (matches
+    // the single-state silhouette above).
     const dataDirSeg =
       spec.geo === "block-group" ? "acs_block_group" : `acs_${spec.geo}`;
-    const stateForUrl = spec.state ? spec.state.toLowerCase() : null;
+    const previewStateCode =
+      (spec.states && spec.states.length > 0
+        ? spec.states[0]
+        : spec.state) ?? null;
+    const stateForUrl = previewStateCode ? previewStateCode.toLowerCase() : null;
     const dataUrl =
       spec.geo === "state" || spec.geo === "county"
         ? `${baseUrl}/data/${dataDirSeg}/${spec.indicator}_${spec.vintage}.json`
@@ -4743,7 +4925,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             const geoLabel = m?.geo === "block-group"
               ? "block group"
               : (m?.geo ?? "map");
-            const stateLabel = m?.state ? ` · ${m.state}` : "";
+            // Show state codes joined for multi-state regional maps;
+            // fall back to single-state .state for back-compat with
+            // saved dashboards from before the multi-state knob.
+            const stateChunks =
+              m?.states && m.states.length > 0
+                ? m.states.join("+")
+                : (m?.state ?? "");
+            const stateLabel = stateChunks ? ` · ${stateChunks}` : "";
             metaText = `map · ${geoLabel} · ${m?.indicator ?? ""} (${m?.vintage ?? ""})${stateLabel}`;
             tile.className = "comp-tile comp-tile-map";
           } else if (isInlineId(chartId)) {
@@ -7688,6 +7877,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     margin: 0;
     color: var(--color-neutral-600);
     font-style: italic;
+  }
+  /* Region-preset chips above the multi-select. Quick fills for the
+     common multi-state regions (DMV, NY tri-state, etc.) — sized to
+     be obviously clickable without crowding the panel. */
+  .map-region-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .map-region-chip {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .map-region-chip:hover {
+    background: var(--color-accent-soft, rgba(15, 118, 110, 0.08));
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .map-state-multi {
+    /* Native multi-select renders rows comfortably at our default font
+       size, no extra tweaks needed. Pinned here so a future
+       .map-input override doesn't accidentally compress it. */
+    min-height: 132px;
   }
   .map-builder {
     display: flex;
