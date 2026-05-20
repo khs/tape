@@ -54,6 +54,28 @@ jobs:
         # most of the semantic regressions.
         run: npm test
 
+      - name: Set up Python
+        # Needed for the pipeline-side unit tests below. The data-refresh
+        # workflows install pandas/yfinance/etc., but the pipeline unit tests
+        # only need pyyaml + stdlib — keep this install tiny so it doesn't
+        # add minutes to PR CI.
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install pipeline test deps
+        run: python -m pip install pyyaml
+
+      - name: Pipeline unit tests (unittest)
+        # pipelines/test_generators_index.py guards the country-label /
+        # multi-word-slug / template-leak logic in
+        # _generate_generators_index.py. Pre-fix bugs that shipped to prod:
+        # "Uk" / "Uae" capitalization, "kong"/"rica" truncated slugs,
+        # "Sub-Saharan Africa" leaking as a template label. The test file
+        # also audits the checked-in public/generators-index.json so any
+        # regeneration that breaks the rules trips CI before merge.
+        run: python -m unittest pipelines.test_generators_index -v
+
       - name: Build
         # SITE_URL is unset here, so Astro.site is undefined and sitemap()
         # warns + skips — that's fine for CI. The real build on Vercel

@@ -8,25 +8,34 @@ script avoids that hop by deriving the cross-sectional snapshots from
 the per-state time series already on disk (census_acs_cd.py +
 derive_acs_state_from_cd.py already populated them).
 
-Indicators derived:
-  poverty_rate          = poverty_count / population × 100
-  median_hh_income      = direct copy from median_hh_income_<st>
-  bachelors_plus_pct    = bachelors_plus / (population - population_under_18) × 100
-                          (using 18+ as a proxy for the 25+ universe;
-                           drift is small, ~3pp on the ratio)
-  foreign_born_pct      = foreign_born / population × 100
-
 Output format matches census_acs_choropleth.py exactly so the chart
 renderer doesn't care how the file was produced.
+
+The indicator set was expanded in May 2026 from the original 4
+(poverty_rate, median_hh_income, bachelors_plus_pct, foreign_born_pct)
+to a comprehensive list covering every ACS-state series we have a
+denominator and a meaningful interpretation for. Composer Maps tab
+exposes the broader list at state geography only — county / tract /
+block-group still ship the 4 originals because those snapshots come
+straight from the API (census_acs_choropleth.py) and adding 16 × 13
+vintages × 3,140 counties etc. would balloon the API budget.
+
+Adult-share denominator note: the ACS bachelors / masters / veterans
+universes are technically 25+ (education) and 18+ civilian (veterans),
+but we don't pull those series at the state level. Using
+(population - population_under_18) as a proxy for "adults" is the
+same approximation the existing bachelors_plus_pct derivation has
+been using since v4; the drift is small (~3pp on the ratio) and
+consistent across vintages, so apples-to-apples comparisons hold.
 
 Run with: python pipelines/census_acs_choropleth_derive_state.py
 """
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE_DATA = ROOT / "public" / "data" / "acs_state"
@@ -54,24 +63,38 @@ STATE_FIPS: dict[str, str] = {
 }
 
 
-def load_value_at(slug: str, st: str, vintage: str,
-                  fallback_years: int = 0) -> tuple[float, str] | tuple[None, None]:
+@dataclass
+class IndicatorSpec:
+    """One derived indicator's wiring.
+
+    The numerator + all denominator series must come from the SAME
+    actual_year (mixing 2022 numerator with 2021 denominator would
+    produce a wrong ratio). The resolve() helper enforces this by
+    fetching all `series` codes from one year-bundle.
+
+    `formula(values_at_year)` -> float | None.  Returning None
+    suppresses the state for that vintage (e.g. zero-denominator).
+    """
+    out_id: str
+    series: list[str]
+    formula: callable
+    unit: str
+    decimals: int
+    value_label: str
+
+
+def load_value_at(slug: str, st: str, vintage: str) -> float | None:
     """Read public/data/acs_state/<slug>_<st>.json and pull the value
-    at the given vintage. Returns (value, actual_vintage) — typically
-    actual_vintage == vintage, but if missing AND fallback_years > 0
-    we scan up to that many years back for the most recent earlier
-    value. Returns (None, None) if no value found in the fallback
-    window. Bundled so callers know whether they got the exact
-    vintage or a fallback (for the snapshot's metadata)."""
+    at the given vintage. Returns None if the file is missing, the
+    JSON is malformed, or the point isn't published for that year."""
     path = STATE_DATA / f"{slug}_{st}.json"
     if not path.exists():
-        return None, None
+        return None
     try:
         body = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return None, None
+        return None
     target_year = int(vintage)
-    candidates: dict[int, float] = {}
     for p in body.get("points", []):
         t = p.get("t", "")
         if not isinstance(t, str) or len(t) < 4:
@@ -80,17 +103,12 @@ def load_value_at(slug: str, st: str, vintage: str,
             y = int(t[:4])
         except ValueError:
             continue
+        if y != target_year:
+            continue
         v = p.get("v")
         if isinstance(v, (int, float)):
-            candidates[y] = float(v)
-    if target_year in candidates:
-        return candidates[target_year], vintage
-    if fallback_years > 0:
-        for back in range(1, fallback_years + 1):
-            y = target_year - back
-            if y in candidates:
-                return candidates[y], str(y)
-    return None, None
+            return float(v)
+    return None
 
 
 def write_snapshot(out_id: str, vintage: str,
@@ -117,6 +135,173 @@ def write_snapshot(out_id: str, vintage: str,
         body["fallbacks"] = dict(sorted(fallbacks.items()))
     path.write_text(json.dumps(body) + "\n", encoding="utf-8")
     return path
+
+
+# Build the indicator spec table once. Each entry is consumed by the
+# main loop below; adding a new state-level choropleth indicator means
+# appending one entry here AND making sure the Maps-tab dropdown in
+# src/pages/compose.astro lists it (the dropdown is hand-curated so
+# the order can be opinionated).
+def _pct(num: str, den_series: list[str], den_fn) -> callable:
+    """Build a percent-of-denominator formula. `den_fn` takes the
+    values dict and returns the denominator (so callers can express
+    'population - population_under_18' inline)."""
+    def f(v: dict[str, float]) -> float | None:
+        d = den_fn(v)
+        if d is None or d <= 0:
+            return None
+        return 100.0 * v[num] / d
+    return f
+
+
+def _direct(code: str) -> callable:
+    def f(v: dict[str, float]) -> float | None:
+        return v.get(code)
+    return f
+
+
+INDICATORS: list[IndicatorSpec] = [
+    # ---- Original 4 (do NOT remove or rename — Maps tab default
+    # selection lands on poverty_rate; choropleth chart YAMLs and any
+    # saved dashboards reference these IDs verbatim).
+    IndicatorSpec(
+        "poverty_rate",
+        ["poverty_count", "population"],
+        _pct("poverty_count", [], lambda v: v["population"]),
+        "%", 1, "% of population below poverty line",
+    ),
+    IndicatorSpec(
+        "median_hh_income",
+        ["median_hh_income"],
+        _direct("median_hh_income"),
+        "USD", 0, "Median household income (USD)",
+    ),
+    IndicatorSpec(
+        "bachelors_plus_pct",
+        ["bachelors_plus", "population", "population_under_18"],
+        _pct("bachelors_plus", [], lambda v: v["population"] - v["population_under_18"]),
+        "%", 1, "% of adults (18+) with bachelor's degree or higher",
+    ),
+    IndicatorSpec(
+        "foreign_born_pct",
+        ["foreign_born", "population"],
+        _pct("foreign_born", [], lambda v: v["population"]),
+        "%", 1, "% foreign-born",
+    ),
+
+    # ---- Education
+    IndicatorSpec(
+        "masters_plus_pct",
+        ["masters_plus", "population", "population_under_18"],
+        _pct("masters_plus", [], lambda v: v["population"] - v["population_under_18"]),
+        "%", 1, "% of adults (18+) with master's degree or higher",
+    ),
+
+    # ---- Housing tenure + access
+    IndicatorSpec(
+        "owner_occupied_pct",
+        ["owner_occupied", "renter_occupied"],
+        _pct("owner_occupied", [], lambda v: v["owner_occupied"] + v["renter_occupied"]),
+        "%", 1, "% of occupied housing units that are owner-occupied",
+    ),
+    IndicatorSpec(
+        "broadband_households_pct",
+        ["broadband_households", "owner_occupied", "renter_occupied"],
+        _pct("broadband_households", [], lambda v: v["owner_occupied"] + v["renter_occupied"]),
+        "%", 1, "% of households with a broadband internet subscription",
+    ),
+    IndicatorSpec(
+        "median_gross_rent",
+        ["median_gross_rent"],
+        _direct("median_gross_rent"),
+        "USD/mo", 0, "Median gross rent (USD/month)",
+    ),
+    IndicatorSpec(
+        "median_home_value",
+        ["median_home_value"],
+        _direct("median_home_value"),
+        "USD", 0, "Median value, owner-occupied homes (USD)",
+    ),
+
+    # ---- Transportation + commuting
+    IndicatorSpec(
+        "households_no_vehicle_pct",
+        ["households_no_vehicle", "households_total_vehicle"],
+        _pct("households_no_vehicle", [], lambda v: v["households_total_vehicle"]),
+        "%", 1, "% of households with no vehicle available",
+    ),
+    IndicatorSpec(
+        "workers_wfh_pct",
+        ["workers_wfh", "workers_total_commute"],
+        _pct("workers_wfh", [], lambda v: v["workers_total_commute"]),
+        "%", 1, "% of workers who work from home",
+    ),
+    IndicatorSpec(
+        "median_commute_minutes",
+        ["median_commute_minutes"],
+        _direct("median_commute_minutes"),
+        "min", 1, "Median one-way commute (minutes)",
+    ),
+
+    # ---- Population shares
+    IndicatorSpec(
+        "population_65_plus_pct",
+        ["population_65_plus", "population"],
+        _pct("population_65_plus", [], lambda v: v["population"]),
+        "%", 1, "% of population aged 65 and older",
+    ),
+    IndicatorSpec(
+        "population_under_18_pct",
+        ["population_under_18", "population"],
+        _pct("population_under_18", [], lambda v: v["population"]),
+        "%", 1, "% of population under 18",
+    ),
+    IndicatorSpec(
+        "median_age",
+        ["median_age"],
+        _direct("median_age"),
+        "years", 1, "Median age (years)",
+    ),
+
+    # ---- Mobility / migration
+    IndicatorSpec(
+        "movers_last_year_pct",
+        ["movers_last_year", "mobility_universe"],
+        _pct("movers_last_year", [], lambda v: v["mobility_universe"]),
+        "%", 1, "% of population (1+) who moved in the past year",
+    ),
+    IndicatorSpec(
+        "born_same_state_pct",
+        ["born_same_state", "population"],
+        _pct("born_same_state", [], lambda v: v["population"]),
+        "%", 1, "% of population born in current state of residence",
+    ),
+
+    # ---- Social
+    IndicatorSpec(
+        "people_with_disability_pct",
+        ["people_with_disability", "people_disability_universe"],
+        _pct("people_with_disability", [], lambda v: v["people_disability_universe"]),
+        "%", 1, "% of population with a disability",
+    ),
+    IndicatorSpec(
+        "veterans_pct",
+        ["veterans", "population", "population_under_18"],
+        _pct("veterans", [], lambda v: v["population"] - v["population_under_18"]),
+        "%", 1, "% of adults (18+) who are civilian veterans",
+    ),
+
+    # ---- Scale (raw count). Useful as a base layer + log-scale toggle
+    # already lives in the Maps tab; the choropleth will look more like
+    # a population heatmap than an actionable indicator, but it's a
+    # natural anchor to compare against.
+    IndicatorSpec(
+        "population",
+        ["population"],
+        _direct("population"),
+        "count", 0, "Total population (people)",
+    ),
+]
 
 
 def derive_all() -> int:
@@ -154,7 +339,7 @@ def derive_all() -> int:
             bundle: dict[str, float] = {}
             ok = True
             for code in codes:
-                v, _ = load_value_at(code, st, year)
+                v = load_value_at(code, st, year)
                 if v is None:
                     ok = False
                     break
@@ -164,85 +349,40 @@ def derive_all() -> int:
         return None, None
 
     written = 0
-    for vintage in VINTAGES:
-        # poverty_rate
-        vals: dict[str, float] = {}
-        fallbacks: dict[str, str] = {}
-        for st, fips in STATE_FIPS.items():
-            b, actual = resolve(st, vintage, ["poverty_count", "population"])
-            if not b or actual is None:
-                continue
-            den = b["population"]
-            if den <= 0:
-                continue
-            vals[fips] = 100.0 * b["poverty_count"] / den
-            if actual != vintage:
-                fallbacks[fips] = actual
-        if vals:
-            write_snapshot(
-                "poverty_rate", vintage, vals, fallbacks, "%", 1,
-                "% of population below poverty line",
-            )
-            written += 1
-
-        # median_hh_income (direct)
-        vals = {}; fallbacks = {}
-        for st, fips in STATE_FIPS.items():
-            b, actual = resolve(st, vintage, ["median_hh_income"])
-            if not b or actual is None:
-                continue
-            vals[fips] = b["median_hh_income"]
-            if actual != vintage:
-                fallbacks[fips] = actual
-        if vals:
-            write_snapshot(
-                "median_hh_income", vintage, vals, fallbacks, "USD", 0,
-                "Median household income (USD)",
-            )
-            written += 1
-
-        # bachelors_plus_pct (proxy 18+ denominator)
-        vals = {}; fallbacks = {}
-        for st, fips in STATE_FIPS.items():
-            b, actual = resolve(
-                st, vintage,
-                ["bachelors_plus", "population", "population_under_18"],
-            )
-            if not b or actual is None:
-                continue
-            adults = b["population"] - b["population_under_18"]
-            if adults <= 0:
-                continue
-            vals[fips] = 100.0 * b["bachelors_plus"] / adults
-            if actual != vintage:
-                fallbacks[fips] = actual
-        if vals:
-            write_snapshot(
-                "bachelors_plus_pct", vintage, vals, fallbacks, "%", 1,
-                "% of adults (18+) with bachelor's degree or higher",
-            )
-            written += 1
-
-        # foreign_born_pct
-        vals = {}; fallbacks = {}
-        for st, fips in STATE_FIPS.items():
-            b, actual = resolve(st, vintage, ["foreign_born", "population"])
-            if not b or actual is None:
-                continue
-            den = b["population"]
-            if den <= 0:
-                continue
-            vals[fips] = 100.0 * b["foreign_born"] / den
-            if actual != vintage:
-                fallbacks[fips] = actual
-        if vals:
-            write_snapshot(
-                "foreign_born_pct", vintage, vals, fallbacks, "%", 1,
-                "% foreign-born",
-            )
-            written += 1
+    skipped: dict[str, list[str]] = {}  # ind -> list of vintages that produced empty
+    for spec in INDICATORS:
+        for vintage in VINTAGES:
+            vals: dict[str, float] = {}
+            fallbacks: dict[str, str] = {}
+            for st, fips in STATE_FIPS.items():
+                b, actual = resolve(st, vintage, spec.series)
+                if not b or actual is None:
+                    continue
+                try:
+                    out = spec.formula(b)
+                except (KeyError, ZeroDivisionError, TypeError):
+                    out = None
+                if out is None:
+                    continue
+                vals[fips] = float(out)
+                if actual != vintage:
+                    fallbacks[fips] = actual
+            if vals:
+                write_snapshot(
+                    spec.out_id, vintage, vals, fallbacks,
+                    spec.unit, spec.decimals, spec.value_label,
+                )
+                written += 1
+            else:
+                skipped.setdefault(spec.out_id, []).append(vintage)
 
     print(f"Wrote {written} snapshot file(s) under public/data/acs_state/.")
+    if skipped:
+        # Surface skipped (indicator, vintage) pairs — usually means the
+        # underlying ACS series wasn't published that year (e.g. broadband
+        # subscription data started ~2013). Not an error.
+        for ind, vs in sorted(skipped.items()):
+            print(f"  no data: {ind} for vintages {','.join(vs)}")
     return 0
 
 

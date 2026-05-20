@@ -75,6 +75,80 @@ def load_cbsa_labels() -> dict[str, dict[str, str]]:
 
 CBSA_LABELS = load_cbsa_labels()
 
+
+# Country slug → label table. Built once at import time by reading
+# worldbank_extended/population_*.yaml — those files exist for every
+# country we cover (sovereigns + regional aggregates) and carry the
+# proper human label in `name` ("Total population — United Arab
+# Emirates") and `shortName` ("United Arab Emirates population"). We
+# extract just the country fragment from both.
+#
+# Why a discovered table instead of a hand-maintained constant: keeps
+# the labels in sync with the YAML source of truth whenever new
+# countries are added. The pre-fix code title-cased the slug directly
+# ("uae" -> "Uae", "uk" -> "Uk", "hong_kong" -> "Hong Kong" only by
+# accident); reading the YAMLs avoids that whole class of bug. Hand
+# overrides for slugs WITHOUT a population_*.yaml live in
+# COUNTRY_LABEL_OVERRIDES below.
+def load_country_labels() -> dict[str, dict[str, str]]:
+    out: dict[str, dict[str, str]] = {}
+    pop_dir = SOURCES_DIR / "worldbank_extended"
+    if not pop_dir.exists():
+        return out
+    for path in sorted(pop_dir.glob("population_*.yaml")):
+        slug = path.stem[len("population_"):]
+        try:
+            spec = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(spec, dict):
+            continue
+        # name format: "Total population — United Arab Emirates"
+        name = str(spec.get("name") or "").strip()
+        label = ""
+        if " — " in name:
+            label = name.split(" — ", 1)[1].strip()
+        # shortName format: "United Arab Emirates population"
+        short = str(spec.get("shortName") or "").strip()
+        if short.endswith(" population"):
+            short = short[: -len(" population")].strip()
+        if not label:
+            label = short or slug.replace("_", " ").title()
+        if not short:
+            short = label
+        out[slug] = {"short": short, "name": label}
+    return out
+
+
+COUNTRY_LABELS = load_country_labels()
+
+# Slugs sorted longest first — used by _match_country_wb_ext to pick
+# the longest matching suffix (so "south_korea" beats "korea" and
+# "europe_eu" doesn't collapse to "eu").
+COUNTRY_SLUGS_BY_LEN = sorted(COUNTRY_LABELS.keys(), key=len, reverse=True)
+
+# Hand overrides for slugs that don't appear in worldbank_extended
+# population data — the smaller "countries" / "countries_gdp" /
+# "worldbank_gdp_raw" pipelines use abbreviations that title-case
+# poorly ("usa" -> "Usa", "uk" -> "Uk") even though the full
+# worldbank_extended set has them right. We mirror the worldbank
+# spellings here so the user sees one consistent label everywhere.
+COUNTRY_LABEL_OVERRIDES: dict[str, dict[str, str]] = {
+    "usa": {"short": "United States", "name": "United States"},
+    # The slugs below are mostly redundant with COUNTRY_LABELS (their
+    # worldbank_extended population YAML exists), but listing them here
+    # makes the canonical capitalization survive even if a future YAML
+    # rename / removal would otherwise demote them to title-cased
+    # fallbacks like "Uk", "Uae", "Eu".
+    "uk": {"short": "United Kingdom", "name": "United Kingdom"},
+    "uae": {"short": "United Arab Emirates", "name": "United Arab Emirates"},
+    "eu": {"short": "European Union", "name": "European Union"},
+    "mena": {"short": "MENA", "name": "Middle East and North Africa"},
+    "ssf": {"short": "Sub-Saharan Africa", "name": "Sub-Saharan Africa"},
+    "latam": {"short": "Latin America & Caribbean", "name": "Latin America & Caribbean"},
+    "world": {"short": "World", "name": "World (all regions)"},
+}
+
 STATE_ABBR_TO_NAME: dict[str, str] = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
     "CA": "California", "CO": "Colorado", "CT": "Connecticut",
@@ -209,10 +283,24 @@ def _match_country_wb_gdp(sid: str) -> MatchResult:
 
 
 def _match_country_wb_ext(sid: str) -> MatchResult:
-    m = re.match(r"^worldbank_extended/(.+)_([a-z_]+)$", sid)
-    if not m:
+    """Match worldbank_extended/<series>_<country>. The country slug
+    can contain underscores ("hong_kong", "costa_rica", "europe_eu"),
+    so a regex split would slice off the last underscore-separated
+    fragment and call that the country — corrupting multi-word slugs
+    into "kong", "rica", "eu" etc. (commit pre-fix shipped exactly
+    those bugs to prod). Instead, walk the canonical slug list
+    (built once from population_*.yaml at import time) and pick the
+    longest one that matches as a suffix of the source-id tail."""
+    if not sid.startswith("worldbank_extended/"):
         return None
-    return ("country", f"worldbank_extended_{m.group(1)}", m.group(2))
+    rest = sid[len("worldbank_extended/"):]
+    for slug in COUNTRY_SLUGS_BY_LEN:
+        if rest.endswith("_" + slug):
+            series = rest[: -len(slug) - 1]
+            return ("country", f"worldbank_extended_{series}", slug)
+        if rest == slug:
+            return ("country", "worldbank_extended_", slug)
+    return None
 
 
 def _match_country_countries_gdp(sid: str) -> MatchResult:
@@ -278,6 +366,23 @@ def _entity_label_candidates(geo: str, entity: str) -> list[str]:
             candidates.append(STATE_ABBR_TO_NAME[entity])
             candidates.append(entity)  # 2-letter abbr also gets used
     elif geo == "country":
+        # Title-cased slug works for single-word countries ("australia"
+        # -> "Australia") but fails on slugs whose canonical spelling
+        # differs from a naïve title-case ("africa_ssf" -> "Africa Ssf"
+        # vs canonical "Sub-Saharan Africa", "europe_eu" -> "Europe Eu"
+        # vs canonical "European Union", "turkiye" -> "Turkiye" vs
+        # canonical "Türkiye"). Pull the canonical labels from
+        # COUNTRY_LABELS / COUNTRY_LABEL_OVERRIDES so the stripper sees
+        # the SAME spelling the YAML uses in its name field.
+        canonical = (
+            COUNTRY_LABEL_OVERRIDES.get(entity)
+            or COUNTRY_LABELS.get(entity)
+            or {}
+        )
+        if canonical.get("name"):
+            candidates.append(canonical["name"])
+        if canonical.get("short") and canonical["short"] != canonical.get("name"):
+            candidates.append(canonical["short"])
         candidates.append(entity.replace("_", " ").title())
         candidates.append(entity.replace("_", " "))
     # Dedupe while preserving order.
@@ -288,6 +393,125 @@ def _entity_label_candidates(geo: str, entity: str) -> list[str]:
             seen.add(c)
             out.append(c)
     return out
+
+
+def clean_template_description(
+    raw_desc: str, geo: str, entity: str,
+) -> str:
+    """Strip entity-specific phrases out of a sibling YAML's description
+    so the captured text reads as a template description (applies to all
+    siblings) rather than an Abilene-specific or AK-specific one.
+
+    Patterns we handle, in priority order:
+      1. ``(CBSA NNNNN, OMB-defined)`` and ``(CBSA NNNNN)`` → strip
+      2. ``in/for the <Metro> metropolitan statistical area`` →
+         ``in/for the selected metro``
+      3. ``for <STATE_ABBR> (statewide)`` →
+         ``for the selected state (statewide)``
+      4. ``for <Country>, annual`` → ``for the selected country, annual``
+      5. Sentences like ``AK has a single congressional district, so…``
+         are dropped entirely — they're an entity-specific aside that
+         doesn't apply to other states.
+      6. Any remaining bare entity-name occurrence → ``the selected <geo>``
+
+    The cleanser is intentionally aggressive; an over-clean description
+    is fine ("the selected state has..." reads slightly awkward but is
+    accurate) whereas leaving "Abilene" in a template that applies to
+    387 metros is wrong.
+    """
+    text = raw_desc.strip()
+    cands = _entity_label_candidates(geo, entity)
+    # Dedupe + longest-first so we match "New York-Newark-Jersey City"
+    # before "New York".
+    cands_sorted = sorted(
+        {c for c in cands if c and len(c) >= 2},
+        key=len, reverse=True,
+    )
+
+    geo_phrase = {
+        "metro": "the selected metro",
+        "state": "the selected state",
+        "country": "the selected country",
+    }.get(geo, "the selected entity")
+
+    # 1. CBSA codes
+    text = re.sub(r"\s*\(CBSA\s+\d+(?:,\s*OMB-defined)?\)", "", text)
+
+    # 2. Metro-area phrasing: "in/for the X metropolitan statistical area"
+    # The non-greedy match stops at " metropolitan statistical area" so
+    # multi-word metro names like "Dallas-Fort Worth-Arlington" collapse.
+    text = re.sub(
+        r"\b(in|for)\s+the\s+[^.]*?\s+metropolitan\s+statistical\s+area\b",
+        rf"\1 {geo_phrase}",
+        text, flags=re.IGNORECASE,
+    )
+
+    # 3. State "(statewide)" pattern. Catches "for AK (statewide)",
+    # "for AK statewide", and the rare "for AK (state-level)".
+    text = re.sub(
+        r"\bfor\s+[A-Z]{2}\s+\(statewide\)",
+        f"for {geo_phrase} (statewide)",
+        text,
+    )
+    text = re.sub(
+        r"\bfor\s+[A-Z]{2}\s+statewide\b",
+        f"for {geo_phrase} statewide",
+        text,
+    )
+
+    # 5. Entity-specific asides — drop the full sentence. Detect by
+    # patterns like "AK has a single congressional district" or
+    # "Connecticut's eight planning regions...".
+    text = re.sub(
+        r"(?:^|(?<=[.!?\s]))\s*[A-Z]{2}(?:'s)?\s+(?:has|have)\s+[^.!?]*?(?:district|districts|region|regions)[^.!?]*?[.!?]",
+        " ",
+        text,
+    )
+    # Also catch full-state-name versions ("Alaska has a single...").
+    for cand in cands_sorted:
+        # Only run on multi-word candidates — single-letter ones produce
+        # too many false positives.
+        if len(cand) < 4:
+            continue
+        text = re.sub(
+            rf"(?:^|(?<=[.!?\s]))\s*{re.escape(cand)}(?:'s)?\s+(?:has|have)\s+[^.!?]*?(?:district|districts|region|regions)[^.!?]*?[.!?]",
+            " ",
+            text,
+        )
+
+    # 4 + 6. Replace bare entity-name occurrences. Country case usually
+    # appears as "for Australia, annual" so we run a targeted pass first.
+    for cand in cands_sorted:
+        text = re.sub(
+            rf"\bfor\s+{re.escape(cand)}(?=[,.\s])",
+            f"for {geo_phrase}",
+            text,
+        )
+    for cand in cands_sorted:
+        # Final pass for any standalone occurrence — only replace
+        # candidates that are at least 3 chars long to avoid clobbering
+        # common 2-letter sequences inside other words.
+        if len(cand) < 3:
+            continue
+        text = re.sub(
+            rf"\b{re.escape(cand)}\b",
+            geo_phrase,
+            text,
+        )
+
+    # Cleanup: collapse whitespace, fix "the the selected" if it crept in.
+    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\bthe\s+the\s+selected\b", "the selected", text)
+    # Dedupe consecutive identical sentences (rare but possible after
+    # the dropping step).
+    text = re.sub(r"\.\s*\.", ".", text)
+
+    # Cap length, prefer to break at a sentence boundary near 280.
+    if len(text) > 280:
+        cut = text[:280].rsplit(".", 1)[0]
+        text = (cut + ".") if cut else text[:280]
+
+    return text
 
 
 def clean_template_label(
@@ -313,7 +537,22 @@ def clean_template_label(
         sl = s.lower().strip()
         for c in cands:
             cl = c.lower()
-            if cl and (cl in sl or sl in cl):
+            if not cl:
+                continue
+            # Short candidates (≤3 chars — state abbreviations, mostly)
+            # MUST match at a word boundary, or "al" matches "total",
+            # "in" matches "income", etc. — and any series whose
+            # description starts with a common verb gets mis-classified
+            # as the entity. The whole-string equality case is also
+            # accepted because that's the canonical "the tail is JUST
+            # the entity" pattern (e.g. "Median age — AL" -> tail "AL").
+            if len(cl) <= 3:
+                if sl == cl:
+                    return True
+                if re.search(rf"\b{re.escape(cl)}\b", sl):
+                    return True
+                continue
+            if cl in sl or sl in cl:
                 return True
         return False
 
@@ -404,15 +643,14 @@ def scan_sources() -> dict[str, dict[str, TemplateAccum]]:
             raw_name = spec.get("name") or sid
             bucket.name = clean_template_label(raw_name, geo, entity)
         if bucket.description is None and spec.get("description"):
-            # Strip the geo-specific tail of descriptions too; many
-            # YAMLs end with "...for New York, NY." or similar. Cap
-            # length to keep the index tight.
-            desc = str(spec["description"]).strip()
-            # Take the first sentence if the description is long.
-            if len(desc) > 280:
-                cut = desc[:280].rsplit(".", 1)[0]
-                desc = cut + "." if cut else desc[:280]
-            bucket.description = desc
+            # Description capture: rewrite the first sibling's
+            # description so the entity-specific phrases ("Abilene...",
+            # "for AK (statewide)", "for Australia, annual") get
+            # generalized. Without this the template's description
+            # leaks whichever entity sorted first.
+            bucket.description = clean_template_description(
+                str(spec["description"]), geo, entity,
+            )
         for t in (spec.get("tags") or []):
             t = str(t)
             # Drop entity-specific synthetic tags so the union stays
@@ -429,13 +667,47 @@ def scan_sources() -> dict[str, dict[str, TemplateAccum]]:
 # Output building
 # ---------------------------------------------------------------------
 
-def build_metro_entities(used: set[str]) -> dict[str, dict[str, str]]:
-    """Limit the CBSA catalog to MSAs that actually appear as a source."""
-    return {
-        code: {"short": meta["short"], "name": meta["name"]}
-        for code, meta in CBSA_LABELS.items()
-        if code in used
-    }
+def build_metro_entities(used: set[str]) -> dict[str, dict[str, Any]]:
+    """Limit the CBSA catalog to MSAs that actually appear as a source.
+    Also attaches `pop` (latest CBSA total population) so the composer's
+    sort-by-population control has the data it needs."""
+    pops = load_metro_populations()
+    out: dict[str, dict[str, Any]] = {}
+    for code, meta in CBSA_LABELS.items():
+        if code not in used:
+            continue
+        entry: dict[str, Any] = {"short": meta["short"], "name": meta["name"]}
+        pop = pops.get(code)
+        if pop is not None:
+            entry["pop"] = pop
+        out[code] = entry
+    return out
+
+
+def load_metro_populations() -> dict[str, float]:
+    """Latest CBSA total population, keyed by CBSA code. Reads
+    public/data/acs_metro/population_<cbsa>.json. The pipeline writes
+    those files for every metro the ACS API publishes a B01003 row
+    for. Misses are silent."""
+    out: dict[str, float] = {}
+    metro_data = ROOT / "public" / "data" / "acs_metro"
+    if not metro_data.exists():
+        return out
+    for path in metro_data.glob("population_*.json"):
+        if path.name.endswith(".summary.json"):
+            continue
+        cbsa = path.stem[len("population_"):]
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        points = doc.get("points") or []
+        if not points:
+            continue
+        v = points[-1].get("v")
+        if isinstance(v, (int, float)):
+            out[cbsa] = float(v)
+    return out
 
 
 def build_metro_presets(entities: dict[str, dict[str, str]]) -> dict[str, dict[str, Any]]:
@@ -469,12 +741,48 @@ def build_metro_presets(entities: dict[str, dict[str, str]]) -> dict[str, dict[s
     return out
 
 
-def build_state_entities(used: set[str]) -> dict[str, dict[str, str]]:
-    return {
-        abbr: {"short": abbr, "name": STATE_ABBR_TO_NAME[abbr]}
-        for abbr in sorted(used)
-        if abbr in STATE_ABBR_TO_NAME
-    }
+def build_state_entities(used: set[str]) -> dict[str, dict[str, Any]]:
+    pops = load_state_populations()
+    out: dict[str, dict[str, Any]] = {}
+    for abbr in sorted(used):
+        if abbr not in STATE_ABBR_TO_NAME:
+            continue
+        entry: dict[str, Any] = {"short": abbr, "name": STATE_ABBR_TO_NAME[abbr]}
+        pop = pops.get(abbr)
+        if pop is not None:
+            entry["pop"] = pop
+        out[abbr] = entry
+    return out
+
+
+def load_state_populations() -> dict[str, float]:
+    """Latest state total population, keyed by 2-letter abbreviation
+    (upper-cased to match STATE_ABBR_TO_NAME). Reads
+    public/data/acs_state/population_<st>.json — the same files the
+    state-atlas + Generators templates already consume."""
+    out: dict[str, float] = {}
+    state_data = ROOT / "public" / "data" / "acs_state"
+    if not state_data.exists():
+        return out
+    for path in state_data.glob("population_*.json"):
+        if path.name.endswith(".summary.json"):
+            continue
+        st_lower = path.stem[len("population_"):]
+        # Snapshot files like population_2022.json (no state slug)
+        # land in the same dir — skip them.
+        if len(st_lower) != 2:
+            continue
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        points = doc.get("points") or []
+        if not points:
+            continue
+        v = points[-1].get("v")
+        if isinstance(v, (int, float)):
+            out[st_lower.upper()] = float(v)
+    return out
 
 
 def build_state_presets(entities: dict[str, dict[str, str]]) -> dict[str, dict[str, Any]]:
@@ -486,17 +794,76 @@ def build_state_presets(entities: dict[str, dict[str, str]]) -> dict[str, dict[s
     return out
 
 
-def build_country_entities(used: set[str]) -> dict[str, dict[str, str]]:
-    """Each country's "entity code" is its slug as encoded in source
-    IDs (e.g., "united_states", "china"). Surface a human label by
-    title-casing + replacing underscores."""
-    return {
-        slug: {
-            "short": slug.replace("_", " ").title(),
-            "name": slug.replace("_", " ").title(),
-        }
-        for slug in sorted(used)
-    }
+def build_country_entities(used: set[str]) -> dict[str, dict[str, Any]]:
+    """Build the country entities block consumed by the composer's
+    Generators tab. Each entity carries:
+      short  — short display label (chip / column)
+      name   — long display label (tooltip / row text)
+      pop    — latest known total population (for the sort-by control)
+    Label resolution: COUNTRY_LABEL_OVERRIDES wins, then COUNTRY_LABELS
+    discovered from population_*.yaml, then title-cased slug as
+    fallback.  Population reads the latest point in
+    public/data/worldbank_extended/population_<slug>.json."""
+    pops = load_country_populations()
+    out: dict[str, dict[str, Any]] = {}
+    for slug in sorted(used):
+        if slug in COUNTRY_LABEL_OVERRIDES:
+            labels = COUNTRY_LABEL_OVERRIDES[slug]
+        elif slug in COUNTRY_LABELS:
+            labels = COUNTRY_LABELS[slug]
+        else:
+            display = slug.replace("_", " ").title()
+            labels = {"short": display, "name": display}
+        entry: dict[str, Any] = {"short": labels["short"], "name": labels["name"]}
+        pop = pops.get(slug)
+        if pop is not None:
+            entry["pop"] = pop
+        out[slug] = entry
+    return out
+
+
+def load_country_populations() -> dict[str, float]:
+    """Latest-point population for each country in worldbank_extended.
+    Used to populate the entity's `pop` field so the composer can
+    offer a sort-by-population control. Misses are silent — the
+    sort UI just treats them as untransformed (alphabetical order).
+
+    Also patches in the USA value from acs_national (since
+    worldbank_extended doesn't carry a US national population series —
+    the slug "usa" only shows up in worldbank_gdp_raw and countries_gdp,
+    neither of which is in the country-population pipeline).
+    """
+    out: dict[str, float] = {}
+    pop_data = ROOT / "public" / "data" / "worldbank_extended"
+    if pop_data.exists():
+        for path in pop_data.glob("population_*.json"):
+            if path.name.endswith(".summary.json"):
+                continue
+            slug = path.stem[len("population_"):]
+            try:
+                doc = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            points = doc.get("points") or []
+            if not points:
+                continue
+            v = points[-1].get("v")
+            if isinstance(v, (int, float)):
+                out[slug] = float(v)
+    # USA fallback from ACS national.
+    if "usa" not in out:
+        us_path = ROOT / "public" / "data" / "acs_national" / "population_us.json"
+        if us_path.exists():
+            try:
+                doc = json.loads(us_path.read_text(encoding="utf-8"))
+                points = doc.get("points") or []
+                if points:
+                    v = points[-1].get("v")
+                    if isinstance(v, (int, float)):
+                        out["usa"] = float(v)
+            except (OSError, json.JSONDecodeError):
+                pass
+    return out
 
 
 def build_templates_block(
