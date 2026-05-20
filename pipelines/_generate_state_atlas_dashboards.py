@@ -27,10 +27,13 @@ OUT_DIR = ROOT / "src" / "content" / "dashboards"
 
 # Census Bureau region assignments. Source:
 # https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf
+# Home-page `order` values 14-17 keep the four atlases contiguous at
+# the END of the dashboard list — Stocks (11) and Countries (10) used
+# to interrupt the run between Midwest and South.
 REGIONS: dict[str, dict] = {
     "northeast": {
         "title": "State Atlas — Northeast",
-        "order": 10,
+        "order": 14,
         "states": [
             ("CT", "Connecticut"), ("ME", "Maine"), ("MA", "Massachusetts"),
             ("NH", "New Hampshire"), ("NJ", "New Jersey"), ("NY", "New York"),
@@ -45,7 +48,7 @@ REGIONS: dict[str, dict] = {
     },
     "midwest": {
         "title": "State Atlas — Midwest",
-        "order": 11,
+        "order": 15,
         "states": [
             ("IL", "Illinois"), ("IN", "Indiana"), ("IA", "Iowa"),
             ("KS", "Kansas"), ("MI", "Michigan"), ("MN", "Minnesota"),
@@ -60,7 +63,7 @@ REGIONS: dict[str, dict] = {
     },
     "south": {
         "title": "State Atlas — South",
-        "order": 12,
+        "order": 16,
         "states": [
             ("AL", "Alabama"), ("AR", "Arkansas"), ("DE", "Delaware"),
             ("DC", "DC"), ("FL", "Florida"), ("GA", "Georgia"),
@@ -78,7 +81,7 @@ REGIONS: dict[str, dict] = {
     },
     "west": {
         "title": "State Atlas — West",
-        "order": 13,
+        "order": 17,
         "states": [
             ("AK", "Alaska"), ("AZ", "Arizona"), ("CA", "California"),
             ("CO", "Colorado"), ("HI", "Hawaii"), ("ID", "Idaho"),
