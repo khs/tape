@@ -276,15 +276,22 @@ try {
 }
 
 function fmt(v: number, unit: string, decimals: number): string {
-  if (unit === "USD") {
-    return v.toLocaleString("en-US", {
+  if (unit === "USD" || unit === "USD/mo") {
+    const s = v.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
       maximumFractionDigits: 0,
     });
+    return unit === "USD/mo" ? `${s}/mo` : s;
+  }
+  if (unit === "count") {
+    return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
   }
   const rounded = v.toFixed(decimals);
-  return unit === "%" ? `${rounded}%` : rounded;
+  if (unit === "%") return `${rounded}%`;
+  if (unit === "years") return `${rounded} yr`;
+  if (unit === "min") return `${rounded} min`;
+  return rounded;
 }
 
 const tileTitle = chart.title;
@@ -535,15 +542,22 @@ const statesJoined = stateCodes.join(",");
 
   function fmtValue(v: number | null, unit: string, decimals: number): string {
     if (v == null || !Number.isFinite(v)) return "—";
-    if (unit === "USD") {
-      return v.toLocaleString("en-US", {
+    if (unit === "USD" || unit === "USD/mo") {
+      const s = v.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
         maximumFractionDigits: 0,
       });
+      return unit === "USD/mo" ? `${s}/mo` : s;
+    }
+    if (unit === "count") {
+      return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
     }
     const r = v.toFixed(decimals);
-    return unit === "%" ? `${r}%` : r;
+    if (unit === "%") return `${r}%`;
+    if (unit === "years") return `${r} yr`;
+    if (unit === "min") return `${r} min`;
+    return r;
   }
 
   async function paint(canvas: HTMLElement, b: ChoroBindings, mode: "tile" | "expanded" | "fullscreen") {

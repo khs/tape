@@ -62,6 +62,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       <code>/u/&lt;slug&gt;/</code> link instead.
     </div>
 
+    <div class="composer-url-overflow" data-role="url-overflow" hidden role="alert">
+      <strong>Composition too large for the share link.</strong>
+      Your work is safe in this tab
+      (<span data-role="url-overflow-count">0</span> tiles,
+      <span data-role="url-overflow-len">0</span>&nbsp;chars in the
+      encoded state — the URL bar is keeping the last shorter version).
+      To preserve it past a refresh:
+      <ul>
+        <li><strong>Save to your account</strong> — gets you a short
+          <code>/u/&lt;slug&gt;/</code> link that handles any size.</li>
+        <li>Or remove some tiles / split into smaller dashboards until
+          the URL fits again.</li>
+      </ul>
+      <button type="button" class="btn-primary" data-role="url-overflow-save">
+        Save to my account
+      </button>
+    </div>
+
     <div class="composer-description-wrap">
       <textarea
         class="composer-description-input"
@@ -71,7 +89,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </div>
 
     <div class="composer-layout">
-      <aside class="composer-library">
+      <aside class="composer-library" data-active-tab="sources">
         <!--
           Two-tab library: "Sources" (primary, every available data
           series) and "Pregenerated charts" (curated multi-source /
@@ -254,60 +272,42 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="lib-panel lib-panel-maps" data-role="lib-panel-maps" hidden>
           <div class="map-builder">
             <p class="muted small map-builder-intro">
-              Build a choropleth map of one of the four ACS demographic
-              indicators. The map is added to your current section
-              like any other tile.
+              Build a choropleth map of an ACS demographic indicator.
+              The map is added to your current section like any other
+              tile.
             </p>
 
-            <label class="map-field">
-              <span class="map-field-label">Indicator</span>
-              <select class="map-input" data-role="map-indicator">
-                <option value="poverty_rate">Poverty rate</option>
-                <option value="median_hh_income">Median household income</option>
-                <option value="bachelors_plus_pct">Bachelor's degree or higher (% adults 25+)</option>
-                <option value="foreign_born_pct">Foreign-born share</option>
-              </select>
-            </label>
-
-            <div class="map-field">
-              <span class="map-field-label">Vintage</span>
-              <div class="map-vintage-row">
-                <input
-                  type="range"
-                  min="2010"
-                  max="2022"
-                  value="2022"
-                  step="1"
-                  data-role="map-vintage"
-                  aria-label="ACS 5-year vintage end-year"
-                />
-                <span class="map-vintage-readout" data-role="map-vintage-readout">2022</span>
-              </div>
-              <span class="muted small">
-                ACS 5-year estimate ending in the selected calendar year.
-              </span>
-            </div>
-
+            {/* Field order is intentional: pick geography first
+                (it gates which indicators are available — state has
+                the full set, county/tract/BG have a smaller fixed
+                set), then the indicator, then styling, with vintage
+                pushed near the bottom since it's the least
+                impactful choice and gets clamped to whatever the
+                indicator+geo combo actually has data for. */}
             <fieldset class="map-field">
               <legend class="map-field-label">Geography level</legend>
               <div class="map-geo-radios">
                 <label class="map-radio-row">
                   <input type="radio" name="map-geo" value="state" data-role="map-geo" />
-                  <span><strong>State</strong> &mdash; one tile per state</span>
+                  <span><strong>State</strong> &mdash; one tile per state. <em>Most indicators (20+).</em></span>
                 </label>
                 <label class="map-radio-row">
                   <input type="radio" name="map-geo" value="county" checked data-role="map-geo" />
-                  <span><strong>County</strong> &mdash; ~3,140 US counties</span>
+                  <span><strong>County</strong> &mdash; ~3,140 US counties. <em>4 indicators.</em></span>
                 </label>
                 <label class="map-radio-row">
                   <input type="radio" name="map-geo" value="tract" data-role="map-geo" />
-                  <span><strong>Tract</strong> &mdash; ~500&ndash;9,000 per state</span>
+                  <span><strong>Tract</strong> &mdash; ~500&ndash;9,000 per state. <em>4 indicators.</em></span>
                 </label>
                 <label class="map-radio-row">
                   <input type="radio" name="map-geo" value="block-group" data-role="map-geo" />
-                  <span><strong>Block group</strong> &mdash; up to ~30,000 per state (only median income + education are published at this level)</span>
+                  <span><strong>Block group</strong> &mdash; up to ~30,000 per state. <em>2 indicators (only median income + education are published at this level).</em></span>
                 </label>
               </div>
+              <p class="muted small map-geo-caveat">
+                More indicators are available at coarser geographies.
+                Pick State if you want the full deck.
+              </p>
               <p class="muted small map-geo-warning" data-role="map-geo-warning" hidden>
                 ⚠ Tract and block-group maps render thousands of polygons.
                 On slower devices the map may take a few seconds to draw.
@@ -315,6 +315,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 if scrolling feels sluggish.
               </p>
             </fieldset>
+
+            <label class="map-field">
+              <span class="map-field-label">Indicator</span>
+              <select class="map-input" data-role="map-indicator"></select>
+              <span class="muted small" data-role="map-indicator-info">&nbsp;</span>
+            </label>
 
             <label class="map-field" data-role="map-state-field" hidden>
               <span class="map-field-label">State</span>
@@ -379,6 +385,31 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 placeholder="Auto-generated from your selections"
               />
             </label>
+
+            {/* Vintage near the bottom — least-impactful field, and
+                the slider gets clamped to whatever the indicator+geo
+                combo actually has data for, so it's a tail decision
+                rather than a primary one. */}
+            <div class="map-field">
+              <span class="map-field-label">Vintage</span>
+              <div class="map-vintage-row">
+                <input
+                  type="range"
+                  min="2010"
+                  max="2022"
+                  value="2022"
+                  step="1"
+                  data-role="map-vintage"
+                  aria-label="ACS 5-year vintage end-year"
+                />
+                <span class="map-vintage-readout" data-role="map-vintage-readout">2022</span>
+              </div>
+              <span class="muted small">
+                ACS 5-year estimate ending in the selected calendar year.
+                The slider auto-clamps to the indicator's earliest
+                available year.
+              </span>
+            </div>
 
             <div class="map-actions">
               <button type="button" class="btn-primary map-add-btn" data-role="map-add-btn">
@@ -446,6 +477,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
             <fieldset class="map-field" data-role="gen-entity-section">
               <legend class="map-field-label">Entities</legend>
+
+              <div class="gen-sort-row" data-role="gen-sort-row">
+                <span class="gen-sort-label">Sort by</span>
+                <label class="gen-sort-opt">
+                  <input type="radio" name="gen-sort" value="alpha" checked data-role="gen-sort" />
+                  <span>Alphabetical</span>
+                </label>
+                <label class="gen-sort-opt" data-role="gen-sort-pop-wrap">
+                  <input type="radio" name="gen-sort" value="pop" data-role="gen-sort" />
+                  <span>Population (largest first)</span>
+                </label>
+              </div>
+
               <div class="map-geo-radios">
                 <label class="map-radio-row">
                   <input type="radio" name="gen-mode" value="all" checked data-role="gen-mode" />
@@ -953,6 +997,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // into shared links.
   let editingSlug: string | null = null;
 
+  // If `?copy=1` is present, the composer was launched from a "Make a copy"
+  // link on a saved dashboard. We DO want to keep the state, but NOT the
+  // edit slug (a copy lands in a new row) — and we want the title to be
+  // auto-incremented so the saved-dashboards list doesn't end up with two
+  // "US macro" rows. The actual bump runs async after the Supabase session
+  // is available (see applyCopyModeTitleBump).
+  let copyMode = false;
+
   // ---- State ----
   type ChartOverride = {
     title?: string;
@@ -1027,7 +1079,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   function hydrateFromUrl(): void {
     const url = new URL(window.location.href);
     const editParam = url.searchParams.get("edit");
-    if (editParam) editingSlug = editParam;
+    const copyParam = url.searchParams.get("copy");
+    if (copyParam === "1") {
+      // Copy semantics override edit semantics — they're mutually
+      // exclusive (a copy creates a NEW slug, an edit updates an
+      // existing one). If both ever land in the same URL we treat it
+      // as a copy.
+      copyMode = true;
+    } else if (editParam) {
+      editingSlug = editParam;
+    }
     const d = url.searchParams.get("d");
     if (!d) return;
     const res = decodeComposedState(d);
@@ -1143,6 +1204,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return Object.keys(refs).length > 0 ? refs : undefined;
   }
 
+  // URL-length thresholds (chars of the FULL share URL, including
+  // /custom/?d= prefix). Vercel + most CDNs start returning 414 at
+  // ~14-16 KB; we leave headroom because the preview link adds the
+  // /custom/?d= scaffolding on top of the encoded state.
+  //   < SOFT          → no banner
+  //   SOFT  .. HARD   → soft "getting long" banner; URL still written
+  //   >= HARD         → hard overflow banner; URL NOT written (the
+  //                     last small-enough URL stays in the bar, so a
+  //                     refresh won't 414). The in-memory state still
+  //                     has the new tiles, so the user sees them; the
+  //                     banner explains that saving to account is the
+  //                     way to persist past a refresh.
+  const SHARE_URL_WARN_AT = 7000;
+  const SHARE_URL_HARD_LIMIT = 12000;
+
   function writeUrl(): void {
     const clean: Omit<ComposedState, "v"> = {
       title: state.title || undefined,
@@ -1175,21 +1251,49 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     } else {
       url.searchParams.set("d", encoded);
     }
-    window.history.replaceState(null, "", url.toString());
+    const shareUrlLen = url.toString().length;
 
-    const preview = shell.querySelector<HTMLAnchorElement>("[data-role='preview-link']");
-    if (preview) {
-      preview.href = `${baseUrl}/custom/?d=${encoded}`;
-    }
-
-    // Warn when the share URL is getting close to the practical browser/proxy
-    // limit (~8KB). At 7000 chars we surface a banner suggesting the user save
-    // to their account so they can share /u/<slug>/ instead, which is short
-    // regardless of state size.
-    const SHARE_URL_WARN_AT = 7000;
     const warnBanner = shell.querySelector<HTMLElement>("[data-role='url-warn']");
     const warnLen = shell.querySelector<HTMLElement>("[data-role='url-warn-len']");
-    const shareUrlLen = url.toString().length;
+    const overflowBanner = shell.querySelector<HTMLElement>("[data-role='url-overflow']");
+    const overflowLen = shell.querySelector<HTMLElement>("[data-role='url-overflow-len']");
+    const overflowCount = shell.querySelector<HTMLElement>("[data-role='url-overflow-count']");
+    const preview = shell.querySelector<HTMLAnchorElement>("[data-role='preview-link']");
+
+    if (shareUrlLen >= SHARE_URL_HARD_LIMIT) {
+      // Don't replaceState — keeps the last short-enough URL in the
+      // bar so a refresh still loads SOMETHING (just an older
+      // checkpoint). Don't update the preview link either, for the
+      // same reason.
+      if (warnBanner) warnBanner.hidden = true;
+      if (overflowBanner) {
+        overflowBanner.hidden = false;
+        if (overflowLen) overflowLen.textContent = String(shareUrlLen);
+        if (overflowCount) {
+          const tiles = state.sections.reduce(
+            (acc, s) => acc + s.charts.length, 0,
+          );
+          overflowCount.textContent = String(tiles);
+        }
+      }
+      return;
+    }
+
+    window.history.replaceState(null, "", url.toString());
+    if (preview) {
+      // When editing an existing saved dashboard, carry the edit slug
+      // through to /custom/. Without this hand-off, Preview lands on
+      // a fresh /custom/ that thinks it's a brand-new composition and
+      // its Save button would insert a new row instead of updating
+      // the original — bug the user reported as "Preview treats it
+      // as a whole new dashboard."
+      const editQuery = editingSlug
+        ? `&edit=${encodeURIComponent(editingSlug)}`
+        : "";
+      preview.href = `${baseUrl}/custom/?d=${encoded}${editQuery}`;
+    }
+
+    if (overflowBanner) overflowBanner.hidden = true;
     if (warnBanner) {
       if (shareUrlLen >= SHARE_URL_WARN_AT) {
         warnBanner.hidden = false;
@@ -2423,6 +2527,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       btn.classList.toggle("lib-tab-active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
+    // Tag the library shell with which tab is active so CSS can react —
+    // the Maps tab specifically wants to cancel the panel-local
+    // max-height so its "+ Add map" button can't get tucked under a
+    // scrollbar. Other tabs keep the height cap (their result lists
+    // scroll internally instead).
+    const libraryHost = shell.querySelector<HTMLElement>(".composer-library");
+    if (libraryHost) libraryHost.dataset.activeTab = tab;
     const panelSources = shell.querySelector<HTMLElement>(
       "[data-role='lib-panel-sources']",
     );
@@ -2572,10 +2683,109 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   ];
 
   const MAP_INDICATOR_LABELS: Record<string, string> = {
+    // The original 4 — also the only indicators with county / tract /
+    // block-group snapshots on disk (those come from direct Census API
+    // calls in census_acs_choropleth.py).
     poverty_rate: "Poverty rate",
     median_hh_income: "Median household income",
-    bachelors_plus_pct: "Bachelor's+ share",
+    bachelors_plus_pct: "Bachelor's+ share (adults 18+)",
     foreign_born_pct: "Foreign-born share",
+    // The rest — state-level only. Derived from acs_state time-series
+    // by pipelines/census_acs_choropleth_derive_state.py.
+    masters_plus_pct: "Master's+ share (adults 18+)",
+    owner_occupied_pct: "Owner-occupied housing share",
+    broadband_households_pct: "Broadband subscription share",
+    median_gross_rent: "Median gross rent",
+    median_home_value: "Median home value",
+    households_no_vehicle_pct: "Households with no vehicle",
+    workers_wfh_pct: "Work-from-home workers",
+    median_commute_minutes: "Median one-way commute",
+    population_65_plus_pct: "Share of population 65+",
+    population_under_18_pct: "Share of population under 18",
+    median_age: "Median age",
+    movers_last_year_pct: "Moved in the last year",
+    born_same_state_pct: "Born in current state",
+    people_with_disability_pct: "People with a disability",
+    veterans_pct: "Veterans (adults 18+)",
+    population: "Total population",
+  };
+
+  // Earliest vintage with derived snapshot data, per indicator.
+  // The original 4 are filled all the way back to 2010 by direct
+  // census_acs_choropleth.py API calls. The rest come from
+  // census_acs_choropleth_derive_state.py (state-only) and bottom
+  // out at the earliest year their numerator + denominator series
+  // were published. The slider in the Maps tab gets clamped to the
+  // selected indicator's min so the user doesn't pick a vintage that
+  // would render an empty chart.
+  const MAP_INDICATOR_MIN_VINTAGE: Record<string, string> = {
+    poverty_rate: "2010",
+    median_hh_income: "2010",
+    bachelors_plus_pct: "2010",
+    foreign_born_pct: "2010",
+    masters_plus_pct: "2017",
+    owner_occupied_pct: "2017",
+    broadband_households_pct: "2017",
+    median_gross_rent: "2017",
+    median_home_value: "2017",
+    households_no_vehicle_pct: "2015",
+    workers_wfh_pct: "2015",
+    median_commute_minutes: "2015",
+    median_age: "2015",
+    population_65_plus_pct: "2017",
+    population_under_18_pct: "2017",
+    movers_last_year_pct: "2015",
+    born_same_state_pct: "2017",
+    people_with_disability_pct: "2015",
+    veterans_pct: "2017",
+    population: "2017",
+  };
+
+  // Which indicators are available at each geography level. State has
+  // the full deck; county / tract / block-group are limited to the 4
+  // that census_acs_choropleth.py fetches directly from the API.
+  const MAP_INDICATORS_BY_GEO: Record<string, string[]> = {
+    state: [
+      "poverty_rate",
+      "median_hh_income",
+      "bachelors_plus_pct",
+      "masters_plus_pct",
+      "foreign_born_pct",
+      "owner_occupied_pct",
+      "broadband_households_pct",
+      "median_gross_rent",
+      "median_home_value",
+      "households_no_vehicle_pct",
+      "workers_wfh_pct",
+      "median_commute_minutes",
+      "median_age",
+      "population_65_plus_pct",
+      "population_under_18_pct",
+      "movers_last_year_pct",
+      "born_same_state_pct",
+      "people_with_disability_pct",
+      "veterans_pct",
+      "population",
+    ],
+    county: [
+      "poverty_rate",
+      "median_hh_income",
+      "bachelors_plus_pct",
+      "foreign_born_pct",
+    ],
+    tract: [
+      "poverty_rate",
+      "median_hh_income",
+      "bachelors_plus_pct",
+      "foreign_born_pct",
+    ],
+    "block-group": [
+      // BG only — Census publishes a much narrower set of indicators at
+      // block-group resolution. poverty_rate and foreign_born_pct aren't
+      // published at this level (the API returns nulls).
+      "median_hh_income",
+      "bachelors_plus_pct",
+    ],
   };
 
   interface MapBuilderState {
@@ -2634,6 +2844,60 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       `bbox: W ${w.toFixed(2)}° S ${s.toFixed(2)}° E ${e.toFixed(2)}° N ${n.toFixed(2)}°`;
   }
 
+  function renderMapIndicatorOptions(): void {
+    const sel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='map-indicator']",
+    );
+    const info = shell.querySelector<HTMLElement>(
+      "[data-role='map-indicator-info']",
+    );
+    if (!sel) return;
+    const supported =
+      MAP_INDICATORS_BY_GEO[mapBuilder.geo] ?? MAP_INDICATORS_BY_GEO.state;
+    // If the current selection isn't available at this geo, fall back
+    // to the first supported option. (E.g. user picks `median_age` at
+    // state, then switches geo to county — median_age has no county
+    // data, so reset to poverty_rate.)
+    if (!supported.includes(mapBuilder.indicator)) {
+      mapBuilder.indicator = supported[0];
+    }
+    sel.innerHTML = supported
+      .map(
+        (id) =>
+          `<option value="${id}">${escapeHtml(MAP_INDICATOR_LABELS[id] ?? id)}</option>`,
+      )
+      .join("");
+    sel.value = mapBuilder.indicator;
+    if (info) {
+      if (mapBuilder.geo === "state") {
+        info.textContent = `${supported.length} indicators available at state level.`;
+      } else if (mapBuilder.geo === "block-group") {
+        info.textContent =
+          "Census only publishes 2 of these indicators at block-group resolution.";
+      } else {
+        info.textContent = `${supported.length} indicators available at ${mapBuilder.geo} level. Switch to State for the full set.`;
+      }
+    }
+    // Clamp the vintage slider's min so picking a later-starting
+    // indicator can't yield an empty-data render.
+    const vintageInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='map-vintage']",
+    );
+    const vintageReadout = shell.querySelector<HTMLElement>(
+      "[data-role='map-vintage-readout']",
+    );
+    if (vintageInput) {
+      const minVintage =
+        MAP_INDICATOR_MIN_VINTAGE[mapBuilder.indicator] ?? "2010";
+      vintageInput.min = minVintage;
+      if (parseInt(mapBuilder.vintage, 10) < parseInt(minVintage, 10)) {
+        mapBuilder.vintage = minVintage;
+        vintageInput.value = minVintage;
+        if (vintageReadout) vintageReadout.textContent = minVintage;
+      }
+    }
+  }
+
   function updateMapBuilderUI(): void {
     const needsState =
       mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
@@ -2645,6 +2909,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       "[data-role='map-geo-warning']",
     );
     if (warning) warning.hidden = !needsState;
+    // Rebuild the indicator dropdown for the current geo. Done before
+    // the title placeholder lookup so defaultMapTitle() picks up the
+    // (potentially reset) indicator label.
+    renderMapIndicatorOptions();
     // Refresh the auto-title placeholder so the user sees what the
     // default would be at a glance.
     const titleInput = shell.querySelector<HTMLInputElement>(
@@ -2954,6 +3222,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   interface GenEntity {
     short: string;
     name: string;
+    // Optional latest-known total population. Attached by the
+    // index-builder pipeline for metros, states, and countries where
+    // a population time-series exists on disk. Powers the sort-by
+    // control in the Generators tab.
+    pop?: number;
   }
   interface GenPreset {
     label: string;
@@ -2981,6 +3254,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   type GenGeo = "metro" | "state" | "country";
   type GenMode = "all" | "preset" | "custom";
+  type GenSort = "alpha" | "pop";
 
   interface GeneratorsBuilderState {
     geo: GenGeo;
@@ -2991,6 +3265,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     templateSearch: string;
     entitySearch: string;
     sectionTitle: string;
+    // Drives both the Custom-mode entity-list order AND the order in
+    // which tiles get appended to the section on Generate. "alpha"
+    // uses the entity's short name; "pop" uses entity.pop descending
+    // and falls back to alpha for entities missing a population.
+    sort: GenSort;
   }
 
   const generators: GeneratorsBuilderState = {
@@ -3002,7 +3281,53 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     templateSearch: "",
     entitySearch: "",
     sectionTitle: "",
+    sort: "alpha",
   };
+
+  // Compact human-readable formatter for population numbers shown in
+  // the Custom-mode entity rows when sort=pop. Uses M for millions,
+  // K for thousands; falls back to a comma-grouped integer for the
+  // small countries (Cayman Islands ~74k still reads cleanly).
+  function formatEntityPop(n: number): string {
+    if (!Number.isFinite(n)) return "";
+    if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)} B`;
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)} M`;
+    if (n >= 10_000) return `${(n / 1_000).toFixed(0)} K`;
+    return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  }
+
+  // Shared sort comparator for entity lists + generated tile order.
+  // Pulled out so renderGenCustomList() and generateMassDashboard()
+  // can't drift apart on ordering rules.
+  function genEntityComparator(
+    geo: GenGeo,
+    sort: GenSort,
+  ): (a: string, b: string) => number {
+    if (!generatorsIndex) {
+      return (a, b) => a.localeCompare(b);
+    }
+    const block = generatorsIndex.geoTypes[geo];
+    const labelOf = (code: string): string =>
+      (block.entities[code]?.short ?? code).toLowerCase();
+    const popOf = (code: string): number | null => {
+      const p = block.entities[code]?.pop;
+      return typeof p === "number" && Number.isFinite(p) ? p : null;
+    };
+    if (sort === "pop") {
+      return (a, b) => {
+        const pa = popOf(a);
+        const pb = popOf(b);
+        // Missing pops sort to the bottom; both-missing fall through
+        // to alphabetical so the order stays deterministic.
+        if (pa == null && pb == null) return labelOf(a).localeCompare(labelOf(b));
+        if (pa == null) return 1;
+        if (pb == null) return -1;
+        if (pb !== pa) return pb - pa; // descending
+        return labelOf(a).localeCompare(labelOf(b));
+      };
+    }
+    return (a, b) => labelOf(a).localeCompare(labelOf(b));
+  }
 
   let generatorsIndex: GeneratorsIndex | null = null;
   let generatorsWired = false;
@@ -3139,16 +3464,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           code.includes(q)
         );
       })
-      .sort((a, b) => {
-        const an = (block.entities[a]?.short ?? a).toLowerCase();
-        const bn = (block.entities[b]?.short ?? b).toLowerCase();
-        return an.localeCompare(bn);
-      });
+      .sort(genEntityComparator(generators.geo, generators.sort));
     const VISIBLE_CAP = 200;
     const shown = filtered.slice(0, VISIBLE_CAP);
     const items = shown.map((code) => {
       const e = block.entities[code];
-      const label = e ? `${escapeHtml(e.name)} (${escapeHtml(code)})` : escapeHtml(code);
+      // Append population to the row label when sorting by population
+      // so users can see the values driving the order.
+      const popSuffix =
+        generators.sort === "pop" && typeof e?.pop === "number"
+          ? ` — ${formatEntityPop(e.pop)}`
+          : "";
+      const label = e
+        ? `${escapeHtml(e.name)} (${escapeHtml(code)})${popSuffix}`
+        : escapeHtml(code);
       const checked = generators.selected.has(code) ? " checked" : "";
       return (
         `<label class="gen-entity-row">` +
@@ -3229,12 +3558,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       requested = generators.selected.size;
     }
     const skip = requested - eff.length;
+    // URL-budget hint: the share URL is base64url(JSON(state)) and
+    // tops out around 12 KB. Each generated tile adds ~150 bytes
+    // post-encoding (chart entry + id reference in the section
+    // array). Above ~70 tiles the URL overflows and the user will
+    // need to save to their account to keep the dashboard past a
+    // refresh. We mention this proactively here so users with large
+    // selections aren't surprised by the post-generate banner.
+    const URL_SAFE_TILE_BUDGET = 70;
+    const urlHint =
+      eff.length > URL_SAFE_TILE_BUDGET
+        ? " · share URL too long for this many tiles — Save to my account will be required."
+        : "";
     if (skip > 0) {
       readout.textContent =
-        `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated · ${skip} skipped (no data for this template).`;
+        `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated · ${skip} skipped (no data for this template).${urlHint}`;
     } else {
       readout.textContent =
-        `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated.`;
+        `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated.${urlHint}`;
     }
   }
 
@@ -3282,6 +3623,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         if (!el.checked) return;
         generators.mode = el.value as GenMode;
         renderGenEntityUI();
+      });
+    });
+
+    // Sort radio (alphabetical / by-population). Affects the Custom
+    // entity list rendering AND the order generated tiles land in.
+    shell.querySelectorAll<HTMLInputElement>(
+      "input[data-role='gen-sort']",
+    ).forEach((el) => {
+      if (el.value === generators.sort) el.checked = true;
+      el.addEventListener("change", () => {
+        if (!el.checked) return;
+        generators.sort = el.value as GenSort;
+        renderGenCustomList();
       });
     });
 
@@ -3428,11 +3782,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Mint one inline-chart per entity. Title each tile with the
     // entity's short name (e.g. "Boston") so the section reads as
     // a per-region grid rather than 50 copies of the same title.
-    const order = eff.slice().sort((a, b) => {
-      const an = (block.entities[a]?.short ?? a).toLowerCase();
-      const bn = (block.entities[b]?.short ?? b).toLowerCase();
-      return an.localeCompare(bn);
-    });
+    // The order respects the user's sort-by choice — alphabetical
+    // (default) or population (largest first; entities lacking a
+    // pop fall back to alpha at the end of the list).
+    const order = eff.slice().sort(
+      genEntityComparator(generators.geo, generators.sort),
+    );
     let added = 0;
     for (const code of order) {
       const sourceId = t.sourceMap[code];
@@ -3475,7 +3830,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     );
     if (readout) {
       const where = sectionTitle ? `new section "${sectionTitle}"` : "active section";
-      readout.textContent = `Added ${added} chart${added === 1 ? "" : "s"} to ${where}.`;
+      const overflowBanner = shell.querySelector<HTMLElement>(
+        "[data-role='url-overflow']",
+      );
+      const overflowed = overflowBanner && !overflowBanner.hidden;
+      readout.textContent = overflowed
+        ? `Added ${added} chart${added === 1 ? "" : "s"} to ${where} (URL is full — see banner above to save).`
+        : `Added ${added} chart${added === 1 ? "" : "s"} to ${where}.`;
     }
   }
 
@@ -3946,6 +4307,194 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     });
   }
 
+  // ---- Tile previews ----------------------------------------------
+  //
+  // Each composer tile gets a lightweight visual preview appended below
+  // its title/meta line: a sparkline for chart tiles, a tiny choropleth
+  // silhouette for inline-map tiles. The goal is "the composer should
+  // approximate what Preview will render" — without bringing the full
+  // ChartController stack into the editor (it expects SSR-rendered
+  // bindings + a real chart context). These previews use the same
+  // fetchSourceSeries cache + d3/topojson imports already in scope.
+
+  // Per-tile preview render entrypoint. Dispatches by chart-id prefix.
+  function renderTilePreview(host: HTMLElement, chartId: string): void {
+    if (isInlineMapId(chartId)) {
+      void renderTileMapPreview(host, chartId);
+    } else {
+      void renderTileSparkline(host, chartId);
+    }
+  }
+
+  async function renderTileSparkline(
+    host: HTMLElement,
+    chartId: string,
+  ): Promise<void> {
+    // Resolve source IDs from inline or library chart.
+    let sourceIds: string[] = [];
+    if (isInlineId(chartId)) {
+      sourceIds = state.inlineCharts[chartId]?.sources ?? [];
+    } else {
+      const c = library?.charts.find((x) => x.id === chartId);
+      sourceIds = c?.sources ?? [];
+    }
+    if (sourceIds.length === 0) return;
+    // Cap at 4 series so a multi-source comparison tile doesn't try
+    // to draw 12 overlapping lines in a 64px preview.
+    const showIds = sourceIds.slice(0, 4);
+    const seriesList = await Promise.all(
+      showIds.map((id) => fetchSourceSeries(id)),
+    );
+    const valid = seriesList.filter((s): s is FetchedSeries => s !== null);
+    if (valid.length === 0) return;
+    const width = host.clientWidth || 200;
+    const height = 64;
+    try {
+      const marks = valid.map((s, i) =>
+        Plot.lineY(
+          s.points.map((p) => ({ t: new Date(p.t), v: p.v })),
+          {
+            x: "t",
+            y: "v",
+            stroke: CC_COLORS[i % CC_COLORS.length],
+            strokeWidth: 1.2,
+          },
+        ),
+      );
+      const plot = Plot.plot({
+        width,
+        height,
+        marginLeft: 2,
+        marginRight: 2,
+        marginTop: 4,
+        marginBottom: 2,
+        style: { background: "transparent" },
+        x: { axis: null },
+        y: { axis: null },
+        marks,
+      }) as HTMLElement;
+      host.replaceChildren(plot);
+    } catch {
+      // Render failure — leave the host empty. The tile already shows
+      // title + meta + (optional) coverage warning, so an empty
+      // preview area is acceptable graceful degradation.
+    }
+  }
+
+  // Mini-choropleth preview for inline maps. Loads the same TopoJSON
+  // the full /custom/ render uses, then paints a static silhouette
+  // tinted by the data values (if available). When the data file
+  // isn't present (newer indicator, narrower state set), falls back
+  // to an outline-only render so the user still sees the geographic
+  // shape of what they're about to compose.
+  async function renderTileMapPreview(
+    host: HTMLElement,
+    mapId: string,
+  ): Promise<void> {
+    const spec = state.inlineMaps[mapId];
+    if (!spec) return;
+    let boundaryUrl: string;
+    let layerName: string;
+    if (spec.geo === "state") {
+      boundaryUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+      layerName = "states";
+    } else if (spec.geo === "county") {
+      boundaryUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
+      layerName = "counties";
+    } else if (spec.boundaryFile) {
+      boundaryUrl = `${baseUrl}${spec.boundaryFile.startsWith("/") ? "" : "/"}${spec.boundaryFile}`;
+      layerName = spec.geo === "block-group" ? "block_groups" : "tracts";
+    } else {
+      return;
+    }
+    let topo: { objects: Record<string, unknown> } | null = null;
+    try {
+      if (mapBboxTopoCache.has(boundaryUrl)) {
+        topo = mapBboxTopoCache.get(boundaryUrl) as typeof topo;
+      } else {
+        const r = await fetch(boundaryUrl);
+        if (!r.ok) return;
+        topo = await r.json();
+        mapBboxTopoCache.set(boundaryUrl, topo);
+      }
+    } catch {
+      return;
+    }
+    if (!topo) return;
+    const obj = (topo.objects ?? {})[layerName];
+    if (!obj) return;
+    const fc = topoFeature(topo as never, obj as never) as unknown as {
+      features: { id?: string | number; properties?: Record<string, unknown> }[];
+    };
+
+    // Try to load the data file so the preview can paint values, not
+    // just outlines. Same path scheme ChartChoropleth.astro uses.
+    const dataDirSeg =
+      spec.geo === "block-group" ? "acs_block_group" : `acs_${spec.geo}`;
+    const stateForUrl = spec.state ? spec.state.toLowerCase() : null;
+    const dataUrl =
+      spec.geo === "state" || spec.geo === "county"
+        ? `${baseUrl}/data/${dataDirSeg}/${spec.indicator}_${spec.vintage}.json`
+        : stateForUrl
+          ? `${baseUrl}/data/${dataDirSeg}/${stateForUrl}/${spec.indicator}_${spec.vintage}.json`
+          : null;
+    let values: Record<string, number> = {};
+    if (dataUrl) {
+      try {
+        const r = await fetch(dataUrl);
+        if (r.ok) {
+          const j = (await r.json()) as { values?: Record<string, number> };
+          values = j.values ?? {};
+        }
+      } catch {
+        // ignore — fall through to outline-only render
+      }
+    }
+
+    const width = host.clientWidth || 200;
+    const height = 110;
+    const projection = geoAlbers().fitSize([width, height], fc as never);
+    const pathGen = geoPath(projection);
+
+    // Build a single-hue tint scale on log-or-linear by-extent.
+    const vs: number[] = [];
+    for (const f of fc.features) {
+      const id = String(f.id ?? "");
+      const v = values[id];
+      if (typeof v === "number" && Number.isFinite(v)) vs.push(v);
+    }
+    const tintFor = (v: number | undefined): string => {
+      if (v === undefined || !Number.isFinite(v) || vs.length === 0) {
+        return "rgba(15, 118, 110, 0.10)"; // outline-only fallback
+      }
+      const min = Math.min(...vs);
+      const max = Math.max(...vs);
+      const t = max === min ? 0.5 : (v - min) / (max - min);
+      // 0.15 -> 0.85 opacity range so even low values are visible and
+      // high values don't fully saturate (preview, not the real chart).
+      const alpha = 0.15 + 0.7 * t;
+      return `rgba(15, 118, 110, ${alpha.toFixed(3)})`;
+    };
+
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", String(width));
+    svg.setAttribute("height", String(height));
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    for (const f of fc.features) {
+      const d = pathGen(f as never);
+      if (!d) continue;
+      const id = String(f.id ?? "");
+      const p = document.createElementNS(svgNS, "path");
+      p.setAttribute("d", d);
+      p.setAttribute("fill", tintFor(values[id]));
+      p.setAttribute("stroke", "rgba(15, 118, 110, 0.45)");
+      p.setAttribute("stroke-width", "0.4");
+      svg.appendChild(p);
+    }
+    host.replaceChildren(svg);
+  }
+
   function renderComposition(): void {
     const host = shell.querySelector<HTMLElement>("[data-role='comp-sections']");
     const empty = shell.querySelector<HTMLElement>("[data-role='comp-empty']");
@@ -4019,7 +4568,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           "application/x-legible-section",
           JSON.stringify({ secIdx }),
         );
-        e.dataTransfer.setData("text/plain", `section ${secIdx}`);
+        // No text/plain payload on purpose. Chrome's default dragover
+        // on `<input>` / `<textarea>` accepts text/plain drops with
+        // dropEffect="copy", which paints a bright green "+" cursor.
+        // The composer is full of inputs (section titles, descriptions,
+        // inline chart titles), so adding a text/plain shadow makes the
+        // cursor flash green every time the user passes over one
+        // mid-drag. Our own drop handlers read application/x-legible-
+        // section, not text/plain, so dropping the duplicate costs us
+        // nothing.
         secEl.classList.add("dragging");
       });
       handle.addEventListener("dragend", () => {
@@ -4173,7 +4730,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           const tile = document.createElement("div");
           let titleText: string;
           let metaText: string;
-          if (isInlineId(chartId)) {
+          if (isInlineMapId(chartId)) {
+            // Inline-map tile. Before this branch existed the renderer
+            // dropped maps into the library-chart else-branch, looked
+            // for a YAML chart with that ID, didn't find one, and
+            // rendered a bare "inlinemap:abc12345" string. Maps get
+            // their own tile class so the CSS can size the preview
+            // area for a square-ish choropleth rather than the wider
+            // timeseries sparkline.
+            const m = state.inlineMaps[chartId];
+            titleText = m?.title ?? chartId;
+            const geoLabel = m?.geo === "block-group"
+              ? "block group"
+              : (m?.geo ?? "map");
+            const stateLabel = m?.state ? ` · ${m.state}` : "";
+            metaText = `map · ${geoLabel} · ${m?.indicator ?? ""} (${m?.vintage ?? ""})${stateLabel}`;
+            tile.className = "comp-tile comp-tile-map";
+          } else if (isInlineId(chartId)) {
             const inline = state.inlineCharts[chartId];
             titleText = inline?.title ?? chartId;
             const sourceLabels = (inline?.sources ?? []).map((sid) => {
@@ -4206,7 +4779,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }
           tile.innerHTML =
             `<div class="comp-tile-title">${escapeHtml(titleText)}</div>` +
-            `<div class="comp-tile-meta">${escapeHtml(metaText)}</div>`;
+            `<div class="comp-tile-meta">${escapeHtml(metaText)}</div>` +
+            `<div class="comp-tile-preview" data-role="tile-preview"></div>`;
+          // Lazy-render the visual preview (sparkline for charts, mini
+          // choropleth for maps). Async + fire-and-forget — the tile
+          // is already in the DOM with title/meta, the preview just
+          // fills in when its data lands. Cached fetches make the
+          // second render of a given source / topology near-instant.
+          const previewHost = tile.querySelector<HTMLElement>(
+            "[data-role='tile-preview']",
+          );
+          if (previewHost) void renderTilePreview(previewHost, chartId);
           // Fixed-range coverage check: highlight tiles whose underlying
           // sources don't fully cover the requested range. Doesn't reject —
           // the user can still ship a dashboard with partial coverage; we
@@ -4235,7 +4818,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               "application/x-legible-chart",
               JSON.stringify({ secIdx, chartIdx }),
             );
-            e.dataTransfer.setData("text/plain", chartId);
+            // No text/plain payload — see the matching dragstart on
+            // the section drag handle for the rationale. tl;dr: it
+            // makes the cursor flash green over input fields because
+            // Chrome's default dragover on inputs claims text/plain
+            // drops as copy.
             tile.classList.add("dragging");
             currentlyDraggedChart = { secIdx, chartIdx, chartId };
           });
@@ -4691,6 +5278,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       saveBtn.title = editingSlug
         ? `Updates the saved dashboard at /u/${editingSlug}/`
         : "Saves this composition to your account";
+    }
+
+    // URL-overflow banner's CTA — funnel into the main Save button so
+    // the OAuth + Supabase write path stays in one place.
+    const overflowSaveBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='url-overflow-save']",
+    );
+    if (overflowSaveBtn && saveBtn) {
+      overflowSaveBtn.addEventListener("click", () => {
+        track("compose_url_overflow_save_clicked", {});
+        saveBtn.click();
+        // Scroll the save button into view so the user sees the OAuth /
+        // confirmation feedback that comes next.
+        saveBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
     }
     console.log("[save] wire:", {
       saveBtn: !!saveBtn,
@@ -6819,10 +7421,76 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       .replace(/"/g, "&quot;");
   }
 
+  // ---- Copy-mode title auto-increment ----
+  //
+  // When the composer is launched via "Make a copy" from /u/<slug>/,
+  // we want the new dashboard's title to be the source title plus an
+  // auto-incrementing " (N)" suffix so the user's saved-dashboards
+  // list doesn't end up with two "US macro" rows.
+  //
+  // Algorithm: query the signed-in user's saved_dashboards for every
+  // title that matches /^<base>(?: \(\d+\))?$/, find the max N (the
+  // original counts as N=1), pick N+1.
+  //
+  // If the user isn't signed in OR the Supabase query fails, fall
+  // back to "<base> (2)" — saving still works because the slug is
+  // nanoid-generated, not derived from the title. The user can
+  // hand-edit the title before saving if they want a specific name.
+  async function applyCopyModeTitleBump(): Promise<void> {
+    if (!copyMode) return;
+    const baseTitle = (state.title ?? "").trim();
+    if (!baseTitle) return;
+    let nextTitle = `${baseTitle} (2)`;
+    try {
+      const sb = isSupabaseConfigured ? createSupabase() : null;
+      const stored = readStoredSession();
+      if (sb && stored) {
+        const { data, error } = await sb
+          .from("saved_dashboards")
+          .select("title")
+          .eq("owner_id", stored.user.id);
+        if (!error && data) {
+          // Strip an existing " (N)" off the base so copy-of-a-copy
+          // produces "Foo (3)" instead of "Foo (2) (2)".
+          const baseStripped = baseTitle.replace(/\s*\(\d+\)\s*$/, "");
+          const escapedBase = baseStripped.replace(
+            /[.*+?^${}()|[\]\\]/g, "\\$&",
+          );
+          const re = new RegExp(
+            `^${escapedBase}(?:\\s*\\((\\d+)\\))?$`,
+          );
+          let maxN = 1;  // the original (no suffix) counts as N=1
+          for (const row of data) {
+            const t = (row as { title?: string }).title ?? "";
+            const m = t.match(re);
+            if (m) {
+              const n = m[1] ? parseInt(m[1], 10) : 1;
+              if (Number.isFinite(n) && n > maxN) maxN = n;
+            }
+          }
+          nextTitle = `${baseStripped} (${maxN + 1})`;
+        }
+      }
+    } catch (e) {
+      console.warn("[compose] copy-mode title bump failed:", e);
+    }
+    state.title = nextTitle;
+    const titleInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='title-input']",
+    );
+    if (titleInput) titleInput.value = nextTitle;
+    writeUrl();
+    track("compose_copy_started", {
+      fromTitle: baseTitle,
+      newTitle: nextTitle,
+    });
+  }
+
   // ---- Go ----
   hydrateFromUrl();
   wire();
   writeUrl(); // sync preview link
+  void applyCopyModeTitleBump();
 
   loadLibrary()
     .then((lib) => {
@@ -6993,9 +7661,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .lib-panel[hidden] { display: none; }
 
   /* ---- Maps tab ---------------------------------------------------- */
+  /* Maps panel deliberately doesn't scroll inside the library sidebar
+     — the form ends in a "+ Add map to dashboard" button that users
+     missed when it was tucked below a panel-local scrollbar. Instead
+     the panel grows as tall as it needs and the WHOLE PAGE scrolls.
+     `.composer-library` cancels its own max-height when the maps tab
+     is the active one (see the `[data-active-tab='maps']` rule
+     below). */
   .lib-panel-maps {
-    overflow-y: auto;
-    padding-right: 4px;
+    overflow: visible;
+  }
+  .composer-library[data-active-tab='maps'] {
+    max-height: none;
+    overflow: visible;
+  }
+  .map-geo-caveat {
+    margin: 0;
+    color: var(--color-neutral-600);
+    font-style: italic;
   }
   .map-builder {
     display: flex;
@@ -7142,6 +7825,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     flex-direction: column;
     gap: 8px;
   }
+  /* Sort-by control above the Entities mode radios. Single-line
+     pill-style radios so it reads as a tertiary chooser rather than
+     a competing radio group with the mode picker below. */
+  .gen-sort-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    margin-bottom: 8px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+  }
+  .gen-sort-label {
+    font-weight: 600;
+    color: var(--color-neutral-800);
+  }
+  .gen-sort-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .gen-sort-opt input { margin: 0; }
   .gen-entity-actions {
     display: flex;
     gap: 8px;
@@ -7655,6 +8361,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .comp-tile-del:hover { color: var(--color-error); }
   .comp-tile-inline {
     border-style: dashed;
+  }
+  /* Inline-map tile variant — same chrome as regular chart tiles but
+     the map preview takes more vertical room, so let it set its own
+     min-height rather than being squashed. */
+  .comp-tile-map {
+    border-style: dashed;
+  }
+  /* Visual preview slot under the title/meta. Lazy-filled by
+     renderTilePreview(); empty (height: 0) until the SVG / Plot
+     output replaces its contents. The fixed heights below take over
+     as soon as the preview lands, so layout doesn't flicker on the
+     async fill. */
+  .comp-tile-preview {
+    margin-top: 6px;
+  }
+  .comp-tile-preview:empty {
+    display: none;
+  }
+  .comp-tile-preview > svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .comp-tile-map .comp-tile-preview {
+    background: rgba(15, 118, 110, 0.04);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
   }
   .comp-tile-coverage-warn {
     border-color: var(--color-error);
@@ -8191,6 +8924,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.95em;
   }
+
+  /* Hard-overflow variant — same chrome, stronger red palette so it
+     reads as "action required" rather than the amber soft-warn. The
+     button is sized to match the soft banner's flow (no full-width
+     primary). */
+  .composer-url-overflow {
+    margin: 8px 0 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(220, 38, 38, 0.06);
+    border: 1px solid rgba(220, 38, 38, 0.35);
+    color: var(--color-neutral-800);
+    font-size: var(--text-sm);
+    line-height: 1.45;
+  }
+  .composer-url-overflow[hidden] { display: none; }
+  .composer-url-overflow strong { color: rgb(153, 27, 27); }
+  .composer-url-overflow ul {
+    margin: 6px 0 10px;
+    padding-left: 22px;
+  }
+  .composer-url-overflow li { margin: 2px 0; }
+  .composer-url-overflow code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.95em;
+  }
+  .composer-url-overflow .btn-primary { margin-top: 4px; }
 
   .composer-footer {
     margin-top: 32px;
