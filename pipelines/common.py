@@ -249,10 +249,6 @@ def cached_get(
     Pipelines using this should pass a session if they have one (it
     keeps connection pooling). Default uses ``requests.get`` directly.
     """
-    # Lazy-import requests so callers that never use cached_get don't
-    # require the dep just to import common.py.
-    import requests  # type: ignore[import-untyped]
-
     canon_params = "&".join(
         f"{k}={v}" for k, v in sorted((params or {}).items())
     )
@@ -279,7 +275,17 @@ def cached_get(
             # Cache entry corrupt — fall through to fresh fetch.
             pass
 
-    s = session if session is not None else requests
+    # Lazy-import `requests` here so the CI test environment (which
+    # passes a fake session and never hits this branch) doesn't need
+    # the dep installed. Local pipeline runs that call cached_get
+    # without a session do need `requests` available — but those
+    # already do for the rest of the pipeline machinery.
+    if session is None:
+        import requests  # type: ignore[import-untyped]
+
+        s = requests
+    else:
+        s = session
     resp = s.get(url, params=dict(params) if params else None,
                  headers=dict(headers) if headers else None,
                  timeout=timeout)
