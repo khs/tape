@@ -485,10 +485,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="lib-panel lib-panel-generators" data-role="lib-panel-generators" hidden>
           <div class="gen-builder">
             <p class="muted small">
-              Mass-compose: pick a series + a set of metros / states /
-              countries, get one chart per entity dropped into your
-              active section.
+              Two flavors: <strong>By indicator</strong> emits one tile
+              per entity across the picked series (unemployment in every
+              MSA). <strong>Profile</strong> emits one tile per series
+              for the picked entity (everything we have about Virginia).
             </p>
+
+            <fieldset class="map-field" data-role="gen-layout-section">
+              <legend class="map-field-label">Layout</legend>
+              <div class="map-geo-radios">
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-layout" value="indicator" checked data-role="gen-layout" />
+                  <span><strong>By indicator</strong> &mdash; one series &times; many entities</span>
+                </label>
+                <label class="map-radio-row">
+                  <input type="radio" name="gen-layout" value="profile" data-role="gen-layout" />
+                  <span><strong>Profile</strong> &mdash; one entity &times; every available series, ordered as a curated profile section</span>
+                </label>
+              </div>
+            </fieldset>
 
             <fieldset class="map-field">
               <legend class="map-field-label">By</legend>
@@ -508,7 +523,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               </div>
             </fieldset>
 
-            <label class="map-field">
+            <label class="map-field" data-role="gen-template-wrap">
               <span class="map-field-label">Series template</span>
               <input
                 type="search"
@@ -518,6 +533,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               />
               <select class="map-input gen-template-select" data-role="gen-template" size="8"></select>
               <span class="muted small" data-role="gen-template-info">&nbsp;</span>
+            </label>
+
+            <!--
+              Profile mode: pick ONE entity, then we'll emit one tile per
+              available series template in the canonical PROFILE_ORDER
+              (see pipelines/_generate_generators_index.py). Hidden by
+              default — the layout toggle above flips this on. The
+              indicator-summary span shows how many tiles will land
+              in the dashboard so the user can preview the size before
+              clicking Generate.
+            -->
+            <label class="map-field" data-role="gen-profile-wrap" hidden>
+              <span class="map-field-label">Entity</span>
+              <input
+                type="search"
+                class="map-input"
+                data-role="gen-profile-search"
+                placeholder="Filter entities by name…"
+              />
+              <select class="map-input gen-template-select" data-role="gen-profile-entity" size="8"></select>
+              <span class="muted small" data-role="gen-profile-info">&nbsp;</span>
             </label>
 
             <fieldset class="map-field" data-role="gen-entity-section">
@@ -3458,6 +3494,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     entities: Record<string, GenEntity>;
     presets: Record<string, GenPreset>;
     templates: GenTemplate[];
+    // Canonical template order for profile mode. See
+    // pipelines/_generate_generators_index.py PROFILE_ORDER for the
+    // hand-curated ordering. Optional for back-compat with older
+    // index builds; client falls back to `templates` order.
+    profileOrder?: string[];
   }
   interface GeneratorsIndex {
     v: 1;
@@ -3468,9 +3509,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   type GenGeo = "metro" | "state" | "country";
   type GenMode = "all" | "preset" | "custom";
   type GenSort = "alpha" | "pop";
+  /**
+   * Generators-tab layout flavor:
+   *   "indicator" — one template × many entities (the original flow).
+   *   "profile"   — one entity × many templates (the new "show me
+   *                 everything we have about Virginia" flow). Uses the
+   *                 generators-index `profileOrder` for the curated
+   *                 template ordering.
+   */
+  type GenLayout = "indicator" | "profile";
 
   interface GeneratorsBuilderState {
     geo: GenGeo;
+    layout: GenLayout;
     templateId: string | null;
     mode: GenMode;
     preset: string | null;
@@ -3483,10 +3534,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // uses the entity's short name; "pop" uses entity.pop descending
     // and falls back to alpha for entities missing a population.
     sort: GenSort;
+    // Profile-mode state.
+    profileEntity: string | null;
+    profileSearch: string;
   }
 
   const generators: GeneratorsBuilderState = {
     geo: "metro",
+    layout: "indicator",
     templateId: null,
     mode: "all",
     preset: null,
@@ -3495,6 +3550,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     entitySearch: "",
     sectionTitle: "",
     sort: "alpha",
+    profileEntity: null,
+    profileSearch: "",
   };
 
   // Compact human-readable formatter for population numbers shown in
@@ -3810,6 +3867,26 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     generatorsWired = true;
 
+    // Layout radio — "By indicator" (template × entities) vs.
+    // "Profile" (entity × templates). Drives which sub-panels render.
+    shell.querySelectorAll<HTMLInputElement>(
+      "input[data-role='gen-layout']",
+    ).forEach((el) => {
+      if (el.value === generators.layout) el.checked = true;
+      el.addEventListener("change", () => {
+        if (!el.checked) return;
+        generators.layout = el.value as GenLayout;
+        // Reset profile selection when switching layouts; the dropdown
+        // would otherwise carry the previous geo's last pick which
+        // can't roundtrip cleanly across modes.
+        generators.profileEntity = null;
+        syncGenLayoutVisibility();
+        renderGenTemplateList();
+        renderGenProfileEntityList();
+        updateGenReadout();
+      });
+    });
+
     // Geo radio
     shell.querySelectorAll<HTMLInputElement>(
       "input[data-role='gen-geo']",
@@ -3824,7 +3901,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         generators.templateId = null;
         generators.preset = null;
         generators.selected.clear();
+        generators.profileEntity = null;
         renderGenTemplateList();
+        renderGenProfileEntityList();
       });
     });
     // Mode radio
@@ -3935,6 +4014,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     }
 
+    // Profile mode: entity search + single-select
+    const profSearch = shell.querySelector<HTMLInputElement>(
+      "[data-role='gen-profile-search']",
+    );
+    if (profSearch) {
+      profSearch.addEventListener("input", () => {
+        generators.profileSearch = profSearch.value;
+        renderGenProfileEntityList();
+      });
+    }
+    const profSel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='gen-profile-entity']",
+    );
+    if (profSel) {
+      profSel.addEventListener("change", () => {
+        generators.profileEntity = profSel.value || null;
+        updateGenProfileInfo();
+        updateGenReadout();
+      });
+    }
+
     // Generate button
     const addBtn = shell.querySelector<HTMLButtonElement>(
       "[data-role='gen-add-btn']",
@@ -3945,11 +4045,109 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     }
 
+    syncGenLayoutVisibility();
     renderGenTemplateList();
+    renderGenProfileEntityList();
+  }
+
+  /**
+   * Show/hide the right sub-panels based on the layout choice. Profile
+   * mode hides the template picker + the entities sub-form (because
+   * the user picks one entity instead, and templates come from the
+   * profileOrder list). Indicator mode hides the profile picker.
+   */
+  function syncGenLayoutVisibility(): void {
+    const tplWrap = shell.querySelector<HTMLElement>(
+      "[data-role='gen-template-wrap']",
+    );
+    const entSection = shell.querySelector<HTMLElement>(
+      "[data-role='gen-entity-section']",
+    );
+    const profWrap = shell.querySelector<HTMLElement>(
+      "[data-role='gen-profile-wrap']",
+    );
+    const profile = generators.layout === "profile";
+    if (tplWrap) tplWrap.hidden = profile;
+    if (entSection) entSection.hidden = profile;
+    if (profWrap) profWrap.hidden = !profile;
+  }
+
+  /**
+   * Render the profile-mode single-entity dropdown. Filters by
+   * `generators.profileSearch` and orders by current sort (alpha or
+   * pop). Adds an entity count to the placeholder so the user knows
+   * how many candidates are available.
+   */
+  function renderGenProfileEntityList(): void {
+    const sel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='gen-profile-entity']",
+    );
+    if (!sel || !generatorsIndex) return;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    const codes = Object.keys(block.entities);
+    const q = generators.profileSearch.trim().toLowerCase();
+    const filtered = q
+      ? codes.filter((c) => {
+          const e = block.entities[c];
+          return (
+            c.toLowerCase().includes(q) ||
+            e.short.toLowerCase().includes(q) ||
+            e.name.toLowerCase().includes(q)
+          );
+        })
+      : codes;
+    const cmp = genEntityComparator(generators.geo, generators.sort);
+    filtered.sort(cmp);
+    // Build options. Show the long name so DMV-area metros differentiate
+    // by state suffix; population in K/M for context where present.
+    const opts: string[] = [];
+    opts.push(`<option value="">— pick a ${block.label.toLowerCase()} —</option>`);
+    for (const c of filtered) {
+      const e = block.entities[c];
+      const pop = e.pop != null ? ` (${formatEntityPop(e.pop)})` : "";
+      const selected = c === generators.profileEntity ? " selected" : "";
+      opts.push(
+        `<option value="${escapeHtml(c)}"${selected}>${escapeHtml(e.name)}${pop}</option>`,
+      );
+    }
+    sel.innerHTML = opts.join("");
+    updateGenProfileInfo();
+  }
+
+  /**
+   * Update the small caption under the profile-entity dropdown with a
+   * count of how many templates the picked entity actually has data
+   * for. The user gets that many tiles when they hit Generate.
+   */
+  function updateGenProfileInfo(): void {
+    const info = shell.querySelector<HTMLElement>(
+      "[data-role='gen-profile-info']",
+    );
+    if (!info || !generatorsIndex) return;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    if (!generators.profileEntity) {
+      info.textContent = "Pick an entity to see how many indicators are available.";
+      return;
+    }
+    const order = block.profileOrder ?? block.templates.map((t) => t.id);
+    const templatesById = new Map(block.templates.map((t) => [t.id, t]));
+    let available = 0;
+    for (const tid of order) {
+      const tpl = templatesById.get(tid);
+      if (tpl && tpl.sourceMap[generators.profileEntity]) available++;
+    }
+    const total = block.templates.length;
+    info.textContent =
+      `${available} of ${total} available indicators have data for this entity — ` +
+      `you'll get ${available} tiles.`;
   }
 
   async function generateMassDashboard(): Promise<void> {
     if (!generatorsIndex) return;
+    if (generators.layout === "profile") {
+      await generateEntityProfile();
+      return;
+    }
     const t = currentTemplate();
     if (!t) {
       const readout = shell.querySelector<HTMLElement>(
@@ -4050,6 +4248,115 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       readout.textContent = overflowed
         ? `Added ${added} chart${added === 1 ? "" : "s"} to ${where} (URL is full — see banner above to save).`
         : `Added ${added} chart${added === 1 ? "" : "s"} to ${where}.`;
+    }
+  }
+
+  /**
+   * Profile-mode generation: one entity × every available indicator
+   * for that entity, ordered by the geo block's profileOrder. Emits
+   * a single-source tile per template-with-data, titled by the
+   * template's label so the section reads like a dossier:
+   *   Total population
+   *   Median household income
+   *   People in poverty
+   *   ...
+   *
+   * Default section title is "<entity name> profile" when blank.
+   */
+  async function generateEntityProfile(): Promise<void> {
+    if (!generatorsIndex) return;
+    const readout = shell.querySelector<HTMLElement>(
+      "[data-role='gen-readout']",
+    );
+    const code = generators.profileEntity;
+    if (!code) {
+      if (readout) readout.textContent = "Pick an entity first.";
+      return;
+    }
+    const block = generatorsIndex.geoTypes[generators.geo];
+    const entity = block.entities[code];
+    if (!entity) {
+      if (readout) readout.textContent = "Unknown entity — try a different pick.";
+      return;
+    }
+    const allowed = await checkComposeAction("generate_mass_dashboard");
+    if (!allowed) {
+      showSigninPrompt("generate_mass_dashboard");
+      return;
+    }
+
+    // Build the ordered list of (templateId, sourceId) pairs: only
+    // templates where this entity actually has data, in profileOrder.
+    const order = block.profileOrder ?? block.templates.map((t) => t.id);
+    const templatesById = new Map(block.templates.map((t) => [t.id, t]));
+    const tiles: { templateLabel: string; sourceId: string }[] = [];
+    for (const tid of order) {
+      const tpl = templatesById.get(tid);
+      if (!tpl) continue;
+      const sourceId = tpl.sourceMap[code];
+      if (!sourceId) continue;
+      tiles.push({ templateLabel: tpl.label, sourceId });
+    }
+    if (tiles.length === 0) {
+      if (readout) readout.textContent = "No indicators have data for this entity.";
+      return;
+    }
+
+    // Title default: "<entity name> profile". User-supplied title in
+    // the section-title input overrides. A bare entity short name (no
+    // "profile" suffix) avoids stuttering when the section is then
+    // embedded in a larger dashboard titled "State comparisons" etc.
+    let sectionTitle = generators.sectionTitle.trim();
+    if (!sectionTitle) sectionTitle = `${entity.short} profile`;
+    const target: UISection = {
+      title: sectionTitle,
+      description: "",
+      charts: [],
+    };
+    state.sections.push(target);
+    activeSectionIdx = state.sections.length - 1;
+
+    let added = 0;
+    for (const { templateLabel, sourceId } of tiles) {
+      const chartId = INLINE_PREFIX + nanoid(8);
+      // Tile title is the template label (the human series name) —
+      // matches how a dossier-style profile reads, vs the "By indicator"
+      // flow which titles each tile by entity.
+      state.inlineCharts[chartId] = {
+        title: templateLabel,
+        sources: [sourceId],
+        normalize: "raw",
+      };
+      target.charts.push(chartId);
+      added += 1;
+    }
+
+    writeUrl();
+    renderComposition();
+    track("compose_mass_dashboard_generated", {
+      geo: generators.geo,
+      template: "__profile__",
+      mode: "profile",
+      preset: "",
+      addedTiles: added,
+      newSection: true,
+    });
+
+    // Clear the title input so a subsequent profile generation in the
+    // same session stacks cleanly with its own auto-title.
+    generators.sectionTitle = "";
+    const titleInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='gen-section-title']",
+    );
+    if (titleInput) titleInput.value = "";
+    if (readout) {
+      const overflowBanner = shell.querySelector<HTMLElement>(
+        "[data-role='url-overflow']",
+      );
+      const overflowed = overflowBanner && !overflowBanner.hidden;
+      readout.textContent = overflowed
+        ? `Added ${added} tile${added === 1 ? "" : "s"} to "${sectionTitle}" (URL is full — see banner above to save).`
+        : `Added ${added} tile${added === 1 ? "" : "s"} to "${sectionTitle}".`;
     }
   }
 

@@ -899,6 +899,109 @@ GEO_LABELS = {
 }
 
 
+# --------------------------------------------------------------------
+# Profile-mode template ordering.
+#
+# The Generators tab has two modes:
+#   * "By indicator" (existing) — one template, many entities.
+#   * "Profile"      (new)       — one entity, many templates rendered
+#                                  as a coherent profile section.
+#
+# In profile mode, the order in which tiles appear matters: a reader
+# scanning "Virginia profile" should see population first, then income +
+# poverty (the headline economic facts), then education, housing, age,
+# labor, and so on. The canonical sequence below is hand-curated per
+# geo-type. Templates not in the list are appended afterward in
+# alphabetical-by-label order so newly-added series still show up
+# without breaking the curated head of the list.
+PROFILE_ORDER: dict[str, list[str]] = {
+    "state": [
+        "acs_state_population",
+        "acs_state_median_hh_income",
+        "bls_state_unemployment",
+        "acs_state_poverty_count",
+        "acs_state_bachelors_plus",
+        "acs_state_masters_plus",
+        "acs_state_median_home_value",
+        "acs_state_median_gross_rent",
+        "acs_state_owner_occupied",
+        "acs_state_renter_occupied",
+        "acs_state_median_age",
+        "acs_state_population_65_plus",
+        "acs_state_population_under_18",
+        "acs_state_foreign_born",
+        "acs_state_veterans",
+        "acs_state_broadband_households",
+        "acs_state_people_with_disability",
+        "acs_state_workers_wfh",
+        "acs_state_median_commute_minutes",
+        "acs_state_movers_last_year",
+        "acs_state_born_same_state",
+        "acs_state_households_no_vehicle",
+        "bls_state_payrolls",
+        "fred_state_population",
+    ],
+    "metro": [
+        "acs_metro_population",
+        "usaspending_metro_spending",
+        "bls_metro_unemployment",
+        "bls_metro_payrolls",
+        "zillow_zhvi",
+        "zillow_zori",
+        "acs_metro_poverty_count",
+        "acs_metro_bachelors_plus",
+        "acs_metro_masters_plus",
+        "acs_metro_foreign_born",
+        "acs_metro_median_age",
+        "acs_metro_population_65_plus",
+        "acs_metro_population_under_18",
+        "acs_metro_workers_wfh",
+        "acs_metro_median_commute_minutes",
+        "acs_metro_movers_last_year",
+        "acs_metro_born_same_state",
+        "acs_metro_households_no_vehicle",
+    ],
+    "country": [
+        "worldbank_extended_population",
+        "worldbank_extended_gdp_current_usd",
+        "worldbank_extended_gdp_per_capita_usd",
+        "worldbank_gdp_raw",
+        "countries_gdp",
+        "countries_equity_ratio",
+        "worldbank_extended_life_expectancy",
+        "worldbank_extended_co2_per_capita",
+        "worldbank_extended_co2_total",
+        "worldbank_extended_agriculture_pct_gdp",
+        "worldbank_extended_industry_pct_gdp",
+        "worldbank_extended_manufacturing_pct_gdp",
+        "worldbank_extended_services_pct_gdp",
+    ],
+}
+
+
+def build_profile_order(geo: str, templates_block: list[dict[str, Any]]) -> list[str]:
+    """Reconcile PROFILE_ORDER with what actually exists in templates_block.
+
+    Drops curated IDs that the current scan didn't surface (defensive —
+    if a pipeline stops emitting a template, it shouldn't appear in the
+    profile preview). Appends any templates not in PROFILE_ORDER at the
+    end, sorted by label so new additions slot in deterministically.
+    """
+    available = {t["id"]: t for t in templates_block}
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for tid in PROFILE_ORDER.get(geo, []):
+        if tid in available and tid not in seen:
+            ordered.append(tid)
+            seen.add(tid)
+    extras = sorted(
+        (t for t in templates_block if t["id"] not in seen),
+        key=lambda t: t.get("label", t["id"]).lower(),
+    )
+    ordered.extend(t["id"] for t in extras)
+    return ordered
+
+
 def main() -> int:
     by_geo = scan_sources()
 
@@ -921,11 +1024,19 @@ def main() -> int:
         else:
             entities = build_country_entities(used_entities)
             presets = {}
+        templates_block = build_templates_block(geo, templates)
         out["geoTypes"][geo] = {
             "label": GEO_LABELS[geo],
             "entities": entities,
             "presets": presets,
-            "templates": build_templates_block(geo, templates),
+            "templates": templates_block,
+            # Canonical template order for profile mode (one entity,
+            # many indicators). Used by the composer's Generators tab
+            # when the user toggles "Profile" — emits tiles in this
+            # order so e.g. "Virginia profile" reads population → income
+            # → poverty → education → housing → … without each viewer
+            # having to figure out a sensible ordering themselves.
+            "profileOrder": build_profile_order(geo, templates_block),
         }
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
