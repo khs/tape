@@ -1,1 +1,0 @@
-{"geo": "state", "indicator": "median_commute_minutes", "vintage": "2015", "unit": "min", "decimals": 1, "valueLabel": "Median one-way commute (minutes)", "lastUpdated": "2026-05-20T04:19:25+00:00", "values": {"02": 16.0, "10": 21.7, "11": 30.3, "38": 13.4, "46": 14.0, "50": 18.8, "56": 13.0}}

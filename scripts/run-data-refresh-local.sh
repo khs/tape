@@ -63,7 +63,6 @@ step "Generate state-atlas dashboards" python pipelines/_generate_state_atlas_da
 step "Build per-source tile summaries" python pipelines/build_summaries.py
 step "Regenerate generators-index" python pipelines/_generate_generators_index.py
 step "Trim source data files" python pipelines/trim_source_data.py
-step "Snapshot data for citation integrity" python pipelines/snapshot_data.py
 
 # --- Provider-label audit (the GH workflows run this last, --strict; the
 #     local script doesn't pass --strict so a single drift doesn't tank

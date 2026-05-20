@@ -170,8 +170,10 @@ jobs:
       - name: Trim source data files to supportedDeltas
         run: python pipelines/trim_source_data.py
 
-      - name: Snapshot data for citation integrity
-        run: python pipelines/snapshot_data.py
+      # (Snapshot-data step removed — see refresh-data.yml's matching
+      # comment block for the rationale: git history covers vintage
+      # recovery without ballooning public/data past Vercel's build-
+      # function-tracer memory ceiling.)
 
       # Cross-provider label audit. See refresh-data.yml for the
       # rationale + docs/new-data-source-checklist.md for adding

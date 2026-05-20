@@ -107,13 +107,12 @@ jobs:
       - name: Trim source data files to supportedDeltas
         run: python pipelines/trim_source_data.py
 
-      # After all pipelines have written their fresh JSON, copy the whole
-      # data/ tree into a dated archive at data/_archive/<YYYY-MM-DD>/...
-      # so cited URLs can resolve a specific data vintage indefinitely.
-      # Storage is cheap; revisions and provider restatements are not
-      # reversible without this.
-      - name: Snapshot data for citation integrity
-        run: python pipelines/snapshot_data.py
+      # (Snapshot-data step removed.) Was archiving the whole data/
+      # tree into data/_archive/<YYYY-MM-DD>/ each run. Citation
+      # integrity now relies on git history of public/data/ — every
+      # refresh commits, every revision is in the commit log. The
+      # archive directory was pushing public/ past Vercel's build-
+      # function-tracer memory ceiling.
 
       # Cross-provider label audit. Runs FRED, World Bank, and Yahoo
       # audits in sequence — each compares our YAML labels against the
