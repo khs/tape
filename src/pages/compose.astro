@@ -8797,7 +8797,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     cursor: pointer;
   }
   .tag-pill:hover { background: var(--color-neutral-100); }
-  .tag-pill-active {
+  /* :hover has specificity (0,2,0) and .tag-pill-active is (0,1,0),
+     so without an explicit hover rule the hover background (neutral-
+     100, near-white) wins over the active background (neutral-900,
+     dark) — and the active color (white) is left on a near-white
+     hover bg, making the label invisible right after you click a
+     pill (the cursor is still over it). Pin the active hover state
+     to the same dark bg so the label always reads. */
+  .tag-pill-active,
+  .tag-pill-active:hover {
     background: var(--color-neutral-900);
     color: var(--color-white);
     border-color: var(--color-neutral-900);

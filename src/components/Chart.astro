@@ -1355,7 +1355,13 @@ const mostRecentUpdate = payload.sources
       min-height: 36px;
     }
   }
-  .pill-active {
+  /* :hover above has specificity (0,2,0) and .pill-active is (0,1,0),
+     so without the explicit hover variant the hover background wins
+     for an active+hovered pill — leaving white text on a near-white
+     hover bg, invisible. Pin the active hover state to the same
+     dark bg so the label always reads. */
+  .pill-active,
+  .pill-active:hover {
     background: var(--color-neutral-900);
     color: var(--color-white);
     border-color: var(--color-neutral-900);
