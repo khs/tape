@@ -151,6 +151,19 @@ const charts = defineCollection({
     // for divide/diff; sources[0] is A, sources[1] is B. Same machinery
     // as inline charts' combine op in composer-state.ts.
     op: z.enum(["divide", "sum", "diff"]).optional(),
+    // Y-axis transformation applied at render time. The chart's
+    // tile always renders at "level" — the transform only affects
+    // the dialog's full plot. Readers can override per-session via
+    // the pill row in the dialog without modifying the saved spec.
+    //
+    //   level       — raw stored values (default)
+    //   yoy_pct     — 12-month % change at each date; drops the
+    //                 first year of points (no prior to compare to)
+    //   index_100   — visible window rebased so the first point is
+    //                 100
+    //
+    // See src/lib/transforms.ts for the math.
+    transform: z.enum(["level", "yoy_pct", "index_100"]).optional(),
     // Optional background shading layers. Each entry references a
     // preset in src/lib/shading-presets.ts and renders as semi-
     // transparent rectangles BEHIND the line(s) on the dialog plot —
@@ -257,6 +270,7 @@ const chartOverrideSchema = z
     scale: z.enum(["linear", "log"]),
     seriesLabels: z.array(z.string()),
     percentDisplay: z.enum(["percent", "decimal"]),
+    transform: z.enum(["level", "yoy_pct", "index_100"]),
     // Mirror of the chart-level `shading` field. Lets a dashboard
     // override the bands on a specific tile (e.g. all-charts use
     // recessions, but ONE chart wants party shading instead).

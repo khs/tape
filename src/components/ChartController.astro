@@ -29,6 +29,11 @@
     SHADING_FILL_OPACITY,
     type ShadingKey,
   } from "../lib/shading-presets";
+  import {
+    applyTransform,
+    transformFormatting,
+    type TransformKey,
+  } from "../lib/transforms";
   import { SITE_BRAND_URL } from "../lib/brand";
   import { readStoredSession } from "../lib/supabase";
   import {
@@ -149,6 +154,14 @@
      * line stays on top. Multiple stack via alpha compositing.
      */
     shading?: ShadingKey[];
+    /**
+     * Default y-axis transform for the dialog plot ("level" / "yoy_pct"
+     * / "index_100"). The transform pills in the dialog override
+     * per-session via ctx.currentTransform without re-emitting the
+     * payload; this field is the FIRST-PAINT default the pills are
+     * initialized to.
+     */
+    transform?: TransformKey;
   };
 
   /**
@@ -1239,10 +1252,27 @@
     const marks: any[] = [];
     let dashStartDrawn = false;
     const fixed = payload.fixedRange;
-    const rebaseMode = payload.normalize === "rebase" && payload.isMulti;
+    // Active y-axis transform. Defaults to "level" when unset. Applied
+    // BEFORE rebase/rescale/log so the rest of the pipeline operates on
+    // post-transform values.
+    const transform: TransformKey = payload.transform ?? "level";
+    const transformActive = transform !== "level";
+    // rebaseMode = the existing multi-source "rebase to 100 at window
+    // start" path. Skip when transform="index_100" (the transform IS
+    // a rebase already; running both would double-rebase to 100 and
+    // produce a meaningless flat line). transform="yoy_pct" doesn't
+    // conflict — yoy_pct produces a percentage series that we just
+    // plot at face value.
+    const rebaseMode =
+      payload.normalize === "rebase" &&
+      payload.isMulti &&
+      transform !== "index_100";
     // Mixed-magnitude raw-mode rescale. Null in rebase/dual-axis/
     // single-source/same-magnitude cases. See rawAxisRescaleFor.
-    const fullRescale = rawAxisRescaleFor(payload);
+    // Skip the rescale entirely when a transform is active — the
+    // transformed values are in their own unit (%/index), so the
+    // mixed-magnitude rescaler doesn't apply.
+    const fullRescale = transformActive ? null : rawAxisRescaleFor(payload);
     const bundleSeries: BundleSeries[] = [];
     let standardDomainMs: [number, number] | null = null;
     for (const s of payload.sources) {
@@ -1253,7 +1283,15 @@
       // is the canonical x-axis range — same value in both modes —
       // which we pin on Plot.plot below so a low→high upgrade doesn't
       // shift the line within the plot area.
-      const { visible, startMs, domainMs } = dialogPlotPoints(s, eff, fixed);
+      const rawSlice = dialogPlotPoints(s, eff, fixed);
+      const visible = transformActive
+        ? applyTransform(
+            rawSlice.visible.map((p) => ({ t: p.t, v: p.v })),
+            transform,
+          )
+        : rawSlice.visible;
+      const startMs = rawSlice.startMs;
+      const domainMs = rawSlice.domainMs;
       if (!standardDomainMs && domainMs) standardDomainMs = domainMs;
       if (visible.length < 2) continue;
       // Compute rebase baseline up-front (same logic as rebasePoints, inlined
@@ -1298,8 +1336,11 @@
       // Forecast UI Phase 2: render the latest projection vintage as a
       // dashed continuation past the last historical point. Apply the
       // same rebase divisor used for the solid line so multi-source
-      // rebased plots stay self-consistent.
-      const tail = projectionTail(s, visible);
+      // rebased plots stay self-consistent. Skipped when a y-axis
+      // transform is active — projecting a YoY rate or an index
+      // forward from raw-level projection points produces visual
+      // discontinuities; punt to v2 when there's a use case.
+      const tail = transformActive ? null : projectionTail(s, visible);
       if (tail) {
         const projPts: TipPoint[] = tail.tail.map((p) => ({
           t: new Date(p.t),
@@ -1360,15 +1401,23 @@
     // mixed magnitudes (fullRescale active), use the largest-magnitude
     // source's formatting so the ticks render in the natural axis unit
     // (e.g. share-price + market-cap → ticks read "$300B").
+    // When a transform is active, override the formatting via
+    // transformFormatting so YoY% reads with a "%" suffix and
+    // index_100 reads as a plain index number regardless of the
+    // input series' native units.
     const singleSource =
       !payload.isMulti && payload.sources.length === 1
         ? payload.sources[0]
         : null;
-    const tickFormat = singleSource
-      ? (v: number) => formatValue(v, { ...singleSource.formatting, decimals: 1 })
-      : fullRescale
-        ? (v: number) => formatValue(v, { ...fullRescale.axisFormatting, decimals: 1 })
-        : undefined;
+    const baseFmt = singleSource?.formatting ?? fullRescale?.axisFormatting;
+    const tickFormat = transformActive
+      ? (v: number) =>
+          formatValue(v, transformFormatting(baseFmt ?? { style: "number", decimals: 1 }, transform))
+      : singleSource
+        ? (v: number) => formatValue(v, { ...singleSource.formatting, decimals: 1 })
+        : fullRescale
+          ? (v: number) => formatValue(v, { ...fullRescale.axisFormatting, decimals: 1 })
+          : undefined;
 
     const plot = Plot.plot({
       height: 280,
@@ -1403,7 +1452,12 @@
         // Dual-axis takes its own branch above and never reaches here,
         // so we don't need to guard against `normalize === "dual-axis"`
         // — the dual-axis branch ignores payload.scale entirely.
-        type: payload.scale === "log" ? "log" : undefined,
+        // YoY% can be negative during contractions; log doesn't work
+        // with negatives, so force linear when transform is yoy_pct.
+        type:
+          payload.scale === "log" && transform !== "yoy_pct"
+            ? "log"
+            : undefined,
       },
       marks,
     });
@@ -1624,6 +1678,10 @@
     // toggle to a trailing window from the dialog's pill row.
     selectedView: DeltaWindow | "fixed";
     dialogInitialized: boolean;
+    // Currently-active y-axis transform for the dialog plot. Defaults
+    // to payload.transform on first open; pill clicks update it
+    // without re-emitting the payload.
+    currentTransform: TransformKey;
   }
 
   // Build the payload to pass to update functions based on whether the
@@ -1906,6 +1964,7 @@
         currentWindow: closestSupported(dashDefault, payload.supportedDeltas),
         selectedView: payload.fixedRange ? "fixed" : "_window",
         dialogInitialized: false,
+        currentTransform: payload.transform ?? "level",
       } as TileCtx;
       // Fix sentinel "_window": replace with the actual window value.
       if (ctx.selectedView === ("_window" as unknown as DeltaWindow)) {
@@ -2028,6 +2087,48 @@
               );
             }
             setActivePill(dialog, ctx.selectedView);
+          });
+        });
+
+      // Y-axis transform pills (Level / YoY % / Index = 100). Pure
+      // view-state — flipping the transform re-renders the full plot
+      // without mutating the saved chart spec. The transform field on
+      // payload is sticky to the dashboard-author's choice; pill
+      // clicks override per-session by mutating ctx.payload.transform
+      // so the existing renderFullPlot call path picks up the change.
+      dialog
+        .querySelectorAll<HTMLButtonElement>("button[data-transform]")
+        .forEach((pill) => {
+          pill.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (!ctx.dialogInitialized) return;
+            const t = pill.dataset.transform as TransformKey | undefined;
+            if (!t) return;
+            ctx.currentTransform = t;
+            ctx.payload.transform = t;
+            // Re-render the dialog with the new transform active. The
+            // updateDialog path passes payload (which now carries the
+            // new transform) into renderFullPlot.
+            const useFixed = ctx.selectedView === "fixed";
+            updateDialog(
+              dialog,
+              effectivePayload(payload, useFixed),
+              ctx.currentWindow,
+            );
+            // Update pill-active class within this transform-pill
+            // group (separate from window pills above).
+            dialog
+              .querySelectorAll<HTMLButtonElement>("button[data-transform]")
+              .forEach((p) => {
+                const active = p.dataset.transform === t;
+                p.classList.toggle("pill-active", active);
+                p.setAttribute("aria-pressed", active ? "true" : "false");
+              });
+            track("chart_transform_changed", {
+              chartId: payload.chartId ?? "",
+              transform: t,
+              surface: payload.surface ?? "",
+            });
           });
         });
 

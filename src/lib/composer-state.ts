@@ -98,6 +98,10 @@ const inlineChartSchema = z.object({
   // dialog plot. Multiple stack via alpha compositing. Optional —
   // omitted means no shading; an empty array also means no shading.
   shading: shadingSchema.optional(),
+  // Default y-axis transformation (level / yoy_pct / index_100).
+  // Per-session pill clicks in the dialog override this without
+  // mutating the saved chart. See src/lib/transforms.ts.
+  transform: z.enum(["level", "yoy_pct", "index_100"]).optional(),
 });
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;

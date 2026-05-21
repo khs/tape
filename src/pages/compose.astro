@@ -909,6 +909,28 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <option value="ratio">Ratio (1.04:1)</option>
               </select>
             </label>
+
+            <!--
+              Default y-axis transform for the dialog plot. Readers can
+              switch via pills in the dialog without persisting; this
+              field is the FIRST-PAINT default. Three values:
+                level      — raw stored values (no transform)
+                yoy_pct    — 12-month % change at each date
+                index_100  — rebase visible window so first point = 100
+            -->
+            <label class="cc-field">
+              <span class="eyebrow">Default y-axis transform (dialog)</span>
+              <select data-role="cc-transform-select">
+                <option value="level">Level (raw values)</option>
+                <option value="yoy_pct">YoY % (12-month change)</option>
+                <option value="index_100">Index = 100 (rebased)</option>
+              </select>
+              <span class="muted small">
+                Tile always shows raw level. Readers can flip the
+                dialog transform with the pill row; this picks what
+                they see on first open.
+              </span>
+            </label>
             <!--
               Background shading: semi-transparent date bands rendered
               BEHIND the line on the expanded chart. Multiple stack via
@@ -6104,6 +6126,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Only meaningful when op === "divide" with 2 sources; ignored
     // otherwise. Saved to inlineChart.percentDisplay on submit.
     percentDisplay: "percent" | "decimal" | "ratio" | undefined;
+    // Default y-axis transform (level / yoy_pct / index_100). Saved
+    // on the inline chart so a dashboard author can pin "open this
+    // in YoY% mode by default"; pill clicks in the dialog override
+    // per-session without re-saving.
+    transform: "level" | "yoy_pct" | "index_100";
     // Background-shading layers (recessions, president_party, etc.).
     // Each key references a preset in src/lib/shading-presets.ts.
     // Stacks via alpha compositing in the renderer. Persisted on the
@@ -6143,6 +6170,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     cdDistrict: null,
     geo: newGeoState(),
     percentDisplay: undefined,
+    transform: "level",
     shading: [],
     pendingMerge: null,
   };
@@ -6204,6 +6232,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.blurb = existing?.blurb ?? "";
     ccModal.percentDisplay = (existing as { percentDisplay?: "percent" | "decimal" | "ratio" } | null)
       ?.percentDisplay;
+    // Carry existing transform over (level / yoy_pct / index_100).
+    const existingTransform = (existing as { transform?: "level" | "yoy_pct" | "index_100" } | null)
+      ?.transform;
+    ccModal.transform = existingTransform ?? "level";
     // Carry existing shading layers over so editing a chart keeps its
     // bands. New charts start with an empty list (no shading).
     const existingShading = (existing as { shading?: string[] } | null)?.shading;
@@ -6293,6 +6325,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncLogUI();
     syncOpUI();
     syncShadingUI();
+    syncTransformUI();
     renderCcModalTagChips();
     // Geo-chip strip: render all three chips reflecting modal state,
     // wire event handlers idempotently (wireGeoChips guards via
@@ -6377,6 +6410,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       .forEach((cb) => {
         cb.checked = have.has(cb.value);
       });
+  }
+
+  // Reflect ccModal.transform onto the select each time the modal
+  // opens (or syncs after a chart-pick that changed defaults).
+  function syncTransformUI(): void {
+    const sel = shell.querySelector<HTMLSelectElement>(
+      "[data-role='cc-transform-select']",
+    );
+    if (sel) sel.value = ccModal.transform;
   }
 
   function syncOpUI(): void {
@@ -6571,6 +6613,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncLogUI();
     syncOpUI();
     syncShadingUI();
+    syncTransformUI();
     renderCcModalTagChips();
     renderCustomChartSources();
     updateCustomChartCreateState();
@@ -7786,6 +7829,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // chart picks up the flag at render time.
     });
 
+    // Transform select (level / yoy_pct / index_100). Saved on the
+    // inline chart's `transform` field; per-session pill overrides
+    // happen in the dialog, not here.
+    const transformSelect = shell.querySelector<HTMLSelectElement>(
+      "[data-role='cc-transform-select']",
+    );
+    if (transformSelect) {
+      transformSelect.value = ccModal.transform;
+      transformSelect.addEventListener("change", () => {
+        const v = transformSelect.value;
+        ccModal.transform =
+          v === "yoy_pct" || v === "index_100" ? v : "level";
+        // No preview re-render needed — the cc-modal preview always
+        // shows raw level; the transform only affects the saved
+        // chart's dialog default.
+      });
+    }
+
     // Background-shading checkboxes. Each toggle splices its key in or
     // out of ccModal.shading; the array is persisted as inlineChart.shading
     // on Create. Re-render the preview so the user sees the bands without
@@ -7926,6 +7987,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             ccModal.shading.length > 0
               ? [...ccModal.shading] as InlineChart["shading"]
               : undefined,
+          // Persist transform only when non-level; "level" is the
+          // implicit default so omitting it keeps the serialized
+          // URL state compact for the common case.
+          transform:
+            ccModal.transform !== "level" ? ccModal.transform : undefined,
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -7945,6 +8011,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             ccModal.shading.length > 0
               ? [...ccModal.shading] as InlineChart["shading"]
               : undefined,
+          // Persist transform only when non-level; "level" is the
+          // implicit default so omitting it keeps the serialized
+          // URL state compact for the common case.
+          transform:
+            ccModal.transform !== "level" ? ccModal.transform : undefined,
         };
         // Hover-merge path: the new chart replaces the BASE chart at its
         // section slot, and the DRAGGED chart is removed from its own

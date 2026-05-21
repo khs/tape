@@ -456,6 +456,11 @@ const payload = {
   // transparent rects behind the line on the dialog plot. Optional —
   // when omitted/empty, no bands draw.
   shading: (chart as { shading?: string[] }).shading,
+  // Default y-axis transform for the dialog plot (level / yoy_pct /
+  // index_100). Tile stays in level mode regardless; the pill row
+  // in the dialog overrides per-session without persisting. See
+  // src/lib/transforms.ts for the math.
+  transform: (chart as { transform?: "level" | "yoy_pct" | "index_100" }).transform ?? "level",
   supportedDeltas: effectiveSupported,
   defaultDelta,
   fixedRange: dashboardFixedRange,
@@ -758,6 +763,39 @@ const mostRecentUpdate = payload.sources
                 {DELTA_LABELS_SHORT[w]}
               </button>
             ))}
+          </div>
+          {/* Y-axis transformation pills. Default = chart.transform (or
+              "level" when unset). Per-session — clicking re-renders the
+              full plot in the new view but doesn't persist back to
+              the saved chart. See src/lib/transforms.ts for the math. */}
+          <div class="pills transform-pills" role="group" aria-label="Y-axis transformation">
+            <button
+              type="button"
+              class={"pill" + (payload.transform === "level" ? " pill-active" : "")}
+              data-transform="level"
+              aria-pressed={payload.transform === "level" ? "true" : "false"}
+              title="Plot values at their stored level — no transformation."
+            >
+              Level
+            </button>
+            <button
+              type="button"
+              class={"pill" + (payload.transform === "yoy_pct" ? " pill-active" : "")}
+              data-transform="yoy_pct"
+              aria-pressed={payload.transform === "yoy_pct" ? "true" : "false"}
+              title="Year-over-year percent change at each date. Drops the first year of points."
+            >
+              YoY %
+            </button>
+            <button
+              type="button"
+              class={"pill" + (payload.transform === "index_100" ? " pill-active" : "")}
+              data-transform="index_100"
+              aria-pressed={payload.transform === "index_100" ? "true" : "false"}
+              title="Rebase the visible window: first point = 100, everything else proportional."
+            >
+              Index = 100
+            </button>
           </div>
           {isMulti && normalize === "rebase" && (
             <p class="dialog-plot-caption muted">
