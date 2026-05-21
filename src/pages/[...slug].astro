@@ -2,9 +2,7 @@
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Chart from "../components/Chart.astro";
-import ChartChoropleth from "../components/ChartChoropleth.astro";
-import ChartBar from "../components/ChartBar.astro";
+import SectionChart from "../components/SectionChart.astro";
 import ChartController from "../components/ChartController.astro";
 import { resolveBarSnapshots } from "../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
@@ -175,52 +173,18 @@ const forkUrl =
           )}
           {section.charts.length > 0 && (
           <div class="chart-grid">
-            {section.charts.map((c) => {
-              const effective = effectiveChart(
-                c,
-                dashboard.data.chartOverrides?.[c.chart.id],
-              );
-              // Dispatch on render type. Choropleth doesn't take a
-              // time-window or source list — only the chart's geo /
-              // indicator / vintage fields. Everything else still
-              // goes through the time-series Chart.astro.
-              if (effective.render === "choropleth") {
-                return (
-                  <ChartChoropleth
-                    chartId={c.chart.id}
-                    chart={effective}
-                    dashboardSlug={dashboard.id}
-                  />
-                );
-              }
-              if (effective.render === "bar") {
-                // Snapshot is pre-computed in the component script
-                // above (barSnapshots map) since JSX can't `await`
-                // inline. One JSON read per source — happens at
-                // server-render time, baked into the rendered HTML.
-                const snapshot = barSnapshots.get(c.chart.id) ?? [];
-                return (
-                  <ChartBar
-                    chartId={c.chart.id}
-                    chart={effective}
-                    sources={c.sources}
-                    snapshot={snapshot}
-                    dashboardSlug={dashboard.id}
-                  />
-                );
-              }
-              return (
-                <Chart
-                  chartId={c.chart.id}
-                  chart={effective}
-                  sources={c.sources}
-                  dashboardSlug={dashboard.id}
-                  dashboardWindow={sectionDelta}
-                  dashboardFixedRange={sectionFixed}
-                  sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                />
-              );
-            })}
+            {section.charts.map((c) => (
+              <SectionChart
+                chartId={c.chart.id}
+                chart={effectiveChart(c, dashboard.data.chartOverrides?.[c.chart.id])}
+                sources={c.sources}
+                dashboardSlug={dashboard.id}
+                sectionDelta={sectionDelta}
+                sectionFixedRange={sectionFixed}
+                sectionLocked={!!(section.defaultDelta || section.fixedRange)}
+                barSnapshot={barSnapshots.get(c.chart.id)}
+              />
+            ))}
           </div>
           )}
         </section>

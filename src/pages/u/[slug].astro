@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Chart from "../../components/Chart.astro";
-import ChartBar from "../../components/ChartBar.astro";
+import SectionChart from "../../components/SectionChart.astro";
 import ChartController from "../../components/ChartController.astro";
 import { resolveBarSnapshots } from "../../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../../lib/deltas";
@@ -322,36 +321,19 @@ const ogD = state
             )}
             {section.charts.length > 0 && (
               <div class="chart-grid">
-                {section.charts.map((c) => {
-                  const eff = effectiveChart(
-                    c,
-                    state?.chartOverrides?.[c.chart.id],
-                  );
-                  if (eff.render === "bar") {
-                    const snapshot = barSnapshots.get(c.chart.id) ?? [];
-                    return (
-                      <ChartBar
-                        chartId={c.chart.id}
-                        chart={eff}
-                        sources={c.sources}
-                        snapshot={snapshot}
-                        dashboardSlug={`u-${slug}`}
-                      />
-                    );
-                  }
-                  return (
-                    <Chart
-                      chartId={c.chart.id}
-                      chart={eff}
-                      sources={c.sources}
-                      dashboardSlug={`u-${slug}`}
-                      dashboardWindow={sectionDelta}
-                      dashboardFixedRange={sectionFixed}
-                      sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                      preloaded={c.preloaded}
-                    />
-                  );
-                })}
+                {section.charts.map((c) => (
+                  <SectionChart
+                    chartId={c.chart.id}
+                    chart={effectiveChart(c, state?.chartOverrides?.[c.chart.id])}
+                    sources={c.sources}
+                    dashboardSlug={`u-${slug}`}
+                    sectionDelta={sectionDelta}
+                    sectionFixedRange={sectionFixed}
+                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
+                    preloaded={c.preloaded}
+                    barSnapshot={barSnapshots.get(c.chart.id)}
+                  />
+                ))}
               </div>
             )}
           </section>
@@ -504,15 +486,15 @@ const ogD = state
 
   <script>
     // Pinned-home-view notice. The home page's pre-paint script
-    // redirects to this dashboard whenever localStorage has
-    // tape:default-dashboard-slug matching the current slug. To
-    // make that redirect transparent, surface a small notice on
-    // this page when:
+    // redirects to this dashboard whenever localStorage has the
+    // pinned-slug key matching the current slug. To make that
+    // redirect transparent, surface a small notice on this page when:
     //   1. ?from=home is in the URL (the redirect tagged us)
     //   2. AND localStorage's pinned slug matches this slug
     // The notice has an "Unpin" button that clears the default
     // and a "Open the home page" link (the link itself carries
     // ?nopin=1 which the home-page redirect-script bypasses).
+    import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../../lib/brand";
     {
       const notice = document.querySelector<HTMLElement>(
         "[data-role='pinned-home-notice']",
@@ -522,7 +504,7 @@ const ogD = state
         const currentSlug = here?.dataset.slug ?? "";
         const fromHome =
           new URL(window.location.href).searchParams.get("from") === "home";
-        const pinned = localStorage.getItem("tape:default-dashboard-slug");
+        const pinned = localStorage.getItem(DEFAULT_SLUG_KEY);
         if (fromHome && pinned && pinned === currentSlug) {
           notice.hidden = false;
         }
@@ -530,7 +512,7 @@ const ogD = state
           "[data-role='pinned-home-clear']",
         );
         unpinBtn?.addEventListener("click", () => {
-          localStorage.removeItem("tape:default-dashboard-slug");
+          localStorage.removeItem(DEFAULT_SLUG_KEY);
           notice.hidden = true;
         });
       }
@@ -554,6 +536,7 @@ const ogD = state
       readStoredSession,
     } from "../../lib/supabase";
     import { renderSavedDashboardList } from "../../lib/render-saved-dashboards";
+    import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../../lib/brand";
 
     (async () => {
       const fromHome =
@@ -596,11 +579,11 @@ const ogD = state
         onSetDefault: (slug) => {
           try {
             if (slug) {
-              localStorage.setItem("tape:default-dashboard-slug", slug);
+              localStorage.setItem(DEFAULT_SLUG_KEY, slug);
               // Navigate to the new pin so the page reflects it.
               window.location.href = `${baseUrl}/u/${encodeURIComponent(slug)}/?from=home`;
             } else {
-              localStorage.removeItem("tape:default-dashboard-slug");
+              localStorage.removeItem(DEFAULT_SLUG_KEY);
               window.location.href = `${baseUrl || "/"}/?nopin=1`;
             }
           } catch {

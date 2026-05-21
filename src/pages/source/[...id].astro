@@ -31,6 +31,7 @@ import {
 } from "../../lib/load-data";
 import type { TimeSeriesData } from "../../lib/data-types";
 import { encodeComposedState } from "../../lib/composer-state";
+import { isVisibleChart } from "../../lib/resolve-dashboard";
 import type { CitationInput } from "../../lib/citation";
 
 // Server-rendered per request rather than statically generated. We
@@ -55,7 +56,7 @@ const source = sources.find((s) => s.id === sourceId) ?? null;
 // charts too).
 const allCharts = await getCollection("charts");
 const referencingCharts = allCharts
-  .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+  .filter(isVisibleChart)
   .filter((c) => c.data.render !== "choropleth")
   .filter((c) => (c.data.sources ?? []).includes(sourceId));
 

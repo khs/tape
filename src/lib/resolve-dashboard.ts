@@ -384,3 +384,23 @@ export function effectiveChart(
 ): CollectionEntry<"charts">["data"] {
   return { ...resolved.chart.data, ...(override ?? {}) };
 }
+
+/**
+ * "Visible" chart filter: drops deprecated charts that aren't aliased to
+ * a successor. The chart-ID stability contract says `deprecated: true`
+ * keeps a slug reserved (no other chart can claim it), but the chart
+ * itself shouldn't appear in catalogs / library exports / per-source
+ * "charts using this source" lists. A `deprecated` chart with an
+ * `aliasOf` IS still visible — the slug stays alive so old saved-
+ * dashboard URLs keep working, but it resolves to its successor.
+ *
+ * Used by chart/[...id].astro, source/[...id].astro, library.json.ts,
+ * and any future surface that lists charts to a human. Three call
+ * sites previously inlined the same predicate; one place reduces the
+ * risk of drift when the contract evolves.
+ */
+export function isVisibleChart(
+  chart: CollectionEntry<"charts">,
+): boolean {
+  return !(chart.data.deprecated === true && !chart.data.aliasOf);
+}

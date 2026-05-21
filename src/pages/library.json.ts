@@ -19,6 +19,7 @@ import {
   COUNTRY_TAG,
   parseCountrySourceId,
 } from "../lib/countries";
+import { isVisibleChart } from "../lib/resolve-dashboard";
 
 /**
  * Lightweight CBSA-code → display-name lookup, parsed from the
@@ -267,7 +268,7 @@ export const GET: APIRoute = async () => {
   const charts = chartsCol
     // Hide charts tagged deprecated=true without an alias. Aliased ones still
     // expose the redirect so saved dashboards can resolve transparently.
-    .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+    .filter(isVisibleChart)
     // Hide single-source pregenerated charts (sources.length === 1 AND no
     // chart-level op) from the composer's Pregenerated tab. They're pure
     // wrappers around their underlying source — users get the same chart

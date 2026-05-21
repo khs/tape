@@ -1,0 +1,91 @@
+---
+/**
+ * Section-level chart wrapper that dispatches on `chart.render`.
+ *
+ * Three preset / custom / saved-dashboard page renderers each had a
+ * near-identical 25-line if/else picking among `<Chart>`,
+ * `<ChartChoropleth>`, and `<ChartBar>`. Drift across the three copies
+ * is a real risk (the bar branch was a 3-place manual edit when it
+ * shipped) so they live here as one component.
+ *
+ * Page renderers pass everything for the union of all three target
+ * components; this wrapper picks the right one. Type-wise, props are
+ * deliberately loose — Chart / ChartChoropleth / ChartBar each have
+ * their own strict prop shapes, and the wrapper's job is only to
+ * forward the relevant subset.
+ */
+import type { CollectionEntry } from "astro:content";
+import type { DeltaWindow } from "../lib/deltas";
+import type { TimeSeriesData } from "../lib/data-types";
+import Chart from "./Chart.astro";
+import ChartChoropleth from "./ChartChoropleth.astro";
+import ChartBar from "./ChartBar.astro";
+
+type ChartEntry = CollectionEntry<"charts">;
+type SourceEntry = CollectionEntry<"sources">;
+
+interface Props {
+  /** Stable chart ID — library slug like "us-macro/cpi" or
+   *  composer-generated "inline:abc123". Passed through to each
+   *  sub-component as a stable hydration key. */
+  chartId: string;
+  /** Resolved chart spec after applying any per-dashboard overrides.
+   *  We accept the effectiveChart() output shape rather than the
+   *  raw collection entry so callers don't repeat the override
+   *  application in their JSX. */
+  chart: ChartEntry["data"];
+  /** Resolved source list. Required for line + bar charts; ignored
+   *  by choropleth (it binds to a geo/indicator/vintage tuple). */
+  sources: SourceEntry[];
+  dashboardSlug: string;
+  /** Section-level window (passed to line charts). */
+  sectionDelta?: DeltaWindow;
+  sectionFixedRange?: { start: string; end: string };
+  sectionLocked?: boolean;
+  /** Side channel from saved/custom dashboards for derived sources. */
+  preloaded?: Record<string, TimeSeriesData>;
+  /** Pre-computed bar snapshot (only used when render === "bar"). */
+  barSnapshot?: { sourceId: string; value: number; date: string }[];
+}
+
+const {
+  chartId,
+  chart,
+  sources,
+  dashboardSlug,
+  sectionDelta,
+  sectionFixedRange,
+  sectionLocked,
+  preloaded,
+  barSnapshot,
+} = Astro.props as Props;
+---
+
+{
+  chart.render === "choropleth" ? (
+    <ChartChoropleth
+      chartId={chartId}
+      chart={chart}
+      dashboardSlug={dashboardSlug}
+    />
+  ) : chart.render === "bar" ? (
+    <ChartBar
+      chartId={chartId}
+      chart={chart}
+      sources={sources}
+      snapshot={barSnapshot ?? []}
+      dashboardSlug={dashboardSlug}
+    />
+  ) : (
+    <Chart
+      chartId={chartId}
+      chart={chart}
+      sources={sources}
+      dashboardSlug={dashboardSlug}
+      dashboardWindow={sectionDelta}
+      dashboardFixedRange={sectionFixedRange}
+      sectionLocked={sectionLocked}
+      preloaded={preloaded}
+    />
+  )
+}

@@ -10,6 +10,7 @@ import {
   dashboardSupportedDeltas,
   resolveDashboardDefault,
 } from "../lib/resolve-dashboard";
+import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../lib/brand";
 
 // Server-rendered so we can pick which preset dashboard to feature based on
 // `?dash=<slug>` without pre-building N variants. The page is a pure
@@ -289,6 +290,7 @@ const tabs: TabSpec[] = sorted.map((d) => ({
   <script is:inline define:vars={{
     supabaseUrl: import.meta.env.PUBLIC_SUPABASE_URL ?? "",
     baseUrl: baseUrl,
+    DEFAULT_SLUG_KEY,
   }}>
     (function () {
       try {
@@ -310,7 +312,7 @@ const tabs: TabSpec[] = sorted.map((d) => ({
         var params = new URLSearchParams(window.location.search);
         if (params.has("nopin")) return;
         if (window.location.hash === "#home") return;
-        var slug = localStorage.getItem("tape:default-dashboard-slug");
+        var slug = localStorage.getItem(DEFAULT_SLUG_KEY);
         if (!slug) return;
         // Sanity-check the slug shape so a corrupted localStorage
         // value can't bounce us to /u/<arbitrary-string>/.
@@ -356,6 +358,7 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     } from "../lib/supabase";
     import { renderSavedDashboardList } from "../lib/render-saved-dashboards";
     import { track } from "../lib/track";
+    import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../lib/brand";
 
     // --- Featured-dashboard tab telemetry ---------------------------------
     // Tabs are real <a> links now (server picks the active dashboard from
@@ -375,9 +378,9 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     // --- Default-dashboard slot ------------------------------------------
     // Slug lives in localStorage (per-browser, intentionally not synced
     // to Supabase — this is a personal pin, not part of the dashboard's
-    // own state). Keys + helpers are isolated so a future "sync to
-    // user metadata" change is contained.
-    const DEFAULT_SLUG_KEY = "tape:default-dashboard-slug";
+    // own state). DEFAULT_SLUG_KEY is the canonical name from
+    // lib/brand.ts; the pre-paint inline-script above gets the same
+    // value via its define:vars block.
     function readDefaultSlug(): string | null {
       try {
         return localStorage.getItem(DEFAULT_SLUG_KEY);

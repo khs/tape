@@ -63,3 +63,13 @@ export const LAST_FEATURE_UPDATE = "2026-05-21";
  * lockstep if the slug ever moves.
  */
 export const WALKTHROUGH_DASHBOARD_SLUG = "walkthrough";
+
+/**
+ * localStorage key for the user's pinned default-dashboard slug.
+ *
+ * Used by index.astro (the redirect pre-paint + the in-page hero)
+ * and u/[slug].astro (the unpin button + the "pinned home view"
+ * notice). One typo on either side silently breaks the pin
+ * round-trip — keeping the literal in one place enforces parity.
+ */
+export const DEFAULT_DASHBOARD_SLUG_KEY = "tape:default-dashboard-slug";

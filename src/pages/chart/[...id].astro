@@ -6,6 +6,7 @@ import ChartController from "../../components/ChartController.astro";
 import {
   resolveChart,
   effectiveChart,
+  isVisibleChart,
 } from "../../lib/resolve-dashboard";
 import { encodeComposedState } from "../../lib/composer-state";
 import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
@@ -17,7 +18,7 @@ export async function getStaticPaths() {
   // single-chart-detail "expand a tile" UX yet (no time series, no
   // delta-window selector). Pregenerated-only inside presets for v1.
   return charts
-    .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+    .filter(isVisibleChart)
     .filter((c) => c.data.render !== "choropleth")
     .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
 }
