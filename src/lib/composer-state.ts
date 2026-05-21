@@ -224,6 +224,23 @@ export const composedStateSchema = z.object({
   inlineCharts: z.record(z.string(), inlineChartSchema).optional(),
   inlineSources: z.record(z.string(), inlineSourceSchema).optional(),
   inlineMaps: z.record(z.string(), inlineMapSchema).optional(),
+  /**
+   * Thin reference to a preset dashboard. When set, the renderer
+   * IGNORES sections/charts/inlineCharts on this row and renders the
+   * named preset's content instead (so updates to the preset YAML
+   * automatically flow to every user with a presetRef row, no
+   * snapshot drift).
+   *
+   * Used by the walkthrough seed: every signed-in user gets exactly
+   * one row with `presetRef: "walkthrough"`, which renders as a live
+   * mirror of /walkthrough/.
+   *
+   * Value must match a real preset dashboard collection ID; unknown
+   * preset refs fall back to whatever sections/charts the row also
+   * carries (in practice empty, so the user sees "this dashboard
+   * has no charts").
+   */
+  presetRef: z.string().optional(),
 });
 
 export type ComposedState = z.infer<typeof composedStateSchema>;

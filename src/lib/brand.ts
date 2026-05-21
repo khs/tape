@@ -45,15 +45,18 @@ export const ENTERPRISE_INQUIRY_URL =
  * see exercised in the walkthrough, edit this constant + add the
  * feature to the walkthrough dashboard in the same commit.
  */
-export const LAST_FEATURE_UPDATE = "2026-05-21";
-// Note: the May 21 date covers the smart-dispatch alert UX (acknowledge,
+export const LAST_FEATURE_UPDATE = "2026-05-22";
+// 2026-05-21 covered: smart-dispatch alert UX (acknowledge,
 // auto-pause), the request-fallback + Unicode-minus polish, the
-// walkthrough wiring, the US row added to Countries vs. world, the new
+// walkthrough wiring, the US row added to Countries vs. world, the
 // `render: "bar"` snapshot chart type (with `barOrientation` /
 // `barSort` / `barAsOf` knobs), and four new walkthrough sections
 // (many-lines-on-one-axis, annotations + period shading, bar
-// snapshots — the existing forecasts section was kept since it
-// stands on its own narrative).
+// snapshots).
+// 2026-05-22 adds: every signed-in user now gets a Walkthrough row
+// in their /me/ list that is a LIVE reference to /walkthrough/
+// (`presetRef` on the saved row, resolved at render time), so
+// updates to the canonical walkthrough propagate automatically.
 // Bump again on the next user-visible feature.
 
 /**

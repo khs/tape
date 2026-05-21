@@ -1,4 +1,5 @@
 ---
+import { getEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SectionChart from "../../components/SectionChart.astro";
 import ChartController from "../../components/ChartController.astro";
@@ -55,6 +56,40 @@ if (!isSupabaseConfigured) {
       if (data.title && !state.title) state.title = data.title;
       ownerBadge = data.visibility === "private" ? "private" : null;
       ownerId = data.owner_id ?? null;
+
+      // Preset reference: when state.presetRef is set, the saved row
+      // is a thin pointer to a curated preset (currently used for the
+      // walkthrough seeded into every signed-in user's account). Swap
+      // sections/charts/description with the preset's so the page
+      // renders the LIVE preset content — updates to the preset YAML
+      // flow through automatically, no snapshot drift.
+      if (state.presetRef) {
+        try {
+          const preset = await getEntry("dashboards", state.presetRef);
+          if (preset) {
+            state = {
+              ...state,
+              title: preset.data.title,
+              description: preset.data.description ?? state.description,
+              defaultDelta: preset.data.defaultDelta ?? state.defaultDelta,
+              sections: preset.data.sections,
+              charts: preset.data.charts,
+              chartOverrides: preset.data.chartOverrides,
+              // Inline shapes can't exist on a preset (they're
+              // composer-only), so clear them — the preset is the
+              // sole source of truth for this row's content.
+              inlineCharts: undefined,
+              inlineSources: undefined,
+              inlineMaps: undefined,
+            };
+          }
+          // If preset is missing, fall through with the saved state as-is.
+          // In practice it has empty sections, which renders as
+          // "This dashboard has no charts" — a graceful failure.
+        } catch {
+          /* swallow — same fall-through behavior as missing preset */
+        }
+      }
     }
   }
 }

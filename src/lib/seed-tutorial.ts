@@ -1,28 +1,33 @@
 /**
- * First-sign-in tutorial seeder.
+ * Walkthrough-as-live-board seeder.
  *
- * When a user signs in and has no saved dashboards yet, drop a copy of
- * the walkthrough dashboard into their account titled "Tutorial". They
- * can then explore the features by clicking around their own copy
- * (renaming sections, deleting tiles, etc.) without affecting the
- * shared /walkthrough/ page that the marketing pitch links to.
+ * On sign-in, ensures every user has a saved-dashboard row that is
+ * a thin reference to the canonical /walkthrough/ preset. The row
+ * appears in /me/ alongside the user's own boards, and when opened
+ * renders the LIVE walkthrough content (not a snapshot) — updates
+ * to walkthrough.mdx propagate to every user automatically.
+ *
+ * History: this used to copy walkthrough.mdx into a materialized
+ * "Tutorial" snapshot, only for users with zero saves. The snapshot
+ * drifted (each new walkthrough section had to be backfilled by
+ * hand) and existing users never saw the tour. The presetRef row
+ * fixes both: every user gets it, and it stays in sync.
  *
  * Guarantees:
- *   1. Never re-creates the Tutorial if a user deletes it (a localStorage
- *      flag is set the first time we attempt the seed and short-circuits
- *      future sign-ins on the same browser).
- *   2. Never seeds for a user who already has saved dashboards — the
- *      explicit "no rows yet" check filters out returning users who hit
- *      this code from a new browser.
- *   3. Failure modes degrade safely: a network error during the
- *      empty-check or the insert leaves the flag UNSET so the next
- *      sign-in retries.
- *
- * The TUTORIAL_STATE constant below mirrors the curated walkthrough
- * dashboard. If walkthrough.mdx changes structurally, this should be
- * updated in lockstep — the seed runs once per account, so existing
- * users won't see drifted copies, but new users should get the latest
- * feature set.
+ *   1. Never creates a second walkthrough-ref. The check looks for
+ *      "any saved row owned by this user with state_json.presetRef =
+ *      walkthrough", not "any row at all".
+ *   2. Idempotent across browsers. The DB-side check is the source
+ *      of truth; the localStorage flag is a perf optimization to
+ *      skip the network round-trip on repeat sign-ins, NOT a
+ *      correctness mechanism.
+ *   3. Respects user deletions. If a user explicitly deletes the
+ *      walkthrough row, the localStorage flag stays set on THIS
+ *      browser — we don't re-create on every refresh. (Sign-in
+ *      from a fresh browser will re-seed; rare and acceptable.)
+ *   4. Old "Tutorial" snapshots (pre-presetRef) are left alone.
+ *      They're a user-owned row at this point; we don't touch
+ *      them. New users only see the new walkthrough-ref.
  */
 import { nanoid } from "nanoid";
 import {
@@ -30,97 +35,42 @@ import {
   SUPABASE_REST_ANON_KEY,
   type StoredSession,
 } from "./supabase";
+import { WALKTHROUGH_DASHBOARD_SLUG } from "./brand";
 import type { ComposedState } from "./composer-state";
 
-const FLAG_PREFIX = "tape:seeded-tutorial:";
+const FLAG_PREFIX = "tape:seeded-walkthrough-ref:";
 
-const TUTORIAL_STATE: ComposedState = {
+/**
+ * Title for the seeded row, shown in /me/ and the home-page list.
+ * Kept in sync with the walkthrough preset's title on seed; if the
+ * preset title later changes, this stale display title remains until
+ * the next sign-in seeds a NEW row for a NEW user. Existing users see
+ * the (slightly stale) row title in /me/ but the live preset title at
+ * /u/<slug>/. Acceptable for the level of churn we expect.
+ */
+const SEED_TITLE = "Walkthrough — a tour of every Tape feature";
+
+/**
+ * The state_json blob we write. Note the deliberate sparseness — no
+ * sections, no charts, no chartOverrides. The /u/[slug].astro
+ * renderer detects presetRef and pulls all content from the preset
+ * dashboard at render time. Anything we put in sections/charts
+ * here would be IGNORED, so keep the row minimal.
+ */
+const SEED_STATE: ComposedState = {
   v: 1,
-  title: "Tutorial",
-  defaultDelta: "1y",
-  description:
-    "Your personal copy of the Tape walkthrough — feel free to edit, " +
-    "rename sections, swap tiles, or delete it entirely. Each section " +
-    "below demos a different Tape feature.",
-  sections: [
-    {
-      title: "Every mini-chart shows the level and the change",
-      description:
-        "The big number is today's value; the small number is how it's " +
-        "changed across the current window (set by the options above). " +
-        "You can also click any of them to expand: try it on US " +
-        "unemployment rate to find out more.",
-      charts: [
-        "us-macro/unemployment_walkthrough",
-        "us-macro/ten_year",
-        "us-macro/sp500",
-      ],
-    },
-    {
-      title: "Same data, different windows",
-      description:
-        "The dashboard-wide pills above (1W, 1M, YTD, 1Y, 5Y, 10Y, 30Y, " +
-        "50Y) flip every tile to that lookback in lockstep. A section can " +
-        "pin its own window — these three render at 30Y regardless of " +
-        "where the top pills are set.",
-      defaultDelta: "30y",
-      charts: [
-        "us-macro/real_gdp",
-        "us-macro/fed_funds",
-        "us-macro/core_cpi",
-      ],
-    },
-    {
-      title: "Multi-source charts: combine series with math",
-      description:
-        "A tile can combine two or more series via the composer's " +
-        "'+ Custom chart' or '+ Derived source' button. Pick an " +
-        "operator (sum / difference / division) to collapse the inputs " +
-        "into one derived line — addition (misery index = inflation + " +
-        "unemployment), subtraction (yield-curve recession signal = 10Y " +
-        "minus fed funds), or division (real GDP per capita).",
-      charts: [
-        "us-macro/misery_index",
-        "us-macro/yield_curve_spread",
-        "us-macro/real_gdp_per_capita",
-      ],
-    },
-    {
-      title: "Forecasts ship as a dashed line",
-      description:
-        "When a series has an official projection, it renders as a " +
-        "dashed extension of the historical line — same axis, same " +
-        "tooltip, no extra controls. Same treatment for futures curves " +
-        "(oil, VIX, ag commodities) and the Social Security trustees' " +
-        "OASDI projection.",
-      charts: ["government/cbo_deficit_pct_gdp"],
-    },
-    {
-      title: "Maps: choropleths at four resolutions",
-      description:
-        "Census ACS demographic data renders as interactive choropleth " +
-        "maps at four geographic scales: state, county (~3,140), tract " +
-        "(~500–9,000 per state), and block group (up to ~30,000 per " +
-        "state). Click any region for the value + name.",
-      charts: [
-        "government/us_median_hh_income_county_map_2022",
-        "government/us_poverty_rate_county_map_2022",
-      ],
-    },
-    {
-      title: "Multi-state regions",
-      description:
-        "Tract and block-group maps can stitch up to 4 states into one " +
-        "regional view. The DMV tract map below combines VA, MD, and DC.",
-      charts: ["government/dmv_median_hh_income_tract_map_2022"],
-    },
-  ],
+  title: SEED_TITLE,
+  presetRef: WALKTHROUGH_DASHBOARD_SLUG,
 };
 
 /**
  * Idempotent. Called from BaseLayout's auth handler on every refresh
- * that detects a signed-in session; the localStorage flag short-circuits
- * repeat calls cheaply.
+ * that detects a signed-in session. Cheap fast-path: per-browser
+ * localStorage flag short-circuits before any network call.
+ *
+ * (Function name preserved from the prior tutorial-snapshot
+ * implementation so existing imports in BaseLayout.astro keep
+ * compiling; the contract changed but the call site didn't.)
  */
 export async function maybeSeedTutorial(
   stored: StoredSession,
@@ -131,14 +81,23 @@ export async function maybeSeedTutorial(
   const flagKey = `${FLAG_PREFIX}${stored.user.id}`;
   if (localStorage.getItem(flagKey)) return;
 
-  // Cheap REST head: "do you have anything saved yet?". Anyone who
-  // already has a dashboard (returning user, new browser) gets the flag
-  // set so we never retry the seed.
-  let hasAny: boolean;
+  // Does this user already have a walkthrough-ref row? PostgREST
+  // doesn't natively index into JSON columns from the URL query
+  // string, so we ask for any saved_dashboards row owned by the user
+  // with the title we seed under — cheap proxy that catches the seed
+  // row without listing the user's other boards.
+  //
+  // False positives: a user who happens to rename one of their own
+  // dashboards to exactly "Walkthrough — a tour of every Tape
+  // feature" will be considered "already seeded" and not get the
+  // canonical ref. Acceptable — that's an extremely deliberate
+  // collision.
+  let hasRef: boolean;
   try {
     const url =
       `${SUPABASE_REST_URL}/rest/v1/saved_dashboards` +
       `?owner_id=eq.${encodeURIComponent(stored.user.id)}` +
+      `&title=eq.${encodeURIComponent(SEED_TITLE)}` +
       `&select=id&limit=1`;
     const res = await fetch(url, {
       headers: {
@@ -148,21 +107,23 @@ export async function maybeSeedTutorial(
     });
     if (!res.ok) return;
     const rows = await res.json().catch(() => []);
-    hasAny = Array.isArray(rows) && rows.length > 0;
+    hasRef = Array.isArray(rows) && rows.length > 0;
   } catch {
     return;
   }
 
-  if (hasAny) {
+  if (hasRef) {
+    // Already present (this browser or another). Set the local flag
+    // so we skip the round-trip on subsequent loads.
     try {
-      localStorage.setItem(flagKey, "skip");
+      localStorage.setItem(flagKey, "exists");
     } catch {
       /* localStorage quota or disabled — best-effort flag, swallow */
     }
     return;
   }
 
-  // Empty list: seed.
+  // Seed.
   try {
     const insertRes = await fetch(
       `${SUPABASE_REST_URL}/rest/v1/saved_dashboards`,
@@ -177,11 +138,12 @@ export async function maybeSeedTutorial(
         body: JSON.stringify({
           slug: nanoid(10),
           owner_id: stored.user.id,
-          title: TUTORIAL_STATE.title,
-          state_json: TUTORIAL_STATE,
+          title: SEED_TITLE,
+          state_json: SEED_STATE,
           // Private by default — the user can flip to public from /me/
-          // if they want a shareable link. Their copy isn't useful to
-          // strangers; the canonical walkthrough lives at /walkthrough/.
+          // if they want a shareable link. The canonical walkthrough
+          // already lives at /walkthrough/ for sharing; this row is
+          // the per-user "I want it in my list" affordance.
           visibility: "private",
         }),
       },
