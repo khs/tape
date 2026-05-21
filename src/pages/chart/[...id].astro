@@ -174,7 +174,12 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
 <style>
   .chart-detail-tile {
     /* The Chart tile wants ~220px min so a single tile in a centered column
-       looks right; cap it so it doesn't stretch awkwardly wide. */
+       looks right; cap it so it doesn't stretch awkwardly wide on
+       desktop. On phones (< 360px viewport — uncommon, but the iPhone
+       SE 1st-gen at 320px does exist) the tile would otherwise
+       overflow its parent's padding; width:100% with max-width caps
+       handles both cases. */
+    width: 100%;
     max-width: 360px;
   }
 </style>

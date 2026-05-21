@@ -2587,6 +2587,23 @@
               renderSparkSingle(sparkEl, s, eff, undefined, ctx.payload.shading);
             }
           }
+          // Mobile: when the user rotates their device with the
+          // dialog open, the full plot stays sized to the previous
+          // orientation. Re-render the dialog plot too so portrait
+          // → landscape swaps the plot dimensions cleanly.
+          if (ctx.dialogInitialized && ctx.dialog.open) {
+            const plotEl = ctx.dialog.querySelector<HTMLElement>(
+              "[data-role='plot']",
+            );
+            if (plotEl) {
+              const useFixed = ctx.selectedView === "fixed";
+              renderFullPlot(
+                plotEl,
+                effectivePayload(ctx.payload, useFixed),
+                ctx.currentWindow,
+              );
+            }
+          }
         });
       }, 150);
     });

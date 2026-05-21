@@ -418,8 +418,10 @@ const frequency = source ? inferFrequency(source.data.supportedDeltas as string[
   }
   .source-headline-chart {
     /* Same width cap as /chart/<id>/ — keeps the tile from
-       stretching awkwardly on wide screens. Click expands to the
-       full dialog. */
+       stretching awkwardly on wide screens. width:100% guards
+       against overflow on phones narrower than 360px after the
+       page's horizontal padding. Click expands to the full dialog. */
+    width: 100%;
     max-width: 360px;
     margin: 4px 0 4px;
   }
