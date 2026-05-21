@@ -461,6 +461,10 @@ const payload = {
   // in the dialog overrides per-session without persisting. See
   // src/lib/transforms.ts for the math.
   transform: (chart as { transform?: "level" | "yoy_pct" | "index_100" }).transform ?? "level",
+  // Editorial annotations — labelled date markers rendered on the
+  // dialog plot. See src/lib/annotations.ts.
+  annotations:
+    (chart as { annotations?: { date: string; label: string; position?: "above" | "below" }[] }).annotations,
   supportedDeltas: effectiveSupported,
   defaultDelta,
   fixedRange: dashboardFixedRange,

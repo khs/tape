@@ -23,7 +23,6 @@
  *   3. Sizing is simpler — fill 100% × 100% of the iframe with the
  *      tile, no fullscreen-modal CSS surgery needed.
  */
-import { getCollection } from "astro:content";
 import EmbedLayout from "../../../layouts/EmbedLayout.astro";
 import Chart from "../../../components/Chart.astro";
 import ChartController from "../../../components/ChartController.astro";
@@ -33,21 +32,15 @@ import {
 } from "../../../lib/resolve-dashboard";
 import { DELTA_WINDOWS, type DeltaWindow } from "../../../lib/deltas";
 
-export async function getStaticPaths() {
-  const charts = await getCollection("charts");
-  return charts
-    .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
-    // Choropleth charts don't render through the time-series Chart
-    // component; could ship later as `/embed/map/<id>` if there's demand.
-    .filter((c) => c.data.render !== "choropleth")
-    .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
-}
+// SSR (rather than static getStaticPaths over every chart). With
+// ~9000 chart IDs in the library, generating an embed page per chart
+// at build time competes for Vercel build minutes against the
+// already-static /chart/[...id] route. Embeds are mostly visited via
+// host-page iframe loads that get cached at the host CDN; SSR cost
+// per first-load is sub-second.
+export const prerender = false;
 
-interface Props {
-  chartId: string;
-}
-
-const { chartId } = Astro.props;
+const chartId = Astro.params.id ?? "";
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // Pull the requested delta from the query string; defensively clamp

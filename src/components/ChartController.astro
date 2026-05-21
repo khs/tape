@@ -34,6 +34,7 @@
     transformFormatting,
     type TransformKey,
   } from "../lib/transforms";
+  import type { Annotation } from "../lib/annotations";
   import { SITE_BRAND_URL } from "../lib/brand";
   import { readStoredSession } from "../lib/supabase";
   import {
@@ -162,7 +163,94 @@
      * initialized to.
      */
     transform?: TransformKey;
+    /**
+     * Editorial annotations — date-pinned text labels. Rendered as
+     * Plot.ruleX vertical guides + Plot.text labels at the top/
+     * bottom of the dialog plot. See src/lib/annotations.ts.
+     */
+    annotations?: Annotation[];
   };
+
+  /**
+   * Build Plot marks for editorial annotations — a vertical dashed
+   * guide line at each annotation's date + a small text label
+   * floating above/below the plot.
+   *
+   * Filtered to annotations whose date falls inside the visible
+   * window; off-window annotations would draw outside the plot
+   * frame and serve no purpose at the current zoom.
+   *
+   * Visual style:
+   *   - 1px dashed line in muted neutral gray, low opacity
+   *   - Label in small 10px Inter, positioned just inside the
+   *     plot's top edge (above) or bottom edge (below)
+   *   - text-anchor inferred from position relative to the plot
+   *     middle so labels near the right edge align left-end-to-
+   *     marker instead of running off-screen
+   */
+  function annotationMarks(
+    annotations: Annotation[] | undefined,
+    domainStart: Date | null,
+    domainEnd: Date | null,
+  ): any[] {
+    if (!annotations || annotations.length === 0) return [];
+    const marks: any[] = [];
+    const startMs = domainStart ? domainStart.getTime() : -Infinity;
+    const endMs = domainEnd ? domainEnd.getTime() : Infinity;
+    const visible = annotations
+      .map((a) => ({
+        ...a,
+        dateObj: new Date(a.date),
+      }))
+      .filter((a) => {
+        const ms = a.dateObj.getTime();
+        return ms >= startMs && ms <= endMs;
+      });
+    if (visible.length === 0) return [];
+    // Vertical guide lines, one per annotation. Drawn first so the
+    // line label sits visually on top.
+    marks.push(
+      Plot.ruleX(visible, {
+        x: "dateObj",
+        stroke: "#6f6c66",
+        strokeDasharray: "2,3",
+        strokeOpacity: 0.55,
+      }),
+    );
+    // Group annotations by position so we can apply different
+    // frame anchors. Above-the-line at top, below at bottom.
+    const aboveAnns = visible.filter((a) => (a.position ?? "above") === "above");
+    const belowAnns = visible.filter((a) => a.position === "below");
+    if (aboveAnns.length > 0) {
+      marks.push(
+        Plot.text(aboveAnns, {
+          x: "dateObj",
+          text: "label",
+          frameAnchor: "top",
+          dy: 6,
+          textAnchor: "middle",
+          fill: "#1c1c1a",
+          fontSize: 10,
+          fontWeight: 500,
+        }),
+      );
+    }
+    if (belowAnns.length > 0) {
+      marks.push(
+        Plot.text(belowAnns, {
+          x: "dateObj",
+          text: "label",
+          frameAnchor: "bottom",
+          dy: -6,
+          textAnchor: "middle",
+          fill: "#1c1c1a",
+          fontSize: 10,
+          fontWeight: 500,
+        }),
+      );
+    }
+    return marks;
+  }
 
   /**
    * Build Plot.rectX marks for every requested shading preset, clipped
@@ -1377,6 +1465,18 @@
         new Date(standardDomainMs[1]),
       );
       if (sh.length > 0) marks.unshift(...sh);
+    }
+    // Append annotation marks AFTER the line marks so labels +
+    // vertical guides paint ON TOP of the chart. Annotations are
+    // editorial overlays — they should be the last thing the
+    // reader's eye lands on.
+    if (standardDomainMs) {
+      const annMarks = annotationMarks(
+        payload.annotations,
+        new Date(standardDomainMs[0]),
+        new Date(standardDomainMs[1]),
+      );
+      if (annMarks.length > 0) marks.push(...annMarks);
     }
     const bundles = buildBundles(bundleSeries);
     if (bundles.length > 0) {

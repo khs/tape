@@ -7,3 +7,19 @@ tags: [us, rates, macro]
 # rate cycle plays out against (or leading into) an NBER recession,
 # and seeing them side-by-side is the headline story.
 shading: [recessions]
+# Major monetary-policy inflection dates.
+annotations:
+  - date: "2008-09-15"
+    label: Lehman collapse
+  - date: "2008-12-16"
+    label: ZIRP begins
+    position: below
+  - date: "2015-12-16"
+    label: Liftoff
+  - date: "2020-03-15"
+    label: COVID cut to zero
+    position: below
+  - date: "2022-03-16"
+    label: 2022 hiking starts
+  - date: "2024-09-18"
+    label: First cut

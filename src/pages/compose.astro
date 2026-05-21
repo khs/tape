@@ -977,6 +977,32 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span><strong>Fed Chair tenures</strong> — Volcker onward.</span>
               </label>
             </fieldset>
+
+            <!--
+              Editorial annotations: text labels pinned to specific
+              dates on the dialog plot. One annotation per line, in
+              the format:
+                YYYY-MM-DD: label text
+                YYYY-MM-DD: another label | below
+              Trailing "| above" or "| below" controls the vertical
+              placement of the label (default above). Blank lines and
+              # comment lines are ignored.
+            -->
+            <label class="cc-field">
+              <span class="eyebrow">Annotations</span>
+              <textarea
+                data-role="cc-annotations"
+                rows="4"
+                placeholder={"One per line, format:\n2008-09-15: Lehman collapse\n2020-03-15: COVID lockdown | below"}
+              ></textarea>
+              <span class="muted small">
+                Pin labels to specific dates on the expanded chart.
+                Format: <code>YYYY-MM-DD: label</code>. Optional
+                <code>| above</code> or <code>| below</code> suffix
+                controls vertical placement (default above). Blank
+                lines + # comments OK.
+              </span>
+            </label>
             <p class="muted small">
               Need to plot a ratio, sum, or difference?
               Click <strong>+ Derived source</strong> outside this modal
@@ -1069,6 +1095,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import * as Plot from "@observablehq/plot";
   import { track } from "../lib/track";
   import { packSourceIds } from "../lib/analytics-helpers";
+  import {
+    parseAnnotationLines,
+    formatAnnotationLines,
+    type Annotation,
+  } from "../lib/annotations";
   import { METRO_TAG } from "../lib/geographic-regions";
   import { COUNTRY_TAG, isRegionCode } from "../lib/countries";
   import {
@@ -6218,6 +6249,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // in YoY% mode by default"; pill clicks in the dialog override
     // per-session without re-saving.
     transform: "level" | "yoy_pct" | "index_100";
+    // Editorial annotations textarea body. Stored as raw text in the
+    // composer state and parsed via parseAnnotationLines() on save
+    // so format issues (typos in the date, missing colon, etc.)
+    // surface in the textarea rather than silently lost.
+    annotationsText: string;
     // Background-shading layers (recessions, president_party, etc.).
     // Each key references a preset in src/lib/shading-presets.ts.
     // Stacks via alpha compositing in the renderer. Persisted on the
@@ -6258,6 +6294,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     geo: newGeoState(),
     percentDisplay: undefined,
     transform: "level",
+    annotationsText: "",
     shading: [],
     pendingMerge: null,
   };
@@ -6323,6 +6360,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const existingTransform = (existing as { transform?: "level" | "yoy_pct" | "index_100" } | null)
       ?.transform;
     ccModal.transform = existingTransform ?? "level";
+    // Carry existing annotations over as textarea body. Empty when
+    // editing a new chart; serialized via formatAnnotationLines on
+    // load so the textarea reads in the same shape the user will
+    // re-edit it in.
+    const existingAnnotations = (existing as { annotations?: Annotation[] } | null)
+      ?.annotations;
+    ccModal.annotationsText = Array.isArray(existingAnnotations)
+      ? formatAnnotationLines(existingAnnotations)
+      : "";
     // Carry existing shading layers over so editing a chart keeps its
     // bands. New charts start with an empty list (no shading).
     const existingShading = (existing as { shading?: string[] } | null)?.shading;
@@ -6413,6 +6459,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncOpUI();
     syncShadingUI();
     syncTransformUI();
+    syncAnnotationsUI();
     renderCcModalTagChips();
     // Geo-chip strip: render all three chips reflecting modal state,
     // wire event handlers idempotently (wireGeoChips guards via
@@ -6506,6 +6553,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       "[data-role='cc-transform-select']",
     );
     if (sel) sel.value = ccModal.transform;
+  }
+
+  // Reflect ccModal.annotationsText onto the textarea.
+  function syncAnnotationsUI(): void {
+    const ta = shell.querySelector<HTMLTextAreaElement>(
+      "[data-role='cc-annotations']",
+    );
+    if (ta) ta.value = ccModal.annotationsText;
   }
 
   function syncOpUI(): void {
@@ -6701,6 +6756,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     syncOpUI();
     syncShadingUI();
     syncTransformUI();
+    syncAnnotationsUI();
     renderCcModalTagChips();
     renderCustomChartSources();
     updateCustomChartCreateState();
@@ -7934,6 +7990,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     }
 
+    // Annotations textarea. Stored as raw text in ccModal; parsed
+    // into the array shape only at save time via parseAnnotationLines.
+    // Keeping the text in state means a malformed line doesn't get
+    // silently dropped between edits.
+    const annTextarea = shell.querySelector<HTMLTextAreaElement>(
+      "[data-role='cc-annotations']",
+    );
+    if (annTextarea) {
+      annTextarea.value = ccModal.annotationsText;
+      annTextarea.addEventListener("input", () => {
+        ccModal.annotationsText = annTextarea.value;
+        // The cc-modal preview shows a raw chart — annotations are
+        // a render-time overlay applied in the dialog. Skip the
+        // preview re-render here; the user sees the result on save.
+      });
+    }
+
     // Background-shading checkboxes. Each toggle splices its key in or
     // out of ccModal.shading; the array is persisted as inlineChart.shading
     // on Create. Re-render the preview so the user sees the bands without
@@ -8079,6 +8152,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           // URL state compact for the common case.
           transform:
             ccModal.transform !== "level" ? ccModal.transform : undefined,
+          // Parse annotations from the textarea body. Empty array
+          // serializes to undefined to keep URL state compact.
+          annotations: (() => {
+            const arr = parseAnnotationLines(ccModal.annotationsText);
+            return arr.length > 0 ? arr : undefined;
+          })(),
         };
       } else {
         const id = INLINE_PREFIX + nanoid(8);
@@ -8103,6 +8182,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           // URL state compact for the common case.
           transform:
             ccModal.transform !== "level" ? ccModal.transform : undefined,
+          // Parse annotations from the textarea body. Empty array
+          // serializes to undefined to keep URL state compact.
+          annotations: (() => {
+            const arr = parseAnnotationLines(ccModal.annotationsText);
+            return arr.length > 0 ? arr : undefined;
+          })(),
         };
         // Hover-merge path: the new chart replaces the BASE chart at its
         // section slot, and the DRAGGED chart is removed from its own

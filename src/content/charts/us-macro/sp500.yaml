@@ -5,3 +5,15 @@ defaultDelta: 1m
 tags: [us, equity-index, macro]
 # Bear-market shading is the canonical equity-chart context.
 shading: [bear_markets]
+# Editorial annotations — the labeled-event overlay that turns the
+# raw line into a readable history of "what was happening when?".
+annotations:
+  - date: "2018-12-24"
+    label: Powell pivot
+  - date: "2020-03-23"
+    label: COVID lockdown low
+  - date: "2022-01-03"
+    label: Inflation bear peak
+    position: below
+  - date: "2024-07-11"
+    label: Yen carry unwind

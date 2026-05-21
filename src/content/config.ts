@@ -172,6 +172,26 @@ const charts = defineCollection({
     // ["recessions", "president_party"] paints recessions on top of
     // a party-tinted background. Tile sparklines stay un-shaded; the
     // bands are too small to read at thumbnail scale.
+    // Editorial annotations: text labels pinned to specific dates on
+    // the dialog plot. Each annotation renders as a thin vertical
+    // dashed line + a label at the top of the plot — the FT/NYT
+    // "Lehman collapse" / "COVID lockdown" / "Fed pivot 2022"
+    // convention. Tile sparklines stay unannotated; the labels are
+    // unreadable at thumbnail scale.
+    annotations: z
+      .array(
+        z.object({
+          date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+          label: z.string(),
+          // Optional vertical placement of the label text. "above"
+          // (default) sits at the top of the plot just below the
+          // window pills; "below" sits at the bottom near the x-axis.
+          // Useful when a chart has many annotations crowded into
+          // the same era — alternating them stays legible.
+          position: z.enum(["above", "below"]).optional(),
+        }),
+      )
+      .optional(),
     shading: z
       .array(
         z.enum([
@@ -271,6 +291,13 @@ const chartOverrideSchema = z
     seriesLabels: z.array(z.string()),
     percentDisplay: z.enum(["percent", "decimal"]),
     transform: z.enum(["level", "yoy_pct", "index_100"]),
+    annotations: z.array(
+      z.object({
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        label: z.string(),
+        position: z.enum(["above", "below"]).optional(),
+      }),
+    ),
     // Mirror of the chart-level `shading` field. Lets a dashboard
     // override the bands on a specific tile (e.g. all-charts use
     // recessions, but ONE chart wants party shading instead).

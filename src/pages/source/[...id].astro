@@ -33,21 +33,16 @@ import type { TimeSeriesData } from "../../lib/data-types";
 import { encodeComposedState } from "../../lib/composer-state";
 import type { CitationInput } from "../../lib/citation";
 
-export async function getStaticPaths() {
-  const sources = await getCollection("sources");
-  // Hidden sources still get a page — hiding only affects the
-  // composer's discovery surface (library.json filter). Anyone who
-  // arrives via a deep link or saved dashboard reference should
-  // still find a citable page; otherwise a saved dashboard's
-  // citation could 404.
-  return sources.map((s) => ({ params: { id: s.id }, props: { sourceId: s.id } }));
-}
+// Server-rendered per request rather than statically generated. We
+// ship ~21,000 sources (~17,000 ACS-by-CD variants alone); generating
+// a static HTML file per source at build time would take roughly 20
+// minutes of disk I/O and emit several GB of largely-unused HTML.
+// Most source pages get visited rarely; SSR cost per request is
+// sub-second and matches how /u/[slug] (saved dashboards) renders.
+// The Vercel adapter routes the catchall through a function on demand.
+export const prerender = false;
 
-interface Props {
-  sourceId: string;
-}
-
-const { sourceId } = Astro.props;
+const sourceId = Astro.params.id ?? "";
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const sources = await getCollection("sources");

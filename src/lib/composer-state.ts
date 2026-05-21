@@ -116,6 +116,18 @@ const inlineChartSchema = z.object({
   // Per-session pill clicks in the dialog override this without
   // mutating the saved chart. See src/lib/transforms.ts.
   transform: z.enum(["level", "yoy_pct", "index_100"]).optional(),
+  // Editorial annotations on the dialog plot — text labels pinned
+  // to specific dates with a thin vertical guide. See chart schema
+  // in src/content/config.ts for the field's full rationale.
+  annotations: z
+    .array(
+      z.object({
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        label: z.string(),
+        position: z.enum(["above", "below"]).optional(),
+      }),
+    )
+    .optional(),
 });
 
 export type InlineChart = z.infer<typeof inlineChartSchema>;
