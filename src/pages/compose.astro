@@ -916,93 +916,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               </select>
             </label>
 
-            <!--
-              Default y-axis transform for the dialog plot. Readers can
-              switch via pills in the dialog without persisting; this
-              field is the FIRST-PAINT default. Three values:
-                level      — raw stored values (no transform)
-                yoy_pct    — 12-month % change at each date
-                index_100  — rebase visible window so first point = 100
-            -->
-            <label class="cc-field">
-              <span class="eyebrow">Default y-axis transform (dialog)</span>
-              <select data-role="cc-transform-select">
-                <option value="level">Level (raw values)</option>
-                <option value="yoy_pct">YoY % (12-month change)</option>
-                <option value="index_100">Index = 100 (rebased)</option>
-              </select>
-              <span class="muted small">
-                Tile always shows raw level. Readers can flip the
-                dialog transform with the pill row; this picks what
-                they see on first open.
-              </span>
-            </label>
-            <!--
-              Background shading: semi-transparent date bands rendered
-              BEHIND the line on the expanded chart. Multiple stack via
-              alpha compositing. See src/lib/shading-presets.ts for the
-              band definitions; the checkboxes mirror SHADING_LABELS.
-              The 6 preset keys (recessions, president_party,
-              senate_majority, house_majority, bear_markets, fed_chairs)
-              are wired into the inline-chart state on save.
-            -->
-            <fieldset class="cc-field cc-shading" data-role="cc-shading">
-              <legend class="eyebrow">Background shading</legend>
-              <p class="muted small" style="margin-top: 0">
-                Optional date-band overlays behind the line on the
-                expanded chart. Stack as many as make sense.
-              </p>
-              <label class="cc-mode-opt">
-                <input type="checkbox" data-role="cc-shading-recessions" value="recessions" />
-                <span><strong>NBER recessions</strong> — gray bands during US recessions (1945-present).</span>
-              </label>
-              <label class="cc-mode-opt">
-                <input type="checkbox" data-role="cc-shading-president" value="president_party" />
-                <span><strong>Presidential party</strong> — blue during Democratic presidencies, red during Republican.</span>
-              </label>
-              <label class="cc-mode-opt">
-                <input type="checkbox" data-role="cc-shading-senate" value="senate_majority" />
-                <span><strong>Senate majority</strong> — blue / red by Senate party control.</span>
-              </label>
-              <label class="cc-mode-opt">
-                <input type="checkbox" data-role="cc-shading-house" value="house_majority" />
-                <span><strong>House majority</strong> — blue / red by House party control.</span>
-              </label>
-              <label class="cc-mode-opt">
-                <input type="checkbox" data-role="cc-shading-bear" value="bear_markets" />
-                <span><strong>S&amp;P 500 bear markets</strong> — drawdowns of at least 20% from prior peak.</span>
-              </label>
-              <label class="cc-mode-opt">
-                <input type="checkbox" data-role="cc-shading-fed" value="fed_chairs" />
-                <span><strong>Fed Chair tenures</strong> — Volcker onward.</span>
-              </label>
-            </fieldset>
-
-            <!--
-              Editorial annotations: text labels pinned to specific
-              dates on the dialog plot. One annotation per line, in
-              the format:
-                YYYY-MM-DD: label text
-                YYYY-MM-DD: another label | below
-              Trailing "| above" or "| below" controls the vertical
-              placement of the label (default above). Blank lines and
-              # comment lines are ignored.
-            -->
-            <label class="cc-field">
-              <span class="eyebrow">Annotations</span>
-              <textarea
-                data-role="cc-annotations"
-                rows="4"
-                placeholder={"One per line, format:\n2008-09-15: Lehman collapse\n2020-03-15: COVID lockdown | below"}
-              ></textarea>
-              <span class="muted small">
-                Pin labels to specific dates on the expanded chart.
-                Format: <code>YYYY-MM-DD: label</code>. Optional
-                <code>| above</code> or <code>| below</code> suffix
-                controls vertical placement (default above). Blank
-                lines + # comments OK.
-              </span>
-            </label>
             <p class="muted small">
               Need to plot a ratio, sum, or difference?
               Click <strong>+ Derived source</strong> outside this modal
@@ -1016,6 +929,109 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             </div>
             <div class="cc-preview-plot" data-role="cc-preview-plot"></div>
             <ul class="cc-preview-legend" data-role="cc-preview-legend"></ul>
+
+            <!--
+              Dialog-presentation controls — these affect what the reader
+              sees when they expand the chart from a tile (NOT the
+              preview above, which intentionally shows a stripped-down
+              render so the underlying line stays readable while picking
+              sources). Grouped on the right so the form's left column
+              stays focused on the data pipeline (sources + scale + log
+              + percent) and the right column owns "how it looks."
+            -->
+            <div class="cc-preview-presentation">
+              <span class="eyebrow cc-preview-presentation-heading">Dialog presentation</span>
+
+              <!--
+                Default y-axis transform for the dialog plot. Readers can
+                switch via pills in the dialog without persisting; this
+                field is the FIRST-PAINT default. Three values:
+                  level      — raw stored values (no transform)
+                  yoy_pct    — 12-month % change at each date
+                  index_100  — rebase visible window so first point = 100
+              -->
+              <label class="cc-field">
+                <span class="eyebrow">Default y-axis transform</span>
+                <select data-role="cc-transform-select">
+                  <option value="level">Level (raw values)</option>
+                  <option value="yoy_pct">YoY % (12-month change)</option>
+                  <option value="index_100">Index = 100 (rebased)</option>
+                </select>
+                <span class="muted small">
+                  Tile always shows raw level. Readers can flip the
+                  dialog transform with the pill row; this picks what
+                  they see on first open.
+                </span>
+              </label>
+
+              <!--
+                Background shading: semi-transparent date bands rendered
+                BEHIND the line on the expanded chart. Multiple stack via
+                alpha compositing. See src/lib/shading-presets.ts for the
+                band definitions; the checkboxes mirror SHADING_LABELS.
+                The 6 preset keys (recessions, president_party,
+                senate_majority, house_majority, bear_markets, fed_chairs)
+                are wired into the inline-chart state on save.
+              -->
+              <fieldset class="cc-field cc-shading" data-role="cc-shading">
+                <legend class="eyebrow">Background shading</legend>
+                <p class="muted small" style="margin-top: 0">
+                  Optional date-band overlays behind the line on the
+                  expanded chart. Stack as many as make sense.
+                </p>
+                <label class="cc-mode-opt">
+                  <input type="checkbox" data-role="cc-shading-recessions" value="recessions" />
+                  <span><strong>NBER recessions</strong> — gray bands during US recessions (1945-present).</span>
+                </label>
+                <label class="cc-mode-opt">
+                  <input type="checkbox" data-role="cc-shading-president" value="president_party" />
+                  <span><strong>Presidential party</strong> — blue during Democratic presidencies, red during Republican.</span>
+                </label>
+                <label class="cc-mode-opt">
+                  <input type="checkbox" data-role="cc-shading-senate" value="senate_majority" />
+                  <span><strong>Senate majority</strong> — blue / red by Senate party control.</span>
+                </label>
+                <label class="cc-mode-opt">
+                  <input type="checkbox" data-role="cc-shading-house" value="house_majority" />
+                  <span><strong>House majority</strong> — blue / red by House party control.</span>
+                </label>
+                <label class="cc-mode-opt">
+                  <input type="checkbox" data-role="cc-shading-bear" value="bear_markets" />
+                  <span><strong>S&amp;P 500 bear markets</strong> — drawdowns of at least 20% from prior peak.</span>
+                </label>
+                <label class="cc-mode-opt">
+                  <input type="checkbox" data-role="cc-shading-fed" value="fed_chairs" />
+                  <span><strong>Fed Chair tenures</strong> — Volcker onward.</span>
+                </label>
+              </fieldset>
+
+              <!--
+                Editorial annotations: text labels pinned to specific
+                dates on the dialog plot. One annotation per line, in
+                the format:
+                  YYYY-MM-DD: label text
+                  YYYY-MM-DD: another label | below
+                Trailing "| above" or "| below" controls the vertical
+                placement of the label (default above). Blank lines and
+                # comment lines are ignored.
+              -->
+              <label class="cc-field">
+                <span class="eyebrow">Annotations</span>
+                <textarea
+                  data-role="cc-annotations"
+                  rows="4"
+                  placeholder={"One per line, format:\n2008-09-15: Lehman collapse\n2020-03-15: COVID lockdown | below"}
+                ></textarea>
+                <span class="muted small">
+                  Pin labels to specific dates on the expanded chart.
+                  Format: <code>YYYY-MM-DD: label</code>. Optional
+                  <code>| above</code> or <code>| below</code> suffix
+                  controls vertical placement (default above). Blank
+                  lines + # comments OK. Annotations don't appear in
+                  the preview above — only in the expanded dialog.
+                </span>
+              </label>
+            </div>
           </div>
         </div>
         <div class="cc-modal-footer">
@@ -9739,6 +9755,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     height: 10px;
     border-radius: 50%;
     display: inline-block;
+  }
+  /* Right-column "Dialog presentation" group — sits under the preview
+     plot/legend and holds the controls that change how the EXPANDED
+     dialog renders (default y-axis transform, background shading,
+     annotations). Subtle top divider so it's visually separated from
+     the live preview but stays in the same column. */
+  .cc-preview-presentation {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .cc-preview-presentation-heading {
+    /* Tiny group label so the three controls below read as a unit. */
+    margin-bottom: -4px;
   }
   .cc-field { display: flex; flex-direction: column; gap: 6px; }
   .cc-field input[type="text"],
