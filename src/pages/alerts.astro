@@ -165,6 +165,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             </select>
           </label>
 
+          {/* Current-value readout. Appears once a real source is selected
+              (autocomplete pick, quick-start chip, deep-link prefill, or
+              the user typed a valid full ID). Spans both grid columns —
+              placed between the Source/Condition row and the Threshold/
+              Label row so the user can see the live magnitude + unit
+              right where they're about to type a threshold to compare
+              against. Hidden until a real source is picked so the form
+              keeps its compact 2-row shape for unselected state. */}
+          <div
+            class="alerts-current-value"
+            data-role="alerts-current-value"
+            hidden
+          >
+            <span class="alerts-current-value-label">Current value:</span>
+            <span class="alerts-current-value-readout" data-role="alerts-current-value-readout"></span>
+            <span class="alerts-current-value-asof muted" data-role="alerts-current-value-asof"></span>
+          </div>
+
           <label class="alerts-field">
             <span class="alerts-field-label">Threshold</span>
             <input
@@ -245,6 +263,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       SUPABASE_REST_URL,
       SUPABASE_REST_ANON_KEY,
     } from "../lib/supabase";
+    import { formatValue, type Formatting } from "../lib/format";
 
     type AlertRule = {
       id: string;
@@ -287,7 +306,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       name: string;
       shortName?: string;
       tags?: string[];
-      formatting?: { style?: string };
+      // Full Formatting (style/decimals/notation/scaleFactor/etc.) — same
+      // shape the chart renderer uses, so the current-value readout below
+      // matches the formatting users see everywhere else on the site.
+      formatting?: Formatting;
+      unit?: string;
+      dataFile?: string;
+      lastObservation?: string;
+    };
+    // Shape of the <id>.summary.json sibling. We only need `latest`; the
+    // rest (priors/sparks) is what powers tile rendering elsewhere.
+    type SourceSummary = {
+      latest?: { t: string; v: number };
     };
 
     const gate = document.querySelector<HTMLElement>("[data-role='alerts-signin-gate']");
@@ -310,6 +340,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const thresholdInput = document.querySelector<HTMLInputElement>("[data-role='alerts-threshold-input']");
     const labelInput = document.querySelector<HTMLInputElement>("[data-role='alerts-label-input']");
     const addMsg = document.querySelector<HTMLElement>("[data-role='alerts-add-msg']");
+    const currentValueWrap = document.querySelector<HTMLElement>("[data-role='alerts-current-value']");
+    const currentValueReadout = document.querySelector<HTMLElement>("[data-role='alerts-current-value-readout']");
+    const currentValueAsOf = document.querySelector<HTMLElement>("[data-role='alerts-current-value-asof']");
 
     if (!isSupabaseConfigured) {
       // Supabase env vars missing entirely — show a hard error rather
@@ -355,6 +388,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         sourceInput.value = presetSource;
         sourceInput.dataset.label =
           allSources.find((s) => s.id === presetSource)?.name ?? presetSource;
+        void refreshCurrentValue(presetSource);
       }
     }
 
@@ -436,6 +470,105 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       sourceInput.value = li.dataset.sourceId ?? "";
       sourceInput.dataset.label = li.dataset.sourceLabel ?? li.dataset.sourceId ?? "";
       if (sourceList) sourceList.hidden = true;
+      void refreshCurrentValue(sourceInput.value);
+    });
+
+    // ---------- Current-value readout ----------
+    // Whenever a valid source is selected, fetch its .summary.json sibling
+    // and render the latest value with the source's own formatting. Lets
+    // the user see at a glance whether the series ticks in "4.2" (a percent
+    // already in percent terms) vs "4.2" (a count that's really 4.2
+    // billion) vs "4200000000" (raw dollars) BEFORE they pick a threshold.
+    //
+    // Cache the in-flight fetch by id so quick source-flicking (autocomplete
+    // arrowing, deep-link re-fires) doesn't stack network calls. Also cache
+    // by source id to avoid refetching when the user clicks the same source.
+    const summaryCache = new Map<string, SourceSummary | null>();
+
+    async function refreshCurrentValue(sourceId: string): Promise<void> {
+      if (!currentValueWrap || !currentValueReadout || !currentValueAsOf) return;
+      const id = sourceId.trim();
+      if (!id) {
+        currentValueWrap.hidden = true;
+        return;
+      }
+      const src = allSources.find((s) => s.id === id);
+      if (!src || !src.dataFile) {
+        // Either the source catalog hasn't loaded yet or the typed string
+        // isn't a real ID. Stay silent rather than flash an error — the
+        // user might still be mid-typing.
+        currentValueWrap.hidden = true;
+        return;
+      }
+      // Show a brief "Loading…" state while the summary fetch is in flight.
+      // Important enough to make visible: lets the user know the readout
+      // will show up momentarily on slow connections, rather than them
+      // assuming the feature is broken.
+      currentValueWrap.hidden = false;
+      currentValueReadout.textContent = "loading…";
+      currentValueAsOf.textContent = "";
+
+      let summary = summaryCache.get(id);
+      if (summary === undefined) {
+        summary = await fetchSourceSummary(src.dataFile);
+        summaryCache.set(id, summary);
+      }
+      // Stale-response guard: if the user typed/clicked a different source
+      // between the fetch starting and it returning, abandon this render.
+      // sourceInput.value is the live source of truth.
+      if (sourceInput?.value.trim() !== id) return;
+
+      if (!summary?.latest) {
+        // Summary file missing or has no `latest`. Some sources (e.g. small
+        // ones that haven't run through build_summaries.py yet) won't have
+        // a sibling .summary.json. Show a low-key fallback rather than
+        // hiding entirely — at least confirms the source matches.
+        currentValueReadout.textContent = "—";
+        currentValueAsOf.textContent = "no recent data";
+        return;
+      }
+      const fmt: Formatting = src.formatting ?? {
+        style: "number",
+        decimals: 2,
+      };
+      currentValueReadout.textContent = formatValue(summary.latest.v, fmt);
+      currentValueAsOf.textContent = `as of ${summary.latest.t}`;
+    }
+
+    async function fetchSourceSummary(dataFile: string): Promise<SourceSummary | null> {
+      // dataFile is relative ("data/fred/CPIAUCSL_PC1.json"); the .summary
+      // sibling lives next to it. Resolve against BASE_URL the same way
+      // loadSourceCatalog does.
+      const summaryFile = dataFile.replace(/\.json$/, ".summary.json");
+      const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+      const url = `${base}/${summaryFile}`;
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return null;
+        return (await r.json()) as SourceSummary;
+      } catch {
+        return null;
+      }
+    }
+
+    // Also recompute on every keystroke so paste/typed exact IDs surface
+    // immediately, and on blur so a partial typed match resolves once the
+    // input loses focus. Both are cheap because of summaryCache.
+    sourceInput?.addEventListener("change", () => {
+      void refreshCurrentValue(sourceInput.value);
+    });
+    sourceInput?.addEventListener("input", () => {
+      // Only fire when the typed value exactly matches a known source id —
+      // avoids fetching for every partial-typed character. The autocomplete
+      // pick + quickstart + deep-link paths all set the value programmatic-
+      // ally and call refreshCurrentValue directly, so this branch is just
+      // for the rare case of a user pasting/typing the full ID.
+      const id = sourceInput.value.trim();
+      if (id && allSources.some((s) => s.id === id)) {
+        void refreshCurrentValue(id);
+      } else if (!id) {
+        if (currentValueWrap) currentValueWrap.hidden = true;
+      }
     });
 
     // ---------- Rules CRUD ----------
@@ -740,6 +873,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           sourceInput.dataset.label = "";
           thresholdInput.value = "";
           labelInput.value = "";
+          if (currentValueWrap) currentValueWrap.hidden = true;
           setTimeout(() => {
             if (addMsg) addMsg.textContent = "";
           }, 2000);
@@ -763,6 +897,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           if (sourceInput) {
             sourceInput.value = chip.dataset.source ?? "";
             sourceInput.dataset.label = chip.dataset.sourceLabel ?? "";
+            void refreshCurrentValue(sourceInput.value);
           }
           if (conditionSelect) {
             conditionSelect.value = chip.dataset.condition ?? "gte";
@@ -936,6 +1071,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     padding: 1px 4px;
     border-radius: 2px;
     font-size: 10.5px;
+  }
+  /* Current-value readout. Spans both grid columns (grid-column: 1/-1)
+     so it visually separates the Source row from the Threshold row.
+     Light background tint flags it as a passive readout, not a form
+     input the user clicks. */
+  .alerts-current-value {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f1efe9;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .alerts-current-value-label {
+    color: #6f6c66;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .alerts-current-value-readout {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c1c1a;
+  }
+  .alerts-current-value-asof {
+    font-size: 11px;
+    color: #6f6c66;
+    margin-left: auto;
   }
   .alerts-source-list {
     position: absolute;
