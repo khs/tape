@@ -1,6 +1,15 @@
 title: Real GDP
 sources: ["fred/us_real_gdp"]
 render: line
-defaultDelta: 1y
-tags: [us, macro]
+defaultDelta: 30y
+tags: [us, macro, gdp]
 shading: [recessions]
+annotations:
+  - date: "2008-12-01"
+    label: GFC trough
+  - date: "2020-04-01"
+    label: COVID trough
+    position: below
+  - date: "2022-07-01"
+    label: 2-quarter "technical recession"
+    position: below

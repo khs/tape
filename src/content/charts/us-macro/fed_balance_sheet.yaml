@@ -1,5 +1,19 @@
 title: Fed balance sheet
 sources: ["fred/fed_balance_sheet"]
 render: line
-defaultDelta: 1y
-tags: [us, macro]
+defaultDelta: 10y
+tags: [us, macro, money]
+shading: [recessions]
+annotations:
+  - date: "2008-11-25"
+    label: QE1
+  - date: "2010-11-03"
+    label: QE2
+    position: below
+  - date: "2012-09-13"
+    label: QE3
+  - date: "2020-03-23"
+    label: COVID QE
+    position: below
+  - date: "2022-06-15"
+    label: QT begins

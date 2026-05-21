@@ -7,6 +7,14 @@ render: line
 defaultDelta: 30y
 tags: [us, macro, derived, ratio, money]
 shading: [recessions]
+annotations:
+  - date: "2008-11-25"
+    label: QE begins
+  - date: "2020-03-23"
+    label: COVID expansion
+  - date: "2022-06-01"
+    label: QT contraction
+    position: below
 blurb: |
   M2 money stock divided by real GDP, expressed as a percent. A
   rough measure of monetary "looseness" — how much liquid money is
