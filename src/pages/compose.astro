@@ -7144,15 +7144,31 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             b.endDate.getTime() >= startMs && b.startDate.getTime() <= endMs,
         );
       if (visible.length === 0) continue;
-      marks.push(
-        Plot.rectX(visible, {
-          x1: "startDate",
-          x2: "endDate",
-          fill: (d: { fill: string }) => d.fill,
-          fillOpacity: SHADING_FILL_OPACITY,
-          title: "label",
-        }),
-      );
+      // Group bands by fill color, one Plot.rectX per group with a
+      // CONSTANT fill string. Both column-string (`fill: "fill"`) and
+      // function form (`fill: (d) => d.fill`) push values through
+      // Plot's fill channel scale, which auto-categorizes hex
+      // strings and assigns palette colors. A constant string is
+      // not a channel encoding and bypasses the scale, so the
+      // intended D/R blue+red, chair grays, etc. render literally.
+      // Mirrors src/components/ChartController.astro's shadingMarks.
+      const byFill = new Map<string, typeof visible>();
+      for (const band of visible) {
+        const list = byFill.get(band.fill);
+        if (list) list.push(band);
+        else byFill.set(band.fill, [band]);
+      }
+      for (const [fillColor, group] of byFill) {
+        marks.push(
+          Plot.rectX(group, {
+            x1: "startDate",
+            x2: "endDate",
+            fill: fillColor,
+            fillOpacity: SHADING_FILL_OPACITY,
+            title: "label",
+          }),
+        );
+      }
     }
     return marks;
   }

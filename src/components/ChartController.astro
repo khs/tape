@@ -282,27 +282,37 @@
             b.endDate.getTime() >= startMs && b.startDate.getTime() <= endMs,
         );
       if (visible.length === 0) continue;
-      marks.push(
-        Plot.rectX(visible, {
-          x1: "startDate",
-          x2: "endDate",
-          // Pass fill as a function — column-string form ("fill")
-          // would push the column through Plot's color scale (ordinal
-          // by default), which categorizes the hex strings and
-          // assigns palette colors instead of using them literally.
-          // Recessions / bear_markets accidentally looked OK because
-          // there's only one unique fill value; president_party,
-          // senate_majority, house_majority, fed_chairs all have
-          // alternating fills and looked wrong (palette categorical
-          // colors, not the intended D/R blue/red or chair grays).
-          // Function form bypasses the scale.
-          fill: (d: { fill: string }) => d.fill,
-          fillOpacity: SHADING_FILL_OPACITY,
-          // Title (hover tooltip) shows the band's label, e.g.
-          // "2007-09 to 2009-06: Great Recession" or "Obama (Democratic)".
-          title: "label",
-        }),
-      );
+      // Group bands by fill color and emit one Plot.rectX per group
+      // with a CONSTANT fill string. Both the column-string form
+      // (`fill: "fill"`) and the function form (`fill: (d) => d.fill`)
+      // push values through Plot's fill channel scale, which auto-
+      // detects ordinal for hex-string inputs and assigns palette
+      // colors instead of using the values literally — so president_
+      // party showed teal+amber instead of blue+red, fed_chairs
+      // showed the wrong grays, etc. A constant `fill: "#XXXXXX"`
+      // string is NOT a channel encoding and bypasses the scale.
+      // Group keeps the mark count small (recessions: 1 mark;
+      // president_party: 2 marks — one per party color).
+      const byFill = new Map<string, typeof visible>();
+      for (const band of visible) {
+        const list = byFill.get(band.fill);
+        if (list) list.push(band);
+        else byFill.set(band.fill, [band]);
+      }
+      for (const [fillColor, group] of byFill) {
+        marks.push(
+          Plot.rectX(group, {
+            x1: "startDate",
+            x2: "endDate",
+            fill: fillColor,
+            fillOpacity: SHADING_FILL_OPACITY,
+            // Title (hover tooltip) shows the band's label, e.g.
+            // "2007-09 to 2009-06: Great Recession" or "Obama
+            // (Democratic)".
+            title: "label",
+          }),
+        );
+      }
     }
     return marks;
   }
