@@ -30,10 +30,25 @@ sections:
       - us-macro/yield_curve_spread
       - us-macro/real_gdp_per_capita
 
+  - title: "Many lines on one axis"
+    description: "A custom chart can stack multiple series on a single axis without collapsing them into one derived line. Click the tile to see all ten state-payroll trajectories at full size; the per-tile legend at the top of the dialog calls out each series' delta over the current window. Default ordering follows the source list; rebase-to-100 makes the comparison meaningful when raw levels differ by an order of magnitude (the 10 largest states span ~10× from New Jersey to California)."
+    charts:
+      - us-macro/state_payrolls_top10
+
+  - title: "Annotations and period shading"
+    description: "Charts can pin event labels to specific dates (text + a vertical guide), and can wash translucent bands across periods like US recessions, presidential party, congressional control, fed chair tenures, or bear markets. The federal-debt chart below stacks all three: dashed-line forecast extension, recession-band shading from NBER, and five fiscal-policy annotations across the historical line. Edit any chart in the composer to add your own."
+    charts:
+      - government/cbo_debt_pct_gdp
+
   - title: "Forecasts ship as a dashed line"
     description: "When a series has an official projection, it renders as a dashed extension of the historical line — same axis, same tooltip, no extra controls. CBO's deficit projection below extends ~30 years past the last historical fiscal year. Same treatment for the Social Security trustees' OASDI projection and the futures curves we ship for oil, VIX, and ag commodities."
     charts:
       - government/cbo_deficit_pct_gdp
+
+  - title: "Bar snapshots"
+    description: "Set a chart's render type to bar and the tile becomes a horizontal-bar snapshot of each source's latest observation, sorted largest-to-smallest by default. Use it when relative magnitude at a point in time is the story (GDP by country, market cap by sector, federal spending by category). Hover labels in the dialog show the as-of date per bar — sources that update on different cadences won't all share the anchor."
+    charts:
+      - countries/gdp_snapshot
 
   - title: "Maps: choropleths at four resolutions"
     description: "Census ACS demographic data renders as interactive choropleth maps at four geographic scales: state (one tile per state), county (~3,140), tract (~500–9,000 per state), and block group (up to ~30,000 per state). Click any region for the value + name. The state-level dropdown in the composer has 20+ indicators; finer geographies have 4 (county/tract) or 2 (block-group, the set Census actually publishes that deep)."
