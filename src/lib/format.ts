@@ -195,9 +195,19 @@ export function formatDelta(
     signDisplay: "exceptZero",
   });
 
+  // pctFmt.format(...) emits an ASCII hyphen-minus (U+002D) for the
+  // negative sign — same legibility problem as formatValue (axis-
+  // size renders read as positive). Swap to Unicode minus here too.
+  // signDisplay:"exceptZero" guarantees the sign is the leading
+  // character for non-zero values, so a startsWith check is safe.
+  let pctStr = pctFmt.format(pct);
+  if (pctStr.startsWith("-")) {
+    pctStr = "−" + pctStr.slice(1);
+  }
+
   return {
     abs: diff >= 0 ? `+${abs}` : abs,
-    pct: `${pctFmt.format(pct)}%`,
+    pct: `${pctStr}%`,
     direction,
   };
 }
