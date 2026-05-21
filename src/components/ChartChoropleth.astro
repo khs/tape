@@ -1866,6 +1866,10 @@ const statesJoined = stateCodes.join(",");
      scroll-to-zoom. overscroll-behavior: contain stops the
      scroll chain at the dialog boundary in either direction. */
   .choro-dialog {
+    /* See chart-dialog comment: Tailwind v4 preflight zeros margin
+       on every element, defeating <dialog>'s UA-default margin:auto
+       centering. Restore it. */
+    margin: auto;
     border: none;
     padding: 0;
     background: var(--color-white);

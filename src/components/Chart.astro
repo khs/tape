@@ -1080,6 +1080,13 @@ const mostRecentUpdate = payload.sources
   }
 
   .chart-dialog {
+    /* margin: auto restores the UA default for <dialog> — Tailwind v4's
+       preflight zeroes `margin: 0` on every element via `*`, which
+       defeats the browser's auto-centering of a fixed-width dialog
+       (inset: 0 + width: 820px lands top-left without margin auto).
+       Without this the dialog appears pinned to the upper-left of the
+       viewport instead of centered. */
+    margin: auto;
     width: min(92vw, 820px);
     max-height: 90vh;
     padding: 0;
