@@ -49,6 +49,75 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </section>
 
     <section class="alerts-body" data-role="alerts-body" hidden>
+      {/* Quick-start examples. Each chip pre-fills the add-rule form
+          with a canonical alert pattern — gets the user from "blank
+          page" to "thinking about the right kinds of rules" in one
+          click. The first-fire still requires clicking "Add rule"
+          to confirm; the chips don't auto-save. */}
+      <section class="alerts-quickstart">
+        <h2 class="alerts-section-heading">Quick start</h2>
+        <p class="muted small alerts-quickstart-hint">
+          Click an example to pre-fill the form below, then adjust.
+        </p>
+        <div class="alerts-quickstart-chips" data-role="alerts-quickstart">
+          <button
+            type="button"
+            class="alerts-quickstart-chip"
+            data-source="fred/cpi_yoy"
+            data-source-label="CPI YoY (US, all urban consumers)"
+            data-condition="gte"
+            data-threshold="4.0"
+            data-label="CPI inflation at/above 4%"
+          >
+            CPI inflation ≥ 4%
+          </button>
+          <button
+            type="button"
+            class="alerts-quickstart-chip"
+            data-source="fred/us_unemployment"
+            data-source-label="US unemployment rate"
+            data-condition="gte"
+            data-threshold="5.0"
+            data-label="Unemployment ≥ 5%"
+          >
+            Unemployment ≥ 5%
+          </button>
+          <button
+            type="button"
+            class="alerts-quickstart-chip"
+            data-source="fred/us_10y"
+            data-source-label="10-year Treasury yield"
+            data-condition="gte"
+            data-threshold="5.0"
+            data-label="10Y yield ≥ 5%"
+          >
+            10Y yield ≥ 5%
+          </button>
+          <button
+            type="button"
+            class="alerts-quickstart-chip"
+            data-source="fred/curve_spread"
+            data-source-label="10Y-2Y yield curve"
+            data-condition="crosses_below"
+            data-threshold="0"
+            data-label="Yield curve inverts (10Y-2Y < 0)"
+          >
+            Yield curve inverts
+          </button>
+          <button
+            type="button"
+            class="alerts-quickstart-chip"
+            data-source="fred/vix"
+            data-source-label="VIX"
+            data-condition="gte"
+            data-threshold="30"
+            data-label="VIX ≥ 30 (stress threshold)"
+          >
+            VIX ≥ 30
+          </button>
+        </div>
+      </section>
+
       {/* Add-rule form */}
       <section class="alerts-add">
         <h2 class="alerts-section-heading">Add rule</h2>
@@ -238,6 +307,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     async function initAuthed(stored: NonNullable<ReturnType<typeof readStoredSession>>): Promise<void> {
       await Promise.all([loadRules(stored), loadTriggers(stored), loadSourceCatalog()]);
       wireForm(stored);
+      wireQuickStart();
       // Deep-link prefill from /alerts/?source=<id>. Lets a user land
       // on the page from a source-page "Watch for alerts" link with
       // the source field already populated.
@@ -511,6 +581,36 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     }
 
+    // Quick-start chip handler. Reads data attributes off the
+    // clicked button and pre-fills the add-rule form. Doesn't auto-
+    // submit — the user still has to click "Add rule" to confirm
+    // (lets them tweak the threshold or condition first).
+    function wireQuickStart(): void {
+      const chips = document.querySelectorAll<HTMLButtonElement>(
+        "[data-role='alerts-quickstart'] .alerts-quickstart-chip",
+      );
+      chips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          if (sourceInput) {
+            sourceInput.value = chip.dataset.source ?? "";
+            sourceInput.dataset.label = chip.dataset.sourceLabel ?? "";
+          }
+          if (conditionSelect) {
+            conditionSelect.value = chip.dataset.condition ?? "gte";
+          }
+          if (thresholdInput) {
+            thresholdInput.value = chip.dataset.threshold ?? "";
+          }
+          if (labelInput) {
+            labelInput.value = chip.dataset.label ?? "";
+          }
+          // Scroll the form into view so the user sees the
+          // pre-filled fields immediately.
+          form?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    }
+
     function escapeHtml(s: string): string {
       return s
         .replace(/&/g, "&amp;")
@@ -558,6 +658,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: #6f6c66;
     font-weight: 400;
     margin-left: 4px;
+  }
+  .alerts-quickstart {
+    margin-bottom: 4px;
+  }
+  .alerts-quickstart-hint {
+    margin: 0 0 8px;
+  }
+  .alerts-quickstart-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .alerts-quickstart-chip {
+    font: inherit;
+    font-size: 12px;
+    padding: 5px 12px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: 99px;
+    cursor: pointer;
+    color: #2d2d2a;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .alerts-quickstart-chip:hover {
+    background: #f5f3ec;
+    border-color: rgba(55, 53, 47, 0.3);
   }
   .alerts-add-form {
     display: grid;
