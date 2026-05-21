@@ -20,6 +20,68 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import check_alerts  # noqa: E402
 
 
+class LoadLatestObservationSafetyTests(unittest.TestCase):
+    """The evaluator runs under the service role and reads YAML files
+    based on a user-controlled source_id. A malicious source_id like
+    "../../../etc/passwd" must NOT escape src/content/sources/.
+
+    These tests don't exercise the success path (that requires a live
+    YAML + JSON on disk) — they only verify the guard rejects bad
+    input cleanly.
+    """
+
+    def test_empty_string_rejected(self) -> None:
+        self.assertIsNone(check_alerts.load_latest_observation(""))
+
+    def test_relative_traversal_rejected(self) -> None:
+        # The leading "../" doesn't match SAFE_SOURCE_ID (must start
+        # with [a-zA-Z0-9_]) — guard hits before any FS access.
+        self.assertIsNone(
+            check_alerts.load_latest_observation("../../../etc/passwd")
+        )
+
+    def test_leading_slash_rejected(self) -> None:
+        self.assertIsNone(
+            check_alerts.load_latest_observation("/etc/passwd")
+        )
+
+    def test_dot_prefix_rejected(self) -> None:
+        # A leading dot would let "./foo" or "..foo" slip past the
+        # eye but `.` isn't in the start-character class.
+        self.assertIsNone(
+            check_alerts.load_latest_observation(".secret")
+        )
+
+    def test_embedded_traversal_rejected(self) -> None:
+        # "fred/../../../etc/passwd" — slash + dots in the middle.
+        # The regex allows ./- in the body BUT the resolve()
+        # relative_to() check after that catches escape attempts.
+        self.assertIsNone(
+            check_alerts.load_latest_observation("fred/../../../etc/passwd")
+        )
+
+    def test_null_byte_rejected(self) -> None:
+        # Null-byte injection sometimes truncates filenames in C-level
+        # filesystem code. Python's pathlib raises on null bytes;
+        # confirm we return None cleanly.
+        self.assertIsNone(
+            check_alerts.load_latest_observation("fred/cpi\x00.yaml")
+        )
+
+    def test_well_formed_source_id_not_rejected_by_regex(self) -> None:
+        # Sanity check: the guard regex itself accepts a normal source
+        # ID like "fred/cpi_yoy". The function still returns None
+        # because no YAML exists at that path in the test runner,
+        # but the regex check is what we're verifying here.
+        self.assertIsNotNone(check_alerts.SAFE_SOURCE_ID.match("fred/cpi_yoy"))
+        self.assertIsNotNone(
+            check_alerts.SAFE_SOURCE_ID.match("acs_cd/median_household_income")
+        )
+        self.assertIsNotNone(
+            check_alerts.SAFE_SOURCE_ID.match("worldbank_extended/ind1")
+        )
+
+
 class EvaluateConditionTests(unittest.TestCase):
     # gt / gte / lt / lte are simple numeric comparisons. Test on
     # both sides of the threshold + at the threshold.

@@ -49,6 +49,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </section>
 
     <section class="alerts-body" data-role="alerts-body" hidden>
+      {/* Auto-pause banner. Renders only when at least one of the
+          user's rules has pause_reason set — meaning the dispatcher
+          gave up on it after enough delivery failures. The banner
+          is silent for manually-paused rules (paused=true but
+          pause_reason NULL). */}
+      <section class="alerts-pause-banner" data-role="alerts-pause-banner" hidden>
+        <strong>Some alerts were auto-paused.</strong>
+        <span data-role="alerts-pause-banner-count"></span>
+        Once you've fixed the issue (typically an email-delivery
+        problem), resume from the rules list below.
+      </section>
+
       {/* Quick-start examples. Each chip pre-fills the add-rule form
           with a canonical alert pattern — gets the user from "blank
           page" to "thinking about the right kinds of rules" in one
@@ -203,9 +215,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
       {/* Trigger feed */}
       <section class="alerts-feed-wrap">
-        <h2 class="alerts-section-heading">
-          Recent fires <span class="muted" data-role="alerts-feed-count"></span>
-        </h2>
+        <div class="alerts-feed-head">
+          <h2 class="alerts-section-heading">
+            Recent fires <span class="muted" data-role="alerts-feed-count"></span>
+          </h2>
+          <button
+            type="button"
+            class="alerts-mark-all-read"
+            data-role="alerts-mark-all-read"
+            hidden
+          >
+            Mark all read
+          </button>
+        </div>
         <ul class="alerts-feed" data-role="alerts-feed-list"></ul>
         <p class="muted small" data-role="alerts-feed-empty" hidden>
           No triggers yet. The evaluator runs after each data refresh
@@ -235,6 +257,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       last_value_t: string | null;
       last_triggered_at: string | null;
       paused: boolean;
+      pause_reason: string | null;
       created_at: string;
       updated_at: string;
     };
@@ -249,7 +272,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       observed_t: string;
       triggered_at: string;
       acknowledged: boolean;
+      notified_at: string | null;
+      notify_error: string | null;
+      notify_attempts: number | null;
     };
+
+    // Sentinel that the dispatcher stamps on a trigger when it gives
+    // up after exhausting retries. Anything matching this value (the
+    // Unix epoch in ISO form) means "permanently failed delivery",
+    // not "successfully delivered at the epoch".
+    const NOTIFIED_DROPPED_SENTINEL = "1970-01-01T00:00:00";
     type LibrarySource = {
       id: string;
       name: string;
@@ -267,6 +299,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const feedList = document.querySelector<HTMLElement>("[data-role='alerts-feed-list']");
     const feedEmpty = document.querySelector<HTMLElement>("[data-role='alerts-feed-empty']");
     const feedCount = document.querySelector<HTMLElement>("[data-role='alerts-feed-count']");
+    const markAllRead = document.querySelector<HTMLButtonElement>("[data-role='alerts-mark-all-read']");
+    const pauseBanner = document.querySelector<HTMLElement>("[data-role='alerts-pause-banner']");
+    const pauseBannerCount = document.querySelector<HTMLElement>("[data-role='alerts-pause-banner-count']");
 
     const form = document.querySelector<HTMLFormElement>("[data-role='alerts-add-form']");
     const sourceInput = document.querySelector<HTMLInputElement>("[data-role='alerts-source-input']");
@@ -308,6 +343,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       await Promise.all([loadRules(stored), loadTriggers(stored), loadSourceCatalog()]);
       wireForm(stored);
       wireQuickStart();
+      markAllRead?.addEventListener("click", () => {
+        void markAllReadHandler(stored);
+      });
       // Deep-link prefill from /alerts/?source=<id>. Lets a user land
       // on the page from a source-page "Watch for alerts" link with
       // the source field already populated.
@@ -412,6 +450,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       if (!rulesList) return;
       rulesList.innerHTML = "";
       if (rulesCount) rulesCount.textContent = rows.length > 0 ? `(${rows.length})` : "";
+
+      // Auto-pause banner. Show when ANY rule has pause_reason set
+      // (auto-paused). Manual pauses (paused=true, pause_reason NULL)
+      // don't surface a banner — that's a deliberate user choice.
+      const autoPaused = rows.filter((r) => r.paused && r.pause_reason);
+      if (pauseBanner) {
+        if (autoPaused.length > 0) {
+          pauseBanner.hidden = false;
+          if (pauseBannerCount) {
+            pauseBannerCount.textContent =
+              autoPaused.length === 1
+                ? "1 rule was paused after repeated delivery failures."
+                : `${autoPaused.length} rules were paused after repeated delivery failures.`;
+          }
+        } else {
+          pauseBanner.hidden = true;
+        }
+      }
+
       if (rows.length === 0) {
         if (rulesEmpty) rulesEmpty.hidden = false;
         return;
@@ -421,6 +478,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         const li = document.createElement("li");
         li.className = "alerts-rule" + (r.paused ? " alerts-rule-paused" : "");
         li.dataset.ruleId = r.id;
+        // Distinguish auto-pause (pause_reason text) from manual
+        // pause (paused=true, pause_reason NULL). Auto-pause shows
+        // the reason text + a different border tint via the
+        // -autopaused modifier class.
+        const isAutoPaused = r.paused && !!r.pause_reason;
+        if (isAutoPaused) li.classList.add("alerts-rule-autopaused");
         li.innerHTML = `
           <div class="alerts-rule-main">
             <div class="alerts-rule-label">${escapeHtml(r.label || defaultRuleLabel(r))}</div>
@@ -432,6 +495,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               ${r.last_value_seen !== null && r.last_value_t ? `last value ${escapeHtml(String(r.last_value_seen))} on ${escapeHtml(r.last_value_t)}. ` : "Not yet evaluated. "}
               ${r.last_triggered_at ? `last fired ${escapeHtml(r.last_triggered_at.slice(0, 10))}.` : "Never fired."}
             </div>
+            ${
+              isAutoPaused && r.pause_reason
+                ? `<div class="alerts-rule-pause-reason">${escapeHtml(r.pause_reason)}</div>`
+                : ""
+            }
           </div>
           <div class="alerts-rule-actions">
             <button type="button" data-action="toggle-pause" class="alerts-rule-action">${r.paused ? "Resume" : "Pause"}</button>
@@ -458,6 +526,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             await loadRules(stored);
           } else if (action === "toggle-pause") {
             const currentlyPaused = li.classList.contains("alerts-rule-paused");
+            // Resuming clears BOTH paused and pause_reason (a manual
+            // resume erases any auto-pause history). Pausing leaves
+            // pause_reason alone — a manual pause has no reason text.
+            const body = currentlyPaused
+              ? { paused: false, pause_reason: null }
+              : { paused: true };
             await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_rules?id=eq.${encodeURIComponent(id)}`, {
               method: "PATCH",
               headers: {
@@ -466,7 +540,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 "Content-Type": "application/json",
                 Prefer: "return=minimal",
               },
-              body: JSON.stringify({ paused: !currentlyPaused }),
+              body: JSON.stringify(body),
             });
             await loadRules(stored);
           }
@@ -503,12 +577,35 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         },
       );
       const rows: AlertTrigger[] = r.ok ? await r.json() : [];
-      renderTriggers(rows);
+      renderTriggers(rows, stored);
     }
-    function renderTriggers(rows: AlertTrigger[]): void {
+
+    function notifyStatus(t: AlertTrigger): { label: string; cls: string } {
+      // Three states based on notified_at:
+      //   null            → "pending" (queued for next dispatch)
+      //   sentinel epoch  → "delivery failed" (dispatcher gave up)
+      //   anything else   → "delivered <date>"
+      if (!t.notified_at) {
+        return { label: "queued", cls: "alerts-status-queued" };
+      }
+      if (t.notified_at.startsWith(NOTIFIED_DROPPED_SENTINEL)) {
+        return { label: "delivery failed", cls: "alerts-status-failed" };
+      }
+      return {
+        label: `emailed ${t.notified_at.slice(0, 10)}`,
+        cls: "alerts-status-sent",
+      };
+    }
+
+    function renderTriggers(
+      rows: AlertTrigger[],
+      stored: NonNullable<ReturnType<typeof readStoredSession>>,
+    ): void {
       if (!feedList) return;
       feedList.innerHTML = "";
       if (feedCount) feedCount.textContent = rows.length > 0 ? `(${rows.length})` : "";
+      const unread = rows.filter((t) => !t.acknowledged);
+      if (markAllRead) markAllRead.hidden = unread.length === 0;
       if (rows.length === 0) {
         if (feedEmpty) feedEmpty.hidden = false;
         return;
@@ -517,18 +614,83 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       for (const t of rows) {
         const li = document.createElement("li");
         li.className = "alerts-trigger" + (t.acknowledged ? " alerts-trigger-ack" : "");
+        li.dataset.triggerId = t.id;
+        const status = notifyStatus(t);
         li.innerHTML = `
           <div class="alerts-trigger-when">${escapeHtml(t.triggered_at.slice(0, 10))}</div>
           <div class="alerts-trigger-main">
             <div class="alerts-trigger-headline">
               <strong>${escapeHtml(t.source_label)}</strong>
-              <span class="mono">${escapeHtml(t.condition)} ${t.threshold}</span>
+              <span class="mono">${escapeHtml(t.condition)} ${escapeHtml(String(t.threshold))}</span>
               → observed <strong>${escapeHtml(String(t.observed_value))}</strong>
               on ${escapeHtml(t.observed_t)}
             </div>
+            <div class="alerts-trigger-meta muted small">
+              <span class="alerts-status ${status.cls}">${escapeHtml(status.label)}</span>
+              ${t.notify_error && t.notified_at && t.notified_at.startsWith(NOTIFIED_DROPPED_SENTINEL) ? `<span class="alerts-status-detail" title="${escapeAttr(t.notify_error)}">— ${escapeHtml(t.notify_error.slice(0, 80))}${t.notify_error.length > 80 ? "…" : ""}</span>` : ""}
+            </div>
+          </div>
+          <div class="alerts-trigger-actions">
+            ${t.acknowledged ? '<span class="alerts-trigger-ack-tag muted small">read</span>' : '<button type="button" class="alerts-trigger-action" data-action="ack">Mark read</button>'}
           </div>
         `;
         feedList.appendChild(li);
+      }
+      feedList.querySelectorAll<HTMLButtonElement>("button[data-action='ack']").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const li = btn.closest<HTMLElement>(".alerts-trigger");
+          if (!li) return;
+          const id = li.dataset.triggerId ?? "";
+          // Optimistic UI: gray the row immediately so a slow PATCH
+          // doesn't make the click feel unresponsive. loadTriggers()
+          // resyncs the truth shortly.
+          li.classList.add("alerts-trigger-ack");
+          btn.disabled = true;
+          try {
+            await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_triggers?id=eq.${encodeURIComponent(id)}`, {
+              method: "PATCH",
+              headers: {
+                apikey: SUPABASE_REST_ANON_KEY,
+                Authorization: `Bearer ${stored.access_token}`,
+                "Content-Type": "application/json",
+                Prefer: "return=minimal",
+              },
+              body: JSON.stringify({ acknowledged: true }),
+            });
+          } finally {
+            await loadTriggers(stored);
+          }
+        });
+      });
+    }
+
+    async function markAllReadHandler(
+      stored: NonNullable<ReturnType<typeof readStoredSession>>,
+    ): Promise<void> {
+      // Bulk PATCH every unread trigger for this owner. PostgREST's
+      // filter syntax lets us update many rows in a single request
+      // (owner_id eq + acknowledged eq false) — much cheaper than
+      // per-row PATCHes when a long batch went out and the user
+      // clicks "mark all read" once.
+      if (!markAllRead) return;
+      markAllRead.disabled = true;
+      try {
+        await fetch(
+          `${SUPABASE_REST_URL}/rest/v1/alert_triggers?owner_id=eq.${encodeURIComponent(stored.user.id)}&acknowledged=eq.false`,
+          {
+            method: "PATCH",
+            headers: {
+              apikey: SUPABASE_REST_ANON_KEY,
+              Authorization: `Bearer ${stored.access_token}`,
+              "Content-Type": "application/json",
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify({ acknowledged: true }),
+          },
+        );
+      } finally {
+        markAllRead.disabled = false;
+        await loadTriggers(stored);
       }
     }
 
@@ -885,6 +1047,124 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     border-radius: 2px;
   }
   .alerts-trigger-ack {
-    opacity: 0.7;
+    opacity: 0.55;
+  }
+  .alerts-pause-banner {
+    margin: 12px 0 20px;
+    padding: 12px 16px;
+    border: 1px solid #d9b760;
+    background: #fff8e8;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #6d521b;
+  }
+  .alerts-pause-banner strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #523c14;
+  }
+  .alerts-rule-autopaused {
+    border-left: 3px solid #d9b760;
+    padding-left: 8px;
+    margin-left: -11px;
+  }
+  .alerts-rule-pause-reason {
+    margin-top: 6px;
+    padding: 6px 9px;
+    background: #fff8e8;
+    border: 1px solid rgba(217, 183, 96, 0.5);
+    border-radius: 3px;
+    font-size: 11.5px;
+    color: #6d521b;
+    line-height: 1.4;
+  }
+  .alerts-feed-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .alerts-feed-head .alerts-section-heading {
+    margin: 28px 0 10px;
+  }
+  .alerts-mark-all-read {
+    font: inherit;
+    font-size: 11px;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    color: #2d2d2a;
+  }
+  .alerts-mark-all-read:hover {
+    background: #f5f3ec;
+  }
+  .alerts-mark-all-read:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .alerts-trigger {
+    align-items: flex-start;
+  }
+  .alerts-trigger-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .alerts-trigger-actions {
+    flex: 0 0 auto;
+  }
+  .alerts-trigger-action {
+    font: inherit;
+    font-size: 11px;
+    padding: 3px 9px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    color: #2d2d2a;
+  }
+  .alerts-trigger-action:hover {
+    background: #f5f3ec;
+  }
+  .alerts-trigger-action:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .alerts-trigger-ack-tag {
+    font-style: italic;
+  }
+  .alerts-trigger-meta {
+    margin-top: 3px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .alerts-status {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .alerts-status-queued {
+    background: #eef0e9;
+    color: #5a6149;
+  }
+  .alerts-status-sent {
+    background: #e7efe9;
+    color: #2d5a3d;
+  }
+  .alerts-status-failed {
+    background: #fae6e6;
+    color: #8a2020;
+  }
+  .alerts-status-detail {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    color: #8a2020;
   }
 </style>

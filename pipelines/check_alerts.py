@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -49,6 +50,15 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = ROOT / "public" / "data"
+SOURCES_ROOT = ROOT / "src" / "content" / "sources"
+
+# Source IDs come from the alert_rules table which any authed user
+# can write to (RLS only enforces owner_id == auth.uid()). The
+# evaluator runs under the service role so it could be tricked into
+# reading arbitrary YAML / JSON via a malicious source_id like
+# "../../../etc/passwd". Validate against a strict character class
+# before touching the filesystem.
+SAFE_SOURCE_ID = re.compile(r"^[a-zA-Z0-9_][a-zA-Z0-9_./-]*$")
 
 # Auto-load .env from the repo root when python-dotenv is available.
 # Lets the user keep SUPABASE_SERVICE_ROLE_KEY (+ email-provider keys)
@@ -129,7 +139,21 @@ def load_latest_observation(source_id: str) -> tuple[str, float] | None:
 
     Returns None when the source can't be resolved or has no points.
     """
-    yaml_path = ROOT / "src" / "content" / "sources" / f"{source_id}.yaml"
+    # Reject anything that doesn't look like a source ID. Without
+    # this guard a malicious authed user could write source_id =
+    # "../../../etc/passwd" into alert_rules and the service-role
+    # evaluator would happily read arbitrary YAML.
+    if not source_id or not SAFE_SOURCE_ID.match(source_id):
+        return None
+    yaml_path = SOURCES_ROOT / f"{source_id}.yaml"
+    # Belt-and-suspenders: even with the regex guard, ensure the
+    # resolved path is INSIDE the sources directory (a YAML file
+    # could symlink elsewhere; on most filesystems this still
+    # constrains the read).
+    try:
+        yaml_path.resolve().relative_to(SOURCES_ROOT.resolve())
+    except ValueError:
+        return None
     if not yaml_path.exists():
         return None
     # Tiny YAML extractor — pull `dataFile:` from the YAML without
@@ -142,17 +166,30 @@ def load_latest_observation(source_id: str) -> tuple[str, float] | None:
             break
     if not data_file:
         return None
+    # dataFile is YAML-author-controlled; we trust it but still
+    # ensure the resolved path stays under the repo. A malformed
+    # YAML pointing to /etc/passwd would otherwise read it.
     json_path = ROOT / data_file
+    try:
+        json_path.resolve().relative_to(ROOT.resolve())
+    except ValueError:
+        return None
     if not json_path.exists():
         return None
     try:
         payload = json.loads(json_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
+    # Source data files are dict-shaped (points + metadata). A list
+    # at root would crash the .get() call; guard it explicitly.
+    if not isinstance(payload, dict):
+        return None
     points = payload.get("points")
     if not isinstance(points, list) or not points:
         return None
     last = points[-1]
+    if not isinstance(last, dict):
+        return None
     t = last.get("t")
     v = last.get("v")
     if not isinstance(t, str) or not isinstance(v, (int, float)):
