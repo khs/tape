@@ -4,7 +4,9 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Chart from "../components/Chart.astro";
 import ChartChoropleth from "../components/ChartChoropleth.astro";
+import ChartBar from "../components/ChartBar.astro";
 import ChartController from "../components/ChartController.astro";
+import { resolveBarSnapshots } from "../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
 import {
   resolveSections,
@@ -38,6 +40,14 @@ const supported = dashboardSupportedDeltas(resolvedSections);
 const dashboardDefaultDelta = resolveDashboardDefault(
   dashboard.data.defaultDelta,
   supported,
+);
+
+// Pre-resolve bar-chart snapshots so each ChartBar can be passed
+// concrete data props in the JSX below (JSX can't `await` inline).
+// Wide-fan-out: parallel load across all bar charts on the
+// dashboard. A no-op for dashboards that have no bar charts.
+const barSnapshots = await resolveBarSnapshots(
+  resolvedSections.flatMap((s) => s.charts),
 );
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -179,6 +189,22 @@ const forkUrl =
                   <ChartChoropleth
                     chartId={c.chart.id}
                     chart={effective}
+                    dashboardSlug={dashboard.id}
+                  />
+                );
+              }
+              if (effective.render === "bar") {
+                // Snapshot is pre-computed in the component script
+                // above (barSnapshots map) since JSX can't `await`
+                // inline. One JSON read per source — happens at
+                // server-render time, baked into the rendered HTML.
+                const snapshot = barSnapshots.get(c.chart.id) ?? [];
+                return (
+                  <ChartBar
+                    chartId={c.chart.id}
+                    chart={effective}
+                    sources={c.sources}
+                    snapshot={snapshot}
                     dashboardSlug={dashboard.id}
                   />
                 );

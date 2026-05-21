@@ -2,7 +2,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Chart from "../components/Chart.astro";
 import ChartChoropleth from "../components/ChartChoropleth.astro";
+import ChartBar from "../components/ChartBar.astro";
 import ChartController from "../components/ChartController.astro";
+import { resolveBarSnapshots } from "../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
 import {
   resolveSections,
@@ -88,6 +90,11 @@ const viewedSourceIds = Array.from(
 const viewedChartCount = resolvedSections.reduce(
   (acc, sec) => acc + sec.charts.length,
   0,
+);
+// Bar-chart snapshots: pre-resolve so the JSX below can pluck the
+// snapshot Map by chart ID without inline `await`.
+const barSnapshots = await resolveBarSnapshots(
+  resolvedSections.flatMap((s) => s.charts),
 );
 ---
 
@@ -436,6 +443,18 @@ const viewedChartCount = resolvedSections.reduce(
                       <ChartChoropleth
                         chartId={c.chart.id}
                         chart={eff}
+                        dashboardSlug="custom"
+                      />
+                    );
+                  }
+                  if (eff.render === "bar") {
+                    const snapshot = barSnapshots.get(c.chart.id) ?? [];
+                    return (
+                      <ChartBar
+                        chartId={c.chart.id}
+                        chart={eff}
+                        sources={c.sources}
+                        snapshot={snapshot}
                         dashboardSlug="custom"
                       />
                     );

@@ -109,6 +109,7 @@ const charts = defineCollection({
         "deltaGrid",
         "relativeReturns",
         "choropleth",
+        "bar",
       ])
       .default("line"),
     defaultDelta: deltaWindow.default("1m"),
@@ -248,6 +249,26 @@ const charts = defineCollection({
     // useful for indicators with a long tail (population, GDP) so
     // small regions don't all wash to the same dim color.
     colorScale: z.enum(["linear", "log"]).optional(),
+    // ---- Bar-snapshot fields (render === "bar") ----
+    // Bar orientation. "vertical" emits Plot.barY (categories on
+    // x-axis, values on y); "horizontal" emits Plot.barX (categories
+    // on y-axis, values on x). Horizontal is the safer default when
+    // category names are long enough that vertical-axis labels would
+    // overlap.
+    barOrientation: z.enum(["vertical", "horizontal"]).optional(),
+    // Sort order for the bars by value. "desc" is the default — the
+    // common editorial pattern is "largest at top/left, smallest at
+    // bottom/right". "asc" reverses; "source-order" preserves the
+    // order the chart's `sources` list declares (useful when the
+    // sources have an inherent order, e.g. age cohorts).
+    barSort: z.enum(["desc", "asc", "source-order"]).optional(),
+    // Optional anchor date for the snapshot. ISO YYYY-MM-DD. Each
+    // source's bar uses the latest observation at or before this
+    // date; sources whose first observation is after this date drop
+    // out. Default = each source's own latest observation (which can
+    // differ across sources — the chart still renders, the dialog
+    // notes the latest-date span).
+    barAsOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   })
     .refine(
       (c) => {
@@ -281,6 +302,7 @@ const chartOverrideSchema = z
       "sparkDelta",
       "deltaGrid",
       "relativeReturns",
+      "bar",
     ]),
     defaultDelta: deltaWindow,
     blurb: z.string(),
@@ -311,6 +333,10 @@ const chartOverrideSchema = z
         "fed_chairs",
       ]),
     ),
+    // Bar-snapshot overrides (mirror the chart-level fields).
+    barOrientation: z.enum(["vertical", "horizontal"]),
+    barSort: z.enum(["desc", "asc", "source-order"]),
+    barAsOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   })
   .partial();
 

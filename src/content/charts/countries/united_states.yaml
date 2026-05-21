@@ -2,7 +2,7 @@ title: United States
 sources:
   - yahoo/vti
   - yahoo/vt
-  - worldbank_gdp_raw/united_states
+  - worldbank_gdp_raw/usa
   - worldbank_gdp_raw/world
 render: line
 defaultDelta: 5y

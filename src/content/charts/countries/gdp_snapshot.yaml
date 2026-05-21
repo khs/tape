@@ -1,0 +1,35 @@
+title: Real GDP by country — latest year
+sources:
+  - worldbank_gdp_raw/usa
+  - worldbank_gdp_raw/china
+  - worldbank_gdp_raw/japan
+  - worldbank_gdp_raw/germany
+  - worldbank_gdp_raw/india
+  - worldbank_gdp_raw/uk
+  - worldbank_gdp_raw/canada
+  - worldbank_gdp_raw/south_korea
+  - worldbank_gdp_raw/australia
+  - worldbank_gdp_raw/brazil
+  - worldbank_gdp_raw/mexico
+render: bar
+defaultDelta: 50y
+barOrientation: horizontal
+barSort: desc
+seriesLabels:
+  - United States
+  - China
+  - Japan
+  - Germany
+  - India
+  - United Kingdom
+  - Canada
+  - South Korea
+  - Australia
+  - Brazil
+  - Mexico
+tags: [world, macro]
+blurb: |
+  Real GDP (constant 2015 USD) at the latest available World Bank
+  observation per country. Snapshot view of relative economic weight —
+  pair this with the rebased-growth charts above to see how the
+  ranking has changed over the past two decades.

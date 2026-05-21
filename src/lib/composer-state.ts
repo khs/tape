@@ -81,8 +81,15 @@ const inlineChartSchema = z.object({
       "sparkDelta",
       "deltaGrid",
       "relativeReturns",
+      "bar",
     ])
     .optional(),
+  // Bar-snapshot fields (only honored when render === "bar"). Mirror
+  // the chart-spec schema so a composer-built inline bar chart
+  // round-trips identically to a curated library bar chart.
+  barOrientation: z.enum(["vertical", "horizontal"]).optional(),
+  barSort: z.enum(["desc", "asc", "source-order"]).optional(),
+  barAsOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   normalize: z.enum(["rebase", "raw", "dual-axis"]).optional(),
   // Y-axis scale. Default linear; "log" makes exponential growth read as
   // a straight line. Incompatible with dual-axis (mixing log + linear axes

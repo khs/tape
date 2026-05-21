@@ -1,7 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Chart from "../../components/Chart.astro";
+import ChartBar from "../../components/ChartBar.astro";
 import ChartController from "../../components/ChartController.astro";
+import { resolveBarSnapshots } from "../../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../../lib/deltas";
 import {
   resolveSections,
@@ -77,6 +79,13 @@ if (state) {
   supported = dashboardSupportedDeltas(resolvedSections);
   defaultDelta = resolveDashboardDefault(state.defaultDelta, supported);
 }
+
+// Bar-chart snapshots: pre-resolve for the JSX below (can't await
+// inline in a .map). Returns an empty Map when no bar charts in the
+// saved dashboard.
+const barSnapshots = await resolveBarSnapshots(
+  resolvedSections.flatMap((s) => s.charts),
+);
 
 // Flatten resolved sources for the dashboard_viewed telemetry event.
 const viewedSourceIds = Array.from(
@@ -313,21 +322,36 @@ const ogD = state
             )}
             {section.charts.length > 0 && (
               <div class="chart-grid">
-                {section.charts.map((c) => (
-                  <Chart
-                    chartId={c.chart.id}
-                    chart={effectiveChart(
-                      c,
-                      state?.chartOverrides?.[c.chart.id],
-                    )}
-                    sources={c.sources}
-                    dashboardSlug={`u-${slug}`}
-                    dashboardWindow={sectionDelta}
-                    dashboardFixedRange={sectionFixed}
-                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                    preloaded={c.preloaded}
-                  />
-                ))}
+                {section.charts.map((c) => {
+                  const eff = effectiveChart(
+                    c,
+                    state?.chartOverrides?.[c.chart.id],
+                  );
+                  if (eff.render === "bar") {
+                    const snapshot = barSnapshots.get(c.chart.id) ?? [];
+                    return (
+                      <ChartBar
+                        chartId={c.chart.id}
+                        chart={eff}
+                        sources={c.sources}
+                        snapshot={snapshot}
+                        dashboardSlug={`u-${slug}`}
+                      />
+                    );
+                  }
+                  return (
+                    <Chart
+                      chartId={c.chart.id}
+                      chart={eff}
+                      sources={c.sources}
+                      dashboardSlug={`u-${slug}`}
+                      dashboardWindow={sectionDelta}
+                      dashboardFixedRange={sectionFixed}
+                      sectionLocked={!!(section.defaultDelta || section.fixedRange)}
+                      preloaded={c.preloaded}
+                    />
+                  );
+                })}
               </div>
             )}
           </section>

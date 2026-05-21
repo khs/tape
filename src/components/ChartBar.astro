@@ -1,0 +1,531 @@
+---
+/**
+ * Bar-chart render — a snapshot of N sources at a single point in time.
+ *
+ * One bar per source; bar height (or width, if horizontal) = the
+ * source's latest observed value at-or-before the chart's `barAsOf`
+ * date (or each source's own latest observation when barAsOf is
+ * omitted). Default sort is descending by value; "asc" reverses;
+ * "source-order" preserves the chart's `sources` list order.
+ *
+ * Design choice — separate component, NOT a branch inside the
+ * line-chart Chart.astro: bar charts share no axis concept (no time
+ * x-axis), no window pills, no rebase/dual-axis logic. Wedging them
+ * into the existing controller would muddle ~2,500 lines of
+ * line-chart code with conditional dead branches; a tiny dedicated
+ * component is easier to read AND to extend (sort dropdown, group-
+ * by-tag, etc.).
+ *
+ * Tile: renders the same SVG bars at small scale; clicking opens a
+ * dialog with axis labels and the full readout list. No window
+ * pills (the snapshot has no time dimension); the dialog shows the
+ * as-of date the renderer landed on and a per-bar date note when a
+ * source's latest observation predates that anchor.
+ */
+import { formatValue, type Formatting } from "../lib/format";
+
+interface SourceLike {
+  id: string;
+  data: {
+    name: string;
+    shortName?: string;
+    description?: string;
+    formatting: Formatting;
+    supportedDeltas?: string[];
+    provenance?: {
+      provider?: string;
+      series?: string;
+      url?: string;
+    };
+  };
+}
+
+interface Props {
+  chartId: string;
+  chart: {
+    title: string;
+    sources?: string[];
+    seriesLabels?: string[];
+    blurb?: string;
+    barOrientation?: "vertical" | "horizontal";
+    barSort?: "desc" | "asc" | "source-order";
+    barAsOf?: string;
+  };
+  // The resolved Source[] in the order the chart YAML declares them.
+  // Each carries its `data` (formatting / provenance / etc.) and an
+  // `id` ("provider/key"). Caller passes the SAME shape Chart.astro
+  // gets for line charts.
+  sources: SourceLike[];
+  // Latest observation per source ID. Caller builds this server-side
+  // from the same data files Chart.astro reads — keeping it in the
+  // caller means we don't duplicate the JSON-fetch + as-of-anchor
+  // logic here, and snapshots are deterministic across SSR + client
+  // hydration.
+  snapshot: { sourceId: string; value: number; date: string }[];
+  dashboardSlug: string;
+}
+
+const { chartId, chart, sources, snapshot, dashboardSlug } = Astro.props as Props;
+
+const orientation = chart.barOrientation ?? "horizontal";
+const sortMode = chart.barSort ?? "desc";
+
+// Lookup table for the per-bar source metadata.
+const sourceById: Record<string, SourceLike> = {};
+for (const s of sources) sourceById[s.id] = s;
+
+// Resolve display labels per bar. Per-source shortName beats the full
+// name (axis-tight); chart.seriesLabels (if provided, parallel to
+// chart.sources) wins over both.
+function labelFor(sourceId: string): string {
+  const idx = (chart.sources ?? []).indexOf(sourceId);
+  const override = idx >= 0 ? chart.seriesLabels?.[idx] : undefined;
+  if (override) return override;
+  const s = sourceById[sourceId];
+  return s?.data.shortName || s?.data.name || sourceId;
+}
+
+// Build the sorted bar rows for both tile and dialog.
+type BarRow = {
+  sourceId: string;
+  label: string;
+  value: number;
+  date: string;
+  // Pre-formatted display value (e.g. "$22.6 T") — consistent with
+  // how the same source's value would read on a line chart's
+  // hover-tip.
+  display: string;
+};
+
+const rows: BarRow[] = snapshot
+  .map((p) => {
+    const s = sourceById[p.sourceId];
+    const fmt = s?.data.formatting;
+    return {
+      sourceId: p.sourceId,
+      label: labelFor(p.sourceId),
+      value: p.value,
+      date: p.date,
+      display: fmt ? formatValue(p.value, fmt) : String(p.value),
+    };
+  })
+  .filter((r) => Number.isFinite(r.value));
+
+if (sortMode === "desc") rows.sort((a, b) => b.value - a.value);
+else if (sortMode === "asc") rows.sort((a, b) => a.value - b.value);
+// source-order: leave as-is (already in chart.sources order)
+
+// As-of summary: when every bar shares the same date, show one date;
+// otherwise show the most common one and note the spread in the
+// description.
+const datesSeen = new Map<string, number>();
+for (const r of rows) datesSeen.set(r.date, (datesSeen.get(r.date) ?? 0) + 1);
+const sortedDates = [...datesSeen.keys()].sort();
+const allSameDate = sortedDates.length === 1;
+const anchorDate = chart.barAsOf
+  ? chart.barAsOf
+  : sortedDates[sortedDates.length - 1] ?? "";
+const dateSpread = allSameDate
+  ? null
+  : `${sortedDates[0]} → ${sortedDates[sortedDates.length - 1]}`;
+
+const dialogId = `dialog-${dashboardSlug}-bar-${chartId.replace(/[/]/g, "-")}`;
+
+// Payload for the client-side bar renderer. Same JSON-in-a-script
+// pattern Chart.astro uses for line charts.
+const payload = {
+  chartId,
+  title: chart.title,
+  orientation,
+  rows,
+  anchorDate,
+  allSameDate,
+  dateSpread,
+  blurb: chart.blurb ?? "",
+  // Formatting from the FIRST source: bar charts assume all sources
+  // share a unit (you don't compare USD GDP to percent inflation).
+  // Tick formatter on the y-axis pulls from this.
+  formatting: sources[0]?.data.formatting ?? null,
+  // Provenance summary, used to populate the "Sources: ..." footer.
+  sources: sources.map((s) => ({
+    id: s.id,
+    label: s.data.shortName || s.data.name || s.id,
+    provider: s.data.provenance?.provider ?? null,
+    url: s.data.provenance?.url ?? null,
+  })),
+};
+---
+
+<button
+  type="button"
+  class="chart-tile chart-bar-tile"
+  data-chart-ref={dialogId}
+  aria-label={`${chart.title} details`}
+>
+  <div class="tile-head">
+    <div class="tile-title">{chart.title}</div>
+    <div class="tile-meta">
+      {rows.length} {rows.length === 1 ? "series" : "series"}{anchorDate ? ` · as of ${anchorDate.slice(0, 7)}` : ""}
+    </div>
+  </div>
+  <div class="tile-bars" data-role="tile-bars" data-orientation={orientation}></div>
+</button>
+
+<dialog id={dialogId} class="chart-dialog chart-bar-dialog">
+  <div class="dialog-close-bar">
+    <button type="button" class="dialog-close-x" data-role="close-x" aria-label="Close">×</button>
+  </div>
+  <div class="dialog-body">
+    <h2 class="dialog-title">{chart.title}</h2>
+    <p class="dialog-asof">
+      {allSameDate
+        ? `Snapshot as of ${anchorDate}.`
+        : `Snapshot — each source uses its latest observation. Date range across series: ${dateSpread}.`}
+    </p>
+    {chart.blurb && (
+      <p class="dialog-blurb" set:html={chart.blurb} />
+    )}
+    <div class="dialog-bar-plot" data-role="dialog-bar-plot"></div>
+    <ul class="dialog-bar-list">
+      {rows.map((r) => (
+        <li class="dialog-bar-row">
+          <span class="dialog-bar-label">{r.label}</span>
+          <span class="dialog-bar-value mono">{r.display}</span>
+          <span class="dialog-bar-date muted small">{r.date}</span>
+        </li>
+      ))}
+    </ul>
+    <p class="dialog-bar-sources muted small">
+      Sources:
+      {payload.sources.map((s, i) => (
+        <span>
+          {i > 0 && ", "}
+          {s.url ? (
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
+          ) : (
+            <span>{s.label}</span>
+          )}
+          {s.provider && <span class="muted"> ({s.provider})</span>}
+        </span>
+      ))}
+    </p>
+  </div>
+
+  <script type="application/json" data-chart-bar-payload set:html={JSON.stringify(payload)} />
+</dialog>
+
+<script>
+  // Lightweight client renderer — no shared controller dependency,
+  // so this script ships only on pages that include a bar chart.
+  // Uses the same @observablehq/plot bundle the line-chart controller
+  // pulls; Vite dedupes the import so we don't double-ship the lib.
+  import * as Plot from "@observablehq/plot";
+  import { formatValue, type Formatting } from "../lib/format";
+  import { seriesColor } from "../lib/series-colors";
+
+  type Row = {
+    sourceId: string;
+    label: string;
+    value: number;
+    date: string;
+    display: string;
+  };
+  type Payload = {
+    chartId: string;
+    title: string;
+    orientation: "vertical" | "horizontal";
+    rows: Row[];
+    anchorDate: string;
+    allSameDate: boolean;
+    dateSpread: string | null;
+    blurb: string;
+    formatting: Formatting | null;
+    sources: Array<{ id: string; label: string; provider: string | null; url: string | null }>;
+  };
+
+  const tiles = document.querySelectorAll<HTMLButtonElement>(".chart-bar-tile");
+  for (const tile of tiles) {
+    const ref = tile.dataset.chartRef;
+    if (!ref) continue;
+    const dialog = document.getElementById(ref);
+    if (!(dialog instanceof HTMLDialogElement)) continue;
+    const payloadEl = dialog.querySelector<HTMLScriptElement>(
+      "script[data-chart-bar-payload]",
+    );
+    if (!payloadEl?.textContent) continue;
+    let payload: Payload;
+    try {
+      payload = JSON.parse(payloadEl.textContent);
+    } catch {
+      continue;
+    }
+
+    // Tile: small bars, no axis. Always horizontal at tile scale so
+    // long category labels don't get truncated.
+    const tileHost = tile.querySelector<HTMLElement>("[data-role='tile-bars']");
+    if (tileHost) {
+      const tilePlot = renderBarPlot(payload, {
+        width: 280,
+        height: Math.max(60, 14 * Math.min(payload.rows.length, 8)),
+        orientation: "horizontal",
+        compact: true,
+      });
+      tileHost.replaceChildren(tilePlot);
+    }
+
+    tile.addEventListener("click", () => {
+      const plotHost = dialog.querySelector<HTMLElement>(
+        "[data-role='dialog-bar-plot']",
+      );
+      if (plotHost && !plotHost.dataset.rendered) {
+        // Dialog dimensions: width auto-fits to the dialog body width
+        // (capped at 720); height scales with the row count so 20-bar
+        // charts get vertical breathing room.
+        const width = Math.min(720, dialog.clientWidth - 48);
+        const barCount = payload.rows.length;
+        const height =
+          payload.orientation === "vertical"
+            ? 340
+            : Math.max(160, 28 * barCount + 40);
+        const dialogPlot = renderBarPlot(payload, {
+          width,
+          height,
+          orientation: payload.orientation,
+          compact: false,
+        });
+        plotHost.replaceChildren(dialogPlot);
+        plotHost.dataset.rendered = "1";
+      }
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+    });
+
+    const closeBtn = dialog.querySelector<HTMLButtonElement>(
+      "[data-role='close-x']",
+    );
+    closeBtn?.addEventListener("click", () => {
+      if (typeof dialog.close === "function") dialog.close();
+      else dialog.removeAttribute("open");
+    });
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) {
+        if (typeof dialog.close === "function") dialog.close();
+        else dialog.removeAttribute("open");
+      }
+    });
+  }
+
+  function renderBarPlot(
+    payload: Payload,
+    opts: { width: number; height: number; orientation: "vertical" | "horizontal"; compact: boolean },
+  ): SVGSVGElement | HTMLElement {
+    const { rows, formatting } = payload;
+    const { orientation, compact } = opts;
+
+    // Tick formatter — re-use the same formatter that powers
+    // line-chart axes so the bar values read consistently with the
+    // rest of the site.
+    const tickFormat = (v: number) =>
+      formatting ? formatValue(v, formatting) : String(v);
+
+    // Per-bar fill color — re-use the existing series palette so a
+    // bar chart of "GDP by country" colors the bars the same way a
+    // line chart of "GDP by country" would color its lines.
+    const fill = (_d: Row, i: number) => seriesColor(i);
+
+    // Axis decisions: at tile scale (compact: true) we drop both
+    // axes for a clean editorial sparkbar look. The dialog shows
+    // both axes + the value labels at the end of each bar.
+    const xAxis = compact ? null : true;
+    const yAxis = compact ? null : true;
+
+    const labelMark = compact
+      ? null
+      : orientation === "horizontal"
+        ? Plot.text(rows, {
+            x: "value",
+            y: "label",
+            text: (d: Row) => " " + d.display,
+            textAnchor: "start",
+            dx: 4,
+            fontSize: 11,
+            fill: "var(--color-neutral-900, #1c1c1a)",
+          })
+        : Plot.text(rows, {
+            x: "label",
+            y: "value",
+            text: (d: Row) => d.display,
+            textAnchor: "middle",
+            dy: -6,
+            fontSize: 11,
+            fill: "var(--color-neutral-900, #1c1c1a)",
+          });
+
+    const bar =
+      orientation === "horizontal"
+        ? Plot.barX(rows, {
+            x: "value",
+            y: "label",
+            fill,
+            sort: { y: "x", reverse: true, limit: 999 },
+          })
+        : Plot.barY(rows, {
+            x: "label",
+            y: "value",
+            fill,
+            sort: { x: "y", reverse: true, limit: 999 },
+          });
+
+    return Plot.plot({
+      width: opts.width,
+      height: opts.height,
+      // Leave room on the right for the value labels in horizontal
+      // mode; on the top in vertical mode. Compact tile drops the
+      // padding to maximize bar width.
+      marginLeft: compact ? 2 : orientation === "horizontal" ? 110 : 50,
+      marginRight: compact ? 2 : orientation === "horizontal" ? 70 : 12,
+      marginTop: compact ? 2 : orientation === "vertical" ? 24 : 8,
+      marginBottom: compact ? 2 : orientation === "vertical" ? 64 : 28,
+      style: { fontFamily: "Inter, system-ui, sans-serif" },
+      x: orientation === "horizontal"
+        ? {
+            tickFormat,
+            grid: !compact,
+            label: null,
+            axis: xAxis,
+          }
+        : {
+            label: null,
+            axis: xAxis,
+            tickRotate: -30,
+          },
+      y: orientation === "horizontal"
+        ? {
+            label: null,
+            axis: yAxis,
+          }
+        : {
+            tickFormat,
+            grid: !compact,
+            label: null,
+            axis: yAxis,
+          },
+      marks: labelMark ? [bar, labelMark] : [bar],
+    }) as SVGSVGElement;
+  }
+</script>
+
+<style>
+  .chart-bar-tile {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background: var(--color-white, #fff);
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: 6px;
+    padding: 14px 16px;
+    cursor: pointer;
+    gap: 8px;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .chart-bar-tile:hover {
+    border-color: rgba(55, 53, 47, 0.18);
+    box-shadow: 0 1px 3px rgba(55, 53, 47, 0.06);
+  }
+  .chart-bar-tile .tile-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .chart-bar-tile .tile-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-neutral-900, #1c1c1a);
+    line-height: 1.3;
+  }
+  .chart-bar-tile .tile-meta {
+    font-size: 11px;
+    color: var(--color-neutral-500, #6f6c66);
+  }
+  .chart-bar-tile .tile-bars {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chart-bar-tile .tile-bars svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .chart-bar-dialog .dialog-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--color-neutral-900, #1c1c1a);
+  }
+  .chart-bar-dialog .dialog-asof {
+    font-size: 13px;
+    color: var(--color-neutral-600, #4a4a45);
+    margin: 0 0 12px;
+  }
+  .chart-bar-dialog .dialog-blurb {
+    font-size: 13px;
+    color: var(--color-neutral-700, #2d2d2a);
+    line-height: 1.5;
+    margin: 0 0 16px;
+  }
+  .chart-bar-dialog .dialog-bar-plot {
+    margin: 0 0 18px;
+  }
+  .chart-bar-dialog .dialog-bar-list {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 4px 14px;
+    align-items: baseline;
+    font-size: 13px;
+  }
+  .chart-bar-dialog .dialog-bar-row {
+    display: contents;
+  }
+  .chart-bar-dialog .dialog-bar-label {
+    color: var(--color-neutral-800, #2d2d2a);
+  }
+  .chart-bar-dialog .dialog-bar-value {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-neutral-900, #1c1c1a);
+    text-align: right;
+  }
+  .chart-bar-dialog .dialog-bar-date {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-neutral-500, #6f6c66);
+  }
+  .chart-bar-dialog .dialog-bar-sources {
+    margin: 0;
+    line-height: 1.5;
+  }
+  .chart-bar-dialog .dialog-close-bar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 8px 0;
+  }
+  .chart-bar-dialog .dialog-close-x {
+    background: transparent;
+    border: 0;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--color-neutral-500, #6f6c66);
+    line-height: 1;
+    padding: 4px 8px;
+  }
+  .chart-bar-dialog .dialog-close-x:hover {
+    color: var(--color-neutral-900, #1c1c1a);
+  }
+  .chart-bar-dialog .dialog-body {
+    padding: 4px 24px 24px;
+  }
+</style>

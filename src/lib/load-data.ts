@@ -376,3 +376,35 @@ export function currentPoint(
   if (data.points.length === 0) return null;
   return data.points[data.points.length - 1];
 }
+
+/**
+ * Snapshot a source at a specific date (or latest if undefined).
+ *
+ * Used by the bar-chart renderer to anchor every source on a shared
+ * point in time. Resolution: walk the full points list backwards,
+ * return the FIRST observation whose date is at-or-before `asOf`.
+ * Returns null when the source's earliest point is already after
+ * `asOf` (the source isn't yet defined at the requested anchor).
+ *
+ * When `asOf` is undefined, returns the latest observation — cheap
+ * and equivalent to the source's `latest` summary field.
+ *
+ * For bar charts: this is the *one* per-source datapoint that
+ * becomes the bar height. Callers pass the source's full
+ * TimeSeriesData (loaded via loadSourceData, since
+ * loadSourceSummary's `latest` field can't satisfy a non-default
+ * anchor).
+ */
+export function snapshotAt(
+  data: TimeSeriesData,
+  asOf?: string,
+): { t: string; v: number } | null {
+  if (data.points.length === 0) return null;
+  if (!asOf) return data.points[data.points.length - 1];
+  // Linear walk from the back — typical asOf in practice is the
+  // recent past (e.g. last year-end), so the loop exits in O(small).
+  for (let i = data.points.length - 1; i >= 0; i--) {
+    if (data.points[i].t <= asOf) return data.points[i];
+  }
+  return null;
+}
