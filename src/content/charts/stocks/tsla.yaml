@@ -1,5 +1,16 @@
 title: Tesla
 sources: ["yahoo_marketcap/tsla_mc"]
 render: line
-defaultDelta: 1m
-tags: [us, single-name]
+defaultDelta: 5y
+tags: [us, single-name, auto]
+annotations:
+  - date: "2020-08-31"
+    label: 5-for-1 split
+    position: below
+  - date: "2020-12-21"
+    label: Joined S&P 500
+  - date: "2022-08-25"
+    label: 3-for-1 split
+    position: below
+  - date: "2024-11-05"
+    label: Trump win
