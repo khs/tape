@@ -50,6 +50,21 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = ROOT / "public" / "data"
 
+# Auto-load .env from the repo root when python-dotenv is available.
+# Lets the user keep SUPABASE_SERVICE_ROLE_KEY (+ email-provider keys)
+# in a single .env file alongside the other API keys, sourced by the
+# local data-refresh runner OR picked up automatically here on
+# direct CLI invocation. CI workflows pass these via `env:` blocks
+# from GitHub Secrets — load_dotenv() finds no .env there and is a
+# no-op. Soft-imports so the script still runs in minimal envs
+# without the dotenv dep.
+try:
+    from dotenv import load_dotenv  # type: ignore[import-untyped]
+
+    load_dotenv(dotenv_path=ROOT / ".env", override=False)
+except ImportError:
+    pass
+
 
 def env(name: str) -> str | None:
     v = os.environ.get(name, "").strip()

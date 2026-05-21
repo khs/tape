@@ -29,7 +29,7 @@ jobs:
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          python -m pip install yfinance pandas pyyaml python-dotenv
+          python -m pip install yfinance pandas pyyaml python-dotenv requests
 
       # Pipelines are run independently with continue-on-error so one failing
       # provider (Yahoo rate-limiting us, FRED rejecting a series id, etc.)
@@ -122,6 +122,35 @@ jobs:
       # for a new provider.
       - name: Audit source labels against provider authoritative titles
         run: python scripts/audit_all_sources.py --strict
+
+      # Indicator alerts: evaluate every active alert_rules row against
+      # the freshly-refreshed source data files. Writes alert_triggers
+      # rows when a rule fires. Idempotent — skips rules whose source's
+      # latest observation date matches the rule's last_value_t.
+      # Soft-fails when env is unset so a missing secret doesn't tank
+      # the data-refresh commit; the alert evaluator just no-ops.
+      - name: Evaluate indicator alerts
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python pipelines/check_alerts.py
+
+      # Email dispatch for any alert_triggers rows where notified_at
+      # is still null. Reads RESEND_API_KEY or POSTMARK_API_KEY plus
+      # ALERTS_FROM_ADDRESS from secrets. Same soft-fail semantics —
+      # missing email-provider config leaves triggers queued for a
+      # future run to dispatch.
+      - name: Dispatch alert emails
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          POSTMARK_API_KEY: ${{ secrets.POSTMARK_API_KEY }}
+          ALERTS_FROM_ADDRESS: ${{ secrets.ALERTS_FROM_ADDRESS }}
+          ALERTS_FROM_NAME: ${{ secrets.ALERTS_FROM_NAME }}
+        run: python pipelines/dispatch_alert_emails.py
 
       - name: Commit updated data
         run: |

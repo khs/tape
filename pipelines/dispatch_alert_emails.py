@@ -37,7 +37,22 @@ import os
 import sys
 import urllib.parse
 import urllib.request
+from pathlib import Path
 from typing import Any
+
+# Auto-load .env from the repo root when python-dotenv is available.
+# Same rationale as check_alerts.py — see that file for the full
+# comment. CI workflows pass env via secrets directly, in which case
+# load_dotenv finds no .env and is a no-op.
+try:
+    from dotenv import load_dotenv  # type: ignore[import-untyped]
+
+    load_dotenv(
+        dotenv_path=Path(__file__).resolve().parent.parent / ".env",
+        override=False,
+    )
+except ImportError:
+    pass
 
 
 def env(name: str) -> str | None:
