@@ -1102,6 +1102,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   } from "../lib/annotations";
   import { METRO_TAG } from "../lib/geographic-regions";
   import { COUNTRY_TAG, isRegionCode } from "../lib/countries";
+  import { COUNTY_TAG, parseCountySourceId } from "../lib/county-sources";
+  import {
+    bandsFor,
+    SHADING_FILL_OPACITY,
+    type ShadingKey,
+  } from "../lib/shading-presets";
   import {
     CD_TAG,
     STATE_TAG,
@@ -1788,6 +1794,37 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     return false;
   }
+
+  /** Returns true if a source passes the county-source filter.
+   *  Non-county sources always pass. County sources are HIDDEN by
+   *  default — there's no county drill-down chip yet (only 8
+   *  counties ship today, mostly DMV-area BLS unemployment) — so
+   *  the only way to surface them is to type a 4+-char query that
+   *  matches the county's source-ID slug.
+   *
+   *  Why slug-match rather than name-match: the source's display
+   *  name + searchText already power the global string filter; if
+   *  the user types "Alexandria" the searchText path will keep the
+   *  source eligible. This filter just enforces the "don't show
+   *  every county in the default list" rule. A query that doesn't
+   *  hit the slug is treated as "user isn't looking for a county
+   *  right now," and the row is dropped.
+   *
+   *  Slug matching: case-insensitive substring against the parsed
+   *  slug. "alex" matches "unemployment_alexandria". "city" matches
+   *  any county with "city" in its slug. Mostly indirection-free —
+   *  callers care about the boolean, not the matched part. */
+  function passesCountyFilter(
+    id: string,
+    sTags: string[],
+    query: string = "",
+  ): boolean {
+    if (!sTags.includes(COUNTY_TAG)) return true;
+    if (query.length < 4) return false;
+    const parsed = parseCountySourceId(id);
+    if (!parsed) return false; // defensive — should never happen if COUNTY_TAG is on
+    return parsed.slug.toLowerCase().includes(query.toLowerCase());
+  }
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;
 
@@ -1904,6 +1941,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       if (!ok) continue;
       if (!passesMetroFilter(tags, libGeo.selectedMetroCbsa, q)) continue;
       if (!passesCountryFilter(tags, libGeo.selectedCountryCode, q)) continue;
+      if (!passesCountyFilter(id, tags, q)) continue;
       if (q) {
         const hay =
           src.searchText ??
@@ -2456,6 +2494,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       if (!passesCdFilter(id, sTags, sourcesSelectedTags, sourcesCdState, sourcesCdDistrict, q)) continue;
       if (!passesMetroFilter(sTags, libGeo.selectedMetroCbsa, q)) continue;
       if (!passesCountryFilter(sTags, libGeo.selectedCountryCode, q)) continue;
+      if (!passesCountyFilter(id, sTags, q)) continue;
       let ok = true;
       for (const t of tagsRequired) {
         if (!sTags.includes(t)) { ok = false; break; }
@@ -6849,6 +6888,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // engaging the chip.
       if (!passesMetroFilter(sTags, ccModal.geo.selectedMetroCbsa, q)) return false;
       if (!passesCountryFilter(sTags, ccModal.geo.selectedCountryCode, q)) return false;
+      if (!passesCountyFilter(s.id, sTags, q)) return false;
       for (const t of tagsRequired) {
         if (!sTags.includes(t)) return false;
       }
@@ -7067,6 +7107,56 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // newer one when the user rapidly toggles sources.
   let ccPreviewToken = 0;
 
+  /**
+   * Build Plot.rectX shading marks for the cc-modal preview pane.
+   * Mirrors src/components/ChartController.astro's shadingMarks: the
+   * fill is passed as a function so Plot's color scale doesn't
+   * categorize the hex strings into palette colors. Filters bands
+   * to the plotted date range — bands fully outside the window are
+   * dropped so they don't widen the x-domain.
+   *
+   * Without this, ccModal.shading was wired into the inlineChart on
+   * Create but never reflected in the live preview. The user would
+   * toggle "Presidential party" or "Fed chairs," see no change, and
+   * assume the feature was broken — only discovering the bands
+   * after Save → Preview / Open in dashboard.
+   */
+  function previewShadingMarks(
+    keys: string[],
+    domainStart: Date | null,
+    domainEnd: Date | null,
+  ): any[] {
+    if (!keys || keys.length === 0) return [];
+    const marks: any[] = [];
+    const startMs = domainStart ? domainStart.getTime() : -Infinity;
+    const endMs = domainEnd ? domainEnd.getTime() : Infinity;
+    for (const key of keys) {
+      const bands = bandsFor(key as ShadingKey);
+      if (bands.length === 0) continue;
+      const visible = bands
+        .map((b) => ({
+          ...b,
+          startDate: new Date(b.start),
+          endDate: new Date(b.end),
+        }))
+        .filter(
+          (b) =>
+            b.endDate.getTime() >= startMs && b.startDate.getTime() <= endMs,
+        );
+      if (visible.length === 0) continue;
+      marks.push(
+        Plot.rectX(visible, {
+          x1: "startDate",
+          x2: "endDate",
+          fill: (d: { fill: string }) => d.fill,
+          fillOpacity: SHADING_FILL_OPACITY,
+          title: "label",
+        }),
+      );
+    }
+    return marks;
+  }
+
   async function renderCustomChartPreview(): Promise<void> {
     const plotHost = shell.querySelector<HTMLElement>("[data-role='cc-preview-plot']");
     const statusEl = shell.querySelector<HTMLElement>("[data-role='cc-preview-status']");
@@ -7140,6 +7230,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // is fine — sums-that-go-negative or divisions-by-tiny-numbers will
       // simply not appear on the log view.
       const useLog = ccModal.logScale;
+      // Shading bands behind the derived line. Splice in front of the
+      // marks list so they paint BEHIND the lineY (Plot honors the
+      // marks-array order for z-stacking).
+      const opShading = previewShadingMarks(
+        ccModal.shading,
+        combined.length > 0 ? combined[0].t : null,
+        combined.length > 0 ? combined[combined.length - 1].t : null,
+      );
       const opPlot = Plot.plot({
         height: 220,
         width: plotHost.clientWidth || 360,
@@ -7162,6 +7260,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           type: useLog ? "log" : undefined,
         },
         marks: [
+          ...opShading,
           Plot.lineY(combined, {
             x: "t",
             y: "v",
@@ -7224,6 +7323,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const unrescaleR = (yPos: number) =>
         rightMin + ((yPos - leftMin) / lRange) * rRange;
       const marks: any[] = [];
+      // Shading first so the bands paint UNDER the lines below.
+      // Domain bounds come from all series flattened — same x-window
+      // both axes share.
+      {
+        const allPts = [...leftPts, ...rightPts];
+        if (allPts.length > 0) {
+          const ts = allPts.map((p) => new Date(p.t).getTime());
+          const minDate = new Date(Math.min(...ts));
+          const maxDate = new Date(Math.max(...ts));
+          marks.push(...previewShadingMarks(ccModal.shading, minDate, maxDate));
+        }
+      }
       // A representative color per axis for the axis labels themselves: when
       // there's exactly one series on a side, use that series' color. With
       // multiple, use neutral so it doesn't claim allegiance to one line.
@@ -7279,6 +7390,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }) as HTMLElement;
     } else {
       const marks: any[] = [];
+      // Compute domain bounds across all visible series so shading
+      // bands can be filtered to the plotted window. Shading goes
+      // first in the marks list so it paints under the lines.
+      let earliest: Date | null = null;
+      let latest: Date | null = null;
+      for (const s of colored) {
+        if (s.points.length === 0) continue;
+        const firstT = new Date(s.points[0].t);
+        const lastT = new Date(s.points[s.points.length - 1].t);
+        if (!earliest || firstT < earliest) earliest = firstT;
+        if (!latest || lastT > latest) latest = lastT;
+      }
+      marks.push(...previewShadingMarks(ccModal.shading, earliest, latest));
       for (const s of colored) {
         const pts = s.points;
         if (pts.length < 2) continue;

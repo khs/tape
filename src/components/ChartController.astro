@@ -286,7 +286,17 @@
         Plot.rectX(visible, {
           x1: "startDate",
           x2: "endDate",
-          fill: "fill",
+          // Pass fill as a function — column-string form ("fill")
+          // would push the column through Plot's color scale (ordinal
+          // by default), which categorizes the hex strings and
+          // assigns palette colors instead of using them literally.
+          // Recessions / bear_markets accidentally looked OK because
+          // there's only one unique fill value; president_party,
+          // senate_majority, house_majority, fed_chairs all have
+          // alternating fills and looked wrong (palette categorical
+          // colors, not the intended D/R blue/red or chair grays).
+          // Function form bypasses the scale.
+          fill: (d: { fill: string }) => d.fill,
           fillOpacity: SHADING_FILL_OPACITY,
           // Title (hover tooltip) shows the band's label, e.g.
           // "2007-09 to 2009-06: Great Recession" or "Obama (Democratic)".

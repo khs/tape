@@ -19,6 +19,10 @@ import {
   COUNTRY_TAG,
   parseCountrySourceId,
 } from "../lib/countries";
+import {
+  COUNTY_TAG,
+  parseCountySourceId,
+} from "../lib/county-sources";
 import { isVisibleChart } from "../lib/resolve-dashboard";
 
 /**
@@ -189,6 +193,7 @@ export const GET: APIRoute = async () => {
     const synthetics: string[] = [];
     if (parseCdSourceId(s.id)) synthetics.push(CD_TAG);
     if (parseStateSourceId(s.id)) synthetics.push(STATE_TAG);
+    if (parseCountySourceId(s.id)) synthetics.push(COUNTY_TAG);
     const metroExtra = metroTagsFor(s.id);
     if (metroExtra.length > 0) synthetics.push(...metroExtra);
     const parsedMetro = parseMetroSourceId(s.id);
@@ -223,6 +228,7 @@ export const GET: APIRoute = async () => {
     const isAlreadyGeo =
       synthetics.includes(CD_TAG) ||
       synthetics.includes(STATE_TAG) ||
+      synthetics.includes(COUNTY_TAG) ||
       synthetics.includes(COUNTRY_TAG) ||
       metroExtra.length > 0;
     const isSubNationalById = /\/(county|city|zip)_/.test(s.id);
