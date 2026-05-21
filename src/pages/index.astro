@@ -278,8 +278,18 @@ const tabs: TabSpec[] = sorted.map((d) => ({
       content pitched at strangers. The async data fetch downstream then
       decides whether to surface the returning-user lede (has saves) or
       unhide the marketing zone again (signed in but no saves yet —
-      uncommon but possible). */}
-  <script is:inline define:vars={{ supabaseUrl: import.meta.env.PUBLIC_SUPABASE_URL ?? "" }}>
+      uncommon but possible).
+
+      ALSO: if the user has a default-dashboard slug pinned AND we're
+      not in a "skip redirect" mode (?nopin=1 or hash=#home — used by
+      the /u/<slug>/ "Open the home page" link), bounce them straight
+      to /u/<slug>/. Implements the watchlist primitive — the home
+      page IS the user's dashboard for anyone who has set a default.
+      Uses window.location.replace so the back button doesn't loop. */}
+  <script is:inline define:vars={{
+    supabaseUrl: import.meta.env.PUBLIC_SUPABASE_URL ?? "",
+    baseUrl: baseUrl,
+  }}>
     (function () {
       try {
         if (!supabaseUrl) return;
@@ -292,6 +302,20 @@ const tabs: TabSpec[] = sorted.map((d) => ({
         if (!s || !s.access_token) return;
         var zone = document.querySelector("[data-role='marketing-zone']");
         if (zone) zone.hidden = true;
+
+        // Default-dashboard redirect. Skip when:
+        //   ?nopin=1 in the URL (the "Open the home page" link from
+        //   /u/<slug>/ sets this so the user can get back to /)
+        //   #home in the hash (alternative escape hatch)
+        var params = new URLSearchParams(window.location.search);
+        if (params.has("nopin")) return;
+        if (window.location.hash === "#home") return;
+        var slug = localStorage.getItem("tape:default-dashboard-slug");
+        if (!slug) return;
+        // Sanity-check the slug shape so a corrupted localStorage
+        // value can't bounce us to /u/<arbitrary-string>/.
+        if (!/^[A-Za-z0-9_-]{1,80}$/.test(slug)) return;
+        window.location.replace((baseUrl || "") + "/u/" + slug + "/?from=home");
       } catch (e) {
         /* swallow — worst case the marketing hero flashes for an instant */
       }

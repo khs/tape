@@ -112,6 +112,7 @@ const ogD = state
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
     data-dashboard-default-window={defaultDelta ?? "1m"}
+    data-slug={slug}
   >
     {/* Breadcrumb shortcuts. Hidden client-side for signed-in users —
         the BaseLayout header already exposes "Compose" + "My dashboards"
@@ -123,6 +124,41 @@ const ogD = state
       <span class="mx-1">·</span>
       <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Composer</a>
     </nav>
+
+    {/* "Pinned as home view" notice. The home page redirects to this
+        dashboard whenever the user has a tape:default-dashboard-slug
+        set in localStorage matching this slug. The notice surfaces
+        only on that path so the user understands why they landed here
+        from / and has a clear escape hatch.
+
+        Hidden by default; the inline script below reveals it on the
+        page that matches the pinned slug + has ?from=home in the URL
+        (so a direct navigation to /u/<slug>/ from a link doesn't
+        surface the notice — it's specifically for the "I landed here
+        because it's my default" case). */}
+    <aside class="pinned-home-notice" data-role="pinned-home-notice" hidden>
+      <span class="pinned-home-icon" aria-hidden="true">📌</span>
+      <span class="pinned-home-text">
+        This is your pinned home view. The home page redirects here
+        whenever you visit Tape.
+      </span>
+      <a
+        href={`${baseUrl || "/"}/?nopin=1`}
+        class="pinned-home-link"
+        data-role="pinned-home-open-home"
+      >
+        Open the home page &rarr;
+      </a>
+      <button
+        type="button"
+        class="pinned-home-clear"
+        data-role="pinned-home-clear"
+        aria-label="Unpin this dashboard"
+        title="Stop pinning this dashboard as your home view"
+      >
+        Unpin
+      </button>
+    </aside>
 
     {notFound ? (
       <div class="max-w-[640px] p-6 border hairline rounded bg-neutral-100 text-sm text-neutral-700 leading-relaxed">
@@ -413,6 +449,41 @@ const ogD = state
       }
     }
   </script>
+
+  <script>
+    // Pinned-home-view notice. The home page's pre-paint script
+    // redirects to this dashboard whenever localStorage has
+    // tape:default-dashboard-slug matching the current slug. To
+    // make that redirect transparent, surface a small notice on
+    // this page when:
+    //   1. ?from=home is in the URL (the redirect tagged us)
+    //   2. AND localStorage's pinned slug matches this slug
+    // The notice has an "Unpin" button that clears the default
+    // and a "Open the home page" link (the link itself carries
+    // ?nopin=1 which the home-page redirect-script bypasses).
+    {
+      const notice = document.querySelector<HTMLElement>(
+        "[data-role='pinned-home-notice']",
+      );
+      if (notice) {
+        const here = document.querySelector<HTMLElement>("[data-slug]");
+        const currentSlug = here?.dataset.slug ?? "";
+        const fromHome =
+          new URL(window.location.href).searchParams.get("from") === "home";
+        const pinned = localStorage.getItem("tape:default-dashboard-slug");
+        if (fromHome && pinned && pinned === currentSlug) {
+          notice.hidden = false;
+        }
+        const unpinBtn = notice.querySelector<HTMLButtonElement>(
+          "[data-role='pinned-home-clear']",
+        );
+        unpinBtn?.addEventListener("click", () => {
+          localStorage.removeItem("tape:default-dashboard-slug");
+          notice.hidden = true;
+        });
+      }
+    }
+  </script>
 </BaseLayout>
 
 <style>
@@ -442,6 +513,48 @@ const ogD = state
     margin: 0 0 20px;
   }
   .post-save-prompt[hidden] { display: none; }
+  .pinned-home-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding: 8px 12px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: #fbf9f3;
+    font-size: 13px;
+    color: #2d2d2a;
+    flex-wrap: wrap;
+  }
+  .pinned-home-notice[hidden] { display: none; }
+  .pinned-home-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+  .pinned-home-text {
+    flex: 1 1 auto;
+    min-width: 200px;
+    color: #4a4a45;
+  }
+  .pinned-home-link {
+    font-size: 12px;
+    color: #1c1c1a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .pinned-home-clear {
+    font-size: 11px;
+    padding: 3px 9px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #2d2d2a;
+  }
+  .pinned-home-clear:hover {
+    background: #f5f3ec;
+  }
   .post-save-dismiss {
     position: absolute;
     top: 10px;
