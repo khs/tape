@@ -1,0 +1,530 @@
+---
+/**
+ * Per-source canonical page — one URL per data series.
+ *
+ * URL: `/source/<source-id>/`
+ *
+ * Purpose: the citable URL for every series we ship. Combines an
+ * embedded headline chart (so a reader who lands from a Google search
+ * sees the data immediately), full provenance (provider, series ID,
+ * upstream URL, license, last-updated, data-file path), the canonical
+ * citation block, and a list of curated charts / dashboards that
+ * reference the source.
+ *
+ * Replaces / complements `/chart/<chart-id>/`. Chart pages render a
+ * specific chart spec (which transforms / sources / overrides are
+ * pinned). Source pages render the raw single-series view + emphasize
+ * provenance + are stable across chart-spec edits.
+ *
+ * SEO posture: a real `<title>`, `<meta description>`, canonical link,
+ * and JSON-LD Dataset metadata (so Google's Dataset Search can index
+ * each series). One page per source = many thousands of indexable
+ * pages, each one a clean entry point from outside search.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Chart from "../../components/Chart.astro";
+import ChartController from "../../components/ChartController.astro";
+import CitationBlock from "../../components/CitationBlock.astro";
+import {
+  loadSourceData,
+} from "../../lib/load-data";
+import type { TimeSeriesData } from "../../lib/data-types";
+import { encodeComposedState } from "../../lib/composer-state";
+import type { CitationInput } from "../../lib/citation";
+
+export async function getStaticPaths() {
+  const sources = await getCollection("sources");
+  // Hidden sources still get a page — hiding only affects the
+  // composer's discovery surface (library.json filter). Anyone who
+  // arrives via a deep link or saved dashboard reference should
+  // still find a citable page; otherwise a saved dashboard's
+  // citation could 404.
+  return sources.map((s) => ({ params: { id: s.id }, props: { sourceId: s.id } }));
+}
+
+interface Props {
+  sourceId: string;
+}
+
+const { sourceId } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const sources = await getCollection("sources");
+const source = sources.find((s) => s.id === sourceId) ?? null;
+
+// All library charts that reference this source — used for the
+// "Where this source shows up" panel below the chart. Includes
+// any chart whose sources[] array contains the source ID, even
+// when the chart is multi-source (so a reader sees richer context
+// charts too).
+const allCharts = await getCollection("charts");
+const referencingCharts = allCharts
+  .filter((c) => !(c.data.deprecated === true && !c.data.aliasOf))
+  .filter((c) => c.data.render !== "choropleth")
+  .filter((c) => (c.data.sources ?? []).includes(sourceId));
+
+// Synthesize a minimal CollectionEntry-shaped chart so we can hand
+// the Chart component a chart spec that headlines THIS source. The
+// resulting tile renders as a single-source chart, which is what the
+// source-page reader wants at the top of the page.
+//
+// We DON'T reuse one of the referencing charts as the headline; doing
+// so would couple the source page to that chart's transformations
+// (normalize / op / shading), which could mislead a reader who landed
+// here from a search and assumed it was the raw series.
+const headlineChartId = `source/${sourceId}`;
+const headlineChart = source
+  ? ({
+      id: headlineChartId,
+      data: {
+        title: source.data.name,
+        sources: [sourceId],
+        render: "line" as const,
+        defaultDelta: source.data.supportedDeltas.includes("5y" as any)
+          ? ("5y" as const)
+          : (source.data.supportedDeltas[0] as any),
+        tags: source.data.tags ?? [],
+      },
+    } as any)
+  : null;
+
+// Peek at the data file to extract: latest-observation date (for the
+// citation's "Data through" line) + earliest date (for the "Coverage"
+// metadata line). loadSourceData reads from public/data; the dual-
+// mode load-data helper handles serverless vs build-time differences.
+let dataStartIso: string | null = null;
+let dataEndIso: string | null = null;
+let observationCount = 0;
+if (source) {
+  try {
+    const raw = await loadSourceData(source.data.dataFile);
+    if (raw.kind === "timeseries") {
+      const ts = raw as TimeSeriesData;
+      if (ts.points.length > 0) {
+        dataStartIso = ts.points[0].t;
+        dataEndIso = ts.points[ts.points.length - 1].t;
+        observationCount = ts.points.length;
+      }
+    }
+  } catch {
+    // Source's data file isn't readable at build time (e.g. failed
+    // pipeline run). Page still renders — coverage block shows
+    // "Not available."
+  }
+}
+
+// Use today's date as the citation's retrieval timestamp. Server-
+// rendered, so locks to the build's UTC date — close enough; the
+// citation reads "Retrieved 2026-05-21" which is a calendar date,
+// not a clock-tick.
+const today = new Date().toISOString().slice(0, 10);
+
+const provenance = source?.data.provenance;
+const canonicalUrl = `${baseUrl}/source/${sourceId}/`;
+const citation: CitationInput | null = source
+  ? {
+      title: source.data.name,
+      providers: [provenance?.provider ?? "Unknown"],
+      asOf: dataEndIso ?? undefined,
+      license: provenance?.license,
+      url: canonicalUrl,
+      today,
+    }
+  : null;
+
+// Pre-seed a composer link so "Open in composer" lands the user in
+// the composer with this source already added as a single-source tile.
+const composeUrl = source
+  ? baseUrl +
+    "/compose/?d=" +
+    encodeComposedState({
+      title: source.data.name,
+      sections: [{ title: source.data.shortName ?? source.data.name, charts: [headlineChartId] }],
+      inlineCharts: {
+        [headlineChartId]: {
+          title: source.data.name,
+          sources: [sourceId],
+        },
+      },
+    })
+  : `${baseUrl}/compose/`;
+
+// JSON-LD Dataset metadata for Google Dataset Search. Each per-source
+// page advertises itself as a structured dataset entry with a name,
+// description, license, distribution URL, and date range. Heavyweight
+// SEO win for academic / journalistic search traffic.
+const datasetSchema = source
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: source.data.name,
+      description: source.data.description ?? "",
+      url: canonicalUrl,
+      license: provenance?.license,
+      isAccessibleForFree: true,
+      creator: { "@type": "Organization", name: provenance?.provider ?? "Unknown" },
+      temporalCoverage: dataStartIso && dataEndIso ? `${dataStartIso}/${dataEndIso}` : undefined,
+      variableMeasured: source.data.unit,
+      distribution: {
+        "@type": "DataDownload",
+        contentUrl: `${baseUrl}/${source.data.dataFile}`,
+        encodingFormat: "application/json",
+      },
+    }
+  : null;
+
+// Frequency: inferred from supportedDeltas. Not perfect (a source
+// supporting "1w" might be either daily or weekly), but it's a useful
+// hint until we add an explicit field in the license audit follow-up.
+function inferFrequency(deltas: readonly string[]): string {
+  if (deltas.includes("1w")) return "Daily or weekly";
+  if (deltas.includes("1m")) return "Monthly";
+  if (deltas.includes("ytd") || deltas.includes("1y")) return "Quarterly or annual";
+  return "Annual";
+}
+const frequency = source ? inferFrequency(source.data.supportedDeltas as string[]) : "—";
+---
+
+<BaseLayout
+  title={source ? `${source.data.name} — Tape` : `Source not found — Tape`}
+  description={
+    source?.data.description ??
+    (source ? `${source.data.name} from ${provenance?.provider ?? "Unknown"} — full history, citation, license, and the dashboards that use it.` : undefined)
+  }
+  ogImage={source ? `/og.png?source=${encodeURIComponent(sourceId)}` : undefined}
+>
+  {
+    datasetSchema && (
+      <script
+        is:inline
+        type="application/ld+json"
+        set:html={JSON.stringify(datasetSchema)}
+      />
+    )
+  }
+
+  <div class="source-page max-w-[920px] mx-auto px-6 pt-8 pb-16">
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
+      <span class="mx-1">·</span>
+      <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Compose</a>
+    </nav>
+
+    {
+      !source || !headlineChart ? (
+        <div class="p-6 border hairline rounded bg-neutral-100 text-sm text-neutral-700 leading-relaxed">
+          <p>
+            <strong>Source not found:</strong> <code>{sourceId}</code>
+          </p>
+          <p class="mt-2">
+            <a href={`${baseUrl}/compose/`} class="underline">
+              Open the composer &rarr;
+            </a>
+          </p>
+        </div>
+      ) : (
+        <>
+          <header class="source-header">
+            <p class="source-eyebrow">
+              {provenance?.provider ?? "Source"}
+              {source.data.shortName && <span> · {source.data.shortName}</span>}
+            </p>
+            <h1 class="source-title">{source.data.name}</h1>
+            {source.data.description && (
+              <p class="source-description">{source.data.description}</p>
+            )}
+            {source.data.tags && source.data.tags.length > 0 && (
+              <div class="source-tags">
+                {source.data.tags.map((t) => (
+                  <span class="source-tag">{t}</span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          <div class="source-headline-chart">
+            <Chart
+              chartId={headlineChartId}
+              chart={headlineChart.data}
+              sources={[source]}
+              dashboardSlug="source"
+            />
+          </div>
+          <p class="mt-2 mb-6 text-xs text-neutral-500">
+            Click the tile for the full interactive view (longer
+            windows, pills, citation actions).
+          </p>
+
+          <div class="source-detail-grid">
+            <div class="source-detail-row">
+              <span class="source-detail-label">Provider</span>
+              <span class="source-detail-value">
+                {provenance?.provider ?? "Unknown"}
+              </span>
+            </div>
+            {provenance?.series && (
+              <div class="source-detail-row">
+                <span class="source-detail-label">Series ID</span>
+                <span class="source-detail-value mono">
+                  {provenance.series}
+                </span>
+              </div>
+            )}
+            {provenance?.url && (
+              <div class="source-detail-row">
+                <span class="source-detail-label">Upstream URL</span>
+                <span class="source-detail-value">
+                  <a
+                    href={provenance.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="source-detail-link"
+                  >
+                    {provenance.url} &rarr;
+                  </a>
+                </span>
+              </div>
+            )}
+            <div class="source-detail-row">
+              <span class="source-detail-label">Update cadence</span>
+              <span class="source-detail-value">{frequency}</span>
+            </div>
+            <div class="source-detail-row">
+              <span class="source-detail-label">Coverage</span>
+              <span class="source-detail-value">
+                {
+                  dataStartIso && dataEndIso ? (
+                    <>
+                      {dataStartIso} to {dataEndIso} ({observationCount.toLocaleString()} observations)
+                    </>
+                  ) : (
+                    "Not available."
+                  )
+                }
+              </span>
+            </div>
+            <div class="source-detail-row">
+              <span class="source-detail-label">Unit</span>
+              <span class="source-detail-value">
+                {source.data.unit ?? "—"}
+              </span>
+            </div>
+            <div class="source-detail-row">
+              <span class="source-detail-label">License</span>
+              <span class="source-detail-value">
+                {provenance?.license ?? <em>Not specified.</em>}
+              </span>
+            </div>
+            <div class="source-detail-row">
+              <span class="source-detail-label">Data file</span>
+              <span class="source-detail-value">
+                <a
+                  href={`${baseUrl}/${source.data.dataFile}`}
+                  class="source-detail-link mono"
+                >
+                  /{source.data.dataFile} &rarr;
+                </a>
+              </span>
+            </div>
+            {provenance?.notes && (
+              <div class="source-detail-row">
+                <span class="source-detail-label">Notes</span>
+                <span class="source-detail-value">{provenance.notes}</span>
+              </div>
+            )}
+          </div>
+
+          {citation && <CitationBlock input={citation} heading="Cite this source" />}
+
+          <div class="source-actions">
+            <a href={composeUrl} class="source-action-link">
+              Open in composer &rarr;
+            </a>
+            {provenance?.url && (
+              <a
+                href={provenance.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="source-action-link"
+              >
+                View at upstream provider &rarr;
+              </a>
+            )}
+          </div>
+
+          {referencingCharts.length > 0 && (
+            <section class="source-references">
+              <h2 class="source-section-heading">
+                Charts that use this source ({referencingCharts.length})
+              </h2>
+              <ul class="source-references-list">
+                {referencingCharts.map((c) => (
+                  <li>
+                    <a href={`${baseUrl}/chart/${c.id}/`} class="source-reference-link">
+                      <span class="source-reference-title">{c.data.title}</span>
+                      <span class="source-reference-id mono">{c.id}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
+      )
+    }
+  </div>
+
+  <ChartController />
+</BaseLayout>
+
+<style>
+  .source-header {
+    margin-bottom: 18px;
+  }
+  .source-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6f6c66;
+    margin: 0 0 6px;
+  }
+  .source-title {
+    font-size: 28px;
+    line-height: 1.15;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #1c1c1a;
+  }
+  .source-description {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #4a4a45;
+    margin: 0 0 10px;
+    max-width: 70ch;
+  }
+  .source-tags {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .source-tag {
+    font-size: 11px;
+    color: #6f6c66;
+    background: #f1efe9;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .source-headline-chart {
+    /* Same width cap as /chart/<id>/ — keeps the tile from
+       stretching awkwardly on wide screens. Click expands to the
+       full dialog. */
+    max-width: 360px;
+    margin: 4px 0 4px;
+  }
+  .source-detail-grid {
+    /* Two-column key/value grid. Falls back to single column on
+       narrow viewports via the responsive media query below. */
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 6px 18px;
+    margin: 10px 0 20px;
+    padding: 12px 14px;
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: 4px;
+    background: #fbfaf6;
+    font-size: 13px;
+  }
+  @media (max-width: 600px) {
+    .source-detail-grid {
+      grid-template-columns: 1fr;
+      gap: 2px 0;
+    }
+    .source-detail-grid .source-detail-label {
+      margin-top: 4px;
+    }
+  }
+  .source-detail-row {
+    display: contents;
+  }
+  .source-detail-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6f6c66;
+    line-height: 1.7;
+  }
+  .source-detail-value {
+    color: #2d2d2a;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .source-detail-value.mono,
+  .source-detail-link.mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+  .source-detail-link {
+    color: #2d2d2a;
+    text-decoration: underline;
+    text-decoration-color: rgba(55, 53, 47, 0.3);
+    text-underline-offset: 2px;
+  }
+  .source-detail-link:hover {
+    text-decoration-color: #1c1c1a;
+  }
+  .source-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 14px 0 28px;
+  }
+  .source-action-link {
+    font-size: 13px;
+    color: #1c1c1a;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .source-action-link:hover {
+    text-decoration-color: rgba(28, 28, 26, 0.5);
+  }
+  .source-section-heading {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6f6c66;
+    margin: 24px 0 10px;
+    font-weight: 600;
+  }
+  .source-references-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .source-references-list li {
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .source-reference-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 9px 4px;
+    color: #1c1c1a;
+    text-decoration: none;
+    transition: background 0.1s;
+  }
+  .source-reference-link:hover {
+    background: #f5f3ec;
+  }
+  .source-reference-title {
+    font-size: 14px;
+  }
+  .source-reference-id {
+    font-size: 11px;
+    color: #6f6c66;
+    font-family: ui-monospace, monospace;
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+/**
+ * Visually-distinct citation card.
+ *
+ * Renders the citation lines (from src/lib/citation.ts) as a bordered
+ * panel with a "Copy citation" button. Used on per-source and per-chart
+ * pages — anywhere a reader might cite the chart in their own work and
+ * need the canonical text to paste into a memo / Substack / academic
+ * paper.
+ *
+ * Why a separate component rather than inlining: appears on multiple
+ * routes and the styling needs to be consistent ("the citation card
+ * looks the same everywhere"). Server-renders the lines + carries the
+ * pre-joined plaintext on a data attribute for the inline copy script.
+ */
+import {
+  buildCitation,
+  buildCitationLines,
+  type CitationInput,
+} from "../lib/citation";
+
+interface Props {
+  input: CitationInput;
+  /** Heading text. Default "Cite this chart." */
+  heading?: string;
+}
+
+const { input, heading = "Cite this chart" } = Astro.props;
+const plain = buildCitation(input);
+const lines = buildCitationLines(input);
+---
+
+<section class="citation-card" data-role="citation-card">
+  <div class="citation-header">
+    <h3 class="citation-heading">{heading}</h3>
+    <button
+      type="button"
+      class="citation-copy-btn"
+      data-role="citation-copy-btn"
+      data-citation={plain}
+      aria-label="Copy citation to clipboard"
+    >
+      Copy
+    </button>
+  </div>
+  <ol class="citation-lines">
+    {lines.map((line) => <li>{line}</li>)}
+  </ol>
+</section>
+
+<script>
+  // Per-card copy handler. Multiple citation cards can coexist on one
+  // page (a dashboard renders one per chart) — wire per-button rather
+  // than delegating, so the active card's button text flips
+  // independently when copied.
+  document
+    .querySelectorAll<HTMLButtonElement>(
+      "[data-role='citation-copy-btn']",
+    )
+    .forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.citation ?? "";
+        const original = btn.textContent ?? "Copy";
+        if (!text) return;
+        btn.disabled = true;
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.textContent = "Copied";
+        } catch {
+          // Old browsers / iframe sandboxing can block clipboard
+          // writes. Tell the user clearly instead of leaving them
+          // wondering why nothing happened.
+          alert(`Copy failed. Citation:\n\n${text}`);
+        } finally {
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = original;
+          }, 1500);
+        }
+      });
+    });
+</script>
+
+<style>
+  .citation-card {
+    /* Bordered card, slightly contrasting background so it reads
+       as a discrete artifact rather than just inline body text.
+       The whole reason this is its own component is to make
+       citing the chart feel weighty + first-class. */
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: var(--radius, 6px);
+    background: #fbfaf6;
+    padding: 14px 16px 12px;
+    margin: 16px 0 24px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #2d2d2a;
+  }
+  .citation-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .citation-heading {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6f6c66;
+    margin: 0;
+  }
+  .citation-copy-btn {
+    font-size: 11px;
+    line-height: 1;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #2d2d2a;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .citation-copy-btn:hover {
+    background: #f5f3ec;
+    border-color: rgba(55, 53, 47, 0.32);
+  }
+  .citation-copy-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .citation-lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* Use a serif-feeling spacing: each fact gets its own line, so
+       the block reads scannably even at small sizes. */
+  }
+  .citation-lines li {
+    padding: 1px 0;
+  }
+  .citation-lines li + li {
+    /* Subtle separator hint so the block doesn't smush together. */
+    margin-top: 1px;
+  }
+</style>

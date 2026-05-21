@@ -108,6 +108,30 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
           <p class="mt-3 text-xs text-neutral-500">
             Click the chart for the larger view, sources, and a longer time-window selector.
           </p>
+
+          {/* Source links — one per underlying series, pointing to its
+              canonical /source/<id>/ page. Single-source charts get a
+              direct "View raw data + provenance" link; multi-source
+              charts get the full list so a reader can drill into any
+              constituent. */}
+          {resolved.sources.length > 0 && (
+            <p class="mt-2 text-xs text-neutral-500">
+              {resolved.sources.length === 1 ? "Source: " : "Sources: "}
+              {resolved.sources.map((s, i) => (
+                <>
+                  {i > 0 && <span>, </span>}
+                  <a
+                    href={`${baseUrl}/source/${s.id}/`}
+                    class="underline hover:text-neutral-900"
+                  >
+                    {s.data.shortName ?? s.data.name}
+                  </a>
+                </>
+              ))}
+              {" — "}
+              <span class="muted">click for provenance, license, and full citation.</span>
+            </p>
+          )}
         </>
       )
     }
