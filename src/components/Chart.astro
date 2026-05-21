@@ -825,25 +825,39 @@ const mostRecentUpdate = payload.sources
             {perSource.map((p, i) => (
               <>
                 {i > 0 && ", "}
-                {p.source.data.provenance.url ? (
-                  <a
-                    href={p.source.data.provenance.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {p.label}
-                  </a>
-                ) : (
-                  <span>{p.label}</span>
+                <a
+                  href={`/source/${p.source.id}/`}
+                  title={`Open the source page for ${p.label}: provenance, license, citation, related charts.`}
+                >
+                  {p.label}
+                </a>
+                {p.source.data.provenance.url && (
+                  <>
+                    {" "}
+                    (<a
+                      href={p.source.data.provenance.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open the upstream provider's page"
+                    >
+                      upstream
+                    </a>)
+                  </>
                 )}
               </>
             ))}
           </span>
         ) : (
           <span>
-            Source: {primarySource.data.provenance.provider}
-            {primarySource.data.provenance.series &&
-              ` — ${primarySource.data.provenance.series}`}
+            Source:{" "}
+            <a
+              href={`/source/${primarySource.id}/`}
+              title="Open the source page: provenance, license, citation, related charts."
+            >
+              {primarySource.data.provenance.provider}
+              {primarySource.data.provenance.series &&
+                ` — ${primarySource.data.provenance.series}`}
+            </a>
             {primarySource.data.provenance.url && (
               <>
                 {" "}
@@ -851,8 +865,9 @@ const mostRecentUpdate = payload.sources
                   href={primarySource.data.provenance.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  title="Open the upstream provider's page"
                 >
-                  link
+                  upstream
                 </a>)
               </>
             )}

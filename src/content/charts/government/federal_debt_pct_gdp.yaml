@@ -2,5 +2,17 @@ title: Federal debt / GDP
 sources:
   - fred/federal_debt_pct_gdp
 render: line
-defaultDelta: 10y
+defaultDelta: 50y
 tags: [fiscal, government, macro, us]
+shading: [recessions]
+annotations:
+  - date: "1981-08-13"
+    label: Reagan tax cuts
+  - date: "2008-10-03"
+    label: TARP
+    position: below
+  - date: "2020-03-27"
+    label: CARES Act
+  - date: "2021-03-11"
+    label: ARPA
+    position: below

@@ -2,5 +2,17 @@ title: Federal deficit / GDP
 sources:
   - fred/federal_deficit_pct_gdp
 render: line
-defaultDelta: 10y
+defaultDelta: 50y
 tags: [fiscal, government, macro, us]
+shading: [recessions]
+annotations:
+  - date: "2009-02-17"
+    label: ARRA stimulus
+  - date: "2017-12-22"
+    label: TCJA tax cuts
+    position: below
+  - date: "2020-03-27"
+    label: CARES Act
+  - date: "2022-08-16"
+    label: IRA + CHIPS
+    position: below
