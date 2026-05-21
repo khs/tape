@@ -787,7 +787,39 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   </script>
 </BaseLayout>
 
-<style>
+<style is:global>
+  /* is:global because most of the rules + triggers list rendering
+     happens client-side via innerHTML inside the script below — Astro's
+     scoped CSS injects data-astro-cid only onto markup-time elements,
+     so dynamic <li>s never get the scope hash and any scoped selector
+     misses them. The .alerts- prefix is unique enough that going
+     global doesn't risk collisions with the rest of the site. */
+
+  /* .btn-primary is defined globally by /compose/ but each style block
+     is per-page, so /alerts/ needs its own copy for the Sign-in CTA
+     and Add-rule submit. Keep it in lock-step with the compose.astro
+     definition. */
+  .btn-primary {
+    font: inherit;
+    font-size: var(--text-sm, 14px);
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm, 3px);
+    cursor: pointer;
+    background: var(--color-accent, #0F766E);
+    color: var(--color-white, #fff);
+    border: 1px solid var(--color-accent, #0F766E);
+    display: inline-block;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-hover, #0c5e58);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .alerts-title {
     font-size: 28px;
     font-weight: 600;
