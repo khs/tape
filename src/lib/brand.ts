@@ -46,6 +46,10 @@ export const ENTERPRISE_INQUIRY_URL =
  * feature to the walkthrough dashboard in the same commit.
  */
 export const LAST_FEATURE_UPDATE = "2026-05-21";
+// Note: the May 21 date covers the smart-dispatch alert UX (acknowledge,
+// auto-pause), the request-fallback + Unicode-minus polish, the
+// walkthrough wiring, and the US row added to Countries vs. world.
+// Bump again on the next user-visible feature.
 
 /**
  * Slug of the walkthrough preset dashboard. Lives at /walkthrough/
