@@ -12,10 +12,12 @@ formatting:
   decimals: 2
 provenance:
   provider: Social Security Administration
-  series: OASDI Trustees Report Long-Range Estimates, Table VI.F8 (Alternative II)
+  series: OASDI Trustees Report Long-Range Estimates, Table VI.F8 (Alternative 
+    II)
   url: https://www.ssa.gov/oact/TR/2024/
   notes: |
     Income projection includes only currently scheduled revenue (payroll-tax rate held at present law). Policy changes that raise revenue would shift the projected segment up.
+  license: Public domain (US government data)
 tags:
   - fiscal
   - government

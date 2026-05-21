@@ -19,6 +19,8 @@ provenance:
   notes: Class-C-derived market cap. For the full corporate market cap (all 
     three share classes) multiply by roughly 2.1.
   url: https://finance.yahoo.com/quote/GOOG
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - single-name
   - us

@@ -16,5 +16,5 @@ provenance:
   provider: U.S. Bureau of Labor Statistics
   series: JTS000000000000000HIR
   url: https://data.bls.gov/timeseries/JTS000000000000000HIR
-  license: U.S. public domain
+  license: Public domain (US government data)
 unitClass: rate

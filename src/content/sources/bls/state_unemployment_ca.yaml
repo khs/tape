@@ -15,7 +15,7 @@ provenance:
   provider: U.S. Bureau of Labor Statistics
   series: LASST060000000000003
   url: https://data.bls.gov/timeseries/LASST060000000000003
-  license: U.S. public domain
+  license: Public domain (US government data)
 tags:
   - labor
   - macro

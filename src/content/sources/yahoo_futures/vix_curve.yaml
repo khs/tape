@@ -16,6 +16,8 @@ provenance:
   url: https://finance.yahoo.com/quote/%5EVIX
   notes: |
     Yahoo's free-tier futures coverage doesn't include individual VIX contract symbols (e.g., VXK26.CFE), so the "curve" is just two points — the front-month and 2nd-month continuous-rolling Cboe indices. That's enough to convey the contango/backwardation signal, which is the headline anyway.
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - markets
   - volatility

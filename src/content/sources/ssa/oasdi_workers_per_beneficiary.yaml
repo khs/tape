@@ -13,10 +13,12 @@ formatting:
   suffix: " workers"
 provenance:
   provider: Social Security Administration
-  series: OASDI Trustees Report Long-Range Estimates, Table VI.F4 (Alternative II)
+  series: OASDI Trustees Report Long-Range Estimates, Table VI.F4 (Alternative 
+    II)
   url: https://www.ssa.gov/oact/TR/2024/
   notes: |
     Projection assumes intermediate fertility, mortality, and immigration assumptions. Higher immigration or fertility would lift the ratio; lower would lower it.
+  license: Public domain (US government data)
 tags:
   - fiscal
   - government

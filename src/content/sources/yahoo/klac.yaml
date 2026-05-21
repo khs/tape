@@ -1,6 +1,7 @@
 name: KLA Corp (KLAC)
 shortName: KLAC
-description: Process control + inspection equipment for semiconductor manufacturing. Daily adjusted close.
+description: Process control + inspection equipment for semiconductor 
+  manufacturing. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/KLAC.json
@@ -15,6 +16,8 @@ provenance:
   provider: Yahoo Finance
   series: KLAC
   url: https://finance.yahoo.com/quote/KLAC
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - single-name
   - tech

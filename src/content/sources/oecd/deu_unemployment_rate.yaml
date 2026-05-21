@@ -17,7 +17,8 @@ provenance:
   provider: OECD
   series: DSD_LFS@DF_IALFS_UNE_M (DEU)
   url: https://data-explorer.oecd.org/
-  license: OECD terms of use (free for non-commercial)
+  license: OECD terms of use; non-commercial use only, commercial redistribution
+    requires permission
 tags:
   - macro
   - world

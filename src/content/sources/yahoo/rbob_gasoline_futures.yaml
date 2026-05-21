@@ -15,6 +15,8 @@ provenance:
   provider: Yahoo Finance
   series: RB=F
   url: https://finance.yahoo.com/quote/RB%3DF
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - commodities
 unitClass: currency

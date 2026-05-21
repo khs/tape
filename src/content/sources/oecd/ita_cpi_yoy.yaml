@@ -16,7 +16,8 @@ provenance:
   provider: OECD
   series: DSD_PRICES@DF_PRICES_ALL (ITA)
   url: https://data-explorer.oecd.org/
-  license: OECD terms of use (free for non-commercial)
+  license: OECD terms of use; non-commercial use only, commercial redistribution
+    requires permission
 tags:
   - macro
   - world

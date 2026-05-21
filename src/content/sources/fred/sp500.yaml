@@ -13,7 +13,7 @@ provenance:
   provider: FRED (St. Louis Fed)
   series: SP500
   url: https://fred.stlouisfed.org/series/SP500
-  license: S&P Dow Jones Indices (re-distributed by FRED)
+  license: Public domain (US government data)
 tags:
   - equity-index
   - macro

@@ -15,5 +15,5 @@ provenance:
   provider: World Bank
   series: NY.GDP.MKTP.KD (IND) / NY.GDP.MKTP.KD (WLD)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=IN
-  license: CC BY-4.0
+  license: CC BY 4.0
 unitClass: rate

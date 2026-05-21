@@ -16,5 +16,5 @@ provenance:
   provider: U.S. Bureau of Labor Statistics
   series: CUUR0000SAM
   url: https://data.bls.gov/timeseries/CUUR0000SAM
-  license: U.S. public domain
+  license: Public domain (US government data)
 unitClass: index

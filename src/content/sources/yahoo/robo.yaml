@@ -1,6 +1,8 @@
 name: ROBO Global Robotics + Automation ETF (ROBO)
 shortName: ROBO
-description: Equal-weighted basket of robotics + automation companies — different tilt from BOTZ's market-cap weighting, more industrial automation exposure. Daily adjusted close.
+description: Equal-weighted basket of robotics + automation companies — 
+  different tilt from BOTZ's market-cap weighting, more industrial automation 
+  exposure. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/ROBO.json
@@ -15,6 +17,8 @@ provenance:
   provider: Yahoo Finance
   series: ROBO
   url: https://finance.yahoo.com/quote/ROBO
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - equity-index
   - tech

@@ -1,6 +1,7 @@
 name: Applied Materials (AMAT)
 shortName: AMAT
-description: Wafer fab equipment leader — the upstream tools that make every chip. Daily adjusted close.
+description: Wafer fab equipment leader — the upstream tools that make every 
+  chip. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/AMAT.json
@@ -15,6 +16,8 @@ provenance:
   provider: Yahoo Finance
   series: AMAT
   url: https://finance.yahoo.com/quote/AMAT
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - single-name
   - tech

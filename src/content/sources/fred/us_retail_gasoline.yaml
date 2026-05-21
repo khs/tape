@@ -1,6 +1,8 @@
 name: US retail gasoline (regular grade)
 shortName: Retail gas (regular)
-description: Weekly US average pump price for REGULAR-grade gasoline (all formulations). EIA via FRED, series GASREGW. The "all grades average" counterpart is GASALLW; midgrade is GASMIDW.
+description: Weekly US average pump price for REGULAR-grade gasoline (all 
+  formulations). EIA via FRED, series GASREGW. The "all grades average" 
+  counterpart is GASALLW; midgrade is GASMIDW.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GASREGW.json
@@ -14,7 +16,7 @@ provenance:
   provider: FRED (St. Louis Fed)
   series: GASREGW
   url: https://fred.stlouisfed.org/series/GASREGW
-  license: Public domain (US government data, EIA)
+  license: Public domain (US government data)
 tags:
   - commodities
 unitClass: currency

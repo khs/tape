@@ -16,5 +16,6 @@ provenance:
   provider: OECD
   series: life_expectancy (CHE)
   url: https://data-explorer.oecd.org/
-  license: OECD terms of use
+  license: OECD terms of use; non-commercial use only, commercial redistribution
+    requires permission
 unitClass: ratio

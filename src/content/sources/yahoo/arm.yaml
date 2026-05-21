@@ -1,6 +1,7 @@
 name: Arm Holdings (ARM)
 shortName: ARM
-description: CPU architecture licensor — IP shipped in nearly every mobile chip + growing AI inference share. Daily adjusted close.
+description: CPU architecture licensor — IP shipped in nearly every mobile chip 
+  + growing AI inference share. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/ARM.json
@@ -15,6 +16,8 @@ provenance:
   provider: Yahoo Finance
   series: ARM
   url: https://finance.yahoo.com/quote/ARM
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - single-name
   - tech

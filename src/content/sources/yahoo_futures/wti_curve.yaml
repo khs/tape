@@ -17,6 +17,8 @@ provenance:
   url: https://finance.yahoo.com/quote/CL%3DF
   notes: |
     The projection segment is the NYMEX forward curve at run time — actual quoted contract prices, not a Tape-generated forecast. The market's price expectations can shift quickly with geopolitical news, OPEC announcements, and inventory data.
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - commodities
   - energy

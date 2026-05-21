@@ -13,10 +13,12 @@ formatting:
 emphasis: change
 provenance:
   provider: Social Security Administration
-  series: OASDI Trustees Report Long-Range Estimates, Table VI.F8 (Alternative II)
+  series: OASDI Trustees Report Long-Range Estimates, Table VI.F8 (Alternative 
+    II)
   url: https://www.ssa.gov/oact/TR/2024/
   notes: |
     Projection scenario shown is intermediate-cost (Alternative II), the SSA Office of the Chief Actuary's best-estimate. The Trustees Report also publishes low-cost (I) and high-cost (III) alternatives that bracket this central estimate.
+  license: Public domain (US government data)
 tags:
   - fiscal
   - government

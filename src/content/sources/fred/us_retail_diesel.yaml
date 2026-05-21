@@ -14,7 +14,7 @@ provenance:
   provider: FRED (St. Louis Fed)
   series: GASDESW
   url: https://fred.stlouisfed.org/series/GASDESW
-  license: Public domain (US government data, EIA)
+  license: Public domain (US government data)
 tags:
   - commodities
 unitClass: currency

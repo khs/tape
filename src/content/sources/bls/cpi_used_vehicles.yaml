@@ -15,5 +15,5 @@ provenance:
   provider: U.S. Bureau of Labor Statistics
   series: CUUR0000SETA02
   url: https://data.bls.gov/timeseries/CUUR0000SETA02
-  license: U.S. public domain
+  license: Public domain (US government data)
 unitClass: index

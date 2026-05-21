@@ -15,6 +15,8 @@ provenance:
   provider: Yahoo Finance
   series: JPY=X
   url: https://finance.yahoo.com/quote/JPY%3DX
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - fx
   - world

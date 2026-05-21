@@ -18,7 +18,7 @@ provenance:
   provider: World Bank
   series: NY.GDP.MKTP.KD (CAN)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=CA
-  license: CC BY-4.0
+  license: CC BY 4.0
 tags:
   - equity-index
   - world

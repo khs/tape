@@ -1,6 +1,7 @@
 name: Lam Research (LRCX)
 shortName: LRCX
-description: Etch and deposition equipment for semiconductor fabs. Daily adjusted close.
+description: Etch and deposition equipment for semiconductor fabs. Daily 
+  adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/LRCX.json
@@ -15,6 +16,8 @@ provenance:
   provider: Yahoo Finance
   series: LRCX
   url: https://finance.yahoo.com/quote/LRCX
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - single-name
   - tech

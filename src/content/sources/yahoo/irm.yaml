@@ -1,6 +1,7 @@
 name: Iron Mountain (IRM)
 shortName: IRM
-description: Records-storage REIT pivoting into datacenter hosting; legacy paper business + growing digital. Daily adjusted close.
+description: Records-storage REIT pivoting into datacenter hosting; legacy paper
+  business + growing digital. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/IRM.json
@@ -15,6 +16,8 @@ provenance:
   provider: Yahoo Finance
   series: IRM
   url: https://finance.yahoo.com/quote/IRM
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - single-name
   - real-estate

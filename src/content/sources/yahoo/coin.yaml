@@ -16,6 +16,8 @@ provenance:
   provider: Yahoo Finance
   series: COIN
   url: https://finance.yahoo.com/quote/COIN
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - crypto
   - single-name

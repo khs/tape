@@ -14,6 +14,8 @@ provenance:
   provider: Yahoo Finance
   series: ZC=F
   url: https://finance.yahoo.com/quote/ZC%3DF
+  license: Free for personal / non-commercial use with attribution. Verify 
+    yahoo.com terms for commercial redistribution.
 tags:
   - commodities
 unitClass: ratio

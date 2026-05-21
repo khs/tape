@@ -18,5 +18,5 @@ provenance:
   provider: World Bank
   series: NY.GDP.MKTP.KD (USA)
   url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD?locations=US
-  license: CC BY-4.0
+  license: CC BY 4.0
 unitClass: currency
