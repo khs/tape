@@ -38,7 +38,13 @@ import {
 import { WALKTHROUGH_DASHBOARD_SLUG } from "./brand";
 import type { ComposedState } from "./composer-state";
 
-const FLAG_PREFIX = "tape:seeded-walkthrough-ref:";
+// Bumped from v1 → v2 when we discovered that the original seed used
+// visibility='private', which RLS-blocked server-side reads in
+// /u/[slug].astro (the page uses the anon key + no auth context, so
+// auth.uid()=null and the row is invisible). Users saw "Dashboard not
+// found" when clicking the link in /me/. Existing v1-seeded rows get
+// repaired in-place when the v2 path runs; new rows are public.
+const FLAG_PREFIX = "tape:seeded-walkthrough-ref-v2:";
 
 /**
  * Title for the seeded row, shown in /me/ and the home-page list.
@@ -92,13 +98,19 @@ export async function maybeSeedTutorial(
   // feature" will be considered "already seeded" and not get the
   // canonical ref. Acceptable — that's an extremely deliberate
   // collision.
-  let hasRef: boolean;
+  //
+  // We also fetch `visibility` so the v2 path can repair any private
+  // rows seeded under the v1 prefix — those rows are unreadable by
+  // /u/[slug].astro (server-side anon key + no auth context, RLS hides
+  // them) and surface as "Dashboard not found" when the user clicks
+  // their walkthrough link. Flip them to public in-place.
+  let existing: { id: string; visibility: string } | null = null;
   try {
     const url =
       `${SUPABASE_REST_URL}/rest/v1/saved_dashboards` +
       `?owner_id=eq.${encodeURIComponent(stored.user.id)}` +
       `&title=eq.${encodeURIComponent(SEED_TITLE)}` +
-      `&select=id&limit=1`;
+      `&select=id,visibility&limit=1`;
     const res = await fetch(url, {
       headers: {
         apikey: SUPABASE_REST_ANON_KEY,
@@ -107,14 +119,38 @@ export async function maybeSeedTutorial(
     });
     if (!res.ok) return;
     const rows = await res.json().catch(() => []);
-    hasRef = Array.isArray(rows) && rows.length > 0;
+    if (Array.isArray(rows) && rows.length > 0) {
+      existing = rows[0] as { id: string; visibility: string };
+    }
   } catch {
     return;
   }
 
-  if (hasRef) {
-    // Already present (this browser or another). Set the local flag
-    // so we skip the round-trip on subsequent loads.
+  if (existing) {
+    // Repair path for v1-seeded private rows. Idempotent: a row that's
+    // already public stays untouched (we still write the localStorage
+    // flag so we skip the round-trip next time).
+    if (existing.visibility !== "public") {
+      try {
+        await fetch(
+          `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?id=eq.${encodeURIComponent(existing.id)}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_REST_ANON_KEY,
+              Authorization: `Bearer ${stored.access_token}`,
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify({ visibility: "public" }),
+          },
+        );
+      } catch {
+        // Patch failed (network or RLS); leave flag unset so next
+        // sign-in retries.
+        return;
+      }
+    }
     try {
       localStorage.setItem(flagKey, "exists");
     } catch {
@@ -123,7 +159,12 @@ export async function maybeSeedTutorial(
     return;
   }
 
-  // Seed.
+  // Seed. Public because /u/[slug].astro renders server-side with the
+  // anon key and a private row would be RLS-hidden ("Dashboard not
+  // found"). Functionally this is "unlisted": the slug is a random
+  // nanoid(10) (~8e17 keyspace) so the row isn't discoverable, and the
+  // state_json is a pure pointer to the already-public walkthrough
+  // preset — no user data, no leakage risk.
   try {
     const insertRes = await fetch(
       `${SUPABASE_REST_URL}/rest/v1/saved_dashboards`,
@@ -140,11 +181,7 @@ export async function maybeSeedTutorial(
           owner_id: stored.user.id,
           title: SEED_TITLE,
           state_json: SEED_STATE,
-          // Private by default — the user can flip to public from /me/
-          // if they want a shareable link. The canonical walkthrough
-          // already lives at /walkthrough/ for sharing; this row is
-          // the per-user "I want it in my list" affordance.
-          visibility: "private",
+          visibility: "public",
         }),
       },
     );
