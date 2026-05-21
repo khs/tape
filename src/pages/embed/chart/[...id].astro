@@ -62,7 +62,20 @@ const title = resolved?.chart.data.title ?? chartId;
 ---
 
 <EmbedLayout title={title} attributionHref={attributionHref}>
-  <div class="embed-shell" data-chart-id={chartId}>
+  {/* dashboard-root wrapper: ChartController's hydrate() reads the
+      initial window from a .dashboard-root element's
+      data-dashboard-default-window attribute. Without this wrapper,
+      hydrate falls back to "1m" hardcoded — so an embed with
+      ?delta=10y in the URL would render the 1m sparkline despite the
+      tile's data-dashboard-window="10y" being set correctly.
+      Caught by visiting /embed/chart/us-macro/vix/?delta=10y and
+      seeing the 30-day caption + ~21 path points instead of 10 years
+      of data. */}
+  <div
+    class="embed-shell dashboard-root"
+    data-chart-id={chartId}
+    data-dashboard-default-window={requestedDelta ?? resolved?.chart.data.defaultDelta ?? "1m"}
+  >
     {
       !resolved ? (
         <div class="embed-error">
