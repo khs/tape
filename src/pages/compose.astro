@@ -642,6 +642,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="comp-sections" data-role="comp-sections"></div>
         <div class="comp-controls">
           <button type="button" class="btn-secondary" data-role="add-section">+ Add section</button>
+          <button
+            type="button"
+            class="btn-secondary"
+            data-role="add-markdown-section"
+            title="Add a section that's just a markdown narrative block — no charts. Useful for context between chart sections."
+          >+ Markdown block</button>
           <button type="button" class="btn-secondary" data-role="open-custom-chart">+ Custom chart</button>
           <button type="button" class="btn-secondary" data-role="open-derived-source">+ Derived source</button>
         </div>
@@ -1163,6 +1169,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     title: string;
     description: string;
     charts: string[];
+    // Optional safe-subset markdown body. When charts is empty AND
+    // markdown is set, the section renders as a pure-markdown
+    // narrative block on the dashboard (see /u/[slug].astro etc.).
+    markdown?: string;
     defaultDelta?: DeltaWindow;
     fixedRange?: { start: string; end: string };
   }
@@ -1248,7 +1258,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       state.sections = s.sections.map((sec) => ({
         title: sec.title,
         description: sec.description ?? "",
-        charts: [...sec.charts],
+        charts: [...(sec.charts ?? [])],
+        markdown: (sec as { markdown?: string }).markdown,
         defaultDelta: sec.defaultDelta as DeltaWindow | undefined,
         fixedRange: sec.fixedRange,
       }));
@@ -1369,11 +1380,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       defaultDelta: (state.defaultDelta || undefined) as DeltaWindow | undefined,
       fixedRange: state.fixedRange,
       sections: state.sections
-        .filter((s) => s.charts.length > 0)
+        // Keep a section if it has charts OR a non-empty markdown
+        // body (markdown-only narrative sections).
+        .filter(
+          (s) =>
+            s.charts.length > 0 ||
+            (s.markdown && s.markdown.trim().length > 0),
+        )
         .map((s) => ({
           title: s.title,
           description: s.description || undefined,
           charts: [...s.charts],
+          markdown:
+            s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
           defaultDelta: s.defaultDelta,
           fixedRange: s.fixedRange,
         })),
@@ -5192,6 +5211,43 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       desc.addEventListener("focus", () => setActiveSection(secIdx));
       secEl.appendChild(desc);
 
+      // Markdown body textarea. Shown initially only when the section
+      // already has one (avoids cluttering the default chart-grid
+      // sections with an unused field); a small "+ Notes (markdown)"
+      // link below the description reveals it on demand.
+      const md = document.createElement("textarea");
+      md.className = "comp-section-md";
+      md.rows = 4;
+      md.placeholder =
+        "Markdown body — **bold**, *italic*, [links](https://…), - bullets, " +
+        "## headings. Renders between the description and the chart grid.";
+      md.value = (sec as { markdown?: string }).markdown ?? "";
+      const hasMd =
+        typeof (sec as { markdown?: string }).markdown === "string" &&
+        ((sec as { markdown?: string }).markdown ?? "").length > 0;
+      md.hidden = !hasMd;
+      md.addEventListener("input", () => {
+        (sec as { markdown?: string }).markdown = md.value;
+        writeUrl();
+      });
+      md.addEventListener("focus", () => setActiveSection(secIdx));
+      secEl.appendChild(md);
+
+      // "+ Notes (markdown)" toggle. Hidden once the markdown
+      // textarea is visible — adding it twice has no effect, and the
+      // toggle becomes noise.
+      const mdToggle = document.createElement("button");
+      mdToggle.type = "button";
+      mdToggle.className = "comp-section-md-toggle";
+      mdToggle.textContent = "+ Notes (markdown)";
+      mdToggle.hidden = hasMd;
+      mdToggle.addEventListener("click", () => {
+        md.hidden = false;
+        mdToggle.hidden = true;
+        md.focus();
+      });
+      secEl.appendChild(mdToggle);
+
       // Section-level time-window override. Lets the composer pin
       // each section to its own window — useful for "show the same
       // charts across multiple decades" patterns. Mode select picks
@@ -5802,6 +5858,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         renderComposition();
       });
     }
+    // Markdown-block button. Spawns a section that's pure narrative —
+    // no charts, just a markdown body for context between chart
+    // sections. The empty-title default keeps the renderer from
+    // emitting an h2; users can fill in a heading or leave it
+    // headless for flowing prose.
+    const addMarkdownSection = shell.querySelector<HTMLButtonElement>(
+      "[data-role='add-markdown-section']",
+    );
+    if (addMarkdownSection) {
+      addMarkdownSection.addEventListener("click", () => {
+        state.sections.push({
+          title: "",
+          description: "",
+          charts: [],
+          markdown:
+            "Markdown block. **Bold**, *italic*, [links](https://example.com), " +
+            "and lists work. Replace this with your narrative.",
+        } as (typeof state.sections)[number]);
+        activeSectionIdx = state.sections.length - 1;
+        writeUrl();
+        renderComposition();
+      });
+    }
     const openCustom = shell.querySelector<HTMLButtonElement>("[data-role='open-custom-chart']");
     if (openCustom) {
       openCustom.addEventListener("click", () => openCustomChartModal());
@@ -5894,15 +5973,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               return;
             }
             const cleanSections = state.sections
-              .filter((s) => s.charts.length > 0)
+              // A section is keep-worthy when it has charts OR a non-empty
+              // markdown body. The two together cover both
+              // "chart section" and "narrative-only block" cases.
+              .filter(
+                (s) =>
+                  s.charts.length > 0 ||
+                  (s.markdown && s.markdown.trim().length > 0),
+              )
               .map((s) => ({
                 title: s.title,
                 description: s.description || undefined,
                 charts: [...s.charts],
+                markdown: s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
               }));
             console.log("[save] cleanSections:", cleanSections.length);
             if (cleanSections.length === 0) {
-              alert("Add at least one chart before saving.");
+              alert("Add at least one chart or markdown block before saving.");
               return;
             }
             const stateJson = {
@@ -8969,6 +9056,45 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
   .comp-section-desc::placeholder { color: var(--color-neutral-400); }
   .comp-section-desc:focus { outline: none; }
+  /* Markdown body textarea — distinct visual treatment from the
+     description: monospace-ish font hint (so users see they can
+     write code/markdown), slightly recessed background so the
+     content authoring surface reads as a different artifact than
+     the title + description. */
+  .comp-section-md {
+    width: 100%;
+    font: inherit;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--color-neutral-800);
+    background: rgba(55, 53, 47, 0.04);
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin: 4px 0 6px;
+    resize: vertical;
+    min-height: 60px;
+  }
+  .comp-section-md::placeholder { color: var(--color-neutral-400); }
+  .comp-section-md:focus {
+    outline: none;
+    border-color: rgba(55, 53, 47, 0.3);
+    background: rgba(55, 53, 47, 0.02);
+  }
+  .comp-section-md[hidden] { display: none; }
+  .comp-section-md-toggle {
+    background: none;
+    border: none;
+    color: var(--color-neutral-500);
+    font: inherit;
+    font-size: 11px;
+    padding: 0 0 6px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .comp-section-md-toggle:hover { color: var(--color-neutral-900); }
+  .comp-section-md-toggle[hidden] { display: none; }
   /* Section-level window override row — sits between the
      description textarea and the chart grid. Tight visual weight so
      it doesn't compete with the title + chart tiles. */

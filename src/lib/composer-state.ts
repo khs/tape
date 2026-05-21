@@ -41,13 +41,27 @@ const sectionFixedRangeSchema = z.object({
   end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
-const sectionSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  charts: z.array(z.string()).min(1),
-  defaultDelta: deltaWindowSchema.optional(),
-  fixedRange: sectionFixedRangeSchema.optional(),
-});
+const sectionSchema = z
+  .object({
+    title: z.string(),
+    description: z.string().optional(),
+    // Charts can be empty when the section is markdown-only. The
+    // .refine below requires either a non-empty chart list OR a
+    // markdown body so a section can't be both empty.
+    charts: z.array(z.string()).default([]),
+    // Section-as-markdown body. Safe-subset markdown (see
+    // src/lib/markdown.ts). Renders full-width when the section has
+    // no charts; renders above the chart grid when charts is set.
+    markdown: z.string().optional(),
+    defaultDelta: deltaWindowSchema.optional(),
+    fixedRange: sectionFixedRangeSchema.optional(),
+  })
+  .refine(
+    (s) =>
+      (s.charts && s.charts.length > 0) ||
+      (s.markdown && s.markdown.trim().length > 0),
+    { message: "Section needs either a chart list or a markdown body." },
+  );
 
 /**
  * An ad-hoc chart assembled in the composer from 1+ source IDs. Stored in the

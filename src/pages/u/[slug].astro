@@ -17,6 +17,7 @@ import {
 import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
 import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
 import EmailSignup from "../../components/EmailSignup.astro";
+import { renderMarkdown } from "../../lib/markdown";
 
 export const prerender = false;
 
@@ -292,7 +293,7 @@ const ogD = state
           const sectionDelta = section.defaultDelta ?? defaultDelta;
           const sectionFixed = section.fixedRange ?? state.fixedRange;
           return (
-          <section class="dash-section">
+          <section class={`dash-section${section.charts.length === 0 && section.markdown ? " dash-section-markdown" : ""}`}>
             {section.title && (
               <h2 class="section-heading">{section.title}</h2>
             )}
@@ -307,23 +308,28 @@ const ogD = state
                   : section.defaultDelta}
               </p>
             )}
-            <div class="chart-grid">
-              {section.charts.map((c) => (
-                <Chart
-                  chartId={c.chart.id}
-                  chart={effectiveChart(
-                    c,
-                    state?.chartOverrides?.[c.chart.id],
-                  )}
-                  sources={c.sources}
-                  dashboardSlug={`u-${slug}`}
-                  dashboardWindow={sectionDelta}
-                  dashboardFixedRange={sectionFixed}
-                  sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                  preloaded={c.preloaded}
-                />
-              ))}
-            </div>
+            {section.markdown && section.markdown.trim().length > 0 && (
+              <div class="section-markdown" set:html={renderMarkdown(section.markdown)} />
+            )}
+            {section.charts.length > 0 && (
+              <div class="chart-grid">
+                {section.charts.map((c) => (
+                  <Chart
+                    chartId={c.chart.id}
+                    chart={effectiveChart(
+                      c,
+                      state?.chartOverrides?.[c.chart.id],
+                    )}
+                    sources={c.sources}
+                    dashboardSlug={`u-${slug}`}
+                    dashboardWindow={sectionDelta}
+                    dashboardFixedRange={sectionFixed}
+                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
+                    preloaded={c.preloaded}
+                  />
+                ))}
+              </div>
+            )}
           </section>
           );
         })}
@@ -503,6 +509,33 @@ const ogD = state
   .dash-section { margin-bottom: 32px; }
   .section-heading { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 0 0 4px; }
   .section-description { font-size: var(--text-sm); color: var(--color-neutral-600); line-height: 1.5; margin: 0 0 12px; max-width: 720px; white-space: pre-wrap; }
+  /* Markdown body rendered inside a chart section. Styled to read as
+     narrative prose, distinct from the section description (which is
+     a one-liner). Editorial pacing: room to breathe between sentences
+     and headings, max-width capped for readability. */
+  .section-markdown {
+    max-width: 720px;
+    margin: 4px 0 16px;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--color-neutral-700);
+  }
+  .section-markdown :global(p) { margin: 0 0 10px; }
+  .section-markdown :global(h2) { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 14px 0 6px; }
+  .section-markdown :global(h3) { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-900); margin: 12px 0 4px; }
+  .section-markdown :global(h4) { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-600); margin: 10px 0 4px; }
+  .section-markdown :global(ul),
+  .section-markdown :global(ol) { margin: 0 0 10px; padding-left: 22px; }
+  .section-markdown :global(li) { margin: 0 0 3px; }
+  .section-markdown :global(a) { color: var(--color-neutral-900); text-decoration: underline; text-underline-offset: 2px; }
+  .section-markdown :global(code) { background: var(--color-neutral-100); padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  .section-markdown :global(pre) { background: var(--color-neutral-100); padding: 8px 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+  .section-markdown :global(pre code) { background: transparent; padding: 0; }
+  /* Markdown-only sections get a wider max-width since there's no
+     chart grid to balance against. Slight separator below to break
+     up the visual flow between narrative + the next chart section. */
+  .dash-section-markdown .section-markdown { max-width: 880px; }
+  .dash-section-markdown { padding-bottom: 8px; border-bottom: 1px solid rgba(55, 53, 47, 0.06); }
   /* Section-level window override chip (see [...slug].astro for the
      rationale comment). */
   .section-window { margin: -4px 0 12px; font-variant-numeric: tabular-nums; }

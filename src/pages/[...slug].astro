@@ -14,6 +14,7 @@ import {
 } from "../lib/resolve-dashboard";
 import { encodeComposedState } from "../lib/composer-state";
 import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
+import { renderMarkdown } from "../lib/markdown";
 
 export async function getStaticPaths() {
   const dashboards = await getCollection("dashboards");
@@ -144,7 +145,7 @@ const forkUrl =
         const sectionDelta = section.defaultDelta ?? dashboardDefaultDelta;
         const sectionFixed = section.fixedRange ?? dashboard.data.fixedRange;
         return (
-        <section class="dash-section">
+        <section class={`dash-section${section.charts.length === 0 && section.markdown ? " dash-section-markdown" : ""}`}>
           {section.title && (
             <h2 class="section-heading">{section.title}</h2>
           )}
@@ -159,6 +160,10 @@ const forkUrl =
                 : section.defaultDelta}
             </p>
           )}
+          {section.markdown && section.markdown.trim().length > 0 && (
+            <div class="section-markdown" set:html={renderMarkdown(section.markdown)} />
+          )}
+          {section.charts.length > 0 && (
           <div class="chart-grid">
             {section.charts.map((c) => {
               const effective = effectiveChart(
@@ -191,6 +196,7 @@ const forkUrl =
               );
             })}
           </div>
+          )}
         </section>
         );
       })
@@ -301,6 +307,29 @@ const forkUrl =
     max-width: 720px;
     white-space: pre-wrap;
   }
+  /* Markdown body inside a section. Editorial prose styling — see
+     the equivalent block in src/pages/u/[slug].astro for the
+     rationale comment. */
+  .section-markdown {
+    max-width: 720px;
+    margin: 4px 0 16px;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--color-neutral-700);
+  }
+  .section-markdown :global(p) { margin: 0 0 10px; }
+  .section-markdown :global(h2) { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 14px 0 6px; }
+  .section-markdown :global(h3) { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-900); margin: 12px 0 4px; }
+  .section-markdown :global(h4) { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-600); margin: 10px 0 4px; }
+  .section-markdown :global(ul),
+  .section-markdown :global(ol) { margin: 0 0 10px; padding-left: 22px; }
+  .section-markdown :global(li) { margin: 0 0 3px; }
+  .section-markdown :global(a) { color: var(--color-neutral-900); text-decoration: underline; text-underline-offset: 2px; }
+  .section-markdown :global(code) { background: var(--color-neutral-100); padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  .section-markdown :global(pre) { background: var(--color-neutral-100); padding: 8px 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+  .section-markdown :global(pre code) { background: transparent; padding: 0; }
+  .dash-section-markdown .section-markdown { max-width: 880px; }
+  .dash-section-markdown { padding-bottom: 8px; border-bottom: 1px solid rgba(55, 53, 47, 0.06); }
   /* Section-level window override chip. Renders below the
      description as a quiet caption — it's a structural label, not
      a primary heading. */

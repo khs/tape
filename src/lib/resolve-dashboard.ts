@@ -23,6 +23,11 @@ export type ResolvedSection = {
   title: string | null;
   description?: string;
   charts: ResolvedChart[];
+  // Section-as-markdown body — safe-subset markdown rendered between
+  // the description and the chart grid. When charts.length === 0 the
+  // section is markdown-only (no chart grid below). See
+  // src/lib/markdown.ts for the supported syntax.
+  markdown?: string;
   // Section-level time-window overrides. When set, override the
   // dashboard-level pill for charts inside. See sectionSchema in
   // src/content/config.ts + src/lib/composer-state.ts for the source
@@ -36,6 +41,7 @@ export type DashboardShape = {
     title: string;
     description?: string;
     charts: string[];
+    markdown?: string;
     defaultDelta?: DeltaWindow;
     fixedRange?: { start: string; end: string };
   }[];
@@ -292,7 +298,7 @@ export async function resolveSections(
   const out: ResolvedSection[] = [];
   for (const s of sectionsRaw) {
     const resolved = await Promise.all(
-      s.charts.map((cid) =>
+      (s.charts ?? []).map((cid) =>
         resolveChart(
           cid,
           dashboard.inlineCharts,
@@ -302,11 +308,18 @@ export async function resolveSections(
       ),
     );
     const valid = resolved.filter((r): r is ResolvedChart => r !== null);
-    if (valid.length > 0) {
+    const hasMarkdown = !!(s.markdown && s.markdown.trim().length > 0);
+    // Markdown-only section: emit it even though charts is empty, so
+    // narrative blocks render between chart sections. Otherwise keep
+    // the existing "drop sections that resolved to zero valid charts"
+    // behavior — a section whose charts all failed to load shouldn't
+    // surface as an empty heading.
+    if (valid.length > 0 || hasMarkdown) {
       out.push({
         title: s.title ?? null,
         description: s.description,
         charts: valid,
+        markdown: s.markdown,
         defaultDelta: s.defaultDelta,
         fixedRange: s.fixedRange,
       });
