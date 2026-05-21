@@ -6,3 +6,11 @@ tags: [us, macro]
 # Recession shading: unemployment ALWAYS spikes during recessions —
 # the canonical use case for the NBER background context.
 shading: [recessions]
+annotations:
+  - date: "2009-10-01"
+    label: GFC peak 10%
+  - date: "2020-04-01"
+    label: COVID 14.7%
+  - date: "2024-08-01"
+    label: Sahm rule triggered
+    position: below

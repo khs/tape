@@ -80,6 +80,10 @@ step "Audit source labels (lenient)" python scripts/audit_all_sources.py
 #     SUPABASE_SERVICE_ROLE_KEY in the env. Safe to fail when
 #     unconfigured (no-op + warning); the rest of the refresh proceeds. ---
 step "Indicator alerts" python pipelines/check_alerts.py
+# Email dispatch reads alert_triggers rows where notified_at is null
+# and sends via Resend / Postmark. Optional — silently no-ops when
+# the email-provider env vars are unset.
+step "Alert emails" python pipelines/dispatch_alert_emails.py
 
 echo "" | tee -a "$LOG" >&2
 echo "[$(date +%H:%M:%S)] DONE. Full log: $LOG" | tee -a "$LOG" >&2

@@ -111,7 +111,15 @@ create table if not exists public.alert_triggers (
   triggered_at    timestamptz not null default now(),
   -- Boolean: has the user opened / acknowledged this trigger? UI
   -- defaults unread on first display; a click marks read.
-  acknowledged    boolean not null default false
+  acknowledged    boolean not null default false,
+  -- Email dispatch state. pipelines/dispatch_alert_emails.py walks
+  -- this table looking for rows where notified_at is null and an
+  -- email_address is resolvable, calls the email provider, and
+  -- stamps notified_at on success. Decoupling fire from email send
+  -- means a transient email-provider outage doesn't lose triggers —
+  -- they sit in the queue until delivery.
+  notified_at     timestamptz,
+  notify_error    text
 );
 
 create index if not exists alert_triggers_owner_idx

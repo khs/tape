@@ -1326,6 +1326,13 @@ const mostRecentUpdate = payload.sources
     color: var(--color-neutral-900);
   }
   .zoom-reset-btn[hidden] { display: none; }
+  /* Suppress Plot's hover tip while the user is actively gesturing
+     (pan / pinch). The tip flickers as data slides under the cursor
+     and reads as visual noise; gesture mode is short-lived. */
+  .dialog-plot.gesture-active :global([aria-label="tip"]),
+  .dialog-plot.gesture-active :global(g[aria-label="tip"]) {
+    display: none !important;
+  }
   @media (max-width: 640px) {
     .zoom-reset-btn {
       padding: 8px 12px;

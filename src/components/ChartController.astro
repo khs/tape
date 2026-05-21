@@ -1842,6 +1842,24 @@
     plotEl.addEventListener("pointerup", onPointerUp);
     plotEl.addEventListener("pointercancel", onPointerUp);
     plotEl.addEventListener("wheel", onWheel, { passive: false });
+    // Suppress Plot's hover tip during an active gesture — the tip
+    // box flickers as the data slides under the cursor during a pan
+    // and reads as visual noise. Re-shows once the gesture ends.
+    // Implemented via a CSS class toggled by the gesture handler;
+    // styled in Chart.astro to hide [aria-label="tip"] inside the
+    // plot when the wrapper has the class.
+    function setGestureFlag(active: boolean): void {
+      plotEl.classList.toggle("gesture-active", active);
+    }
+    // Patch the listeners to flip the flag.
+    plotEl.addEventListener("pointermove", (e) => {
+      if (gesture.mode === "pan" || gesture.mode === "pinch")
+        setGestureFlag(true);
+    }, { passive: true });
+    plotEl.addEventListener("pointerup", () => {
+      if (gesture.pointers.size === 0) setGestureFlag(false);
+    });
+    plotEl.addEventListener("pointercancel", () => setGestureFlag(false));
     // CSS touch-action: pan-y so vertical page scroll still works
     // when the user is NOT actively touching the plot area. Within
     // the plot, our touchmove preventDefault locks horizontal

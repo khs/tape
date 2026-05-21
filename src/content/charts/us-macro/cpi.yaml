@@ -1,8 +1,22 @@
 title: CPI (headline)
 sources: ["fred/us_cpi"]
 render: line
-defaultDelta: 1y
-tags: [us, macro]
+defaultDelta: 5y
+tags: [us, macro, inflation]
+# The CPI index alone reads as a featureless climb; YoY default
+# surfaces the inflation rate that headline news actually tracks.
+transform: yoy_pct
+shading: [recessions]
+annotations:
+  - date: "1979-08-06"
+    label: Volcker era starts
+  - date: "1982-12-01"
+    label: Volcker disinflation
+    position: below
+  - date: "2008-09-15"
+    label: GFC
+  - date: "2022-06-01"
+    label: Inflation peak 9.1%
 blurb: |
   <strong>Headline CPI</strong> tracks a typical urban household's basket of
   goods and services. <strong>Core CPI</strong> strips out food and energy —
