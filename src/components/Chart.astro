@@ -1305,6 +1305,34 @@ const mostRecentUpdate = payload.sources
       margin-bottom: 12px;
     }
   }
+  /* Reset-zoom chip — appears in the pills row only after the user
+     has gestured a zoom or pan. Different visual weight from a pill:
+     it's an explicit action ("reset") rather than a state toggle. */
+  .zoom-reset-btn {
+    margin-left: auto;
+    padding: 4px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    font: inherit;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .zoom-reset-btn:hover {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+  }
+  .zoom-reset-btn[hidden] { display: none; }
+  @media (max-width: 640px) {
+    .zoom-reset-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+      min-height: 36px;
+    }
+  }
   .pill-active {
     background: var(--color-neutral-900);
     color: var(--color-white);
