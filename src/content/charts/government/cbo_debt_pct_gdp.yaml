@@ -4,5 +4,19 @@ sources:
 render: line
 defaultDelta: 50y
 tags: [fiscal, government, macro, us]
+shading: [recessions]
+annotations:
+  - date: "1981-08-13"
+    label: Reagan tax cuts
+  - date: "2008-09-15"
+    label: GFC
+    position: below
+  - date: "2017-12-22"
+    label: TCJA
+  - date: "2020-03-27"
+    label: CARES
+    position: below
+  - date: "2022-08-16"
+    label: IRA
 blurb: |
   Solid line: historical debt held by the public / GDP from CBO. Dashed line: 10-year baseline projection. "Held by the public" excludes intra-governmental Treasury holdings of trust funds like Social Security. The projection's trajectory is sensitive to assumed interest rates and to whether expiring tax provisions get extended.
