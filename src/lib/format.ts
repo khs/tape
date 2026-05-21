@@ -130,6 +130,19 @@ export function formatValue(v: number, fmt: Formatting): string {
 
   if (fmt.prefix) formatted = fmt.prefix + formatted;
   if (fmt.suffix) formatted = formatted + fmt.suffix;
+  // Swap the ASCII hyphen-minus (U+002D) for the typographic Unicode
+  // minus sign (U+2212) on negative values. The Inter / system-font
+  // hyphen-minus glyph is thin and short — at chart-axis sizes
+  // (10-11px) it visually disappears, making "-1,000.0%" read as
+  // "1,000.0%" in screenshots and on dense plots. The Unicode minus
+  // is wider + more horizontal so it survives downscaling. Intl
+  // doesn't expose a knob for this, so we replace post-hoc. Only
+  // touches the leading sign — internal dashes (e.g. inside an
+  // accounting-style "(123)" placeholder, dates, ISO strings) stay
+  // alone because formatValue never emits those.
+  if (formatted.startsWith("-")) {
+    formatted = "−" + formatted.slice(1);
+  }
   return formatted;
 }
 

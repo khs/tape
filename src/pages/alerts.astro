@@ -393,8 +393,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         })
         .slice(0, 20);
       if (matches.length === 0) {
-        sourceList.hidden = true;
-        sourceList.innerHTML = "";
+        // Surface the "request one at <email>" fallback in the
+        // autocomplete dropdown when a search query returns no
+        // results — same pattern the composer's Sources tab uses
+        // (compose.astro). Without this the dropdown just silently
+        // disappears, leaving the user unsure whether they typed
+        // the wrong thing or the source genuinely doesn't exist.
+        sourceList.innerHTML =
+          '<li class="alerts-suggest-empty"><span class="alerts-suggest-name">No sources match.</span> <span class="alerts-suggest-id">Feel free to request one at <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.</span></li>';
+        sourceList.hidden = false;
         return;
       }
       sourceList.innerHTML = matches
@@ -955,6 +962,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
   .alerts-source-list li:hover {
     background: #f5f3ec;
+  }
+  /* Empty-state row: no hover-cursor, no bg flash. The mailto inside
+     it is still clickable; this just signals that the row itself
+     isn't a source you can pick. */
+  .alerts-source-list li.alerts-suggest-empty,
+  .alerts-source-list li.alerts-suggest-empty:hover {
+    cursor: default;
+    background: transparent;
+  }
+  .alerts-source-list li.alerts-suggest-empty a {
+    color: var(--color-accent, #0F766E);
+    text-decoration: underline;
   }
   .alerts-suggest-name {
     font-size: 13px;

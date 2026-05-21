@@ -1,8 +1,26 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { ENTERPRISE_INQUIRY_URL } from "../../lib/brand";
+import {
+  ENTERPRISE_INQUIRY_URL,
+  LAST_FEATURE_UPDATE,
+  WALKTHROUGH_DASHBOARD_SLUG,
+} from "../../lib/brand";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Render LAST_FEATURE_UPDATE server-side using a UTC-anchored Date so
+// the constant doesn't shift by a day depending on the build machine's
+// timezone. Display falls back to en-US "Month D, YYYY" — matches the
+// "Updated <date>." line on each saved-dashboard row.
+const lastUpdatedDate = new Date(`${LAST_FEATURE_UPDATE}T00:00:00Z`);
+const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
+  ? LAST_FEATURE_UPDATE
+  : lastUpdatedDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    });
 ---
 
 <BaseLayout title="My dashboards — Tape">
@@ -66,6 +84,28 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             You're on the free tier — all preset dashboards, the chart
             library, custom dashboards, and public sharing.
           </span>
+        </div>
+        {/* Walkthrough + last-update stamp. The walkthrough dashboard
+            is curated to exercise every shipped feature; the date
+            beside it tracks the last time Tape gained a user-visible
+            capability worth surfacing in the tour. Bump
+            LAST_FEATURE_UPDATE in lib/brand.ts when shipping a new
+            feature + update walkthrough.mdx in the same commit. */}
+        <div class="account-walkthrough">
+          <div class="account-walkthrough-text">
+            <p class="account-walkthrough-line">
+              <strong>What's new.</strong> Tape was last updated with a new feature on <strong>{lastUpdatedLabel}</strong>.
+            </p>
+            <p class="account-walkthrough-sub">
+              The walkthrough dashboard exercises every shipped feature — a quick tour of what Tape can do.
+            </p>
+          </div>
+          <a
+            href={`${baseUrl}/${WALKTHROUGH_DASHBOARD_SLUG}/`}
+            class="account-walkthrough-cta"
+          >
+            Open walkthrough &rarr;
+          </a>
         </div>
         <div class="account-upgrade">
           <p class="account-upgrade-line">
@@ -175,6 +215,41 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     font-size: var(--text-sm);
     color: var(--color-neutral-600);
     line-height: 1.5;
+  }
+  .account-walkthrough {
+    padding-top: 14px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .account-walkthrough-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .account-walkthrough-line {
+    margin: 0 0 4px;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-900);
+    line-height: 1.5;
+  }
+  .account-walkthrough-sub {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-600);
+    line-height: 1.4;
+  }
+  .account-walkthrough-cta {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+  .account-walkthrough-cta:hover {
+    text-decoration: underline;
   }
   .account-upgrade {
     padding-top: 14px;

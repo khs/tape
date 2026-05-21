@@ -340,6 +340,28 @@ const ogD = state
           </p>
         )}
 
+        {/* "My dashboards" footer list. Renders only when the visitor
+            landed here from the home-page redirect (?from=home set)
+            AND they're signed in (the JS below gates on a Supabase
+            session). The home page redirects to the user's pinned
+            dashboard whenever localStorage has a tape:default-
+            dashboard-slug, so under that flow this section IS the
+            full home experience — the pinned dashboard above + the
+            rest of the user's saved dashboards below. The list uses
+            the same shared renderer as /me/ so the layout is
+            consistent. */}
+        <section
+          class="home-footer-list"
+          data-role="home-footer-list"
+          hidden
+        >
+          <h2 class="home-footer-eyebrow">My dashboards</h2>
+          <ul
+            class="home-footer-list-ul list-none p-0 m-0 flex flex-col gap-3"
+            data-role="home-footer-list-ul"
+          ></ul>
+        </section>
+
         <script>
           import { readStoredSession } from "../../lib/supabase";
 
@@ -490,9 +512,116 @@ const ogD = state
       }
     }
   </script>
+
+  <script>
+    // Home-footer "My dashboards" list. Renders ONLY when:
+    //   1. ?from=home is in the URL (home-page redirect tagged us)
+    //   2. The visitor is signed in (we have a Supabase session)
+    //
+    // Under the "pinned home view" flow the home page redirects to
+    // this dashboard, so the user expects to see both the dashboard
+    // AND the rest of their saved dashboards (matching /me/'s
+    // layout). When the user lands here from a direct /u/<slug>/
+    // link, we skip rendering — the footer list would be confusing
+    // out of context.
+    import {
+      createSupabase,
+      isSupabaseConfigured,
+      readStoredSession,
+    } from "../../lib/supabase";
+    import { renderSavedDashboardList } from "../../lib/render-saved-dashboards";
+
+    (async () => {
+      const fromHome =
+        new URL(window.location.href).searchParams.get("from") === "home";
+      if (!fromHome) return;
+      if (!isSupabaseConfigured) return;
+      const stored = readStoredSession();
+      if (!stored) return;
+
+      const sb = createSupabase();
+      if (!sb) return;
+
+      const section = document.querySelector<HTMLElement>(
+        "[data-role='home-footer-list']",
+      );
+      const host = document.querySelector<HTMLUListElement>(
+        "[data-role='home-footer-list-ul']",
+      );
+      if (!section || !host) return;
+
+      const here = document.querySelector<HTMLElement>("[data-slug]");
+      const currentSlug = here?.dataset.slug ?? "";
+
+      // baseUrl mirror — the page module doesn't expose its
+      // server-side `baseUrl` constant to client code; recompute
+      // from import.meta.env at hydrate-time.
+      const baseUrl = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+
+      const result = await renderSavedDashboardList({
+        host,
+        baseUrl,
+        sb,
+        // Hide the currently-pinned dashboard (= the dashboard the
+        // user is already looking at above) — listing it here would
+        // duplicate the pinned-home-notice block.
+        excludeSlug: currentSlug,
+        // Pin slug lives in localStorage; pass it through so the
+        // "Set as default" buttons in the list reflect current state.
+        defaultSlug: currentSlug,
+        onSetDefault: (slug) => {
+          try {
+            if (slug) {
+              localStorage.setItem("tape:default-dashboard-slug", slug);
+              // Navigate to the new pin so the page reflects it.
+              window.location.href = `${baseUrl}/u/${encodeURIComponent(slug)}/?from=home`;
+            } else {
+              localStorage.removeItem("tape:default-dashboard-slug");
+              window.location.href = `${baseUrl || "/"}/?nopin=1`;
+            }
+          } catch {
+            /* localStorage blocked — no-op */
+          }
+        },
+        onMutate: () => {
+          // Reload to re-render with fresh data — the listing flow
+          // doesn't have a tight in-component refresh hook for this
+          // page (the dashboard itself uses server-rendered state).
+          window.location.reload();
+        },
+      });
+
+      if (result && (result.rows.length > 0 || result.excludedRow)) {
+        section.hidden = false;
+      }
+    })();
+  </script>
 </BaseLayout>
 
 <style>
+  /* Home-footer "My dashboards" list. Shown only when ?from=home (set
+     by the home-page pre-paint redirect). Sits below the pinned
+     dashboard's content; visually demarcated with a top border so it
+     doesn't read as part of the dashboard above. */
+  .home-footer-list {
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .home-footer-list[hidden] {
+    display: none;
+  }
+  .home-footer-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-neutral-500);
+    margin: 0 0 14px;
+  }
+  .home-footer-list-ul {
+    list-style: none;
+  }
   .dashboard-window { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
   .dashboard-fixed-range {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
