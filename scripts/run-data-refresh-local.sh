@@ -74,5 +74,12 @@ step "Trim source data files" python pipelines/trim_source_data.py
 #     clean gate). ---
 step "Audit source labels (lenient)" python scripts/audit_all_sources.py
 
+# --- Alert evaluation. Reads every active alert_rules row, evaluates
+#     the condition against the source's latest observation, and inserts
+#     into alert_triggers when it fires. Requires SUPABASE_URL +
+#     SUPABASE_SERVICE_ROLE_KEY in the env. Safe to fail when
+#     unconfigured (no-op + warning); the rest of the refresh proceeds. ---
+step "Indicator alerts" python pipelines/check_alerts.py
+
 echo "" | tee -a "$LOG" >&2
 echo "[$(date +%H:%M:%S)] DONE. Full log: $LOG" | tee -a "$LOG" >&2

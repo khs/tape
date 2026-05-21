@@ -1,0 +1,763 @@
+---
+/**
+ * /alerts/ — indicator alert management.
+ *
+ * Per-user. Lists every alert_rules row the signed-in user owns,
+ * recent alert_triggers events, and an "+ Add rule" form to mint
+ * new rules. All server state in Supabase; this page does the
+ * REST round-trips directly via the user's session token (RLS
+ * enforces ownership server-side).
+ *
+ * Schema lives in supabase/migrations/0005_indicator_alerts.sql.
+ * Evaluation lives in pipelines/check_alerts.py and runs after each
+ * data refresh.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Alerts — Tape" description="Indicator alert rules: get notified when a series crosses a threshold.">
+  <div class="alerts-page max-w-[920px] mx-auto px-6 pt-8 pb-16">
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
+      <span class="mx-1">·</span>
+      <a href={`${baseUrl}/me/`} class="no-underline hover:text-neutral-900">My dashboards</a>
+    </nav>
+
+    <header class="alerts-header">
+      <h1 class="alerts-title">Indicator alerts</h1>
+      <p class="alerts-subtitle">
+        Get notified when a series crosses a threshold. Rules check
+        after every weekly market-data refresh and monthly demographics
+        refresh — typically you'll see fires within a day of the source
+        actually changing.
+      </p>
+    </header>
+
+    {/* Sign-in gate. The body below is hidden by the inline script
+        when the user isn't authed; an "Anonymous" notice takes its
+        place. */}
+    <section class="alerts-signin-gate" data-role="alerts-signin-gate" hidden>
+      <p>
+        <strong>Sign in</strong> to manage your alert rules. Rules are
+        per-account; we don't track them anonymously.
+      </p>
+      <button type="button" class="btn-primary" data-role="alerts-signin-btn">
+        Sign in with Google
+      </button>
+    </section>
+
+    <section class="alerts-body" data-role="alerts-body" hidden>
+      {/* Add-rule form */}
+      <section class="alerts-add">
+        <h2 class="alerts-section-heading">Add rule</h2>
+        <form class="alerts-add-form" data-role="alerts-add-form">
+          <label class="alerts-field">
+            <span class="alerts-field-label">Source</span>
+            <input
+              type="search"
+              class="alerts-input"
+              data-role="alerts-source-input"
+              placeholder="e.g. fred/cpi_yoy or fred/us_unemployment"
+              required
+              autocomplete="off"
+            />
+            <ul class="alerts-source-list" data-role="alerts-source-list" hidden></ul>
+            <span class="alerts-help">
+              Type to search every series we ship. Use the
+              source ID (e.g. <code>fred/cpi_yoy</code>) — find it on
+              the chart dialog's "Source" line or any source page.
+            </span>
+          </label>
+
+          <label class="alerts-field">
+            <span class="alerts-field-label">Condition</span>
+            <select class="alerts-input" data-role="alerts-condition-select" required>
+              <option value="gt">Greater than (&gt;)</option>
+              <option value="gte" selected>At or above (&ge;)</option>
+              <option value="lt">Less than (&lt;)</option>
+              <option value="lte">At or below (&le;)</option>
+              <option value="crosses_above">Crosses above</option>
+              <option value="crosses_below">Crosses below</option>
+              <option value="change_above">Absolute change &gt;</option>
+            </select>
+          </label>
+
+          <label class="alerts-field">
+            <span class="alerts-field-label">Threshold</span>
+            <input
+              type="number"
+              class="alerts-input"
+              data-role="alerts-threshold-input"
+              step="any"
+              placeholder="4.0"
+              required
+            />
+            <span class="alerts-help">
+              In the source's native units. For <code>fred/cpi_yoy</code>
+              (a percent series), <code>4.0</code> means 4%. For a
+              rate-spread, the raw difference. Read the source page
+              if you're unsure.
+            </span>
+          </label>
+
+          <label class="alerts-field">
+            <span class="alerts-field-label">Label (optional)</span>
+            <input
+              type="text"
+              class="alerts-input"
+              data-role="alerts-label-input"
+              placeholder="Inflation > 4%"
+            />
+          </label>
+
+          <div class="alerts-add-actions">
+            <button type="submit" class="btn-primary" data-role="alerts-add-submit">
+              Add rule
+            </button>
+            <span class="alerts-add-msg muted small" data-role="alerts-add-msg"></span>
+          </div>
+        </form>
+      </section>
+
+      {/* Active rules */}
+      <section class="alerts-rules-wrap">
+        <h2 class="alerts-section-heading">
+          Your rules <span class="muted" data-role="alerts-rules-count"></span>
+        </h2>
+        <ul class="alerts-rules" data-role="alerts-rules-list"></ul>
+        <p class="muted small" data-role="alerts-rules-empty" hidden>
+          No rules yet. Add one above to get started.
+        </p>
+      </section>
+
+      {/* Trigger feed */}
+      <section class="alerts-feed-wrap">
+        <h2 class="alerts-section-heading">
+          Recent fires <span class="muted" data-role="alerts-feed-count"></span>
+        </h2>
+        <ul class="alerts-feed" data-role="alerts-feed-list"></ul>
+        <p class="muted small" data-role="alerts-feed-empty" hidden>
+          No triggers yet. The evaluator runs after each data refresh
+          and writes here when a rule fires.
+        </p>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    import {
+      createSupabase,
+      isSupabaseConfigured,
+      readStoredSession,
+      SUPABASE_REST_URL,
+      SUPABASE_REST_ANON_KEY,
+    } from "../lib/supabase";
+
+    type AlertRule = {
+      id: string;
+      source_id: string;
+      source_label: string;
+      condition: string;
+      threshold: number;
+      label: string | null;
+      last_value_seen: number | null;
+      last_value_t: string | null;
+      last_triggered_at: string | null;
+      paused: boolean;
+      created_at: string;
+      updated_at: string;
+    };
+    type AlertTrigger = {
+      id: string;
+      rule_id: string;
+      source_id: string;
+      source_label: string;
+      condition: string;
+      threshold: number;
+      observed_value: number;
+      observed_t: string;
+      triggered_at: string;
+      acknowledged: boolean;
+    };
+    type LibrarySource = {
+      id: string;
+      name: string;
+      shortName?: string;
+      tags?: string[];
+      formatting?: { style?: string };
+    };
+
+    const gate = document.querySelector<HTMLElement>("[data-role='alerts-signin-gate']");
+    const body = document.querySelector<HTMLElement>("[data-role='alerts-body']");
+    const signinBtn = document.querySelector<HTMLButtonElement>("[data-role='alerts-signin-btn']");
+    const rulesList = document.querySelector<HTMLElement>("[data-role='alerts-rules-list']");
+    const rulesEmpty = document.querySelector<HTMLElement>("[data-role='alerts-rules-empty']");
+    const rulesCount = document.querySelector<HTMLElement>("[data-role='alerts-rules-count']");
+    const feedList = document.querySelector<HTMLElement>("[data-role='alerts-feed-list']");
+    const feedEmpty = document.querySelector<HTMLElement>("[data-role='alerts-feed-empty']");
+    const feedCount = document.querySelector<HTMLElement>("[data-role='alerts-feed-count']");
+
+    const form = document.querySelector<HTMLFormElement>("[data-role='alerts-add-form']");
+    const sourceInput = document.querySelector<HTMLInputElement>("[data-role='alerts-source-input']");
+    const sourceList = document.querySelector<HTMLElement>("[data-role='alerts-source-list']");
+    const conditionSelect = document.querySelector<HTMLSelectElement>("[data-role='alerts-condition-select']");
+    const thresholdInput = document.querySelector<HTMLInputElement>("[data-role='alerts-threshold-input']");
+    const labelInput = document.querySelector<HTMLInputElement>("[data-role='alerts-label-input']");
+    const addMsg = document.querySelector<HTMLElement>("[data-role='alerts-add-msg']");
+
+    if (!isSupabaseConfigured) {
+      // Supabase env vars missing entirely — show a hard error rather
+      // than the sign-in gate which would be misleading.
+      if (gate) {
+        gate.hidden = false;
+        gate.innerHTML =
+          "<p>Alerts require Supabase, which isn't configured on this build.</p>";
+      }
+    } else {
+      const sb = createSupabase();
+      const stored = readStoredSession();
+      if (!stored) {
+        if (gate) gate.hidden = false;
+        signinBtn?.addEventListener("click", async () => {
+          await sb?.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: window.location.href,
+              scopes: "openid email",
+            },
+          });
+        });
+      } else {
+        if (body) body.hidden = false;
+        void initAuthed(stored);
+      }
+    }
+
+    async function initAuthed(stored: NonNullable<ReturnType<typeof readStoredSession>>): Promise<void> {
+      await Promise.all([loadRules(stored), loadTriggers(stored), loadSourceCatalog()]);
+      wireForm(stored);
+      // Deep-link prefill from /alerts/?source=<id>. Lets a user land
+      // on the page from a source-page "Watch for alerts" link with
+      // the source field already populated.
+      const params = new URLSearchParams(window.location.search);
+      const presetSource = params.get("source");
+      if (presetSource && sourceInput) {
+        sourceInput.value = presetSource;
+        sourceInput.dataset.label =
+          allSources.find((s) => s.id === presetSource)?.name ?? presetSource;
+      }
+    }
+
+    // ---------- Source autocomplete ----------
+    // Pulls library.json once; the type-ahead matches against id +
+    // name + shortName + tags. Source list is ~21k entries — slim
+    // it before binding to the DOM.
+    let allSources: LibrarySource[] = [];
+
+    async function loadSourceCatalog(): Promise<void> {
+      try {
+        const r = await fetch(`${(import.meta.env.BASE_URL || "/").replace(/\/$/, "")}/library.json`);
+        if (!r.ok) return;
+        const blob = (await r.json()) as { sources?: Record<string, LibrarySource> };
+        const map = blob.sources ?? {};
+        allSources = Object.entries(map).map(([id, s]) => ({ ...s, id }));
+      } catch (e) {
+        console.warn("alerts: source catalog fetch failed:", e);
+      }
+    }
+
+    function renderSourceSuggestions(query: string): void {
+      if (!sourceList) return;
+      const q = query.trim().toLowerCase();
+      if (q.length < 2) {
+        sourceList.hidden = true;
+        sourceList.innerHTML = "";
+        return;
+      }
+      const matches = allSources
+        .filter((s) => {
+          if (s.id.toLowerCase().includes(q)) return true;
+          if ((s.name ?? "").toLowerCase().includes(q)) return true;
+          if ((s.shortName ?? "").toLowerCase().includes(q)) return true;
+          return false;
+        })
+        .slice(0, 20);
+      if (matches.length === 0) {
+        sourceList.hidden = true;
+        sourceList.innerHTML = "";
+        return;
+      }
+      sourceList.innerHTML = matches
+        .map(
+          (s) =>
+            `<li data-source-id="${escapeAttr(s.id)}" data-source-label="${escapeAttr(s.name ?? s.id)}">
+              <span class="alerts-suggest-name">${escapeHtml(s.name ?? s.id)}</span>
+              <span class="alerts-suggest-id">${escapeHtml(s.id)}</span>
+            </li>`,
+        )
+        .join("");
+      sourceList.hidden = false;
+    }
+
+    sourceInput?.addEventListener("input", () => {
+      renderSourceSuggestions(sourceInput.value);
+    });
+    sourceInput?.addEventListener("focus", () => {
+      if (sourceInput.value.trim().length >= 2)
+        renderSourceSuggestions(sourceInput.value);
+    });
+    sourceInput?.addEventListener("blur", () => {
+      // Delay so clicks on the dropdown have time to register
+      // before the dropdown is hidden.
+      setTimeout(() => {
+        if (sourceList) sourceList.hidden = true;
+      }, 150);
+    });
+    sourceList?.addEventListener("click", (e) => {
+      const li = (e.target as HTMLElement).closest("li");
+      if (!li || !sourceInput) return;
+      sourceInput.value = li.dataset.sourceId ?? "";
+      sourceInput.dataset.label = li.dataset.sourceLabel ?? li.dataset.sourceId ?? "";
+      if (sourceList) sourceList.hidden = true;
+    });
+
+    // ---------- Rules CRUD ----------
+    async function loadRules(stored: NonNullable<ReturnType<typeof readStoredSession>>): Promise<void> {
+      const r = await fetch(
+        `${SUPABASE_REST_URL}/rest/v1/alert_rules?owner_id=eq.${encodeURIComponent(stored.user.id)}&select=*&order=updated_at.desc`,
+        {
+          headers: {
+            apikey: SUPABASE_REST_ANON_KEY,
+            Authorization: `Bearer ${stored.access_token}`,
+          },
+        },
+      );
+      const rows: AlertRule[] = r.ok ? await r.json() : [];
+      renderRules(rows, stored);
+    }
+
+    function renderRules(rows: AlertRule[], stored: NonNullable<ReturnType<typeof readStoredSession>>): void {
+      if (!rulesList) return;
+      rulesList.innerHTML = "";
+      if (rulesCount) rulesCount.textContent = rows.length > 0 ? `(${rows.length})` : "";
+      if (rows.length === 0) {
+        if (rulesEmpty) rulesEmpty.hidden = false;
+        return;
+      }
+      if (rulesEmpty) rulesEmpty.hidden = true;
+      for (const r of rows) {
+        const li = document.createElement("li");
+        li.className = "alerts-rule" + (r.paused ? " alerts-rule-paused" : "");
+        li.dataset.ruleId = r.id;
+        li.innerHTML = `
+          <div class="alerts-rule-main">
+            <div class="alerts-rule-label">${escapeHtml(r.label || defaultRuleLabel(r))}</div>
+            <div class="alerts-rule-source">
+              <a href="${(import.meta.env.BASE_URL || "/").replace(/\/$/, "")}/source/${escapeAttr(r.source_id)}/" class="alerts-rule-source-link">${escapeHtml(r.source_label)}</a>
+              <span class="alerts-rule-condition mono">${escapeHtml(conditionPhrase(r))}</span>
+            </div>
+            <div class="alerts-rule-meta muted small">
+              ${r.last_value_seen !== null && r.last_value_t ? `last value ${escapeHtml(String(r.last_value_seen))} on ${escapeHtml(r.last_value_t)}. ` : "Not yet evaluated. "}
+              ${r.last_triggered_at ? `last fired ${escapeHtml(r.last_triggered_at.slice(0, 10))}.` : "Never fired."}
+            </div>
+          </div>
+          <div class="alerts-rule-actions">
+            <button type="button" data-action="toggle-pause" class="alerts-rule-action">${r.paused ? "Resume" : "Pause"}</button>
+            <button type="button" data-action="delete" class="alerts-rule-action alerts-rule-action-danger">Delete</button>
+          </div>
+        `;
+        rulesList.appendChild(li);
+      }
+      rulesList.querySelectorAll<HTMLButtonElement>("button[data-action]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const li = btn.closest<HTMLElement>(".alerts-rule");
+          if (!li) return;
+          const id = li.dataset.ruleId ?? "";
+          const action = btn.dataset.action;
+          if (action === "delete") {
+            if (!confirm("Delete this alert rule? The trigger history is preserved.")) return;
+            await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_rules?id=eq.${encodeURIComponent(id)}`, {
+              method: "DELETE",
+              headers: {
+                apikey: SUPABASE_REST_ANON_KEY,
+                Authorization: `Bearer ${stored.access_token}`,
+              },
+            });
+            await loadRules(stored);
+          } else if (action === "toggle-pause") {
+            const currentlyPaused = li.classList.contains("alerts-rule-paused");
+            await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_rules?id=eq.${encodeURIComponent(id)}`, {
+              method: "PATCH",
+              headers: {
+                apikey: SUPABASE_REST_ANON_KEY,
+                Authorization: `Bearer ${stored.access_token}`,
+                "Content-Type": "application/json",
+                Prefer: "return=minimal",
+              },
+              body: JSON.stringify({ paused: !currentlyPaused }),
+            });
+            await loadRules(stored);
+          }
+        });
+      });
+    }
+
+    function defaultRuleLabel(r: AlertRule): string {
+      return `${r.source_label} ${conditionPhrase(r)}`;
+    }
+    function conditionPhrase(r: AlertRule): string {
+      const t = r.threshold;
+      switch (r.condition) {
+        case "gt": return `> ${t}`;
+        case "gte": return `≥ ${t}`;
+        case "lt": return `< ${t}`;
+        case "lte": return `≤ ${t}`;
+        case "crosses_above": return `crosses above ${t}`;
+        case "crosses_below": return `crosses below ${t}`;
+        case "change_above": return `|Δ| > ${t}`;
+        default: return `${r.condition} ${t}`;
+      }
+    }
+
+    // ---------- Trigger feed ----------
+    async function loadTriggers(stored: NonNullable<ReturnType<typeof readStoredSession>>): Promise<void> {
+      const r = await fetch(
+        `${SUPABASE_REST_URL}/rest/v1/alert_triggers?owner_id=eq.${encodeURIComponent(stored.user.id)}&select=*&order=triggered_at.desc&limit=50`,
+        {
+          headers: {
+            apikey: SUPABASE_REST_ANON_KEY,
+            Authorization: `Bearer ${stored.access_token}`,
+          },
+        },
+      );
+      const rows: AlertTrigger[] = r.ok ? await r.json() : [];
+      renderTriggers(rows);
+    }
+    function renderTriggers(rows: AlertTrigger[]): void {
+      if (!feedList) return;
+      feedList.innerHTML = "";
+      if (feedCount) feedCount.textContent = rows.length > 0 ? `(${rows.length})` : "";
+      if (rows.length === 0) {
+        if (feedEmpty) feedEmpty.hidden = false;
+        return;
+      }
+      if (feedEmpty) feedEmpty.hidden = true;
+      for (const t of rows) {
+        const li = document.createElement("li");
+        li.className = "alerts-trigger" + (t.acknowledged ? " alerts-trigger-ack" : "");
+        li.innerHTML = `
+          <div class="alerts-trigger-when">${escapeHtml(t.triggered_at.slice(0, 10))}</div>
+          <div class="alerts-trigger-main">
+            <div class="alerts-trigger-headline">
+              <strong>${escapeHtml(t.source_label)}</strong>
+              <span class="mono">${escapeHtml(t.condition)} ${t.threshold}</span>
+              → observed <strong>${escapeHtml(String(t.observed_value))}</strong>
+              on ${escapeHtml(t.observed_t)}
+            </div>
+          </div>
+        `;
+        feedList.appendChild(li);
+      }
+    }
+
+    // ---------- Add-rule form ----------
+    function wireForm(stored: NonNullable<ReturnType<typeof readStoredSession>>): void {
+      form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!sourceInput || !conditionSelect || !thresholdInput || !labelInput || !addMsg) return;
+        const sourceId = sourceInput.value.trim();
+        const threshold = parseFloat(thresholdInput.value);
+        if (!sourceId || !Number.isFinite(threshold)) {
+          addMsg.textContent = "Need a source and a numeric threshold.";
+          return;
+        }
+        const sourceLabel =
+          sourceInput.dataset.label ??
+          allSources.find((s) => s.id === sourceId)?.name ??
+          sourceId;
+        addMsg.textContent = "Saving…";
+        const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_rules`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_REST_ANON_KEY,
+            Authorization: `Bearer ${stored.access_token}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({
+            owner_id: stored.user.id,
+            source_id: sourceId,
+            source_label: sourceLabel,
+            condition: conditionSelect.value,
+            threshold,
+            label: labelInput.value.trim() || null,
+          }),
+        });
+        if (res.ok) {
+          addMsg.textContent = "Saved.";
+          sourceInput.value = "";
+          sourceInput.dataset.label = "";
+          thresholdInput.value = "";
+          labelInput.value = "";
+          setTimeout(() => {
+            if (addMsg) addMsg.textContent = "";
+          }, 2000);
+          await loadRules(stored);
+        } else {
+          addMsg.textContent = `Failed to save: HTTP ${res.status}`;
+        }
+      });
+    }
+
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+    function escapeAttr(s: string): string {
+      return escapeHtml(s);
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .alerts-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #1c1c1a;
+  }
+  .alerts-subtitle {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #4a4a45;
+    margin: 0 0 24px;
+    max-width: 64ch;
+  }
+  .alerts-signin-gate {
+    margin: 24px 0;
+    padding: 18px 22px;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: 6px;
+    background: #fbf9f3;
+  }
+  .alerts-section-heading {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6f6c66;
+    font-weight: 600;
+    margin: 28px 0 10px;
+  }
+  .alerts-section-heading .muted {
+    color: #6f6c66;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .alerts-add-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 18px;
+    padding: 16px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: 4px;
+    background: #fbfaf6;
+  }
+  @media (max-width: 640px) {
+    .alerts-add-form {
+      grid-template-columns: 1fr;
+    }
+  }
+  .alerts-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+  }
+  .alerts-field-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6f6c66;
+  }
+  .alerts-input {
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.2);
+    border-radius: 3px;
+    background: #fff;
+    color: #1c1c1a;
+  }
+  .alerts-input:focus {
+    outline: none;
+    border-color: rgba(55, 53, 47, 0.5);
+  }
+  .alerts-help {
+    font-size: 11px;
+    color: #6f6c66;
+    line-height: 1.4;
+  }
+  .alerts-help code {
+    background: #f1efe9;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 10.5px;
+  }
+  .alerts-source-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 2px 0 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.2);
+    border-radius: 3px;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(55, 53, 47, 0.08);
+  }
+  .alerts-source-list li {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .alerts-source-list li:hover {
+    background: #f5f3ec;
+  }
+  .alerts-suggest-name {
+    font-size: 13px;
+    color: #1c1c1a;
+  }
+  .alerts-suggest-id {
+    font-size: 11px;
+    color: #6f6c66;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+  .alerts-add-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .alerts-add-msg {
+    color: #6f6c66;
+  }
+  .alerts-rules {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .alerts-rule {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 4px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .alerts-rule-paused {
+    opacity: 0.6;
+  }
+  .alerts-rule-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .alerts-rule-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1c1c1a;
+    margin-bottom: 2px;
+  }
+  .alerts-rule-source {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #4a4a45;
+  }
+  .alerts-rule-source-link {
+    color: #4a4a45;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .alerts-rule-source-link:hover {
+    color: #1c1c1a;
+  }
+  .alerts-rule-condition.mono {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    background: #f1efe9;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 11px;
+  }
+  .alerts-rule-meta {
+    margin-top: 4px;
+    font-size: 11px;
+  }
+  .alerts-rule-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .alerts-rule-action {
+    font: inherit;
+    font-size: 11px;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    color: #2d2d2a;
+  }
+  .alerts-rule-action:hover {
+    background: #f5f3ec;
+  }
+  .alerts-rule-action-danger:hover {
+    background: #fce4e4;
+    border-color: #c46060;
+    color: #8a2020;
+  }
+  .alerts-feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .alerts-trigger {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+    font-size: 13px;
+    color: #2d2d2a;
+  }
+  .alerts-trigger-when {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 11px;
+    color: #6f6c66;
+    flex: 0 0 80px;
+  }
+  .alerts-trigger-headline .mono {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 11px;
+    background: #f1efe9;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+  .alerts-trigger-ack {
+    opacity: 0.7;
+  }
+</style>

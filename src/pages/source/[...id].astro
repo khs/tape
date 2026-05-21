@@ -336,6 +336,13 @@ const frequency = source ? inferFrequency(source.data.supportedDeltas as string[
             <a href={composeUrl} class="source-action-link">
               Open in composer &rarr;
             </a>
+            <a
+              href={`${baseUrl}/alerts/?source=${encodeURIComponent(sourceId)}`}
+              class="source-action-link"
+              title="Set up an indicator alert on this series — get notified when it crosses a threshold."
+            >
+              Watch for alerts &rarr;
+            </a>
             {provenance?.url && (
               <a
                 href={provenance.url}

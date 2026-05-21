@@ -117,6 +117,15 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
           >
             My dashboards
           </a>
+          <a
+            href={`${baseUrl}/alerts/`}
+            class="text-neutral-600 no-underline hover:text-neutral-900"
+            data-role="auth-alerts-link"
+            style="display: none"
+            title="Indicator alert rules — get notified when a series crosses a threshold"
+          >
+            Alerts
+          </a>
           <button
             type="button"
             class="text-neutral-600 hover:text-neutral-900 bg-transparent border-0 cursor-pointer p-0"
@@ -213,6 +222,9 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
           const meLink = document.querySelector<HTMLAnchorElement>(
             "[data-role='auth-me-link']",
           );
+          const alertsLink = document.querySelector<HTMLAnchorElement>(
+            "[data-role='auth-alerts-link']",
+          );
 
           function refresh() {
             // Storage-based, synchronous — avoids the getSession/getUser
@@ -222,6 +234,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
               if (signin) signin.style.display = "none";
               if (signout) signout.style.display = "";
               if (meLink) meLink.style.display = "";
+              if (alertsLink) alertsLink.style.display = "";
               // First-sign-in tutorial seed. Self-gated: idempotent +
               // bails out if the user already has any saved dashboards.
               // See src/lib/seed-tutorial.ts for the contract.
@@ -230,6 +243,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
               if (signin) signin.style.display = "";
               if (signout) signout.style.display = "none";
               if (meLink) meLink.style.display = "none";
+              if (alertsLink) alertsLink.style.display = "none";
             }
           }
 
