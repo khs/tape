@@ -1,0 +1,23 @@
+name: CO2 emissions, total (excl. land use) — United States
+shortName: United States co2 total
+description: CO2 emissions, total (excl. land use) for United States, annual. From World Bank World Development Indicators (series EN.GHG.CO2.MT.CE.AR5). Most regions and country aggregates available back to 1960; individual series start dates vary.
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/co2_total_usa.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "Mt CO2e"
+formatting:
+  style: number
+  decimals: 1
+  notation: compact
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: EN.GHG.CO2.MT.CE.AR5 / USA
+  url: https://api.worldbank.org/v2/country/USA/indicator/EN.GHG.CO2.MT.CE.AR5
+  license: CC BY 4.0
+tags:
+  - macro
+  - us
+  - world
+unitClass: count

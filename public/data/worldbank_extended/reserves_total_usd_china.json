@@ -3,7 +3,7 @@
   "name": "Total foreign reserves (current USD) \u2014 China",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-05-20T05:16:03Z",
+  "lastUpdated": "2026-05-21T22:44:36Z",
   "points": [
     {
       "t": "1977-12-31",
@@ -199,6 +199,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 3456.02480873912
+    },
+    {
+      "t": "2026-05-21",
       "v": 3456.02480873912
     }
   ]

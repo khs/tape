@@ -337,13 +337,23 @@ REGIONS: list[Entity] = [
 CHINA = Entity("CHN", "china", "China", "world")
 
 # Every country in the COUNTRY_REGISTRY (src/lib/countries.ts) except
-# USA gets the 7 COUNTRY_INDICATORS. Slugs match the
+# Every country here gets the 7 COUNTRY_INDICATORS. Slugs match the
 # WB_EXTENDED_ENTITY_SLUG mapping in countries.ts so the
 # parseCountrySourceId parser can tag the resulting source files
-# with country-specific:<CODE>. USA is omitted because US-wide data
-# is already well-covered by FRED + ACS-national; adding WB-extended
-# versions would clutter the manifest with redundant aggregates.
+# with country-specific:<CODE>.
+#
+# Previously USA was omitted on the theory that US-national data was
+# already well-covered by FRED + ACS-national. In practice this
+# created an asymmetry on the composer's Generators tab: picking any
+# non-US country surfaced ~7 worldbank_extended templates (population,
+# CO2, sectoral GDP) but picking USA showed only the worldbank_gdp_raw
+# and countries_gdp templates — 2 total. Users reasonably expected
+# the US to behave the same as every other country in the country
+# picker. The cost of 7 extra USA YAMLs in the manifest is far smaller
+# than the cost of a confusing-looking dropdown.
 COUNTRY_DEEP_DIVES: list[Entity] = [
+    # United States (added 2026-05 — see comment block above for why).
+    Entity("USA", "usa", "United States", "world"),
     # G7 + major economies (China handled separately via CHINA constant
     # for its 15-indicator deep dive)
     Entity("JPN", "japan", "Japan", "world"),
@@ -492,6 +502,15 @@ def write_source_yaml(indicator: WbIndicator, entity: Entity) -> bool:
     # the user. entity.tag_region stays on the dataclass in case
     # something else wants to use it.
     tags = ["macro", "world"] + indicator.extra_tags
+    # USA gets the `us` topical tag so the library.json synthesizer
+    # falls into the "US-national, keep visible in default list" branch
+    # (and adds country-specific:USA), instead of either being hidden
+    # behind the COUNTRY_TAG chip (the foreign-country path) or floating
+    # without any country attribution. Every other country in
+    # COUNTRY_DEEP_DIVES is meant to live behind the chip, so we only
+    # special-case the US.
+    if entity.code == "USA":
+        tags.append("us")
     # Dedupe + sort.
     tags = sorted(set(tags))
     lines = [
