@@ -252,6 +252,23 @@ export async function resolveChart(
         rightAxisSources: spec.rightAxisSources,
         op: spec.op,
         blurb: spec.blurb,
+        // Visual + presentation fields. These existed on the inline-chart
+        // spec since their respective features shipped, but were dropped
+        // here — so a user could pick "NBER recessions" shading, set a
+        // YoY default transform, type an annotation, or pick percent vs.
+        // decimal divide display in the composer, and none of it would
+        // render. Chart.astro reads these straight off chart.data
+        // (see the payload assembly there), so the renderer had no
+        // chance once they were gone. Carry every visual field through.
+        shading: spec.shading,
+        transform: spec.transform,
+        annotations: spec.annotations,
+        percentDisplay: spec.percentDisplay,
+        // Bar-snapshot fields (only honored when render === "bar"; the
+        // inline-bar path needs these to round-trip).
+        barOrientation: spec.barOrientation,
+        barSort: spec.barSort,
+        barAsOf: spec.barAsOf,
         tags: [] as string[],
       },
     } as unknown as CollectionEntry<"charts">;

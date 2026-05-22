@@ -15,10 +15,12 @@ vi.mock("./load-data", () => ({
 import {
   perChartSupportedDeltas,
   dashboardSupportedDeltas,
+  resolveChart,
   type ResolvedSection,
   type ResolvedChart,
 } from "./resolve-dashboard";
 import type { DeltaWindow } from "./deltas";
+import type { InlineChart } from "./composer-state";
 
 // Helper: build a minimum-viable ResolvedChart for tests. We only
 // touch chart.data.render and source.data.supportedDeltas, so the
@@ -124,6 +126,90 @@ describe("dashboardSupportedDeltas", () => {
     ]);
     const supported = dashboardSupportedDeltas([section]);
     expect(supported).toEqual(["1y", "10y"]);
+  });
+});
+
+describe("inline-chart synthesis carries presentation fields", () => {
+  // Regression guard: the resolve-dashboard inline-chart synthesizer
+  // used to drop `annotations`, `shading`, `transform`, `percentDisplay`,
+  // and the bar fields when building the fake CollectionEntry it hands
+  // to Chart.astro. The composer happily wrote them into
+  // state.inlineCharts.<id> on save, but the renderer never saw them
+  // again — user-typed annotations and picked shading bands silently
+  // failed to render on inline charts. The schema in
+  // composer-state.ts is the source of truth for what an InlineChart
+  // can carry; this test asserts every visual field on the spec ends
+  // up on the synthesized chart's data.
+  it("copies annotations, shading, transform, percentDisplay, and bar fields through to chart.data", async () => {
+    // Mock getEntry to return a valid source-shaped object so the
+    // synthesis doesn't bail on "source not found".
+    const { getEntry } = await import("astro:content");
+    const fakeSource = {
+      id: "fred/dgs10",
+      data: {
+        kind: "timeseries",
+        dataFile: "data/fred/DGS10.json",
+        supportedDeltas: ["1y", "5y", "10y", "30y", "50y"],
+        formatting: { style: "percent", decimals: 2 },
+      },
+    };
+    (getEntry as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      fakeSource,
+    );
+    // Mock loadSourceData since resolveSourceById fetches data points.
+    // Return one point so the source survives the resolver's empty-check.
+    const { loadSourceData } = await import("./load-data");
+    (loadSourceData as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      kind: "timeseries",
+      points: [{ t: "2025-01-01", v: 4.5 }],
+    });
+    const spec: InlineChart = {
+      title: "10Y with annotations",
+      sources: ["fred/dgs10"],
+      render: "line",
+      // Visual fields the synthesis used to drop:
+      annotations: [
+        { date: "2008-09-15", label: "Lehman" },
+        { date: "2020-03-15", label: "COVID", position: "below" },
+      ],
+      shading: ["recessions", "fed_chairs"],
+      transform: "yoy_pct",
+      percentDisplay: "decimal",
+      barOrientation: "horizontal",
+      barSort: "desc",
+      barAsOf: "2025-01-01",
+    };
+    const inlineCharts: Record<string, InlineChart> = {
+      "inline:abc12345": spec,
+    };
+    const resolved = await resolveChart(
+      "inline:abc12345",
+      inlineCharts,
+      undefined,
+      undefined,
+    );
+    expect(resolved).not.toBeNull();
+    const data = resolved!.chart.data as unknown as {
+      title: string;
+      annotations?: typeof spec.annotations;
+      shading?: typeof spec.shading;
+      transform?: typeof spec.transform;
+      percentDisplay?: typeof spec.percentDisplay;
+      barOrientation?: typeof spec.barOrientation;
+      barSort?: typeof spec.barSort;
+      barAsOf?: typeof spec.barAsOf;
+    };
+    // Title proves the synthesis ran at all (not just returning the
+    // spec by accident).
+    expect(data.title).toBe("10Y with annotations");
+    // Every visual field should be carried through verbatim.
+    expect(data.annotations).toEqual(spec.annotations);
+    expect(data.shading).toEqual(spec.shading);
+    expect(data.transform).toBe("yoy_pct");
+    expect(data.percentDisplay).toBe("decimal");
+    expect(data.barOrientation).toBe("horizontal");
+    expect(data.barSort).toBe("desc");
+    expect(data.barAsOf).toBe("2025-01-01");
   });
 });
 
