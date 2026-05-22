@@ -6342,6 +6342,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   interface CustomChartModalState {
     editingId: string | null; // inline id being edited, or null for create
     title: string;
+    // True when the title was derived from the source set (the
+    // "auto-title" default) rather than typed by the user. Lets us
+    // refresh the title whenever sources/op change without clobbering
+    // an intentionally-typed name. Flips to false on the first user
+    // keystroke in the title input; flips back to true if the user
+    // clears the field entirely (an empty title is treated as "give
+    // me the default back"). Reset in openCustomChartModal based on
+    // whether the existing title matches what we'd auto-derive.
+    titleAuto: boolean;
     selected: Set<string>;
     // Order in which sources were picked; this is the "A, B" order for op
     // computations and preserves the user's intent across re-renders. Items
@@ -6423,6 +6432,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   const ccModal: CustomChartModalState = {
     editingId: null,
     title: "",
+    titleAuto: true,
     selected: new Set<string>(),
     selectedOrder: [],
     search: "",
@@ -6472,6 +6482,68 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return ccSelectedSharesScale() ? "raw" : "rebase";
   }
 
+  // Build the "auto-title" — what we'd suggest when no user typing
+  // has happened yet — from the picked sources + op. Single source
+  // borrows its short name; two-source ops produce "A op B" with the
+  // canonical symbol; everything else falls back to a " + "-joined
+  // list. We prefer `shortName` over `name` because chart titles get
+  // displayed in tight tile + dialog headers — "CPI YoY" reads better
+  // than "CPI YoY (US, all urban consumers)". Returns "" when nothing
+  // is picked yet so the placeholder copy ("Give this chart a name…")
+  // still shows.
+  //
+  // Format matches the existing hover-merge "A + B" string so a merged
+  // chart's title is considered an auto-default and keeps tracking on
+  // subsequent source changes.
+  function deriveCcAutoTitle(
+    sourceIds: string[],
+    op: ChartCombineOp | null,
+  ): string {
+    if (!library || sourceIds.length === 0) return "";
+    const names = sourceIds.map((sid) => {
+      const s = library!.sources[sid] as
+        | { name?: string; shortName?: string }
+        | undefined;
+      return s?.shortName ?? s?.name ?? sid;
+    });
+    if (names.length === 1) return names[0];
+    if (op && names.length === 2) {
+      const symbol =
+        op === "divide" ? "/" : op === "diff" ? "−" : "+";
+      return `${names[0]} ${symbol} ${names[1]}`;
+    }
+    return names.join(" + ");
+  }
+
+  // Decide whether the current ccModal.title is still tracking the
+  // auto-derived default. An empty title is always "auto" (treated
+  // as "give me a default"); a non-empty title is auto iff it equals
+  // what deriveCcAutoTitle would produce right now. Used by both the
+  // modal opener and the hover-merge customizer so they share one
+  // truth-source for "is this title user-customized?"
+  function recomputeCcTitleAuto(): void {
+    ccModal.titleAuto =
+      ccModal.title === "" ||
+      ccModal.title === deriveCcAutoTitle(ccModal.selectedOrder, ccModal.op);
+  }
+
+  // If the title is still tracking the auto-derived default (no user
+  // override yet), recompute it from the current sources/op and push
+  // the new value into ccModal.title + the visible input. Called from
+  // every source/op change handler. No-op when the user has typed a
+  // custom title — we never overwrite intentional input.
+  function maybeRefreshCcAutoTitle(): void {
+    if (!ccModal.titleAuto) return;
+    const next = deriveCcAutoTitle(ccModal.selectedOrder, ccModal.op);
+    ccModal.title = next;
+    const titleInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='cc-title']",
+    );
+    if (titleInput && titleInput.value !== next) {
+      titleInput.value = next;
+    }
+  }
+
   function openCustomChartModal(editingId?: string): void {
     const existing =
       editingId && state.inlineCharts[editingId]
@@ -6482,6 +6554,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     ccModal.selected = new Set<string>(existing?.sources ?? []);
     ccModal.selectedOrder = [...(existing?.sources ?? [])];
     ccModal.op = (existing?.op as ChartCombineOp | undefined) ?? null;
+    // Auto-title tracking: we'll auto-update the title field on
+    // source/op changes IFF the user hasn't typed a custom title yet.
+    // Decide which bucket the loaded title falls into:
+    //   - empty: fresh new chart, definitely auto.
+    //   - matches what we'd derive right now: title was previously
+    //     auto-derived and never customized; keep tracking.
+    //   - anything else: user customized it (or it came from a
+    //     curated chart with a hand-written title); stop tracking
+    //     so we don't clobber it on the next source-swap.
+    recomputeCcTitleAuto();
     ccModal.search = "";
     if (existing?.normalize) {
       ccModal.mode = existing.normalize as CustomChartMode;
@@ -6877,6 +6959,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       draggedSecIdx: dragged.secIdx,
       draggedChartIdx: dragged.chartIdx,
     };
+    // Re-evaluate titleAuto now that the merge has finalized the title
+    // and source list. When the merge auto-built "A + B" from default-
+    // titled bases, it matches deriveCcAutoTitle and titleAuto stays
+    // true — so a later source-swap still tracks. When the merge
+    // inherited a hand-written baseSpec.title, the strings won't match
+    // and titleAuto flips false so we never clobber the user's name.
+    recomputeCcTitleAuto();
     // Update the title input + blurb textarea to reflect the seeded state.
     const titleInput = shell.querySelector<HTMLInputElement>(
       "[data-role='cc-title']",
@@ -7074,6 +7163,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // dates fall outside the new union date range. Cheap; runs off
         // library.json data already in memory.
         updateCcAnnotationsWarning();
+        // If the title was tracking the auto-derived default, swap it
+        // to match the new source set. No-op when the user has typed
+        // something custom (the flag stays false until they clear the
+        // field).
+        maybeRefreshCcAutoTitle();
       });
       row.appendChild(cb);
       const text = document.createElement("span");
@@ -8202,6 +8296,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     });
     titleInput?.addEventListener("input", () => {
       ccModal.title = titleInput.value;
+      // Title is now user-controlled; stop auto-refreshing it on
+      // source/op changes. Special case: clearing the field back to
+      // empty is treated as "give me the default again" — flip the
+      // flag back on and re-derive immediately so the field doesn't
+      // look broken.
+      if (titleInput.value === "") {
+        ccModal.titleAuto = true;
+        maybeRefreshCcAutoTitle();
+      } else {
+        ccModal.titleAuto = false;
+      }
       updateCustomChartCreateState();
     });
     const blurbInput = shell.querySelector<HTMLTextAreaElement>(
@@ -8315,6 +8420,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ccModal.op = (opSelect.value as ChartCombineOp | "") || null;
       syncOpUI();
       renderCustomChartPreview();
+      // Op affects the auto-title format ("A / B" vs "A vs. B"); refresh.
+      maybeRefreshCcAutoTitle();
     });
     const opSwap = shell.querySelector<HTMLButtonElement>("[data-role='cc-op-swap']");
     opSwap?.addEventListener("click", () => {
@@ -8325,6 +8432,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         ];
         syncOpUI();
         renderCustomChartPreview();
+        // Swapping argument order changes auto-title for non-commutative
+        // ops (divide, diff). Refresh.
+        maybeRefreshCcAutoTitle();
       }
     });
     createBtn?.addEventListener("click", () => {
