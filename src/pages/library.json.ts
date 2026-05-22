@@ -24,6 +24,7 @@ import {
   parseCountySourceId,
 } from "../lib/county-sources";
 import { isVisibleChart } from "../lib/resolve-dashboard";
+import { synthesizeSourceHints } from "../lib/source-hints";
 
 /**
  * Lightweight CBSA-code → display-name lookup, parsed from the
@@ -442,6 +443,28 @@ export const GET: APIRoute = async () => {
       `option${emptyEntities.length === 1 ? "" : "s"} would render empty.\n` +
       emptyEntities.map((e) => `  - ${e}`).join("\n");
     throw new Error(msg);
+  }
+
+  // Synthetic "see also" hint cards — surface in the composer's
+  // source search when the query matches a series we cover at a
+  // geo level beyond national (metro / state / county / CD /
+  // country / tract / block group). Improves discoverability for
+  // first-time visitors who don't know to engage a chip first.
+  // See src/lib/source-hints.ts for the rationale + format.
+  const hintsList = synthesizeSourceHints(
+    Object.entries(sources).map(([id, s]) => ({
+      id,
+      name: s.name,
+      tags: s.tags ?? [],
+    })),
+  );
+  // Inject hints into the sources map keyed by their synthetic id
+  // (`_hint/<level>`). They share the map with real sources so the
+  // composer's existing search/filter loop processes them uniformly;
+  // the composer's renderer dispatches on `kind: "hint"` to render
+  // an info card instead of a click-to-add-as-chart button.
+  for (const h of hintsList) {
+    (sources as Record<string, unknown>)[h.id] = h;
   }
 
   const body = JSON.stringify({

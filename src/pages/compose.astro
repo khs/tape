@@ -1979,6 +1979,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       if (!passesMetroFilter(tags, libGeo.selectedMetroCbsa, q)) continue;
       if (!passesCountryFilter(tags, libGeo.selectedCountryCode, q)) continue;
       if (!passesCountyFilter(id, tags, q)) continue;
+      // Synthetic geo-discovery hints (kind === "hint"): drop when
+      // the query is empty so they don't clutter an unprompted browse.
+      // When a query exists, they share the same text-search match
+      // logic as real sources — their server-built searchText
+      // intentionally covers every series name available at the
+      // hint's level plus level-name synonyms.
+      if (src.kind === "hint" && !q) continue;
       if (q) {
         const hay =
           src.searchText ??
@@ -1996,8 +2003,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // Source-picker ordering: by name. The categoryLabel-style folder
     // grouping used for charts doesn't help much for sources whose IDs
     // are mostly pipeline/<ticker> — a flat alphabetical list reads
-    // cleaner.
-    out.sort((a, b) => a.name.localeCompare(b.name));
+    // cleaner. Hint cards stay together at the TOP regardless of
+    // the alphabetical sort below, ordered by the hint.order field
+    // (country → state → cd → metro → county → tract → bg).
+    out.sort((a, b) => {
+      const aIsHint = a.kind === "hint";
+      const bIsHint = b.kind === "hint";
+      if (aIsHint && !bIsHint) return -1;
+      if (bIsHint && !aIsHint) return 1;
+      if (aIsHint && bIsHint) {
+        const ao = (a as LibrarySource & { order?: number }).order ?? 0;
+        const bo = (b as LibrarySource & { order?: number }).order ?? 0;
+        return ao - bo;
+      }
+      return a.name.localeCompare(b.name);
+    });
     return out;
   }
 
@@ -2755,6 +2775,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       return;
     }
     for (const s of sources) {
+      // Synthetic hint cards: render with a distinct style + a click
+      // handler that engages the relevant geo chip instead of adding
+      // a chart. Hints never become inline sources / charts \u2014 they
+      // exist purely to bridge the discoverability gap between
+      // "search for unemployment" and "geographic data exists at
+      // level X." Sourced from src/lib/source-hints.ts.
+      if (s.kind === "hint") {
+        const chip = (s as LibrarySource & { chip?: string }).chip ?? "";
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "source-card source-card-hint";
+        card.dataset.sourceId = s.id;
+        card.dataset.hintChip = chip;
+        const desc = s.description
+          ? `<div class="source-card-desc">${escapeHtml(s.description)}</div>`
+          : "";
+        card.innerHTML =
+          `<div class="source-card-title"><span class="source-card-hint-eyebrow">See also</span>${escapeHtml(s.name)}</div>` +
+          desc;
+        card.addEventListener("click", () => engageHintChip(chip));
+        host.appendChild(card);
+        continue;
+      }
       const card = document.createElement("button");
       card.type = "button";
       card.className = "source-card";
@@ -2793,6 +2836,73 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         void addSourceAsChart(s.id);
       });
       host.appendChild(card);
+    }
+  }
+
+  /**
+   * Handle a click on a source-hint card. Engages the relevant
+   * geo chip + clears the search field so the user sees the
+   * sources that were hiding behind the chip. For tract / block-
+   * group hints (chip === "maps-tab") we switch to the Maps tab
+   * since those levels live there, not in Sources.
+   */
+  function engageHintChip(chip: string): void {
+    const searchInput = shell.querySelector<HTMLInputElement>(
+      "[data-role='lib-sources-search']",
+    );
+    if (chip === "maps-tab") {
+      setActiveLibTab("maps");
+      return;
+    }
+    if (chip === "metro") {
+      // Open the metro popover so the user can pick a CBSA. No
+      // default selection \u2014 they have to choose.
+      const trigger = shell.querySelector<HTMLButtonElement>(
+        "[data-role='lib-metro-chip']",
+      );
+      trigger?.click();
+      // Clear the typed search so the chip's full result list is
+      // visible (the search filter would otherwise still apply).
+      if (searchInput) {
+        searchInput.value = "";
+        sourcesSearchQuery = "";
+      }
+      renderTagFilters();
+      renderSourcesList();
+      return;
+    }
+    if (chip === "country") {
+      const trigger = shell.querySelector<HTMLButtonElement>(
+        "[data-role='lib-country-chip']",
+      );
+      trigger?.click();
+      if (searchInput) {
+        searchInput.value = "";
+        sourcesSearchQuery = "";
+      }
+      renderTagFilters();
+      renderSourcesList();
+      return;
+    }
+    if (chip === "cd") {
+      // States & districts chip toggles via the tag-pill set
+      // (CD_TAG sits in sourcesSelectedTags). Add it if missing
+      // and clear the search.
+      sourcesSelectedTags.add(CD_TAG);
+      if (searchInput) {
+        searchInput.value = "";
+        sourcesSearchQuery = "";
+      }
+      renderTagFilters();
+      renderSourcesList();
+      return;
+    }
+    if (chip === "county") {
+      // No dedicated county chip yet \u2014 the hint copy instructs the
+      // user to type the county name. We can't engage anything
+      // useful programmatically; leave the search field intact so
+      // they can continue typing.
+      return;
     }
   }
 
@@ -7028,6 +7138,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ...Object.values(library.sources),
     ];
     return all.filter((s) => {
+      // Synthetic geo-discovery hints are emitted only for the main
+      // Sources tab — they make no sense inside the cc-modal where
+      // the user is mid-chart-creation and has already picked the
+      // scope. Drop them here unconditionally.
+      if (s.kind === "hint") return false;
       const sTags = s.tags ?? [];
       // CD-visibility gate, mirroring filteredSources(). Derived sources
       // never have the CD_TAG (we don't synthesize it onto inline-source
@@ -7751,6 +7866,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ) {
         return false;
       }
+      // Same hint-skip as filteredModalSources: the derived-source
+      // ds-modal never wants the discoverability cards either.
+      if ((o as { kind?: string }).kind === "hint") return false;
       // Metro / country / CD chip drill-downs (mirrors cc-modal +
       // Sources tab via shared filter helpers). All three include the
       // 4-char name-unlock.
@@ -9382,6 +9500,32 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .source-card-tags {
     font-size: var(--text-xs);
     color: var(--color-neutral-500);
+  }
+  /* Synthetic "See also" cards (kind: hint) — same shape as the
+     real source cards but tinted so a quick scan distinguishes
+     them from selectable sources. The leading eyebrow tag says
+     "See also" so even without colour the user understands these
+     are signposts, not data. Click engages the relevant chip
+     (see engageHintChip in the script). */
+  .source-card-hint {
+    background: var(--color-neutral-50);
+    border-color: rgba(55, 53, 47, 0.06);
+  }
+  .source-card-hint:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+  }
+  .source-card-hint-eyebrow {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-500);
+    background: var(--color-neutral-100);
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-right: 6px;
   }
 
   .composer-composition {
