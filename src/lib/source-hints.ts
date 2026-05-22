@@ -14,36 +14,38 @@
  *   chip first.
  *
  *   The hints are synthetic "see also" cards that show up in the
- *   search results when the query matches a series we cover at that
- *   level. Clicking one engages the relevant chip + clears the
- *   search, surfacing the actual sources. None of the chip names or
- *   counts mention specific cities/states/counties — the hint says
- *   "unemployment is also available by US state, click [State] to
- *   drill in," not "click here to see Chicago unemployment."
+ *   search results when the query matches a SPECIFIC series we
+ *   cover at that level. Clicking one engages the relevant chip +
+ *   clears the search, surfacing the actual sources. None of the
+ *   hint copy mentions specific cities/states/counties — the hint
+ *   says "Unemployment rate — by US metro area," not "click here
+ *   to see Chicago unemployment."
+ *
+ *   One hint per (series, level): so a user searching "home prices"
+ *   gets "Case-Shiller home price index — by MSA" + "Median home
+ *   listing price — by MSA," not a mega-hint listing every series
+ *   the metro level happens to cover. That matches how users think
+ *   about the catalog ("does this data exist for my topic at this
+ *   geographic granularity?") rather than how it's pipeline-organized.
  *
  * Output shape:
  *   Each hint is a synthetic source-like object with:
- *     - id:          "_hint/<level>" — leading underscore keeps it
- *                    out of any "real source" listing and sorts last
- *                    alphabetically.
- *     - kind:        "hint" (not "timeseries") — composer dispatches
- *                    on this to render the hint card instead of an
- *                    add-as-chart button.
+ *     - id:          "_hint/<level>__<series>" — leading underscore
+ *                    keeps it out of any "real source" listing.
+ *     - kind:        "hint" — composer dispatches on this to render
+ *                    the hint card instead of an add-as-chart button.
  *     - chip:        Which composer chip the click handler engages
  *                    ("metro" | "country" | "state" | "county" |
- *                    "cd" | "maps-tab"). The "maps-tab" target is
- *                    for tract / block-group hints, which point at
- *                    the Maps composer tab since we don't ship
- *                    individual tract/BG sources, only choropleths.
+ *                    "cd" | "maps-tab"). "maps-tab" handles tract /
+ *                    block-group hints since those levels are
+ *                    choropleth-only.
  *     - searchText:  Lowercased haystack the composer's filter
- *                    matches. Includes every series name available
- *                    at this level (so "unemployment" matches the
- *                    metro hint, the state hint, and so on) plus
- *                    level-name synonyms (so "msa" matches metro).
+ *                    matches. Includes the series name, series
+ *                    aliases (jobs → payrolls), and level-name
+ *                    synonyms (msa → metro).
  *     - tags:        Empty — hints never get classified as geo via
  *                    a synthetic tag, so they pass every chip
- *                    filter trivially and only the text search
- *                    can hide them.
+ *                    filter trivially.
  *
  * Filtering: the composer's filteredSources() drops hints when the
  * query is empty (no value in cluttering an unprompted browse).
@@ -73,10 +75,8 @@ export type HintChip =
   | "cd"
   | "maps-tab";
 
-/** Geo levels we emit hints for. Order matters: this is the order
- *  hints render in the composer's search results when multiple
- *  match. National-larger-than-local feels intuitive scanning down
- *  the list. */
+/** Geo levels we emit hints for. Order matters for the sort; lower
+ *  index = renders higher in the search results. */
 export type HintLevel =
   | "country"
   | "state"
@@ -89,34 +89,30 @@ export type HintLevel =
 export interface SourceHint {
   id: string;
   kind: "hint";
-  /** Display name on the card. Intentionally generic — never includes
-   *  a specific city/state/county name. */
+  /** Display name on the card — pattern: "<Series label> — by
+   *  <level name>". Intentionally generic; never includes a
+   *  specific city / state / county name. */
   name: string;
-  /** One-paragraph blurb describing what this level offers + how to
-   *  surface it. Includes the count of distinct geographies and the
-   *  series available at the level. */
+  /** Short blurb describing what the series IS + at what geographic
+   *  granularity + how to surface it. No specific geo names. */
   description: string;
-  /** Lowercased, space-separated haystack for the composer's
-   *  text-search filter. */
+  /** Lowercased haystack for the composer's text-search filter. */
   searchText: string;
   /** Which chip / composer surface the click handler engages. */
   chip: HintChip;
-  /** Per-hint sort order — lower = higher up in the results.
-   *  Country first (broadest), then state, CD, metro, county, then
-   *  the choropleth-only tract / BG. Matches HintLevel ordering. */
+  /** Sort key: pure level priority (LEVEL_ORDER). Ties broken by
+   *  alphabetical name compare at the call site — keeps level
+   *  ordering primary while reading naturally within a level. */
   order: number;
   /** Empty list. Hints intentionally never carry any geo tag —
    *  exposing them to chip filters would mean they DISAPPEAR
    *  whenever the user engages a chip, which is the opposite of
-   *  what we want (a chip-engaged user doesn't need the hint, but
-   *  no-chip user does). */
+   *  what we want. */
   tags: string[];
 }
 
 /** Level-name synonyms baked into the searchText so a user typing
- *  the level itself (not the series) still finds the hint. e.g.
- *  typing "msa" surfaces the metro hint even though our display
- *  copy calls it "metropolitan area." */
+ *  the level itself (not the series) still finds the hint. */
 const LEVEL_SYNONYMS: Record<HintLevel, string[]> = {
   country: ["country", "international", "world", "foreign", "global"],
   state: ["state", "statewide", "us-state"],
@@ -136,10 +132,8 @@ const LEVEL_SYNONYMS: Record<HintLevel, string[]> = {
 
 /**
  * Series-name aliases. The composer's search is substring-based, so
- * a few aliases drive matches we'd otherwise miss — e.g. "jobs"
- * surfaces payrolls, "income" surfaces median household income.
- * Keys are the canonical series name we detect from source names;
- * values are extra haystack tokens.
+ * aliases drive matches we'd otherwise miss — e.g. "jobs" surfaces
+ * payrolls + unemployment, "income" surfaces median household income.
  */
 const SERIES_ALIASES: Record<string, string[]> = {
   unemployment: ["jobs", "labor", "joblessness"],
@@ -150,50 +144,83 @@ const SERIES_ALIASES: Record<string, string[]> = {
   bachelors_degree: ["education", "college", "bachelors"],
   gdp: ["output", "economy", "growth"],
   cpi: ["inflation", "prices"],
-  case_shiller: ["housing", "home prices"],
-  home_prices: ["housing", "real estate"],
+  case_shiller: ["housing", "home prices", "homes"],
+  home_prices: ["housing", "real estate", "listings", "home prices"],
+  poverty_rate: ["poverty", "income"],
+  foreign_born: ["foreign-born", "immigrant", "demographics"],
+};
+
+/** Human-readable series labels — what appears in the hint name +
+ *  description. The pattern is "<noun phrase that names the
+ *  series>" — case-cleaned at hint-build time. */
+const SERIES_LABELS: Record<string, string> = {
+  unemployment: "Unemployment rate",
+  payrolls: "Nonfarm payroll employment",
+  population: "Population",
+  spending: "Federal spending",
+  household_income: "Median household income",
+  bachelors_degree: "Share with a bachelor's degree",
+  gdp: "GDP",
+  cpi: "CPI inflation",
+  case_shiller: "Case-Shiller home price index",
+  home_prices: "Median home listing price",
+  poverty_rate: "Poverty rate",
+  foreign_born: "Foreign-born population",
+};
+
+/** Short series descriptions — paired with the level name + count
+ *  to build each hint's description string. Same words you'd see
+ *  on a real source's YAML description, minus the geo specifics. */
+const SERIES_DESCRIPTIONS: Record<string, string> = {
+  unemployment: "Headline unemployment rate, monthly, from BLS LAUS",
+  payrolls: "Nonfarm payroll employment, monthly, from BLS CES",
+  population: "Total resident population",
+  spending: "Federal outlays, annual, from USAspending",
+  household_income: "Median household income (current dollars), annual",
+  bachelors_degree:
+    "Share of adults 25+ with a bachelor's degree or higher, ACS 5-year estimates",
+  gdp: "Gross domestic product (current USD), annual, from the World Bank",
+  cpi: "Consumer price index, annual % change",
+  case_shiller: "S&P/Case-Shiller home price index, monthly, from FRED",
+  home_prices:
+    "Median single-family home listing price, monthly, from FRED/Realtor.com",
+  poverty_rate: "Share of population below the federal poverty line, ACS",
+  foreign_born:
+    "Share of residents born outside the United States, ACS",
 };
 
 /** Detect the series a source covers from its display name + ID.
  *  Returns null when nothing matches — that source won't contribute
- *  to any hint's series list. Heuristic but cheap; we only run this
- *  at build time. */
+ *  to any hint. */
 function detectSeries(name: string, id: string): string | null {
   const hay = (name + " " + id).toLowerCase();
   if (hay.includes("unemployment")) return "unemployment";
   if (hay.includes("payroll")) return "payrolls";
-  if (hay.includes("population")) return "population";
+  if (hay.includes("case-shiller") || hay.includes("case shiller"))
+    return "case_shiller";
+  if (
+    hay.includes("median home listing") ||
+    hay.includes("home listing") ||
+    (hay.includes("home price") && !hay.includes("case-shiller"))
+  )
+    return "home_prices";
+  if (hay.includes("household") && hay.includes("income"))
+    return "household_income";
+  if (hay.includes("bachelor")) return "bachelors_degree";
+  if (hay.includes("gdp")) return "gdp";
+  if (hay.includes("cpi") || hay.includes("inflation")) return "cpi";
+  if (hay.includes("poverty")) return "poverty_rate";
+  if (hay.includes("foreign-born") || hay.includes("foreign born"))
+    return "foreign_born";
   if (
     hay.includes("spending") ||
     hay.includes("outlays") ||
     hay.includes("usaspending")
   )
     return "spending";
-  if (hay.includes("household") && hay.includes("income"))
-    return "household_income";
-  if (hay.includes("bachelor")) return "bachelors_degree";
-  if (hay.includes("gdp")) return "gdp";
-  if (hay.includes("cpi") || hay.includes("inflation")) return "cpi";
-  if (hay.includes("case-shiller") || hay.includes("case shiller"))
-    return "case_shiller";
-  if (hay.includes("home price") || hay.includes("home listing"))
-    return "home_prices";
+  if (hay.includes("population")) return "population";
   return null;
 }
-
-/** Human-readable series labels for the hint description copy. */
-const SERIES_LABELS: Record<string, string> = {
-  unemployment: "unemployment rates",
-  payrolls: "nonfarm payrolls",
-  population: "population",
-  spending: "federal spending",
-  household_income: "median household income",
-  bachelors_degree: "share with a bachelor's degree",
-  gdp: "GDP",
-  cpi: "CPI inflation",
-  case_shiller: "Case-Shiller home price index",
-  home_prices: "home prices",
-};
 
 /** What level a source belongs to, derived from its tags + ID
  *  patterns. Returns null for national / non-geographic sources. */
@@ -205,16 +232,10 @@ function detectLevel(
   if (tags.includes(COUNTY_TAG)) return "county";
   if (tags.includes(STATE_TAG)) return "state";
   if (tags.includes(CD_TAG)) return "cd";
-  // Country sources carry `country-specific:<CODE>` for the per-
-  // country drill-down. The umbrella COUNTRY_TAG is only on foreign-
-  // country sources (US-national gets country-specific:USA without
-  // COUNTRY_TAG; we exclude US from the country hint by checking
-  // COUNTRY_TAG itself rather than the per-code tag).
   if (tags.includes(COUNTRY_TAG)) return "country";
   return null;
 }
 
-/** Order in which hints render in search results. */
 const LEVEL_ORDER: Record<HintLevel, number> = {
   country: 0,
   state: 1,
@@ -225,42 +246,70 @@ const LEVEL_ORDER: Record<HintLevel, number> = {
   bg: 6,
 };
 
-/** Click target for each level. */
 const LEVEL_CHIP: Record<HintLevel, HintChip> = {
   country: "country",
-  state: "cd", // The States & districts chip surfaces state + CD together
+  state: "cd",
   cd: "cd",
   metro: "metro",
-  county: "county", // No dedicated county chip yet; placeholder
+  county: "county",
   tract: "maps-tab",
   bg: "maps-tab",
 };
 
-/** Display copy for each level (used in name + description). */
-const LEVEL_DISPLAY: Record<HintLevel, { name: string; chipLabel: string }> = {
+const LEVEL_DISPLAY: Record<
+  HintLevel,
+  { name: string; chipLabel: string; geoNoun: string }
+> = {
   country: {
-    name: "by country / region",
+    name: "country / region",
     chipLabel: "Regions and countries",
+    geoNoun: "country",
   },
-  state: { name: "by US state", chipLabel: "States & districts" },
-  cd: {
-    name: "by congressional district",
+  state: {
+    name: "US state",
     chipLabel: "States & districts",
+    geoNoun: "state",
   },
-  metro: { name: "by metro (MSA)", chipLabel: "US metro areas" },
-  county: { name: "by US county", chipLabel: "search the county name" },
+  cd: {
+    name: "congressional district",
+    chipLabel: "States & districts",
+    geoNoun: "district",
+  },
+  metro: {
+    name: "US metro area (MSA)",
+    chipLabel: "US metro areas",
+    geoNoun: "metro area",
+  },
+  county: {
+    name: "US county",
+    chipLabel: "search the county name",
+    geoNoun: "county",
+  },
   tract: {
-    name: "by census tract (choropleth map)",
+    name: "census tract",
     chipLabel: "Maps tab",
+    geoNoun: "tract",
   },
   bg: {
-    name: "by census block group (choropleth map)",
+    name: "census block group",
     chipLabel: "Maps tab",
+    geoNoun: "block group",
   },
 };
 
-/** Convenience type: just the fields synthesizeSourceHints reads.
- *  Lets tests pass a minimal mock instead of full CollectionEntry. */
+/** Choropleth-only levels: tract and block group. We don't ship
+ *  per-source rows for these (they're choropleth maps, not time
+ *  series), so we hand-list the series available rather than
+ *  detecting them from a sources iteration. */
+const CHOROPLETH_SERIES: Record<"tract" | "bg", ReadonlyArray<string>> = {
+  // From src/content/charts/state-tract-maps/ — 50 states × 4 indicators each.
+  tract: ["bachelors_degree", "foreign_born", "household_income", "poverty_rate"],
+  // From src/content/charts/state-bg-maps/ — block groups are a finer
+  // geography that ACS only publishes for a subset of indicators.
+  bg: ["bachelors_degree", "household_income"],
+};
+
+/** Convenience type: just the fields synthesizeSourceHints reads. */
 export interface SourceMetaForHints {
   id: string;
   name: string;
@@ -268,51 +317,33 @@ export interface SourceMetaForHints {
 }
 
 /**
- * Build the list of hint entries to inject into library.json.
+ * Build the list of hint entries to inject into library.json. One
+ * hint per (level, series) pair we detect, plus the hand-listed
+ * tract + bg choropleth hints.
  *
- * Inputs:
- *   sources — every (post-synthetic-tag) source in the manifest.
- *   tractLevelsAvailable — whether we ship tract + block-group
- *     choropleths. Read from the choropleth registry; defaults true
- *     so tests that don't pass it still emit both hints (the data
- *     exists in this repo).
- *
- * Algorithm:
- *   1. Group sources by (level, series).
- *   2. For each level with at least one detected series, emit one
- *      hint summarizing that level's coverage.
- *   3. Always emit tract + bg hints when tractLevelsAvailable is
- *      true — those don't have source entries to count, but we still
- *      want to surface the choropleth path.
- *
- * Pure + sync; safe to call at build time inside library.json.ts.
+ * `choroplethLevelsAvailable` defaults true; pass false in tests
+ * that want only the real-data hints.
  */
 export function synthesizeSourceHints(
   sources: ReadonlyArray<SourceMetaForHints>,
-  tractLevelsAvailable: boolean = true,
+  choroplethLevelsAvailable: boolean = true,
 ): SourceHint[] {
-  // (level → series → count) accumulator. The count is informational
-  // (drives the description copy), but counts of 0 are still useful —
-  // they let us emit hints for levels we cover even if no individual
-  // source has a name we recognize.
-  const byLevel = new Map<HintLevel, Map<string, number>>();
-  // Distinct geographies per level — drives the "<N> tracked"
-  // count in the description. e.g. for metro we want the count of
-  // CBSAs, not the count of (CBSA × series) source rows.
-  const distinctGeos = new Map<HintLevel, Set<string>>();
+  // (level, series) → distinct geos. Drives the per-level count
+  // in the description.
+  const counts = new Map<string, Set<string>>();
+  // (level, series) → true once we've seen at least one source.
+  // Distinct from counts because some sources (e.g. fred/dc_payrolls
+  // before the metro-override was added) don't parse to a geo id but
+  // do contribute a (level, series) signal.
+  const seen = new Map<string, { level: HintLevel; series: string }>();
+
   for (const s of sources) {
     const level = detectLevel(s.id, s.tags);
     if (level == null) continue;
     const series = detectSeries(s.name, s.id);
     if (series == null) continue;
-    let byS = byLevel.get(level);
-    if (!byS) {
-      byS = new Map();
-      byLevel.set(level, byS);
-    }
-    byS.set(series, (byS.get(series) ?? 0) + 1);
-    // Pull the geo identifier from the source ID. Cheap parsing —
-    // we already have the parsers; reuse them to deduplicate.
+    const key = `${level}::${series}`;
+    seen.set(key, { level, series });
     let geoKey: string | null = null;
     if (level === "metro") {
       const p = parseMetroSourceId(s.id);
@@ -331,125 +362,116 @@ export function synthesizeSourceHints(
       if (p) geoKey = p.code;
     }
     if (geoKey != null) {
-      let set = distinctGeos.get(level);
+      let set = counts.get(key);
       if (!set) {
         set = new Set();
-        distinctGeos.set(level, set);
+        counts.set(key, set);
       }
       set.add(geoKey);
     }
   }
 
   const hints: SourceHint[] = [];
-  // Real-data hints (country / state / cd / metro / county).
-  for (const [level, seriesMap] of byLevel) {
-    const seriesList = [...seriesMap.keys()];
-    if (seriesList.length === 0) continue;
-    const display = LEVEL_DISPLAY[level];
-    const labels = seriesList
-      .map((s) => SERIES_LABELS[s] ?? s.replace(/_/g, " "))
-      .sort();
-    const geoCount = distinctGeos.get(level)?.size ?? 0;
-    const countPhrase =
-      geoCount > 0
-        ? `${geoCount.toLocaleString()} tracked. `
-        : "";
-    const chipCopy =
-      level === "county"
-        ? // Deliberately no example county here — the hint's whole
-          // point is to avoid naming any specific geography. Keep
-          // this consistent with the test that scans for leaked
-          // city/state names.
-          "Type the county name in the search field to surface."
-        : `Click the ${display.chipLabel} chip to drill in.`;
-    const description =
-      `Available ${display.name}: ${joinWithAnd(labels)}. ` +
-      countPhrase +
-      chipCopy;
-    const aliasTokens = seriesList.flatMap((s) => SERIES_ALIASES[s] ?? []);
-    const searchText = [
-      ...seriesList,
-      ...labels.map((l) => l.toLowerCase()),
-      ...aliasTokens,
-      ...LEVEL_SYNONYMS[level],
-      "available",
-      "by",
-    ]
-      .join(" ")
-      .toLowerCase();
-    hints.push({
-      id: `_hint/${level}`,
-      kind: "hint",
-      name: `More data — ${display.name}`,
-      description,
-      searchText,
-      chip: LEVEL_CHIP[level],
-      order: LEVEL_ORDER[level],
-      tags: [],
-    });
+  for (const [key, { level, series }] of seen) {
+    const count = counts.get(key)?.size ?? 0;
+    hints.push(buildHint(level, series, count));
   }
-  // Tract + block-group choropleth hints (no source rows, hand-
-  // emitted when those levels are available).
-  if (tractLevelsAvailable) {
+  if (choroplethLevelsAvailable) {
     for (const level of ["tract", "bg"] as const) {
-      const display = LEVEL_DISPLAY[level];
-      const description =
-        level === "tract"
-          ? "Census-tract-level data (ACS demographics, population, education) — rendered as choropleth maps. Open the Maps tab in the composer to add one."
-          : "Block-group-level data (ACS demographics, population, education) — rendered as choropleth maps. Block groups are smaller than tracts, useful for very local stories. Open the Maps tab in the composer to add one.";
-      const searchText = [
-        "population",
-        "demographics",
-        "education",
-        "bachelors degree",
-        "household income",
-        "acs",
-        "census",
-        ...LEVEL_SYNONYMS[level],
-        "available",
-        "by",
-      ]
-        .join(" ")
-        .toLowerCase();
-      hints.push({
-        id: `_hint/${level}`,
-        kind: "hint",
-        name: `More data — ${display.name}`,
-        description,
-        searchText,
-        chip: LEVEL_CHIP[level],
-        order: LEVEL_ORDER[level],
-        tags: [],
-      });
+      for (const series of CHOROPLETH_SERIES[level]) {
+        // Count placeholder: 50 (all states ship these). We don't
+        // actually iterate the choropleth chart YAMLs to derive a
+        // real count — too tied to the per-state file layout — but
+        // 50 is honest enough for the hint copy.
+        hints.push(buildHint(level, series, 50));
+      }
     }
   }
-  hints.sort((a, b) => a.order - b.order);
+  // Sort: level priority first (so all unemployment hints group
+  // country → state → cd → metro → county); within a level,
+  // alphabetical by name so search results stack readably.
+  hints.sort((a, b) => {
+    if (a.order !== b.order) return a.order - b.order;
+    return a.name.localeCompare(b.name);
+  });
   return hints;
 }
 
-/** Format a list of strings as "a, b, and c" (Oxford comma).
- *  Pulled inline rather than imported from a util — keeps this
- *  module self-contained. */
-function joinWithAnd(items: ReadonlyArray<string>): string {
-  if (items.length === 0) return "";
-  if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+/** Build a single hint entry from a (level, series, count) tuple.
+ *  Pulls all human-readable copy from SERIES_LABELS / SERIES_DESCRIPTIONS
+ *  / LEVEL_DISPLAY so the structure stays consistent across hints. */
+function buildHint(
+  level: HintLevel,
+  series: string,
+  count: number,
+): SourceHint {
+  const label = SERIES_LABELS[series] ?? series.replace(/_/g, " ");
+  const desc = SERIES_DESCRIPTIONS[series] ?? "";
+  const display = LEVEL_DISPLAY[level];
+  // English plural for the count phrase. "country" → "countries"
+  // is the only awkward case; everything else takes a trailing s.
+  const pluralNoun =
+    display.geoNoun === "country"
+      ? "countries"
+      : `${display.geoNoun}s`;
+  const countPhrase =
+    count > 0
+      ? ` ${count.toLocaleString()} ${count === 1 ? display.geoNoun : pluralNoun} tracked.`
+      : "";
+  const chipCopy =
+    level === "county"
+      ? "Type the county name in the search field to surface."
+      : level === "tract" || level === "bg"
+        ? "Open the Maps tab in the composer to add one."
+        : `Click the ${display.chipLabel} chip to drill in.`;
+  // The description's "Available for each <level>" uses the full
+  // level-name string (e.g. "US state", "US metro area (MSA)") —
+  // the geoNoun is only for the count phrase below where the
+  // determiner already established the level. "Available for each
+  // state" reads ambiguously without the country qualifier.
+  const description = desc
+    ? `${desc}. Available for each ${display.name}.${countPhrase} ${chipCopy}`
+    : `Available for each ${display.name}.${countPhrase} ${chipCopy}`;
+  // Sort key: level priority. Series alphabetical is the secondary
+  // sort handled by the caller's comparator after order matches —
+  // we don't try to fold it into a single numeric here because
+  // character-code arithmetic across mixed string lengths overflows
+  // the level-priority gap and reorders levels.
+  const order = LEVEL_ORDER[level];
+  const aliasTokens = SERIES_ALIASES[series] ?? [];
+  const searchText = [
+    series,
+    label.toLowerCase(),
+    desc.toLowerCase(),
+    ...aliasTokens,
+    ...LEVEL_SYNONYMS[level],
+    "available",
+    "by",
+  ]
+    .join(" ")
+    .toLowerCase();
+  return {
+    id: `_hint/${level}__${series}`,
+    kind: "hint",
+    name: `${label} — by ${display.name}`,
+    description,
+    searchText,
+    chip: LEVEL_CHIP[level],
+    order,
+    tags: [],
+  };
 }
 
-/** Adapter for the library.json caller — it has full CollectionEntry
- *  objects + the synthetics it just computed. Lets the call site
- *  hand over its real shape without restructuring. */
+/** Adapter for the library.json caller. */
 export function hintsFromLibrary(
   entries: ReadonlyArray<{
     id: string;
     name: string;
     tags: ReadonlyArray<string>;
   }>,
-  tractLevelsAvailable: boolean = true,
+  choroplethLevelsAvailable: boolean = true,
 ): SourceHint[] {
-  return synthesizeSourceHints(entries, tractLevelsAvailable);
+  return synthesizeSourceHints(entries, choroplethLevelsAvailable);
 }
 
-// Re-export the CollectionEntry shape for callers that want it.
 export type SourceEntry = CollectionEntry<"sources">;

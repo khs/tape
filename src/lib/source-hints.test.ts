@@ -6,8 +6,7 @@ import { COUNTY_TAG } from "./county-sources";
 import { COUNTRY_TAG } from "./countries";
 
 // Minimal source factory — only the fields detectLevel + detectSeries
-// read. Real library.json entries carry many more fields (formatting,
-// dataFile, etc.), but the hint builder doesn't.
+// read.
 function src(
   id: string,
   name: string,
@@ -17,10 +16,7 @@ function src(
 }
 
 describe("synthesizeSourceHints — overall shape", () => {
-  it("returns an empty list when no sources at any geo level", () => {
-    // National sources only → no hints. (We deliberately pass
-    // tractLevelsAvailable=false too, since defaulted true would
-    // emit the tract+BG hints regardless of input.)
+  it("returns an empty list when no recognizable sources at any geo level", () => {
     const hints = synthesizeSourceHints(
       [
         src("fred/cpi", "CPI", []),
@@ -31,48 +27,36 @@ describe("synthesizeSourceHints — overall shape", () => {
     expect(hints).toEqual([]);
   });
 
-  it("emits tract and block-group hints even with no sources, when tractLevelsAvailable=true", () => {
-    // The choropleth machinery doesn't have per-source rows; the
-    // hint surfaces the Maps-tab pathway regardless of input.
+  it("emits the choropleth-only tract + bg hints with choroplethLevelsAvailable=true", () => {
+    // Tract / BG have no per-source rows (choropleth-only); the
+    // hint set comes from CHOROPLETH_SERIES regardless of input.
     const hints = synthesizeSourceHints([], true);
-    const ids = hints.map((h) => h.id).sort();
-    expect(ids).toEqual(["_hint/bg", "_hint/tract"]);
+    // tract: 4 indicators × 1 level + bg: 2 indicators × 1 level = 6.
+    expect(hints.length).toBe(6);
+    expect(hints.every((h) => h.id.startsWith("_hint/tract") || h.id.startsWith("_hint/bg"))).toBe(true);
   });
 
-  it("emits hints in country → state → cd → metro → county → tract → bg order", () => {
+  it("emits one hint per (level, series) pair — not one mega-hint per level", () => {
+    // Two metro sources, two different series → two metro hints.
+    // (This is the whole point of the per-series refactor — one
+    // mega-hint per level lost the home-prices-by-MSA signal.)
     const hints = synthesizeSourceHints(
       [
-        src("bls/county_unemployment_arlington_va", "Arlington unemployment", [
-          COUNTY_TAG,
-        ]),
-        src("bls/metro_unemployment_47900", "Metro unemployment", [
-          METRO_TAG,
-          `${METRO_TAG}:47900`,
-        ]),
-        src("bls/state_unemployment_va", "Virginia unemployment", [
-          STATE_TAG,
-        ]),
-        src("usaspending/district_va_08", "VA-08 spending", [CD_TAG]),
-        src("worldbank_gdp/germany", "Germany GDP", [COUNTRY_TAG]),
+        src("bls/metro_unemployment_47900", "Metro unemployment", [METRO_TAG]),
+        src("fred/dc_case_shiller", "DC Case-Shiller", [METRO_TAG]),
       ],
-      true,
+      false,
     );
-    expect(hints.map((h) => h.id)).toEqual([
-      "_hint/country",
-      "_hint/state",
-      "_hint/cd",
-      "_hint/metro",
-      "_hint/county",
-      "_hint/tract",
-      "_hint/bg",
+    expect(hints.length).toBe(2);
+    expect(hints.map((h) => h.id).sort()).toEqual([
+      "_hint/metro__case_shiller",
+      "_hint/metro__unemployment",
     ]);
   });
 
-  it("every hint carries the synthetic 'hint' kind and empty tags", () => {
+  it("every hint carries kind='hint' and empty tags", () => {
     const hints = synthesizeSourceHints(
-      [
-        src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG]),
-      ],
+      [src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG])],
       false,
     );
     for (const h of hints) {
@@ -81,96 +65,105 @@ describe("synthesizeSourceHints — overall shape", () => {
     }
   });
 
-  it("every hint id starts with the `_hint/` prefix", () => {
+  it("ids follow the `_hint/<level>__<series>` shape", () => {
     const hints = synthesizeSourceHints(
       [
         src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG]),
         src("worldbank_gdp/germany", "Germany GDP", [COUNTRY_TAG]),
       ],
-      true,
+      false,
     );
     for (const h of hints) {
-      expect(h.id.startsWith("_hint/")).toBe(true);
+      expect(h.id).toMatch(/^_hint\/[a-z]+__[a-z_]+$/);
     }
+  });
+
+  it("sorts by level priority (country → state → cd → metro → county → tract → bg)", () => {
+    const hints = synthesizeSourceHints(
+      [
+        src("bls/county_unemployment_arlington_va", "Arlington unemp", [COUNTY_TAG]),
+        src("bls/metro_unemployment_47900", "Metro unemp", [METRO_TAG]),
+        src("bls/state_unemployment_va", "VA unemp", [STATE_TAG]),
+        src("usaspending/district_va_08", "VA-08 spending", [CD_TAG]),
+        src("worldbank_extended/unemployment_chn", "China unemployment", [COUNTRY_TAG]),
+      ],
+      true,
+    );
+    // Just look at the level prefix of each id, in render order.
+    const levelSeq = hints.map((h) => h.id.split("__")[0].replace("_hint/", ""));
+    // Country should appear before state; state before cd; cd before metro; etc.
+    expect(levelSeq.indexOf("country")).toBeLessThan(levelSeq.indexOf("state"));
+    expect(levelSeq.indexOf("state")).toBeLessThan(levelSeq.indexOf("cd"));
+    expect(levelSeq.indexOf("cd")).toBeLessThan(levelSeq.indexOf("metro"));
+    expect(levelSeq.indexOf("metro")).toBeLessThan(levelSeq.indexOf("county"));
+    expect(levelSeq.indexOf("county")).toBeLessThan(levelSeq.indexOf("tract"));
+    expect(levelSeq.indexOf("tract")).toBeLessThan(levelSeq.indexOf("bg"));
   });
 });
 
-describe("synthesizeSourceHints — series detection drives searchText", () => {
-  it("metro unemployment source produces a hint whose searchText includes 'unemployment'", () => {
-    // The original user-reported bug: searching 'unemployment'
-    // returned a county source. After the fix it returns just
-    // national + the hint cards. The hint's searchText must
-    // contain the series name so the composer's substring match
-    // surfaces it on that query.
+describe("synthesizeSourceHints — per-series hint copy", () => {
+  it("name is '<Series label> — by <level name>'", () => {
     const hints = synthesizeSourceHints(
-      [
-        src("bls/metro_unemployment_47900", "DC metro unemployment", [
-          METRO_TAG,
-        ]),
-      ],
+      [src("fred/dc_case_shiller", "DC Case-Shiller", [METRO_TAG])],
       false,
     );
     expect(hints).toHaveLength(1);
-    expect(hints[0].chip).toBe("metro");
-    expect(hints[0].searchText).toContain("unemployment");
+    expect(hints[0].name).toBe(
+      "Case-Shiller home price index — by US metro area (MSA)",
+    );
   });
 
-  it("aggregates multiple series at the same level into one hint description", () => {
+  it("description reads like a real source description, minus the geo specifics", () => {
+    // The construction pattern: "<series-descriptive prefix>. Available
+    // for each <level>. <N> <levels> tracked. <chip instruction>."
+    // This is the literal user requirement — the hint's wording
+    // should mirror the way the real source's description reads.
     const hints = synthesizeSourceHints(
       [
-        src("bls/metro_unemployment_47900", "DC unemployment", [METRO_TAG]),
-        src("bls/metro_payrolls_47900", "DC payrolls", [METRO_TAG]),
-        src("usaspending/metro_47900", "DC metro federal spending", [
-          METRO_TAG,
-        ]),
+        src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG]),
       ],
       false,
     );
-    const metro = hints.find((h) => h.id === "_hint/metro");
-    expect(metro).toBeDefined();
-    // All three series should appear in description copy.
-    expect(metro!.description).toMatch(/unemployment/);
-    expect(metro!.description).toMatch(/payrolls/);
-    expect(metro!.description).toMatch(/federal spending/);
-    // And in searchText so any of the three queries surfaces the
-    // same hint.
-    expect(metro!.searchText).toContain("unemployment");
-    expect(metro!.searchText).toContain("payrolls");
-    expect(metro!.searchText).toContain("spending");
+    const desc = hints[0].description;
+    expect(desc).toMatch(/Headline unemployment rate/);
+    expect(desc).toMatch(/Available for each US state/);
+    expect(desc).toMatch(/Click the States & districts chip/);
   });
 
-  it("series aliases land in searchText (jobs → payrolls/unemployment)", () => {
-    // The composer's filter is plain substring — aliases make sure
-    // a user typing 'jobs' surfaces the relevant hint even though
-    // none of our source NAMES contain that word.
+  it("home prices at MSA level produces a 'home prices — by MSA' hint that mentions Case-Shiller", () => {
+    // The user-reported gap: typing "home prices" should make it
+    // obvious that MSA-level data exists. This test pins that
+    // discoverability path end-to-end: the hint exists, names the
+    // series, names the level, and the searchText is hit by the
+    // "home prices" query the user would actually type.
+    const hints = synthesizeSourceHints(
+      [src("fred/dc_case_shiller", "DC Case-Shiller", [METRO_TAG])],
+      false,
+    );
+    expect(hints).toHaveLength(1);
+    expect(hints[0].name).toContain("Case-Shiller");
+    expect(hints[0].name).toContain("MSA");
+    // "home prices" — substring search should match the hint.
+    expect(hints[0].searchText).toContain("home prices");
+  });
+
+  it("includes the distinct-geo count in the description when known", () => {
     const hints = synthesizeSourceHints(
       [
-        src("bls/state_payrolls_va", "VA payrolls", [STATE_TAG]),
+        src("bls/metro_unemployment_10180", "MSA 10180", [METRO_TAG]),
+        src("bls/metro_unemployment_47900", "MSA 47900", [METRO_TAG]),
+        src("bls/metro_unemployment_35620", "MSA 35620", [METRO_TAG]),
       ],
       false,
     );
-    expect(hints[0].searchText).toContain("jobs");
+    expect(hints[0].description).toMatch(/3 metro areas tracked/);
   });
 
-  it("level synonyms land in searchText (msa → metro)", () => {
-    const hints = synthesizeSourceHints(
-      [
-        src("bls/metro_unemployment_47900", "DC unemployment", [METRO_TAG]),
-      ],
-      false,
-    );
-    expect(hints[0].searchText).toContain("msa");
-    expect(hints[0].searchText).toContain("metropolitan");
-  });
-});
-
-describe("synthesizeSourceHints — description copy", () => {
   it("never includes a specific city, state, or county name in the description", () => {
-    // The point of the hint is to advertise the geo level
-    // generically. If we leak "Alexandria", "Detroit", "California"
-    // into the description we'd be doing the opposite — surfacing
-    // a single specific row. The regex below is a heuristic but
-    // catches the common leaks.
+    // Locks in the user-stated invariant: no geo specifics ever
+    // leak into the hint text. Catches sloppy template strings
+    // that pulled the source's name verbatim instead of a clean
+    // SERIES_DESCRIPTIONS lookup.
     const FORBIDDEN = [
       "alexandria",
       "arlington",
@@ -182,57 +175,30 @@ describe("synthesizeSourceHints — description copy", () => {
       "virginia",
       "texas",
       "washington",
-      "47900", // CBSA codes
+      "47900",
       "va-08",
     ];
     const hints = synthesizeSourceHints(
       [
-        src("bls/metro_unemployment_47900", "DC metro unemployment", [
-          METRO_TAG,
-        ]),
-        src("bls/county_unemployment_alexandria_va", "Alexandria unemp", [
-          COUNTY_TAG,
-        ]),
+        src("bls/metro_unemployment_47900", "DC metro unemployment", [METRO_TAG]),
+        src("bls/county_unemployment_alexandria_va", "Alexandria unemp", [COUNTY_TAG]),
         src("bls/state_unemployment_va", "Virginia unemployment", [STATE_TAG]),
         src("worldbank_gdp/germany", "Germany GDP", [COUNTRY_TAG]),
+        src("fred/dc_case_shiller", "DC Case-Shiller", [METRO_TAG]),
       ],
       true,
     );
     for (const h of hints) {
-      const lower = h.description.toLowerCase();
+      const lower = (h.description + " " + h.name).toLowerCase();
       for (const word of FORBIDDEN) {
-        expect(lower).not.toContain(word);
+        expect(lower, `"${word}" leaked into hint ${h.id}`).not.toContain(word);
       }
     }
   });
 
-  it("metro hint description mentions the count of metros", () => {
-    // Three distinct CBSAs across two series → description should
-    // say "3 tracked." Distinct-geo count means we count cbsas, not
-    // (cbsa × series) source rows.
+  it("county hint description says 'type the county name' (no chip exists yet)", () => {
     const hints = synthesizeSourceHints(
-      [
-        src("bls/metro_unemployment_10180", "MSA 10180 unemployment", [METRO_TAG]),
-        src("bls/metro_payrolls_10180", "MSA 10180 payrolls", [METRO_TAG]),
-        src("bls/metro_unemployment_47900", "MSA 47900 unemployment", [METRO_TAG]),
-        src("bls/metro_unemployment_35620", "MSA 35620 unemployment", [METRO_TAG]),
-      ],
-      false,
-    );
-    expect(hints[0].description).toMatch(/3 tracked/);
-  });
-
-  it("county hint instructs typing the name rather than engaging a chip", () => {
-    // We don't have a county chip yet (8 counties total, all
-    // DMV-area). The hint description has to tell the user the
-    // right action — type the county name — not point at a chip
-    // that doesn't exist.
-    const hints = synthesizeSourceHints(
-      [
-        src("bls/county_unemployment_arlington_va", "Arlington unemp", [
-          COUNTY_TAG,
-        ]),
-      ],
+      [src("bls/county_unemployment_arlington_va", "Arlington unemp", [COUNTY_TAG])],
       false,
     );
     expect(hints[0].chip).toBe("county");
@@ -241,86 +207,115 @@ describe("synthesizeSourceHints — description copy", () => {
 
   it("tract + bg hints point users at the Maps tab", () => {
     const hints = synthesizeSourceHints([], true);
-    const tract = hints.find((h) => h.id === "_hint/tract");
-    const bg = hints.find((h) => h.id === "_hint/bg");
-    expect(tract?.chip).toBe("maps-tab");
-    expect(tract?.description).toMatch(/Maps tab/i);
-    expect(bg?.chip).toBe("maps-tab");
-    expect(bg?.description).toMatch(/Maps tab/i);
+    const tractHint = hints.find((h) => h.id.startsWith("_hint/tract"));
+    const bgHint = hints.find((h) => h.id.startsWith("_hint/bg"));
+    expect(tractHint?.chip).toBe("maps-tab");
+    expect(tractHint?.description).toMatch(/Maps tab/);
+    expect(bgHint?.chip).toBe("maps-tab");
+    expect(bgHint?.description).toMatch(/Maps tab/);
+  });
+});
+
+describe("synthesizeSourceHints — searchText match coverage", () => {
+  it("series substring matches the hint's searchText", () => {
+    const hints = synthesizeSourceHints(
+      [src("bls/metro_unemployment_47900", "Metro unemp", [METRO_TAG])],
+      false,
+    );
+    expect(hints[0].searchText).toContain("unemployment");
+  });
+
+  it("series aliases land in searchText (jobs → payrolls + unemployment)", () => {
+    const hints = synthesizeSourceHints(
+      [src("bls/state_payrolls_va", "VA payrolls", [STATE_TAG])],
+      false,
+    );
+    expect(hints[0].searchText).toContain("jobs");
+  });
+
+  it("level synonyms land in searchText (msa → metro)", () => {
+    const hints = synthesizeSourceHints(
+      [src("bls/metro_unemployment_47900", "Metro unemp", [METRO_TAG])],
+      false,
+    );
+    expect(hints[0].searchText).toContain("msa");
+    expect(hints[0].searchText).toContain("metropolitan");
+  });
+
+  it("housing aliases on Case-Shiller surface for 'home prices' + 'housing' queries", () => {
+    const hints = synthesizeSourceHints(
+      [src("fred/dc_case_shiller", "DC Case-Shiller", [METRO_TAG])],
+      false,
+    );
+    expect(hints[0].searchText).toContain("housing");
+    expect(hints[0].searchText).toContain("home prices");
+  });
+});
+
+describe("synthesizeSourceHints — regression for the 'unemployment' search leak", () => {
+  it("every level with unemployment data emits an unemployment hint that matches the 'unemployment' query", () => {
+    const hints = synthesizeSourceHints(
+      [
+        src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG]),
+        src("bls/metro_unemployment_47900", "MSA unemployment", [METRO_TAG]),
+        src("bls/county_unemployment_arlington_va", "Arlington unemp", [COUNTY_TAG]),
+        src("worldbank_extended/unemployment_germany", "Germany unemployment", [COUNTRY_TAG]),
+      ],
+      false,
+    );
+    const unemploymentHints = hints.filter((h) =>
+      h.id.endsWith("__unemployment"),
+    );
+    expect(unemploymentHints.length).toBe(4);
+    for (const h of unemploymentHints) {
+      expect(h.searchText).toContain("unemployment");
+    }
+  });
+
+  it("the home-prices-by-MSA discoverability path is intact", () => {
+    // Same shape of regression test for the explicit user-reported
+    // case: MSA-level home prices need a clearly-named hint.
+    const hints = synthesizeSourceHints(
+      [
+        src("fred/dc_case_shiller", "Case-Shiller home prices", [METRO_TAG]),
+        src("fred/dc_median_listing", "Median home listing price", [METRO_TAG]),
+      ],
+      false,
+    );
+    // Two distinct series → two hints.
+    expect(hints).toHaveLength(2);
+    const names = hints.map((h) => h.name);
+    expect(names.some((n) => n.includes("Case-Shiller"))).toBe(true);
+    expect(names.some((n) => n.includes("Median home listing"))).toBe(true);
+    // Both should match "home prices" via the alias path.
+    for (const h of hints) {
+      expect(h.searchText).toContain("home prices");
+    }
   });
 });
 
 describe("synthesizeSourceHints — chip routing", () => {
   it.each([
-    ["metro", METRO_TAG, "_hint/metro"],
-    ["country", COUNTRY_TAG, "_hint/country"],
-    ["state", STATE_TAG, "_hint/state"],
-    ["county", COUNTY_TAG, "_hint/county"],
-    ["cd", CD_TAG, "_hint/cd"],
-  ] as const)("emits a %s hint when at least one source carries the matching tag", (level, tag, expectedId) => {
-    // Each geo level has its own tag. A single source with that tag
-    // (plus a recognized series name) is enough to surface the
-    // level's hint.
-    const hints = synthesizeSourceHints(
-      [
-        src(`fake/${level}_unemployment_x`, "Fake unemployment", [tag]),
-      ],
-      false,
-    );
-    const got = hints.find((h) => h.id === expectedId);
-    expect(got).toBeDefined();
-  });
+    ["metro", METRO_TAG, "metro"],
+    ["country", COUNTRY_TAG, "country"],
+    ["state", STATE_TAG, "cd"],
+    ["county", COUNTY_TAG, "county"],
+    ["cd", CD_TAG, "cd"],
+  ] as const)(
+    "a %s-tagged source routes its hint to the %s chip path",
+    (_levelName, tag, expectedChip) => {
+      const hints = synthesizeSourceHints(
+        [src(`fake/${tag}_unemployment_x`, "Fake unemployment", [tag])],
+        false,
+      );
+      expect(hints[0].chip).toBe(expectedChip);
+    },
+  );
 
-  it("the 'state' hint engages the CD chip (combined States & districts surface)", () => {
-    // The composer puts statewide + per-CD sources behind the same
-    // chip; engaging it surfaces both. So both the state hint and
-    // the cd hint route to the same chip target.
-    const hints = synthesizeSourceHints(
-      [
-        src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG]),
-      ],
-      false,
-    );
-    expect(hints[0].chip).toBe("cd");
-  });
-});
-
-describe("synthesizeSourceHints — regression for the 'unemployment' search leak", () => {
-  // The class-of-bug this whole feature targets: a user types
-  // "unemployment", every county/metro/state source is correctly
-  // hidden by the chip filter, and they have no way to discover
-  // the local data exists. The hints fill that gap. These
-  // assertions lock down that the hints DO match the same query
-  // that triggered the leak, so the discoverability story works
-  // end-to-end.
-  it("every geo level we cover with unemployment data emits a hint whose searchText matches 'unemployment'", () => {
-    const hints = synthesizeSourceHints(
-      [
-        src("bls/state_unemployment_va", "VA unemployment", [STATE_TAG]),
-        src("bls/metro_unemployment_47900", "MSA unemployment", [METRO_TAG]),
-        src("bls/county_unemployment_arlington_va", "Arlington unemp", [
-          COUNTY_TAG,
-        ]),
-        src(
-          "worldbank_extended/cpi_inflation_china",
-          "China CPI inflation",
-          [COUNTRY_TAG],
-        ),
-        src(
-          "worldbank_extended/unemployment_germany",
-          "Germany unemployment",
-          [COUNTRY_TAG],
-        ),
-      ],
-      false,
-    );
-    // Each level should have a hint whose searchText is hit by
-    // the literal "unemployment" substring.
-    const levels = ["state", "metro", "county", "country"] as const;
-    for (const lvl of levels) {
-      const h = hints.find((hh) => hh.id === `_hint/${lvl}`);
-      expect(h, `expected a hint for ${lvl}`).toBeDefined();
-      expect(h!.searchText).toContain("unemployment");
+  it("tract + bg hints route to the maps-tab", () => {
+    const hints = synthesizeSourceHints([], true);
+    for (const h of hints) {
+      expect(h.chip).toBe("maps-tab");
     }
   });
 });
