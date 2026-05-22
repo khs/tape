@@ -1126,8 +1126,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import {
     parseAnnotationLines,
     formatAnnotationLines,
+    annotationsOutOfRangeSummary,
     type Annotation,
   } from "../lib/annotations";
+  import { deriveAutoTitle, isTitleAuto } from "../lib/chart-title";
   import { METRO_TAG } from "../lib/geographic-regions";
   import { COUNTRY_TAG, isRegionCode } from "../lib/countries";
   import { COUNTY_TAG, parseCountySourceId } from "../lib/county-sources";
@@ -4908,9 +4910,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // the composer instead of letting the user discover the gap by
   // saving + opening the dialog + cycling windows + finding nothing.
   //
-  // Cheap to run on every keystroke + source toggle: library.json is
-  // already in memory, parseAnnotationLines is a forgiving regex
-  // splitter, and the date-comparison is string compare on YYYY-MM-DD.
+  // The actual range math lives in annotationsOutOfRangeSummary (pure,
+  // unit-tested); this wrapper marshals library.json metadata + writes
+  // the result into the warning element.
   function updateCcAnnotationsWarning(): void {
     const warn = shell.querySelector<HTMLElement>(
       "[data-role='cc-annotations-warn']",
@@ -4922,38 +4924,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       warn.textContent = "";
       return;
     }
-    // Union date range across every picked source. The chart's plot
-    // can extend as wide as min(first) → max(last); narrower-coverage
-    // sources just draw a shorter line within that frame.
-    let unionStart: string | null = null;
-    let unionEnd: string | null = null;
-    for (const sid of ccModal.selected) {
-      const s = library.sources[sid] as
-        | { firstObservation?: string; lastObservation?: string }
-        | undefined;
-      if (!s) continue;
-      if (s.firstObservation) {
-        if (!unionStart || s.firstObservation < unionStart) {
-          unionStart = s.firstObservation;
-        }
-      }
-      if (s.lastObservation) {
-        if (!unionEnd || s.lastObservation > unionEnd) {
-          unionEnd = s.lastObservation;
-        }
-      }
-    }
-    if (!unionStart && !unionEnd) {
-      warn.hidden = true;
-      warn.textContent = "";
-      return;
-    }
-    const offBefore = anns.filter(
-      (a) => unionStart != null && a.date < unionStart!,
-    );
-    const offAfter = anns.filter(
-      (a) => unionEnd != null && a.date > unionEnd!,
-    );
+    const sourceRanges = [...ccModal.selected]
+      .map((sid) => {
+        const s = library!.sources[sid] as
+          | { firstObservation?: string; lastObservation?: string }
+          | undefined;
+        return s ?? null;
+      })
+      .filter((s): s is { firstObservation?: string; lastObservation?: string } => s !== null);
+    const { offBefore, offAfter, unionStart, unionEnd } =
+      annotationsOutOfRangeSummary(anns, sourceRanges);
     const total = offBefore.length + offAfter.length;
     if (total === 0) {
       warn.hidden = true;
@@ -6482,49 +6462,28 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return ccSelectedSharesScale() ? "raw" : "rebase";
   }
 
-  // Build the "auto-title" — what we'd suggest when no user typing
-  // has happened yet — from the picked sources + op. Single source
-  // borrows its short name; two-source ops produce "A op B" with the
-  // canonical symbol; everything else falls back to a " + "-joined
-  // list. We prefer `shortName` over `name` because chart titles get
-  // displayed in tight tile + dialog headers — "CPI YoY" reads better
-  // than "CPI YoY (US, all urban consumers)". Returns "" when nothing
-  // is picked yet so the placeholder copy ("Give this chart a name…")
-  // still shows.
-  //
-  // Format matches the existing hover-merge "A + B" string so a merged
-  // chart's title is considered an auto-default and keeps tracking on
-  // subsequent source changes.
-  function deriveCcAutoTitle(
-    sourceIds: string[],
-    op: ChartCombineOp | null,
-  ): string {
-    if (!library || sourceIds.length === 0) return "";
-    const names = sourceIds.map((sid) => {
-      const s = library!.sources[sid] as
-        | { name?: string; shortName?: string }
-        | undefined;
-      return s?.shortName ?? s?.name ?? sid;
-    });
-    if (names.length === 1) return names[0];
-    if (op && names.length === 2) {
-      const symbol =
-        op === "divide" ? "/" : op === "diff" ? "−" : "+";
-      return `${names[0]} ${symbol} ${names[1]}`;
-    }
-    return names.join(" + ");
+  // Bridge from the composer's library.json source map to the
+  // chart-title module's SourceLookup signature. Used by every
+  // title-derivation call below.
+  function ccSourceLookup(sid: string) {
+    if (!library) return undefined;
+    return library.sources[sid] as
+      | { name?: string; shortName?: string }
+      | undefined;
   }
 
   // Decide whether the current ccModal.title is still tracking the
-  // auto-derived default. An empty title is always "auto" (treated
-  // as "give me a default"); a non-empty title is auto iff it equals
-  // what deriveCcAutoTitle would produce right now. Used by both the
-  // modal opener and the hover-merge customizer so they share one
-  // truth-source for "is this title user-customized?"
+  // auto-derived default. Used by both the modal opener and the
+  // hover-merge customizer so they share one truth-source for "is
+  // this title user-customized?". Pure logic lives in
+  // chart-title.isTitleAuto; this wrapper just plugs the lookup in.
   function recomputeCcTitleAuto(): void {
-    ccModal.titleAuto =
-      ccModal.title === "" ||
-      ccModal.title === deriveCcAutoTitle(ccModal.selectedOrder, ccModal.op);
+    ccModal.titleAuto = isTitleAuto(
+      ccModal.title,
+      ccModal.selectedOrder,
+      ccModal.op,
+      ccSourceLookup,
+    );
   }
 
   // If the title is still tracking the auto-derived default (no user
@@ -6534,7 +6493,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // custom title — we never overwrite intentional input.
   function maybeRefreshCcAutoTitle(): void {
     if (!ccModal.titleAuto) return;
-    const next = deriveCcAutoTitle(ccModal.selectedOrder, ccModal.op);
+    const next = deriveAutoTitle(
+      ccModal.selectedOrder,
+      ccModal.op,
+      ccSourceLookup,
+    );
     ccModal.title = next;
     const titleInput = shell.querySelector<HTMLInputElement>(
       "[data-role='cc-title']",

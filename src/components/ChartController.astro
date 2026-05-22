@@ -36,7 +36,10 @@
     transformFormatting,
     type TransformKey,
   } from "../lib/transforms";
-  import type { Annotation } from "../lib/annotations";
+  import {
+    annotationsHiddenSummary,
+    type Annotation,
+  } from "../lib/annotations";
   import { SITE_BRAND_URL } from "../lib/brand";
   import { readStoredSession } from "../lib/supabase";
   import {
@@ -261,6 +264,8 @@
    * (and a recommended longer window when one would cover everything)
    * so the user understands why nothing rendered.
    *
+   * Pure summary math lives in annotationsHiddenSummary so it can be
+   * unit-tested; this wrapper just routes the result into the DOM.
    * Lookup: the hint <p> is a sibling of the plot container inside the
    * dialog. Tile rendering uses different roles (`tile-spark` etc.) and
    * has no `annotations-hidden-notice`, so the lookup fails safely there.
@@ -275,44 +280,24 @@
       "[data-role='annotations-hidden-notice']",
     );
     if (!notice) return;
-    if (!annotations || annotations.length === 0) {
+    const windowDaysList = (supported ?? [])
+      .filter((w) => DELTA_DAYS[w] !== undefined)
+      .map((w) => ({ key: w as string, days: DELTA_DAYS[w] }));
+    const { count, recommendedKey } = annotationsHiddenSummary(
+      annotations,
+      domainMs,
+      windowDaysList,
+    );
+    if (count === 0) {
       notice.hidden = true;
       notice.textContent = "";
       return;
     }
-    const [startMs, endMs] = domainMs;
-    const offWindow = annotations.filter((a) => {
-      const ms = new Date(a.date).getTime();
-      return ms < startMs || ms > endMs;
-    });
-    if (offWindow.length === 0) {
-      notice.hidden = true;
-      notice.textContent = "";
-      return;
-    }
-    // Recommend the smallest supported window that would include every
-    // off-window annotation. We compare each candidate window's lookback
-    // (in days, approximated by DELTA_DAYS) against the oldest off-
-    // window annotation's age. If no standard window is wide enough, we
-    // skip the suggestion — the user can't reach those annotations
-    // without changing source data or pinning a fixedRange.
-    const noun = offWindow.length === 1 ? "annotation" : "annotations";
-    const oldestMs = Math.min(
-      ...offWindow.map((a) => new Date(a.date).getTime()),
-    );
-    const ageDays = (Date.now() - oldestMs) / 86_400_000;
-    const candidates = (supported ?? []).filter(
-      (w): w is DeltaWindow => DELTA_DAYS[w] !== undefined,
-    );
-    // Smallest-first so the recommendation is the tightest window
-    // that still covers every annotation.
-    candidates.sort((a, b) => DELTA_DAYS[a] - DELTA_DAYS[b]);
-    const recommended = candidates.find((w) => DELTA_DAYS[w] >= ageDays);
-    const recoText = recommended
-      ? ` Try the ${DELTA_LABELS_SHORT[recommended]} window.`
+    const noun = count === 1 ? "annotation" : "annotations";
+    const recoText = recommendedKey
+      ? ` Try the ${DELTA_LABELS_SHORT[recommendedKey as DeltaWindow]} window.`
       : "";
-    notice.textContent =
-      `${offWindow.length} ${noun} outside this window.${recoText}`;
+    notice.textContent = `${count} ${noun} outside this window.${recoText}`;
     notice.hidden = false;
   }
 
