@@ -211,7 +211,12 @@ const payload = {
     </p>
   </div>
 
-  <script type="application/json" data-chart-bar-payload set:html={JSON.stringify(payload)} />
+  {/* The payload is server-rendered data, not actual JavaScript — the
+      type="application/json" attribute would silently turn this into an
+      inline script anyway (Astro skips processing on any <script> with
+      a type or src attribute). Mark it inline explicitly so the
+      `astro check` hint stops complaining and the intent is obvious. */}
+  <script is:inline type="application/json" data-chart-bar-payload set:html={JSON.stringify(payload)} />
 </dialog>
 
 <script>

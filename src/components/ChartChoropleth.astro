@@ -72,7 +72,11 @@ interface Props {
   dashboardSlug: string;
 }
 
-const { chartId, chart, dashboardSlug } = Astro.props;
+// Explicit `as Props` so tsc treats the interface as referenced.
+// Astro's language server normally infers Astro.props as the local
+// Props type, but tsc's reachability check (which `astro check` runs
+// alongside) flags unused declarations. Same pattern as SectionChart.
+const { chartId, chart, dashboardSlug } = Astro.props as Props;
 
 // Resolve the data file path from the chart's choropleth fields. The
 // pipeline writes:

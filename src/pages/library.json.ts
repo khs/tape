@@ -451,12 +451,22 @@ export const GET: APIRoute = async () => {
   // country / tract / block group). Improves discoverability for
   // first-time visitors who don't know to engage a chip first.
   // See src/lib/source-hints.ts for the rationale + format.
+  // `sources` is typed as `Record<string, unknown>` after the
+  // synthetic-tag mutation above (we narrow per-entry locally rather
+  // than maintaining a structural type for the in-flight manifest).
+  // Re-narrow each value to just the fields the hint synthesizer
+  // reads — anything richer would couple this file to the library.json
+  // output shape that's still mid-assembly.
+  type SourceMetaSlice = { name?: string; tags?: string[] };
   const hintsList = synthesizeSourceHints(
-    Object.entries(sources).map(([id, s]) => ({
-      id,
-      name: s.name,
-      tags: s.tags ?? [],
-    })),
+    Object.entries(sources).map(([id, s]) => {
+      const meta = s as SourceMetaSlice;
+      return {
+        id,
+        name: meta.name ?? id,
+        tags: meta.tags ?? [],
+      };
+    }),
   );
   // Inject hints into the sources map keyed by their synthetic id
   // (`_hint/<level>`). They share the map with real sources so the
