@@ -41,7 +41,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
  */
 interface CoverageItem {
   label: string;
-  href: string;
+  /** Optional canonical source page to navigate to via "Open full
+   *  source page →" when the user wants more depth than the inline
+   *  embed shows. Left undefined when the source is choropleth-only
+   *  (no time-series source page applies). */
+  sourceHref?: string;
+  /** Chart ID for the inline embed iframe (/embed/chart/<id>/).
+   *  Every chip carries one — the click handler swaps the iframe's
+   *  src to this value so the chart renders inline without
+   *  navigating away. */
+  chartId: string;
 }
 interface CoverageCategory {
   title: string;
@@ -53,55 +62,55 @@ const COVERAGE: CoverageCategory[] = [
     title: "US macro",
     blurb: "Inflation, rates, employment, output — the standard headline series, daily/monthly/quarterly as they update.",
     items: [
-      { label: "CPI year-over-year", href: "/source/fred/cpi_yoy/" },
-      { label: "Federal funds rate", href: "/source/fred/fed_funds/" },
-      { label: "US unemployment rate", href: "/source/fred/us_unemployment/" },
-      { label: "Real GDP", href: "/source/fred/us_real_gdp/" },
-      { label: "10-year Treasury yield", href: "/source/fred/us_10y/" },
-      { label: "S&P 500", href: "/source/fred/sp500/" },
+      { label: "CPI year-over-year", sourceHref: "/source/fred/cpi_yoy/", chartId: "us-macro/cpi" },
+      { label: "Federal funds rate", sourceHref: "/source/fred/fed_funds/", chartId: "us-macro/fed_funds" },
+      { label: "US unemployment rate", sourceHref: "/source/fred/us_unemployment/", chartId: "us-macro/unemployment" },
+      { label: "Real GDP", sourceHref: "/source/fred/us_real_gdp/", chartId: "us-macro/real_gdp" },
+      { label: "10-year Treasury yield", sourceHref: "/source/fred/us_10y/", chartId: "us-macro/ten_year" },
+      { label: "S&P 500", sourceHref: "/source/fred/sp500/", chartId: "us-macro/sp500" },
     ],
   },
   {
     title: "Federal fiscal",
     blurb: "Outlook reports, the long arc of debt + deficits, social-insurance trustee projections.",
     items: [
-      { label: "Federal debt (% of GDP)", href: "/source/fred/federal_debt_pct_gdp/" },
-      { label: "Federal deficit (% of GDP)", href: "/source/fred/federal_deficit_pct_gdp/" },
-      { label: "Federal interest cost (% of GDP)", href: "/source/fred/federal_interest_pct_gdp/" },
-      { label: "CBO budget outlook (revenues)", href: "/source/cbo/cbo_revenues_pct_gdp/" },
-      { label: "SSA trust fund (income % of GDP)", href: "/source/ssa/oasdi_income_pct_gdp/" },
+      { label: "Federal debt (% of GDP)", sourceHref: "/source/fred/federal_debt_pct_gdp/", chartId: "government/federal_debt_pct_gdp" },
+      { label: "Federal deficit (% of GDP)", sourceHref: "/source/fred/federal_deficit_pct_gdp/", chartId: "government/federal_deficit_pct_gdp" },
+      { label: "Federal interest cost (% of GDP)", sourceHref: "/source/fred/federal_interest_pct_gdp/", chartId: "government/federal_interest_pct_gdp" },
+      { label: "CBO budget outlook (revenues)", sourceHref: "/source/cbo/cbo_revenues_pct_gdp/", chartId: "government/cbo_revenues_pct_gdp" },
+      { label: "SSA trust fund (cost % of GDP)", sourceHref: "/source/ssa/oasdi_income_pct_gdp/", chartId: "government/ssa_oasdi_cost_pct_gdp" },
     ],
   },
   {
     title: "Markets",
     blurb: "Volatility, futures curves, commodities — the things the desk has to write about when something breaks.",
     items: [
-      { label: "VIX", href: "/source/fred/vix/" },
-      { label: "WTI crude futures curve", href: "/source/yahoo_futures/wti_curve/" },
-      { label: "Brent crude futures curve", href: "/source/yahoo_futures/brent_curve/" },
-      { label: "Henry Hub natgas curve", href: "/source/yahoo_futures/natgas_curve/" },
-      { label: "Corn / wheat / soy / cotton / cattle", href: "/source/yahoo_futures/corn_curve/" },
+      { label: "VIX", sourceHref: "/source/fred/vix/", chartId: "us-macro/vix" },
+      { label: "WTI crude futures curve", sourceHref: "/source/yahoo_futures/wti_curve/", chartId: "energy/wti_curve" },
+      { label: "Brent crude futures curve", sourceHref: "/source/yahoo_futures/brent_curve/", chartId: "energy/brent_curve" },
+      { label: "Henry Hub natgas curve", sourceHref: "/source/yahoo_futures/natgas_curve/", chartId: "energy/natgas_curve" },
+      { label: "Corn futures curve", sourceHref: "/source/yahoo_futures/corn_curve/", chartId: "agriculture/corn_curve" },
     ],
   },
   {
     title: "Geographic",
-    blurb: "All 435 congressional districts, all 50 states + DC, 393 US metros, plus ~50 countries.",
+    blurb: "All 435 congressional districts, all 50 states + DC, 393 US metros, plus ~50 countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles, the choropleth-only ones live on the Maps tab in the composer.",
     items: [
-      { label: "Federal spending by state", href: "/source/usaspending/state_va/" },
-      { label: "Per-CD spending (e.g. VA-08)", href: "/source/usaspending/district_va_08/" },
-      { label: "Metro unemployment (e.g. Washington-Arlington-Alexandria)", href: "/source/bls/metro_unemployment_47900/" },
-      { label: "World Bank GDP (e.g. Germany)", href: "/source/worldbank_gdp_raw/germany/" },
+      { label: "Federal spending by state (top 10)", sourceHref: "/source/usaspending/state_va/", chartId: "government/federal_spending_by_state_top10" },
+      { label: "Per-CD spending (VA-08 in context)", sourceHref: "/source/usaspending/district_va_08/", chartId: "government/va_08_federal_spending" },
+      { label: "Metro unemployment (DC area vs US)", sourceHref: "/source/bls/metro_unemployment_47900/", chartId: "government/dc_metro_unemployment_vs_us" },
+      { label: "World Bank GDP (Germany shown)", sourceHref: "/source/worldbank_gdp_raw/germany/", chartId: "countries/germany" },
     ],
   },
   {
     title: "Stocks",
     blurb: "Market-cap-adjusted price history (SEC EDGAR + Yahoo) for the names that matter to the macro picture.",
     items: [
-      { label: "Apple", href: "/source/yahoo_marketcap/aapl_mc/" },
-      { label: "Microsoft", href: "/source/yahoo_marketcap/msft_mc/" },
-      { label: "Nvidia", href: "/source/yahoo_marketcap/nvda_mc/" },
-      { label: "ExxonMobil", href: "/source/yahoo_marketcap/xom_mc/" },
-      { label: "Tesla", href: "/source/yahoo_marketcap/tsla_mc/" },
+      { label: "Tesla", sourceHref: "/source/yahoo_marketcap/tsla_mc/", chartId: "stocks/tsla" },
+      { label: "ExxonMobil vs WTI", sourceHref: "/source/yahoo_marketcap/xom_mc/", chartId: "stocks/xom_vs_wti" },
+      { label: "Chevron vs WTI", chartId: "stocks/cvx_vs_wti" },
+      { label: "Berkshire (Class B)", chartId: "stocks/brk_b" },
+      { label: "JPMorgan", chartId: "stocks/jpm" },
     ],
   },
 ];
@@ -122,7 +131,10 @@ const USE_CASES: UseCase[] = [
     eyebrow: "Compose",
     title: "Build a dashboard for your beat.",
     body: "Pick sources, combine them with divide / sum / diff operators, tag annotations on key dates, save at a stable URL. No code, no spreadsheet round-trip.",
-    cta: { label: "Open the composer", href: "/compose/" },
+    // The walkthrough is a fully-built dashboard that exercises every
+    // composer feature — better landing than a blank /compose/ for a
+    // first-time visitor who hasn't internalized what's possible yet.
+    cta: { label: "Open the walkthrough", href: "/walkthrough/" },
   },
   {
     eyebrow: "Cite",
@@ -205,16 +217,126 @@ const USE_CASES: UseCase[] = [
             <ul class="welcome-coverage-list">
               {cat.items.map((item) => (
                 <li>
-                  <a href={`${baseUrl}${item.href}`} class="welcome-coverage-chip">
+                  {/*
+                    Chips are <button>s (not <a>s) because clicking
+                    them swaps the inline preview iframe rather than
+                    navigating. The data-source-href carries the
+                    fallback "open the full source page" URL the
+                    preview region exposes after the iframe loads —
+                    keeps the source-page link discoverable for users
+                    who want the full citation block and metadata.
+                  */}
+                  <button
+                    type="button"
+                    class="welcome-coverage-chip"
+                    data-chart-id={item.chartId}
+                    data-source-href={item.sourceHref ? `${baseUrl}${item.sourceHref}` : ""}
+                    data-label={item.label}
+                  >
                     {item.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
           </article>
         ))}
       </div>
+
+      {/*
+        Inline chart-preview region. Empty by default; populated when
+        the user clicks any chip. The iframe target is /embed/chart/
+        <id>/ — Astro's chart-embed route renders a single tile sized
+        to fill the iframe. Bar charts show as a horizontal-or-
+        vertical snapshot, choropleth charts show as a map, ordinary
+        time series show as a sparkline-plus-readout tile. So "card
+        or map" depending on the chart's render type, no extra
+        branching needed here.
+      */}
+      <div class="welcome-coverage-preview" data-role="coverage-preview" hidden>
+        <div class="welcome-coverage-preview-head">
+          <p class="welcome-coverage-preview-label" data-role="coverage-preview-label"></p>
+          <a
+            href="#"
+            class="welcome-coverage-preview-source"
+            data-role="coverage-preview-source"
+            target="_blank"
+            rel="noopener"
+          >
+            Open the full source page &rarr;
+          </a>
+        </div>
+        <iframe
+          class="welcome-coverage-iframe"
+          data-role="coverage-iframe"
+          src="about:blank"
+          loading="lazy"
+          title="Inline chart preview"
+        ></iframe>
+      </div>
     </section>
+
+    <script>
+      // Coverage-grid inline preview. Click a chip → iframe shows
+      // /embed/chart/<id>/. Clicking another chip swaps the src.
+      // Clicking the SAME chip toggles the preview closed (small
+      // UX nicety: lets the user dismiss what they just opened).
+      const baseUrl = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+      const previewBox = document.querySelector<HTMLElement>(
+        "[data-role='coverage-preview']",
+      );
+      const iframe = document.querySelector<HTMLIFrameElement>(
+        "[data-role='coverage-iframe']",
+      );
+      const labelEl = document.querySelector<HTMLElement>(
+        "[data-role='coverage-preview-label']",
+      );
+      const sourceLink = document.querySelector<HTMLAnchorElement>(
+        "[data-role='coverage-preview-source']",
+      );
+      let activeChartId: string | null = null;
+      document.querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const chartId = chip.dataset.chartId ?? "";
+          const sourceHref = chip.dataset.sourceHref ?? "";
+          const label = chip.dataset.label ?? "";
+          if (!chartId || !previewBox || !iframe) return;
+          // Same chip toggled twice → close the preview.
+          if (activeChartId === chartId && !previewBox.hidden) {
+            previewBox.hidden = true;
+            iframe.src = "about:blank";
+            activeChartId = null;
+            // Drop the chip's pressed state.
+            document
+              .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip-active")
+              .forEach((el) => el.classList.remove("welcome-coverage-chip-active"));
+            return;
+          }
+          // Otherwise: swap iframe to the new chart and update the
+          // surrounding chrome (label, source link, active highlight).
+          iframe.src = `${baseUrl}/embed/chart/${chartId}/`;
+          if (labelEl) labelEl.textContent = label;
+          if (sourceLink) {
+            if (sourceHref) {
+              sourceLink.href = sourceHref;
+              sourceLink.style.display = "";
+            } else {
+              // Choropleth-only / chart-only chips don't have a source
+              // page; hide the "Open source" link rather than 404.
+              sourceLink.style.display = "none";
+            }
+          }
+          previewBox.hidden = false;
+          activeChartId = chartId;
+          document
+            .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip-active")
+            .forEach((el) => el.classList.remove("welcome-coverage-chip-active"));
+          chip.classList.add("welcome-coverage-chip-active");
+          // Scroll just enough to bring the preview into view; nearest
+          // keeps the chips visible above when possible.
+          previewBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      });
+    </script>
 
     {/* Newsletter signup — quiet, low-friction. Anonymous visitors
         who aren't ready to compose / sign in can still leave their
@@ -433,6 +555,7 @@ const USE_CASES: UseCase[] = [
   }
   .welcome-coverage-chip {
     display: inline-block;
+    font: inherit;
     font-size: var(--text-xs);
     color: var(--color-neutral-700);
     background: var(--color-neutral-100);
@@ -441,12 +564,66 @@ const USE_CASES: UseCase[] = [
     padding: 4px 9px;
     text-decoration: none;
     line-height: 1.3;
+    cursor: pointer;
     transition: background 0.12s, border-color 0.12s, color 0.12s;
   }
   .welcome-coverage-chip:hover {
     background: var(--color-accent-soft, #eef9f6);
     border-color: var(--color-accent);
     color: var(--color-neutral-900);
+  }
+  /* Pressed state for the chip that owns the currently-rendered
+     inline preview. Subtler than a full inversion — picks up the
+     accent border + a tint, doesn't replicate the button's hover
+     style (which would conflict on touch devices where hover is
+     sticky). */
+  .welcome-coverage-chip-active,
+  .welcome-coverage-chip-active:hover {
+    background: var(--color-accent-soft, #eef9f6);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+
+  /* ---- Inline chart preview that slides in below the chip grid ---- */
+  .welcome-coverage-preview {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .welcome-coverage-preview[hidden] {
+    display: none;
+  }
+  .welcome-coverage-preview-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 12px;
+    flex-wrap: wrap;
+  }
+  .welcome-coverage-preview-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-neutral-900);
+    margin: 0;
+  }
+  .welcome-coverage-preview-source {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .welcome-coverage-preview-source:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .welcome-coverage-iframe {
+    width: 100%;
+    height: 380px;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-neutral-50);
+    display: block;
   }
 
   /* ---- Newsletter pre-footer ---- */
