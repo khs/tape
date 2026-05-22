@@ -74,6 +74,7 @@ const title = resolved?.chart.data.title ?? chartId;
   <div
     class="embed-shell dashboard-root"
     data-chart-id={chartId}
+    data-attribution-href={attributionHref}
     data-dashboard-default-window={requestedDelta ?? resolved?.chart.data.defaultDelta ?? "1m"}
   >
     {
@@ -101,6 +102,42 @@ const title = resolved?.chart.data.title ?? chartId;
   </div>
 
   <ChartController />
+
+  <script>
+    /*
+      Intercept tile clicks. The embed iframe is short (host pages
+      pick 280-400px), and the chart-dialog UI is designed for a
+      full-screen-ish modal: pills row, large plot, tooltip + tip
+      stack, sources / citation buttons. Cramming that into a 380px-
+      tall iframe is "terrible," per the user report.
+      Fix: open the canonical chart page (/chart/<id>/) in a NEW TAB
+      instead of opening the dialog inside the iframe. Works in every
+      embedding context — our welcome page, Substack, newsletter
+      iframes, Confluence — without postMessage coupling.
+      Capture-phase listener so we run BEFORE ChartController's
+      bubble-phase click handler that would otherwise call
+      showModal(). preventDefault + stopPropagation suppresses the
+      in-iframe dialog entirely. window.open with noopener so the
+      new tab can't reach back into the embed via window.opener.
+    */
+    const embedShell = document.querySelector(".embed-shell");
+    const chartHref = embedShell?.getAttribute("data-attribution-href") ?? "";
+    if (chartHref) {
+      document.addEventListener(
+        "click",
+        (e) => {
+          const target = e.target as HTMLElement | null;
+          if (!target) return;
+          const tile = target.closest(".chart-tile");
+          if (!tile) return;
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(chartHref, "_blank", "noopener,noreferrer");
+        },
+        true, // capture phase — runs before ChartController's bubble listener
+      );
+    }
+  </script>
 </EmbedLayout>
 
 <style is:global>
@@ -152,33 +189,37 @@ const title = resolved?.chart.data.title ?? chartId;
     font-size: 15px;
     line-height: 1.3;
   }
-  /* When the user clicks the embedded tile to expand, the dialog
-     fills the iframe edge-to-edge. Embedding contexts have no
-     surrounding page to dim, so the backdrop is transparent and
-     the "open as dashboard" / "copy citation" actions are hidden
-     (they'd link out of the iframe to a different surface — let
-     the attribution chip handle that instead). */
-  body.embed-body dialog[open] {
-    position: fixed;
-    inset: 0;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: #fffdf9 !important;
-  }
-  body.embed-body dialog[open]::backdrop {
-    background: rgba(0, 0, 0, 0.35);
-  }
-  body.embed-body dialog[open] [data-role="open-as-dashboard"],
-  body.embed-body dialog[open] [data-role="copy-embed-link"],
-  body.embed-body dialog[open] [data-role="copy-citation"],
-  body.embed-body dialog[open] [data-role="copy-embed-iframe"] {
+  /* Hide the dialog entirely in embed mode. The script above
+     intercepts tile clicks before they reach the dialog-opening
+     handler, but if a dialog ever DOES open (e.g. via keyboard
+     activation or a future code path), make sure it can't shove
+     itself into the cramped iframe — defaults to display:none. */
+  body.embed-body dialog {
     display: none !important;
+  }
+  /* Small "↗" affordance in the upper-right of the tile signaling
+     that clicking opens elsewhere. Pseudo-element so it doesn't
+     fight with the existing tile markup. Sits over the readout
+     but above the sparkline; safely small (10px) at most embed
+     sizes, doesn't compete with the chart for attention. */
+  body.embed-body .chart-tile {
+    position: relative;
+  }
+  body.embed-body .chart-tile::after {
+    content: "↗";
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 13px;
+    line-height: 1;
+    color: #6f6c66;
+    opacity: 0.7;
+    pointer-events: none;
+    transition: opacity 0.12s, color 0.12s;
+  }
+  body.embed-body .chart-tile:hover::after {
+    opacity: 1;
+    color: var(--color-accent);
   }
   .embed-error {
     padding: 24px;
