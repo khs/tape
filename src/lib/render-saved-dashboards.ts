@@ -28,7 +28,22 @@ import type { DashboardRow } from "./supabase";
 export type SavedDashboardRow = Pick<
   DashboardRow,
   "id" | "slug" | "title" | "updated_at"
->;
+> & {
+  /**
+   * Truthy when this row's state_json was saved with a `presetRef`
+   * field — i.e. it's a thin pointer to a curated preset (the
+   * walkthrough is the only such preset today). Drives whether the
+   * row's Edit button renders: a preset-ref row IS a pointer by
+   * design, and PATCHing it with edited state would flatten it to
+   * a snapshot that no longer tracks canonical preset updates. The
+   * `Make a copy` button stays available so users can fork.
+   *
+   * Populated via PostgREST's JSON projection
+   * (`state_json->>presetRef`) so the list payload doesn't have to
+   * carry every row's full state_json just to gate one button.
+   */
+  preset_ref?: string | null;
+};
 
 export interface RenderSavedDashboardsOptions {
   /** UL element that the renderer fills. Its previous children are
@@ -130,6 +145,16 @@ async function openInComposer(
     );
     return;
   }
+  // Belt-and-suspenders: the per-row Edit button is suppressed for
+  // preset-ref rows above, but a stale UI / hand-crafted call could
+  // still land here. Refuse mode="edit" and steer the user toward
+  // Make a copy, which is the right verb for forking a preset.
+  if (parsed.data.presetRef && mode === "edit") {
+    alert(
+      "This row is a live reference to a curated preset (the canonical walkthrough). Editing it in place would break the link — use Make a copy instead to fork it into your own dashboard.",
+    );
+    return;
+  }
   const encoded = encodeComposedState({
     title: parsed.data.title,
     description: parsed.data.description,
@@ -154,9 +179,13 @@ export async function renderSavedDashboardList(
 ): Promise<RenderSavedDashboardsResult | null> {
   const { host, baseUrl, sb, excludeSlug, defaultSlug, onSetDefault, onMutate } = opts;
 
+  // `state_json->>presetRef` is PostgREST's JSON-projection syntax —
+  // projects only the presetRef field as text. Lets us flag preset-
+  // pointer rows without dragging every row's full state_json over
+  // the wire. Returns null for rows that don't have a presetRef.
   const { data, error } = await sb
     .from("saved_dashboards")
-    .select("id, slug, title, updated_at")
+    .select("id, slug, title, updated_at, preset_ref:state_json->>presetRef")
     .order("updated_at", { ascending: false });
   if (error) {
     host.innerHTML = `<li class="text-sm text-error">Failed to load: ${escapeHtml(error.message)}</li>`;
@@ -204,16 +233,37 @@ export async function renderSavedDashboardList(
         ? `<button type="button" class="underline text-accent bg-transparent border-0 p-0 cursor-pointer" data-role="clear-default" title="Click to clear this default">Default &#10003;</button>`
         : `<button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="set-default" data-slug="${escapeHtml(r.slug)}">Set as default</button>`
       : "";
+    // Preset-ref rows (today: the seeded walkthrough) don't get
+    // Edit / Rename / Set URL — those would mutate the row in
+    // ways that break the pointer-to-canonical-preset contract.
+    // Make a copy stays available so users can fork into a fully
+    // editable dashboard of their own.
+    const isPresetRef = !!r.preset_ref;
+    const editBtn = isPresetRef
+      ? ""
+      : `<button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="edit" data-id="${r.id}" data-slug="${escapeHtml(r.slug)}">Edit</button>`;
+    const renameBtn = isPresetRef
+      ? ""
+      : `<button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="rename" data-id="${r.id}" data-current="${escapeHtml(r.title)}">Rename</button>`;
+    const setUrlBtn = isPresetRef
+      ? ""
+      : `<button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="set-url" data-id="${r.id}" data-current="${escapeHtml(r.slug)}">Set URL</button>`;
+    // Subtitle nudge — when the row is a preset-ref, surface what
+    // the row IS so users aren't confused about why some actions
+    // are missing. "Live walkthrough" reads as a feature, not a bug.
+    const subtitleSuffix = isPresetRef
+      ? ` <span class="text-accent">· Live walkthrough</span>`
+      : "";
     item.innerHTML =
       `<div>
          <a class="text-base font-medium text-neutral-900 no-underline hover:underline" href="${baseUrl}/u/${encodeURIComponent(r.slug)}/">${escapeHtml(r.title)}</a>
-         <div class="text-xs text-neutral-500 mt-1">Updated ${dateStr}</div>
+         <div class="text-xs text-neutral-500 mt-1">Updated ${dateStr}${subtitleSuffix}</div>
        </div>
        <div class="flex gap-2 text-xs">
-         <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="edit" data-id="${r.id}" data-slug="${escapeHtml(r.slug)}">Edit</button>
+         ${editBtn}
          <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="copy" data-id="${r.id}" data-slug="${escapeHtml(r.slug)}">Make a copy</button>
-         <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="rename" data-id="${r.id}" data-current="${escapeHtml(r.title)}">Rename</button>
-         <button type="button" class="underline text-neutral-500 bg-transparent border-0 p-0 cursor-pointer" data-role="set-url" data-id="${r.id}" data-current="${escapeHtml(r.slug)}">Set URL</button>
+         ${renameBtn}
+         ${setUrlBtn}
          ${defaultBtn}
          <button type="button" class="underline text-error bg-transparent border-0 p-0 cursor-pointer" data-role="delete" data-id="${r.id}" data-slug="${escapeHtml(r.slug)}" data-title="${escapeHtml(r.title)}">Delete</button>
        </div>`;

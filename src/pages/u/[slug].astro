@@ -31,6 +31,15 @@ let errorMessage: string | null = null;
 let state: ComposedState | null = null;
 let ownerBadge: string | null = null;
 let ownerId: string | null = null;
+// True when this row's state was sourced from a preset via
+// state.presetRef — i.e. the walkthrough seeded into every signed-in
+// user's account. Drives whether the Edit button renders: a preset-
+// ref row IS BY DESIGN a thin pointer to the canonical preset so
+// updates flow through automatically, and "Edit" would silently
+// flatten the pointer into a snapshot that no longer tracks. "Make
+// a copy" stays available — that's the right path for a user who
+// wants to derive their own customized version.
+let isPresetRef = false;
 
 if (!isSupabaseConfigured) {
   errorMessage = "Supabase is not configured on this build.";
@@ -96,6 +105,12 @@ if (!isSupabaseConfigured) {
               inlineSources: undefined,
               inlineMaps: undefined,
             };
+            // Mark the resolved row as preset-backed. The Edit
+            // button reads this and hides itself; preserving the
+            // pointer (vs. flattening it to a snapshot on save) is
+            // the contract that makes walkthrough updates propagate
+            // to every signed-in user.
+            isPresetRef = true;
           }
           // If preset is missing, fall through with the saved state as-is.
           // In practice it has empty sections, which renders as
@@ -289,15 +304,28 @@ const ogD = state
                   });
                   return (
                     <>
-                      <a
-                        href={`${baseUrl}/compose/?d=${encoded}&edit=${slug}`}
-                        class="text-xs text-accent no-underline hover:underline border hairline rounded-sm px-2 py-1"
-                        data-role="edit-link"
-                        data-owner-id={ownerId ?? ""}
-                        style="display: none"
-                      >
-                        Edit &rarr;
-                      </a>
+                      {/* Edit link suppressed entirely on preset-ref
+                          rows. The walkthrough is intentionally a
+                          thin pointer to /content/dashboards/walkthrough.mdx
+                          so canonical updates reach every signed-in
+                          user — letting the owner "Edit" would PATCH
+                          the row with the resolved snapshot, dropping
+                          the presetRef and breaking the live-tracking
+                          contract. "Make a copy" stays available
+                          (and is the right verb for a user who
+                          actually wants to derive their own
+                          customized version). */}
+                      {!isPresetRef && (
+                        <a
+                          href={`${baseUrl}/compose/?d=${encoded}&edit=${slug}`}
+                          class="text-xs text-accent no-underline hover:underline border hairline rounded-sm px-2 py-1"
+                          data-role="edit-link"
+                          data-owner-id={ownerId ?? ""}
+                          style="display: none"
+                        >
+                          Edit &rarr;
+                        </a>
+                      )}
                       <a
                         href={`${baseUrl}/compose/?d=${encoded}&copy=1`}
                         class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
