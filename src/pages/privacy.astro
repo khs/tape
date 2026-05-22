@@ -2,7 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
-const lastUpdated = "May 15, 2026";
+const lastUpdated = "May 21, 2026";
 ---
 
 <BaseLayout
@@ -48,12 +48,25 @@ const lastUpdated = "May 15, 2026";
     </p>
 
     <p>
+      <strong>Indicator alert rules</strong> if you create them at
+      <code>/alerts/</code>. Each rule stores the source ID, the
+      threshold + comparison condition, an optional label, and a small
+      fire history (when the rule last triggered, whether the delivery
+      email succeeded). When a rule fires, the dispatcher emails your
+      Google-account email address with the trigger details. Rules
+      and history are kept until you delete the rule from
+      <code>/alerts/</code> or close your account.
+    </p>
+
+    <p>
       <strong>Anonymous usage analytics</strong> via PostHog and Vercel
       Web Analytics. PostHog assigns an anonymous identifier stored in
-      your browser's localStorage so I can see things like "how many
-      people opened a chart" and "which composer features get used."
-      No personally identifying information is sent to PostHog. The
-      identifier resets if you clear your browser storage.
+      your browser's localStorage and a same-domain cookie so I can see
+      things like "how many people opened a chart" and "which composer
+      features get used." The identifier is not linked to your name,
+      email, or Google account, and resets if you clear your browser
+      storage. Vercel Web Analytics is cookieless and records only
+      aggregate pageview counts.
     </p>
 
     <p>
@@ -77,15 +90,15 @@ const lastUpdated = "May 15, 2026";
     <h2>Who sees the data</h2>
 
     <p>
-      I use three external services that necessarily process some of
-      your data on my behalf:
+      I use a small number of external services that necessarily process
+      some of your data on my behalf:
     </p>
 
     <ul>
       <li>
         <strong>Supabase</strong> — database + auth. Stores email
-        signups, Google OAuth identifiers, and saved dashboards.
-        SOC 2 Type 2 certified.
+        signups, Google OAuth identifiers, saved dashboards, and
+        indicator-alert rules. SOC 2 Type 2 certified.
         Their privacy policy:
         <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a>.
       </li>
@@ -102,6 +115,16 @@ const lastUpdated = "May 15, 2026";
         PostHog identifier.
         <a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a>.
       </li>
+      <li>
+        <strong>Resend or Postmark</strong> — transactional email
+        delivery, used to send indicator-alert notifications when one
+        of your rules fires. The email provider sees your email
+        address + the rule label + the triggering value. Only used
+        when you've actually created an alert rule.
+        <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">resend.com privacy</a>
+        ·
+        <a href="https://postmarkapp.com/privacy-policy" target="_blank" rel="noopener noreferrer">postmarkapp.com privacy</a>.
+      </li>
     </ul>
 
     <p>
@@ -109,6 +132,38 @@ const lastUpdated = "May 15, 2026";
       advertisers, because I don't run ads. If law enforcement or a
       court requires data disclosure, I'll comply with valid legal
       process and, where lawful, notify you first.
+    </p>
+
+    <h2>Where Tape operates</h2>
+
+    <p>
+      Tape is operated from the United States by Keller Scholl
+      (Washington, DC). The content, audience, and product are
+      US-focused — US economic and policy data, English-only copy,
+      USD where currency appears, no EU-language localization, no
+      EU-currency pricing, no EU-targeted marketing. Tape does not
+      direct goods or services at residents of the European Union,
+      the United Kingdom, or the European Economic Area within the
+      meaning of GDPR Article 3(2)(a).
+    </p>
+
+    <p>
+      Data is processed and stored in the United States by the
+      service providers listed above (Supabase, Vercel, PostHog;
+      each maintains its own infrastructure). If you visit from
+      outside the US, your request data will cross borders to reach
+      our infrastructure — that's an inherent property of using a
+      US-hosted website.
+    </p>
+
+    <p>
+      EU and UK visitors are welcome to use the site, but it is not
+      designed for them and may not satisfy every requirement of
+      EU/UK data-protection law as applied to entities established
+      in those jurisdictions. If you're located in the EU or UK and
+      want a data-protection right honored anyway, the rights
+      section below applies — write to the contact address and I'll
+      handle it.
     </p>
 
     <h2>Your rights</h2>
@@ -172,6 +227,15 @@ const lastUpdated = "May 15, 2026";
       No system is perfect. If there's a security incident affecting
       your personal data, I'll notify you by email within 72 hours of
       becoming aware of it.
+    </p>
+
+    <h2>Children's privacy</h2>
+
+    <p>
+      Tape is not directed to children under 13, and I do not
+      knowingly collect personal information from anyone under 13.
+      If you believe a child under 13 has submitted information,
+      email me and I'll delete it.
     </p>
 
     <h2>Contact</h2>
