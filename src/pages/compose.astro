@@ -1022,6 +1022,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   rows="4"
                   placeholder={"One per line, format:\n2008-09-15: Lehman collapse\n2020-03-15: COVID lockdown | below"}
                 ></textarea>
+                {/* Live "this annotation's date predates the earliest
+                    selected source — it won't render at any window"
+                    warning. The cc-modal's input listener recomputes
+                    the offending list whenever the textarea changes or
+                    the source selection changes; we hide the warning
+                    when every annotation falls inside the union date
+                    range of the picked sources. */}
+                <p
+                  class="cc-annotations-warn"
+                  data-role="cc-annotations-warn"
+                  hidden
+                ></p>
                 <span class="muted small">
                   Pin labels to specific dates on the expanded chart.
                   Format: <code>YYYY-MM-DD: label</code>. Optional
@@ -4889,6 +4901,83 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     renderComposition();
   }
 
+  // Re-check the cc-modal annotations textarea against the picked
+  // sources' union date range. An annotation whose date falls outside
+  // every source's coverage can never render at any window (the data
+  // simply doesn't go back/forward that far) — flag those right in
+  // the composer instead of letting the user discover the gap by
+  // saving + opening the dialog + cycling windows + finding nothing.
+  //
+  // Cheap to run on every keystroke + source toggle: library.json is
+  // already in memory, parseAnnotationLines is a forgiving regex
+  // splitter, and the date-comparison is string compare on YYYY-MM-DD.
+  function updateCcAnnotationsWarning(): void {
+    const warn = shell.querySelector<HTMLElement>(
+      "[data-role='cc-annotations-warn']",
+    );
+    if (!warn) return;
+    const anns = parseAnnotationLines(ccModal.annotationsText);
+    if (anns.length === 0 || !library || ccModal.selected.size === 0) {
+      warn.hidden = true;
+      warn.textContent = "";
+      return;
+    }
+    // Union date range across every picked source. The chart's plot
+    // can extend as wide as min(first) → max(last); narrower-coverage
+    // sources just draw a shorter line within that frame.
+    let unionStart: string | null = null;
+    let unionEnd: string | null = null;
+    for (const sid of ccModal.selected) {
+      const s = library.sources[sid] as
+        | { firstObservation?: string; lastObservation?: string }
+        | undefined;
+      if (!s) continue;
+      if (s.firstObservation) {
+        if (!unionStart || s.firstObservation < unionStart) {
+          unionStart = s.firstObservation;
+        }
+      }
+      if (s.lastObservation) {
+        if (!unionEnd || s.lastObservation > unionEnd) {
+          unionEnd = s.lastObservation;
+        }
+      }
+    }
+    if (!unionStart && !unionEnd) {
+      warn.hidden = true;
+      warn.textContent = "";
+      return;
+    }
+    const offBefore = anns.filter(
+      (a) => unionStart != null && a.date < unionStart!,
+    );
+    const offAfter = anns.filter(
+      (a) => unionEnd != null && a.date > unionEnd!,
+    );
+    const total = offBefore.length + offAfter.length;
+    if (total === 0) {
+      warn.hidden = true;
+      warn.textContent = "";
+      return;
+    }
+    const parts: string[] = [];
+    if (offBefore.length > 0) {
+      const dates = offBefore.map((a) => a.date).join(", ");
+      parts.push(
+        `${dates} ${offBefore.length === 1 ? "predates" : "predate"} the earliest source observation (${unionStart})`,
+      );
+    }
+    if (offAfter.length > 0) {
+      const dates = offAfter.map((a) => a.date).join(", ");
+      parts.push(
+        `${dates} ${offAfter.length === 1 ? "is" : "are"} past the latest source observation (${unionEnd})`,
+      );
+    }
+    warn.textContent =
+      `Heads up: ${parts.join("; ")}. ${total === 1 ? "It won't" : "They won't"} render at any window.`;
+    warn.hidden = false;
+  }
+
   // Returns a warning string if the chart's underlying sources don't cover
   // the dashboard's fixed range. Returns null when fully covered or when no
   // fixed range is set. Light-touch: pulls firstObservation/lastObservation
@@ -6981,6 +7070,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         updateCustomChartCreateState();
         renderCustomChartSources();
         renderCustomChartPreview();
+        // Source set changed — re-check whether any typed annotation
+        // dates fall outside the new union date range. Cheap; runs off
+        // library.json data already in memory.
+        updateCcAnnotationsWarning();
       });
       row.appendChild(cb);
       const text = document.createElement("span");
@@ -8160,8 +8253,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // The cc-modal preview shows a raw chart — annotations are
         // a render-time overlay applied in the dialog. Skip the
         // preview re-render here; the user sees the result on save.
+        updateCcAnnotationsWarning();
       });
     }
+    // First paint: seed warning state based on whatever annotations +
+    // sources the modal opened with (matters when editing an existing
+    // inline chart whose annotations predate the current source set).
+    updateCcAnnotationsWarning();
 
     // Background-shading checkboxes. Each toggle splices its key in or
     // out of ccModal.shading; the array is persisted as inlineChart.shading
@@ -9772,6 +9870,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .cc-preview-presentation-heading {
     /* Tiny group label so the three controls below read as a unit. */
     margin-bottom: -4px;
+  }
+  /* Annotation-range warning under the cc-modal Annotations textarea.
+     Subtle amber tone — flags a deliberate authoring mistake without
+     looking like a hard error (the save still works). */
+  .cc-annotations-warn {
+    margin: 4px 0 0;
+    padding: 6px 9px;
+    background: #fff8e8;
+    border: 1px solid rgba(217, 183, 96, 0.5);
+    border-radius: 3px;
+    font-size: 11.5px;
+    color: #6d521b;
+    line-height: 1.45;
+  }
+  .cc-annotations-warn[hidden] {
+    display: none;
   }
   .cc-field { display: flex; flex-direction: column; gap: 6px; }
   .cc-field input[type="text"],

@@ -807,6 +807,17 @@ const mostRecentUpdate = payload.sources
             </p>
           )}
           <div class="dialog-plot" data-role="plot" />
+          {/* "X annotations outside this window" hint. Filled and
+              toggled by ChartController.renderFullPlot whenever the
+              chart has annotations and at least one of them falls
+              outside the visible date range. Stays hidden when the
+              chart has no annotations or all of them are in-range —
+              empty space when there's nothing to say. */}
+          <p
+            class="dialog-annotations-hidden muted small"
+            data-role="annotations-hidden-notice"
+            hidden
+          ></p>
         </>
       )
     }
@@ -1380,6 +1391,17 @@ const mostRecentUpdate = payload.sources
   .dialog-plot-caption {
     font-size: var(--text-xs);
     margin: 0 0 6px;
+  }
+  /* "X annotations outside this window" hint. Sits just below the
+     plot to anchor it to the chart it describes. Subtle so it reads
+     as a passive notice, not an error. */
+  .dialog-annotations-hidden {
+    margin: -10px 0 12px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  .dialog-annotations-hidden[hidden] {
+    display: none;
   }
   .dialog-blurb {
     padding: 14px 0;

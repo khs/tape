@@ -12,6 +12,8 @@
   import * as Plot from "@observablehq/plot";
   import {
     DELTA_LABELS_PAST,
+    DELTA_LABELS_SHORT,
+    DELTA_DAYS,
     closestSupported,
     windowStartMs,
     windowDays,
@@ -250,6 +252,68 @@
       );
     }
     return marks;
+  }
+
+  /**
+   * Update the "X annotations outside this window" hint underneath the
+   * dialog plot. Off-window annotations get filtered by annotationMarks
+   * so labels don't draw outside the frame; this surfaces the count
+   * (and a recommended longer window when one would cover everything)
+   * so the user understands why nothing rendered.
+   *
+   * Lookup: the hint <p> is a sibling of the plot container inside the
+   * dialog. Tile rendering uses different roles (`tile-spark` etc.) and
+   * has no `annotations-hidden-notice`, so the lookup fails safely there.
+   */
+  function updateAnnotationsHiddenNotice(
+    plotContainer: HTMLElement,
+    annotations: Annotation[] | undefined,
+    domainMs: [number, number],
+    supported: DeltaWindow[] | undefined,
+  ): void {
+    const notice = plotContainer.parentElement?.querySelector<HTMLElement>(
+      "[data-role='annotations-hidden-notice']",
+    );
+    if (!notice) return;
+    if (!annotations || annotations.length === 0) {
+      notice.hidden = true;
+      notice.textContent = "";
+      return;
+    }
+    const [startMs, endMs] = domainMs;
+    const offWindow = annotations.filter((a) => {
+      const ms = new Date(a.date).getTime();
+      return ms < startMs || ms > endMs;
+    });
+    if (offWindow.length === 0) {
+      notice.hidden = true;
+      notice.textContent = "";
+      return;
+    }
+    // Recommend the smallest supported window that would include every
+    // off-window annotation. We compare each candidate window's lookback
+    // (in days, approximated by DELTA_DAYS) against the oldest off-
+    // window annotation's age. If no standard window is wide enough, we
+    // skip the suggestion — the user can't reach those annotations
+    // without changing source data or pinning a fixedRange.
+    const noun = offWindow.length === 1 ? "annotation" : "annotations";
+    const oldestMs = Math.min(
+      ...offWindow.map((a) => new Date(a.date).getTime()),
+    );
+    const ageDays = (Date.now() - oldestMs) / 86_400_000;
+    const candidates = (supported ?? []).filter(
+      (w): w is DeltaWindow => DELTA_DAYS[w] !== undefined,
+    );
+    // Smallest-first so the recommendation is the tightest window
+    // that still covers every annotation.
+    candidates.sort((a, b) => DELTA_DAYS[a] - DELTA_DAYS[b]);
+    const recommended = candidates.find((w) => DELTA_DAYS[w] >= ageDays);
+    const recoText = recommended
+      ? ` Try the ${DELTA_LABELS_SHORT[recommended]} window.`
+      : "";
+    notice.textContent =
+      `${offWindow.length} ${noun} outside this window.${recoText}`;
+    notice.hidden = false;
   }
 
   /**
@@ -1498,6 +1562,20 @@
         new Date(standardDomainMs[1]),
       );
       if (annMarks.length > 0) marks.push(...annMarks);
+    }
+    // "Annotations outside the visible window" hint. annotationMarks
+    // silently drops off-window annotations so labels don't draw
+    // outside the plot frame — without a note, the user who typed
+    // "2008-09-15: Lehman" on a 1y window sees nothing and assumes
+    // the feature is broken. Surface the count + suggest the smallest
+    // standard window that would cover every annotation.
+    if (standardDomainMs) {
+      updateAnnotationsHiddenNotice(
+        container,
+        payload.annotations,
+        standardDomainMs,
+        payload.supportedDeltas,
+      );
     }
     const bundles = buildBundles(bundleSeries);
     if (bundles.length > 0) {
