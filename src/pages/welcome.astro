@@ -336,7 +336,101 @@ const USE_CASES: UseCase[] = [
           previewBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
       });
+
+      // ---- Pop-out overlay (same-origin embed messaging) ----
+      // The embed iframe sends "tape:embed-handshake" on load; we
+      // respond "tape:host-ack" so the iframe knows we'll handle
+      // pop-outs. On tile click the iframe then posts "tape:embed-
+      // popout" with a chart href; we load it in the overlay's
+      // own iframe at the welcome page's viewport size.
+      //
+      // origin-check both sides: only react to messages from the
+      // SAME origin (sender always sets targetOrigin to our origin,
+      // so cross-site iframes never round-trip here).
+      const popoutOverlay = document.querySelector<HTMLElement>(
+        "[data-role='popout-overlay']",
+      );
+      const popoutIframe = document.querySelector<HTMLIFrameElement>(
+        "[data-role='popout-iframe']",
+      );
+      const popoutClose = document.querySelector<HTMLButtonElement>(
+        "[data-role='popout-close']",
+      );
+
+      function openPopout(chartHref: string): void {
+        if (!popoutOverlay || !popoutIframe) return;
+        popoutIframe.src = chartHref;
+        popoutOverlay.hidden = false;
+        // Lock the underlying welcome page so the reader can't scroll
+        // it while the overlay's open. Restored on close.
+        document.body.style.overflow = "hidden";
+      }
+      function closePopout(): void {
+        if (!popoutOverlay || !popoutIframe) return;
+        popoutOverlay.hidden = true;
+        popoutIframe.src = "about:blank";
+        document.body.style.overflow = "";
+      }
+
+      window.addEventListener("message", (e) => {
+        // Strict origin check: ignore everything not from us.
+        if (e.origin !== window.location.origin) return;
+        const data = e.data as
+          | { type?: string; chartId?: string; chartHref?: string }
+          | undefined;
+        if (!data?.type) return;
+        if (data.type === "tape:embed-handshake") {
+          // Reply directly to the sender frame, not broadcast.
+          (e.source as Window | null)?.postMessage(
+            { type: "tape:host-ack" },
+            e.origin,
+          );
+          return;
+        }
+        if (data.type === "tape:embed-popout" && data.chartHref) {
+          openPopout(data.chartHref);
+        }
+      });
+
+      popoutClose?.addEventListener("click", closePopout);
+      // Click outside the modal iframe (on the dimming backdrop) closes.
+      popoutOverlay?.addEventListener("click", (e) => {
+        if (e.target === popoutOverlay) closePopout();
+      });
+      // Esc closes — standard expected behavior for modal overlays.
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && popoutOverlay && !popoutOverlay.hidden) {
+          closePopout();
+        }
+      });
     </script>
+
+    {/*
+      Pop-out overlay for the coverage chart preview. The embed
+      iframes on this page send a "tape:embed-popout" message when
+      their tile is clicked; this overlay's listener catches it and
+      loads the canonical /chart/<id>/ page in a fullscreen iframe,
+      so the reader gets the dialog UI at the welcome page's
+      viewport instead of squeezed into the 380px preview iframe.
+      Same-origin only — Substack / newsletter / cross-origin
+      embeds fall back to opening /chart/<id>/ in a new tab,
+      handled by the embed page's script (no parent ack → new tab).
+    */}
+    <div class="welcome-popout-overlay" data-role="popout-overlay" hidden>
+      <button
+        type="button"
+        class="welcome-popout-close"
+        data-role="popout-close"
+        aria-label="Close chart"
+        title="Close (Esc)"
+      >&times;</button>
+      <iframe
+        class="welcome-popout-iframe"
+        data-role="popout-iframe"
+        src="about:blank"
+        title="Pop-out chart"
+      ></iframe>
+    </div>
 
     {/* Newsletter signup — quiet, low-friction. Anonymous visitors
         who aren't ready to compose / sign in can still leave their
@@ -624,6 +718,58 @@ const USE_CASES: UseCase[] = [
     border-radius: var(--radius-sm);
     background: var(--color-neutral-50);
     display: block;
+  }
+
+  /* ---- Pop-out overlay (clicked-chart full-viewport modal) ---- */
+  .welcome-popout-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    box-sizing: border-box;
+  }
+  .welcome-popout-overlay[hidden] {
+    display: none;
+  }
+  .welcome-popout-iframe {
+    width: 100%;
+    max-width: 1280px;
+    height: 100%;
+    max-height: 100%;
+    background: var(--color-white);
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    display: block;
+  }
+  .welcome-popout-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+    line-height: 1;
+    background: var(--color-white);
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-neutral-700);
+    z-index: 1001;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: color 0.12s, background 0.12s, transform 0.12s;
+  }
+  .welcome-popout-close:hover {
+    color: var(--color-neutral-900);
+    background: var(--color-neutral-50);
+    transform: scale(1.04);
   }
 
   /* ---- Newsletter pre-footer ---- */

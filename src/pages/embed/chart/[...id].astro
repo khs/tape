@@ -105,23 +105,69 @@ const title = resolved?.chart.data.title ?? chartId;
 
   <script>
     /*
-      Intercept tile clicks. The embed iframe is short (host pages
-      pick 280-400px), and the chart-dialog UI is designed for a
-      full-screen-ish modal: pills row, large plot, tooltip + tip
-      stack, sources / citation buttons. Cramming that into a 380px-
-      tall iframe is "terrible," per the user report.
-      Fix: open the canonical chart page (/chart/<id>/) in a NEW TAB
-      instead of opening the dialog inside the iframe. Works in every
-      embedding context — our welcome page, Substack, newsletter
-      iframes, Confluence — without postMessage coupling.
-      Capture-phase listener so we run BEFORE ChartController's
-      bubble-phase click handler that would otherwise call
-      showModal(). preventDefault + stopPropagation suppresses the
-      in-iframe dialog entirely. window.open with noopener so the
-      new tab can't reach back into the embed via window.opener.
+      Tile-click routing. Two paths depending on the host:
+
+        SAME-ORIGIN PARENT (our /welcome/ page):
+          postMessage "tape:embed-popout" up to the parent so the
+          parent renders the chart in its own full-viewport modal.
+          The reader sees the chart break OUT of the iframe to fill
+          the welcome page's viewport — proper editorial pop-out
+          rather than a cramped in-iframe dialog.
+
+        CROSS-ORIGIN PARENT (Substack, newsletter iframe, etc.):
+          open /chart/<id>/ in a new tab. Postmessage between
+          different origins would land in a parent that has no
+          listener; new-tab is the universal fallback that respects
+          the reader's host-page context (Substack post stays open
+          in the original tab).
+
+      Detection: same-origin parent is identified at load time via a
+      handshake. Embed posts "tape:embed-handshake" to the parent on
+      load; if the parent answers with "tape:host-ack" (only the
+      welcome page does, currently), we flip parentWillPopOut and
+      use the postMessage path on click. No ack within 250ms (cross-
+      origin SecurityError on the location read, or parent doesn't
+      listen) means use the new-tab fallback.
+
+      Click handler runs at the capture phase so it fires BEFORE
+      ChartController's bubble-phase handler that would otherwise
+      call showModal() inside the iframe. preventDefault +
+      stopPropagation suppress the in-iframe dialog entirely.
     */
     const embedShell = document.querySelector(".embed-shell");
     const chartHref = embedShell?.getAttribute("data-attribution-href") ?? "";
+    const chartId = embedShell?.getAttribute("data-chart-id") ?? "";
+    let parentWillPopOut = false;
+
+    (function tryHandshake() {
+      if (window.parent === window) return; // not iframed
+      let parentOrigin: string;
+      try {
+        parentOrigin = window.parent.location.origin;
+      } catch {
+        return; // SecurityError → cross-origin, fall through to new-tab path
+      }
+      if (parentOrigin !== window.location.origin) return;
+      function onHostAck(e: MessageEvent) {
+        if (e.origin !== window.location.origin) return;
+        if (e.data?.type === "tape:host-ack") {
+          parentWillPopOut = true;
+          window.removeEventListener("message", onHostAck);
+        }
+      }
+      window.addEventListener("message", onHostAck);
+      window.parent.postMessage(
+        { type: "tape:embed-handshake", chartId },
+        window.location.origin,
+      );
+      // Stop listening after a short window — if no ack arrived,
+      // the parent isn't going to handle pop-outs and we fall back
+      // to new-tab on click. Click handlers fire on user interaction
+      // (long after page load), so a 250ms handshake budget is more
+      // than enough headroom.
+      setTimeout(() => window.removeEventListener("message", onHostAck), 250);
+    })();
+
     if (chartHref) {
       document.addEventListener(
         "click",
@@ -132,7 +178,14 @@ const title = resolved?.chart.data.title ?? chartId;
           if (!tile) return;
           e.preventDefault();
           e.stopPropagation();
-          window.open(chartHref, "_blank", "noopener,noreferrer");
+          if (parentWillPopOut) {
+            window.parent.postMessage(
+              { type: "tape:embed-popout", chartId, chartHref },
+              window.location.origin,
+            );
+          } else {
+            window.open(chartHref, "_blank", "noopener,noreferrer");
+          }
         },
         true, // capture phase — runs before ChartController's bubble listener
       );
