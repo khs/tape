@@ -1840,10 +1840,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
    *  hit the slug is treated as "user isn't looking for a county
    *  right now," and the row is dropped.
    *
-   *  Slug matching: case-insensitive substring against the parsed
-   *  slug. "alex" matches "unemployment_alexandria". "city" matches
-   *  any county with "city" in its slug. Mostly indirection-free —
-   *  callers care about the boolean, not the matched part. */
+   *  Match target: the county-NAME portion only (e.g.
+   *  "alexandria", "prince_georges") — NOT the full series-plus-
+   *  county slug. Earlier shipped behavior matched the whole slug,
+   *  which meant typing the series name ("unemployment") matched
+   *  every county source ("unemployment_alexandria" contains
+   *  "unemployment"). That defeated the chip's "hide by default"
+   *  intent: searching "unemployment" surfaced every county we ship.
+   *  Now "alex" still matches Alexandria, "prince" matches Prince
+   *  George's + Prince William, "city" matches anything with city
+   *  in its name — but a query for the series doesn't leak the
+   *  county set. Regression locked down in county-sources.test.ts. */
   function passesCountyFilter(
     id: string,
     sTags: string[],
@@ -1853,7 +1860,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (query.length < 4) return false;
     const parsed = parseCountySourceId(id);
     if (!parsed) return false; // defensive — should never happen if COUNTY_TAG is on
-    return parsed.slug.toLowerCase().includes(query.toLowerCase());
+    return parsed.countyName.toLowerCase().includes(query.toLowerCase());
   }
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;

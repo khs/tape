@@ -36,6 +36,34 @@ export const COUNTY_TAG = "us-county";
 
 const STATE_CODE_SET = new Set(US_STATES.map((s) => s.code));
 
+/**
+ * Known county slugs we ship today, longest-first so multi-word slugs
+ * ("prince_georges", "falls_church") match before any shorter prefix
+ * could collide. The pipeline normalizes county names to lowercase
+ * snake_case (`Prince George's County` → `prince_georges`).
+ *
+ * Why a registry rather than a regex: the slug between "county_" and
+ * the state code is `<series>_<county>`. Without knowing the set of
+ * county slugs we'd have to assume the series is a single token, which
+ * fails for hypothetical multi-token series like "labor_force". With
+ * this registry the parser can match the county slug exactly and treat
+ * the leading portion as the series, regardless of token count on
+ * either side. Update this when adding a new county YAML.
+ *
+ * Sorted longest-first at module load so the matching loop short-
+ * circuits on the most specific slug first.
+ */
+const COUNTY_SLUGS: ReadonlyArray<string> = [
+  "prince_georges",
+  "prince_william",
+  "falls_church",
+  "alexandria",
+  "arlington",
+  "fairfax",
+  "loudoun",
+  "montgomery",
+].sort((a, b) => b.length - a.length);
+
 export interface ParsedCountySourceId {
   /** Pipeline that owns the source — only "bls" today. */
   pipeline: string;
@@ -43,11 +71,32 @@ export interface ParsedCountySourceId {
   state: string;
   /**
    * Series + county slug joined with an underscore — e.g.
-   * "unemployment_alexandria". Callers that want to split further
-   * can do so themselves; the composer only needs the whole string
-   * for search matching.
+   * "unemployment_alexandria". Preserved for back-compat with older
+   * callers; new code should prefer the split `series` + `countyName`
+   * fields below.
    */
   slug: string;
+  /**
+   * Series prefix portion of the slug (e.g. "unemployment") — what
+   * data the source measures, independent of which county. May be
+   * empty if the slug consists of only a county name.
+   */
+  series: string;
+  /**
+   * County-name portion of the slug, in lowercase snake_case
+   * (e.g. "alexandria", "prince_georges"). When present, callers
+   * doing search-overrides on a county-tagged source should match
+   * against THIS rather than the full slug — otherwise a query
+   * matching the series ("unemployment") would surface every
+   * county source, which is the leak this field exists to prevent.
+   *
+   * Falls back to the full slug when none of the known county
+   * slugs match — defensive; an unrecognized county still passes
+   * the COUNTY_TAG synthesis (via the regex match above) so the
+   * composer keeps hiding it from the default list, but the
+   * search-unlock heuristic loses precision.
+   */
+  countyName: string;
 }
 
 /**
@@ -72,7 +121,31 @@ export function parseCountySourceId(
   // are conventionally uppercase in display contexts.
   const codeLower = m[2];
   if (!STATE_CODE_SET.has(codeLower)) return null;
-  return { pipeline: "bls", state: codeLower.toUpperCase(), slug: m[1] };
+  const slug = m[1];
+  // Split the slug into <series>_<countyName> by walking the known
+  // county registry longest-first. Bare county slugs (no series
+  // prefix) match with empty series.
+  let series = "";
+  let countyName = slug;
+  for (const c of COUNTY_SLUGS) {
+    if (slug === c) {
+      series = "";
+      countyName = c;
+      break;
+    }
+    if (slug.endsWith("_" + c)) {
+      countyName = c;
+      series = slug.slice(0, slug.length - c.length - 1);
+      break;
+    }
+  }
+  return {
+    pipeline: "bls",
+    state: codeLower.toUpperCase(),
+    slug,
+    series,
+    countyName,
+  };
 }
 
 /**

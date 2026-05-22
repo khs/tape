@@ -101,3 +101,58 @@ describe("metroTagsFor", () => {
     expect(metroTagsFor("fred/us_cpi")).toEqual([]);
   });
 });
+
+describe("legacy FRED metro-area IDs (regression for the 'unemployment' leak)", () => {
+  // Five FRED sources predate the canonical `metro_<cbsa>` naming
+  // convention and carry the DC-metro (Washington-Arlington-Alexandria,
+  // CBSA 47900) data under bespoke filenames. Without an explicit
+  // override they fall through every geo parser and surface in the
+  // composer's default list — typing "unemployment" leaked
+  // fred/dc_unemployment_rate alongside the US national rate.
+  // The LEGACY_METRO_IDS map in geographic-regions.ts pins them to
+  // CBSA 47900 so library.json synthesizes the right tags. These tests
+  // lock that pinning down so a future move/rename doesn't silently
+  // re-open the leak.
+  const LEGACY_DC_IDS = [
+    "fred/dc_unemployment_rate",
+    "fred/dc_payrolls",
+    "fred/dc_cpi",
+    "fred/dc_case_shiller",
+    "fred/dc_median_listing",
+  ];
+
+  it.each(LEGACY_DC_IDS)(
+    "parses %s as a metro source pinned to CBSA 47900",
+    (id) => {
+      const parsed = parseMetroSourceId(id);
+      expect(parsed).not.toBeNull();
+      expect(parsed!.cbsa).toBe("47900");
+      // Pipeline tag is informational — the renderer uses it for
+      // provenance but the composer's hide-by-default logic only
+      // needs the cbsa for the metro:<cbsa> tag.
+      expect(parsed!.pipeline).toBe("fred_series");
+    },
+  );
+
+  it.each(LEGACY_DC_IDS)(
+    "%s gets both METRO_TAG and metro:47900 from metroTagsFor",
+    (id) => {
+      expect(metroTagsFor(id)).toEqual([METRO_TAG, `${METRO_TAG}:47900`]);
+    },
+  );
+
+  it.each(LEGACY_DC_IDS)("%s is recognized as a metro source", (id) => {
+    expect(isMetroSourceId(id)).toBe(true);
+  });
+
+  it("doesn't accidentally match other fred/dc_* IDs that aren't metro-specific", () => {
+    // A hypothetical national-level FRED series whose ID happens to
+    // start with "dc_" shouldn't get auto-tagged. The override map
+    // is closed-set; unrecognized IDs fall through to the regex
+    // patterns (which won't match a non-cbsa filename) and return
+    // null. The composer treats those as non-geo, US-national by
+    // default — exactly what we want for an unknown series.
+    expect(parseMetroSourceId("fred/dc_treasury_rate_unknown")).toBeNull();
+    expect(isMetroSourceId("fred/dc_treasury_rate_unknown")).toBe(false);
+  });
+});

@@ -59,6 +59,56 @@ const PATTERNS: Array<{
 ];
 
 /**
+ * Hand-curated map of source IDs whose filenames predate the
+ * `metro_<cbsa>` naming convention but represent metro-area data.
+ * Without these entries the sources would fall through every geo
+ * parser and surface as "national" in the composer's default list —
+ * e.g. searching "unemployment" would mix DC-metro unemployment in
+ * with the US national rate.
+ *
+ * Today this is just the original FRED-sourced Washington-Arlington-
+ * Alexandria MSA series (CBSA 47900) that shipped before the metro
+ * pipeline got a uniform ID scheme. When adding a new "legacy metro"
+ * series, prefer the canonical pattern (`<pipeline>/metro_<cbsa>` or
+ * the existing FRED CBSA-prefixed conventions) over extending this
+ * registry; this is a back-compat shim, not the primary path.
+ *
+ * The series field is purely informational — internal callers read
+ * the cbsa for tag synthesis, not the series name. Kept for symmetry
+ * with the parsed shape the regex patterns produce.
+ */
+const LEGACY_METRO_IDS: Record<
+  string,
+  { pipeline: string; series: string; cbsa: string }
+> = {
+  "fred/dc_unemployment_rate": {
+    pipeline: "fred_series",
+    series: "unemployment_rate",
+    cbsa: "47900",
+  },
+  "fred/dc_payrolls": {
+    pipeline: "fred_series",
+    series: "payrolls",
+    cbsa: "47900",
+  },
+  "fred/dc_cpi": {
+    pipeline: "fred_series",
+    series: "cpi",
+    cbsa: "47900",
+  },
+  "fred/dc_case_shiller": {
+    pipeline: "fred_series",
+    series: "case_shiller",
+    cbsa: "47900",
+  },
+  "fred/dc_median_listing": {
+    pipeline: "fred_series",
+    series: "median_listing",
+    cbsa: "47900",
+  },
+};
+
+/**
  * Parse a source ID against the metro-source patterns above. Returns
  * null when the ID isn't a metro source — caller can fall back to other
  * geo parsers (district / county / state) as those land.
@@ -74,6 +124,10 @@ export function parseMetroSourceId(
   sourceId: string,
 ): ParsedMetroSourceId | null {
   if (!sourceId) return null;
+  // Legacy overrides take precedence — these IDs are hardcoded and
+  // wouldn't match any of the regex patterns below.
+  const legacy = LEGACY_METRO_IDS[sourceId];
+  if (legacy) return { ...legacy };
   const slash = sourceId.indexOf("/");
   let pipeline = "";
   let slug = sourceId;
