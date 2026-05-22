@@ -165,6 +165,14 @@ export async function maybeSeedTutorial(
   // nanoid(10) (~8e17 keyspace) so the row isn't discoverable, and the
   // state_json is a pure pointer to the already-public walkthrough
   // preset — no user data, no leakage risk.
+  //
+  // FUTURE REVERSAL: when proper server-side auth lands (cookie-backed
+  // Supabase session for /u/[slug].astro — see the KNOWN LIMITATION
+  // comment in that file), flip this back to visibility='private' and
+  // bump FLAG_PREFIX again so users get the private re-seed. SSR auth
+  // is deferred because cookies trigger GDPR/ePrivacy consent banners
+  // we don't want to ship until Enterprise (the actual driver of
+  // private dashboards) is on the table.
   try {
     const insertRes = await fetch(
       `${SUPABASE_REST_URL}/rest/v1/saved_dashboards`,

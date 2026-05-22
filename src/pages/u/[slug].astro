@@ -35,6 +35,20 @@ let ownerId: string | null = null;
 if (!isSupabaseConfigured) {
   errorMessage = "Supabase is not configured on this build.";
 } else {
+  // KNOWN LIMITATION: server-side fetch with the anon key. Session
+  // lives only in localStorage (no auth cookies — deliberate, to dodge
+  // EU GDPR / ePrivacy consent obligations until Enterprise revenue
+  // justifies the cookie-consent UX cost). Consequence: auth.uid()
+  // is null here, so the saved_dashboards RLS policy
+  //   visibility = 'public' OR (auth.uid() = owner_id)
+  // collapses to "public only." A private dashboard 404s server-side
+  // EVEN FOR ITS OWN OWNER. Workaround in seed-tutorial.ts: walkthrough
+  // rows are seeded public-but-unlisted (random nanoid slug). Real
+  // private dashboards (planned Enterprise feature) need the canonical
+  // Supabase SSR pattern: cookie-backed session + createServerClient
+  // (cookies). That's deferred until we're sure Enterprise customers
+  // are inbound, since cookies trigger a consent banner that's annoying
+  // for everyone else.
   const sb = createSupabase()!;
   const { data, error } = await sb
     .from("saved_dashboards")
