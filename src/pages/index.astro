@@ -298,10 +298,22 @@ const tabs: TabSpec[] = sorted.map((d) => ({
         var m = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/);
         if (!m) return;
         var raw = localStorage.getItem("sb-" + m[1] + "-auth-token");
-        if (!raw) return;
-        var parsed = JSON.parse(raw);
-        var s = (parsed && (parsed.currentSession || parsed)) || null;
-        if (!s || !s.access_token) return;
+        var hasSession = false;
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          var s = (parsed && (parsed.currentSession || parsed)) || null;
+          hasSession = !!(s && s.access_token);
+        }
+        if (!hasSession) {
+          // Signed-out → /welcome/ is the front door now. Leaner
+          // pitch + walkthrough CTA + coverage grid; the featured-
+          // dashboard render below is for returning users who want
+          // a quick preset preview, not first-timers landing from
+          // a Substack link. window.replace so the back button
+          // doesn't loop /welcome/ → / → /welcome/.
+          window.location.replace((baseUrl || "") + "/welcome/");
+          return;
+        }
         var zone = document.querySelector("[data-role='marketing-zone']");
         if (zone) zone.hidden = true;
 
