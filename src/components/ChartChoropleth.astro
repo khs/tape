@@ -1081,39 +1081,6 @@ const statesJoined = stateCodes.join(",");
         `hatched ${hatchedSpecial} special-land-use (e.g. ${specialExamples.join(", ") || "—"}) ` +
         `+ ${hatchedMissing} missing-data (e.g. ${missingExamples.join(", ") || "—"})`,
       );
-      // Surface a visible explanation of the hatch pattern. The
-      // tooltip already explains per-tract on hover, but a reader
-      // scanning the map needs to know WHY they're seeing grey
-      // stripes before they think to mouse over one. The legend
-      // wording adapts to which kinds of hatched tracts the map
-      // actually contains — both / special-only / missing-only —
-      // so it stays accurate to the picture in front of the user.
-      // Lives on the dialog wrap so it shows next to the legend
-      // (where the rest of the visual encoding is documented).
-      if (mode !== "tile" && (hatchedSpecial > 0 || hatchedMissing > 0)) {
-        const wrap = canvas.closest(".choro-dialog-canvas-wrap");
-        const meta = wrap?.parentElement?.querySelector<HTMLElement>(
-          ".choro-dialog-hatch-note",
-        );
-        if (meta) {
-          const parts: string[] = [];
-          if (hatchedSpecial > 0) {
-            parts.push(
-              `${hatchedSpecial} special land-use ` +
-                "(military bases, parks, water bodies — no resident population)",
-            );
-          }
-          if (hatchedMissing > 0) {
-            parts.push(
-              `${hatchedMissing} with no ACS data for this vintage ` +
-                "(disclosure suppression or post-2020 tract split)",
-            );
-          }
-          meta.textContent =
-            "Hatched areas: " + parts.join("; ") + ". Hover for details.";
-          meta.hidden = false;
-        }
-      }
     }
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
@@ -1521,7 +1488,6 @@ const statesJoined = stateCodes.join(",");
         </p>
       </details>
       <div class="choro-dialog-canvas-wrap"></div>
-      <p class="muted small choro-dialog-hatch-note" hidden></p>
       <footer class="choro-dialog-footer">
         <p class="muted small choro-dialog-meta"></p>
         <p class="muted small choro-dialog-zoom-hint" hidden>Scroll to zoom · drag to pan · Ctrl+0 to reset</p>
@@ -1821,15 +1787,6 @@ const statesJoined = stateCodes.join(",");
     // expanded paint runs with identical bindings + mode=expanded.
     const wrap = dialog.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
     wrap.innerHTML = "";
-    // Reset hatch-note so it doesn't carry stale text from the
-    // previous chart (e.g. an open of a state map after a tract map
-    // where the tract map had hatched regions). paint() will repopulate
-    // when this chart has hatched tracts.
-    const hatchNote = dialog.querySelector<HTMLElement>(".choro-dialog-hatch-note");
-    if (hatchNote) {
-      hatchNote.hidden = true;
-      hatchNote.textContent = "";
-    }
     const expandedCanvas = document.createElement("div");
     expandedCanvas.className = "choro-canvas choro-canvas-expanded";
     expandedCanvas.setAttribute("data-role", "choro-canvas");
@@ -2203,15 +2160,4 @@ const statesJoined = stateCodes.join(",");
   .choro-dialog-footer p { margin: 0; }
   .choro-dialog-zoom-hint { margin-top: 4px !important; opacity: 0.7; }
   .choro-dialog-zoom-hint[hidden] { display: none; }
-  /* Hatch-pattern explainer. Sits between the map and the meta
-     footer so it reads as part of the legend rather than as
-     provenance. Repeats the hover-tooltip text in compact form so a
-     reader scanning the map gets the encoding without hunting for a
-     hatched tract to mouse over. */
-  .choro-dialog-hatch-note {
-    padding: 6px 20px 0;
-    margin: 0;
-    line-height: 1.45;
-  }
-  .choro-dialog-hatch-note[hidden] { display: none; }
 </style>
