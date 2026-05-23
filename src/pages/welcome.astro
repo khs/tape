@@ -551,30 +551,30 @@ const EDITORIAL_FEATURES: string[] = [
       // any chip that the idle pass hasn't covered yet: covers fast
       // clickers and slow connections where idle is still draining.
       //
-      // Desktop-only gate: ~2MB of speculative fetch is fine on a
-      // wired/wifi connection but ungenerous on cellular. Skip both
-      // the idle pass AND the hover/focus pass entirely on touch-
-      // primary devices and on connections the browser has flagged
-      // as slow / save-data. Click-then-wait is the right tradeoff
-      // on a phone; speculative warm-up isn't worth the bytes.
+      // Connection-quality gate: ~2MB of speculative fetch is fine
+      // on a wired/wifi/4G connection but ungenerous on cellular
+      // 3G or worse. Skip the prefetch entirely when the browser
+      // signals a slow connection or the user has explicitly opted
+      // into Save Data. Touch-vs-pointer is NOT used as a signal —
+      // many laptops have touchscreens and we don't want to deny
+      // them the speedup.
       type NetInfo = { saveData?: boolean; effectiveType?: string };
       function shouldPrefetch(): boolean {
         const nav = navigator as unknown as { connection?: NetInfo };
         const conn = nav.connection;
         // Explicit Save Data preference → never prefetch.
         if (conn?.saveData) return false;
-        // 2G / slow-2G → bandwidth too constrained for speculative
-        // fetches. 3G + 4G + wifi are all fine.
+        // Anything below 4G → skip. By 2026 the median connection
+        // is 4G or wifi; 3G or worse is constrained enough that
+        // ~2MB of speculative SSR responses isn't justified by the
+        // click-latency win. Note that effectiveType is the
+        // browser's PERCEIVED throughput, not the radio type —
+        // it's based on round-trip latency + bandwidth measurements,
+        // so a wifi connection that's actually slow registers as
+        // "3g" too. Either way the call's the same: skip.
         const eff = conn?.effectiveType;
-        if (eff === "slow-2g" || eff === "2g") return false;
-        // "(hover: hover) and (pointer: fine)" is the canonical
-        // media query for "primary input is a mouse / trackpad."
-        // Phones + tablets + touch-only laptops report
-        // pointer: coarse and won't match — that's the signal we
-        // want. Hybrid devices (Surface w/ mouse, etc.) match
-        // based on the currently-active input mode.
-        if (typeof window.matchMedia !== "function") return false;
-        return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+        if (eff === "slow-2g" || eff === "2g" || eff === "3g") return false;
+        return true;
       }
       if (shouldPrefetch()) {
         const prefetchedEmbeds = new Set<string>();
