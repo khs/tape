@@ -286,14 +286,25 @@ const title = resolved?.chart.data.title ?? chartId;
   /* Map canvas gets every leftover pixel below the title — without
      this, the canvas inherits a fixed min-height that leaves
      awkward blank space above the title or cuts off the map at
-     embed dimensions. */
+     embed dimensions.
+
+     align-items: flex-start pins the SVG to the TOP of the canvas
+     (the base .choro-canvas CSS centers vertically, which leaves
+     a tall whitespace gap between the title and the map when the
+     iframe is taller than the SVG's natural height — exactly what
+     happens at the welcome page's 280px render-showcase iframes).
+     Horizontal centering stays for visual balance. */
   .embed-shell .choro-canvas {
     flex: 1 1 auto;
     min-height: 0;
+    align-items: flex-start;
   }
   .embed-shell .chart-tile.choro-tile {
     display: flex;
     flex-direction: column;
+    /* Tighten the title→map spacing further — the default 8px gap
+       reads as more whitespace than necessary at embed scale. */
+    gap: 4px;
   }
   /* Hide the dialog entirely in embed mode. The script above
      intercepts tile clicks before they reach the dialog-opening
