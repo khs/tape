@@ -707,6 +707,19 @@ const statesJoined = stateCodes.join(",");
       if (props && !props.name && props.NAME) {
         props.name = props.NAME;
       }
+      // Curated colloquial name for well-known 9800-series tracts —
+      // "Pentagon" beats "Census Tract 9801". Apply once at paint
+      // time rather than per pointermove in the tooltip handler:
+      // we're already iterating features here, the lookup is O(1),
+      // and amortizing over a single paint vs hundreds of hover
+      // events per second makes a measurable difference on
+      // multi-thousand-feature maps. specialTractName returns null
+      // for non-curated GEOIDs so the topology label stands.
+      const fid = (f as { id?: string }).id;
+      if (fid && props) {
+        const colloquial = specialTractName(fid);
+        if (colloquial) props.name = colloquial;
+      }
     }
     // Disambiguate same-name geographies within a state. The
     // us-counties topology carries 6 collisions where a county and an
@@ -896,12 +909,10 @@ const statesJoined = stateCodes.join(",");
           strokeWidth: 0.3,
           title: (d: any) => {
             const v = values[d.id];
-            // Prefer a curated colloquial name when one exists for
-            // this GEOID — "Pentagon" reads better than "Census
-            // Tract 9801". Falls through to the topology label
-            // when the GEOID isn't in the special-name table.
-            const name =
-              specialTractName(d.id) ?? d.properties?.name ?? d.id;
+            // properties.name has already had the curated-colloquial
+            // override applied in the normalize loop above (see
+            // `specialTractName` block), so we can just read it.
+            const name = d.properties?.name ?? d.id;
             return `${name}\n${fmtValue(v ?? null, b.unit, b.decimals)}`;
           },
         }),
@@ -1125,12 +1136,10 @@ const statesJoined = stateCodes.join(",");
         return;
       }
       const v = values[d.id];
-      // Prefer the curated colloquial name (Pentagon, National Mall,
-      // Dulles, etc.) over the topology's generic "Census Tract NNNN"
-      // for the ~16 well-known 9800-series GEOIDs we've identified.
-      // Falls through to topology name then to bare GEOID.
-      const name =
-        specialTractName(d.id) ?? d.properties?.name ?? d.id;
+      // properties.name already carries the curated colloquial
+      // override (set at paint time in the normalize loop, see
+      // `specialTractName` block above) — no per-pointermove lookup.
+      const name = d.properties?.name ?? d.id;
       if (v == null || !Number.isFinite(v)) {
         // Distinguish the two no-data cases so the tooltip explains
         // why the area is hatched rather than silently hiding.
