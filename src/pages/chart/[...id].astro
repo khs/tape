@@ -1,13 +1,14 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Chart from "../../components/Chart.astro";
+import SectionChart from "../../components/SectionChart.astro";
 import ChartController from "../../components/ChartController.astro";
 import {
   resolveChart,
   effectiveChart,
   isVisibleChart,
 } from "../../lib/resolve-dashboard";
+import { resolveBarSnapshot } from "../../lib/resolve-bar-snapshots";
 import { encodeComposedState } from "../../lib/composer-state";
 import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
 
@@ -31,6 +32,15 @@ const { chartId } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const resolved = await resolveChart(chartId);
+const effChart = resolved ? effectiveChart(resolved) : null;
+// Bar charts need per-source snapshot data preloaded so ChartBar's
+// JSX can render without an inline await. Cheap for the line +
+// choropleth paths (single chart, single call) — bypass the
+// filesystem read entirely when not needed.
+const barSnapshot =
+  resolved && effChart?.render === "bar"
+    ? await resolveBarSnapshot(resolved.sources, effChart.barAsOf)
+    : [];
 const composeUrl =
   baseUrl +
   "/compose/?d=" +
@@ -98,11 +108,21 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
           </header>
 
           <div class="chart-detail-tile">
-            <Chart
+            {/*
+              SectionChart dispatches on chart.render. Without this,
+              bar charts (countries/gdp_snapshot etc.) rendered via
+              Chart.astro as multi-source line tiles — showing each
+              source's delta-over-defaultDelta instead of the bar
+              snapshot. Choropleth charts are filtered out of
+              getStaticPaths above; the dispatch handles them
+              gracefully if that filter is ever removed.
+            */}
+            <SectionChart
               chartId={chartId}
-              chart={effectiveChart(resolved)}
+              chart={effChart!}
               sources={resolved.sources}
               dashboardSlug="chart"
+              barSnapshot={barSnapshot}
             />
           </div>
 
