@@ -130,24 +130,74 @@ const USE_CASES: UseCase[] = [
   {
     eyebrow: "Compose",
     title: "Build a dashboard for your beat.",
-    body: "Pick sources, combine them with divide / sum / diff operators, tag annotations on key dates, save at a stable URL. No code, no spreadsheet round-trip.",
-    // The walkthrough is a fully-built dashboard that exercises every
-    // composer feature — better landing than a blank /compose/ for a
-    // first-time visitor who hasn't internalized what's possible yet.
+    body: "Pick sources, combine A÷B / A+B / A−B as derived series, tag annotations on key dates (Lehman, COVID, Fed pivot), layer NBER recession bands or party-control shading, switch the y-axis between Level / YoY % / Index=100. Save at a stable URL — no code, no spreadsheet round-trip.",
     cta: { label: "Open the walkthrough", href: "/walkthrough/" },
   },
   {
     eyebrow: "Cite",
     title: "Drop a chart into a piece.",
-    body: "Every source has a citation block with provenance, license, and last-updated date. Copy a one-line citation or paste an iframe embed that updates as the data refreshes.",
+    body: "Every source carries a citation block — provider, series ID, license, and last-updated date — plus a one-line APA-style citation and a copy-paste iframe embed that updates automatically as the data refreshes.",
     cta: { label: "See a source page", href: "/source/fred/cpi_yoy/" },
   },
   {
     eyebrow: "Alert",
     title: "Get told when CPI ticks above 4%.",
-    body: "Set thresholds on any indicator we ship. We evaluate after every data refresh and email you on the cross. No constant tab-checking, no dashboard-watching at 8:30 AM.",
+    body: "Set thresholds on any indicator we ship — greater-than, crosses-above, crosses-below, absolute change. We evaluate after every data refresh and email you on the cross. Auto-pauses gracefully if delivery starts failing.",
     cta: { label: "Set up an alert", href: "/alerts/" },
   },
+];
+
+/**
+ * Render-type showcase: three small embedded charts demonstrating the
+ * shapes data takes on Tape. Picked deliberately so each one looks
+ * obviously different from the others — line is the daily/monthly
+ * arc, bar is "where it stands today, ranked," choropleth is "how it
+ * varies across geography." A reader scanning down the page sees
+ * three render shapes and gets the breadth-of-render signal in
+ * about three seconds.
+ */
+interface RenderShowcase {
+  label: string;
+  blurb: string;
+  chartId: string;
+  chartHref: string;
+}
+const RENDER_SHOWCASE: RenderShowcase[] = [
+  {
+    label: "Time series",
+    blurb: "Daily / monthly / quarterly. Tile shows level + delta over the picked window; click to expand into the dialog with pills, sources, annotations.",
+    chartId: "us-macro/cpi",
+    chartHref: "/chart/us-macro/cpi/",
+  },
+  {
+    label: "Bar snapshot",
+    blurb: "Same data, at one moment in time. Horizontal or vertical, sorted descending by default. Good for ranking — who's spending the most, what's growing the fastest, where it lands today.",
+    chartId: "countries/gdp_snapshot",
+    chartHref: "/chart/countries/gdp_snapshot/",
+  },
+  {
+    label: "Choropleth",
+    blurb: "Cross-sectional geographic variation. State, county, tract, or block-group level, ACS demographics or any source the choropleth pipeline emits.",
+    chartId: "government/us_bachelors_plus_pct_county_map_2022",
+    chartHref: "/chart/government/us_bachelors_plus_pct_county_map_2022/",
+  },
+];
+
+/**
+ * Editorial-layer feature pills shown above the render showcase.
+ * Reads as a compressed list of "what makes a Tape chart different
+ * from a bare FRED screenshot." None of these are individually
+ * differentiating, but the combination of them is.
+ */
+const EDITORIAL_FEATURES: string[] = [
+  "Editorial annotations",
+  "Background shading (recessions, party control, Fed chairs)",
+  "Dual-axis multi-source",
+  "Derived A÷B / A+B / A−B sources",
+  "Y-axis transforms (Level / YoY % / Index=100)",
+  "Window pills 1m → 50y",
+  "Indicator alerts on threshold-cross",
+  "Iframe embeds with live refresh",
 ];
 ---
 
@@ -195,6 +245,59 @@ const USE_CASES: UseCase[] = [
               {u.cta.label} &rarr;
             </a>
           </article>
+        ))}
+      </div>
+    </section>
+
+    {/*
+      Feature showcase — what a Tape chart actually looks like and what
+      it carries that a bare FRED screenshot doesn't. Two parts:
+        1. A row of editorial-feature pills (text-only) — the
+           combination signal: not any one of these is differentiating,
+           but the stack of them is.
+        2. A 3-up grid of live embed iframes showing three render
+           types (line / bar / choropleth). Each is the production
+           /embed/chart/<id>/ endpoint, which means the same iframe
+           handshake we use for the coverage chips applies here too —
+           clicking a tile pops it OUT to the welcome-page viewport
+           rather than opening a cramped in-iframe dialog.
+    */}
+    <section class="welcome-features-render" aria-labelledby="features-render-heading">
+      <p class="welcome-section-eyebrow">What a Tape chart can do</p>
+      <h2 id="features-render-heading" class="welcome-section-heading">
+        Editorial layers, multiple render types.
+      </h2>
+      <p class="welcome-section-sub">
+        Each chart carries the moves you'd want to make in a piece —
+        annotations, recession bands, derived series, transforms,
+        window pills — plus the right shape for the question. Live
+        embeds below; click any one to pop it out.
+      </p>
+      <ul class="welcome-features-pills" aria-label="Editorial features available on every chart">
+        {EDITORIAL_FEATURES.map((feature) => (
+          <li class="welcome-features-pill">{feature}</li>
+        ))}
+      </ul>
+      <div class="welcome-render-grid">
+        {RENDER_SHOWCASE.map((r) => (
+          <figure class="welcome-render-card">
+            <figcaption class="welcome-render-caption">
+              <p class="welcome-render-label">{r.label}</p>
+              <p class="welcome-render-blurb">{r.blurb}</p>
+            </figcaption>
+            <iframe
+              class="welcome-render-iframe"
+              src={`${baseUrl}/embed/chart/${r.chartId}/`}
+              title={`${r.label} example chart`}
+              loading="lazy"
+            ></iframe>
+            <a
+              class="welcome-render-link"
+              href={`${baseUrl}${r.chartHref}`}
+            >
+              Open full chart &rarr;
+            </a>
+          </figure>
         ))}
       </div>
     </section>
@@ -332,8 +435,16 @@ const USE_CASES: UseCase[] = [
             .forEach((el) => el.classList.remove("welcome-coverage-chip-active"));
           chip.classList.add("welcome-coverage-chip-active");
           // Scroll just enough to bring the preview into view; nearest
-          // keeps the chips visible above when possible.
-          previewBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          // keeps the chips visible above when possible. Respect the
+          // user's prefers-reduced-motion setting — vestibular-
+          // sensitive users get an instant jump instead of a slide.
+          const prefersReduced = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          previewBox.scrollIntoView({
+            behavior: prefersReduced ? "auto" : "smooth",
+            block: "nearest",
+          });
         });
       });
 
@@ -357,19 +468,33 @@ const USE_CASES: UseCase[] = [
         "[data-role='popout-close']",
       );
 
+      // Track the element that had focus when the popout opened so we
+      // can hand focus back on close — keeps keyboard users anchored
+      // to where they were instead of dumping them at <body>.
+      let popoutLastFocus: HTMLElement | null = null;
       function openPopout(chartHref: string): void {
         if (!popoutOverlay || !popoutIframe) return;
+        popoutLastFocus = document.activeElement as HTMLElement | null;
         popoutIframe.src = chartHref;
         popoutOverlay.hidden = false;
         // Lock the underlying welcome page so the reader can't scroll
         // it while the overlay's open. Restored on close.
         document.body.style.overflow = "hidden";
+        // Defer focus until next tick so the hidden=false has taken
+        // effect — focus() on a still-hidden element no-ops in some
+        // browsers.
+        requestAnimationFrame(() => popoutClose?.focus());
       }
       function closePopout(): void {
         if (!popoutOverlay || !popoutIframe) return;
         popoutOverlay.hidden = true;
         popoutIframe.src = "about:blank";
         document.body.style.overflow = "";
+        // Restore focus to whoever had it before — typically the
+        // chip the user just clicked. Use optional chaining: if the
+        // saved element vanished (DOM change), just no-op.
+        popoutLastFocus?.focus?.();
+        popoutLastFocus = null;
       }
 
       window.addEventListener("message", (e) => {
@@ -416,7 +541,14 @@ const USE_CASES: UseCase[] = [
       embeds fall back to opening /chart/<id>/ in a new tab,
       handled by the embed page's script (no parent ack → new tab).
     */}
-    <div class="welcome-popout-overlay" data-role="popout-overlay" hidden>
+    <div
+      class="welcome-popout-overlay"
+      data-role="popout-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Expanded chart"
+      hidden
+    >
       <button
         type="button"
         class="welcome-popout-close"
@@ -428,7 +560,7 @@ const USE_CASES: UseCase[] = [
         class="welcome-popout-iframe"
         data-role="popout-iframe"
         src="about:blank"
-        title="Pop-out chart"
+        title="Expanded chart view"
       ></iframe>
     </div>
 
@@ -606,6 +738,94 @@ const USE_CASES: UseCase[] = [
     text-underline-offset: 2px;
   }
 
+  /* ---- Feature showcase (editorial-feature pills + render-type grid) ---- */
+  .welcome-features-render {
+    padding: 32px 0 40px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .welcome-features-pills {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    max-width: 880px;
+  }
+  .welcome-features-pill {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+    background: var(--color-neutral-100);
+    border: 1px solid rgba(55, 53, 47, 0.06);
+    border-radius: 4px;
+    padding: 4px 9px;
+    line-height: 1.3;
+    /* Pills are textual — not interactive — so no hover affordance.
+       They read as a compact "stack of capabilities" rather than as
+       a menu. */
+  }
+  .welcome-render-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 900px) {
+    .welcome-render-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .welcome-render-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .welcome-render-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+  }
+  .welcome-render-caption {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .welcome-render-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin: 0;
+  }
+  .welcome-render-blurb {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-600);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .welcome-render-iframe {
+    width: 100%;
+    /* 280px fits a tile cleanly — title, current value + delta
+       readout, plus a ~140px sparkline at minimum height. Choropleth
+       embeds expand to fill, so a 280 floor keeps the map legible
+       too. */
+    height: 280px;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-neutral-50);
+    display: block;
+  }
+  .welcome-render-link {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .welcome-render-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   /* ---- Coverage grid ---- */
   .welcome-coverage {
     padding: 32px 0 48px;
@@ -776,5 +996,41 @@ const USE_CASES: UseCase[] = [
   .welcome-newsletter {
     padding: 36px 0 48px;
     border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+
+  /* ---- Accessibility: keyboard focus + reduced motion ---- */
+  /* Visible focus on every interactive element. The site's accent
+     ring is intentionally chunky (2px + 2px offset) so it's still
+     readable against the off-white background on a 4K display where
+     a 1px outline would disappear. :focus-visible (not :focus)
+     because mouse clicks shouldn't paint outlines on every button. */
+  .welcome-cta-primary:focus-visible,
+  .welcome-cta-secondary:focus-visible,
+  .welcome-walkthrough-line a:focus-visible,
+  .welcome-use-cta:focus-visible,
+  .welcome-coverage-chip:focus-visible,
+  .welcome-coverage-preview-source:focus-visible,
+  .welcome-render-link:focus-visible,
+  .welcome-popout-close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* Honor the user's reduced-motion preference. Disables the
+     hover-scale on the popout close button (vestibular-sensitive
+     users find the bounce uncomfortable) and removes the smooth
+     filter/color transitions so chips switch states instantly. The
+     scrollIntoView smooth-vs-auto branch lives in JS above; this
+     handles the pure-CSS animations. */
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-cta-primary,
+    .welcome-coverage-chip,
+    .welcome-popout-close {
+      transition: none;
+    }
+    .welcome-popout-close:hover {
+      transform: none;
+    }
   }
 </style>
