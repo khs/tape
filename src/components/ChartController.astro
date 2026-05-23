@@ -898,7 +898,20 @@
    * visible spillover area), so this card only shows on dialog hover.
    *
    * pointer-events: none → never intercepts hover detection on the
-   * underlying chart. z-index >= dialog top-layer so it paints above.
+   * underlying chart.
+   *
+   * Top-layer note: `<dialog showModal()>` puts the dialog in the
+   * browser's TOP LAYER, which renders above all normal-flow z-indexed
+   * content — including this card if it lives on document.body. So
+   * z-index alone wasn't enough: the card came up BEHIND the dialog
+   * backdrop, clipped at the dialog edges (user-visible regression:
+   * hovering on a multi-series dialog plot showed the right half of
+   * the country-value listing cut off at the dialog border).
+   *
+   * The fix is to re-parent the card to the active dialog on each
+   * update — children of a top-layer element render in that same
+   * top layer. Falls back to document.body when no dialog is open
+   * (welcome-page in-flow embeds, source-page tiles, etc.).
    */
   let _hoverCardEl: HTMLDivElement | null = null;
   function getHoverCard(): HTMLDivElement {
@@ -913,12 +926,35 @@
     return el;
   }
 
+  /**
+   * Pick the right parent for the hover-card. If a `<dialog>` is
+   * open via showModal(), re-parent the card INTO the dialog so it
+   * joins the dialog's top-layer stacking context. Otherwise leave
+   * it on document.body where position: fixed + a very high z-index
+   * suffices to paint above the page.
+   */
+  function reparentHoverCard(card: HTMLDivElement): void {
+    // querySelector("dialog[open]") catches both <dialog open> and
+    // a dialog opened via showModal() (which sets the open attribute).
+    // Multiple-open is rare; pick the LAST one matched, which by DOM
+    // order is the most recently injected / on-top dialog.
+    const dialogs = document.querySelectorAll<HTMLDialogElement>("dialog[open]");
+    const target = dialogs.length > 0 ? dialogs[dialogs.length - 1] : document.body;
+    if (card.parentNode !== target) {
+      target.appendChild(card);
+    }
+  }
+
   function updateHoverCard(
     lines: string[],
     cursorClientX: number,
     cursorClientY: number,
   ): void {
     const card = getHoverCard();
+    // Re-parent into the active dialog (if any) so the card paints
+    // in the dialog's top layer rather than behind it. No-op when
+    // already in the right place.
+    reparentHoverCard(card);
     // Rebuild rows: first line is the date header, rest are
     // "Series: value" rows. Plain text — bundleTitle already does
     // the formatting and we just want each line on its own row.
