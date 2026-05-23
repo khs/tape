@@ -81,3 +81,64 @@ mark.todo {
   font-family: var(--font-mono);
   white-space: nowrap;
 }
+
+/* ---- Floating chart hover-card ---------------------------------------
+ * Singleton element appended to <body> by ChartController to display the
+ * series-listing on dialog plots. Lives in global CSS (not Chart.astro's
+ * scoped block) because Astro's scoped-class machinery doesn't reach an
+ * element programmatically appended to document.body — scoped rules
+ * would never match.
+ *
+ * position: fixed escapes the dialog's overflow-y: auto + the plot SVG's
+ * intrinsic viewport — both of which clipped the old SVG-bound Plot.tip
+ * on dense charts. z-index sits above <dialog> top-layer so the card
+ * paints over the dialog body when it has to (the user explicitly wants
+ * the hover-card to block whatever's underneath, since it's the most
+ * mobile element on screen). pointer-events: none keeps the card from
+ * intercepting hover detection back onto itself — without it the card
+ * follows the cursor onto its own surface and triggers an infinite
+ * pointerleave/pointerenter cycle.
+ * ------------------------------------------------------------------- */
+.chart-hover-card {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2147483646; /* one below int32 max so a true top-of-stack
+                         system overlay still wins */
+  pointer-events: none;
+  background: #fefefe;
+  color: #1c1c1a;
+  border: 1px solid #dcdcda;
+  border-radius: 4px;
+  padding: 6px 9px;
+  box-shadow: 0 4px 14px rgba(55, 53, 47, 0.14);
+  font-family:
+    "Inter Variable", Inter, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  /* tabular-nums lines up decimal places across rows so "$3.2T" and
+     "$72B" align visually rather than wobble left-right. */
+  font-variant-numeric: tabular-nums;
+  /* Widen comfortably for long source names + values; cap so it
+     doesn't dominate the viewport on a 4K display. */
+  max-width: 360px;
+  min-width: 140px;
+  /* Don't transition opacity or transform — Plot.tip used to be
+     instant, and any animation just delays the read. */
+}
+.chart-hover-card[hidden] {
+  display: none;
+}
+.chart-hover-row {
+  white-space: nowrap;
+}
+/* Date header — first row of each card. Slightly muted + a thin rule
+   below to separate it from the per-series rows. */
+.chart-hover-date {
+  color: #6f6c66;
+  font-weight: 500;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+}

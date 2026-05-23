@@ -871,6 +871,182 @@
     fontSize: 12,
   };
 
+  /**
+   * Singleton HTML hover-card for the dialog plot.
+   *
+   * Plot's built-in tip mark is rendered as SVG <g> inside the plot's
+   * <svg>, which means it's bounded by the SVG viewport AND by every
+   * ancestor with overflow: hidden (notably .dialog-body's
+   * overflow-y: auto on a scrollable dialog). On multi-source charts
+   * — energy futures curves, country baskets, sector rollups — the
+   * tip listing all series at the hovered x grows taller than fits
+   * either above or below the cursor inside the plot frame, and the
+   * bottom lines get clipped. The user can't see Brazil's GDP because
+   * the tip overflows the plot's bottom edge and dialog-body cuts it.
+   *
+   * Solving via SVG `overflow: visible` is insufficient — the tip
+   * still gets clipped by dialog-body's scroll container. The only
+   * clean fix is to render the hover-card as an HTML element attached
+   * to document.body with position: fixed, escaping the SVG +
+   * dialog-body chain entirely. It can be as tall as the series list
+   * needs, and it block out whatever's underneath (per design intent:
+   * the hover-card is the most mobile element and should not be
+   * subordinated to the chart frame's bounds).
+   *
+   * Singleton: one card serves every dialog plot on the page. Plot.tip
+   * still drives tile sparklines (which fit in the tile's overflow:
+   * visible spillover area), so this card only shows on dialog hover.
+   *
+   * pointer-events: none → never intercepts hover detection on the
+   * underlying chart. z-index >= dialog top-layer so it paints above.
+   */
+  let _hoverCardEl: HTMLDivElement | null = null;
+  function getHoverCard(): HTMLDivElement {
+    if (_hoverCardEl) return _hoverCardEl;
+    const el = document.createElement("div");
+    el.className = "chart-hover-card";
+    el.setAttribute("role", "tooltip");
+    el.setAttribute("aria-hidden", "true");
+    el.hidden = true;
+    document.body.appendChild(el);
+    _hoverCardEl = el;
+    return el;
+  }
+
+  function updateHoverCard(
+    lines: string[],
+    cursorClientX: number,
+    cursorClientY: number,
+  ): void {
+    const card = getHoverCard();
+    // Rebuild rows: first line is the date header, rest are
+    // "Series: value" rows. Plain text — bundleTitle already does
+    // the formatting and we just want each line on its own row.
+    while (card.firstChild) card.removeChild(card.firstChild);
+    for (let i = 0; i < lines.length; i++) {
+      const row = document.createElement("div");
+      row.className =
+        i === 0 ? "chart-hover-row chart-hover-date" : "chart-hover-row";
+      row.textContent = lines[i];
+      card.appendChild(row);
+    }
+    card.hidden = false;
+    // Position with viewport-edge flipping. Default places the card
+    // to the bottom-right of the cursor; if it would extend past the
+    // viewport, flip to the other side. Measure AFTER setting
+    // content (offsetWidth/Height reflect current rendering).
+    const offset = 14;
+    const margin = 8;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // Reset to top-left first so offsetWidth/Height reflect the
+    // natural unconstrained size, not the previous frame's clipped
+    // size.
+    card.style.left = "0px";
+    card.style.top = "0px";
+    const cw = card.offsetWidth;
+    const ch = card.offsetHeight;
+    let x = cursorClientX + offset;
+    let y = cursorClientY + offset;
+    if (x + cw > vw - margin) x = cursorClientX - offset - cw;
+    if (y + ch > vh - margin) y = cursorClientY - offset - ch;
+    if (x < margin) x = margin;
+    if (y < margin) y = margin;
+    card.style.left = `${x}px`;
+    card.style.top = `${y}px`;
+  }
+
+  function hideHoverCard(): void {
+    if (_hoverCardEl) _hoverCardEl.hidden = true;
+  }
+
+  /**
+   * Wire pointermove on a dialog plot container to drive the
+   * HTML hover-card. The bundles + domain + plot margins live in a
+   * per-container state object that renderFullPlot replaces on each
+   * re-render (window pill click, zoom gesture, etc.) — we only
+   * attach the DOM listeners ONCE per container even though the
+   * underlying SVG gets swapped repeatedly via container.replaceChildren.
+   *
+   * Snapping math: convert cursor.clientX → fraction of the plot's
+   * data area (between marginLeft and width - marginRight) →
+   * domain time → nearest bundle by t. Cheap linear scan since
+   * bundles is at most a few hundred points.
+   *
+   * pointerleave hides the card. We DON'T listen on pointerout — that
+   * fires on every child swap inside the SVG (axes redrawing, etc.)
+   * and would flicker the card off as the user moves between marks.
+   */
+  type HoverWireState = {
+    bundles: Bundle[];
+    domainMs: [number, number] | null;
+    marginLeft: number;
+    marginRight: number;
+  };
+  type WiredHoverContainer = HTMLElement & {
+    _tapeHoverState?: HoverWireState;
+    _tapeHoverBound?: boolean;
+  };
+  function wireHoverCard(
+    container: HTMLElement,
+    state: HoverWireState,
+  ): void {
+    const wired = container as WiredHoverContainer;
+    wired._tapeHoverState = state;
+    if (wired._tapeHoverBound) return;
+    wired._tapeHoverBound = true;
+
+    function nearestBundle(clientX: number): Bundle | null {
+      const s = wired._tapeHoverState;
+      if (!s || s.bundles.length === 0 || !s.domainMs) return null;
+      const svg = container.querySelector("svg");
+      if (!svg) return null;
+      const rect = svg.getBoundingClientRect();
+      const innerLeft = rect.left + s.marginLeft;
+      const innerWidth = rect.width - s.marginLeft - s.marginRight;
+      if (innerWidth <= 0) return null;
+      const frac = (clientX - innerLeft) / innerWidth;
+      // Allow a tiny over-extension on either side so the tip
+      // doesn't flicker off when the cursor is exactly on the
+      // axis line.
+      if (frac < -0.02 || frac > 1.02) return null;
+      const span = s.domainMs[1] - s.domainMs[0];
+      const target = s.domainMs[0] + frac * span;
+      let best: Bundle | null = null;
+      let bestDist = Infinity;
+      for (const b of s.bundles) {
+        const d = Math.abs(b.t.getTime() - target);
+        if (d < bestDist) {
+          bestDist = d;
+          best = b;
+        }
+      }
+      return best;
+    }
+
+    function onMove(e: PointerEvent): void {
+      // During pan/pinch the data is sliding under the cursor; the
+      // tip flickers. The gesture handler toggles "gesture-active"
+      // on the container — we mirror the existing Plot.tip
+      // suppression by hiding the HTML card too.
+      if (container.classList.contains("gesture-active")) {
+        hideHoverCard();
+        return;
+      }
+      const b = nearestBundle(e.clientX);
+      if (!b) {
+        hideHoverCard();
+        return;
+      }
+      updateHoverCard(b.lines, e.clientX, e.clientY);
+    }
+    function onLeave(): void {
+      hideHoverCard();
+    }
+    container.addEventListener("pointermove", onMove, { passive: true });
+    container.addEventListener("pointerleave", onLeave);
+  }
+
   function visibleRange(
     points: Point[],
     window: DeltaWindow,
@@ -1336,16 +1512,19 @@
             );
             bundleSeries.push({ source: m.s, pts });
           }
-          const bundles = buildBundles(bundleSeries);
-          if (bundles.length > 0) {
+          const dualBundles = buildBundles(bundleSeries);
+          if (dualBundles.length > 0) {
+            // See standard-branch comment + getHoverCard doc: tip
+            // moved to an HTML card outside the SVG. Keep a vertical
+            // guide line for the snap cue.
             marks.push(
-              Plot.tip(
-                bundles,
+              Plot.ruleX(
+                dualBundles,
                 Plot.pointerX({
                   x: "t",
-                  y: "y",
-                  title: (b: Bundle) => bundleTitle(b),
-                  ...TIP_STYLE,
+                  stroke: "#1c1c1a",
+                  strokeOpacity: 0.3,
+                  strokeWidth: 1,
                 }),
               ),
             );
@@ -1401,6 +1580,17 @@
             marks,
           });
           container.replaceChildren(plot);
+          // HTML hover-card wiring. Bundles + domain power the
+          // pointermove-driven multi-series listing that replaced
+          // the SVG-bound Plot.tip on this branch. Margins match
+          // the Plot.plot config above (64 left + 64 right for the
+          // two y-axes).
+          wireHoverCard(container, {
+            bundles: dualBundles,
+            domainMs: dualDomainMs,
+            marginLeft: 64,
+            marginRight: 64,
+          });
           return;
         }
       }
@@ -1564,17 +1754,21 @@
     }
     const bundles = buildBundles(bundleSeries);
     if (bundles.length > 0) {
-      // One combined tip showing all series at the hovered x. Previously we
-      // pushed a separate Plot.tip per series, which produced overlapping
-      // boxes (and thus illegible tooltips) on multi-series plots.
+      // Vertical guide line at the hovered x — the visual snap cue.
+      // Replaces Plot.tip's SVG box, which on multi-series plots
+      // grew taller than fits inside the plot frame and got clipped
+      // at the bottom. The full series-listing now lives in an
+      // HTML hover-card rendered to <body> (see wireHoverCard
+      // below + getHoverCard helper above), so it can extend as
+      // tall as needed without being trapped by the chart frame.
       marks.push(
-        Plot.tip(
+        Plot.ruleX(
           bundles,
           Plot.pointerX({
             x: "t",
-            y: "y",
-            title: (b: Bundle) => bundleTitle(b),
-            ...TIP_STYLE,
+            stroke: "#1c1c1a",
+            strokeOpacity: 0.3,
+            strokeWidth: 1,
           }),
         ),
       );
@@ -1651,6 +1845,18 @@
       marks,
     });
     container.replaceChildren(plot);
+    // HTML hover-card wiring. The dialog plot's multi-series listing
+    // now renders to an HTML element appended to document.body (via
+    // wireHoverCard → getHoverCard); the SVG-bound Plot.tip would
+    // have been clipped by .dialog-body's overflow-y on dense
+    // charts. Margins match the Plot.plot config above (64 left +
+    // 16 right standard).
+    wireHoverCard(container, {
+      bundles,
+      domainMs: zoomedDomainMs ?? standardDomainMs ?? null,
+      marginLeft: 64,
+      marginRight: 16,
+    });
   }
 
   /**
@@ -2652,6 +2858,12 @@
       dialog.addEventListener("click", (e) => {
         if (e.target === dialog) dialog.close();
       });
+
+      // Hide the floating hover-card when the dialog closes. Without
+      // this, closing via backdrop click / Escape can leave the card
+      // visible (pointerleave may not fire if the dialog disappears
+      // out from under a still-stationary cursor).
+      dialog.addEventListener("close", () => hideHoverCard());
 
       const closeBtn = dialog.querySelector<HTMLElement>(".dialog-close");
       if (closeBtn) {
