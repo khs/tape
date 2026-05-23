@@ -191,6 +191,15 @@ const title = resolved?.chart.data.title ?? chartId;
     })();
 
     if (chartHref) {
+      // Append ?expanded=1 so wherever this URL ends up — same-origin
+      // popout overlay or cross-origin new tab — the destination
+      // chart-detail page auto-opens its dialog. The reader clicked
+      // the tile to see "more," so landing them on the bare detail-
+      // page tile (a tap-target they'd need to click AGAIN) is the
+      // regression we're avoiding. chart-detail's inline script
+      // listens for this query string and synthesizes the tile click
+      // on load.
+      const expandedHref = chartHref + "?expanded=1";
       document.addEventListener(
         "click",
         (e) => {
@@ -202,11 +211,11 @@ const title = resolved?.chart.data.title ?? chartId;
           e.stopPropagation();
           if (parentWillPopOut) {
             window.parent.postMessage(
-              { type: "tape:embed-popout", chartId, chartHref },
+              { type: "tape:embed-popout", chartId, chartHref: expandedHref },
               window.location.origin,
             );
           } else {
-            window.open(chartHref, "_blank", "noopener,noreferrer");
+            window.open(expandedHref, "_blank", "noopener,noreferrer");
           }
         },
         true, // capture phase — runs before ChartController's bubble listener

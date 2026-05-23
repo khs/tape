@@ -160,6 +160,40 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
 
   <ChartController />
 
+  {/*
+    Auto-expand: open the chart's dialog immediately when the URL has
+    ?expanded=1. The welcome page's coverage chips and the embed page's
+    tile-click popouts both append this query string so the reader
+    lands on the FULL chart view (window pills, transform pills, large
+    plot, sources + citations) instead of a tile-they-have-to-click-
+    again. Without it the popout shows just a tile and the reader has
+    to click a second time to see what they actually came for —
+    especially bad for bar charts whose tile shows mini-bars with no
+    country labels.
+
+    is:inline keeps this in the rendered HTML rather than getting
+    bundled, so it executes synchronously alongside the load event
+    without waiting on the chunked-script graph. Waits for `load`
+    (not DOMContentLoaded) because the per-render-type hydration
+    scripts (ChartController for line, ChartBar's own inline script
+    for bar) attach their tile-click listeners after defer-script
+    parsing — synthesizing a click before then would hit the bare
+    button and do nothing.
+  */}
+  <script is:inline>
+    window.addEventListener("load", function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get("expanded") !== "1") return;
+      // requestAnimationFrame defers one paint cycle past `load`
+      // so any post-load microtask wiring (some hydration runs in
+      // microtasks) lands before we click.
+      requestAnimationFrame(function () {
+        var tile = document.querySelector(".chart-detail-tile .chart-tile");
+        if (tile && typeof tile.click === "function") tile.click();
+      });
+    });
+  </script>
+
   {viewedSourceIds.length > 0 && (
     <AnalyticsDashboardView
       sources={viewedSourceIds}
