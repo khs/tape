@@ -550,44 +550,72 @@ const EDITORIAL_FEATURES: string[] = [
       // Pointer-enter + focus also trigger an immediate prefetch for
       // any chip that the idle pass hasn't covered yet: covers fast
       // clickers and slow connections where idle is still draining.
-      const prefetchedEmbeds = new Set<string>();
-      function prefetchEmbed(chartId: string): void {
-        if (!chartId || prefetchedEmbeds.has(chartId)) return;
-        prefetchedEmbeds.add(chartId);
-        const link = document.createElement("link");
-        link.rel = "prefetch";
-        link.href = `${baseUrl}/embed/chart/${chartId}/`;
-        // `as=document` tells the browser to treat this as a top-
-        // level HTML doc fetch (matching what the iframe will do),
-        // so the cached response is reused correctly.
-        link.setAttribute("as", "document");
-        document.head.appendChild(link);
+      //
+      // Desktop-only gate: ~2MB of speculative fetch is fine on a
+      // wired/wifi connection but ungenerous on cellular. Skip both
+      // the idle pass AND the hover/focus pass entirely on touch-
+      // primary devices and on connections the browser has flagged
+      // as slow / save-data. Click-then-wait is the right tradeoff
+      // on a phone; speculative warm-up isn't worth the bytes.
+      type NetInfo = { saveData?: boolean; effectiveType?: string };
+      function shouldPrefetch(): boolean {
+        const nav = navigator as unknown as { connection?: NetInfo };
+        const conn = nav.connection;
+        // Explicit Save Data preference → never prefetch.
+        if (conn?.saveData) return false;
+        // 2G / slow-2G → bandwidth too constrained for speculative
+        // fetches. 3G + 4G + wifi are all fine.
+        const eff = conn?.effectiveType;
+        if (eff === "slow-2g" || eff === "2g") return false;
+        // "(hover: hover) and (pointer: fine)" is the canonical
+        // media query for "primary input is a mouse / trackpad."
+        // Phones + tablets + touch-only laptops report
+        // pointer: coarse and won't match — that's the signal we
+        // want. Hybrid devices (Surface w/ mouse, etc.) match
+        // based on the currently-active input mode.
+        if (typeof window.matchMedia !== "function") return false;
+        return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
       }
-      function bulkPrefetchChips(): void {
+      if (shouldPrefetch()) {
+        const prefetchedEmbeds = new Set<string>();
+        const prefetchEmbed = (chartId: string): void => {
+          if (!chartId || prefetchedEmbeds.has(chartId)) return;
+          prefetchedEmbeds.add(chartId);
+          const link = document.createElement("link");
+          link.rel = "prefetch";
+          link.href = `${baseUrl}/embed/chart/${chartId}/`;
+          // `as=document` tells the browser to treat this as a top-
+          // level HTML doc fetch (matching what the iframe will do),
+          // so the cached response is reused correctly.
+          link.setAttribute("as", "document");
+          document.head.appendChild(link);
+        };
+        const bulkPrefetchChips = (): void => {
+          document
+            .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
+            .forEach((chip) => {
+              const id = chip.dataset.chartId;
+              if (id) prefetchEmbed(id);
+            });
+        };
+        const ric = (window as unknown as {
+          requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => void;
+        }).requestIdleCallback;
+        if (ric) {
+          ric(bulkPrefetchChips, { timeout: 5000 });
+        } else {
+          setTimeout(bulkPrefetchChips, 1500);
+        }
         document
           .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
           .forEach((chip) => {
             const id = chip.dataset.chartId;
-            if (id) prefetchEmbed(id);
+            if (!id) return;
+            const trigger = () => prefetchEmbed(id);
+            chip.addEventListener("pointerenter", trigger, { once: true });
+            chip.addEventListener("focus", trigger, { once: true });
           });
       }
-      const ric = (window as unknown as {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => void;
-      }).requestIdleCallback;
-      if (ric) {
-        ric(bulkPrefetchChips, { timeout: 5000 });
-      } else {
-        setTimeout(bulkPrefetchChips, 1500);
-      }
-      document
-        .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
-        .forEach((chip) => {
-          const id = chip.dataset.chartId;
-          if (!id) return;
-          const trigger = () => prefetchEmbed(id);
-          chip.addEventListener("pointerenter", trigger, { once: true });
-          chip.addEventListener("focus", trigger, { once: true });
-        });
     </script>
 
     {/*
