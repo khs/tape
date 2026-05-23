@@ -283,14 +283,28 @@ const payload = {
     }
 
     tile.addEventListener("click", () => {
+      // Open the dialog FIRST, then render. Plot needs to know the
+      // host's actual pixel width to size axis ticks + bar spacing,
+      // and dialog.clientWidth is 0 until the dialog enters the top
+      // layer — measuring before showModal yielded width = -48
+      // (cap minus padding), which Plot drew as an empty SVG of
+      // negative width. Symptom: clicking a bar tile produced a blank
+      // expanded-view modal. Reordering is the fix.
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+
       const plotHost = dialog.querySelector<HTMLElement>(
         "[data-role='dialog-bar-plot']",
       );
       if (plotHost && !plotHost.dataset.rendered) {
         // Dialog dimensions: width auto-fits to the dialog body width
         // (capped at 720); height scales with the row count so 20-bar
-        // charts get vertical breathing room.
-        const width = Math.min(720, dialog.clientWidth - 48);
+        // charts get vertical breathing room. Defensive fallback:
+        // if clientWidth is still 0 for any reason (UA quirk, dialog
+        // not yet laid out), use the cap so we never feed Plot a
+        // non-positive width.
+        const measured = dialog.clientWidth || 720;
+        const width = Math.max(280, Math.min(720, measured - 48));
         const barCount = payload.rows.length;
         const height =
           payload.orientation === "vertical"
@@ -305,8 +319,6 @@ const payload = {
         plotHost.replaceChildren(dialogPlot);
         plotHost.dataset.rendered = "1";
       }
-      if (typeof dialog.showModal === "function") dialog.showModal();
-      else dialog.setAttribute("open", "");
     });
 
     const closeBtn = dialog.querySelector<HTMLButtonElement>(

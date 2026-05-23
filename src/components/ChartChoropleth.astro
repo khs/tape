@@ -704,6 +704,56 @@ const statesJoined = stateCodes.join(",");
         props.name = props.NAME;
       }
     }
+    // Disambiguate same-name geographies within a state. The
+    // us-counties topology carries 6 collisions where a county and an
+    // independent city share the same NAME and the same state FIPS:
+    //
+    //   24 Baltimore  (24005 county / 24510 city)
+    //   29 St. Louis  (29189 county / 29510 city)
+    //   51 Fairfax    (51059 county / 51600 city)
+    //   51 Franklin   (51067 county / 51620 city)
+    //   51 Richmond   (51159 county / 51760 city)  ← Richmond city (the capital)
+    //   51 Roanoke    (51161 county / 51770 city)
+    //
+    // Without disambiguation the choropleth tooltip just says "Fairfax"
+    // for both, and the reader can't tell which one's lit up. Append
+    // " (county)" / " (city)" when both halves of the pair are present
+    // in the feature collection. Detection: GEOID is state(2) +
+    // county-FIPS(3); county-FIPS >= 510 is an independent city in
+    // VA / MD / MO / NV. Only modify names that actually collide so
+    // single-occurrence places (Falls Church City — the only one) read
+    // naturally without the parenthetical.
+    {
+      type Props = { name?: string };
+      const seen = new Map<string, { name: string; geoid: string }[]>();
+      for (const f of features) {
+        const props = (f as { properties?: Props }).properties;
+        const id = (f as { id?: string }).id;
+        if (!props?.name || !id || id.length < 5) continue;
+        const stateFips = id.slice(0, 2);
+        const key = `${stateFips}|${props.name}`;
+        if (!seen.has(key)) seen.set(key, []);
+        seen.get(key)!.push({ name: props.name, geoid: id });
+      }
+      for (const [, entries] of seen) {
+        if (entries.length < 2) continue;
+        for (const entry of entries) {
+          const countyFips = entry.geoid.slice(2, 5);
+          const isIndependentCity =
+            countyFips >= "510" && countyFips <= "840";
+          const suffix = isIndependentCity ? " (city)" : " (county)";
+          // Walk back to the feature and update its name. We can't
+          // mutate via the entries array — entry.name was already
+          // copied — so look up the feature by id.
+          for (const f of features) {
+            if ((f as { id?: string }).id !== entry.geoid) continue;
+            const p = (f as { properties?: Props }).properties;
+            if (p?.name && !p.name.endsWith(")")) p.name = p.name + suffix;
+            break;
+          }
+        }
+      }
+    }
     // Apply bbox clip if provided. We test whether ANY vertex of
     // each feature's polygon falls inside the bbox — that keeps the
     // tracts that straddle the edge of the bbox (which read more
@@ -1031,6 +1081,39 @@ const statesJoined = stateCodes.join(",");
         `hatched ${hatchedSpecial} special-land-use (e.g. ${specialExamples.join(", ") || "—"}) ` +
         `+ ${hatchedMissing} missing-data (e.g. ${missingExamples.join(", ") || "—"})`,
       );
+      // Surface a visible explanation of the hatch pattern. The
+      // tooltip already explains per-tract on hover, but a reader
+      // scanning the map needs to know WHY they're seeing grey
+      // stripes before they think to mouse over one. The legend
+      // wording adapts to which kinds of hatched tracts the map
+      // actually contains — both / special-only / missing-only —
+      // so it stays accurate to the picture in front of the user.
+      // Lives on the dialog wrap so it shows next to the legend
+      // (where the rest of the visual encoding is documented).
+      if (mode !== "tile" && (hatchedSpecial > 0 || hatchedMissing > 0)) {
+        const wrap = canvas.closest(".choro-dialog-canvas-wrap");
+        const meta = wrap?.parentElement?.querySelector<HTMLElement>(
+          ".choro-dialog-hatch-note",
+        );
+        if (meta) {
+          const parts: string[] = [];
+          if (hatchedSpecial > 0) {
+            parts.push(
+              `${hatchedSpecial} special land-use ` +
+                "(military bases, parks, water bodies — no resident population)",
+            );
+          }
+          if (hatchedMissing > 0) {
+            parts.push(
+              `${hatchedMissing} with no ACS data for this vintage ` +
+                "(disclosure suppression or post-2020 tract split)",
+            );
+          }
+          meta.textContent =
+            "Hatched areas: " + parts.join("; ") + ". Hover for details.";
+          meta.hidden = false;
+        }
+      }
     }
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
@@ -1438,6 +1521,7 @@ const statesJoined = stateCodes.join(",");
         </p>
       </details>
       <div class="choro-dialog-canvas-wrap"></div>
+      <p class="muted small choro-dialog-hatch-note" hidden></p>
       <footer class="choro-dialog-footer">
         <p class="muted small choro-dialog-meta"></p>
         <p class="muted small choro-dialog-zoom-hint" hidden>Scroll to zoom · drag to pan · Ctrl+0 to reset</p>
@@ -1737,6 +1821,15 @@ const statesJoined = stateCodes.join(",");
     // expanded paint runs with identical bindings + mode=expanded.
     const wrap = dialog.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
     wrap.innerHTML = "";
+    // Reset hatch-note so it doesn't carry stale text from the
+    // previous chart (e.g. an open of a state map after a tract map
+    // where the tract map had hatched regions). paint() will repopulate
+    // when this chart has hatched tracts.
+    const hatchNote = dialog.querySelector<HTMLElement>(".choro-dialog-hatch-note");
+    if (hatchNote) {
+      hatchNote.hidden = true;
+      hatchNote.textContent = "";
+    }
     const expandedCanvas = document.createElement("div");
     expandedCanvas.className = "choro-canvas choro-canvas-expanded";
     expandedCanvas.setAttribute("data-role", "choro-canvas");
@@ -2110,4 +2203,15 @@ const statesJoined = stateCodes.join(",");
   .choro-dialog-footer p { margin: 0; }
   .choro-dialog-zoom-hint { margin-top: 4px !important; opacity: 0.7; }
   .choro-dialog-zoom-hint[hidden] { display: none; }
+  /* Hatch-pattern explainer. Sits between the map and the meta
+     footer so it reads as part of the legend rather than as
+     provenance. Repeats the hover-tooltip text in compact form so a
+     reader scanning the map gets the encoding without hunting for a
+     hatched tract to mouse over. */
+  .choro-dialog-hatch-note {
+    padding: 6px 20px 0;
+    margin: 0;
+    line-height: 1.45;
+  }
+  .choro-dialog-hatch-note[hidden] { display: none; }
 </style>

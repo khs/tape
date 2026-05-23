@@ -7,10 +7,7 @@ description: |
   Quarterly annualized rate, billions USD. Distinct from the
   much larger transfer-payment categories (Social Security,
   Medicare, Medicaid) — captures targeted industrial policy +
-  temporary support programs (PPP, etc.). Previously this YAML
-  pointed to W994 — which is "Net lending or net borrowing,
-  NIPAs Private," a completely different series; B096 is the
-  actual federal-subsidies series.
+  temporary support programs (PPP, etc.).
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/B096RC1Q027SBEA.json

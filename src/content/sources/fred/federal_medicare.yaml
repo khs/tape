@@ -1,6 +1,6 @@
 name: Federal Medicare benefits
 shortName: Medicare
-description: Federal current transfer payments for Medicare (hospital insurance + supplementary medical insurance combined). NIPA Table 3.12 line "Medicare." Quarterly annualized rate, billions USD. (Previously this YAML mistakenly pointed to W823 — which is Social Security; W824 is the actual Medicare series.)
+description: Federal current transfer payments for Medicare (hospital insurance + supplementary medical insurance combined). NIPA Table 3.12 line "Medicare." Quarterly annualized rate, billions USD.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/W824RC1Q027SBEA.json
