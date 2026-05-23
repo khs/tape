@@ -528,6 +528,66 @@ const EDITORIAL_FEATURES: string[] = [
           closePopout();
         }
       });
+
+      // ---- Idle-time prefetch of coverage-chip embed pages ----
+      //
+      // Each coverage chip swaps the inline preview iframe's src to
+      // /embed/chart/<id>/ when clicked — an SSR endpoint that has
+      // ~200-500ms of cold-function latency on Vercel. Without help,
+      // clicking a chip blocks on that roundtrip and the chart appears
+      // a beat after the user expects.
+      //
+      // Inject <link rel="prefetch"> for each chip's embed URL once
+      // the main page has settled. The browser fetches them in idle
+      // time, caches the response, and a later iframe.src = same URL
+      // pulls from cache instead of hitting the function. Click-to-
+      // chart drops to ~tens-of-ms.
+      //
+      // requestIdleCallback would only fire when the main thread is
+      // idle — perfect for this kind of non-blocking warm-up. Falls
+      // back to setTimeout on Safari (no idle-callback support).
+      //
+      // Pointer-enter + focus also trigger an immediate prefetch for
+      // any chip that the idle pass hasn't covered yet: covers fast
+      // clickers and slow connections where idle is still draining.
+      const prefetchedEmbeds = new Set<string>();
+      function prefetchEmbed(chartId: string): void {
+        if (!chartId || prefetchedEmbeds.has(chartId)) return;
+        prefetchedEmbeds.add(chartId);
+        const link = document.createElement("link");
+        link.rel = "prefetch";
+        link.href = `${baseUrl}/embed/chart/${chartId}/`;
+        // `as=document` tells the browser to treat this as a top-
+        // level HTML doc fetch (matching what the iframe will do),
+        // so the cached response is reused correctly.
+        link.setAttribute("as", "document");
+        document.head.appendChild(link);
+      }
+      function bulkPrefetchChips(): void {
+        document
+          .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
+          .forEach((chip) => {
+            const id = chip.dataset.chartId;
+            if (id) prefetchEmbed(id);
+          });
+      }
+      const ric = (window as unknown as {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => void;
+      }).requestIdleCallback;
+      if (ric) {
+        ric(bulkPrefetchChips, { timeout: 5000 });
+      } else {
+        setTimeout(bulkPrefetchChips, 1500);
+      }
+      document
+        .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
+        .forEach((chip) => {
+          const id = chip.dataset.chartId;
+          if (!id) return;
+          const trigger = () => prefetchEmbed(id);
+          chip.addEventListener("pointerenter", trigger, { once: true });
+          chip.addEventListener("focus", trigger, { once: true });
+        });
     </script>
 
     {/*
