@@ -53,6 +53,16 @@ const requestedDelta: DeltaWindow | undefined =
     ? (rawDelta as DeltaWindow)
     : undefined;
 
+// ?expanded=1 puts the embed in "dialog-visible" mode. Loaded as the
+// target of the welcome page's coverage-chip popout: the page renders
+// the tile + dialog as usual, but the body's CSS lets the dialog show,
+// and a script below auto-clicks the tile on load so the reader lands
+// on the full chart dialog inside a chrome-free embed iframe.
+// Without ?expanded the dialog stays hidden by default — the normal
+// embed flow shows the tile only, and a click postMessages up to the
+// host so it can open a popout.
+const isExpanded = Astro.url.searchParams.get("expanded") === "1";
+
 const resolved = await resolveChart(chartId);
 
 // Effective chart spec (with any overrides applied). Cached for use
@@ -75,7 +85,7 @@ const attributionHref = `${baseUrl}/chart/${chartId}/`;
 const title = resolved?.chart.data.title ?? chartId;
 ---
 
-<EmbedLayout title={title} attributionHref={attributionHref}>
+<EmbedLayout title={title} attributionHref={attributionHref} expanded={isExpanded}>
   {/* dashboard-root wrapper: ChartController's hydrate() reads the
       initial window from a .dashboard-root element's
       data-dashboard-default-window attribute. Without this wrapper,
@@ -89,6 +99,7 @@ const title = resolved?.chart.data.title ?? chartId;
     class="embed-shell dashboard-root"
     data-chart-id={chartId}
     data-attribution-href={attributionHref}
+    data-expanded={isExpanded ? "1" : undefined}
     data-dashboard-default-window={requestedDelta ?? resolved?.chart.data.defaultDelta ?? "1m"}
   >
     {
@@ -159,9 +170,35 @@ const title = resolved?.chart.data.title ?? chartId;
     const embedShell = document.querySelector(".embed-shell");
     const chartHref = embedShell?.getAttribute("data-attribution-href") ?? "";
     const chartId = embedShell?.getAttribute("data-chart-id") ?? "";
-    let parentWillPopOut = false;
+    const isExpanded = embedShell?.getAttribute("data-expanded") === "1";
 
-    (function tryHandshake() {
+    if (isExpanded) {
+      // ---- Expanded mode (?expanded=1) ----
+      // The host (welcome-page popout) wants us to land on the dialog
+      // view directly. Click the chart-tile on load to open the dialog
+      // inside this embed iframe. EmbedLayout's body class lets the
+      // dialog show; no postMessage popout wiring needed here (the
+      // tile is INSIDE a popout already; there's no "up" to message).
+      window.addEventListener("load", function () {
+        requestAnimationFrame(function () {
+          // .chart-tile catches Chart.astro and ChartBar.astro tiles
+          // (button.chart-tile and button.chart-tile.chart-bar-tile);
+          // ChartChoropleth's article.chart-tile.choro-tile also
+          // matches, and the global click-delegate in
+          // ChartChoropleth.astro handles its own dialog opening.
+          const tile = document.querySelector(".chart-tile");
+          if (tile instanceof HTMLElement) tile.click();
+        });
+      });
+    } else {
+      // ---- Tile-only mode (no ?expanded) ----
+      tileOnlyEmbed();
+    }
+
+    function tileOnlyEmbed() {
+      let parentWillPopOut = false;
+
+      (function tryHandshake() {
       if (window.parent === window) return; // not iframed
       let parentOrigin: string;
       try {
@@ -190,37 +227,47 @@ const title = resolved?.chart.data.title ?? chartId;
       setTimeout(() => window.removeEventListener("message", onHostAck), 250);
     })();
 
-    if (chartHref) {
-      // Append ?expanded=1 so wherever this URL ends up — same-origin
-      // popout overlay or cross-origin new tab — the destination
-      // chart-detail page auto-opens its dialog. The reader clicked
-      // the tile to see "more," so landing them on the bare detail-
-      // page tile (a tap-target they'd need to click AGAIN) is the
-      // regression we're avoiding. chart-detail's inline script
-      // listens for this query string and synthesizes the tile click
-      // on load.
-      const expandedHref = chartHref + "?expanded=1";
-      document.addEventListener(
-        "click",
-        (e) => {
-          const target = e.target as HTMLElement | null;
-          if (!target) return;
-          const tile = target.closest(".chart-tile");
-          if (!tile) return;
-          e.preventDefault();
-          e.stopPropagation();
-          if (parentWillPopOut) {
-            window.parent.postMessage(
-              { type: "tape:embed-popout", chartId, chartHref: expandedHref },
-              window.location.origin,
-            );
-          } else {
-            window.open(expandedHref, "_blank", "noopener,noreferrer");
-          }
-        },
-        true, // capture phase — runs before ChartController's bubble listener
-      );
-    }
+      if (chartHref) {
+        // Two URLs for the two parent-context paths:
+        //   SAME-ORIGIN parent (welcome-page popout): post the EMBED
+        //   page's expanded URL up. The welcome popout then iframes
+        //   /embed/chart/<id>/?expanded=1 — minimal chrome (no nav,
+        //   no footer), so the dialog renders cleanly inside the
+        //   popout without "new window in window" feel.
+        //
+        //   CROSS-ORIGIN parent (Substack etc.): open the canonical
+        //   CHART-DETAIL URL in a new tab. The visitor leaving the
+        //   host site for Tape wants the proper detail page, not the
+        //   minimal embed view.
+        const embedExpandedHref =
+          chartHref.replace("/chart/", "/embed/chart/") + "?expanded=1";
+        const detailExpandedHref = chartHref + "?expanded=1";
+        document.addEventListener(
+          "click",
+          (e) => {
+            const target = e.target as HTMLElement | null;
+            if (!target) return;
+            const tile = target.closest(".chart-tile");
+            if (!tile) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (parentWillPopOut) {
+              window.parent.postMessage(
+                {
+                  type: "tape:embed-popout",
+                  chartId,
+                  chartHref: embedExpandedHref,
+                },
+                window.location.origin,
+              );
+            } else {
+              window.open(detailExpandedHref, "_blank", "noopener,noreferrer");
+            }
+          },
+          true, // capture phase — runs before ChartController's bubble listener
+        );
+      }
+    } // close tileOnlyEmbed
   </script>
 </EmbedLayout>
 
@@ -306,13 +353,34 @@ const title = resolved?.chart.data.title ?? chartId;
        reads as more whitespace than necessary at embed scale. */
     gap: 4px;
   }
-  /* Hide the dialog entirely in embed mode. The script above
-     intercepts tile clicks before they reach the dialog-opening
-     handler, but if a dialog ever DOES open (e.g. via keyboard
-     activation or a future code path), make sure it can't shove
-     itself into the cramped iframe — defaults to display:none. */
-  body.embed-body dialog {
+  /* Hide the dialog entirely in tile-only embed mode. The script
+     above intercepts tile clicks and routes them through postMessage
+     to the host (or new-tab). The dialog should never appear inside
+     the embed iframe in that mode — it would not fit at typical
+     embed dimensions, and the host has a popout-overlay path for
+     the full dialog experience.
+     EXCEPTION: ?expanded=1 mode (body.embed-body-expanded) is the
+     popout's own target — the iframe IS the dialog stage, so the
+     dialog SHOULD show. */
+  body.embed-body:not(.embed-body-expanded) dialog {
     display: none !important;
+  }
+  /* In expanded mode, the iframe takes the popout overlay's full
+     interior. Make the embed-shell transparent so the dialog's own
+     backdrop / chrome fills the visual frame — the tile's chart-tile
+     background would otherwise show as a redundant white-on-white
+     box behind the dialog. Reset the fixed-inset shell to a static
+     positioning so the dialog's modal layout pivots cleanly off the
+     iframe viewport. */
+  body.embed-body-expanded .embed-shell {
+    position: static;
+    padding: 0;
+  }
+  body.embed-body-expanded .chart-tile {
+    visibility: hidden;
+  }
+  body.embed-body-expanded .embed-attribution {
+    display: none;
   }
   /* Small "↗" affordance in the upper-right of the tile signaling
      that clicking opens elsewhere. Pseudo-element so it doesn't

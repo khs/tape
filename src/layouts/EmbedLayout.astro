@@ -32,9 +32,17 @@ interface Props {
   title: string;
   /** The full-site URL the attribution chip links back to. */
   attributionHref: string;
+  /**
+   * When true, signal "show the chart dialog directly" to the embed
+   * page's CSS + script. The welcome page's coverage-chip popout
+   * opens /embed/chart/<id>/?expanded=1 → the layout's expanded
+   * body class lets the dialog show (default embed CSS hides it),
+   * and the embed-page script auto-clicks the tile on load.
+   */
+  expanded?: boolean;
 }
 
-const { title, attributionHref } = Astro.props;
+const { title, attributionHref, expanded } = Astro.props;
 ---
 
 <!doctype html>
@@ -48,7 +56,7 @@ const { title, attributionHref } = Astro.props;
         framing policy globally. */}
     <meta name="robots" content="noindex, nofollow" />
   </head>
-  <body class="embed-body">
+  <body class={`embed-body${expanded ? " embed-body-expanded" : ""}`}>
     <slot />
     <a
       class="embed-attribution"

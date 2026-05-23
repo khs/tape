@@ -309,8 +309,8 @@ const EDITORIAL_FEATURES: string[] = [
         A few representative series at each level.
       </h2>
       <p class="welcome-section-sub">
-        The full library is ~10,000 sources. Click any chip to open the chart in a pop-out view —
-        full plot, sources, citations.
+        The full library is ~10,000 sources. Click any chip to preview the chart below;
+        click the preview to expand into the full plot, sources, and citations.
       </p>
       <div class="welcome-coverage-grid">
         {COVERAGE.map((cat) => (
@@ -321,12 +321,12 @@ const EDITORIAL_FEATURES: string[] = [
               {cat.items.map((item) => (
                 <li>
                   {/*
-                    Chips are <button>s (not <a>s) because clicking
-                    them opens the chart popout overlay in-page (via
-                    the openPopout helper) rather than navigating.
-                    data-source-href is preserved as a future hook
-                    for a "browse source provenance" affordance; the
-                    click handler ignores it for now.
+                    Chip is a button (not an anchor): click swaps the
+                    inline preview iframe below. Tile click inside the
+                    iframe then escalates to the popout overlay for
+                    the full dialog view (handled by the embed page's
+                    postMessage handshake — see
+                    src/pages/embed/chart/[...id].astro).
                   */}
                   <button
                     type="button"
@@ -343,28 +343,91 @@ const EDITORIAL_FEATURES: string[] = [
           </article>
         ))}
       </div>
+
+      {/*
+        Inline preview region. Populated when the user clicks any
+        chip. The iframe loads /embed/chart/<id>/ at a "big tile"
+        size — non-compact enough that bar charts show country
+        labels and choropleths show the full US map. Clicking the
+        tile INSIDE the iframe sends a postMessage handshake to
+        this page and the welcome popout opens at full-screen with
+        the dialog auto-expanded.
+
+        Height was bumped from the previous 380px to 540px because
+        the bar tile (countries/gdp_snapshot, others) was rendering
+        with mini-bars and no labels at the smaller height — the
+        intermediate step looked like "click again to actually see
+        the chart," which was the user's complaint.
+      */}
+      <div class="welcome-coverage-preview" data-role="coverage-preview" hidden>
+        <p class="welcome-coverage-preview-label muted small" data-role="coverage-preview-label"></p>
+        <iframe
+          class="welcome-coverage-preview-iframe"
+          data-role="coverage-preview-iframe"
+          src="about:blank"
+          loading="lazy"
+          title="Inline chart preview"
+        ></iframe>
+      </div>
     </section>
 
     <script>
-      // Coverage-grid chips: click → open the chart's full pop-out
-      // overlay directly. Previously this was a two-click sequence
-      // (chip → inline embed-tile preview → click tile → popout),
-      // which the user flagged as too many clicks AND uninformative
-      // for bar charts (the embed-tile preview shows mini-bars
-      // without country labels, so the intermediate step communicated
-      // little). Pass ?expanded=1 in the popout URL so the chart-
-      // detail page auto-opens its dialog — landing the reader on
-      // the full plot + window pills + sources in one click.
+      // Coverage-grid chips: click → load the chart into the inline
+      // preview iframe below as a "big tile" (~540px tall). The
+      // user then clicks the tile in the iframe to escalate to the
+      // popout overlay for the full dialog view — the embed page's
+      // postMessage handshake handles that escalation (see
+      // src/pages/embed/chart/[...id].astro).
+      //
+      // Why two steps: previously we tried one-click-to-popout but
+      // the iframe wrapping the chart-detail page brought the full
+      // BaseLayout nav with it ("new window in window"). The
+      // two-step flow lets readers preview cheaply (inline tile) and
+      // only escalate to the full dialog (popout, embed layout,
+      // chrome-free) when they want more detail.
       const baseUrl = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+      const previewBox = document.querySelector<HTMLElement>(
+        "[data-role='coverage-preview']",
+      );
+      const previewIframe = document.querySelector<HTMLIFrameElement>(
+        "[data-role='coverage-preview-iframe']",
+      );
+      const previewLabel = document.querySelector<HTMLElement>(
+        "[data-role='coverage-preview-label']",
+      );
+      let activeChipChartId: string | null = null;
       document.querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip").forEach((chip) => {
         chip.addEventListener("click", () => {
           const chartId = chip.dataset.chartId ?? "";
-          if (!chartId) return;
-          // openPopout is defined later in this script (hoisted via
-          // function declaration). Calls into the existing popout-
-          // overlay machinery that the render-showcase tiles also
-          // use — single code path for both entry points.
-          openPopout(`${baseUrl}/chart/${chartId}/?expanded=1`);
+          const label = chip.dataset.label ?? "";
+          if (!chartId || !previewBox || !previewIframe) return;
+          // Same chip toggled twice → close the preview. Lets the
+          // reader dismiss with the same gesture they used to open.
+          if (activeChipChartId === chartId && !previewBox.hidden) {
+            previewBox.hidden = true;
+            previewIframe.src = "about:blank";
+            activeChipChartId = null;
+            document
+              .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip-active")
+              .forEach((el) => el.classList.remove("welcome-coverage-chip-active"));
+            return;
+          }
+          previewIframe.src = `${baseUrl}/embed/chart/${chartId}/`;
+          if (previewLabel) previewLabel.textContent = label;
+          previewBox.hidden = false;
+          activeChipChartId = chartId;
+          document
+            .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip-active")
+            .forEach((el) => el.classList.remove("welcome-coverage-chip-active"));
+          chip.classList.add("welcome-coverage-chip-active");
+          // Scroll the preview into view, respecting reduced-motion.
+          const prefersReduced = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          previewBox.scrollIntoView({
+            behavior: prefersReduced ? "auto" : "smooth",
+            block: "nearest",
+          });
         });
       });
 
@@ -449,13 +512,12 @@ const EDITORIAL_FEATURES: string[] = [
         }
       });
 
-      // ---- Idle-time prefetch of coverage-chip chart-detail pages ----
+      // ---- Idle-time prefetch of coverage-chip embed pages ----
       //
-      // Each coverage chip opens the popout overlay at /chart/<id>/
-      // ?expanded=1 on click. Those are STATIC pages (pre-rendered
-      // at build time) served from Vercel's CDN — fast cold but still
-      // a network roundtrip. Browser cache makes subsequent loads
-      // instant once warm.
+      // Each coverage chip sets the inline preview iframe's src to
+      // /embed/chart/<id>/ — an SSR endpoint with ~200-500ms of
+      // cold-function latency on Vercel. Browser cache makes
+      // subsequent loads instant once warm.
       //
       // Inject <link rel="prefetch"> for each chip's URL once the
       // main page has settled. The browser fetches them in idle time,
@@ -507,7 +569,7 @@ const EDITORIAL_FEATURES: string[] = [
           // string included — browser caches by full URL so a mismatch
           // here would cause the iframe load to bypass the prefetched
           // response.
-          link.href = `${baseUrl}/chart/${chartId}/?expanded=1`;
+          link.href = `${baseUrl}/embed/chart/${chartId}/`;
           // `as=document` tells the browser to treat this as a top-
           // level HTML doc fetch (matching what the iframe will do),
           // so the cached response is reused correctly.
@@ -900,16 +962,38 @@ const EDITORIAL_FEATURES: string[] = [
   }
   /* Pressed state for the chip that owns the currently-rendered
      inline preview. Subtler than a full inversion — picks up the
-     accent border + a tint. (Previously also used for the inline-
-     preview region's selected chip; that region was removed when
-     chips became one-click → pop-out, but the hover-pressed combo
-     is still useful as a tap-feedback affordance, so we keep this
-     selector available for click-and-hold.) */
-  .welcome-coverage-chip:active {
+     accent border + a tint. Both for the click-and-hold tap-feedback
+     affordance AND for the chip whose chart is currently loaded in
+     the inline preview below — so the reader can tell at a glance
+     which chip drove the visible preview. */
+  .welcome-coverage-chip:active,
+  .welcome-coverage-chip-active,
+  .welcome-coverage-chip-active:hover {
     background: var(--color-accent-soft, #eef9f6);
     border-color: var(--color-accent);
     color: var(--color-accent);
     font-weight: 500;
+  }
+
+  /* ---- Inline preview region ---- */
+  .welcome-coverage-preview {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .welcome-coverage-preview[hidden] { display: none; }
+  .welcome-coverage-preview-label {
+    margin: 0 0 10px;
+    font-weight: 500;
+    color: var(--color-neutral-700);
+  }
+  .welcome-coverage-preview-iframe {
+    width: 100%;
+    height: 540px;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-neutral-50);
+    display: block;
   }
 
   /* ---- Pop-out overlay (clicked-chart full-viewport modal) ---- */
