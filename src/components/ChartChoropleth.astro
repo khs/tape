@@ -463,6 +463,10 @@ const statesJoined = stateCodes.join(",");
   // sidesteps the phantom-dep lint.
   import { select as d3select, zoom as d3zoom, zoomIdentity } from "d3";
   import type { ZoomBehavior, ZoomTransform } from "d3-zoom";
+  // Colloquial names for 9800-series special-use tracts ("Pentagon",
+  // "National Mall", etc.). Falls back to the topology's
+  // "Census Tract NNNN" label when no curated entry exists.
+  import { specialTractName } from "../lib/special-tract-names";
 
   type ChoroBindings = {
     chartId: string;
@@ -892,7 +896,12 @@ const statesJoined = stateCodes.join(",");
           strokeWidth: 0.3,
           title: (d: any) => {
             const v = values[d.id];
-            const name = d.properties?.name ?? d.id;
+            // Prefer a curated colloquial name when one exists for
+            // this GEOID — "Pentagon" reads better than "Census
+            // Tract 9801". Falls through to the topology label
+            // when the GEOID isn't in the special-name table.
+            const name =
+              specialTractName(d.id) ?? d.properties?.name ?? d.id;
             return `${name}\n${fmtValue(v ?? null, b.unit, b.decimals)}`;
           },
         }),
@@ -1116,7 +1125,12 @@ const statesJoined = stateCodes.join(",");
         return;
       }
       const v = values[d.id];
-      const name = d.properties?.name ?? d.id;
+      // Prefer the curated colloquial name (Pentagon, National Mall,
+      // Dulles, etc.) over the topology's generic "Census Tract NNNN"
+      // for the ~16 well-known 9800-series GEOIDs we've identified.
+      // Falls through to topology name then to bare GEOID.
+      const name =
+        specialTractName(d.id) ?? d.properties?.name ?? d.id;
       if (v == null || !Number.isFinite(v)) {
         // Distinguish the two no-data cases so the tooltip explains
         // why the area is hatched rather than silently hiding.
