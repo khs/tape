@@ -729,7 +729,11 @@ const statesJoined = stateCodes.join(",");
       for (const f of features) {
         const props = (f as { properties?: Props }).properties;
         const id = (f as { id?: string }).id;
-        if (!props?.name || !id || id.length < 5) continue;
+        // Only county-level GEOIDs (5 digits) — tract collisions
+        // within a state are noise here (tract 1.01 appears in
+        // every county) and the suffix logic below was designed
+        // for the independent-city/county pattern specifically.
+        if (!props?.name || !id || id.length !== 5) continue;
         const stateFips = id.slice(0, 2);
         const key = `${stateFips}|${props.name}`;
         if (!seen.has(key)) seen.set(key, []);
