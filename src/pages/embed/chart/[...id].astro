@@ -273,6 +273,28 @@ const title = resolved?.chart.data.title ?? chartId;
     font-size: 15px;
     line-height: 1.3;
   }
+  /* Choropleth tiles: hide the stats eyebrow (count / range / median)
+     in embeds. With the legend already off via the renderer's
+     mode !== "tile" guard, the eyebrow is the last bit of chrome
+     stealing vertical pixels from the map. The map itself + the
+     chart title is enough at embed scale; full stats land in the
+     pop-out's expanded view. Use the choro-eyebrow class directly
+     so this only affects choropleth tiles, not bar/line tiles. */
+  .embed-shell .choro-eyebrow {
+    display: none !important;
+  }
+  /* Map canvas gets every leftover pixel below the title — without
+     this, the canvas inherits a fixed min-height that leaves
+     awkward blank space above the title or cuts off the map at
+     embed dimensions. */
+  .embed-shell .choro-canvas {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .embed-shell .chart-tile.choro-tile {
+    display: flex;
+    flex-direction: column;
+  }
   /* Hide the dialog entirely in embed mode. The script above
      intercepts tile clicks before they reach the dialog-opening
      handler, but if a dialog ever DOES open (e.g. via keyboard

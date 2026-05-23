@@ -860,7 +860,12 @@ const statesJoined = stateCodes.join(",");
     const colorSpec: Record<string, unknown> = {
       type: b.colorScale,
       domain: colorDomain,
-      legend: true,
+      // Tile mode: drop the legend. A choropleth tile is short
+      // (~280px in embeds, ~200px in dashboard grids); the legend
+      // figure consumes 30-50px of vertical space, leaving the
+      // actual map a thin strip. The expanded / fullscreen views
+      // have plenty of room for the legend so it's only off here.
+      legend: mode !== "tile",
       label: b.valueLabel,
       // colorDomain is trimmed to [1st, 99th] percentile to keep
       // the legend tight; without clamp:true, Plot extrapolates

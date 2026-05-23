@@ -15,12 +15,15 @@ import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astr
 export async function getStaticPaths() {
   const charts = await getCollection("charts");
   // Skip deprecated-without-alias entries (the composer hides them too).
-  // Also skip choropleth charts — they're snapshot-only, don't fit the
-  // single-chart-detail "expand a tile" UX yet (no time series, no
-  // delta-window selector). Pregenerated-only inside presets for v1.
+  // Choropleth charts ARE included — SectionChart's dispatch handles
+  // them (renders ChartChoropleth), and the welcome page's coverage
+  // chips link here. They used to be filtered out under the rationale
+  // that "snapshot-only doesn't fit the expand-a-tile UX," but in
+  // practice choropleth has its own click-to-open dialog (the choro-
+  // dialog with the year slider and full-screen toggle), so the
+  // detail page works fine — click the tile, the choro dialog opens.
   return charts
     .filter(isVisibleChart)
-    .filter((c) => c.data.render !== "choropleth")
     .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
 }
 

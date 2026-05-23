@@ -1668,12 +1668,34 @@
       // which we pin on Plot.plot below so a low→high upgrade doesn't
       // shift the line within the plot area.
       const rawSlice = dialogPlotPoints(s, eff, fixed);
-      const visible = transformActive
-        ? applyTransform(
-            rawSlice.visible.map((p) => ({ t: p.t, v: p.v })),
-            transform,
-          )
-        : rawSlice.visible;
+      // YoY % needs a 1-year-prior lookup at each visible point.
+      // Running applyTransform on just the visible window (e.g. 30
+      // days for a 1M selection on monthly CPI) drops every output
+      // point — the in-window array doesn't contain the year-ago
+      // observations, so applyYoYPercent finds no prior and emits
+      // nothing. Symptom: the CPI dialog rendered axes-only on the
+      // 1M window with YoY %, no line visible. Fix: when we have
+      // the full points array AND the transform is YoY %, run the
+      // transform over the WHOLE series, then keep only the
+      // visible-window subset. Other transforms (index_100) compute
+      // off the first visible point, so they still operate on the
+      // window slice — only YoY % is sensitive to pre-window
+      // history.
+      const transformVisibleStartMs = rawSlice.domainMs?.[0] ?? -Infinity;
+      const visible =
+        transformActive && transform === "yoy_pct" && s.points
+          ? applyTransform(
+              s.points.map((p) => ({ t: p.t, v: p.v })),
+              transform,
+            ).filter(
+              (p) => new Date(p.t).getTime() >= transformVisibleStartMs,
+            )
+          : transformActive
+            ? applyTransform(
+                rawSlice.visible.map((p) => ({ t: p.t, v: p.v })),
+                transform,
+              )
+            : rawSlice.visible;
       const startMs = rawSlice.startMs;
       const domainMs = rawSlice.domainMs;
       if (!standardDomainMs && domainMs) standardDomainMs = domainMs;
@@ -1896,301 +1918,28 @@
   }
 
   /**
-   * Pinch-to-zoom + swipe-to-pan on the dialog plot.
+   * Dialog-plot zoom + pan, intentionally disabled.
    *
-   * Pointer Events unify mouse + touch + pen, so this same handler
-   * serves desktop drag + mobile touch + trackpad pinch. Wheel events
-   * separately drive desktop zoom.
+   * Pinch-zoom, drag-pan, and wheel-zoom were wired here previously
+   * (commit history has the full implementation). Author decision:
+   * the window-pill row already gives readers all the navigation
+   * they need from the chart dialog, and unconstrained zoom on
+   * time-series + log-y combos produced surprising views — most
+   * notably an aggressive scroll-out could land in the year 9999,
+   * which is neither historically meaningful nor pleasant to read.
    *
-   * Gesture state machine:
-   *   * Single pointer down → standby (Plot's tip can still hover).
-   *   * Single pointer move >= 6 px → pan mode active. Track delta
-   *     in pixels, convert to ms via the current domain span, shift
-   *     the domain.
-   *   * Second pointer down → pinch mode active. Track midpoint +
-   *     distance. Scale the domain around the midpoint as the
-   *     distance changes.
-   *   * All pointers up → end gesture, leave ctx.zoomedDomainMs set
-   *     so a subsequent gesture continues from where the user
-   *     released.
-   *
-   * Wheel events: anchor on the wheel cursor's x-position, scale
-   * domain by 1.15^(deltaY/100) — narrowing on scroll-up, widening
-   * on scroll-down. preventDefault() so the page doesn't scroll
-   * underneath the plot.
-   *
-   * Re-render is throttled via requestAnimationFrame so successive
-   * pointermove events coalesce into one Plot.plot() call per
-   * frame. Plot's re-render is ~50ms; at 60fps the frame budget is
-   * 16ms, so the rAF batch keeps perceived latency snappy without
-   * over-rendering.
-   *
-   * Reset: a small "↺ Reset zoom" button appears once the user has
-   * zoomed/panned. Window-pill clicks also clear the zoom (a new
-   * window has its own natural domain).
+   * Re-enable note for future-self: before turning the gestures
+   * back on, clamp the visible domain to [1900-01-01, 2100-12-31]
+   * UNLESS the underlying data series already extends beyond that
+   * bound (futures-curve sources project decades out, NIPAs go
+   * back to 1947, etc.) — at which point the data's own range is
+   * the only clamp. Without that guard, pinch-out runs unbounded
+   * and the renderer happily draws a 50,000-year x-axis.
    */
   function attachZoomGestures(plotEl: HTMLElement, ctx: TileCtx): void {
-    if (ctx.zoomGesturesAttached) return;
-    ctx.zoomGesturesAttached = true;
-
-    // Per-gesture state. Reinitialized on first pointerdown of a
-    // new gesture; cleared on last pointerup.
-    interface GestureState {
-      pointers: Map<number, { x: number; y: number }>;
-      mode: "none" | "pan" | "pinch";
-      startDomainMs: [number, number] | null;
-      startCentroidX: number;
-      startDistance: number;
-      startPlotWidth: number;
-      startPlotLeft: number;
-    }
-    const gesture: GestureState = {
-      pointers: new Map(),
-      mode: "none",
-      startDomainMs: null,
-      startCentroidX: 0,
-      startDistance: 0,
-      startPlotWidth: 0,
-      startPlotLeft: 0,
-    };
-    let pendingRender = false;
-
-    function currentDomain(): [number, number] | null {
-      // Domain at the moment a gesture starts: prefer the gesture-
-      // set zoom, else recover the natural domain from the rendered
-      // Plot SVG. Plot stamps the visible date range into the
-      // outermost <svg>'s viewBox indirectly — we read it via the
-      // x-axis tick range as a fallback. For simplicity, just trust
-      // ctx.zoomedDomainMs when set, otherwise read from the
-      // payload + window via a helper.
-      if (ctx.zoomedDomainMs) return ctx.zoomedDomainMs;
-      // Recover the natural domain by calling dialogPlotPoints for
-      // the first source and reading its domainMs. Mirrors the same
-      // logic renderFullPlot uses.
-      const s = ctx.payload.sources[0];
-      if (!s) return null;
-      const eff = closestSupported(ctx.currentWindow, s.supportedDeltas);
-      const fixed = ctx.selectedView === "fixed" ? ctx.payload.fixedRange : undefined;
-      const { domainMs } = dialogPlotPoints(s, eff, fixed);
-      return domainMs;
-    }
-
-    function plotRect(): DOMRect {
-      // The rendered SVG sits inside plotEl. Read its bounding rect
-      // to convert pointer screenX → fraction within the plot area.
-      // Plot's margins (left ~64, right ~16 for standard) mean the
-      // SVG is slightly wider than the data area, but for v1 gesture
-      // math we treat the SVG width as the data width — close
-      // enough that the visible pan still feels accurate to within
-      // a few pixels.
-      const svg = plotEl.querySelector("svg");
-      return (svg ?? plotEl).getBoundingClientRect();
-    }
-
-    function centroid(): { x: number; distance: number } {
-      const pts = [...gesture.pointers.values()];
-      if (pts.length === 0) return { x: 0, distance: 0 };
-      if (pts.length === 1) return { x: pts[0].x, distance: 0 };
-      const cx = (pts[0].x + pts[1].x) / 2;
-      const dx = pts[0].x - pts[1].x;
-      const dy = pts[0].y - pts[1].y;
-      const distance = Math.hypot(dx, dy);
-      return { x: cx, distance };
-    }
-
-    function rerenderSoon(): void {
-      // Coalesce successive pointermove events to one render per
-      // animation frame.
-      if (pendingRender) return;
-      pendingRender = true;
-      requestAnimationFrame(() => {
-        pendingRender = false;
-        renderFullPlot(
-          plotEl,
-          ctx.payload,
-          ctx.currentWindow,
-          ctx.zoomedDomainMs,
-        );
-        updateResetVisibility();
-      });
-    }
-
-    function captureStart(): void {
-      const dom = currentDomain();
-      const rect = plotRect();
-      const c = centroid();
-      gesture.startDomainMs = dom;
-      gesture.startCentroidX = c.x;
-      gesture.startDistance = c.distance;
-      gesture.startPlotWidth = rect.width;
-      gesture.startPlotLeft = rect.left;
-    }
-
-    function onPointerDown(e: PointerEvent): void {
-      // Skip if the pointer is on a Plot.tip box or other interactive
-      // element inside the plot — let those handle their own events.
-      // For SVG path / rect targets we proceed to gesture.
-      gesture.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      try {
-        (e.target as Element).setPointerCapture?.(e.pointerId);
-      } catch {
-        /* setPointerCapture can throw on detached elements; safe to ignore */
-      }
-      if (gesture.pointers.size === 1) {
-        // Standby. Don't enter pan until movement threshold.
-        gesture.mode = "none";
-      } else if (gesture.pointers.size === 2) {
-        gesture.mode = "pinch";
-        captureStart();
-      }
-    }
-
-    function onPointerMove(e: PointerEvent): void {
-      const prev = gesture.pointers.get(e.pointerId);
-      if (!prev) return;
-      gesture.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (gesture.pointers.size === 1) {
-        // Pan mode — but only after MOVEMENT_THRESHOLD pixels so a
-        // simple tap doesn't accidentally pan.
-        const dx = e.clientX - (gesture.mode === "pan" ? gesture.startCentroidX : prev.x);
-        if (gesture.mode === "none") {
-          if (Math.abs(dx) < 6) return;
-          gesture.mode = "pan";
-          captureStart();
-          // Re-anchor so the first frame of pan doesn't snap-jump.
-          gesture.startCentroidX = e.clientX;
-        }
-        if (gesture.mode !== "pan" || !gesture.startDomainMs) return;
-        const screenDeltaX = e.clientX - gesture.startCentroidX;
-        const domainSpan = gesture.startDomainMs[1] - gesture.startDomainMs[0];
-        const domainDeltaMs =
-          (-screenDeltaX / gesture.startPlotWidth) * domainSpan;
-        ctx.zoomedDomainMs = [
-          gesture.startDomainMs[0] + domainDeltaMs,
-          gesture.startDomainMs[1] + domainDeltaMs,
-        ];
-        e.preventDefault();
-        rerenderSoon();
-      } else if (gesture.pointers.size === 2 && gesture.mode === "pinch") {
-        if (!gesture.startDomainMs) return;
-        const c = centroid();
-        if (gesture.startDistance === 0) return;
-        // scale > 1 → zooming IN (smaller domain span). scale < 1 →
-        // zooming OUT (wider domain). The pinch-distance ratio is
-        // currentDistance / startDistance, so newSpan = startSpan / ratio.
-        const ratio = c.distance / gesture.startDistance;
-        if (!Number.isFinite(ratio) || ratio === 0) return;
-        const startSpan = gesture.startDomainMs[1] - gesture.startDomainMs[0];
-        const newSpan = startSpan / ratio;
-        // Anchor the zoom at the centroid: the date under the
-        // centroid x-pixel stays at the same x-pixel after zoom.
-        const centroidFrac =
-          (gesture.startCentroidX - gesture.startPlotLeft) /
-          gesture.startPlotWidth;
-        const centroidDomainMs =
-          gesture.startDomainMs[0] + centroidFrac * startSpan;
-        ctx.zoomedDomainMs = [
-          centroidDomainMs - centroidFrac * newSpan,
-          centroidDomainMs + (1 - centroidFrac) * newSpan,
-        ];
-        e.preventDefault();
-        rerenderSoon();
-      }
-    }
-
-    function onPointerUp(e: PointerEvent): void {
-      gesture.pointers.delete(e.pointerId);
-      if (gesture.pointers.size === 0) {
-        gesture.mode = "none";
-      } else if (gesture.pointers.size === 1 && gesture.mode === "pinch") {
-        // Dropped from 2 pointers to 1 — fall back to pan mode with
-        // the remaining pointer as the anchor.
-        gesture.mode = "none";
-        captureStart();
-      }
-    }
-
-    function onWheel(e: WheelEvent): void {
-      const dom = currentDomain();
-      if (!dom) return;
-      const rect = plotRect();
-      const frac = (e.clientX - rect.left) / rect.width;
-      // Scroll up (deltaY < 0) → zoom in (narrower span).
-      const factor = Math.pow(1.15, e.deltaY / 100);
-      const span = dom[1] - dom[0];
-      const newSpan = span * factor;
-      const centroidMs = dom[0] + frac * span;
-      ctx.zoomedDomainMs = [
-        centroidMs - frac * newSpan,
-        centroidMs + (1 - frac) * newSpan,
-      ];
-      e.preventDefault();
-      rerenderSoon();
-    }
-
-    // Reset-zoom button. Inserted once, lives until the dialog
-    // closes. Shows up next to the window pills once the user has
-    // gestured a custom zoom.
-    function ensureResetButton(): HTMLButtonElement | null {
-      const dlg = ctx.dialog;
-      let btn = dlg.querySelector<HTMLButtonElement>("[data-role='zoom-reset']");
-      if (btn) return btn;
-      // Find the window-pills row to inject the reset alongside.
-      const pillsRow = dlg.querySelector<HTMLElement>(".pills");
-      if (!pillsRow) return null;
-      btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "zoom-reset-btn";
-      btn.dataset.role = "zoom-reset";
-      btn.textContent = "↺ Reset zoom";
-      btn.hidden = true;
-      btn.addEventListener("click", () => {
-        ctx.zoomedDomainMs = null;
-        rerenderSoon();
-      });
-      // Append to the end of the pills row so it sits visually after
-      // the window-pill cluster without disturbing pill ordering.
-      pillsRow.appendChild(btn);
-      return btn;
-    }
-    function updateResetVisibility(): void {
-      const btn = ensureResetButton();
-      if (!btn) return;
-      btn.hidden = !ctx.zoomedDomainMs;
-    }
-
-    // Wire listeners on the plot container. Use { passive: false }
-    // so we can preventDefault() inside pan / pinch to stop the
-    // browser from scrolling the page underneath a touch drag.
-    plotEl.addEventListener("pointerdown", onPointerDown);
-    plotEl.addEventListener("pointermove", onPointerMove, { passive: false });
-    plotEl.addEventListener("pointerup", onPointerUp);
-    plotEl.addEventListener("pointercancel", onPointerUp);
-    plotEl.addEventListener("wheel", onWheel, { passive: false });
-    // Suppress Plot's hover tip during an active gesture — the tip
-    // box flickers as the data slides under the cursor during a pan
-    // and reads as visual noise. Re-shows once the gesture ends.
-    // Implemented via a CSS class toggled by the gesture handler;
-    // styled in Chart.astro to hide [aria-label="tip"] inside the
-    // plot when the wrapper has the class.
-    function setGestureFlag(active: boolean): void {
-      plotEl.classList.toggle("gesture-active", active);
-    }
-    // Patch the listeners to flip the flag.
-    plotEl.addEventListener("pointermove", (e) => {
-      if (gesture.mode === "pan" || gesture.mode === "pinch")
-        setGestureFlag(true);
-    }, { passive: true });
-    plotEl.addEventListener("pointerup", () => {
-      if (gesture.pointers.size === 0) setGestureFlag(false);
-    });
-    plotEl.addEventListener("pointercancel", () => setGestureFlag(false));
-    // CSS touch-action: pan-y so vertical page scroll still works
-    // when the user is NOT actively touching the plot area. Within
-    // the plot, our touchmove preventDefault locks horizontal
-    // scrolling to the gesture handler.
-    plotEl.style.touchAction = "pan-y";
-    updateResetVisibility();
+    void plotEl;
+    void ctx;
+    return;
   }
 
   function updateTile(
