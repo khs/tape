@@ -24,12 +24,13 @@
  *      tile, no fullscreen-modal CSS surgery needed.
  */
 import EmbedLayout from "../../../layouts/EmbedLayout.astro";
-import Chart from "../../../components/Chart.astro";
+import SectionChart from "../../../components/SectionChart.astro";
 import ChartController from "../../../components/ChartController.astro";
 import {
   resolveChart,
   effectiveChart,
 } from "../../../lib/resolve-dashboard";
+import { resolveBarSnapshot } from "../../../lib/resolve-bar-snapshots";
 import { DELTA_WINDOWS, type DeltaWindow } from "../../../lib/deltas";
 
 // SSR (rather than static getStaticPaths over every chart). With
@@ -53,6 +54,19 @@ const requestedDelta: DeltaWindow | undefined =
     : undefined;
 
 const resolved = await resolveChart(chartId);
+
+// Effective chart spec (with any overrides applied). Cached for use
+// in the render-type guard + the bar-snapshot preload below.
+const effChart = resolved ? effectiveChart(resolved) : null;
+
+// Bar charts need the per-source snapshot data preloaded so
+// ChartBar's JSX can render without an inline await. Skipped for
+// every other render type — the call is cheap (single chart) but
+// no point hitting the filesystem when we won't use the result.
+const barSnapshot =
+  resolved && effChart?.render === "bar"
+    ? await resolveBarSnapshot(resolved.sources, effChart.barAsOf)
+    : [];
 
 // Attribution chip on the EmbedLayout points at the canonical chart-
 // detail page so a curious reader has a one-click path to the full
@@ -78,7 +92,7 @@ const title = resolved?.chart.data.title ?? chartId;
     data-dashboard-default-window={requestedDelta ?? resolved?.chart.data.defaultDelta ?? "1m"}
   >
     {
-      !resolved ? (
+      !resolved || !effChart ? (
         <div class="embed-error">
           <p>
             Chart not found: <code>{chartId}</code>
@@ -89,12 +103,20 @@ const title = resolved?.chart.data.title ?? chartId;
         </div>
       ) : (
         <div class="embed-tile-wrap">
-          <Chart
+          {/*
+            SectionChart dispatches on chart.render — Chart for line,
+            ChartBar for bar, ChartChoropleth for choropleth. Embedding
+            Chart directly here used to render bar + choropleth charts
+            as empty line-chart tiles (the welcome page's gdp_snapshot
+            and county-map embeds came up blank).
+          */}
+          <SectionChart
             chartId={chartId}
-            chart={effectiveChart(resolved)}
+            chart={effChart}
             sources={resolved.sources}
             dashboardSlug="embed"
-            dashboardWindow={requestedDelta}
+            sectionDelta={requestedDelta}
+            barSnapshot={barSnapshot}
           />
         </div>
       )
