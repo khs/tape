@@ -20,7 +20,7 @@ emphasis: change
 provenance:
   provider: BLS (LAUS)
   series: LAUMT222934000000003
-  url: https://www.bls.gov/lau/
+  url: https://data.bls.gov/timeseries/LAUMT222934000000003
   license: Public domain (US government data)
 unitClass: rate
 tags:

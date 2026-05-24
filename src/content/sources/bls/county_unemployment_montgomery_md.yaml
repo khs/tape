@@ -15,6 +15,6 @@ emphasis: change
 provenance:
   provider: BLS (LAUS)
   series: LAUCN240310000000003
-  url: https://www.bls.gov/lau/
+  url: https://data.bls.gov/timeseries/LAUCN240310000000003
   license: Public domain (US government data)
 unitClass: rate

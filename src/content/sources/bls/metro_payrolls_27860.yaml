@@ -20,7 +20,7 @@ emphasis: change
 provenance:
   provider: BLS (CES State and Area)
   series: SMU05278600000000001
-  url: https://www.bls.gov/sae/
+  url: https://data.bls.gov/timeseries/SMU05278600000000001
   license: Public domain (US government data)
 unitClass: count
 tags:

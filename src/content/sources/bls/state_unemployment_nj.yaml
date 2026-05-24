@@ -14,7 +14,7 @@ emphasis: change
 provenance:
   provider: BLS (LAUS)
   series: LASST340000000000003
-  url: https://www.bls.gov/lau/
+  url: https://data.bls.gov/timeseries/LASST340000000000003
   license: Public domain (US government data)
 tags:
   - labor

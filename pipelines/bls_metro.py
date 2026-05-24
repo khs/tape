@@ -204,7 +204,12 @@ def write_source_yaml(spec: MetroSeriesSpec, metro: CbsaMetro) -> bool:
             "Statistics (LAUS)."
         )
         provider = "BLS (LAUS)"
-        url = "https://www.bls.gov/lau/"
+        # BLS Data Viewer URL: lands the reader on a chart + downloads
+        # + metadata + related-series for THIS specific series, not the
+        # LAUS program homepage which has no per-series navigation.
+        # Backfilled across the existing YAML corpus in the same change
+        # that updated this pipeline.
+        url = f"https://data.bls.gov/timeseries/{spec.series_id}"
     else:
         description = (
             f"Total nonfarm payroll employment for the {metro.short_name} "
@@ -213,7 +218,7 @@ def write_source_yaml(spec: MetroSeriesSpec, metro: CbsaMetro) -> bool:
             "(CES) state-and-area program."
         )
         provider = "BLS (CES State and Area)"
-        url = "https://www.bls.gov/sae/"
+        url = f"https://data.bls.gov/timeseries/{spec.series_id}"
     lines = [
         f"name: {yaml_escape(spec.label)}",
         f"shortName: {yaml_escape(spec.short_name)}",

@@ -15,7 +15,7 @@ emphasis: change
 provenance:
   provider: BLS (CES)
   series: SMS34000000000000001
-  url: https://www.bls.gov/sae/
+  url: https://data.bls.gov/timeseries/SMS34000000000000001
   license: Public domain (US government data)
 tags:
   - labor
