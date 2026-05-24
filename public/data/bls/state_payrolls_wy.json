@@ -3,7 +3,7 @@
   "name": "Wyoming nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-05-20T03:59:59Z",
+  "lastUpdated": "2026-05-24T08:20:26Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -447,6 +447,10 @@
     },
     {
       "t": "2026-03-15",
+      "v": 294400.0
+    },
+    {
+      "t": "2026-04-15",
       "v": 294600.0
     }
   ]
