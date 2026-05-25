@@ -16,11 +16,15 @@ import {
   perChartSupportedDeltas,
   dashboardSupportedDeltas,
   resolveChart,
+  resolveDashboardDefault,
+  effectiveChart,
+  isVisibleChart,
   type ResolvedSection,
   type ResolvedChart,
 } from "./resolve-dashboard";
 import type { DeltaWindow } from "./deltas";
 import type { InlineChart } from "./composer-state";
+import type { CollectionEntry } from "astro:content";
 
 // Helper: build a minimum-viable ResolvedChart for tests. We only
 // touch chart.data.render and source.data.supportedDeltas, so the
@@ -254,5 +258,147 @@ describe("ResolvedSection — per-section window overrides", () => {
       start: "2000-01-01",
       end: "2009-12-31",
     });
+  });
+});
+
+describe("resolveDashboardDefault", () => {
+  // Lives on the hot path of every dashboard render — picks which
+  // pill is highlighted on first paint and which window the tile
+  // descriptor renders against.
+
+  it("preserves the requested default when it's in the supported list", () => {
+    expect(resolveDashboardDefault("5y", ["1m", "1y", "5y", "10y"])).toBe(
+      "5y",
+    );
+  });
+
+  it("falls back to closestSupported when the requested window is missing", () => {
+    // Asked for 1m but only have 1y+; the closest log-day-distance
+    // match wins.
+    expect(resolveDashboardDefault("1m", ["1y", "5y", "10y"])).toBe("1y");
+  });
+
+  it("defaults to 1m when no request was passed", () => {
+    // The signed-in home page passes undefined to mean "no preference".
+    expect(resolveDashboardDefault(undefined, ["1m", "1y"])).toBe("1m");
+  });
+
+  it("when 1m isn't supported and no request is given, falls back via closestSupported", () => {
+    // Defaults to 1m → not supported → closest is 1y.
+    expect(resolveDashboardDefault(undefined, ["1y", "5y"])).toBe("1y");
+  });
+});
+
+describe("effectiveChart", () => {
+  // Merges an override on top of base chart data. Chart-edit (composer
+  // edits to charts already in the library) ships overrides through
+  // this, so regressions here silently re-mute curator edits.
+
+  it("returns the base data verbatim when no override is provided", () => {
+    const base = { title: "CPI", render: "line", description: "x" } as
+      unknown as CollectionEntry<"charts">["data"];
+    const resolved = { chart: { data: base } } as unknown as ResolvedChart;
+    expect(effectiveChart(resolved)).toEqual(base);
+  });
+
+  it("returns the base when override is undefined or an empty object", () => {
+    const base = { title: "CPI", render: "line" } as
+      unknown as CollectionEntry<"charts">["data"];
+    const resolved = { chart: { data: base } } as unknown as ResolvedChart;
+    expect(effectiveChart(resolved, undefined)).toEqual(base);
+    expect(effectiveChart(resolved, {})).toEqual(base);
+  });
+
+  it("override fields take precedence over base", () => {
+    const base = {
+      title: "Original",
+      description: "old description",
+      render: "line",
+    } as unknown as CollectionEntry<"charts">["data"];
+    const resolved = { chart: { data: base } } as unknown as ResolvedChart;
+    const out = effectiveChart(resolved, {
+      title: "Custom",
+      description: "new description",
+    });
+    expect(out.title).toBe("Custom");
+    expect(out.description).toBe("new description");
+    expect(out.render).toBe("line"); // untouched field passes through
+  });
+
+  it("does NOT mutate the input resolved.chart.data", () => {
+    // Composer is allowed to render the same chart multiple times with
+    // different overrides; mutating base would cross-contaminate.
+    const base = { title: "Base" } as
+      unknown as CollectionEntry<"charts">["data"];
+    const resolved = { chart: { data: base } } as unknown as ResolvedChart;
+    effectiveChart(resolved, { title: "Overridden" });
+    expect(base.title).toBe("Base");
+  });
+
+  it("override can set fields the base doesn't have (description / blurb)", () => {
+    const base = { title: "x", render: "line" } as
+      unknown as CollectionEntry<"charts">["data"];
+    const resolved = { chart: { data: base } } as unknown as ResolvedChart;
+    const out = effectiveChart(resolved, {
+      description: "new field",
+      blurb: "another new field",
+    } as Partial<CollectionEntry<"charts">["data"]>);
+    expect(out.description).toBe("new field");
+    expect((out as { blurb?: string }).blurb).toBe("another new field");
+  });
+});
+
+describe("isVisibleChart", () => {
+  // Three call sites depend on the contract: chart/[...id], source/
+  // [...id], library.json.ts. The rules:
+  //   - non-deprecated → visible
+  //   - deprecated + no aliasOf → hidden
+  //   - deprecated + aliasOf → visible (slug stays alive, points at
+  //     the successor)
+
+  function makeChart(
+    data: Record<string, unknown>,
+  ): CollectionEntry<"charts"> {
+    return { data } as unknown as CollectionEntry<"charts">;
+  }
+
+  it("returns true for a non-deprecated chart", () => {
+    expect(isVisibleChart(makeChart({ render: "line" }))).toBe(true);
+  });
+
+  it("returns false for a deprecated chart with no aliasOf", () => {
+    // Slug is reserved (nothing else can claim it) but the chart
+    // doesn't appear in catalogs.
+    expect(
+      isVisibleChart(makeChart({ render: "line", deprecated: true })),
+    ).toBe(false);
+  });
+
+  it("returns true for a deprecated chart that has an aliasOf successor", () => {
+    // Old saved-dashboard URLs keep working — the slug resolves to its
+    // successor chart, and the alias entry stays in catalogs.
+    expect(
+      isVisibleChart(
+        makeChart({ render: "line", deprecated: true, aliasOf: "new-chart" }),
+      ),
+    ).toBe(true);
+  });
+
+  it("treats deprecated: false as visible (explicit non-deprecation)", () => {
+    expect(
+      isVisibleChart(makeChart({ render: "line", deprecated: false })),
+    ).toBe(true);
+  });
+
+  it("treats deprecated: undefined as visible (the typical case)", () => {
+    expect(isVisibleChart(makeChart({ render: "line" }))).toBe(true);
+  });
+
+  it("ignores aliasOf when deprecated isn't true (no early-return on aliasOf alone)", () => {
+    // aliasOf alone, without deprecated:true, isn't a real scenario in
+    // production — but the predicate shouldn't misfire on it.
+    expect(
+      isVisibleChart(makeChart({ render: "line", aliasOf: "x" })),
+    ).toBe(true);
   });
 });
