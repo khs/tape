@@ -295,7 +295,7 @@ describe("effectiveChart", () => {
   // this, so regressions here silently re-mute curator edits.
 
   it("returns the base data verbatim when no override is provided", () => {
-    const base = { title: "CPI", render: "line", description: "x" } as
+    const base = { title: "CPI", render: "line", blurb: "x" } as
       unknown as CollectionEntry<"charts">["data"];
     const resolved = { chart: { data: base } } as unknown as ResolvedChart;
     expect(effectiveChart(resolved)).toEqual(base);
@@ -312,16 +312,16 @@ describe("effectiveChart", () => {
   it("override fields take precedence over base", () => {
     const base = {
       title: "Original",
-      description: "old description",
+      blurb: "old blurb",
       render: "line",
     } as unknown as CollectionEntry<"charts">["data"];
     const resolved = { chart: { data: base } } as unknown as ResolvedChart;
     const out = effectiveChart(resolved, {
       title: "Custom",
-      description: "new description",
+      blurb: "new blurb",
     });
     expect(out.title).toBe("Custom");
-    expect(out.description).toBe("new description");
+    expect(out.blurb).toBe("new blurb");
     expect(out.render).toBe("line"); // untouched field passes through
   });
 
@@ -335,16 +335,17 @@ describe("effectiveChart", () => {
     expect(base.title).toBe("Base");
   });
 
-  it("override can set fields the base doesn't have (description / blurb)", () => {
+  it("override can set fields the base doesn't have", () => {
     const base = { title: "x", render: "line" } as
       unknown as CollectionEntry<"charts">["data"];
     const resolved = { chart: { data: base } } as unknown as ResolvedChart;
     const out = effectiveChart(resolved, {
-      description: "new field",
-      blurb: "another new field",
-    } as Partial<CollectionEntry<"charts">["data"]>);
-    expect(out.description).toBe("new field");
-    expect((out as { blurb?: string }).blurb).toBe("another new field");
+      blurb: "new blurb",
+      // tags is also valid per the schema
+      tags: ["a", "b"],
+    });
+    expect(out.blurb).toBe("new blurb");
+    expect(out.tags).toEqual(["a", "b"]);
   });
 });
 

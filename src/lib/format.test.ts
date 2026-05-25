@@ -225,7 +225,7 @@ describe("formatDelta", () => {
   it("returns 0 pct when prior is zero (avoids divide-by-zero NaN)", () => {
     // Guard from the implementation: prior === 0 short-circuits to
     // pct = 0 rather than emitting NaN%/Infinity%.
-    const out = formatDelta(5, 0, { style: "decimal", decimals: 2 });
+    const out = formatDelta(5, 0, { style: "number", decimals: 2 });
     expect(out.pct).toContain("0.0%");
     expect(out.direction).toBe("up");
   });
@@ -237,19 +237,19 @@ describe("formatSignedValue", () => {
   // the Unicode minus).
 
   it("prefixes positive values with +", () => {
-    expect(formatSignedValue(3.5, { style: "decimal", decimals: 2 })).toBe(
+    expect(formatSignedValue(3.5, { style: "number", decimals: 2 })).toBe(
       "+3.50",
     );
   });
 
   it("prefixes zero with + (treated as non-negative)", () => {
-    expect(formatSignedValue(0, { style: "decimal", decimals: 2 })).toBe(
+    expect(formatSignedValue(0, { style: "number", decimals: 2 })).toBe(
       "+0.00",
     );
   });
 
   it("uses Unicode minus (U+2212), not ASCII hyphen, for negatives", () => {
-    const out = formatSignedValue(-3.5, { style: "decimal", decimals: 2 });
+    const out = formatSignedValue(-3.5, { style: "number", decimals: 2 });
     expect(out.startsWith("−")).toBe(true);
     expect(out.startsWith("-")).toBe(false);
     expect(out).toBe("−3.50");
@@ -289,7 +289,7 @@ describe("formatDeltaDisplay", () => {
   it("emits just 'pct' for non-percent sources (decimal / currency)", () => {
     // GDP $100B → $105B: pct = +5.0%, no parens.
     const out = formatDeltaDisplay(105, 100, {
-      style: "decimal",
+      style: "number",
       decimals: 0,
     });
     expect(out.text).toContain("%");
@@ -298,13 +298,13 @@ describe("formatDeltaDisplay", () => {
 
   it("carries direction through", () => {
     expect(
-      formatDeltaDisplay(105, 100, { style: "decimal", decimals: 0 }).direction,
+      formatDeltaDisplay(105, 100, { style: "number", decimals: 0 }).direction,
     ).toBe("up");
     expect(
-      formatDeltaDisplay(95, 100, { style: "decimal", decimals: 0 }).direction,
+      formatDeltaDisplay(95, 100, { style: "number", decimals: 0 }).direction,
     ).toBe("down");
     expect(
-      formatDeltaDisplay(100, 100, { style: "decimal", decimals: 0 }).direction,
+      formatDeltaDisplay(100, 100, { style: "number", decimals: 0 }).direction,
     ).toBe("flat");
   });
 
