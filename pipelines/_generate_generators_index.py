@@ -794,6 +794,84 @@ def build_state_presets(entities: dict[str, dict[str, str]]) -> dict[str, dict[s
     return out
 
 
+# Country preset groups. Each lists the slugs (matching the
+# worldbank_extended file naming convention) that should be included
+# in the preset; the build step filters down to the slugs actually
+# present in `entities` so a partial dataset doesn't crash. Order in
+# the source list determines the order codes appear in the generated
+# chart — kept rough-by-importance (USA first for G7 / G20 / Anglos,
+# China first for BRICS, etc.) so the legend reads naturally.
+COUNTRY_PRESET_DEFS: list[tuple[str, str, list[str]]] = [
+    ("g7", "G7", [
+        "usa", "japan", "germany", "uk", "france", "italy", "canada",
+    ]),
+    ("brics", "BRICS", [
+        "china", "india", "brazil", "russia", "south_africa",
+    ]),
+    ("g20_subset", "G20 (countries)", [
+        # G20 = 19 countries + EU. Of the 19, Argentina + Indonesia
+        # aren't in our country set today — drop them silently. EU
+        # aggregate is the `europe_eu` slug if a reader wants the
+        # 20th seat. 17 of 19 still covers most macro comparisons.
+        "usa", "china", "japan", "germany", "india", "uk", "france",
+        "italy", "brazil", "canada", "russia", "south_korea",
+        "australia", "mexico", "turkiye", "saudi_arabia",
+        "south_africa",
+    ]),
+    ("anglosphere", "Anglosphere", [
+        "usa", "uk", "canada", "australia", "new_zealand",
+    ]),
+    ("nordics", "Nordic countries", [
+        "norway", "sweden", "finland", "denmark", "iceland",
+    ]),
+    ("east_asia", "East Asia + SE Asia", [
+        "china", "japan", "south_korea", "hong_kong", "singapore",
+        "thailand", "philippines",
+    ]),
+    ("north_america_n3", "North America (USA / Canada / Mexico)", [
+        "usa", "canada", "mexico",
+    ]),
+    ("top_gdp", "Top 10 economies (by GDP)", [
+        # 2024 nominal-GDP rankings (IMF April 2025). Held stable
+        # year-over-year mostly; small shuffles in the 5-10 band
+        # don't change the membership set.
+        "usa", "china", "germany", "japan", "india", "uk", "france",
+        "italy", "brazil", "canada",
+    ]),
+    ("top_pop", "Top countries by population", [
+        # India + China + US lead unambiguously. Indonesia (NO), Pakistan
+        # (NO), Nigeria (NO), Bangladesh (NO), Ethiopia (NO) — not in
+        # our country set today — would otherwise round out a true
+        # top-10. What's left: India, China, USA, Brazil, Russia, Mexico,
+        # Japan, Philippines, in roughly that order.
+        "india", "china", "usa", "brazil", "russia", "mexico",
+        "japan", "philippines",
+    ]),
+    ("regional_aggregates", "Regional aggregates", [
+        # The 7 World Bank cross-country composites the worldbank_extended
+        # pipeline emits — read together they form a continent-level
+        # snapshot of the indicator. Useful for "where does region X sit
+        # relative to the rest of the world" framings.
+        "north_america", "europe_eu", "europe_central_asia",
+        "east_asia_pacific", "south_asia", "mena", "latam", "africa_ssf",
+    ]),
+]
+
+
+def build_country_presets(entities: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Build the country preset dict from COUNTRY_PRESET_DEFS, filtering
+    each group's slugs down to the ones actually present in `entities`.
+    A group with zero overlap is dropped entirely — the renderer's
+    new Preset-radio greying logic then handles the case where every
+    group is empty for a given template."""
+    out: dict[str, dict[str, Any]] = {}
+    for key, label, slugs in COUNTRY_PRESET_DEFS:
+        present = [s for s in slugs if s in entities]
+        if present:
+            out[key] = {"label": label, "codes": present}
+    return out
+
+
 def build_country_entities(used: set[str]) -> dict[str, dict[str, Any]]:
     """Build the country entities block consumed by the composer's
     Generators tab. Each entity carries:
@@ -1023,7 +1101,7 @@ def main() -> int:
             presets = build_state_presets(entities)
         else:
             entities = build_country_entities(used_entities)
-            presets = {}
+            presets = build_country_presets(entities)
         templates_block = build_templates_block(geo, templates)
         out["geoTypes"][geo] = {
             "label": GEO_LABELS[geo],
