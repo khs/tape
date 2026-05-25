@@ -23,6 +23,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { encodeComposedState, composedStateSchema } from "./composer-state";
+import { validateSlug, escapeHtml } from "./dashboard-slug";
 import type { DashboardRow } from "./supabase";
 
 export type SavedDashboardRow = Pick<
@@ -80,32 +81,8 @@ export interface RenderSavedDashboardsResult {
   excludedRow: SavedDashboardRow | undefined;
 }
 
-// Reserved slugs — must not be claimable as a custom URL. Same list
-// /me/ has always used.
-const RESERVED_SLUGS = new Set([
-  "me", "compose", "custom", "api", "auth", "u",
-  "admin", "settings", "login", "logout", "signin", "signout",
-  "_astro", "library.json", "favicon.ico", "robots.txt", "sitemap.xml",
-]);
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function validateSlug(s: string): string | null {
-  if (!s) return "Custom URL can't be empty.";
-  if (s.length < 3) return "Custom URL must be at least 3 characters.";
-  if (s.length > 60) return "Custom URL must be 60 characters or fewer.";
-  if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(s)) {
-    return "Custom URL must be lowercase letters, digits, and dashes — and can't start or end with a dash.";
-  }
-  if (RESERVED_SLUGS.has(s)) return `"${s}" is a reserved URL.`;
-  return null;
-}
+// Slug validation + HTML escaping live in ./dashboard-slug.ts so they
+// can be unit-tested without a DOM. Import unchanged behavior above.
 
 function makeNewDashboardTile(baseUrl: string): HTMLLIElement {
   const li = document.createElement("li");
