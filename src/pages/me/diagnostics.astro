@@ -1,0 +1,270 @@
+---
+/**
+ * Admin-only diagnostic runner.
+ *
+ * Lives at /me/diagnostics. The page itself is just shell + a button;
+ * everything interesting happens in the inline <script> below — it
+ * gates on admin-email, runs the test suite from src/lib/diagnostics/
+ * sequentially, and offers a "Download report" that produces a
+ * paste-friendly .txt.
+ *
+ * Why prerendered: the auth check happens client-side anyway (gates
+ * on the session in localStorage / Supabase), so SSR would buy us
+ * nothing. Same pattern as /me/.
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+export const prerender = true;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Diagnostics — Tape">
+  {/* Sync pre-paint console-error ring buffer. Has to install before
+      any other script runs so we capture early errors from the same
+      page. Doesn't survive navigation. */}
+  <script is:inline>
+    (function () {
+      try {
+        var MAX = 200;
+        var buf = [];
+        window.__tapeDiagErrors = buf;
+        var origError = console.error.bind(console);
+        console.error = function () {
+          try {
+            var parts = [];
+            for (var i = 0; i < arguments.length; i++) {
+              parts.push(String(arguments[i]));
+            }
+            buf.push(parts.join(" "));
+            if (buf.length > MAX) buf.shift();
+          } catch (_e) {}
+          origError.apply(null, arguments);
+        };
+        window.addEventListener("error", function (e) {
+          buf.push("[error] " + (e.message || "") + " (" + (e.filename || "?") + ":" + (e.lineno || "?") + ")");
+          if (buf.length > MAX) buf.shift();
+        });
+        window.addEventListener("unhandledrejection", function (e) {
+          buf.push("[unhandledrejection] " + String((e && e.reason) || ""));
+          if (buf.length > MAX) buf.shift();
+        });
+      } catch (_e) {}
+    })();
+  </script>
+
+  <div class="diag-root max-w-[920px] mx-auto px-6 py-10" data-base-url={baseUrl}>
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={`${baseUrl}/me/`} class="no-underline hover:text-neutral-900">&larr; My dashboards</a>
+    </nav>
+    <h1 class="text-2xl font-semibold">Diagnostics</h1>
+    <p class="text-sm text-neutral-500 mt-1">
+      Admin-only. Runs an exhaustive battery of tests against the live deployment
+      and produces a downloadable text report.
+    </p>
+
+    <div class="diag-content mt-6" data-role="content">
+      <p class="text-sm text-neutral-500">Loading…</p>
+    </div>
+  </div>
+
+  <script>
+    import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
+    import { isAdmin } from "../../lib/admin";
+    import {
+      runSuite,
+      summarize,
+      formatReport,
+      type DiagnosticRecord,
+      type ReportHeader,
+    } from "../../lib/diagnostic-runner";
+    import { ALL_DIAGNOSTIC_TESTS } from "../../lib/diagnostics";
+
+    const root = document.querySelector<HTMLElement>(".diag-root");
+    const content = root?.querySelector<HTMLElement>("[data-role='content']");
+    if (!root || !content) {
+      throw new Error("diagnostics page DOM missing");
+    }
+
+    function renderHtml(html: string): void {
+      content!.innerHTML = html;
+    }
+
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function boot(): Promise<void> {
+      if (!isSupabaseConfigured) {
+        renderHtml(
+          `<p class="text-sm text-error">Supabase isn't configured in this build, so the diagnostics suite can't run (no session to check, no DB to probe).</p>`,
+        );
+        return;
+      }
+      const sb = createSupabase()!;
+      const { data, error } = await sb.auth.getSession();
+      if (error) {
+        renderHtml(
+          `<p class="text-sm text-error">getSession failed: ${escapeHtml(error.message)}</p>`,
+        );
+        return;
+      }
+      const email = data.session?.user.email ?? null;
+      if (!email) {
+        renderHtml(
+          `<p class="text-sm text-neutral-700">You need to be signed in. <a class="text-accent underline" href="/me/">Open /me/ to sign in</a>, then come back.</p>`,
+        );
+        return;
+      }
+      if (!isAdmin(email)) {
+        // Don't reveal admin emails or hints; just refuse.
+        renderHtml(
+          `<p class="text-sm text-error">This page is restricted to admin users.</p>`,
+        );
+        return;
+      }
+
+      renderHtml(`
+        <div class="diag-runner">
+          <p class="text-sm text-neutral-700 mb-3">
+            Signed in as <strong>${escapeHtml(email)}</strong>. Ready to run
+            <strong>${ALL_DIAGNOSTIC_TESTS.length}</strong> diagnostic tests
+            across ${new Set(ALL_DIAGNOSTIC_TESTS.map((t) => t.category)).size}
+            categories.
+          </p>
+          <div class="flex gap-2 items-center mb-4">
+            <button type="button" data-role="run"
+              class="px-4 py-2 bg-accent text-white rounded hover:opacity-90 cursor-pointer">
+              Run diagnostics
+            </button>
+            <button type="button" data-role="download" disabled
+              class="px-4 py-2 border rounded text-neutral-500 cursor-not-allowed">
+              Download report
+            </button>
+            <button type="button" data-role="copy" disabled
+              class="px-4 py-2 border rounded text-neutral-500 cursor-not-allowed">
+              Copy report
+            </button>
+          </div>
+          <div data-role="progress" class="text-xs text-neutral-500"></div>
+          <div data-role="results" class="mt-4 text-xs font-mono whitespace-pre-wrap"></div>
+        </div>
+      `);
+
+      wireRunner(sb, email, data.session!.user.id);
+    }
+
+    function wireRunner(
+      _sb: ReturnType<typeof createSupabase>,
+      email: string,
+      userId: string,
+    ): void {
+      const runBtn = content!.querySelector<HTMLButtonElement>("[data-role='run']")!;
+      const downloadBtn = content!.querySelector<HTMLButtonElement>("[data-role='download']")!;
+      const copyBtn = content!.querySelector<HTMLButtonElement>("[data-role='copy']")!;
+      const progressEl = content!.querySelector<HTMLElement>("[data-role='progress']")!;
+      const resultsEl = content!.querySelector<HTMLElement>("[data-role='results']")!;
+
+      let lastReport: string | null = null;
+
+      function setDownloadEnabled(enabled: boolean): void {
+        const buttons = [downloadBtn, copyBtn];
+        for (const b of buttons) {
+          b.disabled = !enabled;
+          if (enabled) {
+            b.classList.remove("text-neutral-500", "cursor-not-allowed");
+            b.classList.add("text-neutral-900", "cursor-pointer");
+          } else {
+            b.classList.remove("text-neutral-900", "cursor-pointer");
+            b.classList.add("text-neutral-500", "cursor-not-allowed");
+          }
+        }
+      }
+
+      runBtn.addEventListener("click", async () => {
+        runBtn.disabled = true;
+        runBtn.textContent = "Running…";
+        setDownloadEnabled(false);
+        resultsEl.textContent = "";
+        progressEl.textContent = `Running 0 / ${ALL_DIAGNOSTIC_TESTS.length}…`;
+
+        const records: DiagnosticRecord[] = [];
+        await runSuite(ALL_DIAGNOSTIC_TESTS, (rec, idx, total) => {
+          records.push(rec);
+          const glyph =
+            rec.status === "pass" ? "✓" :
+            rec.status === "warn" ? "⚠" :
+            rec.status === "skip" ? "·" : "✗";
+          progressEl.textContent =
+            `Running ${idx} / ${total}… (last: ${glyph} ${rec.label} ${rec.durationMs}ms)`;
+        });
+
+        const header: ReportHeader = {
+          startedAt: new Date().toISOString(),
+          build: {
+            sha: import.meta.env.PUBLIC_BUILD_SHA,
+            env: import.meta.env.PUBLIC_BUILD_ENV,
+          },
+          user: { id: userId, email },
+          browser: {
+            userAgent: navigator.userAgent,
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            language: navigator.language,
+          },
+          extra: {
+            url: window.location.href,
+            referrer: document.referrer || "(none)",
+            origin: window.location.origin,
+          },
+        };
+        const report = formatReport(header, records);
+        lastReport = report;
+
+        const summary = summarize(records);
+        progressEl.textContent =
+          `Done. ${summary.pass}/${summary.total} pass (${summary.fail} fail, ${summary.warn} warn, ${summary.skip} skip) in ${(summary.durationMs / 1000).toFixed(2)}s.`;
+        resultsEl.textContent = report;
+
+        runBtn.disabled = false;
+        runBtn.textContent = "Run diagnostics";
+        setDownloadEnabled(true);
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        if (!lastReport) return;
+        const ts = new Date().toISOString().replace(/[:.]/g, "-");
+        const blob = new Blob([lastReport], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `tape-diagnostic-${ts}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        if (!lastReport) return;
+        try {
+          await navigator.clipboard.writeText(lastReport);
+          const orig = copyBtn.textContent;
+          copyBtn.textContent = "Copied ✓";
+          setTimeout(() => {
+            copyBtn.textContent = orig;
+          }, 1500);
+        } catch (e) {
+          alert(`Clipboard write failed: ${(e as Error).message}`);
+        }
+      });
+    }
+
+    boot().catch((e) => {
+      renderHtml(
+        `<p class="text-sm text-error">Diagnostics page failed to boot: ${escapeHtml((e as Error).message)}</p>`,
+      );
+    });
+  </script>
+</BaseLayout>

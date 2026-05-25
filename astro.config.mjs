@@ -27,6 +27,21 @@ function resolveSite() {
   return undefined;
 }
 
+// Bake build metadata into the client bundle so the admin diagnostic
+// page can report which commit + environment is actually running.
+// Astro exposes any `PUBLIC_*` env var to client code via
+// `import.meta.env.PUBLIC_*`; we set them on process.env here so the
+// values are read once at build time, not per request.
+//
+// VERCEL_GIT_COMMIT_SHA + VERCEL_ENV are populated by Vercel during
+// every build. Locally they're unset, so the fallbacks read "dev" so
+// the diagnostic report still has SOMETHING to show.
+process.env.PUBLIC_BUILD_SHA =
+  process.env.VERCEL_GIT_COMMIT_SHA ?? "dev";
+process.env.PUBLIC_BUILD_ENV =
+  process.env.VERCEL_ENV ?? "dev";
+process.env.PUBLIC_BUILD_TIME = new Date().toISOString();
+
 export default defineConfig({
   site: resolveSite(),
   // `output: "static"` with an adapter = hybrid: pages default to prerender,
