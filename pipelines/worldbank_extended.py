@@ -501,7 +501,17 @@ def write_source_yaml(indicator: WbIndicator, entity: Entity) -> bool:
     # specific sources are hidden from the default list) and confuse
     # the user. entity.tag_region stays on the dataclass in case
     # something else wants to use it.
-    tags = ["macro", "world"] + indicator.extra_tags
+    # "world" tag denotes cross-country comparisons. A per-country
+    # entry (USA, CHN, etc.) is one data point from a cross-country
+    # series, not itself cross-country, so it does NOT get the world
+    # tag — that would surface "US Industry," "US Population," etc.
+    # alongside the actual cross-country aggregates when a reader
+    # filters by world. Regional aggregates (EUU, SSF, etc.) DO get
+    # world because they ARE cross-country composites.
+    is_regional_aggregate = any(r.code == entity.code for r in REGIONS)
+    tags = ["macro"] + indicator.extra_tags
+    if is_regional_aggregate:
+        tags.append("world")
     # USA gets the `us` topical tag so the library.json synthesizer
     # falls into the "US-national, keep visible in default list" branch
     # (and adds country-specific:USA), instead of either being hidden
