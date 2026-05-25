@@ -467,6 +467,7 @@ const statesJoined = stateCodes.join(",");
   // "National Mall", etc.). Falls back to the topology's
   // "Census Tract NNNN" label when no curated entry exists.
   import { specialTractName } from "../lib/special-tract-names";
+  import { disambiguateCountyCityNames } from "../lib/disambiguate-county-city";
 
   type ChoroBindings = {
     chartId: string;
@@ -721,57 +722,28 @@ const statesJoined = stateCodes.join(",");
         if (colloquial) props.name = colloquial;
       }
     }
-    // Disambiguate same-name geographies within a state. The
-    // us-counties topology carries 6 collisions where a county and an
-    // independent city share the same NAME and the same state FIPS:
-    //
-    //   24 Baltimore  (24005 county / 24510 city)
-    //   29 St. Louis  (29189 county / 29510 city)
-    //   51 Fairfax    (51059 county / 51600 city)
-    //   51 Franklin   (51067 county / 51620 city)
-    //   51 Richmond   (51159 county / 51760 city)  ← Richmond city (the capital)
-    //   51 Roanoke    (51161 county / 51770 city)
-    //
-    // Without disambiguation the choropleth tooltip just says "Fairfax"
-    // for both, and the reader can't tell which one's lit up. Append
-    // " (county)" / " (city)" when both halves of the pair are present
-    // in the feature collection. Detection: GEOID is state(2) +
-    // county-FIPS(3); county-FIPS >= 510 is an independent city in
-    // VA / MD / MO / NV. Only modify names that actually collide so
-    // single-occurrence places (Falls Church City — the only one) read
-    // naturally without the parenthetical.
+    // Disambiguate same-name county/independent-city pairs (Baltimore,
+    // St. Louis, Fairfax, Franklin, Richmond, Roanoke). Rules and the
+    // full collision list live in disambiguate-county-city.ts. The
+    // overrides map only contains GEOIDs whose names need to change.
     {
       type Props = { name?: string };
-      const seen = new Map<string, { name: string; geoid: string }[]>();
+      const collected: Array<{ id: string; name: string }> = [];
       for (const f of features) {
         const props = (f as { properties?: Props }).properties;
         const id = (f as { id?: string }).id;
-        // Only county-level GEOIDs (5 digits) — tract collisions
-        // within a state are noise here (tract 1.01 appears in
-        // every county) and the suffix logic below was designed
-        // for the independent-city/county pattern specifically.
-        if (!props?.name || !id || id.length !== 5) continue;
-        const stateFips = id.slice(0, 2);
-        const key = `${stateFips}|${props.name}`;
-        if (!seen.has(key)) seen.set(key, []);
-        seen.get(key)!.push({ name: props.name, geoid: id });
+        if (!props?.name || !id) continue;
+        collected.push({ id, name: props.name });
       }
-      for (const [, entries] of seen) {
-        if (entries.length < 2) continue;
-        for (const entry of entries) {
-          const countyFips = entry.geoid.slice(2, 5);
-          const isIndependentCity =
-            countyFips >= "510" && countyFips <= "840";
-          const suffix = isIndependentCity ? " (city)" : " (county)";
-          // Walk back to the feature and update its name. We can't
-          // mutate via the entries array — entry.name was already
-          // copied — so look up the feature by id.
-          for (const f of features) {
-            if ((f as { id?: string }).id !== entry.geoid) continue;
-            const p = (f as { properties?: Props }).properties;
-            if (p?.name && !p.name.endsWith(")")) p.name = p.name + suffix;
-            break;
-          }
+      const overrides = disambiguateCountyCityNames(collected);
+      if (overrides.size > 0) {
+        for (const f of features) {
+          const id = (f as { id?: string }).id;
+          if (!id) continue;
+          const newName = overrides.get(id);
+          if (!newName) continue;
+          const p = (f as { properties?: Props }).properties;
+          if (p) p.name = newName;
         }
       }
     }

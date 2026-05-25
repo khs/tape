@@ -20,6 +20,7 @@ import {
   DELTA_WINDOWS,
   type DeltaWindow,
 } from "../lib/deltas";
+import { filterSupportedDeltas } from "../lib/delta-window-points";
 import type { TimeSeriesData, TimeSeriesPoint } from "../lib/data-types";
 import { seriesColor } from "../lib/series-colors";
 import {
@@ -382,51 +383,14 @@ const primary = perSource[0];
 const primarySource = primary.source;
 
 // Filter effectiveSupported to drop windows with too few data points.
-// Author note: "stop giving one month as an option when there are 1
-// or 2 datapoints in that time frame, particularly with 1Y and YTD
-// I don't see the need for it" — monthly CPI on a 1M window gives
-// at most 1-2 points, which renders as a single dot or a 2-point
-// line that adds no information beyond the headline value, and
-// breaks YoY% (which can't compute from a 2-point window slice).
-//
-// Rule: drop any window where the source has ≤2 points in it AND a
-// longer window in supportedDeltas exists. Always keep the longest
-// available window so the pill row never empties out. Multi-source
-// charts: drop if ANY source has ≤2 points (otherwise the shared
-// pill row would render a window that's blank for one of the lines).
-//
-// "ytd" is excluded from the filter — it's a CALENDAR window
-// (Jan 1 → today), so its point count varies wildly through the
-// year and dropping it mid-year would be confusing. The fact that
-// YTD might also have only ≤2 points in January is fine; readers
-// understand "YTD on Jan 5th" naturally.
-function pointsInDeltaWindow(
-  source: typeof perSource[number],
-  win: DeltaWindow,
-): number {
-  // Trailing windows only — `ytd` keys aren't precomputed by the
-  // summary sparks pipeline, and we explicitly skip the filter for
-  // ytd anyway.
-  if (win === "ytd") return Infinity;
-  if (source.summary?.sparks?.[win]) {
-    return source.summary.sparks[win]!.length;
-  }
-  const pts = source.data?.points;
-  if (pts && pts.length > 0) {
-    const lastMs = new Date(pts[pts.length - 1].t).getTime();
-    const startMs = lastMs - DELTA_DAYS[win] * 86_400_000;
-    return pts.filter((p) => new Date(p.t).getTime() >= startMs).length;
-  }
-  // No data loaded for this source → don't filter (be permissive,
-  // the renderer will fall back to whatever's available).
-  return Infinity;
-}
-const filteredSupported: DeltaWindow[] = effectiveSupported.filter(
-  (w, i, arr) => {
-    if (i === arr.length - 1) return true; // always keep longest
-    if (w === "ytd") return true;
-    return perSource.every((ps) => pointsInDeltaWindow(ps, w) >= 3);
-  },
+// Window-thinning rules + the pointsInDeltaWindow helper live in
+// ../lib/delta-window-points.ts so they can be unit-tested. Author
+// rule summary: drop any window where ANY source has ≤2 points in
+// it AND a longer window exists; never drop the longest; never
+// filter "ytd" (calendar window, count varies through the year).
+const filteredSupported: DeltaWindow[] = filterSupportedDeltas(
+  effectiveSupported,
+  perSource,
 );
 // If the chart's defaultDelta got filtered out, remap to the closest
 // supported one — otherwise the dialog opens with no pill highlighted
