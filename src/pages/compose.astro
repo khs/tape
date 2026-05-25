@@ -3938,22 +3938,43 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (!wrap || !sel || !generatorsIndex) return;
     // Build the usable-preset set FIRST — we use it both to populate
     // the dropdown AND to decide whether the Preset mode radio should
-    // be enabled at all. A preset with zero entity-overlap with the
-    // current template (e.g. "Top-12 metros" against a state-level
-    // template) would render as "Top-12 metros (0)" in the dropdown,
-    // which lets the reader pick it and end up with an empty chart.
-    // Drop them from the option list AND grey out the Preset radio
-    // entirely when nothing's left.
+    // be enabled at all. Filtering rule (author request, 2026):
+    //
+    //   "A preset should only show if at least half its membership
+    //    is present, and all presets should display, for the indicator,
+    //    how many of their members have valid data (so we might see
+    //    'BRICS (4/5)')."
+    //
+    // present = preset members AND in the current template's source
+    //           map (the indicator has data for them).
+    // total   = canonical group size from preset.total when set
+    //           (e.g. G7 = 7, BRICS = 5, Top 12 metros = 12), else
+    //           preset.codes.length (region presets where the codes
+    //           list IS the canonical definition).
+    //
+    // Drop the preset entirely when present * 2 < total (less than
+    // half). Always render the count as "present/total" so the reader
+    // sees the coverage at a glance — "Top 12 (10/12)" tells them
+    // immediately which canonical group it is + that 2 are missing.
     const block = generatorsIndex.geoTypes[generators.geo];
     const t = currentTemplate();
     const availableEntities = new Set(t ? Object.keys(t.sourceMap) : []);
-    const usablePresets: Array<{ key: string; label: string; count: number }> = [];
+    const usablePresets: Array<{
+      key: string;
+      label: string;
+      present: number;
+      total: number;
+    }> = [];
     for (const [key, preset] of Object.entries(block.presets)) {
-      const overlap = t
+      const present = t
         ? preset.codes.filter((c) => availableEntities.has(c)).length
         : preset.codes.length;
-      if (overlap > 0) {
-        usablePresets.push({ key, label: preset.label, count: overlap });
+      const total = (preset as { total?: number }).total ?? preset.codes.length;
+      // At-least-half check via integer multiplication to avoid the
+      // float-rounding edge case at odd totals (e.g. BRICS at 5: 3/5
+      // shows, 2/5 hides; 5 * 2 = 10, present * 2 must be >= 10).
+      if (present * 2 >= total) {
+        usablePresets.push({ key, label: preset.label, present, total });
       }
     }
     // Toggle the Preset radio button + its label based on whether
@@ -3995,7 +4016,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     wrap.hidden = false;
     const opts: string[] = usablePresets.map(
       (p) =>
-        `<option value="${escapeHtml(p.key)}">${escapeHtml(p.label)} (${p.count})</option>`,
+        `<option value="${escapeHtml(p.key)}">${escapeHtml(p.label)} (${p.present}/${p.total})</option>`,
     );
     sel.innerHTML = opts.join("");
     if (generators.preset && opts.some((o) => o.includes(`value="${generators.preset}"`))) {

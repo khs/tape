@@ -722,6 +722,11 @@ def build_metro_presets(entities: dict[str, dict[str, str]]) -> dict[str, dict[s
         out["top12"] = {
             "label": "Top 12 (NY / LA / Chicago / ...)",
             "codes": top12_present,
+            # total = canonical group size (12), preserved as a separate
+            # field so the renderer shows e.g. "Top 12 (10/12)" when an
+            # indicator only covers 10 of the canonical 12 metros — vs
+            # "Top 12 (10/10)" which would mis-suggest full coverage.
+            "total": len(top12),
         }
     # Regional presets: bucket every CBSA whose primary state is in the
     # region group.
@@ -863,12 +868,22 @@ def build_country_presets(entities: dict[str, dict[str, Any]]) -> dict[str, dict
     each group's slugs down to the ones actually present in `entities`.
     A group with zero overlap is dropped entirely — the renderer's
     new Preset-radio greying logic then handles the case where every
-    group is empty for a given template."""
+    group is empty for a given template.
+
+    Each entry carries a `total` = canonical (intent) group size,
+    independent of how many members are in the index right now. So
+    "BRICS (4/5)" reads as "4 of 5 BRICS countries" even if one of
+    the 5 isn't ingested yet — the denominator anchors to the
+    well-known group definition, not to our data coverage."""
     out: dict[str, dict[str, Any]] = {}
     for key, label, slugs in COUNTRY_PRESET_DEFS:
         present = [s for s in slugs if s in entities]
         if present:
-            out[key] = {"label": label, "codes": present}
+            out[key] = {
+                "label": label,
+                "codes": present,
+                "total": len(slugs),
+            }
     return out
 
 
