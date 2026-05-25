@@ -1124,6 +1124,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { track } from "../lib/track";
   import { packSourceIds } from "../lib/analytics-helpers";
   import {
+    filterUsablePresets,
+    type PresetDef,
+  } from "../lib/generator-presets";
+  import {
     parseAnnotationLines,
     formatAnnotationLines,
     annotationsOutOfRangeSummary,
@@ -3959,24 +3963,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const block = generatorsIndex.geoTypes[generators.geo];
     const t = currentTemplate();
     const availableEntities = new Set(t ? Object.keys(t.sourceMap) : []);
-    const usablePresets: Array<{
-      key: string;
-      label: string;
-      present: number;
-      total: number;
-    }> = [];
-    for (const [key, preset] of Object.entries(block.presets)) {
-      const present = t
-        ? preset.codes.filter((c) => availableEntities.has(c)).length
-        : preset.codes.length;
-      const total = (preset as { total?: number }).total ?? preset.codes.length;
-      // At-least-half check via integer multiplication to avoid the
-      // float-rounding edge case at odd totals (e.g. BRICS at 5: 3/5
-      // shows, 2/5 hides; 5 * 2 = 10, present * 2 must be >= 10).
-      if (present * 2 >= total) {
-        usablePresets.push({ key, label: preset.label, present, total });
-      }
-    }
+    // Half-coverage filter + present/total counts come from the
+    // generator-presets lib so the rule is one place + unit-testable.
+    // See src/lib/generator-presets.ts + .test.ts for the spec.
+    const usablePresets = filterUsablePresets(
+      block.presets as Record<string, PresetDef>,
+      availableEntities,
+    );
     // Toggle the Preset radio button + its label based on whether
     // there's anything to pick. Disabled radio + dimmed label tells
     // the reader "this mode wouldn't do anything for the indicator

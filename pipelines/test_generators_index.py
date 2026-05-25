@@ -474,5 +474,93 @@ class GeneratedIndexAuditTests(unittest.TestCase):
             )
 
 
+class BuildCountryPresetsTests(unittest.TestCase):
+    """build_country_presets() filters COUNTRY_PRESET_DEFS down to the
+    slugs actually in the entity index and tags every emitted entry
+    with a `total` = canonical group size from the def. Both behaviors
+    matter:
+
+      - filter: ensures a preset with zero overlap doesn't ship as
+        "(0/N)" garbage that the renderer would have to filter out
+        again.
+      - total: preserves the conceptual group size when partial data
+        is ingested (e.g. Russia missing from index → BRICS shows
+        codes=4, total=5 → renderer displays "BRICS (4/5)" not the
+        misleading "BRICS (4/4)").
+    """
+
+    def test_filters_unknown_slugs(self) -> None:
+        # entities has only USA + JPN — every other G7 slug should
+        # be dropped from `codes` but `total` stays at 7.
+        entities = {"usa": {}, "japan": {}}
+        result = gen_idx.build_country_presets(entities)
+        g7 = result.get("g7")
+        self.assertIsNotNone(g7, "g7 preset should still ship even at partial coverage")
+        self.assertEqual(set(g7["codes"]), {"usa", "japan"})
+        self.assertEqual(g7["total"], 7,
+                         "total must be the canonical G7 size (7), "
+                         "not the filtered codes length (2)")
+
+    def test_drops_groups_with_zero_overlap(self) -> None:
+        # No BRICS country in entities → group disappears entirely.
+        entities = {"usa": {}, "japan": {}, "germany": {}}
+        result = gen_idx.build_country_presets(entities)
+        self.assertNotIn("brics", result)
+
+    def test_total_uses_intent_count_not_codes_length(self) -> None:
+        # Every emitted preset's `total` should equal the length of
+        # its source slug list in COUNTRY_PRESET_DEFS. This is the
+        # property the renderer leans on for the "X/Y" label format
+        # — drifting `total` would make the count meaningless.
+        intent: dict[str, int] = {
+            key: len(slugs) for key, _label, slugs in gen_idx.COUNTRY_PRESET_DEFS
+        }
+        # Build with every slug present so every preset emits.
+        all_slugs = {s for _, _, slugs in gen_idx.COUNTRY_PRESET_DEFS for s in slugs}
+        entities = {s: {} for s in all_slugs}
+        result = gen_idx.build_country_presets(entities)
+        for key, expected_total in intent.items():
+            self.assertIn(key, result, f"preset {key} missing under full coverage")
+            self.assertEqual(
+                result[key]["total"], expected_total,
+                f"preset {key} total mismatch: got {result[key]['total']}, "
+                f"expected {expected_total}",
+            )
+
+    def test_preset_order_preserved(self) -> None:
+        # COUNTRY_PRESET_DEFS is ordered by reader-intuition priority
+        # (G7 → BRICS → G20 → ...). The renderer's dropdown ordering
+        # leans on Python dict insertion order, so a build that
+        # accidentally re-sorted would change every reader's dropdown.
+        all_slugs = {s for _, _, slugs in gen_idx.COUNTRY_PRESET_DEFS for s in slugs}
+        entities = {s: {} for s in all_slugs}
+        result = gen_idx.build_country_presets(entities)
+        expected_order = [key for key, _label, _slugs in gen_idx.COUNTRY_PRESET_DEFS]
+        self.assertEqual(list(result.keys()), expected_order)
+
+    def test_canonical_groups_match_external_definitions(self) -> None:
+        # Lockdown on the EXACT membership of the canonical groups —
+        # G7 has 7 countries, BRICS has 5, Anglosphere has 5, Nordics
+        # has 5, North America (3-country) has 3. If someone tweaks
+        # these without thinking, the test fails loudly. (G20 / Top GDP
+        # / Top Pop are partial subsets of canonical groups due to
+        # data-availability constraints, so they're not locked here.)
+        canonical = {
+            "g7": {"usa", "japan", "germany", "uk", "france", "italy", "canada"},
+            "brics": {"china", "india", "brazil", "russia", "south_africa"},
+            "anglosphere": {"usa", "uk", "canada", "australia", "new_zealand"},
+            "nordics": {"norway", "sweden", "finland", "denmark", "iceland"},
+            "north_america_n3": {"usa", "canada", "mexico"},
+        }
+        defs_by_key = {k: set(slugs) for k, _l, slugs in gen_idx.COUNTRY_PRESET_DEFS}
+        for key, expected_members in canonical.items():
+            self.assertIn(key, defs_by_key, f"canonical preset {key} missing")
+            self.assertEqual(
+                defs_by_key[key], expected_members,
+                f"canonical preset {key} membership drifted: "
+                f"got {defs_by_key[key]}, expected {expected_members}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
