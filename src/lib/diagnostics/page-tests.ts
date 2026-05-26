@@ -119,7 +119,9 @@ export const pageTests: DiagnosticTest[] = [
     "/us-macro/",
     /chart/i,
   ),
-  htmlPageTest("library", "/library/ index renders", "/library/", /library/i),
+  // /library.json is the canonical "everything" endpoint — there's no
+  // /library/ HTML index; that's by design. The composer's
+  // Sources/Pregenerated/Maps/Generators tabs ARE the library UI.
   htmlPageTest("walkthrough", "/walkthrough/ renders", "/walkthrough/", /chart/i),
   htmlPageTest("privacy", "/privacy/ renders", "/privacy/", /Privacy/),
   htmlPageTest("terms", "/terms/ renders", "/terms/", /Terms/),
@@ -136,12 +138,15 @@ export const pageTests: DiagnosticTest[] = [
   ),
   htmlPageTest("alerts", "/alerts/ alerts route responds", "/alerts/", /alert/i),
 
-  // library.json — the canonical "everything we have" payload. A
-  // suspiciously low count signals a content-collection misload.
+  // library.json — the canonical "everything we have" payload. Shape
+  // is { charts: [], sources: {id->meta}, metros: [], metroTag,
+  // countries: [], countryTag } (see src/pages/library.json.ts). Test
+  // verifies the response parses + has a sensible quantity in each of
+  // the two big sections (charts + sources).
   {
     id: "pages/library-json",
     category: "pages",
-    label: "/library.json parses and has >= 4000 entries",
+    label: "/library.json parses with charts + sources sections",
     timeoutMs: 30000,
     run: async (): Promise<DiagnosticResult> => {
       const r = await get("/library.json");
@@ -154,25 +159,48 @@ export const pageTests: DiagnosticTest[] = [
       } catch (e) {
         return fail(`invalid JSON: ${(e as Error).message}`);
       }
-      if (!Array.isArray(parsed)) {
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
         return fail(
-          `expected an array, got ${typeof parsed} (keys: ${
-            parsed && typeof parsed === "object"
-              ? Object.keys(parsed).join(",")
-              : "n/a"
-          })`,
+          `expected an object, got ${Array.isArray(parsed) ? "array" : typeof parsed}`,
         );
       }
-      const count = parsed.length;
-      if (count < 4000) {
-        return warn(`only ${count} library entries — pipeline output may be incomplete`, {
-          count,
-        });
+      const obj = parsed as Record<string, unknown>;
+      const charts = obj.charts;
+      const sources = obj.sources;
+      if (!Array.isArray(charts)) {
+        return fail(`.charts not an array (got ${typeof charts})`);
       }
-      return pass(`${count} entries (${(r.body.length / 1024).toFixed(0)}KB)`, {
-        count,
-        bytes: r.body.length,
-      });
+      if (!sources || typeof sources !== "object" || Array.isArray(sources)) {
+        return fail(`.sources not an object (got ${typeof sources})`);
+      }
+      const chartCount = charts.length;
+      const sourceCount = Object.keys(sources).length;
+      // 100 + 1000 are conservative floors — the pipeline emits
+      // ~thousands of sources and at least dozens of curated charts.
+      if (sourceCount < 1000) {
+        return warn(
+          `${sourceCount} sources, ${chartCount} charts — sources unusually low`,
+          { chartCount, sourceCount },
+        );
+      }
+      if (chartCount < 50) {
+        return warn(
+          `${sourceCount} sources, ${chartCount} charts — charts unusually low`,
+          { chartCount, sourceCount },
+        );
+      }
+      return pass(
+        `${sourceCount} sources, ${chartCount} charts (${(r.body.length / 1024).toFixed(0)}KB)`,
+        {
+          chartCount,
+          sourceCount,
+          metroCount: Array.isArray(obj.metros) ? obj.metros.length : null,
+          countryCount: Array.isArray(obj.countries)
+            ? obj.countries.length
+            : null,
+          bytes: r.body.length,
+        },
+      );
     },
   },
 
@@ -207,16 +235,17 @@ export const pageTests: DiagnosticTest[] = [
     },
   },
 
-  // OG image generation — the SSR /api/og endpoint that produces
-  // social-card PNGs.
+  // OG image generation — the /og.png SSR endpoint that produces
+  // social-card PNGs (NOT /api/og; the route file is at
+  // src/pages/og.png.ts).
   {
     id: "pages/og-image",
     category: "pages",
-    label: "/api/og produces a PNG",
+    label: "/og.png produces a PNG",
     timeoutMs: 20000,
     run: async () => {
       const res = await fetch(
-        url("/api/og?title=Diagnostic+Test&subtitle=admin+probe"),
+        url("/og.png?title=Diagnostic+Test&subtitle=admin+probe"),
         { cache: "no-store" },
       );
       if (res.status !== 200) {
@@ -236,42 +265,87 @@ export const pageTests: DiagnosticTest[] = [
     },
   },
 
-  // Sentinel data file — proves a known source's JSON is fetchable
-  // from the static asset host. Picks a well-known FRED series the
-  // pipeline always emits.
+  // Sentinel data file — fetches /library.json first to discover a
+  // REAL source's dataFile path (rather than hardcoding guesses),
+  // then probes that file. Resilient to source-id renames.
   {
     id: "pages/known-source-json",
     category: "pages",
-    label: "a known source-data file is fetchable",
-    timeoutMs: 15000,
+    label: "a real source-data file (discovered via library.json) is fetchable",
+    timeoutMs: 30000,
     run: async () => {
-      // CPI-YoY is one of the most-likely-to-exist sources; the
-      // path follows the pipeline's <id>.json convention.
-      const candidates = [
-        "/data/fred/cpi_yoy.json",
-        "/data/fred/dgs10.json",
-        "/data/fred/fed_funds.json",
-      ];
-      for (const p of candidates) {
-        const r = await fetch(url(p), { cache: "no-store" });
-        if (r.status === 200) {
-          try {
-            const parsed = JSON.parse(await r.text());
-            const pts = (parsed as { points?: unknown[] })?.points;
-            if (Array.isArray(pts) && pts.length > 0) {
-              return pass(`${p} has ${pts.length} points`, {
-                path: p,
-                points: pts.length,
-              });
-            }
-          } catch {
-            // try next candidate
-          }
+      // Discover via library.json's sources dict so we don't have to
+      // hardcode any specific source ID.
+      const libRes = await fetch(url("/library.json"), { cache: "no-store" });
+      if (libRes.status !== 200) {
+        return fail(`couldn't fetch library.json: status=${libRes.status}`);
+      }
+      let lib: unknown;
+      try {
+        lib = JSON.parse(await libRes.text());
+      } catch (e) {
+        return fail(`library.json parse failed: ${(e as Error).message}`);
+      }
+      const sources = (lib as { sources?: Record<string, unknown> })?.sources;
+      if (!sources || typeof sources !== "object") {
+        return fail("library.json had no sources dict");
+      }
+      // Pick the first source with a dataFile and a kind we can
+      // probe (timeseries).
+      let chosenDataFile: string | null = null;
+      let chosenId: string | null = null;
+      for (const [id, meta] of Object.entries(sources)) {
+        const m = meta as { dataFile?: string; kind?: string };
+        if (m?.dataFile) {
+          chosenDataFile = m.dataFile;
+          chosenId = id;
+          break;
         }
       }
-      return fail(
-        `none of the candidate sources returned valid timeseries: ${candidates.join(", ")}`,
-      );
+      if (!chosenDataFile) {
+        return fail("no source in library.json had a dataFile");
+      }
+      const dataPath = chosenDataFile.startsWith("/")
+        ? chosenDataFile
+        : `/${chosenDataFile}`;
+      const dataRes = await fetch(url(dataPath), { cache: "no-store" });
+      if (dataRes.status !== 200) {
+        return fail(
+          `fetched library.json OK but its first source (${chosenId}) → ${dataPath} returned ${dataRes.status}`,
+        );
+      }
+      try {
+        const parsed = JSON.parse(await dataRes.text());
+        const kind = (parsed as { kind?: string })?.kind;
+        if (kind === "timeseries") {
+          const pts = (parsed as { points?: unknown[] })?.points;
+          if (Array.isArray(pts) && pts.length > 0) {
+            return pass(`${chosenId} → ${dataPath} (${pts.length} points)`, {
+              sourceId: chosenId,
+              dataPath,
+              points: pts.length,
+            });
+          }
+          return fail(
+            `${chosenId} → ${dataPath} parsed but had no points`,
+          );
+        }
+        if (kind === "curve") {
+          const snaps = (parsed as { snapshots?: unknown[] })?.snapshots;
+          if (Array.isArray(snaps) && snaps.length > 0) {
+            return pass(
+              `${chosenId} → ${dataPath} (curve, ${snaps.length} snapshots)`,
+              { sourceId: chosenId, dataPath, snapshots: snaps.length },
+            );
+          }
+        }
+        return warn(
+          `${chosenId} → ${dataPath} parsed but kind=${kind}, payload shape unrecognized`,
+          { sourceId: chosenId, dataPath, kind },
+        );
+      } catch (e) {
+        return fail(`${dataPath} parse failed: ${(e as Error).message}`);
+      }
     },
   },
 

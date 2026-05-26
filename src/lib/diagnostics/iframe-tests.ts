@@ -206,10 +206,17 @@ export const iframeTests: DiagnosticTest[] = [
         "/compose/",
         3500,
         (_win, doc, errors) => {
-          // The composer renders a tab strip; we expect at least
-          // "Charts", "Sources", "Maps", "Generators".
+          // The composer renders a tab strip with these four labels
+          // (see src/pages/compose.astro). NB: "Pregenerated charts"
+          // — not "Charts" — was the canonical tab label as of the
+          // 2026-05-25 build.
           const text = doc.body.textContent ?? "";
-          const wantedTabs = ["Charts", "Sources", "Maps", "Generators"];
+          const wantedTabs = [
+            "Sources",
+            "Pregenerated charts",
+            "Maps",
+            "Generators",
+          ];
           const missing = wantedTabs.filter((t) => !text.includes(t));
           if (missing.length > 0) {
             return fail(
