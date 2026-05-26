@@ -349,24 +349,219 @@ export const pageTests: DiagnosticTest[] = [
     },
   },
 
-  // A made-up route that should 404 cleanly. Confirms the 404 path
-  // works at all (some misconfigurations make every 404 hang).
+  // A made-up route should 404 cleanly AND return user-facing copy in
+  // the body. The earlier version of this test only checked status —
+  // a 404 with an empty / unstyled / "Internal Server Error" body still
+  // ships a broken experience even though the status code is correct.
   {
     id: "pages/404-on-bogus",
     category: "pages",
-    label: "bogus path returns a 404",
+    label: "bogus path returns a 404 with user-facing copy",
     timeoutMs: 10000,
     run: async () => {
       const r = await get(
         "/__definitely_does_not_exist_" + Date.now() + "__/",
       );
-      if (r.status === 404) return pass();
-      if (r.status >= 300 && r.status < 400) {
-        return warn(`got ${r.status} (redirect) instead of 404`);
+      if (r.status !== 404) {
+        if (r.status >= 300 && r.status < 400) {
+          return warn(`got ${r.status} (redirect) instead of 404`);
+        }
+        return fail(`expected 404, got ${r.status}`);
       }
-      return fail(`expected 404, got ${r.status}`);
+      // Body should be the styled 404 page, not the platform default.
+      // Look for a few sentinels — the brand wordmark "Tape" plus
+      // some form of "not found" copy. The Astro 404 page renders
+      // both.
+      const hasBrand = /Tape/.test(r.body);
+      const has404Copy = /not found|404/i.test(r.body);
+      if (!hasBrand || !has404Copy) {
+        return fail(
+          `404 body missing sentinel(s): brand=${hasBrand}, 404-copy=${has404Copy}`,
+          { bodyLength: r.body.length },
+        );
+      }
+      // A blank-ish body (< 2KB) suggests the platform fallback
+      // 404, not the styled one.
+      if (r.body.length < 2048) {
+        return warn(
+          `404 body suspiciously small (${r.body.length} bytes) — platform fallback?`,
+        );
+      }
+      return pass(`styled 404 (${(r.body.length / 1024).toFixed(1)}KB)`);
     },
   },
+  // CSS bundle reachability. Astro emits one or more
+  // `<link rel="stylesheet" href="/_astro/*.css">` tags into every
+  // page; if the build flow drops the CSS chunk (manifest drift,
+  // bad rewrite rule, mis-published static asset), the site renders
+  // unstyled and looks broken even though every other test passes.
+  {
+    id: "pages/css-bundle-loads",
+    category: "pages",
+    label: "stylesheet link from home page resolves to a CSS file",
+    timeoutMs: 15000,
+    run: async () => {
+      const home = await get("/");
+      if (home.status !== 200) return fail(`home status=${home.status}`);
+      const matches = Array.from(
+        home.body.matchAll(
+          /<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/g,
+        ),
+      );
+      if (matches.length === 0) {
+        return fail(
+          "no <link rel='stylesheet'> found on home page — Tailwind / global.css drop?",
+        );
+      }
+      const href = matches[0][1];
+      const cssRes = await fetch(url(href), { cache: "no-store" });
+      if (cssRes.status !== 200) {
+        return fail(`first stylesheet (${href}) status=${cssRes.status}`);
+      }
+      const ct = cssRes.headers.get("content-type") ?? "";
+      if (!ct.startsWith("text/css")) {
+        return fail(
+          `${href} returned content-type ${ct} (expected text/css)`,
+        );
+      }
+      const body = await cssRes.text();
+      if (body.length < 1024) {
+        return warn(
+          `CSS suspiciously small (${body.length} bytes) — possible 404 page or empty bundle`,
+          { href, bodyLength: body.length },
+        );
+      }
+      // Static assets under /_astro/ should ship with a long-lived
+      // immutable cache header. Astro fingerprints filenames so
+      // it's safe to set far-future expiry.
+      const cc = cssRes.headers.get("cache-control") ?? "";
+      const looksImmutable =
+        /max-age=\s*(?:[0-9]{6,}|31536000|immutable)/i.test(cc) ||
+        /immutable/i.test(cc);
+      if (!looksImmutable) {
+        return warn(
+          `CSS loaded (${(body.length / 1024).toFixed(1)}KB) but cache-control=${cc || "(none)"} — fingerprinted assets should have a long-lived cache`,
+          { href, cacheControl: cc },
+        );
+      }
+      return pass(
+        `${href} (${(body.length / 1024).toFixed(1)}KB, cache=${cc})`,
+        { href, bytes: body.length, cacheControl: cc },
+      );
+    },
+  },
+
+  // Sitemap depth: /sitemap-index.xml lists child sitemaps; each child
+  // sitemap should list actual page URLs. A common failure mode is
+  // sitemap-index pointing at a 404'd child, or a child sitemap with
+  // zero <url> entries (build emitted the index but the route filter
+  // excluded everything). Search engines silently de-index the site
+  // when this happens.
+  {
+    id: "pages/sitemap-children-resolve",
+    category: "pages",
+    label: "sitemap-index child sitemap lists actual page URLs",
+    timeoutMs: 15000,
+    run: async () => {
+      const idx = await get("/sitemap-index.xml");
+      if (idx.status !== 200) return fail(`sitemap-index status=${idx.status}`);
+      const locMatches = Array.from(
+        idx.body.matchAll(/<loc>([^<]+)<\/loc>/g),
+      );
+      if (locMatches.length === 0) {
+        return fail("sitemap-index has no <loc> entries");
+      }
+      // Pull the first child sitemap URL. Astro typically emits
+      // /sitemap-0.xml, /sitemap-1.xml, etc.
+      const childUrl = locMatches[0][1];
+      const childRes = await fetch(childUrl, { cache: "no-store" });
+      if (childRes.status !== 200) {
+        return fail(
+          `first child sitemap (${childUrl}) status=${childRes.status}`,
+        );
+      }
+      const childBody = await childRes.text();
+      const urlCount = (childBody.match(/<url>/g) ?? []).length;
+      if (urlCount === 0) {
+        return fail(
+          `${childUrl} has zero <url> entries — sitemap filter dropped everything?`,
+        );
+      }
+      // Sanity: the child sitemap should list reasonably many URLs
+      // for a content-heavy site. Below 20 suggests something's
+      // wrong (the filter in astro.config.mjs excludes /me, /u/,
+      // /compose — but there are still hundreds of dashboard /
+      // chart / source pages that should be in).
+      if (urlCount < 20) {
+        return warn(
+          `${childUrl} only has ${urlCount} URLs — sitemap filter may be over-aggressive`,
+          { childUrl, urlCount },
+        );
+      }
+      return pass(
+        `${urlCount} URLs in ${childUrl}`,
+        { childUrl, urlCount, indexCount: locMatches.length },
+      );
+    },
+  },
+
+  // Response-header spot-checks. We don't try to lock down every
+  // header (different routes legitimately need different
+  // cache-control / content-type), but a few invariants ALWAYS hold:
+  //   - Every response sets cache-control (no header = browser does
+  //     whatever it wants, often the wrong thing)
+  //   - Static prerendered routes (/, /us-macro/, /about/, etc.)
+  //     and SSR routes (/me/, /compose/) should NOT advertise long
+  //     public cache for the HTML itself (SSR responses are per-
+  //     request and the HTML re-resolves data; long-cached HTML
+  //     would freeze stale data into the page).
+  //   - Static fingerprinted assets (/_astro/*) SHOULD have a long
+  //     cache. That's covered by the css-bundle-loads test above.
+  {
+    id: "pages/response-header-invariants",
+    category: "pages",
+    label: "every probed route sets a cache-control header",
+    timeoutMs: 20000,
+    run: async () => {
+      const routes = ["/", "/us-macro/", "/me/", "/about/", "/library.json"];
+      const missing: string[] = [];
+      const tooAggressive: Array<{ route: string; cc: string }> = [];
+      for (const path of routes) {
+        const r = await fetch(url(path), { cache: "no-store" });
+        const cc = r.headers.get("cache-control");
+        if (!cc) {
+          missing.push(path);
+          continue;
+        }
+        // For HTML routes, max-age over an hour is too long — stale
+        // dashboards would silently render with old data. Allow
+        // library.json (5 min cache, set by the route handler) and
+        // exempt static assets which aren't in this list anyway.
+        if (path.endsWith(".json")) continue;
+        const maxAgeMatch = cc.match(/max-age=(\d+)/);
+        const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : 0;
+        if (maxAge > 3600) {
+          tooAggressive.push({ route: path, cc });
+        }
+      }
+      if (missing.length > 0) {
+        return fail(
+          `routes missing cache-control: ${missing.join(", ")}`,
+          { missing },
+        );
+      }
+      if (tooAggressive.length > 0) {
+        return warn(
+          `HTML routes with > 1h cache: ${tooAggressive
+            .map((t) => `${t.route} (${t.cc})`)
+            .join("; ")}`,
+          { tooAggressive },
+        );
+      }
+      return pass(`${routes.length} routes set cache-control as expected`);
+    },
+  },
+
   // Tile-summary invariant: every timeseries source ships a sibling
   // `<dataFile>.summary.json` (cheap latest+priors+sparks). The Phase 2
   // tile-payload work depends on these being kept in sync with the full
