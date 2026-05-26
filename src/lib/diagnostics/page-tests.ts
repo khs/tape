@@ -367,4 +367,97 @@ export const pageTests: DiagnosticTest[] = [
       return fail(`expected 404, got ${r.status}`);
     },
   },
+  // Tile-summary invariant: every timeseries source ships a sibling
+  // `<dataFile>.summary.json` (cheap latest+priors+sparks). The Phase 2
+  // tile-payload work depends on these being kept in sync with the full
+  // data file. If the pipeline drifts and a summary is stale (or
+  // missing), tiles render wrong values without crashing — silent and
+  // bad. This test discovers a source via library.json, fetches both
+  // files, and confirms `latest` matches.
+  {
+    id: "pages/tile-summary-matches-full",
+    category: "pages",
+    label: "<id>.summary.json's latest matches the full file's last point",
+    timeoutMs: 30000,
+    run: async () => {
+      const libRes = await fetch(url("/library.json"), { cache: "no-store" });
+      if (libRes.status !== 200) {
+        return fail(`library.json status=${libRes.status}`);
+      }
+      const lib = JSON.parse(await libRes.text()) as {
+        sources?: Record<string, { dataFile?: string; kind?: string }>;
+      };
+      if (!lib.sources) return fail("library.json has no sources");
+      // Find the first TIMESERIES source with a dataFile. Curve
+      // sources don't ship .summary.json, so skip them.
+      let dataFile: string | null = null;
+      let sourceId: string | null = null;
+      for (const [id, m] of Object.entries(lib.sources)) {
+        if (m?.dataFile && m?.kind === "timeseries") {
+          dataFile = m.dataFile;
+          sourceId = id;
+          break;
+        }
+      }
+      if (!dataFile) {
+        return fail("no timeseries source in library.json had a dataFile");
+      }
+      const fullPath = dataFile.startsWith("/") ? dataFile : `/${dataFile}`;
+      // Replace .json suffix with .summary.json. Anything else and
+      // the pipeline doesn't ship a sibling.
+      if (!fullPath.endsWith(".json")) {
+        return fail(`dataFile doesn't end with .json: ${fullPath}`);
+      }
+      const summaryPath = fullPath.replace(/\.json$/, ".summary.json");
+      const [fullRes, summaryRes] = await Promise.all([
+        fetch(url(fullPath), { cache: "no-store" }),
+        fetch(url(summaryPath), { cache: "no-store" }),
+      ]);
+      if (fullRes.status !== 200) {
+        return fail(`full data fetch ${fullPath}: status=${fullRes.status}`);
+      }
+      if (summaryRes.status !== 200) {
+        return fail(
+          `summary fetch ${summaryPath}: status=${summaryRes.status}`,
+        );
+      }
+      const full = JSON.parse(await fullRes.text()) as {
+        points?: Array<{ t: string; v: number }>;
+      };
+      const summary = JSON.parse(await summaryRes.text()) as {
+        latest?: { t: string; v: number };
+      };
+      const lastFull = full.points?.[full.points.length - 1];
+      if (!lastFull) return fail(`full file has no points: ${fullPath}`);
+      if (!summary.latest) {
+        return fail(`summary has no .latest field: ${summaryPath}`);
+      }
+      // The summary's latest should be byte-equal to the full file's
+      // last point. Drift means build_summaries.py and the full-data
+      // pipeline disagree about what "latest" is.
+      if (
+        summary.latest.t !== lastFull.t ||
+        summary.latest.v !== lastFull.v
+      ) {
+        return fail(
+          `summary.latest drifted from full.points[-1] for ${sourceId}: full=(${lastFull.t}, ${lastFull.v}) vs summary=(${summary.latest.t}, ${summary.latest.v})`,
+        );
+      }
+      // Sanity: the summary should be substantially smaller (Phase 2
+      // bandwidth-reduction motivation). >50% smaller is normal.
+      const fullSize = (await (await fetch(url(fullPath))).text()).length;
+      const summarySize = (await (await fetch(url(summaryPath))).text()).length;
+      const sizeRatio = summarySize / fullSize;
+      if (sizeRatio > 0.9) {
+        return warn(
+          `summary not much smaller than full (${(sizeRatio * 100).toFixed(0)}%) — Phase 2 benefit lost`,
+          { fullSize, summarySize, sizeRatio },
+        );
+      }
+      return pass(
+        `${sourceId}: ${(summarySize / 1024).toFixed(1)}KB summary vs ${(fullSize / 1024).toFixed(1)}KB full (${(sizeRatio * 100).toFixed(0)}%)`,
+        { sourceId, lastT: lastFull.t, sizeRatio },
+      );
+    },
+  },
 ];

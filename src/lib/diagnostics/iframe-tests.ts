@@ -45,13 +45,17 @@ async function withHiddenIframe<T>(
     doc: Document,
     consoleErrors: string[],
   ) => Promise<T> | T,
+  opts?: { heightPx?: number },
 ): Promise<T> {
   const iframe = document.createElement("iframe");
   iframe.style.position = "fixed";
   iframe.style.top = "-9999px";
   iframe.style.left = "-9999px";
   iframe.style.width = "1280px";
-  iframe.style.height = "900px";
+  // Default 900px viewport works for most tests. Choropleth-bearing
+  // pages need a taller viewport so lazy-loaded (IntersectionObserver-
+  // gated) charts below the fold actually mount their canvas.
+  iframe.style.height = `${opts?.heightPx ?? 900}px`;
   iframe.style.border = "0";
   iframe.setAttribute("aria-hidden", "true");
   iframe.setAttribute("data-tape-diagnostic-iframe", path);
@@ -262,11 +266,13 @@ export const iframeTests: DiagnosticTest[] = [
   {
     id: "iframe/known-embed-loads",
     category: "iframe",
-    label: "an /embed/chart/... iframe URL loads",
+    label: "an /embed/chart/... iframe URL loads with an SVG inside",
     timeoutMs: 25000,
     run: async (): Promise<DiagnosticResult> => {
       // The embed URL pattern is /embed/chart/<chart-id>/. We try a
-      // few well-known chart IDs; pass if any one loads cleanly.
+      // few well-known chart IDs; pass if any one loads + renders an
+      // SVG (the chart Plot). Previously we only checked "no errors"
+      // — an empty embed silently passed.
       const candidates = [
         "/embed/chart/us-macro/cpi-yoy/",
         "/embed/chart/us-macro/dgs10/",
@@ -276,35 +282,149 @@ export const iframeTests: DiagnosticTest[] = [
         try {
           const res = await withHiddenIframe(
             path,
-            2500,
+            3000,
             (_win, doc, errors) => {
               if (!doc.body || doc.body.children.length === 0) {
                 return { ok: false, reason: "empty body" } as const;
               }
+              const svgs = doc.querySelectorAll("svg");
               return {
                 ok: true,
                 path,
+                svgCount: svgs.length,
                 errorCount: errors.length,
                 errors: errors.slice(0, 3),
               } as const;
             },
           );
           if (res.ok) {
+            if (res.svgCount === 0) {
+              // Empty body — Plot never rendered. Move on to next.
+              continue;
+            }
             if (res.errorCount > 0) {
               return warn(
-                `${path}: ${res.errorCount} console.errors`,
+                `${path}: ${res.svgCount} SVGs but ${res.errorCount} console.errors`,
                 { errors: res.errors },
               );
             }
-            return pass(path);
+            return pass(`${path} (${res.svgCount} SVGs)`);
           }
         } catch {
           // try next candidate
         }
       }
       return fail(
-        `none of ${candidates.length} embed candidates loaded cleanly`,
+        `none of ${candidates.length} embed candidates loaded + rendered an SVG`,
         { candidates },
+      );
+    },
+  },
+  {
+    id: "iframe/choropleth-renders",
+    category: "iframe",
+    label: "a choropleth tile produces an SVG with features",
+    timeoutMs: 35000,
+    run: async (): Promise<DiagnosticResult> => {
+      // /federal-budget/ has a "Demographic context (heatmaps)" section
+      // with 4+ choropleths at state + county granularity. Tall
+      // iframe so IntersectionObserver-gated lazy mounts fire even
+      // for below-the-fold tiles.
+      return await withHiddenIframe(
+        "/federal-budget/",
+        7000, // boundary TopoJSON fetch + d3 render = slow
+        (_win, doc, errors) => {
+          const choroTiles = doc.querySelectorAll('[data-choro="1"]');
+          if (choroTiles.length === 0) {
+            return fail(
+              "no [data-choro] tiles found — selector drift or wrong dashboard",
+            );
+          }
+          // Check at least one rendered an SVG with paths inside its
+          // choro-canvas. An empty canvas means the boundary fetch
+          // failed, Plot crashed, or the data file 404'd.
+          let renderedCount = 0;
+          let pathTotal = 0;
+          for (const tile of Array.from(choroTiles)) {
+            const canvas = tile.querySelector(".choro-canvas");
+            const svg = canvas?.querySelector("svg");
+            if (!svg) continue;
+            const paths = svg.querySelectorAll("path");
+            if (paths.length > 0) {
+              renderedCount++;
+              pathTotal += paths.length;
+            }
+          }
+          if (renderedCount === 0) {
+            return fail(
+              `${choroTiles.length} choropleth tiles found but NONE rendered SVG paths — boundary fetch or render failure`,
+              {
+                choroTileCount: choroTiles.length,
+                consoleErrors: errors.slice(0, 5),
+              },
+            );
+          }
+          if (errors.length > 0) {
+            return warn(
+              `${renderedCount}/${choroTiles.length} choropleths rendered (${pathTotal} paths) but ${errors.length} console.errors`,
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          return pass(
+            `${renderedCount}/${choroTiles.length} rendered, ${pathTotal} feature paths`,
+            { renderedCount, totalTiles: choroTiles.length, pathTotal },
+          );
+        },
+        { heightPx: 4000 },
+      );
+    },
+  },
+  {
+    id: "iframe/dialog-opens-on-tile-click",
+    category: "iframe",
+    label: "clicking a chart tile opens the <dialog>",
+    timeoutMs: 30000,
+    run: async (): Promise<DiagnosticResult> => {
+      return await withHiddenIframe(
+        "/us-macro/",
+        3500,
+        async (_win, doc, errors) => {
+          // Find a tile <a>. The chart-tile anchors carry data-chart-id
+          // — clicking them is the canonical "open the dialog" trigger.
+          const tile = doc.querySelector<HTMLElement>(
+            "[data-chart-id], a.chart-tile, [data-tile-chart-id]",
+          );
+          if (!tile) {
+            return fail(
+              "no chart tile found to click",
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          tile.click();
+          // Wait for the dialog open + Plot render. The full-data
+          // fetch can take ~500ms; settle for 2.5s to cover slow CDNs.
+          await new Promise((r) => setTimeout(r, 2500));
+          // <dialog open> = opened. ChartController inserts the
+          // dialog at body-level, so query at document scope.
+          const dialog = doc.querySelector("dialog[open]");
+          if (!dialog) {
+            return fail(
+              "tile click did not open any <dialog[open]>",
+              { errors: errors.slice(0, 5) },
+            );
+          }
+          const svgInside = dialog.querySelector("svg");
+          if (errors.length > 0) {
+            return warn(
+              `dialog opened${svgInside ? " + SVG rendered" : " but no SVG"} (${errors.length} console.errors)`,
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          if (!svgInside) {
+            return warn("dialog opened but no SVG inside (full-data fetch pending?)");
+          }
+          return pass("dialog opened + SVG rendered");
+        },
       );
     },
   },

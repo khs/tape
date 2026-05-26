@@ -267,4 +267,104 @@ export const supabaseTests: DiagnosticTest[] = [
       return warn(`cleaned up ${rows.length} leftover rows`, { rows });
     },
   },
+  {
+    id: "supabase/saved-dashboard-renders-via-u-slug",
+    category: "supabase",
+    label:
+      "INSERT a saved dashboard, fetch /u/<slug>/, verify the SSR renderer produces tile markup",
+    timeoutMs: 45000,
+    run: async () => {
+      const ctx = await requireAdminSession();
+      if ("status" in ctx) return ctx;
+      const { sb, userId } = ctx;
+
+      const title = diagTitle("e2e");
+      const slug = diagSlug("e2e");
+      // Realistic state_json: a single section with one known chart.
+      // us-macro/cpi-yoy was probed in iframe tests and is a stable
+      // marquee chart ID. The renderer at /u/[slug] decodes this via
+      // composedStateSchema → resolveDashboard, so any schema drift
+      // surfaces as a 500 here.
+      const state_json = {
+        v: 1,
+        title,
+        description: "Diagnostic E2E marker — safe to delete.",
+        sections: [
+          {
+            title: "Diag section",
+            charts: ["us-macro/cpi-yoy"],
+          },
+        ],
+      };
+
+      let insertedId: string | null = null;
+      try {
+        const { data: ins, error: insErr } = await sb!
+          .from("saved_dashboards")
+          .insert({
+            owner_id: userId,
+            slug,
+            title,
+            state_json,
+            // Public so the GET below works without forwarding the
+            // session cookie (we can't rely on the diagnostic fetch
+            // carrying auth to the SSR route — depends on cookie
+            // forwarding and same-origin).
+            visibility: "public",
+          })
+          .select("id, slug")
+          .single();
+        if (insErr) return fail(`insert: ${insErr.message}`);
+        if (!ins?.id) return fail("insert returned no id");
+        insertedId = ins.id;
+
+        // Some deployments cache the route; cache-bust by adding a
+        // ?nocache query param. /u/[slug] is prerender:false so it
+        // shouldn't be cached, but defensive is cheap.
+        const slugUrl = new URL(
+          `/u/${encodeURIComponent(slug)}/?diag=${Date.now()}`,
+          window.location.origin,
+        );
+        // Brief delay so the row's commit propagates to a read
+        // replica (Supabase usually serves reads from the primary,
+        // but in case of replica lag this saves a flake).
+        await new Promise((r) => setTimeout(r, 500));
+        const res = await fetch(slugUrl.toString(), { cache: "no-store" });
+        if (res.status !== 200) {
+          return fail(
+            `/u/${slug}/ status=${res.status} (expected 200 after insert)`,
+          );
+        }
+        const body = await res.text();
+        // Sentinels: the page should show the dashboard's title AND
+        // some chart-tile-shaped markup. Looking for the chart-id
+        // attribute is the most robust signal that resolveDashboard
+        // composed something renderable.
+        if (!body.includes(title)) {
+          return fail(
+            `/u/${slug}/ rendered, but the title we inserted (${title.slice(0, 32)}...) wasn't in the body`,
+            { bodyLength: body.length },
+          );
+        }
+        const tileSentinel = /data-chart-id|chart-tile|data-tile-chart-id/;
+        if (!tileSentinel.test(body)) {
+          return fail(
+            `/u/${slug}/ rendered with title but no chart-tile markup — section may have been dropped or the chart-id resolved to nothing`,
+            { bodyLength: body.length },
+          );
+        }
+        return pass(
+          `${slug}: SSR rendered with title + tile markup (${(body.length / 1024).toFixed(1)}KB)`,
+          { slug, bodyLength: body.length },
+        );
+      } finally {
+        if (insertedId) {
+          await sb!
+            .from("saved_dashboards")
+            .delete()
+            .eq("id", insertedId);
+        }
+      }
+    },
+  },
 ];
