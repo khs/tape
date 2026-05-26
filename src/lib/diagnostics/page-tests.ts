@@ -390,6 +390,246 @@ export const pageTests: DiagnosticTest[] = [
       return pass(`styled 404 (${(r.body.length / 1024).toFixed(1)}KB)`);
     },
   },
+  // OG-image personalization: /og.png?title=X and /og.png?title=Y must
+  // produce DIFFERENT PNGs. The endpoint is supposed to bake the title
+  // into the image; if it silently ignores params (caching bug,
+  // routing rewrite that strips query, broken Satori template), every
+  // social card would be identical to the default — visually wrong on
+  // every shared link.
+  {
+    id: "pages/og-image-personalized",
+    category: "pages",
+    label: "/og.png produces distinct PNGs for distinct params",
+    timeoutMs: 30000,
+    run: async () => {
+      // Use clearly-different params so any reasonable Satori template
+      // produces visibly different output (different glyph widths,
+      // different line count, different size). The diagnostic uses
+      // long-vs-short title to maximize the chance of a different
+      // file size.
+      const [a, b] = await Promise.all([
+        fetch(url("/og.png?title=A"), { cache: "no-store" }),
+        fetch(
+          url(
+            "/og.png?title=A+much+longer+social+card+title+for+the+diag+probe",
+          ),
+          { cache: "no-store" },
+        ),
+      ]);
+      if (a.status !== 200 || b.status !== 200) {
+        return fail(
+          `og.png returned non-200 (a=${a.status}, b=${b.status})`,
+        );
+      }
+      const [bufA, bufB] = await Promise.all([
+        a.arrayBuffer(),
+        b.arrayBuffer(),
+      ]);
+      if (bufA.byteLength === bufB.byteLength) {
+        // Same size strongly suggests the endpoint returned the same
+        // PNG for both — title param ignored.
+        return fail(
+          `both PNGs are ${bufA.byteLength} bytes — endpoint may be ignoring the title parameter`,
+          { bytes: bufA.byteLength },
+        );
+      }
+      return pass(
+        `distinct PNGs (${bufA.byteLength}B vs ${bufB.byteLength}B)`,
+        { bytesA: bufA.byteLength, bytesB: bufB.byteLength },
+      );
+    },
+  },
+
+  // generators-index.json — the Composer's Generators tab depends on
+  // this file existing and having entities for each geoType. If the
+  // pipeline misruns + emits an empty / malformed file, the Generators
+  // tab silently shows no options.
+  {
+    id: "pages/generators-index",
+    category: "pages",
+    label: "/generators-index.json parses with non-empty geoTypes",
+    timeoutMs: 20000,
+    run: async () => {
+      const r = await get("/generators-index.json");
+      if (r.status !== 200) return fail(`status=${r.status}`);
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(r.body);
+      } catch (e) {
+        return fail(`parse: ${(e as Error).message}`);
+      }
+      const idx = parsed as { geoTypes?: Record<string, unknown> };
+      if (!idx?.geoTypes || typeof idx.geoTypes !== "object") {
+        return fail("missing or non-object .geoTypes");
+      }
+      const geoKeys = Object.keys(idx.geoTypes);
+      if (geoKeys.length === 0) {
+        return fail("geoTypes object is empty");
+      }
+      // Sanity-count entities under each geoType. The metro geo
+      // alone should have hundreds of CBSAs; states should have ~50;
+      // countries dozens.
+      const counts: Record<string, number> = {};
+      for (const [geo, def] of Object.entries(idx.geoTypes)) {
+        const entities = (def as { entities?: Record<string, unknown> })
+          ?.entities;
+        counts[geo] = entities ? Object.keys(entities).length : 0;
+      }
+      const empty = Object.entries(counts).filter(([, c]) => c === 0);
+      if (empty.length > 0) {
+        return warn(
+          `${empty.length}/${geoKeys.length} geoTypes have no entities: ${empty.map(([k]) => k).join(", ")}`,
+          { counts },
+        );
+      }
+      return pass(
+        `${geoKeys.length} geoTypes, counts=${JSON.stringify(counts)}`,
+        { geoKeys, counts },
+      );
+    },
+  },
+
+  // Per-source page rendering. Discover a real source via library.json,
+  // fetch /source/<id>/, verify the page rendered with the source's
+  // name + a chart-tile sentinel. Catches:
+  //   - SSR route 500s on a source-id with awkward characters
+  //   - The source page template fails to resolve the source's name
+  //   - The "charts using this source" panel is missing tile markup
+  {
+    id: "pages/source-page-renders",
+    category: "pages",
+    label: "/source/<id>/ renders for a real source from library.json",
+    timeoutMs: 30000,
+    run: async () => {
+      const libRes = await fetch(url("/library.json"), { cache: "no-store" });
+      if (libRes.status !== 200) return fail(`library.json status=${libRes.status}`);
+      const lib = JSON.parse(await libRes.text()) as {
+        sources?: Record<string, { name?: string; kind?: string }>;
+      };
+      // Pick the first timeseries source — they have the richest pages
+      // (the curve sources may not render the same shape).
+      let chosenId: string | null = null;
+      let chosenName: string | null = null;
+      for (const [id, meta] of Object.entries(lib.sources ?? {})) {
+        if (meta?.kind === "timeseries" && meta?.name) {
+          chosenId = id;
+          chosenName = meta.name;
+          break;
+        }
+      }
+      if (!chosenId) return fail("no timeseries source had a name");
+      const r = await get(`/source/${chosenId}/`);
+      if (r.status !== 200) {
+        return fail(`/source/${chosenId}/ status=${r.status}`);
+      }
+      if (!r.body.includes(chosenName!)) {
+        return fail(
+          `source page didn't include the source's name (${chosenName})`,
+          { id: chosenId, bodyLength: r.body.length },
+        );
+      }
+      return pass(
+        `${chosenId} (${(r.body.length / 1024).toFixed(1)}KB)`,
+        { sourceId: chosenId, bodyLength: r.body.length },
+      );
+    },
+  },
+
+  // Per-chart page rendering. Same pattern — discover a real chart-id
+  // from library.json, fetch /chart/<id>/, verify the page rendered
+  // with the chart's title + chart-tile sentinel.
+  {
+    id: "pages/chart-page-renders",
+    category: "pages",
+    label: "/chart/<id>/ renders for a real chart from library.json",
+    timeoutMs: 30000,
+    run: async () => {
+      const libRes = await fetch(url("/library.json"), { cache: "no-store" });
+      if (libRes.status !== 200) return fail(`library.json status=${libRes.status}`);
+      const lib = JSON.parse(await libRes.text()) as {
+        charts?: Array<{ id?: string; title?: string }>;
+      };
+      const charts = lib.charts ?? [];
+      const chosen = charts.find((c) => c?.id && c?.title);
+      if (!chosen) return fail("library.json had no chart with id+title");
+      const r = await get(`/chart/${chosen.id!}/`);
+      if (r.status !== 200) {
+        return fail(`/chart/${chosen.id}/ status=${r.status}`);
+      }
+      if (!r.body.includes(chosen.title!)) {
+        return fail(
+          `chart page didn't include the chart's title (${chosen.title})`,
+          { id: chosen.id, bodyLength: r.body.length },
+        );
+      }
+      const tileSentinel = /data-chart-id|chart-tile/;
+      if (!tileSentinel.test(r.body)) {
+        return fail(
+          `chart page rendered with title but no chart-tile markup`,
+          { id: chosen.id, bodyLength: r.body.length },
+        );
+      }
+      return pass(
+        `${chosen.id} (${(r.body.length / 1024).toFixed(1)}KB)`,
+        { chartId: chosen.id, bodyLength: r.body.length },
+      );
+    },
+  },
+
+  // Multi-source chart invariant: library.json should contain at least
+  // ONE chart with > 1 sources (the cross-rate / overlay class of
+  // chart). And that chart's per-chart page should render. Catches:
+  //   - Pipeline accidentally emits only single-source charts (the
+  //     multi-source render path is broken upstream)
+  //   - The per-chart page renderer crashes on multi-source charts
+  {
+    id: "pages/multi-source-chart-exists-and-renders",
+    category: "pages",
+    label: "library.json has a multi-source chart and it renders",
+    timeoutMs: 30000,
+    run: async () => {
+      const libRes = await fetch(url("/library.json"), { cache: "no-store" });
+      if (libRes.status !== 200) return fail(`library.json status=${libRes.status}`);
+      const lib = JSON.parse(await libRes.text()) as {
+        charts?: Array<{
+          id?: string;
+          title?: string;
+          sources?: string[];
+        }>;
+      };
+      const multi = (lib.charts ?? []).filter(
+        (c) => Array.isArray(c?.sources) && c.sources!.length >= 2,
+      );
+      if (multi.length === 0) {
+        return fail(
+          "no multi-source charts in library.json — every chart has 0-1 sources, suggesting the pipeline dropped multi-source ones",
+        );
+      }
+      // Render the first one. Pick one with a stable-looking id.
+      const chosen = multi[0];
+      const r = await get(`/chart/${chosen.id!}/`);
+      if (r.status !== 200) {
+        return fail(
+          `multi-source chart /chart/${chosen.id}/ status=${r.status} (${multi.length} candidates available)`,
+        );
+      }
+      if (!r.body.includes(chosen.title!)) {
+        return fail(
+          `multi-source chart page didn't include title (${chosen.title})`,
+          { chartId: chosen.id },
+        );
+      }
+      return pass(
+        `${multi.length} multi-source charts in lib; rendered ${chosen.id} (${chosen.sources!.length} sources)`,
+        {
+          multiSourceCount: multi.length,
+          chartId: chosen.id,
+          sourceCount: chosen.sources!.length,
+        },
+      );
+    },
+  },
+
   // CSS bundle reachability. Astro emits one or more
   // `<link rel="stylesheet" href="/_astro/*.css">` tags into every
   // page; if the build flow drops the CSS chunk (manifest drift,
