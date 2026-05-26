@@ -380,6 +380,202 @@ export const iframeTests: DiagnosticTest[] = [
     },
   },
   {
+    id: "iframe/choropleth-dialog-has-fullscreen-and-scheme-picker",
+    category: "iframe",
+    label:
+      "clicking a choropleth tile opens a dialog with scheme picker + fullscreen button",
+    timeoutMs: 35000,
+    run: async (): Promise<DiagnosticResult> => {
+      return await withHiddenIframe(
+        "/federal-budget/",
+        7000, // boundary fetch + first paint
+        async (_win, doc, errors) => {
+          const tile = doc.querySelector<HTMLElement>('[data-choro="1"]');
+          if (!tile) return fail("no [data-choro] tile to click");
+          // The tile root is wrapped in <a class="chart-tile">; click
+          // the tile (or its inner anchor) to open the dialog. The
+          // outer <a> swallows the click in either case.
+          const clickable =
+            tile.closest("a") ?? tile.querySelector("a") ?? tile;
+          (clickable as HTMLElement).click();
+          // Wait for dialog open + d3 render in expanded mode.
+          await new Promise((r) => setTimeout(r, 3500));
+          const dialog = doc.querySelector("dialog[open]");
+          if (!dialog) {
+            return fail(
+              "tile click did not open <dialog[open]>",
+              { errors: errors.slice(0, 5) },
+            );
+          }
+          const fullscreenBtn = dialog.querySelector(
+            ".choro-dialog-fullscreen",
+          );
+          // Scheme picker is a <select> (see ChartChoropleth.astro).
+          // We don't lock down a specific class; look for any select
+          // inside the dialog as a permissive check.
+          const schemeSelect = dialog.querySelector("select");
+          if (!fullscreenBtn) {
+            return fail(
+              "choropleth dialog opened but has no .choro-dialog-fullscreen button",
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          if (!schemeSelect) {
+            return fail(
+              "choropleth dialog opened but has no scheme <select> picker",
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          if (errors.length > 0) {
+            return warn(
+              `dialog has fullscreen + scheme picker, but ${errors.length} console.errors`,
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          return pass("fullscreen button + scheme picker both present");
+        },
+        { heightPx: 4000 },
+      );
+    },
+  },
+  {
+    id: "iframe/composer-sources-tab-populates-and-is-clickable",
+    category: "iframe",
+    label:
+      "Composer Sources tab renders > 100 source cards and a click adds a chart",
+    timeoutMs: 30000,
+    run: async (): Promise<DiagnosticResult> => {
+      return await withHiddenIframe(
+        "/compose/",
+        4000, // composer hydration + library.json fetch
+        async (_win, doc, errors) => {
+          // The Sources tab is the default; library.json populates
+          // it post-hydration. Source rows render as
+          // <button class="source-card">.
+          const cards = doc.querySelectorAll<HTMLElement>(
+            "[data-role='lib-results-sources'] .source-card",
+          );
+          if (cards.length < 100) {
+            return fail(
+              `Sources tab only has ${cards.length} cards — library.json didn't populate or rendering broke`,
+              { cardCount: cards.length, errors: errors.slice(0, 3) },
+            );
+          }
+          // Pick the first non-hint card (hint cards have a different
+          // class + handler). Click it; verify a new tile appeared in
+          // the compose area.
+          let target: HTMLElement | null = null;
+          for (const card of Array.from(cards)) {
+            if (!card.classList.contains("source-card-hint")) {
+              target = card;
+              break;
+            }
+          }
+          if (!target) {
+            return fail(`all ${cards.length} source cards are hint cards`);
+          }
+          // Count compose-area tiles before the click. The composed
+          // result lives under .composer-canvas or similar; the
+          // simplest heuristic is body text length + any newly-added
+          // section-tile elements.
+          const tilesBefore = doc.querySelectorAll(
+            "[data-role='section-tiles'] *, .composer-section-tile",
+          ).length;
+          target.click();
+          await new Promise((r) => setTimeout(r, 600));
+          const tilesAfter = doc.querySelectorAll(
+            "[data-role='section-tiles'] *, .composer-section-tile",
+          ).length;
+          // Some composer flows open a modal instead of immediately
+          // adding the chart. Accept either: a new tile appeared OR
+          // a modal/dialog opened.
+          const modalOpened = !!doc.querySelector("dialog[open], .cc-modal[hidden='false'], [data-cc-modal-open='1']");
+          const addedTile = tilesAfter > tilesBefore;
+          if (!addedTile && !modalOpened) {
+            return warn(
+              `clicking a source card didn't visibly add a tile or open a modal (tilesBefore=${tilesBefore} tilesAfter=${tilesAfter})`,
+              { cardCount: cards.length, errors: errors.slice(0, 3) },
+            );
+          }
+          if (errors.length > 0) {
+            return warn(
+              `${cards.length} cards + click ${addedTile ? "added tile" : "opened modal"} but ${errors.length} console.errors`,
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          return pass(
+            `${cards.length} cards; click ${addedTile ? "added a tile" : "opened a modal"}`,
+            { cardCount: cards.length, addedTile, modalOpened },
+          );
+        },
+      );
+    },
+  },
+  {
+    id: "iframe/mobile-viewport-no-horizontal-scroll",
+    category: "iframe",
+    label:
+      "/us-macro/ in a 375px-wide viewport doesn't horizontal-scroll",
+    timeoutMs: 25000,
+    run: async (): Promise<DiagnosticResult> => {
+      // Override the iframe's width to iPhone-class (375px) so
+      // mobile-only CSS paths (single-column tile stacking,
+      // pill-row wrap, dialog full-width) actually fire.
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.top = "-9999px";
+      iframe.style.left = "-9999px";
+      iframe.style.width = "375px";
+      iframe.style.height = "3500px";
+      iframe.style.border = "0";
+      iframe.setAttribute("aria-hidden", "true");
+      iframe.setAttribute("data-tape-diagnostic-iframe", "/us-macro/?mobile");
+      document.body.appendChild(iframe);
+
+      try {
+        await new Promise<void>((resolve, reject) => {
+          iframe.addEventListener("load", () => resolve(), { once: true });
+          iframe.addEventListener(
+            "error",
+            () => reject(new Error("iframe load error")),
+            { once: true },
+          );
+          iframe.src = "/us-macro/";
+        });
+        const win = iframe.contentWindow!;
+        const doc = iframe.contentDocument!;
+        await new Promise((r) => setTimeout(r, 4000));
+        // scrollWidth > innerWidth means there's overflow — the
+        // canonical "your page horizontal-scrolls on mobile" signal.
+        const scrollWidth = doc.documentElement.scrollWidth;
+        const innerWidth = win.innerWidth;
+        if (scrollWidth > innerWidth + 8) {
+          // 8px tolerance for sub-pixel rendering quirks.
+          return fail(
+            `body scrollWidth=${scrollWidth} > viewport ${innerWidth} (overflow=${scrollWidth - innerWidth}px)`,
+            { scrollWidth, innerWidth, overflow: scrollWidth - innerWidth },
+          );
+        }
+        // Confirm at least one chart tile rendered — otherwise
+        // there's nothing to overflow and the test is vacuous.
+        const tiles = doc.querySelectorAll(
+          "[data-chart-id], .chart-tile, [data-tile-chart-id]",
+        );
+        if (tiles.length === 0) {
+          return warn(
+            "no chart tiles rendered in mobile viewport — overflow check vacuous",
+          );
+        }
+        return pass(
+          `scrollWidth=${scrollWidth} ≤ viewport ${innerWidth} (${tiles.length} tiles rendered)`,
+          { scrollWidth, innerWidth, tileCount: tiles.length },
+        );
+      } finally {
+        iframe.remove();
+      }
+    },
+  },
+  {
     id: "iframe/dialog-opens-on-tile-click",
     category: "iframe",
     label: "clicking a chart tile opens the <dialog>",

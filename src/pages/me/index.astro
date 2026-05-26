@@ -144,6 +144,7 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
   <script>
     import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
     import { renderSavedDashboardList } from "../../lib/render-saved-dashboards";
+    import { isAdmin } from "../../lib/admin";
 
     const host = document.querySelector<HTMLElement>("[data-me]");
     if (!host) throw new Error("me host missing");
@@ -202,6 +203,17 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
         sb,
         onMutate: () => render(),
       });
+      // Admin-only footer link to /me/diagnostics. Tiny, low-contrast,
+      // below the dashboard list so it doesn't pull attention but is
+      // always reachable. isAdmin trusts the OAuth-verified email on
+      // the session.
+      if (isAdmin(user.email)) {
+        const adminFooter = document.createElement("p");
+        adminFooter.className = "text-xs text-neutral-400 mt-6";
+        adminFooter.innerHTML =
+          `<a href="${baseUrl}/me/diagnostics/" class="no-underline hover:underline">Run diagnostics &rarr;</a>`;
+        content.appendChild(adminFooter);
+      }
     }
 
     render();

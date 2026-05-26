@@ -268,6 +268,89 @@ export const supabaseTests: DiagnosticTest[] = [
     },
   },
   {
+    id: "supabase/rate-limit-trips-on-rapid-inserts",
+    category: "supabase",
+    label:
+      "rate-limit trigger fires on rapid saved_dashboards INSERTs (3/60s cap from 0003)",
+    timeoutMs: 30000,
+    run: async () => {
+      const ctx = await requireAdminSession();
+      if ("status" in ctx) return ctx;
+      const { sb, userId } = ctx;
+
+      // Burst up to 6 inserts. After migration 0003 the per-user limit
+      // is 3 inserts per 60 seconds, so we expect at least one of the
+      // last few to fail with PG error code P0001 + a message
+      // starting with "Saving too quickly".
+      //
+      // Bonus: other supabase tests above have already burned 2 inserts
+      // by this point, so the limit may trip on the first probe insert.
+      // Either way is fine — we just need at least one failure.
+      const insertedIds: string[] = [];
+      const errors: Array<{ idx: number; code?: string; message: string }> = [];
+      const BURST = 6;
+      for (let i = 0; i < BURST; i++) {
+        const title = diagTitle(`rl${i}`);
+        const slug = diagSlug(`rl${i}`);
+        const { data, error } = await sb!
+          .from("saved_dashboards")
+          .insert({
+            owner_id: userId,
+            slug,
+            title,
+            state_json: { v: 1, title, charts: [] },
+            visibility: "private",
+          })
+          .select("id")
+          .single();
+        if (error) {
+          errors.push({
+            idx: i,
+            code: (error as { code?: string }).code,
+            message: error.message,
+          });
+        } else if (data?.id) {
+          insertedIds.push(data.id);
+        }
+      }
+
+      // Cleanup: nuke everything that DID get in.
+      if (insertedIds.length > 0) {
+        await sb!.from("saved_dashboards").delete().in("id", insertedIds);
+      }
+
+      if (errors.length === 0) {
+        return fail(
+          `all ${BURST} rapid INSERTs succeeded — rate-limit triggers from migration 0002/0003 do not appear to be active`,
+          { burst: BURST, insertCount: insertedIds.length },
+        );
+      }
+      // At least one failure → rate-limit is firing. Confirm the
+      // failure is the right one (PG raise_exception with our
+      // human copy), not some unrelated DB error.
+      const rateLimitHits = errors.filter(
+        (e) =>
+          e.code === "P0001" &&
+          /too quickly|limit reached|Too many dashboards/i.test(e.message),
+      );
+      if (rateLimitHits.length === 0) {
+        return fail(
+          `${errors.length} INSERTs failed but none matched the rate-limit signature`,
+          { errors, insertCount: insertedIds.length },
+        );
+      }
+      return pass(
+        `rate-limit fired on ${rateLimitHits.length} of ${BURST} attempts (${insertedIds.length} succeeded, all cleaned)`,
+        {
+          burst: BURST,
+          succeeded: insertedIds.length,
+          rateLimited: rateLimitHits.length,
+          sampleMessage: rateLimitHits[0].message,
+        },
+      );
+    },
+  },
+  {
     id: "supabase/saved-dashboard-renders-via-u-slug",
     category: "supabase",
     label:
