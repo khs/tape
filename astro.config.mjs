@@ -13,7 +13,7 @@ import path from "node:path";
 //   1. SITE_URL  - explicit override, e.g. when a custom domain ships
 //   2. VERCEL_PROJECT_PRODUCTION_URL - Vercel-managed primary production URL
 //      (auto-tracks once a custom domain is assigned to the project)
-//   3. VERCEL_URL - per-deploy domain (e.g. preview branches, legible-markets.vercel.app)
+//   3. VERCEL_URL - per-deploy domain (e.g. preview branches, tape.vercel.app)
 //   4. undefined - dev fallback; BaseLayout uses request origin instead
 //
 // Without this, a deploy at <project>.vercel.app would bake meta-tag URLs
