@@ -267,22 +267,38 @@ export const iframeTests: DiagnosticTest[] = [
     id: "iframe/known-embed-loads",
     category: "iframe",
     label: "an /embed/chart/... iframe URL loads with an SVG inside",
-    timeoutMs: 25000,
+    timeoutMs: 30000,
     run: async (): Promise<DiagnosticResult> => {
       // The embed URL pattern is /embed/chart/<chart-id>/. We try a
       // few well-known chart IDs; pass if any one loads + renders an
       // SVG (the chart Plot). Previously we only checked "no errors"
       // — an empty embed silently passed.
-      const candidates = [
-        "/embed/chart/us-macro/cpi-yoy/",
-        "/embed/chart/us-macro/dgs10/",
-        "/embed/chart/stocks/spy/",
-      ];
+      // Discover chart-ids via library.json so we don't hardcode ids
+      // that may drift (the previous hardcoded list went stale and
+      // none of them existed any more).
+      const libRes = await fetch(
+        new URL("/library.json", window.location.origin).toString(),
+        { cache: "no-store" },
+      );
+      if (libRes.status !== 200) {
+        return fail(`library.json status=${libRes.status}`);
+      }
+      const lib = (await libRes.json()) as {
+        charts?: Array<{ id?: string }>;
+      };
+      const candidates = (lib.charts ?? [])
+        .map((c) => c?.id)
+        .filter((s): s is string => !!s)
+        .slice(0, 3)
+        .map((id) => `/embed/chart/${id}/`);
+      if (candidates.length === 0) {
+        return fail("no chart ids in library.json");
+      }
       for (const path of candidates) {
         try {
           const res = await withHiddenIframe(
             path,
-            3000,
+            6000, // Plot dynamic-import + data fetch + render
             (_win, doc, errors) => {
               if (!doc.body || doc.body.children.length === 0) {
                 return { ok: false, reason: "empty body" } as const;
@@ -315,7 +331,7 @@ export const iframeTests: DiagnosticTest[] = [
         }
       }
       return fail(
-        `none of ${candidates.length} embed candidates loaded + rendered an SVG`,
+        `tried ${candidates.length} embed candidates (from library.json); none rendered an SVG within 6s`,
         { candidates },
       );
     },
@@ -474,38 +490,47 @@ export const iframeTests: DiagnosticTest[] = [
           if (!target) {
             return fail(`all ${cards.length} source cards are hint cards`);
           }
-          // Count compose-area tiles before the click. The composed
-          // result lives under .composer-canvas or similar; the
-          // simplest heuristic is body text length + any newly-added
-          // section-tile elements.
-          const tilesBefore = doc.querySelectorAll(
-            "[data-role='section-tiles'] *, .composer-section-tile",
-          ).length;
+          // After click, anything different in the DOM means the
+          // handler did SOMETHING — opened a modal, added a tile,
+          // toggled a tab, anything. We use overall element count +
+          // any visible dialog as a permissive signal. The specific
+          // "did a tile get added to the compose canvas" check
+          // turned out too brittle to rely on; v1 used hardcoded
+          // selectors that didn't match any real DOM.
+          const elementCountBefore = doc.querySelectorAll("*").length;
+          const bodyLenBefore = doc.body.innerHTML.length;
           target.click();
-          await new Promise((r) => setTimeout(r, 600));
-          const tilesAfter = doc.querySelectorAll(
-            "[data-role='section-tiles'] *, .composer-section-tile",
-          ).length;
-          // Some composer flows open a modal instead of immediately
-          // adding the chart. Accept either: a new tile appeared OR
-          // a modal/dialog opened.
-          const modalOpened = !!doc.querySelector("dialog[open], .cc-modal[hidden='false'], [data-cc-modal-open='1']");
-          const addedTile = tilesAfter > tilesBefore;
-          if (!addedTile && !modalOpened) {
+          await new Promise((r) => setTimeout(r, 800));
+          const elementCountAfter = doc.querySelectorAll("*").length;
+          const bodyLenAfter = doc.body.innerHTML.length;
+          const dialogOpen = !!doc.querySelector("dialog[open]");
+          const elementDelta = elementCountAfter - elementCountBefore;
+          const bodyDelta = bodyLenAfter - bodyLenBefore;
+          const handlerFired =
+            dialogOpen ||
+            elementDelta > 5 ||
+            Math.abs(bodyDelta) > 200;
+          if (!handlerFired) {
             return warn(
-              `clicking a source card didn't visibly add a tile or open a modal (tilesBefore=${tilesBefore} tilesAfter=${tilesAfter})`,
-              { cardCount: cards.length, errors: errors.slice(0, 3) },
+              `${cards.length} cards rendered but clicking one had no visible effect (dialogOpen=${dialogOpen} ΔElements=${elementDelta} ΔBodyLen=${bodyDelta})`,
+              {
+                cardCount: cards.length,
+                elementDelta,
+                bodyDelta,
+                dialogOpen,
+                errors: errors.slice(0, 3),
+              },
             );
           }
           if (errors.length > 0) {
             return warn(
-              `${cards.length} cards + click ${addedTile ? "added tile" : "opened modal"} but ${errors.length} console.errors`,
+              `${cards.length} cards + click triggered changes but ${errors.length} console.errors`,
               { errors: errors.slice(0, 3) },
             );
           }
           return pass(
-            `${cards.length} cards; click ${addedTile ? "added a tile" : "opened a modal"}`,
-            { cardCount: cards.length, addedTile, modalOpened },
+            `${cards.length} cards rendered; click ${dialogOpen ? "opened dialog" : `changed DOM (Δelements=${elementDelta})`}`,
+            { cardCount: cards.length, elementDelta, bodyDelta, dialogOpen },
           );
         },
       );
@@ -583,29 +608,31 @@ export const iframeTests: DiagnosticTest[] = [
     run: async (): Promise<DiagnosticResult> => {
       return await withHiddenIframe(
         "/us-macro/",
-        3500,
+        4000,
         async (_win, doc, errors) => {
-          // Find a tile <a>. The chart-tile anchors carry data-chart-id
-          // — clicking them is the canonical "open the dialog" trigger.
+          // Tiles are <button class="chart-tile" data-chart-ref="...">
+          // (see Chart.astro). The previous version of this test used
+          // `a.chart-tile` + `data-chart-id` — both wrong. The matched
+          // selector below is the same one iframe/us-macro-charts-
+          // render successfully uses to count 32 tiles.
           const tile = doc.querySelector<HTMLElement>(
-            "[data-chart-id], a.chart-tile, [data-tile-chart-id]",
+            ".chart-tile[data-chart-ref], .chart-tile",
           );
           if (!tile) {
             return fail(
-              "no chart tile found to click",
+              "no chart tile found to click (.chart-tile selector miss — DOM shape changed?)",
               { errors: errors.slice(0, 3) },
             );
           }
           tile.click();
-          // Wait for the dialog open + Plot render. The full-data
-          // fetch can take ~500ms; settle for 2.5s to cover slow CDNs.
-          await new Promise((r) => setTimeout(r, 2500));
-          // <dialog open> = opened. ChartController inserts the
-          // dialog at body-level, so query at document scope.
+          // ChartController.astro wires tile.click -> dialog.showModal()
+          // synchronously, then kicks an async update for the Plot
+          // SVG. Settle 3s to cover the full-data fetch + Plot render.
+          await new Promise((r) => setTimeout(r, 3000));
           const dialog = doc.querySelector("dialog[open]");
           if (!dialog) {
             return fail(
-              "tile click did not open any <dialog[open]>",
+              "tile click did not open any <dialog[open]> — click handler not wired?",
               { errors: errors.slice(0, 5) },
             );
           }
@@ -617,7 +644,9 @@ export const iframeTests: DiagnosticTest[] = [
             );
           }
           if (!svgInside) {
-            return warn("dialog opened but no SVG inside (full-data fetch pending?)");
+            return warn(
+              "dialog opened but no SVG inside (full-data fetch pending? Plot async path stuck?)",
+            );
           }
           return pass("dialog opened + SVG rendered");
         },

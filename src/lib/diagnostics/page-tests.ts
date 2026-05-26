@@ -823,15 +823,40 @@ export const pageTests: DiagnosticTest[] = [
         sources?: Record<string, { dataFile?: string; kind?: string }>;
       };
       if (!lib.sources) return fail("library.json has no sources");
-      // Find the first TIMESERIES source with a dataFile. Curve
-      // sources don't ship .summary.json, so skip them.
+      // Prefer a likely-daily source (FRED, Yahoo, Treasury) so the
+      // Phase 2 size-ratio check is meaningful. Fall back to any
+      // timeseries source with a dataFile if no daily candidate is
+      // available. Curve sources don't ship .summary.json — skip.
+      const dailyPrefixes = [
+        "/data/fred/",
+        "data/fred/",
+        "/data/yahoo/",
+        "data/yahoo/",
+        "/data/treasury/",
+        "data/treasury/",
+      ];
       let dataFile: string | null = null;
       let sourceId: string | null = null;
+      // First pass: daily-likely sources.
       for (const [id, m] of Object.entries(lib.sources)) {
-        if (m?.dataFile && m?.kind === "timeseries") {
+        if (
+          m?.dataFile &&
+          m?.kind === "timeseries" &&
+          dailyPrefixes.some((p) => m.dataFile!.startsWith(p))
+        ) {
           dataFile = m.dataFile;
           sourceId = id;
           break;
+        }
+      }
+      // Second pass: any timeseries source.
+      if (!dataFile) {
+        for (const [id, m] of Object.entries(lib.sources)) {
+          if (m?.dataFile && m?.kind === "timeseries") {
+            dataFile = m.dataFile;
+            sourceId = id;
+            break;
+          }
         }
       }
       if (!dataFile) {
@@ -869,7 +894,8 @@ export const pageTests: DiagnosticTest[] = [
       }
       // The summary's latest should be byte-equal to the full file's
       // last point. Drift means build_summaries.py and the full-data
-      // pipeline disagree about what "latest" is.
+      // pipeline disagree about what "latest" is. This invariant
+      // applies REGARDLESS of how long the series is.
       if (
         summary.latest.t !== lastFull.t ||
         summary.latest.v !== lastFull.v
@@ -878,20 +904,28 @@ export const pageTests: DiagnosticTest[] = [
           `summary.latest drifted from full.points[-1] for ${sourceId}: full=(${lastFull.t}, ${lastFull.v}) vs summary=(${summary.latest.t}, ${summary.latest.v})`,
         );
       }
-      // Sanity: the summary should be substantially smaller (Phase 2
-      // bandwidth-reduction motivation). >50% smaller is normal.
+      // Phase 2 bandwidth-reduction check. Only meaningful for LONG
+      // series — short series (ACS annual, BEA quarterly with few
+      // vintages) intrinsically have a summary BIGGER than the full
+      // file because the priors/sparks duplication overhead exceeds
+      // the savings. Skip the size assertion for those; the latest-
+      // matches invariant above is what really matters.
       const fullSize = (await (await fetch(url(fullPath))).text()).length;
       const summarySize = (await (await fetch(url(summaryPath))).text()).length;
       const sizeRatio = summarySize / fullSize;
-      if (sizeRatio > 0.9) {
+      const pointCount = full.points?.length ?? 0;
+      const sizeCheckMeaningful = pointCount >= 100;
+      if (sizeCheckMeaningful && sizeRatio > 0.9) {
         return warn(
-          `summary not much smaller than full (${(sizeRatio * 100).toFixed(0)}%) — Phase 2 benefit lost`,
-          { fullSize, summarySize, sizeRatio },
+          `${sourceId} (${pointCount} points) — summary ${(sizeRatio * 100).toFixed(0)}% of full; Phase 2 benefit lost`,
+          { sourceId, pointCount, fullSize, summarySize, sizeRatio },
         );
       }
       return pass(
-        `${sourceId}: ${(summarySize / 1024).toFixed(1)}KB summary vs ${(fullSize / 1024).toFixed(1)}KB full (${(sizeRatio * 100).toFixed(0)}%)`,
-        { sourceId, lastT: lastFull.t, sizeRatio },
+        sizeCheckMeaningful
+          ? `${sourceId}: ${(summarySize / 1024).toFixed(1)}KB summary vs ${(fullSize / 1024).toFixed(1)}KB full (${(sizeRatio * 100).toFixed(0)}%, ${pointCount} pts)`
+          : `${sourceId}: latest matches; ${pointCount} pts is too few to evaluate size invariant`,
+        { sourceId, lastT: lastFull.t, sizeRatio, pointCount },
       );
     },
   },
