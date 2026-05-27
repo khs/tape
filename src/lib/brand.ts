@@ -16,7 +16,7 @@ export const SITE_BRAND_URL = "tape.io";
 export const SITE_BRAND_NAME = "Tape";
 
 /**
- * Where the "Inquire about enterprise" CTA points — a Notion form or
+ * Where the "Ask about enterprise" CTA points — a Notion form or
  * similar lightweight intake surface. Swap this string when the real
  * intake URL is ready; falls back to a mailto so the link is never
  * dead while the form is being set up.
