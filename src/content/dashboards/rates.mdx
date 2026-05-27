@@ -1,9 +1,9 @@
 ---
-title: "Rates & credit"
+title: "Rates"
 order: 7
 defaultDelta: 5y
-description: "The full Treasury curve, the Fed funds path, breakevens for inflation expectations, credit spreads for risk pricing, and the Fed balance sheet as the supply backdrop. The bond-market view of the economy in one place."
-aboutBlurb: "What the bond market is pricing: the Treasury curve, inflation expectations from breakevens, the cost of risk via credit spreads, and the Fed's policy + balance-sheet posture that anchors all of it."
+description: "The full Treasury curve, the Fed funds path, breakevens for inflation expectations, and the Fed balance sheet as the supply backdrop. The bond-market view of the economy in one place."
+aboutBlurb: "What the bond market is pricing: the Treasury curve, inflation expectations from breakevens, and the Fed's policy + balance-sheet posture that anchors all of it."
 sections:
   - title: "The Treasury curve"
     description: "Nominal yields at every published maturity. Read it as the bond market's pricing of expected average short-rate paths over each horizon, plus a term premium. Inversions (long below short) historically precede recessions by 12-18 months."
@@ -29,11 +29,6 @@ sections:
       - us-macro/breakeven_5y
       - us-macro/breakeven_10y
       - us-macro/tips_10y
-  - title: "Credit spreads"
-    description: "Investment-grade and high-yield credit spreads. Difference between corporate-bond yields and matched-maturity Treasuries — what investors demand as compensation for default risk. Widening spreads signal credit-market stress before it shows up in equity drawdowns or hard economic data."
-    charts:
-      - us-macro/ig_spread
-      - us-macro/hy_spread
   - title: "Consumer cost of capital"
     description: "30-year fixed mortgage rate as the most-visible consumer-facing rate. Tracks the 10-year Treasury yield + a spread that itself moves with mortgage-market conditions (MBS demand, lender capacity, refi friction). The 2022-24 widening of that spread was its own story on top of the rate move."
     charts:
@@ -58,9 +53,9 @@ and most public-facing rate commentary conflates them:
 4. **Real expected rate.** TIPS yield is approximately the real
    expected return. When TIPS were negative (2020-21), bondholders
    were *paying* for inflation insurance.
-5. **Risk premium.** Credit spreads measure this for corporate
-   bonds. The Treasury curve is "riskless" by convention; everything
-   else is priced relative to it.
+5. **Risk premium.** Corporate-bond yields embed this on top of
+   the Treasury baseline. The Treasury curve is "riskless" by
+   convention; everything else is priced relative to it.
 
 ## Reading inversions
 
@@ -85,30 +80,6 @@ clean "soft landing" since the 1995 episode.
 The 10y-3m version (Estrella-Mishkin) has a slightly stronger
 historical track record because the 3-month is fully anchored to
 current policy.
-
-## Why credit spreads matter
-
-Credit spreads price the perceived odds of corporate-bond default
-between issuance and maturity. They widen when the market thinks
-defaults are coming and tighten when the market thinks corporates
-are fine.
-
-Two reasons they're worth tracking:
-
-- **Information.** Credit investors are typically more careful than
-  equity investors about downside scenarios. When credit and equity
-  send different signals (equities rallying, credit widening),
-  credit is usually closer to right.
-- **Transmission.** Spreads widening directly tightens financial
-  conditions even before the Fed moves — corporates pay more to
-  refinance, marginal investment gets delayed, and the real
-  economy slows.
-
-HY spreads in particular tend to lead equity drawdowns by 3-6
-months in major cycles. The 2007 widening preceded the 2008 equity
-collapse; the 2015-16 energy-credit widening preceded the early-
-2016 equity correction; the 2022 widening tracked alongside the
-Nasdaq drawdown.
 
 ## Customizing for rates analysis
 

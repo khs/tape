@@ -96,11 +96,6 @@ const LEGACY_METRO_IDS: Record<
     series: "cpi",
     cbsa: "47900",
   },
-  "fred/dc_case_shiller": {
-    pipeline: "fred_series",
-    series: "case_shiller",
-    cbsa: "47900",
-  },
   "fred/dc_median_listing": {
     pipeline: "fred_series",
     series: "median_listing",

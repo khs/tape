@@ -113,11 +113,14 @@ describe("legacy FRED metro-area IDs (regression for the 'unemployment' leak)", 
   // CBSA 47900 so library.json synthesizes the right tags. These tests
   // lock that pinning down so a future move/rename doesn't silently
   // re-open the leak.
+  // fred/dc_case_shiller intentionally absent: removed 2026-05-27
+  // (third-party copyright). Leaving its parsing logic intact in
+  // geographic-regions.ts via the legacy-mapping pattern means a
+  // re-add would just plug back in, but the source itself is gone.
   const LEGACY_DC_IDS = [
     "fred/dc_unemployment_rate",
     "fred/dc_payrolls",
     "fred/dc_cpi",
-    "fred/dc_case_shiller",
     "fred/dc_median_listing",
   ];
 

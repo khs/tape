@@ -458,7 +458,9 @@ FRED_EXTENSION = [
     ("capacity_util",   "TCU",          "Capacity utilization (total industry)","CapUtil","%",              "percent",  1, "",  "",  None,     "level",  "monthly", "Total industry capacity utilization, monthly."),
     # Housing
     ("housing_starts",  "HOUST",        "Housing starts (privately-owned)",   "Starts", "thousands, SAAR",  "number",   0, "",  "k",  None,     "level",  "monthly", "New privately-owned housing units started, thousands SAAR, monthly."),
-    ("case_shiller",    "CSUSHPISA",    "Case-Shiller national home price",   "CS HPI", "index",            "number",   1, "",  "",  None,     "level",  "monthly", "Case-Shiller national home price index (SA), monthly."),
+    # case_shiller / CSUSHPISA: removed 2026-05-27 (S&P / CoreLogic /
+    # Case-Shiller copyright, pre-approval required). See
+    # docs/fred-copyright-audit.md.
     ("median_home_price","MSPUS",       "Median sales price of houses sold",  "Median \u0024",      "USD",          "currency", 0, "",  "",  "compact","level",  "quarterly","Median sales price of houses sold (USD), quarterly."),
     # Spending
     ("retail_sales",    "RSAFS",        "Retail sales (advance, total ex auto)","Retail","millions USD",    "currency", 0, "",  "",  "compact","level",  "monthly", "Advance retail sales, total ex auto (USD, SA), monthly."),
@@ -467,11 +469,11 @@ FRED_EXTENSION = [
     # Monetary
     ("m2",              "M2SL",         "M2 money supply",                    "M2",     "billions USD",     "currency", 0, "",  "B",  None,     "level",  "monthly", "M2 money stock (SA), monthly."),
     ("fed_balance_sheet","WALCL",       "Fed total assets (balance sheet)",   "Fed BS", "millions USD",     "currency", 0, "",  "",  "compact","level",  "weekly",  "Federal Reserve total assets, weekly (Wednesday close)."),
-    # Credit spreads
-    ("hy_spread",       "BAMLH0A0HYM2", "HY corporate OAS (ICE BofA)",         "HY OAS", "%",                "percent",  2, "",  "",  None,     "level",  "daily",   "ICE BofA US high-yield corporate option-adjusted spread, daily."),
-    ("ig_spread",       "BAMLC0A0CM",   "IG corporate OAS (ICE BofA)",         "IG OAS", "%",                "percent",  2, "",  "",  None,     "level",  "daily",   "ICE BofA US corporate (IG) option-adjusted spread, daily."),
-    # Risk
-    ("vix",             "VIXCLS",       "VIX (CBOE volatility index)",         "VIX",    "index",            "number",   2, "",  "",  None,     "change", "daily",   "CBOE S&P 500 implied-volatility index, daily close."),
+    # Credit spreads + risk indexes removed 2026-05-27:
+    #   hy_spread / BAMLH0A0HYM2 — ICE BofA copyright
+    #   ig_spread / BAMLC0A0CM  — ICE BofA copyright
+    #   vix       / VIXCLS      — Cboe Global Markets copyright
+    # All three pre-approval-required under FRED ToS § III.
 ]
 for (slug, sid, name, short, unit, fmt, dec, pfx, sfx, notation, emph, cad, desc) in FRED_EXTENSION:
     write_if_absent(
@@ -512,16 +514,14 @@ FRED_CHART_DEFAULTS = {
     "avg_hourly_earnings":("Avg hourly earnings",     "1y"),
     "capacity_util":     ("Capacity utilization",     "1y"),
     "housing_starts":    ("Housing starts",           "1y"),
-    "case_shiller":      ("Case-Shiller home prices", "1y"),
     "median_home_price": ("Median home sale price",   "1y"),
     "retail_sales":      ("Retail sales",             "1y"),
     "personal_income":   ("Personal income",          "1y"),
     "saving_rate":       ("Personal saving rate",     "1y"),
     "m2":                ("M2 money supply",          "1y"),
     "fed_balance_sheet": ("Fed balance sheet",        "1y"),
-    "hy_spread":         ("HY corporate spread",      "1m"),
-    "ig_spread":         ("IG corporate spread",      "1m"),
-    "vix":               ("VIX",                      "1m"),
+    # hy_spread / ig_spread / vix removed 2026-05-27 (third-party
+    # copyright). See docs/fred-copyright-audit.md.
 }
 for slug, (title, dd) in FRED_CHART_DEFAULTS.items():
     write_if_absent(

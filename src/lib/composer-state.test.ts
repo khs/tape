@@ -9,14 +9,14 @@ describe("encode → decode round-trip", () => {
   it("preserves a minimal flat-charts state", () => {
     const enc = encodeComposedState({
       title: "Test",
-      charts: ["us-macro/cpi", "us-macro/vix"],
+      charts: ["us-macro/cpi", "us-macro/nasdaq"],
     });
     const dec = decodeComposedState(enc);
     expect(dec.ok).toBe(true);
     if (dec.ok) {
       expect(dec.state.v).toBe(COMPOSER_STATE_VERSION);
       expect(dec.state.title).toBe("Test");
-      expect(dec.state.charts).toEqual(["us-macro/cpi", "us-macro/vix"]);
+      expect(dec.state.charts).toEqual(["us-macro/cpi", "us-macro/nasdaq"]);
     }
   });
 

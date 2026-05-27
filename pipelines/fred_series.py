@@ -40,10 +40,15 @@ SPECS: list[FredSpec] = [
     # src/content/charts/us-macro/curve_spread.yaml.
     FredSpec("UNRATE", "US unemployment rate", "%"),
     FredSpec("CPIAUCSL", "CPI, all urban consumers", "index (1982-84=100)"),
-    FredSpec("UMCSENT", "UMich consumer sentiment", "index"),
+    # UMCSENT (UMich consumer sentiment) intentionally NOT ingested:
+    # third-party copyrighted (University of Michigan), pre-approval
+    # required under FRED ToS § III. Removed 2026-05-27. See
+    # docs/fred-copyright-audit.md.
     FredSpec("GDPC1", "US real GDP (chained 2017 dollars)", "billions USD"),
     FredSpec("INDPRO", "US industrial production", "index (2017=100)"),
-    FredSpec("SP500", "S&P 500 Index", "index"),
+    # SP500 (S&P 500) intentionally NOT ingested: third-party
+    # copyrighted by S&P Dow Jones Indices LLC, pre-approval
+    # required. Removed 2026-05-27.
     FredSpec("NASDAQCOM", "NASDAQ Composite", "index"),
     FredSpec("GASREGW", "US retail gasoline, regular grade", "USD/gal"),
     FredSpec("GASDESW", "US retail diesel", "USD/gal"),
@@ -69,7 +74,9 @@ SPECS: list[FredSpec] = [
     FredSpec("TCU", "Capacity utilization (total industry)", "%"),
     # Housing
     FredSpec("HOUST", "Housing starts (new privately-owned units)", "thousands, SAAR"),
-    FredSpec("CSUSHPISA", "Case-Shiller national home price index", "index"),
+    # CSUSHPISA (Case-Shiller national) intentionally NOT ingested:
+    # third-party copyrighted by S&P / CoreLogic / Case-Shiller,
+    # pre-approval required. Removed 2026-05-27.
     FredSpec("MSPUS", "Median sales price of houses sold", "USD"),
     # Spending & income
     FredSpec("RSAFS", "Retail sales (advance, total ex auto)", "millions USD"),
@@ -78,11 +85,11 @@ SPECS: list[FredSpec] = [
     # Monetary / Fed
     FredSpec("M2SL", "M2 money supply", "billions USD"),
     FredSpec("WALCL", "Fed total assets (balance sheet)", "millions USD"),
-    # Credit spreads
-    FredSpec("BAMLH0A0HYM2", "ICE BofA HY corporate option-adjusted spread", "%"),
-    FredSpec("BAMLC0A0CM", "ICE BofA IG corporate option-adjusted spread", "%"),
-    # Risk
-    FredSpec("VIXCLS", "VIX (CBOE volatility index)", "index"),
+    # Credit spreads + risk indexes intentionally NOT ingested:
+    # BAMLH0A0HYM2 + BAMLC0A0CM are third-party copyrighted by
+    # ICE BofA / ICE Data Indices; VIXCLS by Cboe Global Markets.
+    # All three are pre-approval-required under FRED ToS § III.
+    # Removed 2026-05-27. See docs/fred-copyright-audit.md.
     # ------------------------------------------------------------------
     # Library expansion v2: labor sub-series, real estate, government finances
     # ------------------------------------------------------------------
@@ -238,7 +245,9 @@ SPECS: list[FredSpec] = [
     # The Washington-Arlington-Alexandria MSA cuts across DC, parts of VA,
     # parts of MD, and parts of WV — so these series capture economic
     # conditions in the federal-economy core regardless of jurisdiction.
-    FredSpec("WDXRSA", "DC-metro Case-Shiller home price index", "index 2000=100"),
+    # WDXRSA (DC-metro Case-Shiller) intentionally NOT ingested:
+    # third-party copyrighted by S&P / CoreLogic / Case-Shiller.
+    # Removed 2026-05-27.
     FredSpec("WASH911URN", "DC-metro unemployment rate", "%"),
     FredSpec("WASH911NA", "DC-metro nonfarm payroll employment", "thousands"),
     FredSpec("MEDLISPRI47900", "DC-metro median listing price (homes for sale)", "USD"),

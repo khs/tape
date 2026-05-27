@@ -3,7 +3,7 @@
  * Iframe-embeddable single chart.
  *
  * URL: `/embed/chart/<chart-id>?delta=<window>`
- *   chart-id: any library chart ID (us-macro/sp500, government/…, etc.)
+ *   chart-id: any library chart ID (us-macro/cpi, government/…, etc.)
  *   delta:    optional. One of 1w / 1m / ytd / 1y / 5y / 10y / 30y /
  *             50y. Falls back to the chart's defaultDelta.
  *
@@ -105,7 +105,7 @@ const fredDisclaimer =
       hydrate falls back to "1m" hardcoded — so an embed with
       ?delta=10y in the URL would render the 1m sparkline despite the
       tile's data-dashboard-window="10y" being set correctly.
-      Caught by visiting /embed/chart/us-macro/vix/?delta=10y and
+      Caught by visiting /embed/chart/us-macro/cpi/?delta=10y and
       seeing the 30-day caption + ~21 path points instead of 10 years
       of data. */}
   <div

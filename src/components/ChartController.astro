@@ -131,7 +131,7 @@
   };
 
   type Payload = {
-    /** Chart ID, e.g. "us-macro/sp500" — forwarded from server for telemetry. */
+    /** Chart ID, e.g. "us-macro/cpi" — forwarded from server for telemetry. */
     chartId?: string;
     /** Surface (preset slug / "custom" / "u-<slug>" / "chart") — for telemetry. */
     surface?: string;
@@ -2779,7 +2779,7 @@
           // the chart already added and the original chart's title pre-seeded
           // as the dashboard title.
           //
-          // Two branches: library charts (e.g. "us-macro/sp500") only need
+          // Two branches: library charts (e.g. "us-macro/cpi") only need
           // their ID — the composer resolves them via the content
           // collection. Inline charts (composer-built, "inline:abc123") need
           // their full spec carried over inlineCharts because there's no

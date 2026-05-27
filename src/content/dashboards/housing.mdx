@@ -2,13 +2,12 @@
 title: "Housing market"
 order: 9
 defaultDelta: 10y
-description: "US housing through price + supply + demand + cost-of-capital lenses. Case-Shiller, listings, building permits, months supply, vacancy rates, and the mortgage rate that gates all of it. Plus DC-metro context."
+description: "US housing through price + supply + demand + cost-of-capital lenses. Median listing price, building permits, months supply, vacancy rates, and the mortgage rate that gates all of it. Plus DC-metro context."
 aboutBlurb: "Six angles on the US housing market: prices, listings, supply pipeline, inventory months, vacancy, and the mortgage rate. Plus a DC-metro panel because DC housing diverges enough from the national story to need its own framing."
 sections:
   - title: "Prices"
-    description: "Case-Shiller 20-city national home-price index and median listing price for the US. Case-Shiller is the repeat-sales benchmark — same home selling twice, more accurate than median-sale price; median listing is what's currently for sale, a faster-moving demand-side signal. Zillow's ZHVI offers a per-metro alternative with broader geographic coverage."
+    description: "Median listing price for the US is the headline US-wide signal here. Zillow's ZHVI and ZORI cover the per-metro level with broader geographic coverage than the national series alone."
     charts:
-      - us-macro/case_shiller
       - us-macro/median_home_price
       - real-estate/dc_median_listing
       - real-estate/zhvi_metros
@@ -30,9 +29,8 @@ sections:
       - us-macro/mortgage_30y
       - real-estate/mortgage_15y
   - title: "DC metro context"
-    description: "Case-Shiller comparison + listing price + rent CPI. The DC-area housing market consistently runs above national in both levels and cyclical amplitude — federal-payroll income stability supports prices through downturns, and the supply pipeline has been more constrained than national average."
+    description: "DC listing price + rent CPI. The DC-area housing market consistently runs above national in both levels and cyclical amplitude — federal-payroll income stability supports prices through downturns, and the supply pipeline has been more constrained than national average."
     charts:
-      - real-estate/dc_case_shiller_vs_us
       - real-estate/dc_median_listing
       - real-estate/rent_cpi
   - title: "Real-estate equities"
@@ -69,25 +67,6 @@ and infer the rest. The dashboard separates them out:
 The first two are visible directly in the dashboard charts; the
 others show up indirectly via prices.
 
-## Reading Case-Shiller
-
-The 20-city Case-Shiller index is the gold-standard US home-price
-benchmark because it uses **repeat sales** — tracking the same
-property across two transactions, holding the property constant.
-Cleaner than median-sale price (which moves with the mix of
-properties that happen to be selling that month) and cleaner than
-average sale (which mix-shift is even worse).
-
-Two caveats:
-
-- **Geographic concentration.** It's a 20-city composite, weighted
-  toward large coastal metros. The national index gets less
-  attention but is broader.
-- **Slow.** Each data point reflects the average of three months
-  of sales lagged about two months — so the November 2024 release
-  is really September-October-November 2024 weighted. The series
-  moves slowly compared to listings data.
-
 ## The lock-in effect explained
 
 When 30-year mortgage rates went from sub-3% in 2021 to 7%+ in
@@ -121,18 +100,17 @@ two structural reasons:
    Spring), local zoning + topography limit new construction.
    Prices clear higher.
 
-The DC Case-Shiller-vs-US chart shows the trajectory: DC ran with
-the national index through the GFC drop, then started pulling
-ahead in 2012-13, widened the gap further through the
-federal-spending recovery and tech-policy buildout of the 2010s,
-and now sits ~30% above the national index in absolute terms.
+The DC listing-price + rent panels show the trajectory: DC ran
+with the national pattern through the GFC drop, then started
+pulling ahead in 2012-13, widened the gap further through the
+federal-spending recovery and tech-policy buildout of the 2010s.
 
 ## Customizing for housing analysis
 
 Common composer moves:
 
-- **Real home prices**: divide Case-Shiller by us_cpi to net out
-  inflation; useful for "are houses actually getting more
+- **Real home prices**: divide median_home_price by us_cpi to net
+  out inflation; useful for "are houses actually getting more
   expensive in real terms" questions.
 - **Affordability index**: combine mortgage_30y + median_home_price
   + a wage series to get a payment-to-income proxy.
