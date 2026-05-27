@@ -80,6 +80,14 @@ const chartOp =
 // `isMulti` after any op collapse: if we have an op-driven collapse, the
 // rendered chart is single-line.
 const isMulti = !chartOp && sources.length > 1;
+
+// FRED-attribution gate. Any source pulled via the FRED API (pipeline
+// === "fred") triggers the required disclaimer in the dialog footer:
+// FRED's API terms require us to make clear we're a derivative
+// consumer, not an endorsed product. The check covers single + multi-
+// source charts uniformly; ratio / derived charts with at least one
+// FRED leg also trigger.
+const usesFred = sources.some((s) => s.data.pipeline === "fred");
 // Resolve normalize mode. If the chart didn't set one, pick a sensible
 // default: "rebase" for multi-source charts, "raw" for single. Heuristic
 // for same-scale multi-source ("3 percent rates": all match formatting +
@@ -910,6 +918,14 @@ const mostRecentUpdate = payload.sources
       <span class="dialog-footer-attribution">
         Chart made by: <strong>{SITE_BRAND_URL}</strong>
       </span>
+      {
+        usesFred && (
+          <span class="dialog-footer-fred-disclaimer">
+            This product uses the FRED&reg; API but is not endorsed or
+            certified by the Federal Reserve Bank of St. Louis.
+          </span>
+        )
+      }
     </footer>
   </div>
 
@@ -1448,6 +1464,19 @@ const mostRecentUpdate = payload.sources
   }
   .dialog-footer a:hover {
     color: var(--color-neutral-700);
+  }
+  /* FRED-attribution disclaimer. Required by FRED's API terms when
+     any of the chart's sources came through that pipeline. Stretches
+     across the full row beneath the source link + brand attribution
+     so it's unambiguously associated with the chart, not buried.
+     Muted + italic so it reads as a footnote rather than competing
+     with the readouts above. */
+  .dialog-footer-fred-disclaimer {
+    flex: 1 1 100%;
+    font-style: italic;
+    color: var(--color-neutral-500);
+    font-size: 10.5px;
+    line-height: 1.4;
   }
   .dialog-error {
     padding: 20px;
