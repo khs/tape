@@ -83,9 +83,22 @@ const barSnapshot =
 // site experience.
 const attributionHref = `${baseUrl}/chart/${chartId}/`;
 const title = resolved?.chart.data.title ?? chartId;
+
+// FRED-attribution gate. Same predicate Chart.astro uses for the
+// dialog-footer disclaimer; here it controls a permanent overlay
+// chip in the embed chrome so the disclaimer is visible even when
+// the host-page reader never clicks through to the dialog.
+// Substack / newsletter readers especially: most never expand.
+const fredDisclaimer =
+  resolved?.sources?.some((s) => s.data.pipeline === "fred") ?? false;
 ---
 
-<EmbedLayout title={title} attributionHref={attributionHref} expanded={isExpanded}>
+<EmbedLayout
+  title={title}
+  attributionHref={attributionHref}
+  expanded={isExpanded}
+  fredDisclaimer={fredDisclaimer}
+>
   {/* dashboard-root wrapper: ChartController's hydrate() reads the
       initial window from a .dashboard-root element's
       data-dashboard-default-window attribute. Without this wrapper,

@@ -40,9 +40,22 @@ interface Props {
    * and the embed-page script auto-clicks the tile on load.
    */
   expanded?: boolean;
+  /**
+   * When true, render the FRED required disclaimer in the embed
+   * chrome. Set by /embed/chart/<id> when any of the chart's
+   * sources came through the fred pipeline. Needed because a
+   * non-expanded embed shows only the chart tile — the in-dialog
+   * FRED footer is invisible until the host-page reader clicks
+   * through, and many embedded readers never do.
+   *
+   * Disclaimer text is FRED's required wording:
+   *   "This product uses the FRED® API but is not endorsed or
+   *    certified by the Federal Reserve Bank of St. Louis."
+   */
+  fredDisclaimer?: boolean;
 }
 
-const { title, attributionHref, expanded } = Astro.props;
+const { title, attributionHref, expanded, fredDisclaimer } = Astro.props;
 ---
 
 <!doctype html>
@@ -67,6 +80,13 @@ const { title, attributionHref, expanded } = Astro.props;
     >
       {SITE_BRAND_NAME} &rarr; {SITE_BRAND_URL}
     </a>
+    {
+      fredDisclaimer && (
+        <span class="embed-fred-disclaimer">
+          Uses FRED&reg; API. Not endorsed by the Federal Reserve Bank of St. Louis.
+        </span>
+      )
+    }
   </body>
 </html>
 
@@ -107,5 +127,33 @@ const { title, attributionHref, expanded } = Astro.props;
   .embed-attribution:hover {
     color: #1c1c1a;
     background: rgba(255, 255, 255, 0.95);
+  }
+  /* FRED required disclaimer. Mirrors the attribution chip on the
+     opposite (lower-left) corner so the iframe's two fixed-position
+     overlays don't fight for the same pixels. Slightly narrower
+     text + same muted-on-translucent-white styling so it reads as
+     an annotation rather than a CTA. Short wording (not the full
+     "This product uses..." sentence) because horizontal iframe real
+     estate is tight; the full sentence appears in the chart's
+     dialog footer when the reader clicks through, and on the ToS
+     page for anyone who wants the canonical text. */
+  .embed-fred-disclaimer {
+    position: fixed;
+    bottom: 8px;
+    left: 10px;
+    /* Stop short of the right-hand brand chip on narrow iframes —
+       max-width keeps the two from overlapping below ~360px wide. */
+    max-width: calc(100% - 140px);
+    font-size: 9.5px;
+    line-height: 1.2;
+    color: #888782;
+    letter-spacing: 0.01em;
+    padding: 4px 6px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    z-index: 100;
+    /* Wrap on very narrow iframes — better than truncating since
+       this is required disclaimer text. */
+    white-space: normal;
   }
 </style>
