@@ -178,64 +178,70 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             />
           </div>
 
-          <label class="alerts-field">
-            <span class="alerts-field-label">Condition</span>
-            <select class="alerts-input" data-role="alerts-condition-select" required>
-              <option value="gt">Greater than (&gt;)</option>
-              <option value="gte" selected>At or above (&ge;)</option>
-              <option value="lt">Less than (&lt;)</option>
-              <option value="lte">At or below (&le;)</option>
-              <option value="crosses_above">Crosses above</option>
-              <option value="crosses_below">Crosses below</option>
-              <option value="change_above">Absolute change &gt;</option>
-            </select>
-          </label>
+          {/*
+            Right-column wrapper. The grid-template-areas in CSS puts
+            this entire <div> opposite the Source column, so Condition
+            / Current Value / Threshold / Label all stack vertically
+            beside the source-picker — instead of fighting the picker
+            for vertical real estate via the legacy auto-flow grid.
+          */}
+          <div class="alerts-add-form-right">
+            <label class="alerts-field">
+              <span class="alerts-field-label">Condition</span>
+              <select class="alerts-input" data-role="alerts-condition-select" required>
+                <option value="gt">Greater than (&gt;)</option>
+                <option value="gte" selected>At or above (&ge;)</option>
+                <option value="lt">Less than (&lt;)</option>
+                <option value="lte">At or below (&le;)</option>
+                <option value="crosses_above">Crosses above</option>
+                <option value="crosses_below">Crosses below</option>
+                <option value="change_above">Absolute change &gt;</option>
+              </select>
+            </label>
 
-          {/* Current-value readout. Appears once a real source is selected
-              (autocomplete pick, quick-start chip, deep-link prefill, or
-              the user typed a valid full ID). Spans both grid columns —
-              placed between the Source/Condition row and the Threshold/
-              Label row so the user can see the live magnitude + unit
-              right where they're about to type a threshold to compare
-              against. Hidden until a real source is picked so the form
-              keeps its compact 2-row shape for unselected state. */}
-          <div
-            class="alerts-current-value"
-            data-role="alerts-current-value"
-            hidden
-          >
-            <span class="alerts-current-value-label">Current value:</span>
-            <span class="alerts-current-value-readout" data-role="alerts-current-value-readout"></span>
-            <span class="alerts-current-value-asof muted" data-role="alerts-current-value-asof"></span>
+            {/* Current-value readout. Appears once a real source is selected
+                (picker click, quick-start chip, or deep-link prefill). Lives
+                in the right column above Threshold so the user can see the
+                live magnitude + unit right next to where they're typing a
+                threshold. Hidden until a source is picked. */}
+            <div
+              class="alerts-current-value"
+              data-role="alerts-current-value"
+              hidden
+            >
+              <span class="alerts-current-value-label">Current value:</span>
+              <span class="alerts-current-value-readout" data-role="alerts-current-value-readout"></span>
+              <span class="alerts-current-value-asof muted" data-role="alerts-current-value-asof"></span>
+            </div>
+
+            <label class="alerts-field">
+              <span class="alerts-field-label">Threshold</span>
+              <input
+                type="number"
+                class="alerts-input"
+                data-role="alerts-threshold-input"
+                step="any"
+                placeholder="4.0"
+                required
+              />
+              <span class="alerts-help">
+                In the source's native units. For <code>fred/cpi_yoy</code>
+                (a percent series), <code>4.0</code> means 4%. For a
+                rate-spread, the raw difference. Read the source page
+                if you're unsure.
+              </span>
+            </label>
+
+            <label class="alerts-field">
+              <span class="alerts-field-label">Label (optional)</span>
+              <input
+                type="text"
+                class="alerts-input"
+                data-role="alerts-label-input"
+                placeholder="Inflation > 4%"
+              />
+            </label>
           </div>
-
-          <label class="alerts-field">
-            <span class="alerts-field-label">Threshold</span>
-            <input
-              type="number"
-              class="alerts-input"
-              data-role="alerts-threshold-input"
-              step="any"
-              placeholder="4.0"
-              required
-            />
-            <span class="alerts-help">
-              In the source's native units. For <code>fred/cpi_yoy</code>
-              (a percent series), <code>4.0</code> means 4%. For a
-              rate-spread, the raw difference. Read the source page
-              if you're unsure.
-            </span>
-          </label>
-
-          <label class="alerts-field">
-            <span class="alerts-field-label">Label (optional)</span>
-            <input
-              type="text"
-              class="alerts-input"
-              data-role="alerts-label-input"
-              placeholder="Inflation > 4%"
-            />
-          </label>
 
           <div class="alerts-add-actions">
             <button type="submit" class="btn-primary" data-role="alerts-add-submit">
@@ -1045,18 +1051,46 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     background: #f5f3ec;
     border-color: rgba(55, 53, 47, 0.3);
   }
+  /* Two-column layout: the source picker takes the entire left
+     column (it's tall — search input + geo chips + tag chips +
+     scrollable results list). Every other field — condition,
+     current-value readout, threshold, label, message + Add button —
+     stacks in the right column. This stops the small Condition
+     dropdown from looking lonely opposite the full-height picker.
+     Layout collapses to single-column below 640px. */
   .alerts-add-form {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 18px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "source right"
+      "actions actions";
+    gap: 14px 24px;
     padding: 16px;
     border: 1px solid rgba(55, 53, 47, 0.12);
     border-radius: 4px;
     background: #fbfaf6;
+    align-items: start;
+  }
+  .alerts-field-source {
+    grid-area: source;
+  }
+  .alerts-add-form-right {
+    grid-area: right;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0; /* allow inputs to shrink rather than overflow */
+  }
+  .alerts-add-actions {
+    grid-area: actions;
   }
   @media (max-width: 640px) {
     .alerts-add-form {
       grid-template-columns: 1fr;
+      grid-template-areas:
+        "source"
+        "right"
+        "actions";
     }
   }
   .alerts-field {
