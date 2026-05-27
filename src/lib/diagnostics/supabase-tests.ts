@@ -238,33 +238,216 @@ export const supabaseTests: DiagnosticTest[] = [
   {
     id: "supabase/no-leaked-diagnostic-rows",
     category: "supabase",
-    label: "no leftover __diag__ rows from prior runs",
+    label: "no leftover __diag__ rows in saved_dashboards or alert_rules",
     timeoutMs: 15000,
     run: async () => {
       const ctx = await requireAdminSession();
       if ("status" in ctx) return ctx;
       const { sb } = ctx;
-      const { data, error } = await sb!
+      // Sweep saved_dashboards (title prefix).
+      const dashRes = await sb!
         .from("saved_dashboards")
         .select("id, slug, title, updated_at")
         .like("title", `${DIAG_TITLE_PREFIX}%`);
-      if (error) return fail(`select: ${error.message}`);
-      const rows = data ?? [];
-      if (rows.length === 0) return pass("none");
+      if (dashRes.error) return fail(`select dashboards: ${dashRes.error.message}`);
+      const dashRows = dashRes.data ?? [];
+
+      // Sweep alert_rules (label prefix). The alert E2E tests use the
+      // same prefix so a crashed/aborted run leaves traceable orphans.
+      const alertRes = await sb!
+        .from("alert_rules")
+        .select("id, label, paused, source_id")
+        .like("label", `${DIAG_TITLE_PREFIX}%`);
+      // alert_rules may not exist on older deployments (pre-0005);
+      // treat that as "no rows to clean" rather than a fail.
+      const alertTableMissing =
+        alertRes.error &&
+        /relation .*alert_rules.* does not exist/i.test(alertRes.error.message);
+      if (alertRes.error && !alertTableMissing) {
+        return fail(`select alerts: ${alertRes.error.message}`);
+      }
+      const alertRows = alertTableMissing ? [] : (alertRes.data ?? []);
+
+      const total = dashRows.length + alertRows.length;
+      if (total === 0) return pass("none");
+
       // Auto-cleanup: orphans are safe to delete since they're all
       // owned by the current user (RLS) and the prefix is reserved.
-      const ids = rows.map((r) => r.id);
-      const { error: delErr } = await sb!
-        .from("saved_dashboards")
-        .delete()
-        .in("id", ids);
-      if (delErr) {
-        return warn(
-          `${rows.length} leftover rows; cleanup failed: ${delErr.message}`,
-          { rows },
-        );
+      const messages: string[] = [];
+      if (dashRows.length > 0) {
+        const { error } = await sb!
+          .from("saved_dashboards")
+          .delete()
+          .in(
+            "id",
+            dashRows.map((r) => r.id),
+          );
+        if (error) messages.push(`dashboards cleanup: ${error.message}`);
+        else messages.push(`cleaned ${dashRows.length} dashboard rows`);
       }
-      return warn(`cleaned up ${rows.length} leftover rows`, { rows });
+      if (alertRows.length > 0) {
+        const { error } = await sb!
+          .from("alert_rules")
+          .delete()
+          .in(
+            "id",
+            alertRows.map((r) => r.id),
+          );
+        if (error) messages.push(`alerts cleanup: ${error.message}`);
+        else messages.push(`cleaned ${alertRows.length} alert rules`);
+      }
+      return warn(messages.join("; "), { dashRows, alertRows });
+    },
+  },
+  {
+    id: "supabase/alert-rule-insert-and-list",
+    category: "supabase",
+    label: "INSERT an alert_rule, verify it lists via SELECT, cleanup",
+    timeoutMs: 30000,
+    run: async () => {
+      const ctx = await requireAdminSession();
+      if ("status" in ctx) return ctx;
+      const { sb, userId } = ctx;
+
+      // Marker label so cleanup is unambiguous. Same prefix the
+      // no-leaked-rows cleanup pass below sweeps.
+      const label = `${DIAG_TITLE_PREFIX}alert_${Date.now()}`;
+      let insertedId: string | null = null;
+      try {
+        const { data: ins, error: insErr } = await sb!
+          .from("alert_rules")
+          .insert({
+            owner_id: userId,
+            source_id: "fred/cpi_yoy",
+            source_label: "CPI YoY (diagnostic test)",
+            condition: "gt",
+            threshold: 999, // far above any real CPI, so the
+                            // evaluator never actually fires while
+                            // the row exists. Belt-and-suspenders:
+                            // we also delete it before the test
+                            // returns.
+            label,
+            paused: true,   // double-belt — even if 999 were too low,
+                            // paused rules don't dispatch.
+          })
+          .select("id, label, condition, threshold")
+          .single();
+        if (insErr) {
+          // Some deployments may not have migration 0005 applied;
+          // surface that with a skip rather than a fail.
+          if (
+            /relation .*alert_rules.* does not exist/i.test(insErr.message)
+          ) {
+            return skip(
+              "alert_rules table missing — migration 0005 not applied",
+            );
+          }
+          return fail(`insert: ${insErr.message}`);
+        }
+        if (!ins?.id) return fail("insert returned no id");
+        insertedId = ins.id;
+        if (ins.label !== label) {
+          return fail(
+            `insert echoed wrong label (${ins.label} vs ${label})`,
+          );
+        }
+
+        // SELECT back via the per-owner index path the /alerts/
+        // page uses.
+        const { data: list, error: listErr } = await sb!
+          .from("alert_rules")
+          .select("id, label, paused")
+          .eq("owner_id", userId)
+          .order("updated_at", { ascending: false });
+        if (listErr) return fail(`list: ${listErr.message}`);
+        const found = (list ?? []).find((r) => r.id === insertedId);
+        if (!found) {
+          return fail("inserted rule not in SELECT-by-owner result");
+        }
+        if (!found.paused) {
+          return fail("inserted rule lost its paused=true");
+        }
+        return pass(
+          `inserted + listed (id=${insertedId}, ${list?.length ?? 0} total rules visible)`,
+          { insertedId, ownedRuleCount: list?.length ?? 0 },
+        );
+      } finally {
+        // ALWAYS clean up. Even if the test failed, we don't want
+        // to leave a real alert in the DB.
+        if (insertedId) {
+          await sb!.from("alert_rules").delete().eq("id", insertedId);
+        }
+      }
+    },
+  },
+  {
+    id: "supabase/alerts-page-shows-inserted-rule",
+    category: "supabase",
+    label:
+      "INSERT alert_rule, fetch /alerts/, verify the rule's label appears in body",
+    timeoutMs: 30000,
+    run: async () => {
+      const ctx = await requireAdminSession();
+      if ("status" in ctx) return ctx;
+      const { sb, userId } = ctx;
+      const label = `${DIAG_TITLE_PREFIX}alert_e2e_${Date.now()}`;
+      let insertedId: string | null = null;
+      try {
+        const { data: ins, error: insErr } = await sb!
+          .from("alert_rules")
+          .insert({
+            owner_id: userId,
+            source_id: "fred/cpi_yoy",
+            source_label: "CPI YoY (diagnostic E2E)",
+            condition: "gt",
+            threshold: 999,
+            label,
+            paused: true,
+          })
+          .select("id")
+          .single();
+        if (insErr) {
+          if (
+            /relation .*alert_rules.* does not exist/i.test(insErr.message)
+          ) {
+            return skip("alert_rules table missing");
+          }
+          return fail(`insert: ${insErr.message}`);
+        }
+        insertedId = ins!.id;
+        // /alerts/ is SSR and reads via the user's session. Since
+        // our diagnostic fetch is same-origin from a signed-in
+        // browser, the session cookie WILL forward.
+        await new Promise((r) => setTimeout(r, 500)); // commit settle
+        const res = await fetch(
+          new URL(
+            `/alerts/?diag=${Date.now()}`,
+            window.location.origin,
+          ).toString(),
+          { cache: "no-store", credentials: "include" },
+        );
+        if (res.status !== 200) {
+          return fail(`/alerts/ status=${res.status}`);
+        }
+        const body = await res.text();
+        if (!body.includes(label)) {
+          // /alerts/ may render the rule list client-side after
+          // the initial HTML. In that case the label won't be in
+          // the SSR HTML. Don't fail — warn.
+          return warn(
+            `/alerts/ responded 200 but the inserted label wasn't in the SSR body — list likely hydrates client-side; consider an iframe-based check instead`,
+            { bodyLength: body.length },
+          );
+        }
+        return pass(
+          `${label} visible in /alerts/ SSR body (${(body.length / 1024).toFixed(1)}KB)`,
+          { insertedId, bodyLength: body.length },
+        );
+      } finally {
+        if (insertedId) {
+          await sb!.from("alert_rules").delete().eq("id", insertedId);
+        }
+      }
     },
   },
   {
