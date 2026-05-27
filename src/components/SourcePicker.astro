@@ -1,0 +1,535 @@
+---
+/**
+ * SourcePicker — the canonical source-selection component for Tape.
+ *
+ * Per ~/.claude/projects/.../memory/feedback_source_selection.md, every
+ * source-picker surface in the app MUST use this component (composer's
+ * Sources tab, cc-modal chart-creator, alerts page, future surfaces).
+ * Do NOT build a parallel `<input>` + autocomplete pattern; the rule
+ * exists precisely to prevent that.
+ *
+ * What it ships:
+ *   - Search input (text matching against id + name + shortName + tags)
+ *   - Topical tag chips (rates, equity-index, single-name, macro, …)
+ *   - Source cards with name + short description + meta
+ *   - Hint cards (synthetic discoverability bridges from
+ *     src/lib/source-hints.ts) that engage relevant filter chips
+ *
+ * Coming in Phase 1b (next commit):
+ *   - Geo-chip popovers (metro / state+CD / country drill-downs)
+ *
+ * Coming in Phases 2-4:
+ *   - Mounted in compose.astro (Sources tab + cc-modal), alerts.astro
+ *
+ * # API
+ *
+ * Multiple instances on one page coexist via `instanceId`. State is
+ * scoped per-instance — selecting a tag chip in one mount doesn't
+ * affect the other.
+ *
+ * The component fetches /library.json on first mount and caches it
+ * on `window.__tapeSourcePickerLib` so 2nd+ mounts on the same page
+ * hit memory.
+ *
+ * Click events bubble up as a CustomEvent named `source-picker:pick`
+ * with `detail: { sourceId, source }`. Hosts listen via:
+ *
+ *   const root = document.querySelector("[data-spicker-instance='X']");
+ *   root.addEventListener("source-picker:pick", (e) => {
+ *     const { sourceId, source } = (e as CustomEvent).detail;
+ *     ...
+ *   });
+ *
+ * Hint-card clicks fire `source-picker:hint` instead — the host
+ * usually doesn't need to handle these (the component engages the
+ * appropriate filter chip itself) but they're exposed for analytics.
+ */
+interface Props {
+  /** Unique identifier on the page. Required when mounting multiple
+   *  instances; safe to set even on single-mount pages for
+   *  forward compatibility. */
+  instanceId: string;
+  /** Optional placeholder for the search input. */
+  searchPlaceholder?: string;
+  /** Optional CSS classes to add to the root container. */
+  rootClass?: string;
+  /** Hide the search input. Rare — use for tight modal layouts where
+   *  the host already provides a search surface. */
+  hideSearch?: boolean;
+}
+const {
+  instanceId,
+  searchPlaceholder = "Search sources by name, ticker, or tag…",
+  rootClass = "",
+  hideSearch = false,
+} = Astro.props;
+---
+
+<div
+  class={`source-picker ${rootClass}`}
+  data-spicker-instance={instanceId}
+>
+  {!hideSearch && (
+    <input
+      type="search"
+      class="source-picker-search"
+      data-spicker-role="search"
+      placeholder={searchPlaceholder}
+    />
+  )}
+  <!-- Tag-chip filter strip. Populated client-side once library.json
+       loads — tags are union of all sources' .tags arrays minus geo
+       tags (those become their own chips in Phase 1b). -->
+  <div class="source-picker-tags" data-spicker-role="tags"></div>
+  <!-- Results list. Renders source-cards + hint-cards. Initial copy
+       reads "Loading…" until the library.json fetch resolves. -->
+  <div class="source-picker-results" data-spicker-role="results">
+    <p class="muted small">Loading sources…</p>
+  </div>
+</div>
+
+<script>
+  import {
+    METRO_TAG,
+    metroTagsFor,
+    parseMetroSourceId,
+  } from "../lib/geographic-regions";
+  import { COUNTRY_TAG, parseCountrySourceId } from "../lib/countries";
+  import { CD_TAG, STATE_TAG } from "../lib/congressional-districts";
+
+  /**
+   * Source-side shape returned by /library.json. Mirrors the inline
+   * type compose.astro defines — kept in sync intentionally; if the
+   * library payload changes, both places update.
+   */
+  interface LibrarySource {
+    id?: string;
+    name: string;
+    shortName?: string;
+    description?: string;
+    kind?: string;
+    tags?: string[];
+    searchText?: string;
+    chip?: string;
+    order?: number;
+  }
+  interface LibraryPayload {
+    sources?: Record<string, LibrarySource>;
+    metros?: unknown;
+    countries?: unknown;
+    metroTag?: string;
+    countryTag?: string;
+  }
+
+  /** Per-instance state. Each SourcePicker mount keeps its own
+   *  filter/search state so multiple instances on the same page don't
+   *  cross-contaminate (the cc-modal can filter to metros without
+   *  affecting the main Sources tab). */
+  interface InstanceState {
+    root: HTMLElement;
+    instanceId: string;
+    searchQuery: string;
+    selectedTags: Set<string>;
+    /** Whether the user has interacted with this instance yet — gates
+     *  certain UI states (e.g. hint cards only show after a query). */
+    hasInteracted: boolean;
+  }
+  const instances = new Map<string, InstanceState>();
+
+  // Module-level library cache. The first mount fetches; later mounts
+  // (cc-modal opens after main page renders) share. Stashed on window
+  // so a soft hydration doesn't double-fetch.
+  type WindowWithCache = Window & {
+    __tapeSourcePickerLib?: Promise<LibraryPayload>;
+  };
+  async function loadLibrary(): Promise<LibraryPayload> {
+    const w = window as WindowWithCache;
+    if (w.__tapeSourcePickerLib) return w.__tapeSourcePickerLib;
+    const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+    w.__tapeSourcePickerLib = (async () => {
+      try {
+        const r = await fetch(`${base}/library.json`);
+        if (!r.ok) throw new Error(`library.json status=${r.status}`);
+        return (await r.json()) as LibraryPayload;
+      } catch (e) {
+        console.warn("[source-picker] library.json load failed:", e);
+        return { sources: {} };
+      }
+    })();
+    return w.__tapeSourcePickerLib;
+  }
+
+  /**
+   * Tags considered "geo" — these get their own chip row in Phase 1b
+   * and are excluded from the topical tag-chip strip so the user isn't
+   * confused by two routes to the same filter.
+   */
+  const GEO_TAGS: ReadonlySet<string> = new Set([
+    METRO_TAG,
+    COUNTRY_TAG,
+    CD_TAG,
+    STATE_TAG,
+    "us-county",
+  ]);
+
+  /** Apply current filter state to the library. Returns a sorted list
+   *  ready to render — hint cards at the top, then alphabetical by
+   *  name. */
+  function filteredSources(
+    state: InstanceState,
+    lib: LibraryPayload,
+  ): Array<LibrarySource & { id: string; tags: string[] }> {
+    const sources = lib.sources ?? {};
+    const q = state.searchQuery.trim().toLowerCase();
+    // Geo tags in selectedTags act as MASTER toggles — when CD_TAG is
+    // selected we'd want congressional-district sources to show, but
+    // the geo-chip filtering in Phase 1b handles drill-down. Treat
+    // them as no-ops here (the topical chips don't include them).
+    const tagsRequired = [...state.selectedTags].filter(
+      (t) => !GEO_TAGS.has(t),
+    );
+    const out: Array<LibrarySource & { id: string; tags: string[] }> = [];
+    for (const id of Object.keys(sources)) {
+      const src = sources[id];
+      const tags = src.tags ?? [];
+      let ok = true;
+      for (const t of tagsRequired) {
+        if (!tags.includes(t)) {
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) continue;
+      // Hint cards (synthetic discoverability cards from
+      // source-hints.ts): only show with a query. An unprompted
+      // library browse should be a clean list of real sources.
+      if (src.kind === "hint" && !q) continue;
+      if (q) {
+        const hay = (
+          src.searchText ??
+          src.name +
+            " " +
+            (src.shortName ?? "") +
+            " " +
+            id +
+            " " +
+            tags.join(" ")
+        ).toLowerCase();
+        if (!hay.includes(q)) continue;
+      }
+      out.push({ ...src, id, tags });
+    }
+    out.sort((a, b) => {
+      const aIsHint = a.kind === "hint";
+      const bIsHint = b.kind === "hint";
+      if (aIsHint && !bIsHint) return -1;
+      if (bIsHint && !aIsHint) return 1;
+      if (aIsHint && bIsHint) {
+        return (a.order ?? 0) - (b.order ?? 0);
+      }
+      return a.name.localeCompare(b.name);
+    });
+    return out;
+  }
+
+  /** Build the topical tag set from the library — union of all .tags,
+   *  minus geo tags. Sorted alphabetically for stable display order. */
+  function topicalTags(lib: LibraryPayload): string[] {
+    const seen = new Set<string>();
+    for (const id of Object.keys(lib.sources ?? {})) {
+      const src = lib.sources![id];
+      for (const t of src.tags ?? []) {
+        if (!GEO_TAGS.has(t)) seen.add(t);
+      }
+    }
+    return Array.from(seen).sort();
+  }
+
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderTagChips(state: InstanceState, lib: LibraryPayload): void {
+    const host = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='tags']",
+    );
+    if (!host) return;
+    const tags = topicalTags(lib);
+    const parts: string[] = [];
+    // "All" chip always first — clears the tag filter.
+    const allActive = state.selectedTags.size === 0;
+    parts.push(
+      `<button type="button" class="source-picker-chip${allActive ? " source-picker-chip-active" : ""}" data-spicker-tag="">All</button>`,
+    );
+    for (const tag of tags) {
+      const active = state.selectedTags.has(tag);
+      parts.push(
+        `<button type="button" class="source-picker-chip${active ? " source-picker-chip-active" : ""}" data-spicker-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`,
+      );
+    }
+    host.innerHTML = parts.join("");
+    // Per-chip click handlers (NOT delegated — same reasoning as
+    // /me/'s saved-dashboard renderer: re-rendering the strip would
+    // accumulate listeners on the parent otherwise).
+    host
+      .querySelectorAll<HTMLButtonElement>("[data-spicker-tag]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const tag = btn.dataset.spickerTag ?? "";
+          if (tag === "") {
+            // "All" chip — clear selection.
+            state.selectedTags.clear();
+          } else {
+            // Tag chip — toggle membership.
+            if (state.selectedTags.has(tag)) state.selectedTags.delete(tag);
+            else state.selectedTags.add(tag);
+          }
+          renderTagChips(state, lib);
+          renderResults(state, lib);
+        });
+      });
+  }
+
+  function renderResults(state: InstanceState, lib: LibraryPayload): void {
+    const host = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='results']",
+    );
+    if (!host) return;
+    const matches = filteredSources(state, lib);
+    if (matches.length === 0) {
+      // Empty-state copy matches the composer's. The mailto fallback
+      // is the documented escape hatch for "we don't have this source
+      // yet" — same address pattern as compose.astro's empty state.
+      host.innerHTML =
+        '<p class="muted small">No sources match. Feel free to request one at <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.</p>';
+      return;
+    }
+    const parts: string[] = [];
+    for (const s of matches) {
+      if (s.kind === "hint") {
+        // Hint card — different style + engages a filter chip on
+        // click rather than picking a source.
+        const chip = s.chip ?? "";
+        const desc = s.description
+          ? `<div class="source-picker-card-desc">${escapeHtml(s.description)}</div>`
+          : "";
+        parts.push(
+          `<button type="button" class="source-picker-card source-picker-card-hint" data-spicker-source-id="${escapeHtml(s.id)}" data-spicker-hint-chip="${escapeHtml(chip)}">` +
+            `<div class="source-picker-card-title"><span class="source-picker-card-hint-eyebrow">See also</span>${escapeHtml(s.name)}</div>` +
+            desc +
+            `</button>`,
+        );
+      } else {
+        // Real source card.
+        const desc = s.description
+          ? `<div class="source-picker-card-desc">${escapeHtml(s.description)}</div>`
+          : "";
+        const id = `<div class="source-picker-card-id muted small">${escapeHtml(s.id)}</div>`;
+        parts.push(
+          `<button type="button" class="source-picker-card" data-spicker-source-id="${escapeHtml(s.id)}">` +
+            `<div class="source-picker-card-title">${escapeHtml(s.name)}</div>` +
+            desc +
+            id +
+            `</button>`,
+        );
+      }
+    }
+    host.innerHTML = parts.join("");
+    // Per-button click handlers.
+    host
+      .querySelectorAll<HTMLButtonElement>("[data-spicker-source-id]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const sourceId = btn.dataset.spickerSourceId ?? "";
+          if (!sourceId) return;
+          const hintChip = btn.dataset.spickerHintChip;
+          if (hintChip != null) {
+            // Hint-card click: emit a 'hint' event for analytics, but
+            // primarily we engage the relevant filter chip. Phase 1b
+            // will wire the actual chip-engagement; for now this just
+            // dispatches the event.
+            state.root.dispatchEvent(
+              new CustomEvent("source-picker:hint", {
+                detail: { sourceId, chip: hintChip },
+                bubbles: true,
+              }),
+            );
+            return;
+          }
+          // Real source pick.
+          const source = lib.sources?.[sourceId];
+          state.root.dispatchEvent(
+            new CustomEvent("source-picker:pick", {
+              detail: { sourceId, source },
+              bubbles: true,
+            }),
+          );
+        });
+      });
+  }
+
+  /** Boot one instance. Idempotent — calling twice on the same root
+   *  is a no-op the second time. */
+  async function bootInstance(root: HTMLElement): Promise<void> {
+    const instanceId = root.dataset.spickerInstance ?? "";
+    if (!instanceId) {
+      console.warn("[source-picker] missing data-spicker-instance");
+      return;
+    }
+    if (instances.has(instanceId)) return; // already booted
+
+    const state: InstanceState = {
+      root,
+      instanceId,
+      searchQuery: "",
+      selectedTags: new Set(),
+      hasInteracted: false,
+    };
+    instances.set(instanceId, state);
+
+    // Wire search input.
+    const searchInput = root.querySelector<HTMLInputElement>(
+      "[data-spicker-role='search']",
+    );
+    searchInput?.addEventListener("input", () => {
+      state.searchQuery = searchInput.value;
+      state.hasInteracted = true;
+      // Library may not be loaded yet on first keystroke; load() is
+      // idempotent and the cached promise resolves immediately on
+      // 2nd+ awaits.
+      loadLibrary().then((lib) => renderResults(state, lib));
+    });
+
+    // Initial render. Awaits the library load, then renders chips +
+    // results once.
+    const lib = await loadLibrary();
+    renderTagChips(state, lib);
+    renderResults(state, lib);
+  }
+
+  // Boot every SourcePicker instance on the page when DOM is ready.
+  // Astro pages may include multiple instances (composer's main tab
+  // + cc-modal); each gets booted exactly once.
+  function bootAll(): void {
+    document
+      .querySelectorAll<HTMLElement>("[data-spicker-instance]")
+      .forEach((root) => {
+        // Boot async; errors logged but don't block other instances.
+        bootInstance(root).catch((e) =>
+          console.warn("[source-picker] boot failed:", e),
+        );
+      });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootAll);
+  } else {
+    bootAll();
+  }
+
+  // Suppress unused-import warnings for the geo libs imported above.
+  // Phase 1b will use them; importing now ensures the bundler ships
+  // them so 1b doesn't trigger a chunk-graph change.
+  void metroTagsFor;
+  void parseMetroSourceId;
+  void parseCountrySourceId;
+</script>
+
+<style is:global>
+  /* Scoped under .source-picker so multiple instances + the host
+     pages' own styling don't collide. Visual language matches the
+     composer's existing source-card / chip pattern — copy was lifted
+     and renamed to the spicker- prefix. */
+  .source-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .source-picker-search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: var(--radius-sm, 6px);
+    background: var(--color-white, #fff);
+    font-size: 14px;
+  }
+  .source-picker-search:focus {
+    outline: 2px solid var(--color-accent, #0F766E);
+    outline-offset: -1px;
+  }
+  .source-picker-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .source-picker-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: 999px;
+    background: var(--color-white, #fff);
+    color: var(--color-neutral-700, #444);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .source-picker-chip:hover {
+    background: var(--color-neutral-100, #f5f5f5);
+  }
+  .source-picker-chip-active {
+    background: var(--color-accent, #0F766E);
+    color: var(--color-white, #fff);
+    border-color: var(--color-accent, #0F766E);
+  }
+  .source-picker-results {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .source-picker-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm, 6px);
+    background: var(--color-white, #fff);
+    cursor: pointer;
+  }
+  .source-picker-card:hover {
+    background: var(--color-neutral-100, #f5f5f5);
+    border-color: rgba(55, 53, 47, 0.16);
+  }
+  .source-picker-card-title {
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .source-picker-card-desc {
+    font-size: 12px;
+    color: var(--color-neutral-600, #666);
+    margin-top: 2px;
+  }
+  .source-picker-card-id {
+    font-family: var(--font-mono, monospace);
+    margin-top: 4px;
+  }
+  /* Hint card — subtle visual distinction so users know it's not a
+     real source pick. */
+  .source-picker-card-hint {
+    border-style: dashed;
+    background: var(--color-neutral-50, #fafafa);
+  }
+  .source-picker-card-hint-eyebrow {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent, #0F766E);
+    margin-right: 6px;
+  }
+</style>
