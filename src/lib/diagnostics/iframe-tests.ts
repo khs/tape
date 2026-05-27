@@ -537,6 +537,117 @@ export const iframeTests: DiagnosticTest[] = [
     },
   },
   {
+    id: "iframe/visual-regression-fingerprint",
+    category: "iframe",
+    label:
+      "structural fingerprint of marquee pages (catches content loss / N^2 explosions)",
+    timeoutMs: 60000,
+    run: async (): Promise<DiagnosticResult> => {
+      // Pixel-perfect visual regression needs Playwright + baselines
+      // + diffing — too much infra for the value. This test takes a
+      // different approach: per-page STRUCTURAL fingerprints that
+      // catch the failure modes that matter most:
+      //
+      //   - A section silently disappears (tile count drops below
+      //     a known minimum)
+      //   - The DOM explodes via render loop (element count > 10x
+      //     expected)
+      //   - Page content collapses to empty (body text < threshold)
+      //
+      // Per-page floors below are conservative — they should pass
+      // with comfortable margin for every healthy state. If you
+      // intentionally drop a section or reduce content, bump the
+      // floor in the same commit.
+      const pages = [
+        { path: "/us-macro/", minTiles: 25, minSvgs: 25, minTextLen: 10000 },
+        { path: "/walkthrough/", minTiles: 15, minSvgs: 15, minTextLen: 8000 },
+        {
+          path: "/federal-budget/",
+          minTiles: 8,
+          minSvgs: 5,
+          minTextLen: 5000,
+        },
+      ];
+
+      const results: Array<{
+        path: string;
+        tileCount: number;
+        svgCount: number;
+        textLen: number;
+        elementCount: number;
+        passed: boolean;
+        issues: string[];
+      }> = [];
+
+      for (const p of pages) {
+        try {
+          const fp = await withHiddenIframe(
+            p.path,
+            5000,
+            (_win, doc) => ({
+              tileCount: doc.querySelectorAll(
+                "[data-chart-ref], .chart-tile, [data-choro='1']",
+              ).length,
+              svgCount: doc.querySelectorAll("svg").length,
+              textLen: (doc.body?.textContent ?? "").length,
+              elementCount: doc.querySelectorAll("*").length,
+            }),
+            { heightPx: 4500 },
+          );
+          const issues: string[] = [];
+          if (fp.tileCount < p.minTiles) {
+            issues.push(`tiles ${fp.tileCount} < min ${p.minTiles}`);
+          }
+          if (fp.svgCount < p.minSvgs) {
+            issues.push(`svgs ${fp.svgCount} < min ${p.minSvgs}`);
+          }
+          if (fp.textLen < p.minTextLen) {
+            issues.push(`textLen ${fp.textLen} < min ${p.minTextLen}`);
+          }
+          if (fp.elementCount > 50000) {
+            issues.push(
+              `elementCount ${fp.elementCount} > 50000 (render-loop?)`,
+            );
+          }
+          results.push({
+            path: p.path,
+            ...fp,
+            passed: issues.length === 0,
+            issues,
+          });
+        } catch (e) {
+          results.push({
+            path: p.path,
+            tileCount: 0,
+            svgCount: 0,
+            textLen: 0,
+            elementCount: 0,
+            passed: false,
+            issues: [`iframe load threw: ${(e as Error).message}`],
+          });
+        }
+      }
+
+      const failures = results.filter((r) => !r.passed);
+      if (failures.length > 0) {
+        return fail(
+          `${failures.length}/${results.length} pages below structural floor: ${failures.map((f) => `${f.path} [${f.issues.join(", ")}]`).join("; ")}`,
+          { results },
+        );
+      }
+      // Always carry the full fingerprint in `data` so the JSON
+      // appendix captures the trend even on a pass — comparing
+      // run-to-run is more useful than any single-run pass/fail.
+      const summary = results
+        .map(
+          (r) =>
+            `${r.path}: ${r.tileCount} tiles / ${r.svgCount} svgs / ${(r.textLen / 1024).toFixed(0)}KB text`,
+        )
+        .join("; ");
+      return pass(summary, { results });
+    },
+  },
+  {
     id: "iframe/composer-tile-drag-attribute",
     category: "iframe",
     label:
