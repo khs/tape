@@ -25,6 +25,7 @@ import {
 } from "../lib/county-sources";
 import { isVisibleChart } from "../lib/resolve-dashboard";
 import { synthesizeSourceHints } from "../lib/source-hints";
+import { computeTagCountsByGeo } from "../lib/tag-counts-precompute";
 
 /**
  * Lightweight CBSA-code → display-name lookup, parsed from the
@@ -477,6 +478,18 @@ export const GET: APIRoute = async () => {
     (sources as Record<string, unknown>)[h.id] = h;
   }
 
+  // Build-time precomputed tag-count contingency table for the
+  // SourcePicker's topical tag-chip strip. Without this, the strip
+  // showed GLOBAL counts that didn't react to geo-chip state (picking
+  // "Virginia" left "agriculture (12)" pinned even with zero VA ag
+  // sources). The picker reads `tagCountsByGeo[<bucketKey>]` to
+  // render chip counts that reflect the active geo filter — see
+  // src/lib/tag-counts-precompute.ts for the bucket-key conventions
+  // + branch logic, locked down in its sibling test file.
+  const tagCountsByGeo = computeTagCountsByGeo(
+    sources as Record<string, { tags?: string[]; kind?: string }>,
+  );
+
   const body = JSON.stringify({
     charts,
     sources,
@@ -484,6 +497,7 @@ export const GET: APIRoute = async () => {
     metroTag: METRO_TAG,
     countries,
     countryTag: COUNTRY_TAG,
+    tagCountsByGeo,
   });
   return new Response(body, {
     headers: {

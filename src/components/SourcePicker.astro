@@ -209,7 +209,9 @@ const extraSourcesJson = extraSources.length > 0
     unlockedMetrosForQuery,
     unlockedCountriesForQuery,
     unlockedStatesForQuery,
+    UNLOCK_QUERY_MIN_CHARS,
   } from "../lib/source-filters";
+  import { isMobileViewport } from "../lib/viewport";
 
   /**
    * Source-side shape returned by /library.json. Mirrors the inline
@@ -233,6 +235,13 @@ const extraSourcesJson = extraSources.length > 0
     countries?: Record<string, { name: string }>;
     metroTag?: string;
     countryTag?: string;
+    /** Build-time precomputed topical-tag counts per geo-filter
+     *  state. Keys: "__all" | "metro:<cbsa>" | "country:<code>" |
+     *  "cd:<state>:any" | "cd:<state>:state" | "cd:<state>:<dst>".
+     *  Multi-geo combinations are not precomputed; the picker falls
+     *  back to "__all" when more than one geo chip is active. Built
+     *  in src/pages/library.json.ts. */
+    tagCountsByGeo?: Record<string, Record<string, number>>;
   }
 
   /** Per-instance state. Each SourcePicker mount keeps its own
@@ -266,8 +275,18 @@ const extraSourcesJson = extraSources.length > 0
      *  client-side via the `source-picker:set-extra-sources` event.
      *  Rendered at the top of the results, above library sources. */
     extraSources: LibrarySource[];
+    /** Pending setTimeout id for the mobile debounce path, or null
+     *  when nothing scheduled. Cleared + replaced whenever a fresh
+     *  schedule call comes in mid-debounce. Used only by
+     *  scheduleRender — desktop bypasses this entirely. */
+    pendingScheduleId: number | null;
   }
   const instances = new Map<string, InstanceState>();
+  /** Debounce window on mobile between the last keystroke and the
+   *  filter/render pass. Imperceptible during a natural typing
+   *  burst, prevents per-keystroke re-walks of the source list on
+   *  low-end phones. Desktop bypasses this. */
+  const MOBILE_RENDER_DEBOUNCE_MS = 100;
 
   // Module-level library cache. The first mount fetches; later mounts
   // (cc-modal opens after main page renders) share. Stashed on window
@@ -452,19 +471,95 @@ const extraSourcesJson = extraSources.length > 0
     return out;
   }
 
-  /** Build the topical tag set from the library — union of all .tags,
-   *  minus geo tags. Returns each tag PLUS the number of library
-   *  sources carrying it, sorted alphabetically. The count is global
-   *  (across all sources) — it doesn't react to other filter state.
-   *  A future iteration could compute filter-aware counts (matters
-   *  most when a geo chip is active, where "single-name (35)" might
-   *  drop to "(2)" — but the count rebuild would have to happen on
-   *  every filter change).
+  /** Map current geo-chip state to the bucket key in
+   *  lib.tagCountsByGeo. Returns "__all" when no chip is active, OR
+   *  when MULTIPLE chips are active (the precompute doesn't carry
+   *  pairwise intersections to avoid combinatorial bucket explosion;
+   *  the "All" fallback is a deliberate simplification — multi-chip
+   *  selection is rare and the counts mostly serve as relative
+   *  hints, not exact totals). */
+  function geoFilterKey(state: InstanceState): string {
+    const chipsActive =
+      (state.selectedMetroCbsa ? 1 : 0) +
+      (state.selectedCountryCode ? 1 : 0) +
+      (state.cdState ? 1 : 0);
+    if (chipsActive !== 1) return "__all";
+    if (state.selectedMetroCbsa) return `metro:${state.selectedMetroCbsa}`;
+    if (state.selectedCountryCode) return `country:${state.selectedCountryCode}`;
+    if (state.cdState) {
+      if (state.cdDistrict === null) return `cd:${state.cdState}:any`;
+      if (state.cdDistrict === STATEWIDE_DISTRICT_CODE)
+        return `cd:${state.cdState}:state`;
+      return `cd:${state.cdState}:${state.cdDistrict}`;
+    }
+    return "__all";
+  }
+
+  /** Topical tag counts for the strip.
    *
-   *  Hint cards are excluded from the count even though they carry
-   *  topical tags — they're synthetic and don't represent a real
-   *  pickable source. */
-  function topicalTagCounts(lib: LibraryPayload): Array<{ tag: string; count: number }> {
+   *  Three paths, picked by query length:
+   *   1. Below the 4-char unlock threshold AND a single geo chip
+   *      (or no chip) is engaged → use the precomputed
+   *      `lib.tagCountsByGeo` bucket. O(1) — the common case.
+   *   2. At 4+ chars (unlock pattern fires) → walk
+   *      `filteredSources` and tally topical tags on the matching
+   *      set. This is the only way counts can reflect query-driven
+   *      geo unlocks (typing "virginia" surfaces VA sources via
+   *      the state-name unlock; the bucket has no key for that).
+   *      ~7–18 ms on a desktop V8 against the ~21 k-source
+   *      library. Mobile gets the debounced scheduler (see
+   *      scheduleRender) to absorb that cost without per-keystroke
+   *      jank.
+   *   3. Precomputed table missing (older deploy) → fall back to
+   *      the pre-precompute behavior (global walk, not filter-
+   *      aware). Should never run in practice.
+   *
+   *  Currently selected topical tags that aren't in the result set
+   *  still render with count 0 so the user can see what's active
+   *  and unselect it. */
+  function topicalTagCounts(
+    state: InstanceState,
+    lib: LibraryPayload,
+  ): Array<{ tag: string; count: number }> {
+    const trimmedQuery = state.searchQuery.trim();
+    // Path 2: query is in unlock range (or longer) — walk to get
+    // counts that match what the user sees in the results list.
+    if (trimmedQuery.length >= UNLOCK_QUERY_MIN_CHARS) {
+      const counts = new Map<string, number>();
+      // Re-uses filteredSources so the chip counts are guaranteed
+      // to match the rendered card list. Extras + hints are
+      // excluded from topical counts (extras are host-provided,
+      // hints are discoverability bridges — neither is a "real"
+      // pickable source for tag-count purposes).
+      const matches = filteredSources(state, lib);
+      for (const m of matches) {
+        if (m.kind === "hint") continue;
+        if (m.kind === "extra") continue;
+        for (const t of m.tags) {
+          if (isGeoTag(t)) continue;
+          counts.set(t, (counts.get(t) ?? 0) + 1);
+        }
+      }
+      for (const t of state.selectedTags) {
+        if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
+      }
+      return Array.from(counts.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => a.tag.localeCompare(b.tag));
+    }
+    // Path 1: cheap bucket lookup.
+    const key = geoFilterKey(state);
+    const bucket = lib.tagCountsByGeo?.[key];
+    if (bucket) {
+      const counts = new Map<string, number>(Object.entries(bucket));
+      for (const t of state.selectedTags) {
+        if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
+      }
+      return Array.from(counts.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => a.tag.localeCompare(b.tag));
+    }
+    // Path 3: legacy fallback — no precomputed table.
     const counts = new Map<string, number>();
     for (const id of Object.keys(lib.sources ?? {})) {
       const src = lib.sources![id];
@@ -473,6 +568,9 @@ const extraSourcesJson = extraSources.length > 0
         if (isGeoTag(t)) continue;
         counts.set(t, (counts.get(t) ?? 0) + 1);
       }
+    }
+    for (const t of state.selectedTags) {
+      if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
     }
     return Array.from(counts.entries())
       .map(([tag, count]) => ({ tag, count }))
@@ -492,7 +590,7 @@ const extraSourcesJson = extraSources.length > 0
       "[data-spicker-role='tags']",
     );
     if (!host) return;
-    const tagCounts = topicalTagCounts(lib);
+    const tagCounts = topicalTagCounts(state, lib);
     const totalCount = tagCounts.reduce((s, t) => s + t.count, 0);
     const parts: string[] = [];
     // "All" chip always first — clears the tag filter. The count
@@ -529,6 +627,71 @@ const extraSourcesJson = extraSources.length > 0
           renderResults(state, lib);
         });
       });
+  }
+
+  /** Geo state changed (chip picked/cleared, CD district changed,
+   *  hint card activated a chip). Re-render BOTH the tag chips
+   *  (counts depend on the active geo bucket) AND the results.
+   *  Centralized so every geo-state mutation funnels through one
+   *  helper rather than each site remembering to update both.
+   *
+   *  Chip-state changes are RARE compared to keystrokes (the user
+   *  clicks a chip ~once per session), so this stays synchronous
+   *  on both desktop and mobile — debouncing here would feel laggy
+   *  for no perf gain. The mobile-aware debounce is scoped to
+   *  search-input changes via scheduleRender. */
+  function applyGeoFilterChange(
+    state: InstanceState,
+    lib: LibraryPayload,
+  ): void {
+    renderTagChips(state, lib);
+    renderResults(state, lib);
+  }
+
+  /** Mobile-aware render scheduler for search-input keystrokes.
+   *
+   *  Desktop: run synchronously. Each keystroke fires a fresh
+   *  filteredSources walk + tag-count tally. On a fast desktop
+   *  V8 this is ~7–18 ms per keystroke against the production
+   *  21 k-source library — well below the 16.67 ms frame budget
+   *  for the average case, with the occasional one-frame stutter
+   *  on heavy unlocks (e.g. typing "virg" unlocks ~50 VA sources).
+   *
+   *  Mobile: 100 ms debounce. Each fresh keystroke cancels the
+   *  pending render and queues a new one. Mobile V8 is ~3–5×
+   *  slower, so a per-keystroke walk would land at ~25–50 ms +
+   *  GC pressure — definitely jank during a typing burst. The
+   *  100 ms window is short enough to feel responsive after the
+   *  user stops typing (humans typically pause >150 ms between
+   *  words) and long enough to absorb a single word's keystrokes
+   *  into one render.
+   *
+   *  Differentiator: 640 px CSS breakpoint via isMobileViewport.
+   *  Same one Chart.astro, ChartController, index.astro, etc.
+   *  use for layout — keeps behavioral + visual breakpoints in
+   *  lockstep. See src/lib/viewport.ts for the constant. */
+  function scheduleRender(
+    state: InstanceState,
+    lib: LibraryPayload,
+  ): void {
+    // Cancel any in-flight debounce — the newest call carries the
+    // latest state, which is the only one we want to render.
+    if (state.pendingScheduleId !== null) {
+      window.clearTimeout(state.pendingScheduleId);
+      state.pendingScheduleId = null;
+    }
+    if (!isMobileViewport()) {
+      // Desktop: synchronous, no debounce.
+      renderTagChips(state, lib);
+      renderResults(state, lib);
+      return;
+    }
+    // Mobile: queue a single delayed render.
+    state.pendingScheduleId = window.setTimeout(() => {
+      state.pendingScheduleId = null;
+      renderTagChips(state, lib);
+      renderResults(state, lib);
+    }, MOBILE_RENDER_DEBOUNCE_MS);
   }
 
   function renderResults(state: InstanceState, lib: LibraryPayload): void {
@@ -634,7 +797,7 @@ const extraSourcesJson = extraSources.length > 0
               state.cdDistrict = rest[1] ?? null;
               renderCdChip(state, lib);
             }
-            renderResults(state, lib);
+            applyGeoFilterChange(state, lib);
             return;
           }
           // Real source pick.
@@ -684,6 +847,7 @@ const extraSourcesJson = extraSources.length > 0
       hasInteracted: false,
       markedIds: new Set(),
       extraSources,
+      pendingScheduleId: null,
     };
     instances.set(instanceId, state);
 
@@ -708,14 +872,19 @@ const extraSourcesJson = extraSources.length > 0
       loadLibrary().then((lib) => renderResults(state, lib));
     }) as EventListener);
 
-    // Wire search input.
+    // Wire search input. Goes through the mobile-aware scheduler:
+    // on desktop the render fires immediately, on mobile it's
+    // debounced 100 ms so a typing burst doesn't grind through
+    // ~21 k sources per keystroke. The scheduler ALSO re-renders
+    // the tag chips (counts become query-aware once the query
+    // hits 4+ chars — see topicalTagCounts's path 2).
     const searchInput = root.querySelector<HTMLInputElement>(
       "[data-spicker-role='search']",
     );
     searchInput?.addEventListener("input", () => {
       state.searchQuery = searchInput.value;
       state.hasInteracted = true;
-      loadLibrary().then((lib) => renderResults(state, lib));
+      loadLibrary().then((lib) => scheduleRender(state, lib));
     });
 
     // Initial library load, then render every dependent UI piece.
@@ -867,7 +1036,7 @@ const extraSourcesJson = extraSources.length > 0
           true,
         );
         closeAllPopovers();
-        renderResults(state, lib);
+        applyGeoFilterChange(state, lib);
       });
     }
 
@@ -888,7 +1057,7 @@ const extraSourcesJson = extraSources.length > 0
       e.stopPropagation();
       state.selectedMetroCbsa = null;
       updateChipLabel(state, "metro", "US metro areas", false);
-      renderResults(state, lib);
+      applyGeoFilterChange(state, lib);
     });
 
     // ----- Country chip -----
@@ -926,7 +1095,7 @@ const extraSourcesJson = extraSources.length > 0
             true,
           );
           closeAllPopovers();
-          renderResults(state, lib);
+          applyGeoFilterChange(state, lib);
         },
       );
     }
@@ -945,7 +1114,7 @@ const extraSourcesJson = extraSources.length > 0
       e.stopPropagation();
       state.selectedCountryCode = null;
       updateChipLabel(state, "country", "Regions and countries", false);
-      renderResults(state, lib);
+      applyGeoFilterChange(state, lib);
     });
   }
 
@@ -997,7 +1166,7 @@ const extraSourcesJson = extraSources.length > 0
           state.cdDistrict = null;
           closeAllPopovers();
           renderCdChip(state, lib);
-          renderResults(state, lib);
+          applyGeoFilterChange(state, lib);
         });
       }
       chip?.addEventListener("click", () => {
@@ -1053,13 +1222,13 @@ const extraSourcesJson = extraSources.length > 0
     select?.addEventListener("change", () => {
       const v = select.value;
       state.cdDistrict = v === "__any__" ? null : v;
-      renderResults(state, lib);
+      applyGeoFilterChange(state, lib);
     });
     clear?.addEventListener("click", () => {
       state.cdState = null;
       state.cdDistrict = null;
       renderCdChip(state, lib);
-      renderResults(state, lib);
+      applyGeoFilterChange(state, lib);
     });
   }
 
