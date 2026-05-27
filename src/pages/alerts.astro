@@ -13,6 +13,7 @@
  * data refresh.
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SourcePicker from "../components/SourcePicker.astro";
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
@@ -134,23 +135,48 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       <section class="alerts-add">
         <h2 class="alerts-section-heading">Add rule</h2>
         <form class="alerts-add-form" data-role="alerts-add-form">
-          <label class="alerts-field">
+          {/*
+            Source field — migrated 2026-05-26 from bespoke <input> +
+            autocomplete <ul> to the shared SourcePicker component per
+            the feedback_source_selection.md rule. Picking a card in
+            the picker emits `source-picker:pick` on the picker root;
+            the page-level listener (in <script> below) updates the
+            hidden input + the "selected" display + triggers the
+            current-value readout fetch.
+
+            The hidden input keeps the existing form-submit contract:
+            wireForm reads sourceInput.value / .dataset.label without
+            change. wireQuickStart + the ?source=<id> deep-link path
+            programmatically set the same fields.
+          */}
+          <div class="alerts-field alerts-field-source">
             <span class="alerts-field-label">Source</span>
+            <div
+              class="alerts-source-selected"
+              data-role="alerts-source-selected"
+              hidden
+            >
+              <span
+                class="alerts-source-selected-name"
+                data-role="alerts-source-selected-name"
+              ></span>
+              <button
+                type="button"
+                class="alerts-source-clear"
+                data-role="alerts-source-clear"
+                aria-label="Clear source selection"
+              >&times;</button>
+            </div>
             <input
-              type="search"
-              class="alerts-input"
+              type="hidden"
               data-role="alerts-source-input"
-              placeholder="e.g. fred/cpi_yoy or fred/us_unemployment"
-              required
-              autocomplete="off"
             />
-            <ul class="alerts-source-list" data-role="alerts-source-list" hidden></ul>
-            <span class="alerts-help">
-              Type to search every series we ship. Use the
-              source ID (e.g. <code>fred/cpi_yoy</code>) — find it on
-              the chart dialog's "Source" line or any source page.
-            </span>
-          </label>
+            <SourcePicker
+              instanceId="alerts-source"
+              rootClass="alerts-source-picker"
+              searchPlaceholder="Search series — try 'cpi', '10y', 'unemployment'…"
+            />
+          </div>
 
           <label class="alerts-field">
             <span class="alerts-field-label">Condition</span>
@@ -335,7 +361,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
     const form = document.querySelector<HTMLFormElement>("[data-role='alerts-add-form']");
     const sourceInput = document.querySelector<HTMLInputElement>("[data-role='alerts-source-input']");
-    const sourceList = document.querySelector<HTMLElement>("[data-role='alerts-source-list']");
+    // Note: the legacy `alerts-source-list` autocomplete <ul> was
+    // removed when SourcePicker took over. Don't reintroduce — the
+    // feedback_source_selection.md rule applies.
     const conditionSelect = document.querySelector<HTMLSelectElement>("[data-role='alerts-condition-select']");
     const thresholdInput = document.querySelector<HTMLInputElement>("[data-role='alerts-threshold-input']");
     const labelInput = document.querySelector<HTMLInputElement>("[data-role='alerts-label-input']");
@@ -384,18 +412,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // the source field already populated.
       const params = new URLSearchParams(window.location.search);
       const presetSource = params.get("source");
-      if (presetSource && sourceInput) {
-        sourceInput.value = presetSource;
-        sourceInput.dataset.label =
+      if (presetSource) {
+        const label =
           allSources.find((s) => s.id === presetSource)?.name ?? presetSource;
-        void refreshCurrentValue(presetSource);
+        setSelectedSource(presetSource, label);
       }
     }
 
-    // ---------- Source autocomplete ----------
-    // Pulls library.json once; the type-ahead matches against id +
-    // name + shortName + tags. Source list is ~21k entries — slim
-    // it before binding to the DOM.
+    // ---------- Source catalog + SourcePicker wiring ----------
+    // The shared SourcePicker component handles the picker UI; we
+    // still keep a local `allSources` array for refreshCurrentValue +
+    // wireQuickStart + the deep-link prefill, which need to look up
+    // a source's dataFile/formatting by id. Two fetches happen in
+    // parallel (picker + this) — both hit the browser cache for the
+    // 2nd, so cost is negligible.
     let allSources: LibrarySource[] = [];
 
     async function loadSourceCatalog(): Promise<void> {
@@ -410,67 +440,67 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
     }
 
-    function renderSourceSuggestions(query: string): void {
-      if (!sourceList) return;
-      const q = query.trim().toLowerCase();
-      if (q.length < 2) {
-        sourceList.hidden = true;
-        sourceList.innerHTML = "";
-        return;
+    /**
+     * Wire the SourcePicker's `source-picker:pick` event to the
+     * hidden form input + the "currently selected" display + the
+     * current-value readout fetch. Pulled out as a helper so the
+     * quick-start chip + deep-link prefill can call it
+     * programmatically — they bypass the picker UI but should
+     * still update the same DOM state a real pick would.
+     */
+    const sourceSelected = document.querySelector<HTMLElement>(
+      "[data-role='alerts-source-selected']",
+    );
+    const sourceSelectedName = document.querySelector<HTMLElement>(
+      "[data-role='alerts-source-selected-name']",
+    );
+    const sourceClearBtn = document.querySelector<HTMLButtonElement>(
+      "[data-role='alerts-source-clear']",
+    );
+
+    function setSelectedSource(id: string, label: string): void {
+      if (!sourceInput) return;
+      sourceInput.value = id;
+      sourceInput.dataset.label = label;
+      if (sourceSelected && sourceSelectedName) {
+        if (id) {
+          sourceSelectedName.textContent = label || id;
+          sourceSelected.hidden = false;
+        } else {
+          sourceSelected.hidden = true;
+          sourceSelectedName.textContent = "";
+        }
       }
-      const matches = allSources
-        .filter((s) => {
-          if (s.id.toLowerCase().includes(q)) return true;
-          if ((s.name ?? "").toLowerCase().includes(q)) return true;
-          if ((s.shortName ?? "").toLowerCase().includes(q)) return true;
-          return false;
-        })
-        .slice(0, 20);
-      if (matches.length === 0) {
-        // Surface the "request one at <email>" fallback in the
-        // autocomplete dropdown when a search query returns no
-        // results — same pattern the composer's Sources tab uses
-        // (compose.astro). Without this the dropdown just silently
-        // disappears, leaving the user unsure whether they typed
-        // the wrong thing or the source genuinely doesn't exist.
-        sourceList.innerHTML =
-          '<li class="alerts-suggest-empty"><span class="alerts-suggest-name">No sources match.</span> <span class="alerts-suggest-id">Feel free to request one at <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.</span></li>';
-        sourceList.hidden = false;
-        return;
-      }
-      sourceList.innerHTML = matches
-        .map(
-          (s) =>
-            `<li data-source-id="${escapeAttr(s.id)}" data-source-label="${escapeAttr(s.name ?? s.id)}">
-              <span class="alerts-suggest-name">${escapeHtml(s.name ?? s.id)}</span>
-              <span class="alerts-suggest-id">${escapeHtml(s.id)}</span>
-            </li>`,
-        )
-        .join("");
-      sourceList.hidden = false;
+      void refreshCurrentValue(id);
     }
 
-    sourceInput?.addEventListener("input", () => {
-      renderSourceSuggestions(sourceInput.value);
+    function clearSelectedSource(): void {
+      setSelectedSource("", "");
+      if (currentValueWrap) currentValueWrap.hidden = true;
+    }
+
+    // Listener on the picker root. The picker dispatches a bubbling
+    // CustomEvent named `source-picker:pick` with detail.{sourceId,
+    // source}; we transform that into our local selection state.
+    const pickerRoot = document.querySelector<HTMLElement>(
+      "[data-spicker-instance='alerts-source']",
+    );
+    pickerRoot?.addEventListener("source-picker:pick", (e) => {
+      const detail = (e as CustomEvent).detail as {
+        sourceId?: string;
+        source?: { name?: string };
+      };
+      const id = detail?.sourceId ?? "";
+      const label = detail?.source?.name ?? id;
+      setSelectedSource(id, label);
     });
-    sourceInput?.addEventListener("focus", () => {
-      if (sourceInput.value.trim().length >= 2)
-        renderSourceSuggestions(sourceInput.value);
-    });
-    sourceInput?.addEventListener("blur", () => {
-      // Delay so clicks on the dropdown have time to register
-      // before the dropdown is hidden.
-      setTimeout(() => {
-        if (sourceList) sourceList.hidden = true;
-      }, 150);
-    });
-    sourceList?.addEventListener("click", (e) => {
-      const li = (e.target as HTMLElement).closest("li");
-      if (!li || !sourceInput) return;
-      sourceInput.value = li.dataset.sourceId ?? "";
-      sourceInput.dataset.label = li.dataset.sourceLabel ?? li.dataset.sourceId ?? "";
-      if (sourceList) sourceList.hidden = true;
-      void refreshCurrentValue(sourceInput.value);
+
+    // Clear button on the "selected" display: empties the form's
+    // hidden input + hides the readout. Doesn't reset the picker's
+    // filter state — the user might want to pick another source from
+    // the same search.
+    sourceClearBtn?.addEventListener("click", () => {
+      clearSelectedSource();
     });
 
     // ---------- Current-value readout ----------
@@ -551,25 +581,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
     }
 
-    // Also recompute on every keystroke so paste/typed exact IDs surface
-    // immediately, and on blur so a partial typed match resolves once the
-    // input loses focus. Both are cheap because of summaryCache.
-    sourceInput?.addEventListener("change", () => {
-      void refreshCurrentValue(sourceInput.value);
-    });
-    sourceInput?.addEventListener("input", () => {
-      // Only fire when the typed value exactly matches a known source id —
-      // avoids fetching for every partial-typed character. The autocomplete
-      // pick + quickstart + deep-link paths all set the value programmatic-
-      // ally and call refreshCurrentValue directly, so this branch is just
-      // for the rare case of a user pasting/typing the full ID.
-      const id = sourceInput.value.trim();
-      if (id && allSources.some((s) => s.id === id)) {
-        void refreshCurrentValue(id);
-      } else if (!id) {
-        if (currentValueWrap) currentValueWrap.hidden = true;
-      }
-    });
+    // Note: legacy "type the full source ID" input/change listeners
+    // were removed when SourcePicker took over — the hidden input no
+    // longer accepts user keystrokes. All source picks now flow
+    // through setSelectedSource (picker click, quick-start chip, or
+    // deep-link URL ?source=<id>), which already calls
+    // refreshCurrentValue.
 
     // ---------- Rules CRUD ----------
     async function loadRules(stored: NonNullable<ReturnType<typeof readStoredSession>>): Promise<void> {
@@ -869,11 +886,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         });
         if (res.ok) {
           addMsg.textContent = "Saved.";
-          sourceInput.value = "";
-          sourceInput.dataset.label = "";
+          // Use clearSelectedSource so the "selected" display hides
+          // alongside the hidden input + current-value readout reset.
+          // Doesn't clear the picker's filter state — the user might
+          // want to add a second alert on a related source from the
+          // same search.
+          clearSelectedSource();
           thresholdInput.value = "";
           labelInput.value = "";
-          if (currentValueWrap) currentValueWrap.hidden = true;
           setTimeout(() => {
             if (addMsg) addMsg.textContent = "";
           }, 2000);
@@ -894,11 +914,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       );
       chips.forEach((chip) => {
         chip.addEventListener("click", () => {
-          if (sourceInput) {
-            sourceInput.value = chip.dataset.source ?? "";
-            sourceInput.dataset.label = chip.dataset.sourceLabel ?? "";
-            void refreshCurrentValue(sourceInput.value);
-          }
+          // Use the shared setter so the hidden input + "selected"
+          // display + current-value readout all update together.
+          // Same path the picker click takes — keeps the two flows
+          // observably identical.
+          setSelectedSource(
+            chip.dataset.source ?? "",
+            chip.dataset.sourceLabel ?? "",
+          );
           if (conditionSelect) {
             conditionSelect.value = chip.dataset.condition ?? "gte";
           }
@@ -1104,52 +1127,51 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: #6f6c66;
     margin-left: auto;
   }
-  .alerts-source-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 2px 0 0;
-    padding: 0;
-    list-style: none;
-    background: #fff;
-    border: 1px solid rgba(55, 53, 47, 0.2);
-    border-radius: 3px;
-    max-height: 280px;
-    overflow-y: auto;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(55, 53, 47, 0.08);
-  }
-  .alerts-source-list li {
-    display: flex;
-    flex-direction: column;
-    padding: 6px 10px;
-    cursor: pointer;
-    border-bottom: 1px solid rgba(55, 53, 47, 0.06);
-  }
-  .alerts-source-list li:hover {
-    background: #f5f3ec;
-  }
-  /* Empty-state row: no hover-cursor, no bg flash. The mailto inside
-     it is still clickable; this just signals that the row itself
-     isn't a source you can pick. */
-  .alerts-source-list li.alerts-suggest-empty,
-  .alerts-source-list li.alerts-suggest-empty:hover {
-    cursor: default;
-    background: transparent;
-  }
-  .alerts-source-list li.alerts-suggest-empty a {
-    color: var(--color-accent, #0F766E);
-    text-decoration: underline;
-  }
-  .alerts-suggest-name {
+  /* "Currently selected source" display — shows the user which
+     source they just picked from the SourcePicker, with a clear-X
+     to reset. Sits between the field label and the picker. The
+     hidden input (data-role='alerts-source-input') is what the form
+     submit reads; this display is purely visual feedback. */
+  .alerts-source-selected {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px 4px 10px;
+    margin-bottom: 8px;
+    background: var(--color-accent, #0F766E);
+    color: #fff;
+    border-radius: 999px;
     font-size: 13px;
-    color: #1c1c1a;
+    max-width: 100%;
+    box-sizing: border-box;
   }
-  .alerts-suggest-id {
-    font-size: 11px;
-    color: #6f6c66;
-    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  .alerts-source-selected-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .alerts-source-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 0;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .alerts-source-clear:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  /* The picker's own results list should respect the alerts page's
+     compact layout — cap height so the form stays usable. */
+  .alerts-source-picker .source-picker-results {
+    max-height: 360px;
   }
   .alerts-add-actions {
     grid-column: 1 / -1;
