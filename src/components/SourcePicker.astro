@@ -77,9 +77,89 @@ const {
       placeholder={searchPlaceholder}
     />
   )}
+  <!-- Geo-chip strip: three chips (metro / state+CD / country),
+       each with a popover that contains a search input + selectable
+       list. Order matches the composer (metro, CD, country). The
+       CD-host gets filled dynamically because CD has a two-step
+       drill-down (state → district). -->
+  <div class="source-picker-geo-chips" data-spicker-role="geo-chips">
+    <div class="source-picker-geo-chip-wrap">
+      <button
+        type="button"
+        class="source-picker-geo-chip"
+        data-spicker-role="metro-chip"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+      >
+        <span data-spicker-role="metro-label">US metro areas &#9662;</span>
+        <span
+          class="source-picker-geo-chip-clear"
+          data-spicker-role="metro-clear"
+          hidden
+          aria-label="Clear metro filter">&times;</span>
+      </button>
+      <div
+        class="source-picker-geo-popover"
+        data-spicker-role="metro-popover"
+        role="listbox"
+        hidden
+      >
+        <input
+          type="search"
+          class="source-picker-geo-search"
+          data-spicker-role="metro-search"
+          placeholder="Search metros…"
+          aria-label="Search metros"
+        />
+        <div
+          class="source-picker-geo-list"
+          data-spicker-role="metro-list"
+        ></div>
+      </div>
+    </div>
+    <div
+      class="source-picker-geo-cd-host"
+      data-spicker-role="cd-host"
+    ></div>
+    <div class="source-picker-geo-chip-wrap">
+      <button
+        type="button"
+        class="source-picker-geo-chip"
+        data-spicker-role="country-chip"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+      >
+        <span data-spicker-role="country-label"
+          >Regions and countries &#9662;</span>
+        <span
+          class="source-picker-geo-chip-clear"
+          data-spicker-role="country-clear"
+          hidden
+          aria-label="Clear country filter">&times;</span>
+      </button>
+      <div
+        class="source-picker-geo-popover"
+        data-spicker-role="country-popover"
+        role="listbox"
+        hidden
+      >
+        <input
+          type="search"
+          class="source-picker-geo-search"
+          data-spicker-role="country-search"
+          placeholder="Search regions + countries…"
+          aria-label="Search regions + countries"
+        />
+        <div
+          class="source-picker-geo-list"
+          data-spicker-role="country-list"
+        ></div>
+      </div>
+    </div>
+  </div>
   <!-- Tag-chip filter strip. Populated client-side once library.json
        loads — tags are union of all sources' .tags arrays minus geo
-       tags (those become their own chips in Phase 1b). -->
+       tags (those have their own chips above). -->
   <div class="source-picker-tags" data-spicker-role="tags"></div>
   <!-- Results list. Renders source-cards + hint-cards. Initial copy
        reads "Loading…" until the library.json fetch resolves. -->
@@ -89,13 +169,19 @@ const {
 </div>
 
 <script>
+  import { METRO_TAG } from "../lib/geographic-regions";
+  import { COUNTRY_TAG } from "../lib/countries";
   import {
-    METRO_TAG,
-    metroTagsFor,
-    parseMetroSourceId,
-  } from "../lib/geographic-regions";
-  import { COUNTRY_TAG, parseCountrySourceId } from "../lib/countries";
-  import { CD_TAG, STATE_TAG } from "../lib/congressional-districts";
+    CD_TAG,
+    STATE_TAG,
+    STATEWIDE_DISTRICT_CODE,
+    US_STATES,
+    parseCdSourceId,
+    parseStateSourceId,
+    stateNameFor,
+    formatCdShortLabel,
+  } from "../lib/congressional-districts";
+  import { COUNTY_TAG, parseCountySourceId } from "../lib/county-sources";
 
   /**
    * Source-side shape returned by /library.json. Mirrors the inline
@@ -115,8 +201,8 @@ const {
   }
   interface LibraryPayload {
     sources?: Record<string, LibrarySource>;
-    metros?: unknown;
-    countries?: unknown;
+    metros?: Record<string, { shortName: string; name: string }>;
+    countries?: Record<string, { name: string }>;
     metroTag?: string;
     countryTag?: string;
   }
@@ -130,6 +216,15 @@ const {
     instanceId: string;
     searchQuery: string;
     selectedTags: Set<string>;
+    /** Selected CBSA code for the metro chip, or null = chip inactive. */
+    selectedMetroCbsa: string | null;
+    /** Selected country/region code, or null = chip inactive. */
+    selectedCountryCode: string | null;
+    /** CD chip's state-FIPS pick. null = chip inactive. */
+    cdState: string | null;
+    /** CD chip's district code OR STATEWIDE_DISTRICT_CODE. null = "any
+     *  district within the picked state". */
+    cdDistrict: string | null;
     /** Whether the user has interacted with this instance yet — gates
      *  certain UI states (e.g. hint cards only show after a query). */
     hasInteracted: boolean;
@@ -160,17 +255,196 @@ const {
   }
 
   /**
-   * Tags considered "geo" — these get their own chip row in Phase 1b
-   * and are excluded from the topical tag-chip strip so the user isn't
-   * confused by two routes to the same filter.
+   * Tags considered "geo" — get their own chip row, excluded from the
+   * topical tag-chip strip so the user isn't confused by two routes
+   * to the same filter.
    */
   const GEO_TAGS: ReadonlySet<string> = new Set([
     METRO_TAG,
     COUNTRY_TAG,
     CD_TAG,
     STATE_TAG,
-    "us-county",
+    COUNTY_TAG,
   ]);
+
+  // ---------- Geo-filter helpers (ported from compose.astro) ----------
+  //
+  // Same semantics as compose.astro's passesMetroFilter /
+  // passesCountryFilter / passesCdFilter / passesCountyFilter — just
+  // accept the library payload as a parameter rather than reading from
+  // closure. When Phase 5 ports compose.astro to use SourcePicker, the
+  // originals there can be deleted.
+  //
+  // Each function returns true if the source SHOULD be kept under the
+  // current filter state.
+
+  /** Set of state codes (2-letter) whose name matches the query (≥ 4
+   *  chars). Lets typing "Texas" surface TX state-level + CD sources
+   *  even when the CD chip is inactive. Per-instance memoized. */
+  const stateUnlockCache = new WeakMap<
+    InstanceState,
+    { q: string; result: Set<string> | null }
+  >();
+  function unlockedStatesForQuery(
+    state: InstanceState,
+    q: string,
+  ): Set<string> | null {
+    const cached = stateUnlockCache.get(state);
+    if (cached && cached.q === q) return cached.result;
+    let result: Set<string> | null = null;
+    if (q.length >= 4) {
+      const matched = new Set<string>();
+      const ql = q.toLowerCase();
+      for (const s of US_STATES) {
+        if (s.name.toLowerCase().includes(ql)) matched.add(s.code);
+      }
+      if (matched.size > 0) result = matched;
+    }
+    stateUnlockCache.set(state, { q, result });
+    return result;
+  }
+
+  /** Set of metro CBSA tags unlocked by a ≥ 4-char query that matches
+   *  the metro's name. Per-instance memoized. */
+  const metroUnlockCache = new WeakMap<
+    InstanceState,
+    { q: string; result: Set<string> | null }
+  >();
+  function unlockedMetrosForQuery(
+    state: InstanceState,
+    q: string,
+    lib: LibraryPayload,
+  ): Set<string> | null {
+    const cached = metroUnlockCache.get(state);
+    if (cached && cached.q === q) return cached.result;
+    let result: Set<string> | null = null;
+    if (q.length >= 4 && lib.metros) {
+      const matched = new Set<string>();
+      const ql = q.toLowerCase();
+      for (const [code, entry] of Object.entries(lib.metros)) {
+        const hay = (entry.shortName + " " + entry.name).toLowerCase();
+        if (hay.includes(ql)) matched.add(`${METRO_TAG}:${code}`);
+      }
+      if (matched.size > 0) result = matched;
+    }
+    metroUnlockCache.set(state, { q, result });
+    return result;
+  }
+
+  const countryUnlockCache = new WeakMap<
+    InstanceState,
+    { q: string; result: Set<string> | null }
+  >();
+  function unlockedCountriesForQuery(
+    state: InstanceState,
+    q: string,
+    lib: LibraryPayload,
+  ): Set<string> | null {
+    const cached = countryUnlockCache.get(state);
+    if (cached && cached.q === q) return cached.result;
+    let result: Set<string> | null = null;
+    if (q.length >= 4 && lib.countries) {
+      const matched = new Set<string>();
+      const ql = q.toLowerCase();
+      for (const [code, entry] of Object.entries(lib.countries)) {
+        if (entry.name.toLowerCase().includes(ql)) {
+          matched.add(`${COUNTRY_TAG}:${code}`);
+        }
+      }
+      if (matched.size > 0) result = matched;
+    }
+    countryUnlockCache.set(state, { q, result });
+    return result;
+  }
+
+  function passesMetroFilter(
+    state: InstanceState,
+    sTags: string[],
+    query: string,
+    lib: LibraryPayload,
+  ): boolean {
+    if (state.selectedMetroCbsa) {
+      return sTags.includes(`${METRO_TAG}:${state.selectedMetroCbsa}`);
+    }
+    const hasMetroTag = sTags.some(
+      (t) => t === METRO_TAG || t.startsWith(`${METRO_TAG}:`),
+    );
+    if (!hasMetroTag) return true;
+    const unlock = unlockedMetrosForQuery(state, query, lib);
+    if (!unlock) return false;
+    for (const t of sTags) {
+      if (unlock.has(t)) return true;
+    }
+    return false;
+  }
+
+  function passesCountryFilter(
+    state: InstanceState,
+    sTags: string[],
+    query: string,
+    lib: LibraryPayload,
+  ): boolean {
+    if (state.selectedCountryCode) {
+      return sTags.includes(`${COUNTRY_TAG}:${state.selectedCountryCode}`);
+    }
+    if (!sTags.includes(COUNTRY_TAG)) return true;
+    const unlock = unlockedCountriesForQuery(state, query, lib);
+    if (!unlock) return false;
+    for (const t of sTags) {
+      if (unlock.has(t)) return true;
+    }
+    return false;
+  }
+
+  function passesCdFilter(
+    state: InstanceState,
+    id: string,
+    tags: string[],
+    query: string,
+  ): boolean {
+    const isCd = tags.includes(CD_TAG);
+    const isStateLevel = tags.includes(STATE_TAG);
+    const isGeo = isCd || isStateLevel;
+    // Chip "inactive" = cdState is null. Geo sources need to be
+    // either hidden (no query) or unlocked by typed state name.
+    if (!state.cdState) {
+      if (!isGeo) return true;
+      const unlock = unlockedStatesForQuery(state, query);
+      if (!unlock) return false;
+      const parsed = isCd ? parseCdSourceId(id) : parseStateSourceId(id);
+      return !!parsed && unlock.has(parsed.state);
+    }
+    // Chip active. Non-geo sources are filtered out.
+    if (!isGeo) return false;
+    if (state.cdDistrict === STATEWIDE_DISTRICT_CODE) {
+      if (!isStateLevel) return false;
+      return parseStateSourceId(id)?.state === state.cdState;
+    }
+    if (state.cdDistrict) {
+      if (!isCd) return false;
+      const parsed = parseCdSourceId(id);
+      return (
+        parsed?.state === state.cdState &&
+        parsed?.district === state.cdDistrict
+      );
+    }
+    // District unset = "All": both state-level + CDs of that state.
+    if (isStateLevel) return parseStateSourceId(id)?.state === state.cdState;
+    if (isCd) return parseCdSourceId(id)?.state === state.cdState;
+    return false;
+  }
+
+  function passesCountyFilter(
+    id: string,
+    sTags: string[],
+    query: string,
+  ): boolean {
+    if (!sTags.includes(COUNTY_TAG)) return true;
+    if (query.length < 4) return false;
+    const parsed = parseCountySourceId(id);
+    if (!parsed) return false;
+    return parsed.countyName.toLowerCase().includes(query.toLowerCase());
+  }
 
   /** Apply current filter state to the library. Returns a sorted list
    *  ready to render — hint cards at the top, then alphabetical by
@@ -181,10 +455,6 @@ const {
   ): Array<LibrarySource & { id: string; tags: string[] }> {
     const sources = lib.sources ?? {};
     const q = state.searchQuery.trim().toLowerCase();
-    // Geo tags in selectedTags act as MASTER toggles — when CD_TAG is
-    // selected we'd want congressional-district sources to show, but
-    // the geo-chip filtering in Phase 1b handles drill-down. Treat
-    // them as no-ops here (the topical chips don't include them).
     const tagsRequired = [...state.selectedTags].filter(
       (t) => !GEO_TAGS.has(t),
     );
@@ -200,9 +470,12 @@ const {
         }
       }
       if (!ok) continue;
-      // Hint cards (synthetic discoverability cards from
-      // source-hints.ts): only show with a query. An unprompted
-      // library browse should be a clean list of real sources.
+      if (!passesCdFilter(state, id, tags, q)) continue;
+      if (!passesMetroFilter(state, tags, q, lib)) continue;
+      if (!passesCountryFilter(state, tags, q, lib)) continue;
+      if (!passesCountyFilter(id, tags, q)) continue;
+      // Hint cards: only show with a query. An unprompted library
+      // browse should be a clean list of real sources.
       if (src.kind === "hint" && !q) continue;
       if (q) {
         const hay = (
@@ -348,16 +621,47 @@ const {
           if (!sourceId) return;
           const hintChip = btn.dataset.spickerHintChip;
           if (hintChip != null) {
-            // Hint-card click: emit a 'hint' event for analytics, but
-            // primarily we engage the relevant filter chip. Phase 1b
-            // will wire the actual chip-engagement; for now this just
-            // dispatches the event.
+            // Hint-card click: engage the relevant filter chip + also
+            // dispatch a `source-picker:hint` event so hosts can hook
+            // analytics. The chip-engagement logic mirrors
+            // compose.astro's hint-card behavior — the hint's `chip`
+            // field tells us which chip to activate. Format examples:
+            //   "metro:10180"           → metro chip, CBSA Abilene
+            //   "country:AUS"           → country chip, Australia
+            //   "cd:VA:8"               → CD chip, VA-08
+            //   "cd:VA:__state__"       → CD chip, VA statewide
+            //   "cd:VA"                 → CD chip, VA (any district)
             state.root.dispatchEvent(
               new CustomEvent("source-picker:hint", {
                 detail: { sourceId, chip: hintChip },
                 bubbles: true,
               }),
             );
+            if (hintChip.startsWith("metro:")) {
+              const code = hintChip.slice("metro:".length);
+              state.selectedMetroCbsa = code;
+              updateChipLabel(
+                state,
+                "metro",
+                lib.metros?.[code]?.shortName ?? code,
+                true,
+              );
+            } else if (hintChip.startsWith("country:")) {
+              const code = hintChip.slice("country:".length);
+              state.selectedCountryCode = code;
+              updateChipLabel(
+                state,
+                "country",
+                lib.countries?.[code]?.name ?? code,
+                true,
+              );
+            } else if (hintChip.startsWith("cd:")) {
+              const rest = hintChip.slice("cd:".length).split(":");
+              state.cdState = rest[0] ?? null;
+              state.cdDistrict = rest[1] ?? null;
+              renderCdChip(state, lib);
+            }
+            renderResults(state, lib);
             return;
           }
           // Real source pick.
@@ -387,6 +691,10 @@ const {
       instanceId,
       searchQuery: "",
       selectedTags: new Set(),
+      selectedMetroCbsa: null,
+      selectedCountryCode: null,
+      cdState: null,
+      cdDistrict: null,
       hasInteracted: false,
     };
     instances.set(instanceId, state);
@@ -398,17 +706,352 @@ const {
     searchInput?.addEventListener("input", () => {
       state.searchQuery = searchInput.value;
       state.hasInteracted = true;
-      // Library may not be loaded yet on first keystroke; load() is
-      // idempotent and the cached promise resolves immediately on
-      // 2nd+ awaits.
       loadLibrary().then((lib) => renderResults(state, lib));
     });
 
-    // Initial render. Awaits the library load, then renders chips +
-    // results once.
+    // Initial library load, then render every dependent UI piece.
     const lib = await loadLibrary();
+    wireGeoChips(state, lib);
+    renderCdChip(state, lib);
     renderTagChips(state, lib);
     renderResults(state, lib);
+  }
+
+  // ---------- Geo chips: popover open/close + selection wiring -------
+
+  /** Close every open popover in EVERY instance — used when the user
+   *  clicks outside any popover. */
+  function closeAllPopovers(): void {
+    document
+      .querySelectorAll<HTMLElement>("[data-spicker-role$='-popover']")
+      .forEach((p) => {
+        p.hidden = true;
+      });
+    document
+      .querySelectorAll<HTMLButtonElement>(
+        "[data-spicker-role$='-chip']",
+      )
+      .forEach((b) => b.setAttribute("aria-expanded", "false"));
+  }
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement | null;
+    // If the click is inside ANY popover or chip, leave the open
+    // popovers alone (their own handlers manage state). Otherwise
+    // close everything.
+    if (
+      target?.closest("[data-spicker-role$='-popover']") ||
+      target?.closest("[data-spicker-role$='-chip']")
+    ) {
+      return;
+    }
+    closeAllPopovers();
+  });
+
+  function togglePopover(
+    chip: HTMLButtonElement,
+    popover: HTMLElement,
+  ): void {
+    const isOpen = !popover.hidden;
+    // Close every other popover first, then toggle this one.
+    closeAllPopovers();
+    if (!isOpen) {
+      popover.hidden = false;
+      chip.setAttribute("aria-expanded", "true");
+      // Focus the popover's search input for instant typing.
+      popover
+        .querySelector<HTMLInputElement>(
+          "[data-spicker-role$='-search']",
+        )
+        ?.focus();
+    }
+  }
+
+  function renderGeoList(
+    listEl: HTMLElement,
+    entries: Array<{ code: string; primary: string; secondary?: string }>,
+    query: string,
+    onPick: (code: string) => void,
+  ): void {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? entries.filter(
+          (e) =>
+            e.primary.toLowerCase().includes(q) ||
+            (e.secondary ?? "").toLowerCase().includes(q),
+        )
+      : entries;
+    if (filtered.length === 0) {
+      listEl.innerHTML =
+        '<p class="muted small source-picker-geo-empty">No matches.</p>';
+      return;
+    }
+    listEl.innerHTML = filtered
+      .map(
+        (e) =>
+          `<button type="button" class="source-picker-geo-item" data-spicker-geo-code="${escapeHtml(e.code)}">` +
+            `<span class="source-picker-geo-item-primary">${escapeHtml(e.primary)}</span>` +
+            (e.secondary
+              ? `<span class="source-picker-geo-item-secondary">${escapeHtml(e.secondary)}</span>`
+              : "") +
+            `</button>`,
+      )
+      .join("");
+    listEl
+      .querySelectorAll<HTMLButtonElement>("[data-spicker-geo-code]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          onPick(btn.dataset.spickerGeoCode ?? "");
+        });
+      });
+  }
+
+  function updateChipLabel(
+    state: InstanceState,
+    role: "metro" | "country",
+    label: string,
+    hasClear: boolean,
+  ): void {
+    const labelEl = state.root.querySelector<HTMLElement>(
+      `[data-spicker-role='${role}-label']`,
+    );
+    const clearEl = state.root.querySelector<HTMLElement>(
+      `[data-spicker-role='${role}-clear']`,
+    );
+    if (labelEl) labelEl.innerHTML = escapeHtml(label) + " &#9662;";
+    if (clearEl) clearEl.hidden = !hasClear;
+  }
+
+  function wireGeoChips(state: InstanceState, lib: LibraryPayload): void {
+    // ----- Metro chip -----
+    const metroChip = state.root.querySelector<HTMLButtonElement>(
+      "[data-spicker-role='metro-chip']",
+    );
+    const metroPop = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='metro-popover']",
+    );
+    const metroSearch = state.root.querySelector<HTMLInputElement>(
+      "[data-spicker-role='metro-search']",
+    );
+    const metroList = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='metro-list']",
+    );
+    const metroClear = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='metro-clear']",
+    );
+    const metroEntries = Object.entries(lib.metros ?? {})
+      .map(([code, entry]) => ({
+        code,
+        primary: entry.shortName,
+        secondary: entry.name,
+      }))
+      .sort((a, b) => a.primary.localeCompare(b.primary));
+
+    function refreshMetroList(): void {
+      if (!metroList) return;
+      renderGeoList(metroList, metroEntries, metroSearch?.value ?? "", (code) => {
+        state.selectedMetroCbsa = code;
+        const entry = lib.metros?.[code];
+        updateChipLabel(
+          state,
+          "metro",
+          entry?.shortName ?? code,
+          true,
+        );
+        closeAllPopovers();
+        renderResults(state, lib);
+      });
+    }
+
+    metroChip?.addEventListener("click", (e) => {
+      // The clear-X is a child of the chip; clicking it should reset
+      // state, not toggle the popover. Detect via target.
+      if (
+        (e.target as HTMLElement | null)?.dataset.spickerRole ===
+        "metro-clear"
+      ) {
+        return; // metroClear's own handler below
+      }
+      if (metroPop) togglePopover(metroChip, metroPop);
+      refreshMetroList();
+    });
+    metroSearch?.addEventListener("input", refreshMetroList);
+    metroClear?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.selectedMetroCbsa = null;
+      updateChipLabel(state, "metro", "US metro areas", false);
+      renderResults(state, lib);
+    });
+
+    // ----- Country chip -----
+    const countryChip = state.root.querySelector<HTMLButtonElement>(
+      "[data-spicker-role='country-chip']",
+    );
+    const countryPop = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='country-popover']",
+    );
+    const countrySearch = state.root.querySelector<HTMLInputElement>(
+      "[data-spicker-role='country-search']",
+    );
+    const countryList = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='country-list']",
+    );
+    const countryClear = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='country-clear']",
+    );
+    const countryEntries = Object.entries(lib.countries ?? {})
+      .map(([code, entry]) => ({ code, primary: entry.name }))
+      .sort((a, b) => a.primary.localeCompare(b.primary));
+
+    function refreshCountryList(): void {
+      if (!countryList) return;
+      renderGeoList(
+        countryList,
+        countryEntries,
+        countrySearch?.value ?? "",
+        (code) => {
+          state.selectedCountryCode = code;
+          updateChipLabel(
+            state,
+            "country",
+            lib.countries?.[code]?.name ?? code,
+            true,
+          );
+          closeAllPopovers();
+          renderResults(state, lib);
+        },
+      );
+    }
+
+    countryChip?.addEventListener("click", (e) => {
+      if (
+        (e.target as HTMLElement | null)?.dataset.spickerRole ===
+        "country-clear"
+      )
+        return;
+      if (countryPop) togglePopover(countryChip, countryPop);
+      refreshCountryList();
+    });
+    countrySearch?.addEventListener("input", refreshCountryList);
+    countryClear?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.selectedCountryCode = null;
+      updateChipLabel(state, "country", "Regions and countries", false);
+      renderResults(state, lib);
+    });
+  }
+
+  // ---------- CD chip (two-step drill-down) ---------------------------
+  //
+  // The CD chip is structurally different from metro + country: when
+  // inactive it's a single chip; when a state is picked it expands
+  // inline to show the state name + a district dropdown. Rerendering
+  // the whole CD area every state-or-district change is OK (nothing
+  // else lives in the cd-host element).
+
+  function renderCdChip(state: InstanceState, lib: LibraryPayload): void {
+    const host = state.root.querySelector<HTMLElement>(
+      "[data-spicker-role='cd-host']",
+    );
+    if (!host) return;
+    if (!state.cdState) {
+      // Chip inactive — just the state-selector button.
+      host.innerHTML =
+        `<div class="source-picker-geo-chip-wrap">` +
+          `<button type="button" class="source-picker-geo-chip" data-spicker-role="cd-chip" aria-haspopup="listbox" aria-expanded="false">` +
+            `<span>States &amp; districts &#9662;</span>` +
+          `</button>` +
+          `<div class="source-picker-geo-popover" data-spicker-role="cd-popover" role="listbox" hidden>` +
+            `<input type="search" class="source-picker-geo-search" data-spicker-role="cd-state-search" placeholder="Search states…" aria-label="Search states" />` +
+            `<div class="source-picker-geo-list" data-spicker-role="cd-state-list"></div>` +
+          `</div>` +
+        `</div>`;
+      const chip = host.querySelector<HTMLButtonElement>(
+        "[data-spicker-role='cd-chip']",
+      );
+      const pop = host.querySelector<HTMLElement>(
+        "[data-spicker-role='cd-popover']",
+      );
+      const search = host.querySelector<HTMLInputElement>(
+        "[data-spicker-role='cd-state-search']",
+      );
+      const list = host.querySelector<HTMLElement>(
+        "[data-spicker-role='cd-state-list']",
+      );
+      const stateEntries = US_STATES.map((s) => ({
+        code: s.code,
+        primary: s.name,
+      })).sort((a, b) => a.primary.localeCompare(b.primary));
+      function refresh(): void {
+        if (!list) return;
+        renderGeoList(list, stateEntries, search?.value ?? "", (code) => {
+          state.cdState = code;
+          state.cdDistrict = null;
+          closeAllPopovers();
+          renderCdChip(state, lib);
+          renderResults(state, lib);
+        });
+      }
+      chip?.addEventListener("click", () => {
+        if (chip && pop) togglePopover(chip, pop);
+        refresh();
+      });
+      search?.addEventListener("input", refresh);
+      return;
+    }
+    // Chip active — state picked. Show state name + district dropdown
+    // (statewide / all / specific CDs) + clear-X.
+    const stateName = stateNameFor(state.cdState);
+    const districtOptions: Array<{ value: string; label: string }> = [
+      { value: "__any__", label: "Any district" },
+      { value: STATEWIDE_DISTRICT_CODE, label: "Statewide series only" },
+    ];
+    // Distinct districts available for this state. We don't ship a
+    // per-state district inventory in library.json today, so we
+    // derive from sources whose IDs parse as CD for the picked state.
+    const cdsForState = new Set<string>();
+    for (const id of Object.keys(lib.sources ?? {})) {
+      const tags = lib.sources?.[id]?.tags ?? [];
+      if (!tags.includes(CD_TAG)) continue;
+      const parsed = parseCdSourceId(id);
+      if (parsed?.state === state.cdState) cdsForState.add(parsed.district);
+    }
+    for (const d of Array.from(cdsForState).sort()) {
+      districtOptions.push({
+        value: d,
+        label: formatCdShortLabel(state.cdState, d),
+      });
+    }
+    const selectedValue = state.cdDistrict ?? "__any__";
+    host.innerHTML =
+      `<div class="source-picker-geo-cd-active">` +
+        `<span class="source-picker-geo-cd-state">${escapeHtml(stateName)}</span>` +
+        `<select class="source-picker-geo-cd-select" data-spicker-role="cd-district-select" aria-label="District">` +
+          districtOptions
+            .map(
+              (opt) =>
+                `<option value="${escapeHtml(opt.value)}"${opt.value === selectedValue ? " selected" : ""}>${escapeHtml(opt.label)}</option>`,
+            )
+            .join("") +
+        `</select>` +
+        `<button type="button" class="source-picker-geo-chip-clear" data-spicker-role="cd-clear" aria-label="Clear state filter">&times;</button>` +
+      `</div>`;
+    const select = host.querySelector<HTMLSelectElement>(
+      "[data-spicker-role='cd-district-select']",
+    );
+    const clear = host.querySelector<HTMLElement>(
+      "[data-spicker-role='cd-clear']",
+    );
+    select?.addEventListener("change", () => {
+      const v = select.value;
+      state.cdDistrict = v === "__any__" ? null : v;
+      renderResults(state, lib);
+    });
+    clear?.addEventListener("click", () => {
+      state.cdState = null;
+      state.cdDistrict = null;
+      renderCdChip(state, lib);
+      renderResults(state, lib);
+    });
   }
 
   // Boot every SourcePicker instance on the page when DOM is ready.
@@ -430,12 +1073,9 @@ const {
     bootAll();
   }
 
-  // Suppress unused-import warnings for the geo libs imported above.
-  // Phase 1b will use them; importing now ensures the bundler ships
-  // them so 1b doesn't trigger a chunk-graph change.
-  void metroTagsFor;
-  void parseMetroSourceId;
-  void parseCountrySourceId;
+  // All imports above are used; if you add a new dep and TS warns
+  // about it being unused, that's a sign it's not wired into a code
+  // path yet — fix that rather than adding a `void` stub.
 </script>
 
 <style is:global>
@@ -531,5 +1171,135 @@ const {
     letter-spacing: 0.05em;
     color: var(--color-accent, #0F766E);
     margin-right: 6px;
+  }
+  /* Geo chips — three chips (metro / states+CDs / country) each with
+     a popover. Layout matches the composer's existing UX so they're
+     visually identical when both pickers are on screen. */
+  .source-picker-geo-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .source-picker-geo-chip-wrap {
+    position: relative;
+  }
+  .source-picker-geo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: 999px;
+    background: var(--color-white, #fff);
+    color: var(--color-neutral-800, #1c1c1a);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .source-picker-geo-chip:hover {
+    background: var(--color-neutral-100, #f5f5f5);
+  }
+  .source-picker-geo-chip[aria-expanded="true"] {
+    background: var(--color-neutral-100, #f5f5f5);
+    border-color: rgba(55, 53, 47, 0.32);
+  }
+  .source-picker-geo-chip-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 2px;
+    background: rgba(55, 53, 47, 0.08);
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 1;
+  }
+  .source-picker-geo-chip-clear:hover {
+    background: rgba(55, 53, 47, 0.16);
+  }
+  .source-picker-geo-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 260px;
+    max-height: 320px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-white, #fff);
+    border: 1px solid rgba(55, 53, 47, 0.2);
+    border-radius: var(--radius-sm, 6px);
+    box-shadow: 0 4px 12px rgba(55, 53, 47, 0.12);
+    z-index: 50;
+  }
+  .source-picker-geo-search {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 6px 10px;
+    border: 0;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+    font-size: 13px;
+    outline: none;
+  }
+  .source-picker-geo-list {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+  .source-picker-geo-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 12px;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .source-picker-geo-item:hover {
+    background: var(--color-neutral-100, #f5f5f5);
+  }
+  .source-picker-geo-item-primary {
+    color: var(--color-neutral-900, #1c1c1a);
+  }
+  .source-picker-geo-item-secondary {
+    color: var(--color-neutral-500, #888);
+    font-size: 11px;
+  }
+  .source-picker-geo-empty {
+    padding: 8px 12px;
+    margin: 0;
+    color: var(--color-neutral-500, #888);
+  }
+  /* CD chip in "state picked" mode — inline state name + district
+     dropdown + clear-X. */
+  .source-picker-geo-cd-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px 2px 10px;
+    border: 1px solid var(--color-accent, #0F766E);
+    border-radius: 999px;
+    background: rgba(15, 118, 110, 0.08);
+    font-size: 12px;
+  }
+  .source-picker-geo-cd-state {
+    font-weight: 500;
+    color: var(--color-accent, #0F766E);
+  }
+  .source-picker-geo-cd-select {
+    border: 0;
+    background: transparent;
+    color: var(--color-neutral-800, #1c1c1a);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .source-picker-geo-cd-select:focus {
+    outline: none;
+    background: var(--color-white, #fff);
   }
 </style>
