@@ -3,7 +3,7 @@
   "name": "Arkansas population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:28:26Z",
+  "lastUpdated": "2026-05-27T21:50:17Z",
   "points": [
     {
       "t": "1900-01-01",

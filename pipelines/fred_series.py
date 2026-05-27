@@ -110,6 +110,46 @@ SPECS: list[FredSpec] = [
     # Monetary / Fed
     FredSpec("M2SL", "M2 money supply", "billions USD"),
     FredSpec("WALCL", "Fed total assets (balance sheet)", "millions USD"),
+    # ------------------------------------------------------------------
+    # Analyst-persona expansion 2026-05: targeted public-domain series
+    # added so analysts working in health, defense, energy, tech,
+    # government, and labor demographics have first-class data.
+    # All are PUBLIC-DOMAIN per FRED's tag system + audited via
+    # pipelines/audit_fred_copyright.py before ingest. The
+    # `consumer-confidence proxies` group earlier in this file is a
+    # sibling expansion (DSPIC96 / JTSQUR / TOTALSL).
+    # ------------------------------------------------------------------
+    # Health analyst
+    FredSpec("CES6562000001", "Health care + social assistance employment", "thousands of persons"),
+    FredSpec("HLTHSCPCHCSA", "Health expenditures per capita", "USD"),
+    # Defense analyst (federal-defense outlays already covered by
+    # FDEFX; this adds the % of GDP read).
+    FredSpec("A824RE1Q156NBEA", "National defense, share of GDP", "%"),
+    # Energy analyst
+    FredSpec("IPG211S", "Industrial production: oil + gas extraction", "index (2017=100)"),
+    FredSpec("IPG2211S", "Industrial production: electric power generation", "index (2017=100)"),
+    # Tech / semiconductors / electronics
+    FredSpec("IPG3344S", "Industrial production: semiconductors + electronic components", "index (2017=100)"),
+    FredSpec("CAPUTLG3344S", "Capacity utilization: semiconductors", "%"),
+    FredSpec("USINFO", "Information-sector employment", "thousands of persons"),
+    FredSpec("A34SNO", "New orders: computers + electronic products", "millions USD"),
+    # Government spending + employment (the analyst persona Tape's
+    # audience leans hardest into — DC econ/policy).
+    FredSpec("FGEXPND", "Federal government current expenditures", "billions USD"),
+    FredSpec("SLEXPND", "State + local government current expenditures", "billions USD"),
+    FredSpec("USGOVT", "Government employment, total", "thousands of persons"),
+    FredSpec("CES9091000001", "Federal government employment", "thousands of persons"),
+    FredSpec("CES9092000001", "State government employment", "thousands of persons"),
+    FredSpec("CES9093000001", "Local government employment", "thousands of persons"),
+    # Labor demographics — unemployment rate split by race/ethnicity.
+    # The headline UNRATE we already carry hides large + persistent
+    # cross-group gaps; these surface them.
+    FredSpec("LNS14000003", "Unemployment rate: White", "%"),
+    FredSpec("LNS14000006", "Unemployment rate: Black or African American", "%"),
+    FredSpec("LNS14000009", "Unemployment rate: Hispanic or Latino", "%"),
+    # Per-capita complement to the real disposable income series
+    # added above.
+    FredSpec("A229RX0", "Real disposable personal income per capita", "chained 2017 USD"),
     # Credit spreads + risk indexes intentionally NOT ingested:
     # BAMLH0A0HYM2 + BAMLC0A0CM are third-party copyrighted by
     # ICE BofA / ICE Data Indices; VIXCLS by Cboe Global Markets.

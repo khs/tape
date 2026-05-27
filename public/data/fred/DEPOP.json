@@ -3,7 +3,7 @@
   "name": "Delaware population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:28:30Z",
+  "lastUpdated": "2026-05-27T21:50:20Z",
   "points": [
     {
       "t": "1900-01-01",

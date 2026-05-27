@@ -3,7 +3,7 @@
   "name": "New Hampshire population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:28:58Z",
+  "lastUpdated": "2026-05-27T21:50:55Z",
   "points": [
     {
       "t": "1900-01-01",

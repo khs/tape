@@ -1,0 +1,24 @@
+name: 'Federal government current expenditures'
+shortName: 'Fed expend.'
+description: 'Total federal current expenditures (BEA NIPA). Includes consumption, transfers, interest, and subsidies — broader than the cash-basis outlays we get from Treasury via USAspending. Public-domain federal-agency data via FRED.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/FGEXPND.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "billions USD"
+emphasis: level
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+  scaleFactor: 1000000000
+provenance:
+  provider: U.S. federal-agency data via FRED
+  series: FGEXPND
+  url: https://fred.stlouisfed.org/series/FGEXPND
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - government
+  - us
+unitClass: currency

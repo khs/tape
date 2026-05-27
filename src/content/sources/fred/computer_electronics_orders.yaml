@@ -1,0 +1,24 @@
+name: 'New orders: computers + electronic products'
+shortName: 'Computer orders'
+description: 'Manufacturers'' new orders for computers and electronic products (Census M3 survey). A demand-side leading indicator for tech capex; turns before semiconductor production does. Public-domain federal-agency data via FRED.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/A34SNO.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "millions USD"
+emphasis: level
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+  scaleFactor: 1000000
+provenance:
+  provider: U.S. federal-agency data via FRED
+  series: A34SNO
+  url: https://fred.stlouisfed.org/series/A34SNO
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - tech
+  - us
+unitClass: currency

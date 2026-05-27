@@ -3,7 +3,7 @@
   "name": "Oklahoma population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:29:06Z",
+  "lastUpdated": "2026-05-27T21:51:09Z",
   "points": [
     {
       "t": "1900-01-01",

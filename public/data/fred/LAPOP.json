@@ -3,7 +3,7 @@
   "name": "Louisiana population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:28:44Z",
+  "lastUpdated": "2026-05-27T21:50:35Z",
   "points": [
     {
       "t": "1900-01-01",

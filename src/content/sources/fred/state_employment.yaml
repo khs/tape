@@ -1,0 +1,24 @@
+name: 'State government employment'
+shortName: 'State jobs'
+description: 'State-government employees (BLS CES). Heavy on higher education, corrections, and public safety; tracks state-budget conditions more closely than federal employment does. Public-domain federal-agency data via FRED.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CES9092000001.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "thousands of persons"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+provenance:
+  provider: U.S. federal-agency data via FRED
+  series: CES9092000001
+  url: https://fred.stlouisfed.org/series/CES9092000001
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - labor
+  - government
+  - us
+unitClass: count

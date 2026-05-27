@@ -1,0 +1,23 @@
+name: 'Unemployment rate, Hispanic or Latino'
+shortName: 'Unrate (H)'
+description: 'Civilian unemployment rate, Hispanic or Latino workers (BLS CPS). Runs between the White and Black series in most cycles; reflects industry-composition differences as much as anything else. Public-domain federal-agency data via FRED.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/LNS14000009.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "%"
+emphasis: level
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: U.S. federal-agency data via FRED
+  series: LNS14000009
+  url: https://fred.stlouisfed.org/series/LNS14000009
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - labor
+  - demographics
+  - us
+unitClass: rate

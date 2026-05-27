@@ -3,7 +3,7 @@
   "name": "Kentucky population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:28:43Z",
+  "lastUpdated": "2026-05-27T21:50:33Z",
   "points": [
     {
       "t": "1900-01-01",

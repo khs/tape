@@ -3,7 +3,7 @@
   "name": "North Dakota population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:29:02Z",
+  "lastUpdated": "2026-05-27T21:51:06Z",
   "points": [
     {
       "t": "1900-01-01",

@@ -1,0 +1,74 @@
+name: FRED copyright audit
+
+# Compliance guardrail. Runs the FRED copyright audit
+# (pipelines/audit_fred_copyright.py) authoritatively against the
+# FRED API + fails the workflow if any source YAML under
+# src/content/sources/fred/ resolves to a PRE-APPROVAL bucket
+# (third-party copyrighted, needs licensor permission).
+#
+# Why a separate workflow instead of folding into CI:
+#   - Needs FRED_API_KEY at run time, which we don't want on every
+#     PR — only on the audit-specific runs.
+#   - Failing-fast on copyright is a different signal than failing
+#     on a TypeScript error. Keeping the workflows separate makes
+#     the failure-class obvious in the PR check list.
+#
+# Triggers:
+#   - Any PR touching the FRED pipeline (audit script, source
+#     YAMLs, the pipeline that fetches them).
+#   - Push to main (catches anything that bypassed PR review).
+#   - Weekly schedule (catches the case where FRED upgrades a series
+#     from PUBLIC-DOMAIN to PRE-APPROVAL after a licensor change —
+#     unlikely but worth a heartbeat check).
+#   - Manual dispatch (so Keller can rerun on demand).
+
+on:
+  pull_request:
+    paths:
+      - "pipelines/audit_fred_copyright.py"
+      - "pipelines/fred_series.py"
+      - "src/content/sources/fred/**"
+  push:
+    branches: [main]
+    paths:
+      - "pipelines/audit_fred_copyright.py"
+      - "pipelines/fred_series.py"
+      - "src/content/sources/fred/**"
+  schedule:
+    # Tuesdays 14:00 UTC — daytime US East-coast (08:00-10:00) so a
+    # surprise failure is during waking hours, not overnight.
+    - cron: "0 14 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run FRED copyright audit (strict)
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          AUDIT_FRED_STRICT: "1"
+        run: |
+          python pipelines/audit_fred_copyright.py
+
+      - name: Upload audit report
+        # Run regardless of exit code so a failure still leaves
+        # the report visible as a workflow artifact for inspection.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fred-copyright-audit
+          path: docs/fred-copyright-audit.md
+          retention-days: 30

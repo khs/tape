@@ -3,7 +3,7 @@
   "name": "North Carolina population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:29:01Z",
+  "lastUpdated": "2026-05-27T21:51:03Z",
   "points": [
     {
       "t": "1900-01-01",

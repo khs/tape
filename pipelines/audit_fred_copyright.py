@@ -175,20 +175,43 @@ def fred_api_lookup(series_id: str, api_key: str) -> Optional[tuple[str, list[st
     """Hit /fred/series/tags and return (status, copyright_tag_names).
     Returns None on network error / unknown series. The status is
     derived from whichever copyright-class tag (group_id == "cc")
-    the series carries."""
+    the series carries.
+
+    Retries 5xx transients up to 3 times with exponential backoff —
+    FRED occasionally returns 502 / 503 under load and a one-shot
+    failure shouldn't sink a CI audit over 130+ series.
+    """
     url = (
         f"https://api.stlouisfed.org/fred/series/tags"
         f"?series_id={series_id}&api_key={api_key}&file_type=json"
     )
-    try:
-        with urlrequest.urlopen(url, timeout=15) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-    except HTTPError as e:
-        # 400 = series not found; treat as unresolved.
-        if e.code in (400, 404):
-            return None
-        raise
-    except (URLError, json.JSONDecodeError):
+    last_exc: Optional[BaseException] = None
+    for attempt in range(3):
+        try:
+            with urlrequest.urlopen(url, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            break
+        except HTTPError as e:
+            # 400 = series not found; treat as unresolved.
+            if e.code in (400, 404):
+                return None
+            # 5xx / 429 = transient; retry with backoff.
+            if e.code >= 500 or e.code == 429:
+                last_exc = e
+                time.sleep(2 * (attempt + 1))
+                continue
+            raise
+        except (URLError, json.JSONDecodeError) as e:
+            last_exc = e
+            time.sleep(2 * (attempt + 1))
+            continue
+    else:
+        # All 3 retries exhausted. Return None so the row surfaces
+        # as UNKNOWN — caller can re-run or audit manually.
+        print(
+            f"WARN: {series_id} failed after retries ({last_exc})",
+            file=sys.stderr,
+        )
         return None
     # The "cc" group is FRED's copyright-class tag group. A series
     # almost always carries exactly one cc-group tag; we surface its
@@ -278,6 +301,35 @@ def run() -> int:
             "      https://fred.stlouisfed.org/docs/api/api_key.html\n"
             "      and add FRED_API_KEY=<key> to .env, then re-run."
         )
+    # Compliance gate: any PRE-APPROVAL series in the library is a
+    # blocker. CI calls this script with --strict (or via the env
+    # AUDIT_FRED_STRICT=1) and any failure here fails the build.
+    # Local dev runs without strict, gets the same report but exits 0.
+    pre_approval = [m for m in metas if m.status == "PRE-APPROVAL"]
+    strict = (
+        "--strict" in sys.argv
+        or os.environ.get("AUDIT_FRED_STRICT") == "1"
+    )
+    if pre_approval:
+        msg = (
+            f"\n*** {len(pre_approval)} FRED source(s) flagged "
+            f"PRE-APPROVAL — third-party copyright requires "
+            f"licensor permission ***\n"
+        )
+        for m in pre_approval:
+            owner = m.owner or "?"
+            msg += (
+                f"  - {m.yaml_path.relative_to(REPO_ROOT).as_posix()} "
+                f"({m.series_id}, owned by {owner})\n"
+            )
+        msg += (
+            "Remove these YAMLs (and their chart YAMLs + data files)\n"
+            "or obtain written licensor permission. See "
+            "docs/fred-copyright-audit.md.\n"
+        )
+        print(msg, file=sys.stderr)
+        if strict:
+            return 1
     return 0
 
 

@@ -3,7 +3,7 @@
   "name": "Continuing jobless claims",
   "kind": "timeseries",
   "unit": "claims",
-  "lastUpdated": "2026-05-27T21:27:13Z",
+  "lastUpdated": "2026-05-27T21:49:26Z",
   "points": [
     {
       "t": "1967-01-07",

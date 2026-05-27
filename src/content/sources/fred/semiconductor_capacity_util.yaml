@@ -1,0 +1,23 @@
+name: 'Capacity utilization: semiconductors'
+shortName: 'Semis util'
+description: 'Capacity utilization for the semiconductor + electronic-component manufacturing sub-industry. Pair with the IP index to see whether production growth is coming from new fab capacity (util flat) or running the existing base harder (util rising). Public-domain federal-agency data via FRED.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CAPUTLG3344S.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "%"
+emphasis: level
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: U.S. federal-agency data via FRED
+  series: CAPUTLG3344S
+  url: https://fred.stlouisfed.org/series/CAPUTLG3344S
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - tech
+  - industrial-production
+  - us
+unitClass: rate
