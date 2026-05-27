@@ -191,5 +191,135 @@ class EvaluateConditionTests(unittest.TestCase):
         )
 
 
+class LoadDerivedLatestObservationTests(unittest.TestCase):
+    """Migration 0007 added derived_spec to alert_rules. The evaluator
+    aligns A and B by date and emits the latest (t, A op B) pair.
+
+    These tests stub _load_points to return synthetic series so the
+    test doesn't depend on real source YAML/JSON.
+    """
+
+    def setUp(self) -> None:
+        self._orig_load_points = check_alerts._load_points
+
+    def tearDown(self) -> None:
+        check_alerts._load_points = self._orig_load_points
+
+    def _stub_points(
+        self, by_id: dict[str, list[dict[str, float | str]]]
+    ) -> None:
+        def stub(source_id: str):
+            return by_id.get(source_id)
+        check_alerts._load_points = stub  # type: ignore[assignment]
+
+    def test_divide_aligns_by_date(self) -> None:
+        self._stub_points({
+            "fred/cpi": [
+                {"t": "2024-01-01", "v": 3.0},
+                {"t": "2024-02-01", "v": 3.2},
+                {"t": "2024-03-01", "v": 3.4},
+            ],
+            "fred/dgs10": [
+                {"t": "2024-01-01", "v": 4.0},
+                {"t": "2024-02-01", "v": 4.0},
+                {"t": "2024-03-01", "v": 4.25},
+            ],
+        })
+        obs = check_alerts.load_derived_latest_observation(
+            {"a": "fred/cpi", "op": "divide", "b": "fred/dgs10"},
+        )
+        self.assertEqual(obs, ("2024-03-01", 3.4 / 4.25))
+
+    def test_sum_and_diff(self) -> None:
+        self._stub_points({
+            "a": [{"t": "2024-01-01", "v": 10.0}],
+            "b": [{"t": "2024-01-01", "v": 3.0}],
+        })
+        sum_obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "sum", "b": "b"},
+        )
+        self.assertEqual(sum_obs, ("2024-01-01", 13.0))
+        diff_obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "diff", "b": "b"},
+        )
+        self.assertEqual(diff_obs, ("2024-01-01", 7.0))
+
+    def test_alignment_uses_intersection_of_dates(self) -> None:
+        # A has Mar 1 but B doesn't; the derived series' latest is
+        # therefore the latest date both have data for (Feb 1).
+        self._stub_points({
+            "a": [
+                {"t": "2024-01-01", "v": 1.0},
+                {"t": "2024-02-01", "v": 2.0},
+                {"t": "2024-03-01", "v": 3.0},
+            ],
+            "b": [
+                {"t": "2024-01-01", "v": 10.0},
+                {"t": "2024-02-01", "v": 20.0},
+                # no March
+            ],
+        })
+        obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "sum", "b": "b"},
+        )
+        self.assertEqual(obs, ("2024-02-01", 22.0))
+
+    def test_divide_by_zero_skips_that_timestamp(self) -> None:
+        self._stub_points({
+            "a": [
+                {"t": "2024-01-01", "v": 1.0},
+                {"t": "2024-02-01", "v": 2.0},
+            ],
+            "b": [
+                {"t": "2024-01-01", "v": 5.0},
+                {"t": "2024-02-01", "v": 0.0},
+            ],
+        })
+        # Feb is the latest A∩B date but B=0, so that point is
+        # skipped. Result is Jan's derived value.
+        obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "divide", "b": "b"},
+        )
+        self.assertEqual(obs, ("2024-01-01", 0.2))
+
+    def test_returns_none_when_no_dates_overlap(self) -> None:
+        self._stub_points({
+            "a": [{"t": "2024-01-01", "v": 1.0}],
+            "b": [{"t": "2024-02-01", "v": 2.0}],
+        })
+        obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "sum", "b": "b"},
+        )
+        self.assertIsNone(obs)
+
+    def test_returns_none_when_either_source_missing(self) -> None:
+        self._stub_points({"a": [{"t": "2024-01-01", "v": 1.0}]})
+        obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "sum", "b": "b"},
+        )
+        self.assertIsNone(obs)
+
+    def test_invalid_op_returns_none(self) -> None:
+        self._stub_points({
+            "a": [{"t": "2024-01-01", "v": 1.0}],
+            "b": [{"t": "2024-01-01", "v": 2.0}],
+        })
+        obs = check_alerts.load_derived_latest_observation(
+            {"a": "a", "op": "multiply", "b": "b"},
+        )
+        self.assertIsNone(obs)
+
+    def test_missing_keys_returns_none(self) -> None:
+        self.assertIsNone(check_alerts.load_derived_latest_observation({}))
+        self.assertIsNone(
+            check_alerts.load_derived_latest_observation({"a": "x"}),
+        )
+        # type-ignore: deliberately passing a non-dict to assert the
+        # defensive branch.
+        self.assertIsNone(
+            check_alerts.load_derived_latest_observation("nope"),  # type: ignore[arg-type]
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

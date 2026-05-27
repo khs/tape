@@ -129,6 +129,114 @@ def supabase_patch(url: str, path: str, key: str, body: Any) -> None:
         resp.read()
 
 
+def _load_points(source_id: str) -> list[dict[str, Any]] | None:
+    """Load the full points[] array for a source ID, or None if the
+    source can't be resolved. Used by the derived-indicator path so
+    we can align timestamps between A and B before computing A op B.
+    Same source-id sanitization + path-confinement as
+    load_latest_observation."""
+    if not source_id or not SAFE_SOURCE_ID.match(source_id):
+        return None
+    yaml_path = SOURCES_ROOT / f"{source_id}.yaml"
+    try:
+        yaml_path.resolve().relative_to(SOURCES_ROOT.resolve())
+    except ValueError:
+        return None
+    if not yaml_path.exists():
+        return None
+    data_file: str | None = None
+    for line in yaml_path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("dataFile:"):
+            data_file = stripped.split(":", 1)[1].strip().strip("\"'")
+            break
+    if not data_file:
+        return None
+    json_path = ROOT / data_file
+    try:
+        json_path.resolve().relative_to(ROOT.resolve())
+    except ValueError:
+        return None
+    if not json_path.exists():
+        return None
+    try:
+        payload = json.loads(json_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    points = payload.get("points")
+    if not isinstance(points, list) or not points:
+        return None
+    return points
+
+
+def load_derived_latest_observation(
+    spec: dict[str, Any],
+) -> tuple[str, float] | None:
+    """Compute the derived series A op B's latest observation.
+
+    Alignment: align A and B by date. For each date present in BOTH
+    series, compute the operation. Return the latest such (t, v).
+    If A's latest is 2024-06-15 and B's latest is 2024-05-30, the
+    derived series latest is 2024-05-30 (the most recent date both
+    series have data for). This matches the composer's combineTwo
+    semantics — a derived chart only plots where both inputs exist.
+
+    Divide-by-zero returns None for that timestamp (skipped).
+
+    Returns None if either source is unresolvable or the alignment
+    leaves the derived series empty.
+    """
+    a_id = spec.get("a") if isinstance(spec, dict) else None
+    b_id = spec.get("b") if isinstance(spec, dict) else None
+    op = spec.get("op") if isinstance(spec, dict) else None
+    if not isinstance(a_id, str) or not isinstance(b_id, str):
+        return None
+    if op not in ("divide", "sum", "diff"):
+        return None
+    pts_a = _load_points(a_id)
+    pts_b = _load_points(b_id)
+    if pts_a is None or pts_b is None:
+        return None
+    # Build a date -> value map for B so the alignment is O(N+M)
+    # instead of O(N*M).
+    b_by_t: dict[str, float] = {}
+    for p in pts_b:
+        if not isinstance(p, dict):
+            continue
+        t = p.get("t")
+        v = p.get("v")
+        if isinstance(t, str) and isinstance(v, (int, float)):
+            b_by_t[t] = float(v)
+    # Walk A in order; emit (t, derived_v) when B has the same t.
+    derived: list[tuple[str, float]] = []
+    for p in pts_a:
+        if not isinstance(p, dict):
+            continue
+        t = p.get("t")
+        v = p.get("v")
+        if not isinstance(t, str) or not isinstance(v, (int, float)):
+            continue
+        if t not in b_by_t:
+            continue
+        b_v = b_by_t[t]
+        if op == "divide":
+            if b_v == 0:
+                continue
+            derived.append((t, float(v) / b_v))
+        elif op == "sum":
+            derived.append((t, float(v) + b_v))
+        elif op == "diff":
+            derived.append((t, float(v) - b_v))
+    if not derived:
+        return None
+    # The latest derived observation is the last entry (A's points
+    # are in chronological order per the pipeline contract; the
+    # alignment preserves that).
+    return derived[-1]
+
+
 def load_latest_observation(source_id: str) -> tuple[str, float] | None:
     """Read the source's data file and return (latest_t, latest_v).
     Source IDs look like ``fred/cpi_yoy`` → that maps to
@@ -262,8 +370,16 @@ def main() -> int:
             last_t_seen = rule.get("last_value_t")
             last_v_seen = rule.get("last_value_seen")
             owner_id = rule["owner_id"]
+            derived_spec = rule.get("derived_spec")
 
-            obs = load_latest_observation(source_id)
+            # Derived-indicator alerts: load BOTH sub-sources, align by
+            # date, compute A op B. The source_id stays populated as a
+            # display sentinel (typically "derived:adhoc") but isn't
+            # used for data resolution when derived_spec is present.
+            if isinstance(derived_spec, dict) and derived_spec:
+                obs = load_derived_latest_observation(derived_spec)
+            else:
+                obs = load_latest_observation(source_id)
             if obs is None:
                 skipped += 1
                 continue
