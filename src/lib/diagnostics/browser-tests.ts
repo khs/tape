@@ -18,6 +18,7 @@
 import {
   fail,
   pass,
+  skip,
   warn,
   type DiagnosticTest,
 } from "../diagnostic-runner";
@@ -266,6 +267,125 @@ export const browserTests: DiagnosticTest[] = [
       return warn(`${buf.length} console.error events since page load`, {
         firstFew: buf.slice(0, 5),
       });
+    },
+  },
+  {
+    id: "browser/page-load-timing",
+    category: "browser",
+    label: "page-load timing (informational)",
+    run: () => {
+      // Captures the diagnostics page's own load performance so trends
+      // are visible in the JSON appendix. Doesn't fail on slow loads —
+      // a single run isn't a reliable signal; comparisons across runs
+      // are what matter. Warns only on egregious values (DCL > 5s).
+      //
+      // Uses the modern PerformanceNavigationTiming API (per-entry
+      // millisecond deltas relative to navigation start) instead of
+      // the deprecated performance.timing (epoch-millis timestamps).
+      if (typeof performance === "undefined") {
+        return warn("performance not available");
+      }
+      const navEntries = performance.getEntriesByType(
+        "navigation",
+      ) as PerformanceNavigationTiming[];
+      const nav = navEntries[0];
+      if (!nav) {
+        return warn("no PerformanceNavigationTiming entry");
+      }
+      // All values are ms relative to navigation start.
+      const ttfb = Math.round(nav.responseStart - nav.requestStart);
+      const domInteractive = Math.round(nav.domInteractive);
+      const domContentLoaded = Math.round(nav.domContentLoadedEventEnd);
+      const loadEvent = Math.round(nav.loadEventEnd);
+      const data = {
+        ttfb,
+        domInteractive,
+        domContentLoaded,
+        loadEvent,
+        // Connection info if available — surfaces "running on a slow
+        // 3G profile" without the user reporting it.
+        connectionType:
+          (navigator as unknown as { connection?: { effectiveType?: string } })
+            .connection?.effectiveType ?? "unknown",
+      };
+      if (domContentLoaded > 5000) {
+        return warn(
+          `slow page load: DCL=${domContentLoaded}ms, load=${loadEvent}ms, TTFB=${ttfb}ms`,
+          data,
+        );
+      }
+      return pass(
+        `DCL=${domContentLoaded}ms, load=${loadEvent}ms, TTFB=${ttfb}ms`,
+        data,
+      );
+    },
+  },
+  {
+    id: "browser/memory-snapshot",
+    category: "browser",
+    label: "JS heap snapshot (informational, Chromium-only)",
+    run: () => {
+      // performance.memory is non-standard but exposed in Chromium-
+      // based browsers (Chrome, Edge). Other browsers (Safari, FF)
+      // don't have it — skip cleanly instead of failing.
+      const mem = (
+        performance as unknown as {
+          memory?: {
+            usedJSHeapSize: number;
+            totalJSHeapSize: number;
+            jsHeapSizeLimit: number;
+          };
+        }
+      ).memory;
+      if (!mem) {
+        return skip("performance.memory not available (non-Chromium browser)");
+      }
+      const usedMB = mem.usedJSHeapSize / (1024 * 1024);
+      const totalMB = mem.totalJSHeapSize / (1024 * 1024);
+      const limitMB = mem.jsHeapSizeLimit / (1024 * 1024);
+      const pctOfLimit = (mem.usedJSHeapSize / mem.jsHeapSizeLimit) * 100;
+      if (pctOfLimit > 80) {
+        return warn(
+          `heap usage near limit: ${usedMB.toFixed(1)}MB / ${limitMB.toFixed(0)}MB limit (${pctOfLimit.toFixed(0)}%)`,
+          { usedMB, totalMB, limitMB, pctOfLimit },
+        );
+      }
+      return pass(
+        `${usedMB.toFixed(1)}MB used / ${totalMB.toFixed(1)}MB allocated / ${limitMB.toFixed(0)}MB limit`,
+        { usedMB, totalMB, limitMB, pctOfLimit },
+      );
+    },
+  },
+  {
+    id: "browser/dom-size",
+    category: "browser",
+    label: "DOM node count (informational)",
+    run: () => {
+      // Total element count + tree depth. Useful for spotting
+      // accidental render loops or N^2 explosions.
+      const elementCount = document.querySelectorAll("*").length;
+      // Approximate max depth via a BFS-ish probe.
+      let maxDepth = 0;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+      let node: Node | null = walker.currentNode;
+      while (node) {
+        let d = 0;
+        let p: Node | null = node;
+        while (p && p !== document.body) {
+          d++;
+          p = p.parentNode;
+        }
+        if (d > maxDepth) maxDepth = d;
+        node = walker.nextNode();
+      }
+      const data = { elementCount, maxDepth };
+      if (elementCount > 5000) {
+        return warn(
+          `large DOM: ${elementCount} elements, depth=${maxDepth}`,
+          data,
+        );
+      }
+      return pass(`${elementCount} elements, depth=${maxDepth}`, data);
     },
   },
 ];
