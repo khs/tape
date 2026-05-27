@@ -177,11 +177,19 @@ const {
     STATEWIDE_DISTRICT_CODE,
     US_STATES,
     parseCdSourceId,
-    parseStateSourceId,
     stateNameFor,
     formatCdShortLabel,
   } from "../lib/congressional-districts";
-  import { COUNTY_TAG, parseCountySourceId } from "../lib/county-sources";
+  import { COUNTY_TAG } from "../lib/county-sources";
+  import {
+    passesMetroFilter,
+    passesCountryFilter,
+    passesCdFilter,
+    passesCountyFilter,
+    unlockedMetrosForQuery,
+    unlockedCountriesForQuery,
+    unlockedStatesForQuery,
+  } from "../lib/source-filters";
 
   /**
    * Source-side shape returned by /library.json. Mirrors the inline
@@ -267,184 +275,25 @@ const {
     COUNTY_TAG,
   ]);
 
-  // ---------- Geo-filter helpers (ported from compose.astro) ----------
+  // ---------- Geo-filter helpers ---------------------------------------
   //
-  // Same semantics as compose.astro's passesMetroFilter /
-  // passesCountryFilter / passesCdFilter / passesCountyFilter — just
-  // accept the library payload as a parameter rather than reading from
-  // closure. When Phase 5 ports compose.astro to use SourcePicker, the
-  // originals there can be deleted.
+  // The actual filter logic lives in src/lib/source-filters.ts — pure
+  // functions, unit-tested in source-filters.test.ts. Here we just
+  // import them; filteredSources() below calls them per-source.
   //
-  // Each function returns true if the source SHOULD be kept under the
-  // current filter state.
-
-  /** Set of state codes (2-letter) whose name matches the query (≥ 4
-   *  chars). Lets typing "Texas" surface TX state-level + CD sources
-   *  even when the CD chip is inactive. Per-instance memoized. */
-  const stateUnlockCache = new WeakMap<
-    InstanceState,
-    { q: string; result: Set<string> | null }
-  >();
-  function unlockedStatesForQuery(
-    state: InstanceState,
-    q: string,
-  ): Set<string> | null {
-    const cached = stateUnlockCache.get(state);
-    if (cached && cached.q === q) return cached.result;
-    let result: Set<string> | null = null;
-    if (q.length >= 4) {
-      const matched = new Set<string>();
-      const ql = q.toLowerCase();
-      for (const s of US_STATES) {
-        if (s.name.toLowerCase().includes(ql)) matched.add(s.code);
-      }
-      if (matched.size > 0) result = matched;
-    }
-    stateUnlockCache.set(state, { q, result });
-    return result;
-  }
-
-  /** Set of metro CBSA tags unlocked by a ≥ 4-char query that matches
-   *  the metro's name. Per-instance memoized. */
-  const metroUnlockCache = new WeakMap<
-    InstanceState,
-    { q: string; result: Set<string> | null }
-  >();
-  function unlockedMetrosForQuery(
-    state: InstanceState,
-    q: string,
-    lib: LibraryPayload,
-  ): Set<string> | null {
-    const cached = metroUnlockCache.get(state);
-    if (cached && cached.q === q) return cached.result;
-    let result: Set<string> | null = null;
-    if (q.length >= 4 && lib.metros) {
-      const matched = new Set<string>();
-      const ql = q.toLowerCase();
-      for (const [code, entry] of Object.entries(lib.metros)) {
-        const hay = (entry.shortName + " " + entry.name).toLowerCase();
-        if (hay.includes(ql)) matched.add(`${METRO_TAG}:${code}`);
-      }
-      if (matched.size > 0) result = matched;
-    }
-    metroUnlockCache.set(state, { q, result });
-    return result;
-  }
-
-  const countryUnlockCache = new WeakMap<
-    InstanceState,
-    { q: string; result: Set<string> | null }
-  >();
-  function unlockedCountriesForQuery(
-    state: InstanceState,
-    q: string,
-    lib: LibraryPayload,
-  ): Set<string> | null {
-    const cached = countryUnlockCache.get(state);
-    if (cached && cached.q === q) return cached.result;
-    let result: Set<string> | null = null;
-    if (q.length >= 4 && lib.countries) {
-      const matched = new Set<string>();
-      const ql = q.toLowerCase();
-      for (const [code, entry] of Object.entries(lib.countries)) {
-        if (entry.name.toLowerCase().includes(ql)) {
-          matched.add(`${COUNTRY_TAG}:${code}`);
-        }
-      }
-      if (matched.size > 0) result = matched;
-    }
-    countryUnlockCache.set(state, { q, result });
-    return result;
-  }
-
-  function passesMetroFilter(
-    state: InstanceState,
-    sTags: string[],
-    query: string,
-    lib: LibraryPayload,
-  ): boolean {
-    if (state.selectedMetroCbsa) {
-      return sTags.includes(`${METRO_TAG}:${state.selectedMetroCbsa}`);
-    }
-    const hasMetroTag = sTags.some(
-      (t) => t === METRO_TAG || t.startsWith(`${METRO_TAG}:`),
-    );
-    if (!hasMetroTag) return true;
-    const unlock = unlockedMetrosForQuery(state, query, lib);
-    if (!unlock) return false;
-    for (const t of sTags) {
-      if (unlock.has(t)) return true;
-    }
-    return false;
-  }
-
-  function passesCountryFilter(
-    state: InstanceState,
-    sTags: string[],
-    query: string,
-    lib: LibraryPayload,
-  ): boolean {
-    if (state.selectedCountryCode) {
-      return sTags.includes(`${COUNTRY_TAG}:${state.selectedCountryCode}`);
-    }
-    if (!sTags.includes(COUNTRY_TAG)) return true;
-    const unlock = unlockedCountriesForQuery(state, query, lib);
-    if (!unlock) return false;
-    for (const t of sTags) {
-      if (unlock.has(t)) return true;
-    }
-    return false;
-  }
-
-  function passesCdFilter(
-    state: InstanceState,
-    id: string,
-    tags: string[],
-    query: string,
-  ): boolean {
-    const isCd = tags.includes(CD_TAG);
-    const isStateLevel = tags.includes(STATE_TAG);
-    const isGeo = isCd || isStateLevel;
-    // Chip "inactive" = cdState is null. Geo sources need to be
-    // either hidden (no query) or unlocked by typed state name.
-    if (!state.cdState) {
-      if (!isGeo) return true;
-      const unlock = unlockedStatesForQuery(state, query);
-      if (!unlock) return false;
-      const parsed = isCd ? parseCdSourceId(id) : parseStateSourceId(id);
-      return !!parsed && unlock.has(parsed.state);
-    }
-    // Chip active. Non-geo sources are filtered out.
-    if (!isGeo) return false;
-    if (state.cdDistrict === STATEWIDE_DISTRICT_CODE) {
-      if (!isStateLevel) return false;
-      return parseStateSourceId(id)?.state === state.cdState;
-    }
-    if (state.cdDistrict) {
-      if (!isCd) return false;
-      const parsed = parseCdSourceId(id);
-      return (
-        parsed?.state === state.cdState &&
-        parsed?.district === state.cdDistrict
-      );
-    }
-    // District unset = "All": both state-level + CDs of that state.
-    if (isStateLevel) return parseStateSourceId(id)?.state === state.cdState;
-    if (isCd) return parseCdSourceId(id)?.state === state.cdState;
-    return false;
-  }
-
-  function passesCountyFilter(
-    id: string,
-    sTags: string[],
-    query: string,
-  ): boolean {
-    if (!sTags.includes(COUNTY_TAG)) return true;
-    if (query.length < 4) return false;
-    const parsed = parseCountySourceId(id);
-    if (!parsed) return false;
-    return parsed.countyName.toLowerCase().includes(query.toLowerCase());
-  }
+  // Perf note: each passes*Filter call internally computes the
+  // unlocked* sets, which walks the metros/countries arrays. For
+  // ~20k sources × 3 filter types, that's a lot of redundant work
+  // per render. If profiling shows this is slow, add an optional
+  // pre-computed unlocks parameter to the lib functions and have
+  // filteredSources hoist the computation outside the per-source
+  // loop. Today the ~5ms cost is below the perceptible threshold.
+  //
+  // Suppress unused-import warnings for the unlocked* helpers —
+  // they're only directly used if we add the hoisting optimization.
+  void unlockedStatesForQuery;
+  void unlockedMetrosForQuery;
+  void unlockedCountriesForQuery;
 
   /** Apply current filter state to the library. Returns a sorted list
    *  ready to render — hint cards at the top, then alphabetical by
@@ -470,9 +319,24 @@ const {
         }
       }
       if (!ok) continue;
-      if (!passesCdFilter(state, id, tags, q)) continue;
-      if (!passesMetroFilter(state, tags, q, lib)) continue;
-      if (!passesCountryFilter(state, tags, q, lib)) continue;
+      // The lib's passes*Filter helpers are pure (no per-instance
+      // state); we feed them the per-instance state's relevant fields
+      // explicitly. The unlocked* sets they compute internally are
+      // cheap on small libraries but for the ~20k-source library
+      // would recompute every iteration if not memoized. Pre-compute
+      // here once per render and intercept the calls via the
+      // memoStateUnlocks etc. wrappers — TODO: when passes*Filter
+      // accepts an optional pre-computed unlock arg, switch to that.
+      if (!passesCdFilter(id, tags, state.cdState, state.cdDistrict, q))
+        continue;
+      if (
+        !passesMetroFilter(tags, state.selectedMetroCbsa, q, lib)
+      )
+        continue;
+      if (
+        !passesCountryFilter(tags, state.selectedCountryCode, q, lib)
+      )
+        continue;
       if (!passesCountyFilter(id, tags, q)) continue;
       // Hint cards: only show with a query. An unprompted library
       // browse should be a clean list of real sources.
