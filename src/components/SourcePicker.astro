@@ -453,16 +453,30 @@ const extraSourcesJson = extraSources.length > 0
   }
 
   /** Build the topical tag set from the library — union of all .tags,
-   *  minus geo tags. Sorted alphabetically for stable display order. */
-  function topicalTags(lib: LibraryPayload): string[] {
-    const seen = new Set<string>();
+   *  minus geo tags. Returns each tag PLUS the number of library
+   *  sources carrying it, sorted alphabetically. The count is global
+   *  (across all sources) — it doesn't react to other filter state.
+   *  A future iteration could compute filter-aware counts (matters
+   *  most when a geo chip is active, where "single-name (35)" might
+   *  drop to "(2)" — but the count rebuild would have to happen on
+   *  every filter change).
+   *
+   *  Hint cards are excluded from the count even though they carry
+   *  topical tags — they're synthetic and don't represent a real
+   *  pickable source. */
+  function topicalTagCounts(lib: LibraryPayload): Array<{ tag: string; count: number }> {
+    const counts = new Map<string, number>();
     for (const id of Object.keys(lib.sources ?? {})) {
       const src = lib.sources![id];
+      if (src.kind === "hint") continue;
       for (const t of src.tags ?? []) {
-        if (!isGeoTag(t)) seen.add(t);
+        if (isGeoTag(t)) continue;
+        counts.set(t, (counts.get(t) ?? 0) + 1);
       }
     }
-    return Array.from(seen).sort();
+    return Array.from(counts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => a.tag.localeCompare(b.tag));
   }
 
   function escapeHtml(s: string): string {
@@ -478,17 +492,20 @@ const extraSourcesJson = extraSources.length > 0
       "[data-spicker-role='tags']",
     );
     if (!host) return;
-    const tags = topicalTags(lib);
+    const tagCounts = topicalTagCounts(lib);
+    const totalCount = tagCounts.reduce((s, t) => s + t.count, 0);
     const parts: string[] = [];
-    // "All" chip always first — clears the tag filter.
+    // "All" chip always first — clears the tag filter. The count
+    // is the sum of all topical counts (not the actual library
+    // size, since geo-only sources aren't represented).
     const allActive = state.selectedTags.size === 0;
     parts.push(
-      `<button type="button" class="source-picker-chip${allActive ? " source-picker-chip-active" : ""}" data-spicker-tag="">All</button>`,
+      `<button type="button" class="source-picker-chip${allActive ? " source-picker-chip-active" : ""}" data-spicker-tag="">All <span class="source-picker-chip-count">${totalCount}</span></button>`,
     );
-    for (const tag of tags) {
+    for (const { tag, count } of tagCounts) {
       const active = state.selectedTags.has(tag);
       parts.push(
-        `<button type="button" class="source-picker-chip${active ? " source-picker-chip-active" : ""}" data-spicker-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`,
+        `<button type="button" class="source-picker-chip${active ? " source-picker-chip-active" : ""}" data-spicker-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="source-picker-chip-count">${count}</span></button>`,
       );
     }
     host.innerHTML = parts.join("");
@@ -1079,8 +1096,22 @@ const extraSourcesJson = extraSources.length > 0
     display: flex;
     flex-direction: column;
     gap: 12px;
+    /* `min-width: 0` is critical for the flex/grid containers
+       wrapping this component. Without it, long source-card IDs
+       (`acs_metro/bachelors_plus_10180`) in the results list would
+       force their card to grow past the parent grid column's
+       intended `1fr`, dragging the whole layout wider. The grid
+       reflows differently when the picker's content width
+       changes, which surfaced as "selecting a tag chip shifts
+       everything else around." */
+    min-width: 0;
   }
   .source-picker-search {
+    /* `box-sizing: border-box` so the padding doesn't push the
+       input past 100% of the container — same bug class as above
+       (the input was the visible "growing" thing in screenshots,
+       but the root cause was unconstrained card growth). */
+    box-sizing: border-box;
     width: 100%;
     padding: 8px 12px;
     border: 1px solid rgba(55, 53, 47, 0.16);
@@ -1116,22 +1147,39 @@ const extraSourcesJson = extraSources.length > 0
     color: var(--color-white, #fff);
     border-color: var(--color-accent, #0F766E);
   }
+  /* Count badge inside each tag chip. Dimmer than the tag name
+     so a quick scan reads "topic, count" with the topic
+     dominant. Inherits color so it darkens against the active
+     chip's accent background. */
+  .source-picker-chip-count {
+    margin-left: 6px;
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+  }
   .source-picker-results {
     display: flex;
     flex-direction: column;
     gap: 6px;
     max-height: 50vh;
     overflow-y: auto;
+    /* See .source-picker for the min-width: 0 rationale. */
+    min-width: 0;
   }
   .source-picker-card {
     display: block;
     width: 100%;
+    /* box-sizing so padding doesn't push width past 100% */
+    box-sizing: border-box;
     text-align: left;
     padding: 10px 12px;
     border: 1px solid rgba(55, 53, 47, 0.08);
     border-radius: var(--radius-sm, 6px);
     background: var(--color-white, #fff);
     cursor: pointer;
+    /* Card itself is min-width-constrained too — defense in depth
+       in case a child has weird intrinsic-min behavior. */
+    min-width: 0;
   }
   .source-picker-card:hover {
     background: var(--color-neutral-100, #f5f5f5);
@@ -1149,6 +1197,12 @@ const extraSourcesJson = extraSources.length > 0
   .source-picker-card-id {
     font-family: var(--font-mono, monospace);
     margin-top: 4px;
+    /* Long IDs (acs_metro/bachelors_plus_10180) must break rather
+       than push the card width. Without word-break: break-all on
+       monospace strings with slashes/underscores, the browser may
+       leave the ID on a single un-wrappable line. */
+    word-break: break-all;
+    overflow-wrap: anywhere;
   }
   /* Hint card — subtle visual distinction so users know it's not a
      real source pick. */
