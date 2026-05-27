@@ -48,13 +48,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCES_DIR = REPO_ROOT / "src" / "content" / "sources" / "fred"
 REPORT_PATH = REPO_ROOT / "docs" / "fred-copyright-audit.md"
 
-# Tag values FRED uses for the three copyright statuses. The "name"
-# field on each tag is the user-visible label; we match against the
-# "id" field which is the slug FRED uses internally.
-COPYRIGHT_TAG_IDS = {
-    "copyrighted-pre-approval-required": "PRE-APPROVAL",
-    "copyrighted-citation-required": "CITATION-REQUIRED",
-    "public-domain-citation-requested": "PUBLIC-DOMAIN",
+# Tag values FRED uses for the three copyright statuses. Match on
+# the "name" field (FRED's tag IDs aren't slugs — they're the
+# user-visible phrase lowercased verbatim) with group_id == "cc"
+# (FRED's "copyright class" tag group). The mapping below covers
+# every label observed in the wild as of 2026-05. If FRED ever
+# adds a new label the audit will fall through to UNKNOWN and the
+# series will surface in that bucket for manual review.
+COPYRIGHT_TAG_NAMES: dict[str, str] = {
+    "copyrighted: pre-approval required": "PRE-APPROVAL",
+    "copyrighted: citation required": "CITATION-REQUIRED",
+    "public domain: citation requested": "PUBLIC-DOMAIN",
 }
 
 # Hand-curated heuristic table for offline use. Keys are FRED series IDs
@@ -75,6 +79,9 @@ HEURISTIC = {
     # S&P Dow Jones Indices (third-party, pre-approval).
     "SP500": ("PRE-APPROVAL", "S&P Dow Jones Indices LLC", "S&P 500 index level"),
     "CSUSHPISA": ("PRE-APPROVAL", "S&P / CoreLogic / Case-Shiller", "National HPI"),
+    # Nasdaq, Inc (third-party, pre-approval). My original heuristic
+    # missed this — only surfaced after the authoritative API pass.
+    "NASDAQCOM": ("PRE-APPROVAL", "Nasdaq, Inc.", "NASDAQ Composite"),
     # CBOE (third-party).
     "VIXCLS": ("PRE-APPROVAL", "Cboe Global Markets / CBOE", "VIX close"),
     # Moody's (third-party).
@@ -165,9 +172,10 @@ def heuristic_lookup(series_id: str) -> Optional[tuple[str, str, str]]:
 
 
 def fred_api_lookup(series_id: str, api_key: str) -> Optional[tuple[str, list[str]]]:
-    """Hit /fred/series/tags and return (status, raw_tag_ids).
+    """Hit /fred/series/tags and return (status, copyright_tag_names).
     Returns None on network error / unknown series. The status is
-    derived from whichever copyright tag the series carries."""
+    derived from whichever copyright-class tag (group_id == "cc")
+    the series carries."""
     url = (
         f"https://api.stlouisfed.org/fred/series/tags"
         f"?series_id={series_id}&api_key={api_key}&file_type=json"
@@ -182,12 +190,20 @@ def fred_api_lookup(series_id: str, api_key: str) -> Optional[tuple[str, list[st
         raise
     except (URLError, json.JSONDecodeError):
         return None
-    tag_ids = [t.get("id", "") for t in data.get("tags", [])]
-    for tag_id in tag_ids:
-        if tag_id in COPYRIGHT_TAG_IDS:
-            return (COPYRIGHT_TAG_IDS[tag_id], tag_ids)
-    # No explicit copyright tag found — default to UNKNOWN.
-    return ("UNKNOWN", tag_ids)
+    # The "cc" group is FRED's copyright-class tag group. A series
+    # almost always carries exactly one cc-group tag; we surface its
+    # name back so the report's `notes` column shows the original
+    # FRED phrasing rather than just our bucket label.
+    cc_names: list[str] = []
+    for t in data.get("tags", []):
+        if t.get("group_id") == "cc":
+            cc_names.append(t.get("name", ""))
+    for name in cc_names:
+        if name in COPYRIGHT_TAG_NAMES:
+            return (COPYRIGHT_TAG_NAMES[name], cc_names)
+    # No cc-group tag with a recognized label — return UNKNOWN so
+    # the row surfaces for manual review.
+    return ("UNKNOWN", cc_names)
 
 
 def load_env_key() -> Optional[str]:
@@ -231,7 +247,9 @@ def run() -> int:
                 status, tag_ids = result
                 meta.status = status
                 meta.source = "api"
-                meta.notes.append(f"FRED tags: {', '.join(tag_ids[:10])}")
+                meta.notes.append(
+                    "FRED cc tag: " + (", ".join(tag_ids) or "(none)")
+                )
             else:
                 meta.notes.append("FRED API returned no data for this series")
                 # Fall through to heuristic as a backup.

@@ -49,7 +49,10 @@ SPECS: list[FredSpec] = [
     # SP500 (S&P 500) intentionally NOT ingested: third-party
     # copyrighted by S&P Dow Jones Indices LLC, pre-approval
     # required. Removed 2026-05-27.
-    FredSpec("NASDAQCOM", "NASDAQ Composite", "index"),
+    # NASDAQCOM (NASDAQ Composite) intentionally NOT ingested:
+    # third-party copyrighted by Nasdaq, Inc. The heuristic in
+    # the original audit missed this; FRED's authoritative tag
+    # surfaced it after the API key landed. Removed 2026-05-27.
     FredSpec("GASREGW", "US retail gasoline, regular grade", "USD/gal"),
     FredSpec("GASDESW", "US retail diesel", "USD/gal"),
     FredSpec("DHHNGSP", "Henry Hub natural gas spot", "USD/mmbtu"),
