@@ -537,6 +537,153 @@ export const iframeTests: DiagnosticTest[] = [
     },
   },
   {
+    id: "iframe/composer-tile-drag-attribute",
+    category: "iframe",
+    label:
+      "Composer with pre-encoded state shows draggable tiles (drag wiring prerequisite)",
+    timeoutMs: 30000,
+    run: async (): Promise<DiagnosticResult> => {
+      // Drag-drop interaction tests are infamously flaky across
+      // browsers (DataTransfer + dragstart synthesis is poorly
+      // standardized). Rather than trying to drive a full drag flow,
+      // this test verifies the PREREQUISITE: that tiles render with
+      // draggable=true + the data-sec-idx / data-chart-idx attrs the
+      // composer's dragstart handler reads. If those aren't present,
+      // drag-to-reorder is broken regardless of whether the
+      // dispatch succeeds. Also fires a synthetic dragstart and
+      // reports whether anything visibly responded — informational
+      // only.
+      const { encodeComposedState } = await import(
+        "../composer-state"
+      );
+      // Two charts in one section so the user has something to
+      // reorder. countries/australia was confirmed real in earlier
+      // diagnostic runs; pick any two chart IDs from library.json
+      // if a renamed dashboard later breaks both.
+      const libRes = await fetch(
+        new URL("/library.json", window.location.origin).toString(),
+        { cache: "no-store" },
+      );
+      if (libRes.status !== 200) {
+        return fail(`library.json status=${libRes.status}`);
+      }
+      const lib = (await libRes.json()) as {
+        charts?: Array<{ id?: string }>;
+      };
+      const chartIds = (lib.charts ?? [])
+        .map((c) => c?.id)
+        .filter((s): s is string => !!s)
+        .slice(0, 2);
+      if (chartIds.length < 2) {
+        return fail("library.json has < 2 chart ids");
+      }
+      const encoded = encodeComposedState({
+        title: "Diag drag-drop probe",
+        sections: [
+          {
+            title: "Two tiles to reorder",
+            charts: chartIds,
+          },
+        ],
+      });
+      return await withHiddenIframe(
+        `/compose/?d=${encoded}`,
+        4500, // hydration + state decode + tile render
+        async (win, doc, errors) => {
+          const tiles = doc.querySelectorAll<HTMLElement>(
+            ".comp-section-grid .comp-tile",
+          );
+          if (tiles.length < 2) {
+            return fail(
+              `expected >= 2 tiles after state-encoded URL load, got ${tiles.length}`,
+              {
+                tileCount: tiles.length,
+                errors: errors.slice(0, 3),
+              },
+            );
+          }
+          // Prerequisite check: tiles MUST be draggable + have the
+          // dataset.secIdx / dataset.chartIdx that the handler reads.
+          const first = tiles[0];
+          const second = tiles[1];
+          if (!first.draggable) {
+            return fail(
+              "first tile has draggable=false — drag-to-reorder wiring broken at the DOM level",
+              { errors: errors.slice(0, 3) },
+            );
+          }
+          if (first.dataset.secIdx == null || first.dataset.chartIdx == null) {
+            return fail(
+              "tiles missing data-sec-idx / data-chart-idx — composer drag handler can't identify them",
+            );
+          }
+          // Attempt a synthetic drag — best-effort, won't fail the
+          // test if it doesn't reorder anything. JSDOM-style synthetic
+          // DataTransfer is finicky; we just need to know "did the
+          // dragstart handler at least fire without crashing?"
+          let dragstartCount = 0;
+          first.addEventListener(
+            "dragstart",
+            () => {
+              dragstartCount++;
+            },
+            { once: true },
+          );
+          try {
+            const dt = new (win as unknown as { DataTransfer: typeof DataTransfer })
+              .DataTransfer();
+            const dragstartEvent = new (win as unknown as {
+              DragEvent: typeof DragEvent;
+            }).DragEvent("dragstart", {
+              bubbles: true,
+              cancelable: true,
+              dataTransfer: dt,
+            });
+            first.dispatchEvent(dragstartEvent);
+            // Best-effort drop on second tile.
+            const dropEvent = new (win as unknown as {
+              DragEvent: typeof DragEvent;
+            }).DragEvent("drop", {
+              bubbles: true,
+              cancelable: true,
+              dataTransfer: dt,
+            });
+            second.dispatchEvent(dropEvent);
+            first.dispatchEvent(
+              new (win as unknown as {
+                DragEvent: typeof DragEvent;
+              }).DragEvent("dragend", { bubbles: true }),
+            );
+          } catch (e) {
+            // Drag synthesis failed — that's the EXPECTED outcome in
+            // many browsers. Don't fail the test on this alone.
+            return warn(
+              `tile prerequisites OK (draggable=true, data attrs present); synthetic drag dispatch failed: ${(e as Error).message}`,
+              { tileCount: tiles.length },
+            );
+          }
+          await new Promise((r) => setTimeout(r, 500));
+          // Inspect whether the order changed — if it did, the drag
+          // actually worked, which is a stronger pass.
+          const afterTiles = doc.querySelectorAll<HTMLElement>(
+            ".comp-section-grid .comp-tile",
+          );
+          const newFirstChartIdx = afterTiles[0]?.dataset.chartIdx;
+          const reordered = newFirstChartIdx !== first.dataset.chartIdx;
+          return pass(
+            `${tiles.length} draggable tiles; dragstart fired ${dragstartCount}x; reorder=${reordered}`,
+            {
+              tileCount: tiles.length,
+              dragstartCount,
+              reordered,
+              errorCount: errors.length,
+            },
+          );
+        },
+      );
+    },
+  },
+  {
     id: "iframe/mobile-viewport-no-horizontal-scroll",
     category: "iframe",
     label:
