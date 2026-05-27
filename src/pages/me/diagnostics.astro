@@ -134,7 +134,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             across ${new Set(ALL_DIAGNOSTIC_TESTS.map((t) => t.category)).size}
             categories.
           </p>
-          <div class="flex gap-2 items-center mb-4">
+          <div class="flex gap-2 items-center mb-4 flex-wrap">
             <button type="button" data-role="run"
               class="px-4 py-2 bg-accent text-white rounded hover:opacity-90 cursor-pointer">
               Run diagnostics
@@ -147,8 +147,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               class="px-4 py-2 border rounded text-neutral-500 cursor-not-allowed">
               Copy report
             </button>
+            <button type="button" data-role="post-github" disabled
+              class="px-4 py-2 border rounded text-neutral-500 cursor-not-allowed"
+              title="Post the report as a comment on the Diagnostics GitHub issue. Requires GITHUB_TOKEN + GITHUB_DIAGNOSTIC_ISSUE_NUMBER env vars on Vercel.">
+              Post to GitHub
+            </button>
           </div>
           <div data-role="progress" class="text-xs text-neutral-500"></div>
+          <div data-role="post-result" class="text-xs mt-2"></div>
           <div data-role="results" class="mt-4 text-xs font-mono whitespace-pre-wrap"></div>
         </div>
       `);
@@ -157,20 +163,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
 
     function wireRunner(
-      _sb: ReturnType<typeof createSupabase>,
+      sb: ReturnType<typeof createSupabase>,
       email: string,
       userId: string,
     ): void {
       const runBtn = content!.querySelector<HTMLButtonElement>("[data-role='run']")!;
       const downloadBtn = content!.querySelector<HTMLButtonElement>("[data-role='download']")!;
       const copyBtn = content!.querySelector<HTMLButtonElement>("[data-role='copy']")!;
+      const postBtn = content!.querySelector<HTMLButtonElement>("[data-role='post-github']")!;
       const progressEl = content!.querySelector<HTMLElement>("[data-role='progress']")!;
+      const postResultEl = content!.querySelector<HTMLElement>("[data-role='post-result']")!;
       const resultsEl = content!.querySelector<HTMLElement>("[data-role='results']")!;
 
       let lastReport: string | null = null;
+      let lastRunId: string | null = null;
 
       function setDownloadEnabled(enabled: boolean): void {
-        const buttons = [downloadBtn, copyBtn];
+        const buttons = [downloadBtn, copyBtn, postBtn];
         for (const b of buttons) {
           b.disabled = !enabled;
           if (enabled) {
@@ -221,6 +230,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         };
         const report = formatReport(header, records);
         lastReport = report;
+        lastRunId = `${new Date().toISOString()}-${Math.random().toString(36).slice(2, 10)}`;
+        postResultEl.textContent = "";
 
         const summary = summarize(records);
         progressEl.textContent =
@@ -257,6 +268,67 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }, 1500);
         } catch (e) {
           alert(`Clipboard write failed: ${(e as Error).message}`);
+        }
+      });
+
+      postBtn.addEventListener("click", async () => {
+        if (!lastReport) return;
+        postBtn.disabled = true;
+        const origText = postBtn.textContent;
+        postBtn.textContent = "Posting…";
+        postResultEl.innerHTML = "";
+        try {
+          // Get a fresh JWT to send to the server. The server-side
+          // /api/diagnostic re-verifies it via Supabase before
+          // accepting the post.
+          const { data: sess } = await sb!.auth.getSession();
+          const token = sess.session?.access_token;
+          if (!token) {
+            postResultEl.innerHTML =
+              `<span class="text-error">No active session — sign in and try again.</span>`;
+            return;
+          }
+          const res = await fetch("/api/diagnostic", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ report: lastReport, runId: lastRunId }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            postResultEl.innerHTML =
+              `<span class="text-error">Post failed (${res.status}): ${escapeHtml(
+                (data as { error?: string }).error ?? "unknown error",
+              )}</span>`;
+            return;
+          }
+          const commentUrl = (data as { commentUrl?: string }).commentUrl;
+          const truncatedBy = (data as { truncatedBy?: number }).truncatedBy ?? 0;
+          if (commentUrl) {
+            const truncNote =
+              truncatedBy > 0
+                ? ` <span class="text-neutral-500">(truncated ${truncatedBy} chars)</span>`
+                : "";
+            postResultEl.innerHTML =
+              `<span class="text-neutral-700">Posted: <a class="underline text-accent" href="${escapeHtml(
+                commentUrl,
+              )}" target="_blank" rel="noopener">${escapeHtml(
+                commentUrl,
+              )}</a>${truncNote}</span>`;
+          } else {
+            postResultEl.innerHTML =
+              `<span class="text-neutral-700">Posted but no URL returned. Check the Diagnostics issue manually.</span>`;
+          }
+        } catch (e) {
+          postResultEl.innerHTML =
+            `<span class="text-error">Network error: ${escapeHtml(
+              (e as Error).message,
+            )}</span>`;
+        } finally {
+          postBtn.disabled = false;
+          postBtn.textContent = origText;
         }
       });
     }
