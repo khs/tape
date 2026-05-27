@@ -33,12 +33,18 @@ sections:
       - us-macro/fed_funds
       - us-macro/cpi
   - title: "Real economy"
-    description: "Capacity utilization + industrial production are coincident with the business cycle. Saving rate + retail sales give the consumer view."
+    description: "Capacity utilization + industrial production are coincident with the business cycle. Saving rate + retail sales + real disposable income give the consumer view."
     charts:
       - us-macro/capacity_util
       - us-macro/industrial_production
       - us-macro/saving_rate
       - us-macro/retail_sales
+      - us-macro/real_disposable_income
+  - title: "Consumer mood proxies"
+    description: "Stand-ins for the UMich consumer-sentiment series (third-party copyrighted, not redistributable). JOLTS quits rate as worker-side confidence; consumer credit as borrowing-willingness confidence. Together they capture much of the sentiment signal."
+    charts:
+      - us-macro/jolts_quits_rate
+      - us-macro/consumer_credit
 ---
 
 ## What "recession monitor" can and can't do

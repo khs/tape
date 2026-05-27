@@ -37,15 +37,19 @@ sections:
       - us-macro/headline_pce
       - us-macro/core_pce
   - title: Consumers
-    description: "Where consumer demand actually is. Retail sales = current spending, saving rate = the cushion."
+    description: "Where consumer demand actually is. Retail sales = current spending; the saving rate, real disposable income, JOLTS quits, and consumer credit together cover the income, confidence, and leverage sides of consumer mood. (Headline UMich sentiment is third-party copyrighted and not redistributable; this set of public-domain proxies is what we carry instead.)"
     charts:
       - us-macro/retail_sales
       - us-macro/saving_rate
+      - us-macro/real_disposable_income
+      - us-macro/jolts_quits_rate
+      - us-macro/consumer_credit
   - title: Housing
-    description: "Starts measure new-construction supply; median home price gauges the price side."
+    description: "Starts measure new-construction supply; median home price + FHFA HPI gauge the price side."
     charts:
       - us-macro/housing_starts
       - us-macro/median_home_price
+      - us-macro/fhfa_us_hpi
   - title: Monetary & credit
     description: "M2 and the Fed balance sheet show how much liquidity the system carries."
     charts:

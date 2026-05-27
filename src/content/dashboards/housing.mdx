@@ -6,8 +6,9 @@ description: "US housing through price + supply + demand + cost-of-capital lense
 aboutBlurb: "Six angles on the US housing market: prices, listings, supply pipeline, inventory months, vacancy, and the mortgage rate. Plus a DC-metro panel because DC housing diverges enough from the national story to need its own framing."
 sections:
   - title: "Prices"
-    description: "Median listing price for the US is the headline US-wide signal here. Zillow's ZHVI and ZORI cover the per-metro level with broader geographic coverage than the national series alone."
+    description: "FHFA's repeat-sales House Price Index for the US is the headline trajectory signal — same property selling twice, so changes in the mix of homes selling don't drive the number. Median listing price adds a level read. Zillow's ZHVI and ZORI cover the per-metro level."
     charts:
+      - us-macro/fhfa_us_hpi
       - us-macro/median_home_price
       - real-estate/dc_median_listing
       - real-estate/zhvi_metros
@@ -29,8 +30,9 @@ sections:
       - us-macro/mortgage_30y
       - real-estate/mortgage_15y
   - title: "DC metro context"
-    description: "DC listing price + rent CPI. The DC-area housing market consistently runs above national in both levels and cyclical amplitude — federal-payroll income stability supports prices through downturns, and the supply pipeline has been more constrained than national average."
+    description: "DC vs US house-price trajectory (FHFA), DC listing price, and DC-area rent CPI. The DC-area housing market consistently runs above national in both levels and cyclical amplitude — federal-payroll income stability supports prices through downturns, and the supply pipeline has been more constrained than national average."
     charts:
+      - real-estate/dc_fhfa_vs_us
       - real-estate/dc_median_listing
       - real-estate/rent_cpi
   - title: "Real-estate equities"
@@ -100,10 +102,31 @@ two structural reasons:
    Spring), local zoning + topography limit new construction.
    Prices clear higher.
 
-The DC listing-price + rent panels show the trajectory: DC ran
-with the national pattern through the GFC drop, then started
-pulling ahead in 2012-13, widened the gap further through the
+The DC FHFA-vs-US chart shows the trajectory: DC ran with the
+national pattern through the GFC drop, then started pulling
+ahead in 2012-13, widened the gap further through the
 federal-spending recovery and tech-policy buildout of the 2010s.
+
+## A note on the home-price index choice
+
+We use FHFA's House Price Index rather than the more familiar
+Case-Shiller series. Both are repeat-sales indices and tell roughly
+the same story; the differences:
+
+- **FHFA** covers single-family properties with Fannie / Freddie
+  conforming mortgages. Broader geographic coverage than
+  Case-Shiller (which is a 20-city composite weighted toward
+  large coastal metros), narrower mortgage scope (excludes jumbo).
+- **FHFA is public-domain federal data** published by the U.S.
+  Federal Housing Finance Agency, freely redistributable.
+- **Case-Shiller** is owned by S&P Dow Jones Indices LLC and
+  CoreLogic, with redistribution requiring a separate license.
+  We aren't shipping it for that reason.
+
+Both update at similar cadences (FHFA is quarterly; Case-Shiller
+is monthly with a longer lag). For a national US trajectory the
+FHFA index is the cleaner choice both technically and for our
+licensing setup.
 
 ## Customizing for housing analysis
 

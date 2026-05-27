@@ -80,11 +80,33 @@ SPECS: list[FredSpec] = [
     # CSUSHPISA (Case-Shiller national) intentionally NOT ingested:
     # third-party copyrighted by S&P / CoreLogic / Case-Shiller,
     # pre-approval required. Removed 2026-05-27.
+    # FHFA House Price Index is the clean substitute: federal-agency
+    # data, public domain via FRED, broader geographic coverage than
+    # Case-Shiller's 20-city composite. Quarterly. Two versions
+    # ingested: all-transactions (USSTHPI, longer history, includes
+    # refinances) and purchase-only (HPIPONM226S, SA, shorter
+    # history but cleaner because no refi-driven noise).
+    FredSpec("USSTHPI", "FHFA all-transactions HPI, national", "index"),
+    FredSpec("HPIPONM226S", "FHFA purchase-only HPI, national (SA)", "index"),
     FredSpec("MSPUS", "Median sales price of houses sold", "USD"),
     # Spending & income
     FredSpec("RSAFS", "Retail sales (advance, total ex auto)", "millions USD"),
     FredSpec("PI", "Personal income", "billions USD"),
     FredSpec("PSAVERT", "Personal saving rate", "%"),
+    # Consumer-confidence proxies. UMich's headline sentiment series
+    # is third-party copyrighted (removed 2026-05-27), so we surface
+    # a range of public-domain series that move with consumer mood
+    # from different angles:
+    #   DSPIC96 — real disposable personal income (BEA): the income
+    #     foundation underneath any sentiment.
+    #   JTSQUR  — JOLTS quits rate (BLS): people quit when they're
+    #     confident they can find another job.
+    #   TOTALSL — total consumer credit (FRB): borrowing willingness
+    #     as a confidence signal. (PSAVERT above is the inverse
+    #     read — saving up when worried.)
+    FredSpec("DSPIC96", "Real disposable personal income", "billions chained 2017 USD"),
+    FredSpec("JTSQUR", "JOLTS quits rate", "%"),
+    FredSpec("TOTALSL", "Total consumer credit (owned and securitized)", "billions USD"),
     # Monetary / Fed
     FredSpec("M2SL", "M2 money supply", "billions USD"),
     FredSpec("WALCL", "Fed total assets (balance sheet)", "millions USD"),
@@ -250,7 +272,9 @@ SPECS: list[FredSpec] = [
     # conditions in the federal-economy core regardless of jurisdiction.
     # WDXRSA (DC-metro Case-Shiller) intentionally NOT ingested:
     # third-party copyrighted by S&P / CoreLogic / Case-Shiller.
-    # Removed 2026-05-27.
+    # Removed 2026-05-27. FHFA DC-MSA HPI is the clean substitute:
+    # public domain, quarterly, covers the same metro area.
+    FredSpec("ATNHPIUS47894Q", "FHFA all-transactions HPI, DC-MSA", "index"),
     FredSpec("WASH911URN", "DC-metro unemployment rate", "%"),
     FredSpec("WASH911NA", "DC-metro nonfarm payroll employment", "thousands"),
     FredSpec("MEDLISPRI47900", "DC-metro median listing price (homes for sale)", "USD"),

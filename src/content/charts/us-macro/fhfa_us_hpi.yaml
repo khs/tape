@@ -1,0 +1,14 @@
+title: FHFA home price index (national)
+sources: ["fred/fhfa_us_hpi"]
+render: line
+defaultDelta: 5y
+tags: [us, macro, real-estate]
+blurb: |
+  FHFA's all-transactions House Price Index for the United States.
+  A repeat-sales index — same property selling twice, so changes in
+  the mix of homes selling each month don't drive the number. Covers
+  single-family properties with conforming Fannie / Freddie mortgages,
+  which gives broader geographic coverage than alternatives.
+  <br/><br/>
+  Quarterly, indexed to 1980Q1 = 100. Published by the U.S. Federal
+  Housing Finance Agency, public-domain federal data.

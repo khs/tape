@@ -1,0 +1,28 @@
+name: Real disposable personal income
+shortName: Real DPI
+description: After-tax income adjusted for inflation. The income foundation
+  underneath consumer-confidence readings — when real DPI is rising, sentiment
+  tends to follow; when it stalls, sentiment leads it down. One of the public-
+  domain proxies for the UMich consumer-sentiment series (which we don't
+  ingest, third-party copyright).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DSPIC96.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "billions chained 2017 USD"
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+  scaleFactor: 1000000000
+provenance:
+  provider: U.S. Bureau of Economic Analysis (BEA) via FRED
+  series: DSPIC96
+  url: https://fred.stlouisfed.org/series/DSPIC96
+  license: Public domain (US government data; BEA publishes the underlying NIPA series)
+tags:
+  - macro
+  - consumer
+  - sentiment-proxy
+  - us
+unitClass: currency

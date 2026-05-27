@@ -1,8 +1,0 @@
-title: VIX volatility — spot history + futures curve
-sources:
-  - yahoo_futures/vix_curve
-render: line
-defaultDelta: 5y
-tags: [markets, volatility, risk]
-blurb: |
-  Solid line: monthly-averaged ^VIX (CBOE Volatility Index spot). Dashed extension: today's front-vs-second-month VIX-futures spread (Cboe ^VFTW1 / ^VFTW2 rolling indices). The CURVE'S SLOPE is what to watch: upward = market is calm (contango), downward = traders pay a premium for immediate vol protection (backwardation / crisis).

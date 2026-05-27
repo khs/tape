@@ -1,0 +1,24 @@
+name: FHFA national home price index
+shortName: FHFA HPI
+description: FHFA all-transactions House Price Index for the United States.
+  Repeat-sales index covering single-family properties with Fannie/Freddie
+  mortgages. Public-domain federal-agency data; replaced the third-party
+  Case-Shiller series in 2026 for compliance reasons.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/USSTHPI.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index 1980Q1=100"
+formatting:
+  style: number
+  decimals: 1
+provenance:
+  provider: U.S. Federal Housing Finance Agency (FHFA) via FRED
+  series: USSTHPI
+  url: https://fred.stlouisfed.org/series/USSTHPI
+  license: Public domain (US government data; FHFA publishes the underlying index)
+tags:
+  - macro
+  - real-estate
+  - us
+unitClass: index

@@ -1,0 +1,17 @@
+title: Total consumer credit
+sources: ["fred/consumer_credit"]
+render: line
+defaultDelta: 5y
+tags: [us, macro, consumer]
+blurb: |
+  Total consumer credit outstanding (revolving + non-revolving), owned
+  and securitized. Rising borrowing signals consumer willingness to
+  take on debt — a confidence indicator from the leverage side.
+  Deceleration or contraction tends to coincide with risk-off
+  sentiment regimes.
+  <br/><br/>
+  Read this alongside the personal saving rate for a full picture:
+  high saving + falling credit = defensive consumer; low saving +
+  rising credit = confident consumer. Public-domain Fed data; one of
+  three consumer-mood proxies we surface in place of the UMich
+  consumer-sentiment series.
