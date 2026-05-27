@@ -56,18 +56,38 @@ interface Props {
   /** Hide the search input. Rare — use for tight modal layouts where
    *  the host already provides a search surface. */
   hideSearch?: boolean;
+  /** Sources to render at the TOP of the results list, before
+   *  library sources. Cc-modal uses this for user-defined derived
+   *  sources. The host can also update this client-side by
+   *  dispatching a `source-picker:set-extra-sources` event with
+   *  detail: { sources: LibrarySource[] } on the picker root. */
+  extraSources?: ReadonlyArray<{
+    id: string;
+    name: string;
+    shortName?: string;
+    description?: string;
+    tags?: string[];
+  }>;
 }
 const {
   instanceId,
   searchPlaceholder = "Search sources by name, ticker, or tag…",
   rootClass = "",
   hideSearch = false,
+  extraSources = [],
 } = Astro.props;
+// Serialize extraSources into a JSON-encoded data attribute so the
+// client-side script can read them at boot. Updates after first
+// render flow via the `source-picker:set-extra-sources` event.
+const extraSourcesJson = extraSources.length > 0
+  ? JSON.stringify(extraSources)
+  : "";
 ---
 
 <div
   class={`source-picker ${rootClass}`}
   data-spicker-instance={instanceId}
+  data-spicker-extra-sources={extraSourcesJson}
 >
   {!hideSearch && (
     <input
@@ -236,6 +256,16 @@ const {
     /** Whether the user has interacted with this instance yet — gates
      *  certain UI states (e.g. hint cards only show after a query). */
     hasInteracted: boolean;
+    /** Source IDs the host is "tracking" (e.g. already-selected in
+     *  cc-modal's source set). Rendered with a check indicator so the
+     *  user knows which they've already picked. Click-to-pick on a
+     *  marked card still emits source-picker:pick — the host
+     *  interprets that as toggle-off. */
+    markedIds: Set<string>;
+    /** Sources passed in via the `extraSources` prop OR set
+     *  client-side via the `source-picker:set-extra-sources` event.
+     *  Rendered at the top of the results, above library sources. */
+    extraSources: LibrarySource[];
   }
   const instances = new Map<string, InstanceState>();
 
@@ -296,8 +326,8 @@ const {
   void unlockedCountriesForQuery;
 
   /** Apply current filter state to the library. Returns a sorted list
-   *  ready to render — hint cards at the top, then alphabetical by
-   *  name. */
+   *  ready to render — extraSources first, then hint cards, then
+   *  alphabetical by name. */
   function filteredSources(
     state: InstanceState,
     lib: LibraryPayload,
@@ -308,6 +338,39 @@ const {
       (t) => !GEO_TAGS.has(t),
     );
     const out: Array<LibrarySource & { id: string; tags: string[] }> = [];
+    // ExtraSources: pass them through the same tag-filter + search-
+    // filter pipeline as library sources. Skip the geo filters (extras
+    // are host-defined and typically don't have geo tags). Keep them
+    // at the top of the result list by appending FIRST + sorting them
+    // to the top via the .isExtra flag in the sort comparator.
+    for (const src of state.extraSources) {
+      const tags = src.tags ?? [];
+      let ok = true;
+      for (const t of tagsRequired) {
+        if (!tags.includes(t)) {
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) continue;
+      if (q) {
+        const hay = (
+          src.name +
+          " " +
+          (src.shortName ?? "") +
+          " " +
+          src.id +
+          " " +
+          tags.join(" ")
+        ).toLowerCase();
+        if (!hay.includes(q)) continue;
+      }
+      // Tag as an extra so the sort comparator can lift it above
+      // library sources, and the renderer can style it differently
+      // if it wants.
+      (src as LibrarySource & { kind?: string }).kind ??= "extra";
+      out.push({ ...src, id: src.id!, tags });
+    }
     for (const id of Object.keys(sources)) {
       const src = sources[id];
       const tags = src.tags ?? [];
@@ -357,6 +420,11 @@ const {
       out.push({ ...src, id, tags });
     }
     out.sort((a, b) => {
+      // Sort precedence: extras → hints → alphabetical.
+      const aIsExtra = a.kind === "extra";
+      const bIsExtra = b.kind === "extra";
+      if (aIsExtra && !bIsExtra) return -1;
+      if (bIsExtra && !aIsExtra) return 1;
       const aIsHint = a.kind === "hint";
       const bIsHint = b.kind === "hint";
       if (aIsHint && !bIsHint) return -1;
@@ -461,14 +529,23 @@ const {
             `</button>`,
         );
       } else {
-        // Real source card.
+        // Real source card (or extra).
         const desc = s.description
           ? `<div class="source-picker-card-desc">${escapeHtml(s.description)}</div>`
           : "";
         const id = `<div class="source-picker-card-id muted small">${escapeHtml(s.id)}</div>`;
+        const marked = state.markedIds.has(s.id);
+        const extraCls = s.kind === "extra" ? " source-picker-card-extra" : "";
+        const markedCls = marked ? " source-picker-card-marked" : "";
+        // The "✓" badge is right-aligned in the card header so the
+        // user can scan-mark which sources they've already picked
+        // without color-coding being the only signal.
+        const markBadge = marked
+          ? `<span class="source-picker-card-mark" aria-label="Already selected">✓</span>`
+          : "";
         parts.push(
-          `<button type="button" class="source-picker-card" data-spicker-source-id="${escapeHtml(s.id)}">` +
-            `<div class="source-picker-card-title">${escapeHtml(s.name)}</div>` +
+          `<button type="button" class="source-picker-card${extraCls}${markedCls}" data-spicker-source-id="${escapeHtml(s.id)}"${marked ? ' data-spicker-marked="1"' : ""}>` +
+            `<div class="source-picker-card-title">${escapeHtml(s.name)}${markBadge}</div>` +
             desc +
             id +
             `</button>`,
@@ -550,6 +627,19 @@ const {
     }
     if (instances.has(instanceId)) return; // already booted
 
+    // Parse server-rendered extraSources data attribute. Hosts can
+    // also update this client-side via the source-picker:set-extra-
+    // sources event (e.g. cc-modal's derived-source list changes
+    // when the user creates a new derived source).
+    let extraSources: LibrarySource[] = [];
+    const extraJson = root.dataset.spickerExtraSources;
+    if (extraJson) {
+      try {
+        extraSources = JSON.parse(extraJson) as LibrarySource[];
+      } catch (e) {
+        console.warn("[source-picker] bad extra-sources JSON:", e);
+      }
+    }
     const state: InstanceState = {
       root,
       instanceId,
@@ -560,8 +650,31 @@ const {
       cdState: null,
       cdDistrict: null,
       hasInteracted: false,
+      markedIds: new Set(),
+      extraSources,
     };
     instances.set(instanceId, state);
+
+    // Host-driven updates: markedIds + extraSources via CustomEvent
+    // on the picker root. Either updates the relevant state field
+    // and triggers a re-render of just the results.
+    root.addEventListener("source-picker:set-marked-ids", ((
+      e: Event,
+    ) => {
+      const detail = (e as CustomEvent).detail as { ids?: string[] };
+      state.markedIds = new Set(detail?.ids ?? []);
+      loadLibrary().then((lib) => renderResults(state, lib));
+    }) as EventListener);
+
+    root.addEventListener("source-picker:set-extra-sources", ((
+      e: Event,
+    ) => {
+      const detail = (e as CustomEvent).detail as {
+        sources?: LibrarySource[];
+      };
+      state.extraSources = detail?.sources ?? [];
+      loadLibrary().then((lib) => renderResults(state, lib));
+    }) as EventListener);
 
     // Wire search input.
     const searchInput = root.querySelector<HTMLInputElement>(
@@ -1027,6 +1140,38 @@ const {
   .source-picker-card-hint {
     border-style: dashed;
     background: var(--color-neutral-50, #fafafa);
+  }
+  /* Extra-source card (host-provided, e.g. user's derived sources
+     in cc-modal). Light accent stripe on the left, keeps the rest
+     of the card visually identical to library sources. */
+  .source-picker-card-extra {
+    border-left: 3px solid var(--color-accent, #0F766E);
+    padding-left: 9px; /* compensate for the 3px border so text alignment matches */
+  }
+  /* Marked card — already in the host's "selected" set. The check
+     badge is right-aligned in the title row. */
+  .source-picker-card-marked {
+    background: rgba(15, 118, 110, 0.06);
+    border-color: var(--color-accent, #0F766E);
+  }
+  .source-picker-card-marked .source-picker-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .source-picker-card-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--color-accent, #0F766E);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 1;
+    flex: 0 0 auto;
   }
   .source-picker-card-hint-eyebrow {
     display: inline-block;
