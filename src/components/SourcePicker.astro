@@ -293,17 +293,32 @@ const extraSourcesJson = extraSources.length > 0
   }
 
   /**
-   * Tags considered "geo" — get their own chip row, excluded from the
-   * topical tag-chip strip so the user isn't confused by two routes
-   * to the same filter.
+   * Umbrella tags considered "geo" — get their own chip row,
+   * excluded from the topical tag-chip strip so the user isn't
+   * confused by two routes to the same filter.
    */
-  const GEO_TAGS: ReadonlySet<string> = new Set([
+  const GEO_UMBRELLA_TAGS: ReadonlySet<string> = new Set([
     METRO_TAG,
     COUNTRY_TAG,
     CD_TAG,
     STATE_TAG,
     COUNTY_TAG,
   ]);
+
+  /**
+   * Is this tag a geo tag (umbrella OR per-entity)? Per-entity geo
+   * tags look like `metro:10180`, `country-specific:USA`, etc. —
+   * one per CBSA / country / district. Without filtering them
+   * we'd render hundreds of per-entity chips that duplicate what
+   * the geo-chip popovers handle.
+   */
+  function isGeoTag(tag: string): boolean {
+    if (GEO_UMBRELLA_TAGS.has(tag)) return true;
+    for (const umbrella of GEO_UMBRELLA_TAGS) {
+      if (tag.startsWith(umbrella + ":")) return true;
+    }
+    return false;
+  }
 
   // ---------- Geo-filter helpers ---------------------------------------
   //
@@ -335,7 +350,7 @@ const extraSourcesJson = extraSources.length > 0
     const sources = lib.sources ?? {};
     const q = state.searchQuery.trim().toLowerCase();
     const tagsRequired = [...state.selectedTags].filter(
-      (t) => !GEO_TAGS.has(t),
+      (t) => !isGeoTag(t),
     );
     const out: Array<LibrarySource & { id: string; tags: string[] }> = [];
     // ExtraSources: pass them through the same tag-filter + search-
@@ -444,7 +459,7 @@ const extraSourcesJson = extraSources.length > 0
     for (const id of Object.keys(lib.sources ?? {})) {
       const src = lib.sources![id];
       for (const t of src.tags ?? []) {
-        if (!GEO_TAGS.has(t)) seen.add(t);
+        if (!isGeoTag(t)) seen.add(t);
       }
     }
     return Array.from(seen).sort();
