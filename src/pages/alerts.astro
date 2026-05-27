@@ -281,19 +281,48 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               </select>
             </label>
 
+            {/* Frequency hint. Only shown when the user has picked
+                the "Absolute change >" condition AND we've inferred
+                a cadence from the source's summary sparks — that
+                condition compares each new observation against the
+                prior one, so the user needs to know what "the prior
+                one" means in time before picking a meaningful
+                threshold. Inference logic in src/lib/frequency-infer.ts.
+            */}
+            <div
+              class="alerts-frequency-hint"
+              data-role="alerts-frequency-hint"
+              hidden
+            >
+              <span data-role="alerts-frequency-hint-text"></span>
+            </div>
+
             {/* Current-value readout. Appears once a real source is selected
                 (picker click, quick-start chip, or deep-link prefill). Lives
                 in the right column above Threshold so the user can see the
                 live magnitude + unit right next to where they're typing a
-                threshold. Hidden until a source is picked. */}
+                threshold. Hidden until a source is picked.
+
+                The inner row holds the readout itself; the "See chart" link
+                lives below it on its own row so the user can pop out the
+                source's chart for context without leaving the form. */}
             <div
               class="alerts-current-value"
               data-role="alerts-current-value"
               hidden
             >
-              <span class="alerts-current-value-label">Current value:</span>
-              <span class="alerts-current-value-readout" data-role="alerts-current-value-readout"></span>
-              <span class="alerts-current-value-asof muted" data-role="alerts-current-value-asof"></span>
+              <div class="alerts-current-value-row">
+                <span class="alerts-current-value-label">Current value:</span>
+                <span class="alerts-current-value-readout" data-role="alerts-current-value-readout"></span>
+                <span class="alerts-current-value-asof muted" data-role="alerts-current-value-asof"></span>
+              </div>
+              <button
+                type="button"
+                class="alerts-chart-link"
+                data-role="alerts-chart-link"
+              >
+                See chart &rarr;
+              </button>
             </div>
 
             <label class="alerts-field">
@@ -369,6 +398,45 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </section>
   </div>
 
+  {/*
+    Chart-popout dialog. Opens when the user clicks "See chart" below
+    the current-value readout. We iframe the canonical /source/<id>/
+    page rather than rebuilding chart rendering inline — that route
+    already SSRs the headline chart + provenance + delta pills, and
+    keeping it as the single source of truth means the popout stays
+    in sync with the rest of the site whenever the chart-rendering
+    pipeline evolves.
+
+    The dialog lives at page-level (outside .alerts-page) so its
+    showModal() ends up in the browser's top-layer and isn't
+    affected by any z-index in the form. Closed-by-default; opened
+    by the chart-link click handler. ESC + backdrop click both close.
+  */}
+  <dialog
+    class="alerts-chart-dialog"
+    data-role="alerts-chart-dialog"
+    aria-label="Source chart"
+  >
+    <header class="alerts-chart-dialog-header">
+      <strong
+        class="alerts-chart-dialog-title"
+        data-role="alerts-chart-dialog-title"
+      ></strong>
+      <button
+        type="button"
+        class="alerts-chart-dialog-close"
+        data-role="alerts-chart-dialog-close"
+        aria-label="Close chart popout"
+      >&times;</button>
+    </header>
+    <iframe
+      class="alerts-chart-dialog-iframe"
+      data-role="alerts-chart-dialog-iframe"
+      title="Source chart popout"
+      loading="lazy"
+    ></iframe>
+  </dialog>
+
   <script>
     import {
       createSupabase,
@@ -378,6 +446,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       SUPABASE_REST_ANON_KEY,
     } from "../lib/supabase";
     import { formatValue, type Formatting } from "../lib/format";
+    import {
+      composeDefaultLabel,
+      type AlertCondition,
+    } from "../lib/alerts-label";
+    import {
+      inferFrequency,
+      type SparkPoint,
+    } from "../lib/frequency-infer";
 
     type AlertRule = {
       id: string;
@@ -436,10 +512,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       dataFile?: string;
       lastObservation?: string;
     };
-    // Shape of the <id>.summary.json sibling. We only need `latest`; the
-    // rest (priors/sparks) is what powers tile rendering elsewhere.
+    // Shape of the <id>.summary.json sibling. `latest` powers the
+    // current-value readout; `sparks` (per-window downsampled point
+    // arrays) feeds the frequency inference shown when the user picks
+    // the "Absolute change >" condition so they know whether each new
+    // observation is a day, a week, or a month after the prior one.
     type SourceSummary = {
       latest?: { t: string; v: number };
+      sparks?: Record<string, SparkPoint[]>;
     };
 
     const gate = document.querySelector<HTMLElement>("[data-role='alerts-signin-gate']");
@@ -464,9 +544,197 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const thresholdInput = document.querySelector<HTMLInputElement>("[data-role='alerts-threshold-input']");
     const labelInput = document.querySelector<HTMLInputElement>("[data-role='alerts-label-input']");
     const addMsg = document.querySelector<HTMLElement>("[data-role='alerts-add-msg']");
+
+    // ---------- Default-label generator ----------
+    //
+    // The label field is optional, but most users want SOMETHING in the
+    // alerts list + email subject — we autogen from
+    // (source name, condition, threshold) so empty alerts don't happen
+    // by default. The user can still type their own label; we get out
+    // of the way the moment they do, and re-engage only if they clear
+    // the field back to empty (treating an empty field as "let the
+    // default take over").
+    //
+    // Pure composition logic + unit-formatting lives in
+    // src/lib/alerts-label.ts (tested in its sibling). The DOM dance
+    // here is just: track auto vs. manual state on the input itself
+    // via dataset.auto, regenerate on source/condition/threshold
+    // changes when auto is on, and lock the field to manual the
+    // instant the user types something different.
+    function isLabelAuto(): boolean {
+      if (!labelInput) return false;
+      // Empty value counts as "auto" so re-typing into an empty
+      // field doesn't accidentally lock us into manual mode forever.
+      return labelInput.dataset.auto === "1" || labelInput.value === "";
+    }
+    function markLabelAuto(): void {
+      if (labelInput) labelInput.dataset.auto = "1";
+    }
+    function markLabelManual(): void {
+      if (labelInput) labelInput.dataset.auto = "";
+    }
+    /** Show/hide the cadence hint that appears under the condition
+     *  selector when the user picks "Absolute change >". The hint
+     *  reads `summaryCache[id].sparks` and runs inferFrequency
+     *  (src/lib/frequency-infer.ts) to turn the spark spacing into
+     *  a "daily / weekly / monthly / quarterly / annual" bucket.
+     *  Hidden whenever the condition isn't change_above, the
+     *  source is derived (no sparks for "derived:adhoc"), or the
+     *  summary hasn't loaded / has no usable sparks. Called from
+     *  three places: source pick, condition change, and summary
+     *  load — together those cover every state transition that
+     *  could affect the hint. */
+    function updateFrequencyHint(): void {
+      if (
+        !frequencyHintWrap ||
+        !frequencyHintText ||
+        !sourceInput ||
+        !conditionSelect
+      ) {
+        return;
+      }
+      if (conditionSelect.value !== "change_above") {
+        frequencyHintWrap.hidden = true;
+        return;
+      }
+      const id = sourceInput.value.trim();
+      if (!id || id === "derived:adhoc") {
+        frequencyHintWrap.hidden = true;
+        return;
+      }
+      const summary = summaryCache.get(id);
+      if (!summary) {
+        // Cache miss (still in flight or no .summary.json sibling).
+        // Hide rather than show "unknown" — the post-summary call
+        // from refreshCurrentValue will re-fire once data lands.
+        frequencyHintWrap.hidden = true;
+        return;
+      }
+      const freq = inferFrequency(summary.sparks);
+      if (!freq) {
+        frequencyHintWrap.hidden = true;
+        return;
+      }
+      const dayWord = freq.days === 1 ? "day" : "days";
+      frequencyHintText.textContent =
+        `Observations are roughly ${freq.bucket} ` +
+        `(~${freq.days} ${dayWord} between releases). ` +
+        `Threshold compares each new observation against the prior one.`;
+      frequencyHintWrap.hidden = false;
+    }
+
+    /** Recompute + write the default label IF the field is still in
+     *  auto mode. No-op when the user has typed their own label. */
+    function updateAutoLabel(): void {
+      if (!labelInput || !sourceInput || !conditionSelect || !thresholdInput) {
+        return;
+      }
+      if (!isLabelAuto()) return;
+      const sourceName = sourceInput.dataset.label?.trim() ?? "";
+      const condition = conditionSelect.value as AlertCondition;
+      const thresholdRaw = thresholdInput.value;
+      // Per-source formatting (needed for the "%" / "$" / " bps" /
+      // compact-suffix unit handling). allSources is populated by
+      // loadSourceCatalog; for derived ("derived:adhoc") rules there's
+      // no entry, so we fall back to bare-number threshold rendering.
+      const id = sourceInput.value;
+      const src =
+        id && id !== "derived:adhoc"
+          ? allSources.find((s) => s.id === id)
+          : undefined;
+      const next = composeDefaultLabel({
+        sourceName,
+        condition,
+        thresholdRaw,
+        formatting: src?.formatting,
+      });
+      labelInput.value = next;
+      markLabelAuto();
+    }
     const currentValueWrap = document.querySelector<HTMLElement>("[data-role='alerts-current-value']");
     const currentValueReadout = document.querySelector<HTMLElement>("[data-role='alerts-current-value-readout']");
     const currentValueAsOf = document.querySelector<HTMLElement>("[data-role='alerts-current-value-asof']");
+    const frequencyHintWrap = document.querySelector<HTMLElement>(
+      "[data-role='alerts-frequency-hint']",
+    );
+    const frequencyHintText = document.querySelector<HTMLElement>(
+      "[data-role='alerts-frequency-hint-text']",
+    );
+    const chartLink = document.querySelector<HTMLButtonElement>(
+      "[data-role='alerts-chart-link']",
+    );
+    const chartDialog = document.querySelector<HTMLDialogElement>(
+      "[data-role='alerts-chart-dialog']",
+    );
+    const chartDialogTitle = document.querySelector<HTMLElement>(
+      "[data-role='alerts-chart-dialog-title']",
+    );
+    const chartDialogIframe = document.querySelector<HTMLIFrameElement>(
+      "[data-role='alerts-chart-dialog-iframe']",
+    );
+    const chartDialogClose = document.querySelector<HTMLButtonElement>(
+      "[data-role='alerts-chart-dialog-close']",
+    );
+
+    // "See chart" → pop out the canonical /source/<id>/ page in a
+    // modal iframe so the user can scan the recent range without
+    // leaving the form. Iframed because that route already SSRs the
+    // headline chart + delta pills + provenance; rebuilding inline
+    // would duplicate logic. Derived ("derived:adhoc") sources have
+    // no /source/<id>/ — the chart link is hidden in that mode.
+    chartLink?.addEventListener("click", () => {
+      const id = sourceInput?.value?.trim() ?? "";
+      if (!id || id === "derived:adhoc") return;
+      const label = sourceInput?.dataset.label ?? id;
+      if (chartDialogTitle) chartDialogTitle.textContent = label;
+      if (chartDialogIframe) {
+        // Use BASE_URL so the path resolves correctly under any
+        // prefix Astro is configured with (today: empty, but
+        // historical builds shipped under /tape/).
+        const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+        chartDialogIframe.src = `${base}/source/${encodeURIComponent(id)}/`;
+      }
+      chartDialog?.showModal();
+    });
+    chartDialogClose?.addEventListener("click", () => chartDialog?.close());
+    // Click on the dialog backdrop (target === dialog itself) closes.
+    // Clicks on the dialog's child content bubble with target !==
+    // dialog so they're ignored here.
+    chartDialog?.addEventListener("click", (e) => {
+      if (e.target === chartDialog) chartDialog.close();
+    });
+    // Free the iframe's runtime on close so we don't leave a hidden
+    // SPA running. The next open re-sets src and the iframe re-loads.
+    chartDialog?.addEventListener("close", () => {
+      if (chartDialogIframe) chartDialogIframe.src = "";
+    });
+
+    // ---------- Auto-label wiring ----------
+    // Condition + threshold edits regenerate the default label
+    // (when the user hasn't taken over with their own text).
+    // 'change' is the right event for <select>; 'input' fires on
+    // every keystroke for <input type=number>.
+    conditionSelect?.addEventListener("change", () => {
+      updateAutoLabel();
+      // Frequency hint visibility depends on which condition is
+      // selected — flip immediately so the hint appears/vanishes
+      // in lockstep with the dropdown.
+      updateFrequencyHint();
+    });
+    thresholdInput?.addEventListener("input", () => updateAutoLabel());
+    // Label edits decide auto vs. manual. Empty → re-engage auto +
+    // immediately refill (user sees what the default would be without
+    // having to bounce focus). Non-empty → lock to manual so future
+    // condition/threshold edits don't clobber the user's text.
+    labelInput?.addEventListener("input", () => {
+      if (!labelInput) return;
+      if (labelInput.value === "") {
+        markLabelAuto();
+        updateAutoLabel();
+      } else {
+        markLabelManual();
+      }
+    });
 
     if (!isSupabaseConfigured) {
       // Supabase env vars missing entirely — show a hard error rather
@@ -554,6 +822,49 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       "[data-role='alerts-source-clear']",
     );
 
+    /** Single source of truth for source-field visibility.
+     *
+     *  Alerts are single-source-per-rule (no multi-source dashboards
+     *  here, just one indicator per alert), so once the user has
+     *  picked a source there's no point keeping the picker visible
+     *  alongside the selected chip — it just eats vertical space and
+     *  invites accidental re-picks. Once a source is selected, the
+     *  picker + the "+ Use a custom indicator" toggle + the builder
+     *  all collapse, leaving only the selected chip + its clear-X.
+     *  Clicking X brings the picker back.
+     *
+     *  Called from setSelectedSource (after the user picks) and from
+     *  the derived-builder Cancel button (which needs to re-sync
+     *  visibility to whatever was selected BEFORE the builder was
+     *  opened). Doesn't touch the input or readout — those live in
+     *  setSelectedSource. */
+    function applyPickerVisibility(hasSelection: boolean): void {
+      const libPicker = document.querySelector<HTMLElement>(
+        "[data-spicker-instance='alerts-source']",
+      );
+      const openBtn = document.querySelector<HTMLButtonElement>(
+        "[data-role='alerts-derived-open']",
+      );
+      const builder = document.querySelector<HTMLElement>(
+        "[data-role='alerts-derived-builder']",
+      );
+      const modeWrap = document.querySelector<HTMLElement>(
+        "[data-role='alerts-source-mode']",
+      );
+      if (libPicker) libPicker.hidden = hasSelection;
+      if (openBtn) openBtn.hidden = hasSelection;
+      // Always close the builder when syncing visibility — both the
+      // "I just picked" and "I just cancelled" paths want the
+      // half-built state torn down. The builder body itself is
+      // separately reset via resetDerivedBuilderState in the Cancel
+      // handler; here we only flip its visibility.
+      if (builder) builder.hidden = true;
+      // Keep the mode flag consistent with what's rendered. Even
+      // after a derived save we return to library-mode visually —
+      // the selected chip is mode-agnostic.
+      if (modeWrap) modeWrap.dataset.mode = "library";
+    }
+
     function setSelectedSource(id: string, label: string): void {
       if (!sourceInput) return;
       sourceInput.value = id;
@@ -567,37 +878,30 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           sourceSelectedName.textContent = "";
         }
       }
+      applyPickerVisibility(!!id);
       void refreshCurrentValue(id);
+      // Source change → recompute the auto-label so the user sees a
+      // sensible default the moment they pick. No-op if they've
+      // already typed a manual label.
+      updateAutoLabel();
+      // First-paint frequency-hint update. Reads cache only — the
+      // summary may not be loaded yet for a fresh pick, in which
+      // case the hint stays hidden until refreshCurrentValue fires
+      // it again post-fetch.
+      updateFrequencyHint();
     }
 
     function clearSelectedSource(): void {
-      setSelectedSource("", "");
-      if (currentValueWrap) currentValueWrap.hidden = true;
-      // Also reset any in-progress derived-indicator state. Defined
-      // further down the script; safe to reference here because this
-      // function only RUNS in response to user clicks that fire
-      // after all top-level definitions have evaluated.
+      // Reset derived-spec input first so a future submit can't
+      // accidentally include a stale spec from the previous pick.
+      // setSelectedSource then handles the visibility flip (picker
+      // back, selected chip hidden) and the current-value readout.
       const dSpec = document.querySelector<HTMLInputElement>(
         "[data-role='alerts-derived-spec']",
       );
       if (dSpec) dSpec.value = "";
-      const dBuilder = document.querySelector<HTMLElement>(
-        "[data-role='alerts-derived-builder']",
-      );
-      const dModeWrap = document.querySelector<HTMLElement>(
-        "[data-role='alerts-source-mode']",
-      );
-      const dLibPicker = document.querySelector<HTMLElement>(
-        "[data-spicker-instance='alerts-source']",
-      );
-      const dOpenBtn = document.querySelector<HTMLButtonElement>(
-        "[data-role='alerts-derived-open']",
-      );
-      // Restore default library-mode UI (close any open builder).
-      if (dBuilder) dBuilder.hidden = true;
-      if (dModeWrap) dModeWrap.dataset.mode = "library";
-      if (dLibPicker) dLibPicker.hidden = false;
-      if (dOpenBtn) dOpenBtn.hidden = false;
+      setSelectedSource("", "");
+      if (currentValueWrap) currentValueWrap.hidden = true;
     }
 
     // Listener on the picker root. The picker dispatches a bubbling
@@ -703,16 +1007,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
     }
 
-    function closeDerivedBuilder(): void {
-      if (sourceModeWrap) sourceModeWrap.dataset.mode = "library";
-      if (derivedBuilder) derivedBuilder.hidden = true;
-      const lib = document.querySelector<HTMLElement>(
-        "[data-spicker-instance='alerts-source']",
-      );
-      if (lib) lib.hidden = false;
-      if (derivedOpenBtn) derivedOpenBtn.hidden = false;
-    }
-
     function resetDerivedBuilderState(): void {
       derivedA = null;
       derivedB = null;
@@ -726,7 +1020,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     derivedOpenBtn?.addEventListener("click", openDerivedBuilder);
     derivedCancelBtn?.addEventListener("click", () => {
       resetDerivedBuilderState();
-      closeDerivedBuilder();
+      // Re-sync visibility from current selection state. If a
+      // source was already picked before the builder was opened,
+      // the picker stays hidden + the selected chip stays visible.
+      // If nothing was selected, the picker comes back into view.
+      applyPickerVisibility(!!sourceInput?.value);
     });
     derivedOpSelect?.addEventListener("change", () => {
       if (derivedOpSymbolEl) {
@@ -770,12 +1068,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const label = `${derivedA.name} ${opSymbol(op)} ${derivedB.name}`;
       const spec = { a: derivedA.id, op, b: derivedB.id };
       if (derivedSpecInput) derivedSpecInput.value = JSON.stringify(spec);
+      // setSelectedSource hides both the library picker AND the
+      // builder via applyPickerVisibility(true), so no explicit
+      // closeDerivedBuilder is needed. The selected chip + clear-X
+      // is now the only visible source-field UI until the user
+      // clicks the X.
       setSelectedSource("derived:adhoc", label);
-      closeDerivedBuilder();
-      // Current-value readout: for derived rules, we can't easily
-      // resolve the source via library.json (no dataFile path for
-      // "derived:adhoc"). Hide the readout — evaluator computes the
-      // derived value server-side at alert-fire time.
+      // Current-value readout: derived rules don't resolve through
+      // library.json (no dataFile for "derived:adhoc"). Hide the
+      // readout — the evaluator computes the derived value server-
+      // side at alert-fire time.
       if (currentValueWrap) currentValueWrap.hidden = true;
     });
 
@@ -828,6 +1130,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // between the fetch starting and it returning, abandon this render.
       // sourceInput.value is the live source of truth.
       if (sourceInput?.value.trim() !== id) return;
+
+      // Summary is now cached → flip the frequency hint on (if the
+      // user has change_above selected). This runs unconditionally
+      // because updateFrequencyHint's own gating handles the hide
+      // case when condition isn't change_above.
+      updateFrequencyHint();
 
       if (!summary?.latest) {
         // Summary file missing or has no `latest`. Some sources (e.g. small
@@ -1209,6 +1517,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           clearSelectedSource();
           thresholdInput.value = "";
           labelInput.value = "";
+          // Re-engage auto-label so the next pick gets a fresh
+          // default. clearSelectedSource doesn't touch the label
+          // dataset, and the post-submit programmatic .value = ""
+          // doesn't fire the input listener that would otherwise
+          // re-engage auto.
+          markLabelAuto();
           setTimeout(() => {
             if (addMsg) addMsg.textContent = "";
           }, 2000);
@@ -1245,6 +1559,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }
           if (labelInput) {
             labelInput.value = chip.dataset.label ?? "";
+            // Quick-start chips ship hand-written, editorial labels
+            // ("Yield curve inverts (10Y-2Y < 0)") that read better
+            // than the auto-default would. Mark the field manual so
+            // later condition/threshold edits don't clobber it; the
+            // user can still clear the field to re-engage the auto
+            // composer if they want.
+            markLabelManual();
           }
           // Scroll the form into view so the user sees the
           // pre-filled fields immediately.
@@ -1432,6 +1753,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: #6f6c66;
     line-height: 1.4;
   }
+  /* Cadence hint that appears under the condition dropdown when
+     the user picks "Absolute change >". Small muted text, no
+     border or background — sits as a quiet sibling of the
+     condition selector. Same idiom as .alerts-help. */
+  .alerts-frequency-hint {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    color: #6f6c66;
+    line-height: 1.4;
+    padding: 0 2px;
+  }
   .alerts-help code {
     background: #f1efe9;
     padding: 1px 4px;
@@ -1441,16 +1773,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   /* Current-value readout. Spans both grid columns (grid-column: 1/-1)
      so it visually separates the Source row from the Threshold row.
      Light background tint flags it as a passive readout, not a form
-     input the user clicks. */
+     input the user clicks.
+
+     The container is now a vertical stack: the readout row (label +
+     number + as-of) on top, the "See chart" link tucked underneath.
+     Tight gap (4px) so the two rows read as one unit, not two. */
   .alerts-current-value {
     grid-column: 1 / -1;
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
     padding: 8px 12px;
     background: #f1efe9;
     border-radius: 3px;
     font-size: 12px;
+  }
+  .alerts-current-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
   }
   .alerts-current-value-label {
     color: #6f6c66;
@@ -1469,6 +1810,116 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     font-size: 11px;
     color: #6f6c66;
     margin-left: auto;
+  }
+  /* "See chart" link tucked under the readout. Tertiary text-button
+     styling — accent color, no border/bg, hover-underline — keeps
+     the visual weight subordinate to the form's primary CTA below
+     and the readout above. Same idiom as .alerts-derived-toggle. */
+  .alerts-chart-link {
+    align-self: flex-start;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: var(--color-accent, #0F766E);
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .alerts-chart-link:hover {
+    text-decoration: underline;
+  }
+  .alerts-chart-link:focus-visible {
+    outline: 2px solid var(--color-accent, #0F766E);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  /* Chart-popout dialog. Hairline border, small radius, white bg —
+     editorial idiom that matches the rest of the page. The iframe
+     fills the body so the source page's own headline chart drives
+     the visual; this dialog just provides the chrome (title bar,
+     close-X, backdrop). */
+  .alerts-chart-dialog {
+    /* Native <dialog> default styling: showModal centers it.
+       Override max-width/height + reset padding/border to match
+       the editorial aesthetic. */
+    width: 92vw;
+    max-width: 880px;
+    height: 85vh;
+    max-height: 720px;
+    padding: 0;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
+                0 8px 24px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  .alerts-chart-dialog::backdrop {
+    /* Subtle, not the harsh #000aa default. */
+    background: rgba(15, 23, 42, 0.32);
+  }
+  .alerts-chart-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+    background: #fafaf9;
+  }
+  .alerts-chart-dialog-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1c1c1a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .alerts-chart-dialog-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    color: #6f6c66;
+    border: 0;
+    border-radius: 4px;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .alerts-chart-dialog-close:hover {
+    background: rgba(55, 53, 47, 0.08);
+    color: #1c1c1a;
+  }
+  .alerts-chart-dialog-iframe {
+    display: block;
+    width: 100%;
+    /* Fill the remaining height (dialog height minus header). The
+       header is ~52px; subtract that so the iframe body has room
+       to render without an unnecessary scroll-within-scroll. */
+    height: calc(100% - 52px);
+    border: 0;
+    background: #ffffff;
+  }
+  /* Mobile: full-bleed dialog. Tile chrome at 92vw still feels
+     cramped on narrow phones, and the source page inside benefits
+     from edge-to-edge real estate. */
+  @media (max-width: 640px) {
+    .alerts-chart-dialog {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      max-height: none;
+      border-radius: 0;
+      border: 0;
+    }
   }
   /* "Currently selected source" display — shows the user which
      source they just picked from the SourcePicker, with a clear-X
