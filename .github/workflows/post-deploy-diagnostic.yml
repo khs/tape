@@ -1,0 +1,97 @@
+name: Post-deploy diagnostic
+
+# Runs the server-side subset of the diagnostic suite after every
+# successful production deploy and posts the results as a comment on
+# the Diagnostics issue. Complements post-deploy-smoke.yml — the
+# smoke test fails the workflow if anything is broken; this one
+# always posts so the diagnostic history accumulates regardless.
+#
+# The browser-based diagnostic suite (iframe tests, dialog
+# interactions, etc.) still requires manual run via /me/diagnostics.
+# This workflow covers the ~10 HTTP-fetch tests that have signal
+# without a browser context.
+#
+# To wire this up:
+#   1. Create a "Diagnostics" issue on the repo (note its number)
+#   2. Set repository variable DIAGNOSTIC_ISSUE_NUMBER to that number
+#      (Settings → Secrets and variables → Actions → Variables)
+# Without DIAGNOSTIC_ISSUE_NUMBER set, the workflow skips the post
+# step but still runs the checks (showing pass/fail in the workflow
+# logs).
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Site URL to diagnose (default: production)"
+        required: false
+        default: "https://tape.vercel.app"
+
+permissions:
+  contents: read
+  # Required to post comments via the gh CLI.
+  issues: write
+
+jobs:
+  diagnostic:
+    # Run only on production deploys that succeeded (mirrors the
+    # smoke test's filter). Preview deploys are gated behind Vercel
+    # SSO so curl probes wouldn't work anyway.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Resolve URL to diagnose
+        id: url
+        run: |
+          PROD_URL="https://tape.vercel.app"
+          URL="${{ github.event.inputs.url }}"
+          if [ -z "$URL" ]; then URL="$PROD_URL"; fi
+          URL="${URL%/}"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Diagnosing: $URL"
+
+      - name: Run server-side diagnostic
+        id: diag
+        # The script always prints a markdown report to stdout; it
+        # exits non-zero on fail so the workflow turns red, but we
+        # capture stdout REGARDLESS of exit code and post it.
+        # `continue-on-error: true` lets the post step still run.
+        continue-on-error: true
+        run: |
+          node scripts/run-deploy-diagnostic.mjs "${{ steps.url.outputs.url }}" | tee report.md
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Post comment to Diagnostics issue
+        # Only posts if the user has wired DIAGNOSTIC_ISSUE_NUMBER as
+        # a repository variable. Without it the workflow runs the
+        # checks (visible in logs) but skips the comment.
+        if: vars.DIAGNOSTIC_ISSUE_NUMBER != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${{ vars.DIAGNOSTIC_ISSUE_NUMBER }}" \
+            --body-file report.md
+          echo "Posted report to issue #${{ vars.DIAGNOSTIC_ISSUE_NUMBER }}"
+
+      - name: Fail the workflow if any check failed
+        # Re-propagate the diagnostic script's exit code so the
+        # workflow turns red on a real failure. The comment has
+        # already been posted by this point.
+        run: |
+          if [ "${{ steps.diag.outputs.exit_code }}" != "0" ]; then
+            echo "::error::Diagnostic checks failed; see comment on the Diagnostics issue."
+            exit 1
+          fi
