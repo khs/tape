@@ -264,7 +264,13 @@ def run() -> int:
 
 
 ACTION_HINT = {
-    "PRE-APPROVAL": "REMOVE or obtain licensor permission BEFORE relaunch.",
+    # The default for third-party copyrighted series is REMOVE, not
+    # "remove-or-license". Keller's compliance stance (see memory file
+    # compliance_fred_no_scraping.md) is to treat FRED's terms as a
+    # relationship to honor rather than a legal minimum — licensing
+    # third-party data is reserved for series we genuinely can't ship
+    # without, and that decision belongs to Keller, not to the audit.
+    "PRE-APPROVAL": "REMOVE. (Or: ask Keller before keeping.)",
     "CITATION-REQUIRED": "KEEP. Verify citation reads 'Source: <owner> via FRED'.",
     "PUBLIC-DOMAIN": "KEEP. Verify citation acknowledges the original source.",
     "UNKNOWN": "VERIFY manually on the FRED series page; update YAML or this audit's heuristic table.",

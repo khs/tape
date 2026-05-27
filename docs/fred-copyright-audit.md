@@ -13,7 +13,7 @@ Bucket meanings come from FRED's Terms of Use § III:
 
 ## PRE-APPROVAL (6)
 
-**Action**: REMOVE or obtain licensor permission BEFORE relaunch.
+**Action**: REMOVE. (Or: ask Keller before keeping.)
 
 | YAML | Series | Declared provider | Declared license | Owner (resolved) | Source |
 | --- | --- | --- | --- | --- | --- |
