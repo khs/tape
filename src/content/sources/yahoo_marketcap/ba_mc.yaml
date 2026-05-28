@@ -1,6 +1,6 @@
 name: Boeing market cap
 shortName: BA mc
-description: Unadjusted close × historical shares outstanding (yfinance).
+description: Unadjusted close × historical shares outstanding.
 kind: timeseries
 pipeline: yahoo_marketcap
 dataFile: data/yahoo_marketcap/BA_mc.json
@@ -15,8 +15,7 @@ provenance:
   provider: Yahoo Finance (derived)
   series: BA × shares outstanding
   url: https://finance.yahoo.com/quote/BA
-  notes: Historical shares via yfinance get_shares_full(); shares forward-filled
-    between quarterly observations.
+  notes: Close price × historical shares outstanding, carried forward to a daily series.
   license: Free for personal / non-commercial use with attribution. Verify 
     yahoo.com terms for commercial redistribution.
 tags:

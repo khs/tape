@@ -1,6 +1,6 @@
 name: Renter-occupied housing units — GA-06
 shortName: GA-06 renter-occupied
-description: Renter-occupied housing units for GA-06 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B25003). Released annually.
+description: Renter-occupied housing units for GA-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/renter_occupied_ga_06.json

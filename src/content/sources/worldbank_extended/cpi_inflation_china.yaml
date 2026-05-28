@@ -1,6 +1,6 @@
 name: "CPI inflation, annual % — China"
 shortName: China cpi inflation
-description: "CPI inflation, annual % for China, annual. From World Bank World Development Indicators (series FP.CPI.TOTL.ZG). Most regions and country aggregates available back to 1960; individual series start dates vary."
+description: CPI inflation, annual % for China, annual. From World Bank World Development Indicators (series FP.CPI.TOTL.ZG). Most regions and country aggregates available back to 1960; individual series start dates vary. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/cpi_inflation_china.json

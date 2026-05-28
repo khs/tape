@@ -1,6 +1,6 @@
 name: Households with broadband internet — AL-05
 shortName: AL-05 broadband households
-description: Households with broadband internet for AL-05 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B28002). Released annually.
+description: Households with broadband internet for AL-05, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/broadband_households_al_05.json

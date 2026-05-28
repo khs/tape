@@ -1,7 +1,6 @@
 name: Federal deficit as % of GDP — CBO baseline
 shortName: CBO deficit / GDP
-description: |
-  Federal deficit (outlays minus revenues) as a percentage of GDP. Positive values are deficits. Historical values come from CBO's Historical Budget Data; the dashed extension is the 10-year baseline projection from the most recent CBO Budget & Economic Outlook.
+description: Federal deficit (outlays minus revenues) as a percentage of GDP. Positive values are deficits. Historical values come from CBO's Historical Budget Data; the dashed extension is the 10-year baseline projection from the most recent CBO Budget & Economic Outlook. (GDP = Gross Domestic Product; CBO = Congressional Budget Office.)
 kind: timeseries
 pipeline: cbo
 dataFile: data/cbo/cbo_deficit_pct_gdp.json

@@ -1,8 +1,6 @@
 name: "iShares S&P GSCI Commodity ETF"
 shortName: GSG
-description: ETF tracking the S&P GSCI Total Return Index — world 
-  production-weighted basket of 24 commodity futures, heavily tilted toward 
-  energy (~60%). Share price reflects index level. Daily adjusted close.
+description: ETF tracking the S&P GSCI Total Return Index — world production-weighted basket of 24 commodity futures, heavily tilted toward energy (~60%). Share price reflects index level. Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/GSG.json

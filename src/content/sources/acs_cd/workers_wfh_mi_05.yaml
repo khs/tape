@@ -1,6 +1,6 @@
 name: Workers who work from home — MI-05
 shortName: MI-05 WFH workers
-description: Workers who work from home for MI-05, from the American Community Survey 5-year estimates (table B08301). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "MI-05" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Workers who work from home for MI-05. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_wfh_mi_05.json

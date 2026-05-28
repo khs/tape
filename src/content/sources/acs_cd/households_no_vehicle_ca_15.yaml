@@ -1,6 +1,6 @@
 name: Households with no vehicle available — CA-15
 shortName: CA-15 HHs no vehicle
-description: Households with no vehicle available for CA-15, from the American Community Survey 5-year estimates (table B08201). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CA-15" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Households with no vehicle available for CA-15. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_no_vehicle_ca_15.json

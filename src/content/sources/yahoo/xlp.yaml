@@ -1,6 +1,6 @@
 name: Consumer Staples Select Sector SPDR
 shortName: XLP
-description: "S&P 500 consumer staples sector ETF. Daily adjusted close."
+description: S&P 500 consumer staples sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLP.json

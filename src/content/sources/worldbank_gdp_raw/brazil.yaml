@@ -1,8 +1,6 @@
 name: Brazil real GDP
 shortName: Brazil GDP
-description: Brazil real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, 
-  BRA). Annual, latest observation forward-filled to today; WB data lags by ~1 
-  year.
+description: Brazil real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, BRA). Annual, the most recent value is carried forward to the current date; World Bank data typically lags by about a year. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_gdp_raw
 dataFile: data/worldbank_gdp_raw/EWZ.json

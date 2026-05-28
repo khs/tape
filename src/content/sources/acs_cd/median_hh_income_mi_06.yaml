@@ -1,7 +1,6 @@
 name: Median household income — MI-06
 shortName: MI-06 median hh income
-description: Median household income for MI-06 (118th Congress boundaries). From
-  the American Community Survey 5-year estimates. Released annually.
+description: Median household income for MI-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_hh_income_mi_06.json

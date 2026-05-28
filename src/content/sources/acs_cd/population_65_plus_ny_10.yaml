@@ -1,6 +1,6 @@
 name: Total population — 65-PLUS-NY-10
 shortName: 65-PLUS-NY-10 population
-description: Total population for 65-PLUS-NY-10 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B01003). Released annually.
+description: Total population for 65-PLUS-NY-10, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/population_65_plus_ny_10.json

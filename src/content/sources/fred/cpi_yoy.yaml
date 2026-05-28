@@ -1,14 +1,6 @@
 name: CPI year-over-year (US, all urban consumers)
 shortName: CPI YoY
-description: |
-  Year-over-year percent change in the headline CPI (CPIAUCSL) for
-  all urban consumers. Fetched via FRED's server-side
-  transformation=pc1 endpoint so we don't recompute YoY on the
-  client. Monthly, available since 1948.
-
-  Pairs with the Federal funds effective rate via a chart-level
-  diff op to produce a real-fed-funds-rate series (nominal policy
-  rate minus realized CPI inflation).
+description: Year-over-year percent change in the headline Consumer Price Index. Monthly, available since 1948.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPIAUCSL_PC1.json

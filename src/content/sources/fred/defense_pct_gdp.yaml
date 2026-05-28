@@ -1,6 +1,6 @@
 name: 'National defense, share of GDP'
 shortName: 'Defense % GDP'
-description: 'National defense consumption + gross investment as a share of GDP (BEA NIPA Table 1.1.10). Trended down from ~6.5% in the early 1980s to ~3% by the 2010s; the cleanest single read of how much of the economy goes to defense. Public-domain federal-agency data via FRED.'
+description: National defense consumption + gross investment as a share of GDP (BEA NIPA Table 1.1.10). Trended down from ~6.5% in the early 1980s to ~3% by the 2010s; the cleanest single read of how much of the economy goes to defense. Public-domain federal-agency data via FRED. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/A824RE1Q156NBEA.json

@@ -1,6 +1,6 @@
 name: Median travel time to work — MI-07
 shortName: MI-07 median commute
-description: Median travel time to work for MI-07. Computed by linearly interpolating the median across the B08303 bin distribution published at CD level. American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+description: Median travel time to work for MI-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_commute_minutes_mi_07.json

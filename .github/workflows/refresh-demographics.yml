@@ -213,6 +213,16 @@ jobs:
       - name: Audit source labels against provider authoritative titles
         run: python scripts/audit_all_sources.py --strict
 
+      # Normalize + strict-audit user-facing source copy (descriptions /
+      # provenance.notes): strip fetch/implementation-detail leaks and spell
+      # out title acronyms, then fail on any remaining violation. This matters
+      # most here — the demographics refresh scaffolds the bulk of new ACS /
+      # NAEP / World Bank source YAMLs. See pipelines/audit_source_descriptions.py.
+      - name: Normalize source descriptions
+        run: python pipelines/fix_source_descriptions.py
+      - name: Audit source descriptions (strict)
+        run: python pipelines/audit_source_descriptions.py --strict
+
       # Indicator alerts: evaluate rules against the freshly-refreshed
       # demographic + metro source data files. ACS series only update
       # annually (or per-vintage), so most monthly runs will find no

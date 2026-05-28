@@ -1,7 +1,6 @@
 name: TSMC market cap
 shortName: TSMC mc
-description: Unadjusted close × historical shares outstanding (yfinance). Based 
-  on NYSE-listed ADR; does not include shares held via other listings.
+description: Unadjusted close × historical shares outstanding. Based on NYSE-listed ADR; does not include shares held via other listings.
 kind: timeseries
 pipeline: yahoo_marketcap
 dataFile: data/yahoo_marketcap/TSM_mc.json
@@ -16,8 +15,7 @@ provenance:
   provider: Yahoo Finance (derived)
   series: TSM × shares outstanding
   url: https://finance.yahoo.com/quote/TSM
-  notes: Historical shares via yfinance get_shares_full(); shares forward-filled
-    between quarterly observations.
+  notes: Close price × historical shares outstanding, carried forward to a daily series.
   license: Free for personal / non-commercial use with attribution. Verify 
     yahoo.com terms for commercial redistribution.
 tags:

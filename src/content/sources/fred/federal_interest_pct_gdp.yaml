@@ -1,8 +1,6 @@
 name: Federal net interest outlays, % of GDP
 shortName: Interest / GDP
-description: Federal interest payments on outstanding debt, net of interest 
-  received, as a share of GDP. Annual. Rises with both debt level and 
-  interest-rate level.
+description: Federal interest payments on outstanding debt, net of interest received, as a share of GDP. Annual. Rises with both debt level and interest-rate level. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYOIGDA188S.json

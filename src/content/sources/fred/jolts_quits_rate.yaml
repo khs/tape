@@ -1,10 +1,6 @@
 name: JOLTS quits rate
 shortName: Quits rate
-description: Quits as a percent of total employment. The "great resignation"
-  series — workers quit when they're confident enough in the labor market
-  to bet they can find another job. Public-domain BLS data; one of the
-  proxies for the UMich consumer-sentiment series (which we don't ingest,
-  third-party copyright).
+description: Quits as a percent of total employment. The "great resignation" series — workers quit when they're confident enough in the labor market to bet they can find another job. Public-domain BLS data. (JOLTS = Job Openings and Labor Turnover Survey.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSQUR.json
@@ -21,6 +17,5 @@ provenance:
 tags:
   - macro
   - labor
-  - sentiment-proxy
   - us
 unitClass: rate

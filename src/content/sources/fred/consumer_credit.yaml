@@ -1,10 +1,6 @@
 name: Total consumer credit (owned + securitized)
 shortName: Consumer credit
-description: Total consumer credit outstanding (revolving + non-revolving),
-  owned and securitized. Rising borrowing signals consumer confidence
-  willing to take on debt; deceleration or contraction signals risk-off.
-  Public-domain Federal Reserve data; one of the proxies for the UMich
-  consumer-sentiment series (which we don't ingest, third-party copyright).
+description: Total consumer credit outstanding (revolving + non-revolving), owned and securitized. Rising borrowing signals consumer confidence willing to take on debt; deceleration or contraction signals risk-off. Public-domain Federal Reserve data.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/TOTALSL.json
@@ -23,6 +19,5 @@ provenance:
 tags:
   - macro
   - consumer
-  - sentiment-proxy
   - us
 unitClass: currency

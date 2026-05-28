@@ -1,7 +1,6 @@
 name: Austria gov debt/GDP
 shortName: AT gov debt/GDP
-description: General government gross financial liabilities as % of GDP. OECD 
-  Economic Outlook (GGFLQ). Annual.
+description: General government gross financial liabilities as % of GDP. OECD Economic Outlook (GGFLQ). Annual. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/aut_gov_debt_pct_gdp.json

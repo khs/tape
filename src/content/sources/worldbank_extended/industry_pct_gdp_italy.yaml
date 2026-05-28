@@ -1,6 +1,6 @@
 name: "Industry (incl. construction) value-added (% of GDP) — Italy"
 shortName: Italy industry pct gdp
-description: "Industry (incl. construction) value-added (% of GDP) for Italy, annual. From World Bank World Development Indicators (series NV.IND.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+description: Industry (incl. construction) value-added (% of GDP) for Italy, annual. From World Bank World Development Indicators (series NV.IND.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/industry_pct_gdp_italy.json

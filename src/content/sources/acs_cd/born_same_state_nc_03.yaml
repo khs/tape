@@ -1,6 +1,6 @@
 name: Population born in current state of residence — NC-03
 shortName: NC-03 born same state
-description: Population born in current state of residence for NC-03, from the American Community Survey 5-year estimates (table B05002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "NC-03" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Population born in current state of residence for NC-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/born_same_state_nc_03.json

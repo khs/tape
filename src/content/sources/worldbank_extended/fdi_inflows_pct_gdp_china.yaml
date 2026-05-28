@@ -1,6 +1,6 @@
 name: "FDI inflows (% of GDP) — China"
 shortName: China fdi inflows pct gdp
-description: "FDI inflows (% of GDP) for China, annual. From World Bank World Development Indicators (series BX.KLT.DINV.WD.GD.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+description: FDI inflows (% of GDP) for China, annual. From World Bank World Development Indicators (series BX.KLT.DINV.WD.GD.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product; FDI = Foreign Direct Investment.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/fdi_inflows_pct_gdp_china.json

@@ -1,6 +1,6 @@
 name: 'Mississippi NAEP grade 4 math score'
 shortName: 'MS NAEP g4 math'
-description: 'Average NAEP scale score, grade 4 math, for Mississippi. NAEP ("the Nation''s Report Card", NCES) is administered identically in every state, so scores are directly comparable across states — unlike each state''s own proficiency tests. Public-domain US government data.'
+description: Average scale score, grade 4 math, for Mississippi, from the National Assessment of Educational Progress (NAEP) — "the Nation's Report Card" (NCES). Administered identically in every state, so scores are directly comparable across states — unlike each state's own proficiency tests. Public-domain US government data.
 kind: timeseries
 pipeline: naep
 dataFile: data/naep/state_mathg4_ms.json

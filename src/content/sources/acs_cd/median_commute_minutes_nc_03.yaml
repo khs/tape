@@ -1,6 +1,6 @@
 name: Median travel time to work — NC-03
 shortName: NC-03 median commute
-description: Median travel time to work for NC-03. Computed by linearly interpolating the median across the B08303 bin distribution published at CD level. American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+description: Median travel time to work for NC-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_commute_minutes_nc_03.json

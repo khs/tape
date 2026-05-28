@@ -1,6 +1,6 @@
 name: Median age — CA-46
 shortName: CA-46 median age
-description: Median age for CA-46, from the American Community Survey 5-year estimates (table B01002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CA-46" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median age for CA-46. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_ca_46.json

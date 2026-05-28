@@ -1,6 +1,6 @@
 name: Invesco QQQ (Nasdaq-100 ETF)
 shortName: QQQ
-description: Daily adjusted close.
+description: Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/QQQ.json

@@ -1,7 +1,6 @@
 name: Germany health spending/GDP
 shortName: DE health spending/GDP
-description: Total current expenditure on health as % of GDP, all financing 
-  schemes. OECD System of Health Accounts. Annual.
+description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/deu_health_spending_pct_gdp.json

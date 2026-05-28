@@ -1,6 +1,6 @@
 name: Industrial Select Sector SPDR
 shortName: XLI
-description: "S&P 500 industrials sector ETF. Daily adjusted close."
+description: S&P 500 industrials sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLI.json

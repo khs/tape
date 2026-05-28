@@ -1,7 +1,6 @@
 name: Netherlands health spending/GDP
 shortName: NL health spending/GDP
-description: Total current expenditure on health as % of GDP, all financing 
-  schemes. OECD System of Health Accounts. Annual.
+description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/nld_health_spending_pct_gdp.json

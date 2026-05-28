@@ -1,7 +1,6 @@
 name: Czech Republic gov deficit/GDP
 shortName: CZ gov deficit/GDP
-description: General government net lending as % of GDP (negative = deficit). 
-  OECD Economic Outlook (NLGQ). Annual.
+description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/cze_gov_deficit_pct_gdp.json

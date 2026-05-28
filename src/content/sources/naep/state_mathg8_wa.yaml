@@ -1,6 +1,6 @@
 name: 'Washington NAEP grade 8 math score'
 shortName: 'WA NAEP g8 math'
-description: 'Average NAEP scale score, grade 8 math, for Washington. NAEP ("the Nation''s Report Card", NCES) is administered identically in every state, so scores are directly comparable across states — unlike each state''s own proficiency tests. Public-domain US government data.'
+description: Average scale score, grade 8 math, for Washington, from the National Assessment of Educational Progress (NAEP) — "the Nation's Report Card" (NCES). Administered identically in every state, so scores are directly comparable across states — unlike each state's own proficiency tests. Public-domain US government data.
 kind: timeseries
 pipeline: naep
 dataFile: data/naep/state_mathg8_wa.json

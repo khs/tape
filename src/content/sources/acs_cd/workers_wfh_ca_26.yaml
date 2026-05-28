@@ -1,6 +1,6 @@
 name: Workers who work from home — CA-26
 shortName: CA-26 WFH workers
-description: Workers who work from home for CA-26, from the American Community Survey 5-year estimates (table B08301). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CA-26" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Workers who work from home for CA-26. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_wfh_ca_26.json

@@ -1,6 +1,6 @@
 name: Median home value (owner-occupied) — NC-03
 shortName: NC-03 median home value
-description: Median home value (owner-occupied) for NC-03, from the American Community Survey 5-year estimates (table B25077). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "NC-03" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median home value (owner-occupied) for NC-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_home_value_nc_03.json

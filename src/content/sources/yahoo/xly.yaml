@@ -1,6 +1,6 @@
 name: Consumer Discretionary Select Sector SPDR
 shortName: XLY
-description: "S&P 500 consumer discretionary sector ETF. Daily adjusted close."
+description: S&P 500 consumer discretionary sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLY.json

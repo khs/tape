@@ -1,6 +1,6 @@
 name: 'New Hampshire NAEP grade 8 reading score'
 shortName: 'NH NAEP g8 reading'
-description: 'Average NAEP scale score, grade 8 reading, for New Hampshire. NAEP ("the Nation''s Report Card", NCES) is administered identically in every state, so scores are directly comparable across states — unlike each state''s own proficiency tests. Public-domain US government data.'
+description: Average scale score, grade 8 reading, for New Hampshire, from the National Assessment of Educational Progress (NAEP) — "the Nation's Report Card" (NCES). Administered identically in every state, so scores are directly comparable across states — unlike each state's own proficiency tests. Public-domain US government data.
 kind: timeseries
 pipeline: naep
 dataFile: data/naep/state_readg8_nh.json

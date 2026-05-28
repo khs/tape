@@ -1,6 +1,6 @@
 name: Households with no vehicle available — TX-04
 shortName: TX-04 HHs no vehicle
-description: Households with no vehicle available for TX-04, from the American Community Survey 5-year estimates (table B08201). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "TX-04" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Households with no vehicle available for TX-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_no_vehicle_tx_04.json

@@ -74,6 +74,14 @@ step "Trim source data files" python pipelines/trim_source_data.py
 #     clean gate). ---
 step "Audit source labels (lenient)" python scripts/audit_all_sources.py
 
+# --- Source-copy normalization + audit. Rewrites any freshly-scaffolded
+#     description/notes to the house style (no fetch/impl-detail leaks,
+#     title acronyms spelled out); the audit is lenient here (no --strict)
+#     to match the label audit above. The GH workflows run both with the
+#     strict gate. ---
+step "Normalize source descriptions" python pipelines/fix_source_descriptions.py
+step "Audit source descriptions (lenient)" python pipelines/audit_source_descriptions.py
+
 # --- Alert evaluation is DELIBERATELY OMITTED from the desktop run. ---
 # check_alerts.py + dispatch_alert_emails.py talk to PRODUCTION Supabase
 # (the SUPABASE_SERVICE_ROLE_KEY in .env is the prod key), so running

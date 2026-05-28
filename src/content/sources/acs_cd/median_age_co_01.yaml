@@ -1,6 +1,6 @@
 name: Median age — CO-01
 shortName: CO-01 median age
-description: Median age for CO-01, from the American Community Survey 5-year estimates (table B01002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CO-01" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median age for CO-01. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_co_01.json

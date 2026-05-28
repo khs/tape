@@ -1,6 +1,6 @@
 name: Total workers (commute-table denominator) — NM-03
 shortName: NM-03 workers total (commute)
-description: Total workers (commute-table denominator) for NM-03, from the American Community Survey 5-year estimates (table B08301). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "NM-03" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Total workers (commute-table denominator) for NM-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_total_commute_nm_03.json

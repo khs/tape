@@ -1,6 +1,6 @@
 name: Adults 25+ with master's degree — CA-18
 shortName: CA-18 masters plus
-description: Adults 25+ with master's degree for CA-18 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B15003). Released annually.
+description: Adults 25+ with master's degree for CA-18, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/masters_plus_ca_18.json

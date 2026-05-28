@@ -1,7 +1,6 @@
 name: Median household income — FL-03
 shortName: FL-03 median hh income
-description: Median household income for FL-03 (118th Congress boundaries). From
-  the American Community Survey 5-year estimates. Released annually.
+description: Median household income for FL-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_hh_income_fl_03.json

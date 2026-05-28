@@ -1,6 +1,6 @@
 name: GDP per capita (current USD) — Middle East and North Africa
 shortName: Middle East and North Africa gdp per capita usd
-description: GDP per capita (current USD) for Middle East and North Africa, annual. From World Bank World Development Indicators (series NY.GDP.PCAP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary.
+description: GDP per capita (current USD) for Middle East and North Africa, annual. From World Bank World Development Indicators (series NY.GDP.PCAP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/gdp_per_capita_usd_mena.json

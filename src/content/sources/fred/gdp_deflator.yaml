@@ -1,6 +1,6 @@
 name: GDP price deflator
 shortName: GDP deflator
-description: GDP price deflator from the BEA's national accounts. Quarterly. The broadest measure of US economy-wide inflation, distinct from CPI (consumer basket) or PCE (consumer spending weights). Reads slightly differently because it covers everything produced, including investment goods and government services.
+description: GDP price deflator from the BEA's national accounts. Quarterly. The broadest measure of US economy-wide inflation, distinct from CPI (consumer basket) or PCE (consumer spending weights). Reads slightly differently because it covers everything produced, including investment goods and government services. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GDPDEF.json

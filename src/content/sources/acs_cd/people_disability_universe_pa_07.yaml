@@ -1,6 +1,6 @@
 name: Civilian noninstitutionalized population (disability-table denominator) — PA-07
 shortName: PA-07 pop. total (disability)
-description: Civilian noninstitutionalized population (disability-table denominator) for PA-07, from the American Community Survey 5-year estimates (table B18101). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "PA-07" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Civilian noninstitutionalized population (disability-table denominator) for PA-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_disability_universe_pa_07.json

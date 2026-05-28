@@ -1,8 +1,6 @@
 name: Australia real-GDP share of world
 shortName: Australia
-description: Australia real GDP / world real GDP (constant 2015 USD), annual 
-  (World Bank). Latest observation forward-filled to today; WB data lags by ~1 
-  year.
+description: Australia real GDP / world real GDP (constant 2015 USD), annual (World Bank). the most recent value is carried forward to the current date; World Bank data typically lags by about a year. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWA.json

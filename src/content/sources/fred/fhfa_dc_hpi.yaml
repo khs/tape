@@ -1,9 +1,6 @@
 name: FHFA DC-metro home price index
 shortName: FHFA DC HPI
-description: FHFA all-transactions House Price Index for the
-  Washington-Arlington-Alexandria MSA. Quarterly, repeat-sales-based.
-  Public-domain federal-agency data; replaced the third-party DC-metro
-  Case-Shiller series in 2026 for compliance reasons.
+description: FHFA all-transactions House Price Index for the Washington-Arlington-Alexandria MSA. Quarterly, repeat-sales-based. Public-domain federal-agency data; replaced the third-party DC-metro Case-Shiller series in 2026 for compliance reasons. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/ATNHPIUS47894Q.json

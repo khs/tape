@@ -1,6 +1,6 @@
 name: Foreign-born population — TX-03
 shortName: TX-03 foreign-born
-description: Foreign-born population for TX-03 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B05002). Released annually.
+description: Foreign-born population for TX-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/foreign_born_tx_03.json

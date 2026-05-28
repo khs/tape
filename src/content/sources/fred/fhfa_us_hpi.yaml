@@ -1,9 +1,6 @@
 name: FHFA national home price index
 shortName: FHFA HPI
-description: FHFA all-transactions House Price Index for the United States.
-  Repeat-sales index covering single-family properties with Fannie/Freddie
-  mortgages. Public-domain federal-agency data; replaced the third-party
-  Case-Shiller series in 2026 for compliance reasons.
+description: FHFA all-transactions House Price Index for the United States. Repeat-sales index covering single-family properties with Fannie/Freddie mortgages. Public-domain federal-agency data; replaced the third-party Case-Shiller series in 2026 for compliance reasons. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/USSTHPI.json

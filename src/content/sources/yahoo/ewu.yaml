@@ -1,7 +1,6 @@
 name: iShares MSCI United Kingdom ETF (EWU)
 shortName: EWU
-description: iShares MSCI United Kingdom ETF — large- and mid-cap UK equities. 
-  Daily adjusted close.
+description: iShares MSCI United Kingdom ETF — large- and mid-cap UK equities. Daily adjusted close. (ETF = exchange-traded fund; MSCI = Morgan Stanley Capital International.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWU.json

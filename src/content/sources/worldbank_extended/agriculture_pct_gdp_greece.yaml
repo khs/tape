@@ -1,6 +1,6 @@
 name: "Agriculture, forestry, fishing value-added (% of GDP) — Greece"
 shortName: Greece agriculture pct gdp
-description: "Agriculture, forestry, fishing value-added (% of GDP) for Greece, annual. From World Bank World Development Indicators (series NV.AGR.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+description: Agriculture, forestry, fishing value-added (% of GDP) for Greece, annual. From World Bank World Development Indicators (series NV.AGR.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/agriculture_pct_gdp_greece.json

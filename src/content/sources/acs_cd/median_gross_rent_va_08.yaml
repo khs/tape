@@ -1,10 +1,6 @@
 name: Median gross rent — VA-08
 shortName: VA-08 median gross rent
-description: Median gross rent (rent + utilities) for VA-08, from the American
-  Community Survey 5-year estimates (table B25064). Released annually. Uses
-  contemporaneous-CD boundaries — the geographic area called "VA-08" shifted
-  slightly each redistricting cycle — pending a stable-geo distribution-based
-  recompute.
+description: Median gross rent for VA-08. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_gross_rent_va_08.json

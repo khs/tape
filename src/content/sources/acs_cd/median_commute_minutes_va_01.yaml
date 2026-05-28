@@ -1,6 +1,6 @@
 name: Median travel time to work — VA-01
 shortName: VA-01 median commute
-description: Median travel time to work for VA-01. Computed by linearly interpolating the median across the B08303 bin distribution published at CD level. American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+description: Median travel time to work for VA-01. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_commute_minutes_va_01.json

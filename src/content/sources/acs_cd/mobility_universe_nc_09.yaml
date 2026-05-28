@@ -1,6 +1,6 @@
 name: Total population (mobility-table denominator) — NC-09
 shortName: NC-09 pop. total (mobility)
-description: Total population (mobility-table denominator) for NC-09, from the American Community Survey 5-year estimates (table B07003). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "NC-09" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Total population (mobility-table denominator) for NC-09. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/mobility_universe_nc_09.json

@@ -1,6 +1,6 @@
 name: Invesco Solar ETF (TAN)
 shortName: TAN
-description: Solar-industry equity ETF. Daily adjusted close.
+description: Solar-industry equity ETF. Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/TAN.json

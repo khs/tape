@@ -1,7 +1,6 @@
 name: Total population — CA-32
 shortName: CA-32 population
-description: Total population for CA-32 (118th Congress boundaries). From the 
-  American Community Survey 5-year estimates. Released annually.
+description: Total population for CA-32, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/population_ca_32.json

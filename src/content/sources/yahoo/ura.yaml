@@ -1,6 +1,6 @@
 name: Global X Uranium ETF (URA)
 shortName: URA
-description: Uranium miners ETF. Daily adjusted close.
+description: Uranium miners ETF. Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/URA.json

@@ -1,6 +1,6 @@
 name: GDP (current USD) — Latin America and Caribbean
 shortName: Latin America and Caribbean gdp current usd
-description: GDP (current USD) for Latin America and Caribbean, annual. From World Bank World Development Indicators (series NY.GDP.MKTP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary.
+description: GDP (current USD) for Latin America and Caribbean, annual. From World Bank World Development Indicators (series NY.GDP.MKTP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/gdp_current_usd_latam.json

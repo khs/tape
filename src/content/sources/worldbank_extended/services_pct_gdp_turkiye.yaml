@@ -1,6 +1,6 @@
 name: "Services value-added (% of GDP) — Türkiye"
 shortName: Türkiye services pct gdp
-description: "Services value-added (% of GDP) for Türkiye, annual. From World Bank World Development Indicators (series NV.SRV.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+description: Services value-added (% of GDP) for Türkiye, annual. From World Bank World Development Indicators (series NV.SRV.TOTL.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/services_pct_gdp_turkiye.json

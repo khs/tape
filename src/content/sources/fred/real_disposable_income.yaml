@@ -1,10 +1,6 @@
 name: Real disposable personal income
 shortName: Real DPI
-description: After-tax income adjusted for inflation. The income foundation
-  underneath consumer-confidence readings — when real DPI is rising, sentiment
-  tends to follow; when it stalls, sentiment leads it down. One of the public-
-  domain proxies for the UMich consumer-sentiment series (which we don't
-  ingest, third-party copyright).
+description: After-tax income adjusted for inflation. The income foundation underneath consumer-confidence readings — when real DPI is rising, sentiment tends to follow; when it stalls, sentiment leads it down.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DSPIC96.json
@@ -23,6 +19,5 @@ provenance:
 tags:
   - macro
   - consumer
-  - sentiment-proxy
   - us
 unitClass: currency

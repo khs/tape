@@ -1,9 +1,6 @@
 name: Job openings (JOLTS, total nonfarm)
 shortName: Job openings
-description: Number of unfilled job postings on the last business day of the 
-  month. The labor-demand half of the supply-and-demand picture (UNRATE is the 
-  supply half). Together drive the openings-to-unemployed ratio that the Fed 
-  watches.
+description: Number of unfilled job postings on the last business day of the month. The labor-demand half of the supply-and-demand picture (UNRATE is the supply half). Together drive the openings-to-unemployed ratio that the Fed watches. (JOLTS = Job Openings and Labor Turnover Survey.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSJOL.json

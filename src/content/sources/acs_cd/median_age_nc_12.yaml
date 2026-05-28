@@ -1,6 +1,6 @@
 name: Median age — NC-12
 shortName: NC-12 median age
-description: Median age for NC-12, from the American Community Survey 5-year estimates (table B01002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "NC-12" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median age for NC-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_nc_12.json

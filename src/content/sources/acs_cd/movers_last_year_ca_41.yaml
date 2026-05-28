@@ -1,6 +1,6 @@
 name: People who moved in the last year — CA-41
 shortName: CA-41 movers (last yr)
-description: People who moved in the last year for CA-41, from the American Community Survey 5-year estimates (table B07003). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CA-41" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: People who moved in the last year for CA-41. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/movers_last_year_ca_41.json

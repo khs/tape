@@ -1,6 +1,6 @@
 name: Median gross rent — NY-26
 shortName: NY-26 median gross rent
-description: Median gross rent for NY-26, from the American Community Survey 5-year estimates (table B25064). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "NY-26" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median gross rent for NY-26. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_gross_rent_ny_26.json

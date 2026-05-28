@@ -1,6 +1,6 @@
 name: "Core CPI (all items less food & energy)"
 shortName: Core CPI
-description: Core CPI (1982-84=100), monthly.
+description: Core CPI (1982-84=100), monthly. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPILFESL.json

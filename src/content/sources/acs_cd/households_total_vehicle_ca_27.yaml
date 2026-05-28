@@ -1,6 +1,6 @@
 name: Total households (vehicle-table denominator) — CA-27
 shortName: CA-27 HHs total (vehicle)
-description: Total households (vehicle-table denominator) for CA-27, from the American Community Survey 5-year estimates (table B08201). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "CA-27" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Total households (vehicle-table denominator) for CA-27. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_total_vehicle_ca_27.json

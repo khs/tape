@@ -1,6 +1,6 @@
 name: Median home value (owner-occupied) — IN-07
 shortName: IN-07 median home value
-description: Median home value (owner-occupied) for IN-07, from the American Community Survey 5-year estimates (table B25077). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "IN-07" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median home value (owner-occupied) for IN-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_home_value_in_07.json

@@ -1,6 +1,6 @@
 name: Owner-occupied housing units — LA-06
 shortName: LA-06 owner-occupied
-description: Owner-occupied housing units for LA-06 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B25003). Released annually.
+description: Owner-occupied housing units for LA-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/owner_occupied_la_06.json

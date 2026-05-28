@@ -1,6 +1,6 @@
 name: Renter-occupied housing units — AZ-07
 shortName: AZ-07 renter-occupied
-description: Renter-occupied housing units for AZ-07 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B25003). Released annually.
+description: Renter-occupied housing units for AZ-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/renter_occupied_az_07.json

@@ -1,8 +1,6 @@
 name: France CPI inflation (YoY)
 shortName: France CPI YoY
-description: Headline consumer price inflation, year-over-year, from OECD. 
-  Monthly, all items, national methodology, not seasonally adjusted. 
-  Cross-country comparable because OECD applies the same harmonization rules.
+description: Headline consumer price inflation, year-over-year, from OECD. Monthly, all items, national methodology, not seasonally adjusted. Cross-country comparable because OECD applies the same harmonization rules. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/fra_cpi_yoy.json

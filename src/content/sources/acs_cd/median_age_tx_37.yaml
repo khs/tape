@@ -1,6 +1,6 @@
 name: Median age — TX-37
 shortName: TX-37 median age
-description: Median age for TX-37, from the American Community Survey 5-year estimates (table B01002). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "TX-37" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median age for TX-37. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_tx_37.json

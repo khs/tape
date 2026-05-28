@@ -1,6 +1,6 @@
 name: Households with no vehicle available — LA-02
 shortName: LA-02 HHs no vehicle
-description: Households with no vehicle available for LA-02, from the American Community Survey 5-year estimates (table B08201). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "LA-02" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Households with no vehicle available for LA-02. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_no_vehicle_la_02.json

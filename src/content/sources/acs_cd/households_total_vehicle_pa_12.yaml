@@ -1,6 +1,6 @@
 name: Total households (vehicle-table denominator) — PA-12
 shortName: PA-12 HHs total (vehicle)
-description: Total households (vehicle-table denominator) for PA-12, from the American Community Survey 5-year estimates (table B08201). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "PA-12" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Total households (vehicle-table denominator) for PA-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_total_vehicle_pa_12.json

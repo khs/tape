@@ -1,6 +1,6 @@
 name: Technology Select Sector SPDR (XLK)
 shortName: XLK
-description: Daily adjusted close.
+description: Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLK.json

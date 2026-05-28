@@ -1,6 +1,6 @@
 name: iShares MSCI Emerging Markets ETF
 shortName: EEM
-description: Broad-index equity ETF. Daily adjusted close.
+description: Broad-index equity ETF. Daily adjusted close. (ETF = exchange-traded fund; MSCI = Morgan Stanley Capital International.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EEM.json

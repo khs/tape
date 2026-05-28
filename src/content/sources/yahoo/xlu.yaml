@@ -1,6 +1,6 @@
 name: Utilities Select Sector SPDR
 shortName: XLU
-description: "S&P 500 utilities sector ETF. Daily adjusted close."
+description: S&P 500 utilities sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLU.json

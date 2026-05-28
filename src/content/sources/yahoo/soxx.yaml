@@ -1,6 +1,6 @@
 name: iShares Semiconductor ETF (SOXX)
 shortName: SOXX
-description: Daily adjusted close.
+description: Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/SOXX.json

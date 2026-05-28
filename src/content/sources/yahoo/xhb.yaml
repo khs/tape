@@ -1,8 +1,6 @@
 name: SPDR S&P Homebuilders ETF (XHB)
 shortName: XHB
-description: Equal-weighted index of US homebuilders, building products, and 
-  home-furnishings retailers. A read on the broader housing-construction supply 
-  chain.
+description: Equal-weighted index of US homebuilders, building products, and home-furnishings retailers. A read on the broader housing-construction supply chain. (ETF = exchange-traded fund; SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XHB.json

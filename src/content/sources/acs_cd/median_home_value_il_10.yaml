@@ -1,6 +1,6 @@
 name: Median home value (owner-occupied) — IL-10
 shortName: IL-10 median home value
-description: Median home value (owner-occupied) for IL-10, from the American Community Survey 5-year estimates (table B25077). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "IL-10" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Median home value (owner-occupied) for IL-10. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_home_value_il_10.json

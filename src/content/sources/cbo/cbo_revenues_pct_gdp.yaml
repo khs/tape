@@ -1,7 +1,6 @@
 name: Federal revenues as % of GDP — CBO baseline
 shortName: CBO revenues / GDP
-description: |
-  Total federal revenues as a percentage of GDP. Historical values come from CBO's Historical Budget Data; the dashed extension is the 10-year baseline projection from the most recent CBO Budget & Economic Outlook.
+description: Total federal revenues as a percentage of GDP. Historical values come from CBO's Historical Budget Data; the dashed extension is the 10-year baseline projection from the most recent CBO Budget & Economic Outlook. (GDP = Gross Domestic Product; CBO = Congressional Budget Office.)
 kind: timeseries
 pipeline: cbo
 dataFile: data/cbo/cbo_revenues_pct_gdp.json

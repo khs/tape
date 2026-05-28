@@ -1,6 +1,6 @@
 name: "Manufacturing value-added (% of GDP) — Japan"
 shortName: Japan manufacturing pct gdp
-description: "Manufacturing value-added (% of GDP) for Japan, annual. From World Bank World Development Indicators (series NV.IND.MANF.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary."
+description: Manufacturing value-added (% of GDP) for Japan, annual. From World Bank World Development Indicators (series NV.IND.MANF.ZS). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/manufacturing_pct_gdp_japan.json

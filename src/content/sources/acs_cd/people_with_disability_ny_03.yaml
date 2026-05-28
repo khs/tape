@@ -1,6 +1,6 @@
 name: People with a disability — NY-03
 shortName: NY-03 with disability
-description: People with a disability for NY-03. Aggregated at CD level by summing the relevant B18101 cells (each indicator pulls a specific subset of the table's age/sex/category breakdown). American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+description: People with a disability for NY-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_with_disability_ny_03.json

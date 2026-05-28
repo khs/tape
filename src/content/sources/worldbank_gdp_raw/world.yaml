@@ -1,8 +1,6 @@
 name: World real GDP
 shortName: World GDP
-description: World aggregate real GDP, constant 2015 USD (World Bank, 
-  NY.GDP.MKTP.KD, WLD). Annual, latest observation forward-filled to today; WB 
-  data lags by ~1 year.
+description: World aggregate real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, WLD). Annual, the most recent value is carried forward to the current date; World Bank data typically lags by about a year. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_gdp_raw
 dataFile: data/worldbank_gdp_raw/WLD.json

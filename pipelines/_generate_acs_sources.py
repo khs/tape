@@ -407,45 +407,29 @@ def slug_to_display(slug: str) -> str:
 
 
 def description_for(ind: dict, slug: str) -> str:
-    """One-sentence-ish description matching the existing hand-written tone."""
+    """Reader-facing description: what the series measures, where it comes
+    from, and the one caveat that matters for interpretation (which
+    district boundaries each year's figure uses). Deliberately free of
+    derivation mechanics (no "recompute", crosswalks, bin counts, table
+    cells) — that's implementation detail, not something a reader needs.
+
+    Two boundary regimes:
+      - "sum" / "median_dist" hold the geography constant at the 2023
+        (118th Congress) district lines across all years.
+      - everything else reports each year on the district lines that were
+        in effect that year.
+    """
     display = slug_to_display(slug)
-    table = ind["table"]
-    if ind["agg"] == "sum":
+    if ind["agg"] in ("sum", "median_dist"):
         return (
-            f"{ind['name_prefix']} for {display} (118th Congress boundaries). "
-            f"From the American Community Survey 5-year estimates "
-            f"(table {table}). Released annually."
+            f"{ind['name_prefix']} for {display}, on 2023 (118th Congress) "
+            f"congressional-district boundaries held constant across years. "
+            f"American Community Survey (ACS) 5-year estimates, released annually."
         )
-    if ind["agg"] == "median_dist":
-        return (
-            f"{ind['name_prefix']} for {display} (118th Congress boundaries). "
-            f"Recomputed at CD level by aggregating the {table} household-income-"
-            f"distribution bin counts across tracts assigned to {display} via the "
-            f"2020-tract crosswalk, then taking the weighted median. American "
-            f"Community Survey 5-year estimates, released annually."
-        )
-    if ind["agg"] == "cd_level_sum":
-        return (
-            f"{ind['name_prefix']} for {display}. Aggregated at CD level by "
-            f"summing the relevant {table} cells (each indicator pulls a "
-            f"specific subset of the table's age/sex/category breakdown). "
-            f"American Community Survey 5-year estimates, contemporaneous-CD "
-            f"boundaries, released annually."
-        )
-    if ind["agg"] == "median_from_cd_distribution":
-        return (
-            f"{ind['name_prefix']} for {display}. Computed by linearly "
-            f"interpolating the median across the {table} bin distribution "
-            f"published at CD level. American Community Survey 5-year "
-            f"estimates, contemporaneous-CD boundaries, released annually."
-        )
-    # cd_level
     return (
-        f"{ind['name_prefix']} for {display}, from the American Community Survey "
-        f"5-year estimates (table {table}). Released annually. Each data point "
-        f"uses contemporaneous-CD boundaries — the geographic area called "
-        f'"{display}" reflects whichever district lines were in effect for that '
-        f"ACS vintage — pending a stable-geo distribution-based recompute."
+        f"{ind['name_prefix']} for {display}. American Community Survey (ACS) "
+        f"5-year estimates, released annually. Each year reflects the "
+        f"congressional-district boundaries then in effect."
     )
 
 

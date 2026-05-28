@@ -1,6 +1,6 @@
 name: SPDR Dow Jones Industrial Average ETF
 shortName: DIA
-description: Broad-index equity ETF. Daily adjusted close.
+description: Broad-index equity ETF. Daily adjusted close. (ETF = exchange-traded fund; SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/DIA.json

@@ -1,6 +1,6 @@
 name: People who moved in the last year — GA-07
 shortName: GA-07 movers (last yr)
-description: People who moved in the last year for GA-07, from the American Community Survey 5-year estimates (table B07003). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "GA-07" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: People who moved in the last year for GA-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/movers_last_year_ga_07.json

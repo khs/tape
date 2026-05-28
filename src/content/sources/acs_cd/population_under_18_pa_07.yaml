@@ -1,6 +1,6 @@
 name: Total population — UNDER-18-PA-07
 shortName: UNDER-18-PA-07 population
-description: Total population for UNDER-18-PA-07 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B01003). Released annually.
+description: Total population for UNDER-18-PA-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/population_under_18_pa_07.json

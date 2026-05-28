@@ -1,6 +1,6 @@
 name: Communication Services Select Sector SPDR
 shortName: XLC
-description: "S&P 500 communications sector ETF. Daily adjusted close."
+description: S&P 500 communications sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLC.json

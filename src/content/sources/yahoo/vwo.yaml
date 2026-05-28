@@ -1,6 +1,6 @@
 name: Vanguard FTSE Emerging Markets ETF
 shortName: VWO
-description: Broad-index equity ETF. Daily adjusted close.
+description: Broad-index equity ETF. Daily adjusted close. (ETF = exchange-traded fund; FTSE = Financial Times Stock Exchange.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/VWO.json

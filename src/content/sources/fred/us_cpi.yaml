@@ -1,6 +1,5 @@
 name: Consumer Price Index (CPI-U)
-description: All-urban consumers, not seasonally adjusted, 1982-84 = 100. The 
-  1-year delta on this series is year-over-year inflation.
+description: All-urban consumers, not seasonally adjusted, 1982-84 = 100. The 1-year delta on this series is year-over-year inflation. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPIAUCSL.json

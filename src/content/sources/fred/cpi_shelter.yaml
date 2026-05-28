@@ -1,7 +1,6 @@
 name: "CPI: Shelter"
 shortName: Shelter CPI
-description: Shelter component of CPI. Includes rent + owner's equivalent rent +
-  lodging away from home. The biggest weight in core CPI.
+description: Shelter component of CPI. Includes rent + owner's equivalent rent + lodging away from home. The biggest weight in core CPI. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUUR0000SAH1.json

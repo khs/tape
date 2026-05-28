@@ -1,8 +1,6 @@
 name: Federal surplus or deficit, % of GDP
 shortName: Deficit / GDP
-description: Annual federal budget balance (negative = deficit) as a percent of 
-  GDP. Cleaner cross-period comparison than absolute dollar amounts because it 
-  scales with the economy.
+description: Annual federal budget balance (negative = deficit) as a percent of GDP. Cleaner cross-period comparison than absolute dollar amounts because it scales with the economy. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYFSGDA188S.json

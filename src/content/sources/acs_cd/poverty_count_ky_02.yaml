@@ -1,7 +1,6 @@
 name: People in poverty — KY-02
 shortName: KY-02 poverty count
-description: People in poverty for KY-02 (118th Congress boundaries). From the 
-  American Community Survey 5-year estimates. Released annually.
+description: People in poverty for KY-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/poverty_count_ky_02.json

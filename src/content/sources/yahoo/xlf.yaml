@@ -1,6 +1,6 @@
 name: Financial Select Sector SPDR
 shortName: XLF
-description: "S&P 500 financials sector ETF. Daily adjusted close."
+description: S&P 500 financials sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLF.json

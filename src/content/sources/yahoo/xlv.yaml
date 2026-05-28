@@ -1,6 +1,6 @@
 name: Health Care Select Sector SPDR
 shortName: XLV
-description: "S&P 500 healthcare sector ETF. Daily adjusted close."
+description: S&P 500 healthcare sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLV.json

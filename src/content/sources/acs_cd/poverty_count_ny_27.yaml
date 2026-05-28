@@ -1,6 +1,6 @@
 name: People in poverty — NY-27
 shortName: NY-27 poverty count
-description: People in poverty for NY-27 (118th Congress boundaries). From the American Community Survey 5-year estimates (table B17001). Released annually.
+description: People in poverty for NY-27, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/poverty_count_ny_27.json

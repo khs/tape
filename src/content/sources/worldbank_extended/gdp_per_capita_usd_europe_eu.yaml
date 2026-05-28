@@ -1,6 +1,6 @@
 name: GDP per capita (current USD) — European Union
 shortName: European Union gdp per capita usd
-description: GDP per capita (current USD) for European Union, annual. From World Bank World Development Indicators (series NY.GDP.PCAP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary.
+description: GDP per capita (current USD) for European Union, annual. From World Bank World Development Indicators (series NY.GDP.PCAP.CD). Most regions and country aggregates available back to 1960; individual series start dates vary. (GDP = Gross Domestic Product.)
 kind: timeseries
 pipeline: worldbank_extended
 dataFile: data/worldbank_extended/gdp_per_capita_usd_europe_eu.json

@@ -1,6 +1,6 @@
 name: Median travel time to work — OH-04
 shortName: OH-04 median commute
-description: Median travel time to work for OH-04. Computed by linearly interpolating the median across the B08303 bin distribution published at CD level. American Community Survey 5-year estimates, contemporaneous-CD boundaries, released annually.
+description: Median travel time to work for OH-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_commute_minutes_oh_04.json

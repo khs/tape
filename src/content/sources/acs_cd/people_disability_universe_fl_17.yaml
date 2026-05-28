@@ -1,6 +1,6 @@
 name: Civilian noninstitutionalized population (disability-table denominator) — FL-17
 shortName: FL-17 pop. total (disability)
-description: Civilian noninstitutionalized population (disability-table denominator) for FL-17, from the American Community Survey 5-year estimates (table B18101). Released annually. Each data point uses contemporaneous-CD boundaries — the geographic area called "FL-17" reflects whichever district lines were in effect for that ACS vintage — pending a stable-geo distribution-based recompute.
+description: Civilian noninstitutionalized population (disability-table denominator) for FL-17. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_disability_universe_fl_17.json

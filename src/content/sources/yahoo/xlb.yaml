@@ -1,6 +1,6 @@
 name: Materials Select Sector SPDR
 shortName: XLB
-description: "S&P 500 materials sector ETF. Daily adjusted close."
+description: S&P 500 materials sector ETF. Daily adjusted close. (SPDR = Standard & Poor's Depositary Receipts.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/XLB.json
