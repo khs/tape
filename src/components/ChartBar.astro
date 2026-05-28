@@ -211,16 +211,16 @@ const payload = {
     </p>
   </div>
 
-  {/*
-    Server-rendered JSON payload — NOT a JS script. The
-    type="application/json" attribute already disables Astro
-    processing; we don't add is:inline because Vite's dep-scan
-    chokes on this combination (it tries to read the surrounding
-    JSX comment as inline script content and errors on the first
-    word). The astro check "this script will be treated as inline"
-    HINT is the cheaper trade-off — keep the source clear.
-  */}
-  <script type="application/json" data-chart-bar-payload set:html={JSON.stringify(payload)} />
+  {/* Server-rendered JSON payload — NOT a JS script. is:inline is
+      explicit so Astro doesn't try to bundle/process it; type=
+      application/json keeps the browser from executing it. The
+      client renderer below reads it by the data-attribute. */}
+  <script
+    is:inline
+    type="application/json"
+    data-chart-bar-payload
+    set:html={JSON.stringify(payload)}
+  />
 </dialog>
 
 <script>

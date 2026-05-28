@@ -58,7 +58,7 @@ describe("parseAnnotationLines", () => {
 
   it("calls onError for missing colon", () => {
     const errs: string[] = [];
-    parseAnnotationLines("missing colon here", (n, line, reason) =>
+    parseAnnotationLines("missing colon here", (n, _line, reason) =>
       errs.push(`L${n}: ${reason}`),
     );
     expect(errs).toContain("L1: missing colon between date and label");
@@ -66,7 +66,7 @@ describe("parseAnnotationLines", () => {
 
   it("calls onError for bad date", () => {
     const errs: string[] = [];
-    parseAnnotationLines("not-a-date: Lehman", (n, line, reason) =>
+    parseAnnotationLines("not-a-date: Lehman", (n, _line, reason) =>
       errs.push(`L${n}: ${reason}`),
     );
     expect(errs[0]).toContain("not a YYYY-MM-DD date");
@@ -74,7 +74,7 @@ describe("parseAnnotationLines", () => {
 
   it("calls onError for empty label", () => {
     const errs: string[] = [];
-    parseAnnotationLines("2008-09-15: ", (n, line, reason) =>
+    parseAnnotationLines("2008-09-15: ", (n, _line, reason) =>
       errs.push(`L${n}: ${reason}`),
     );
     expect(errs[0]).toContain("empty label");

@@ -157,13 +157,21 @@ export const browserTests: DiagnosticTest[] = [
           dpr,
         });
       }
+      // navigator.platform is deprecated in favor of UA-Client-Hints
+      // (navigator.userAgentData.platform), but that's absent in
+      // Firefox + Safari and async to read. For a one-shot
+      // diagnostic snapshot the legacy synchronous field is the
+      // pragmatic choice. Read it through a cast that doesn't carry
+      // the deprecation JSDoc so the typecheck stays hint-free.
+      const platform =
+        (navigator as unknown as { platform?: string }).platform ?? "";
       return pass(`${w}x${h} @ ${dpr}x DPR`, {
         width: w,
         height: h,
         dpr,
         ua: navigator.userAgent,
         language: navigator.language,
-        platform: navigator.platform,
+        platform,
         languages: navigator.languages,
       });
     },

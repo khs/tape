@@ -222,10 +222,9 @@ function detectSeries(name: string, id: string): string | null {
   return null;
 }
 
-/** What level a source belongs to, derived from its tags + ID
- *  patterns. Returns null for national / non-geographic sources. */
+/** What level a source belongs to, derived from its tags.
+ *  Returns null for national / non-geographic sources. */
 function detectLevel(
-  id: string,
   tags: ReadonlyArray<string>,
 ): HintLevel | null {
   if (tags.includes(METRO_TAG)) return "metro";
@@ -338,7 +337,7 @@ export function synthesizeSourceHints(
   const seen = new Map<string, { level: HintLevel; series: string }>();
 
   for (const s of sources) {
-    const level = detectLevel(s.id, s.tags);
+    const level = detectLevel(s.tags);
     if (level == null) continue;
     const series = detectSeries(s.name, s.id);
     if (series == null) continue;
