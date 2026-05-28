@@ -1,6 +1,6 @@
 name: 'Total government employment in Hawaii'
 shortName: 'HI total govt'
-description: 'All government employees (federal + state + local) in Hawaii. Headline public-sector workforce signal for the state. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'All government employees (federal + state + local) in Hawaii. Headline public-sector workforce signal for the state. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/HIGOVT.json

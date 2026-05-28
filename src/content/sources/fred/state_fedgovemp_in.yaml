@@ -1,6 +1,6 @@
 name: 'Federal government employment in Indiana'
 shortName: 'IN federal govt'
-description: 'Federal civilian employees working in Indiana, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Federal civilian employees working in Indiana, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS18000009091000001.json

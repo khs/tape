@@ -127,10 +127,12 @@ def yaml_for(abbr: str, fips: str, state_name: str, cat: tuple) -> str:
         scale_line = "  scaleFactor: 1000"  # thousands → raw USD for compact display
         tags = ["macro", "government", "tax", "us-state", "us"]
         unit_class = "currency"
-    desc = (
-        f"{blurb} {provider_phrase}. Surfaced on the SourcePicker's "
-        f"state chip; doesn't appear in the default browse view."
-    )
+    # Description shouldn't reference internal UI names (SourcePicker,
+    # state chip, etc.) — earlier versions of this scaffolder leaked
+    # those into 253 YAMLs that had to be stripped post-hoc. The
+    # state-tag synthesis in library.json.ts handles the visibility
+    # gating; users don't need to know.
+    desc = f"{blurb} {provider_phrase}."
     cat_short = {
         "totgovemp": "total govt",
         "fedgovemp": "federal govt",

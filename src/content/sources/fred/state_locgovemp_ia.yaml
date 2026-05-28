@@ -1,6 +1,6 @@
 name: 'Local government employment in Iowa'
 shortName: 'IA local govt'
-description: 'Employees of city, county, and special-district governments within Iowa (BLS SAES). K-12 school district payrolls are the largest single component. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Employees of city, county, and special-district governments within Iowa (BLS SAES). K-12 school district payrolls are the largest single component. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS19000009093000001.json

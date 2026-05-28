@@ -1,6 +1,6 @@
 name: 'State government employment in Nevada'
 shortName: 'NV state govt'
-description: 'Employees of Nevada''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Employees of Nevada''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS32000009092000001.json

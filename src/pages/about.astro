@@ -90,13 +90,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
     <h2>How fresh is the data</h2>
     <p>
-      Data pipelines run weekly via GitHub Actions; results are
-      committed into a public repository alongside a dated snapshot
-      (<code>public/data/_archive/&lt;YYYY-MM-DD&gt;/</code>), so a
-      footnote citing a specific date can still resolve that vintage
-      indefinitely. Series can be revised, restated, or deprecated by
-      their providers; the site reflects whatever was current on the
-      most recent refresh.
+      Data refreshes weekly. Series can be revised, restated, or
+      retired by their providers; the site reflects whatever was
+      current on the most recent refresh.
     </p>
 
     <h2>Stack</h2>
@@ -145,11 +141,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         bond market expects" section uses 5y + 10y breakevens.
       </li>
       <li>
-        <strong>Labor + Rates + Recession-monitor + Housing dashboards.</strong>
-        Surfaces previously-library-only charts on dedicated pages with
-        framing essays. Recession-monitor includes NY Fed's term-
-        structure model probability and the Senior Loan Officer Survey
-        tightening series.
+        <strong>Labor, Rates, Recession-monitor, and Housing dashboards.</strong>
+        Dedicated pages with framing essays. Recession-monitor includes
+        NY Fed's term-structure model probability and the Senior Loan
+        Officer Survey tightening series.
       </li>
     </ul>
 

@@ -1,6 +1,6 @@
 name: 'State government employment in New York'
 shortName: 'NY state govt'
-description: 'Employees of New York''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Employees of New York''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS36000009092000001.json

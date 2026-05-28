@@ -1,6 +1,6 @@
 name: 'Federal government employment in North Dakota'
 shortName: 'ND federal govt'
-description: 'Federal civilian employees working in North Dakota, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Federal civilian employees working in North Dakota, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS38000009091000001.json

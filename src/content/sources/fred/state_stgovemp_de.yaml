@@ -1,6 +1,6 @@
 name: 'State government employment in Delaware'
 shortName: 'DE state govt'
-description: 'Employees of Delaware''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Employees of Delaware''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS10000009092000001.json

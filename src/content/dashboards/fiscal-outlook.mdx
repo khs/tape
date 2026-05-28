@@ -37,26 +37,6 @@ The scope today is the three energy commodity futures curves — WTI
 crude, Brent crude, and Henry Hub natural gas. Each refreshes on every
 pipeline run with the latest NYMEX-quoted contract prices.
 
-## How the data lands
-
-The CBO and SSA pipelines both depend on operator-supplied files in
-`pipelines/cbo_data/` and `pipelines/ssa_data/` because both upstream
-sites block direct CI fetches with HTTP 403. Workflow:
-
-- **CBO**: drop the latest `51134-YYYY-MM-Historical-Budget-Data.xlsx`
-  and any number of `51118-YYYY-MM-*Budget-Projections*.xlsx` files
-  into `pipelines/cbo_data/`. Run `python pipelines/cbo.py`. Each
-  Outlook release becomes a separate vintage under each source's
-  `projections` map.
-- **SSA**: save the Trustees Report tables (Estimates as a Percentage
-  of GDP, Covered Workers and Beneficiaries) from a browser into
-  `pipelines/ssa_data/`. Run `python pipelines/ssa.py`. The pipeline
-  picks files up by keyword match, so the browser-default filenames
-  Just Work.
-
-Both directories are gitignored — operator artifacts, not part of
-the repo.
-
 ## How to read a futures curve
 
 A futures curve isn't a forecast in the same sense as a CBO baseline
@@ -85,8 +65,3 @@ Every source on this dashboard is in the composer library. The
 composer so you can swap in alternative commodity series, add your
 own overlays, or build a custom forecast stack.
 
-The vintage picker (Phase 3 of the Forecast UI) is not yet shipped —
-when it lands, you'll be able to compare an older snapshot of the
-futures curve to today's. The yahoo_futures pipeline already
-accumulates per-run snapshots, so when the picker ships it'll pick
-up the back-data automatically.

@@ -1,6 +1,6 @@
 name: 'State + local total tax collections, North Dakota'
 shortName: 'ND tax rev'
-description: 'Quarterly state + local tax revenue for North Dakota (Census Quarterly Summary of State + Local Tax Revenue, redistributed via FRED). Income tax + sales tax + property tax + other; total. Revenue-side complement to government employment. Public-domain Census data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+description: 'Quarterly state + local tax revenue for North Dakota (Census Quarterly Summary of State + Local Tax Revenue, redistributed via FRED). Income tax + sales tax + property tax + other; total. Revenue-side complement to government employment. Public-domain Census data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/QTAXTOTALQTAXCAT3NDNO.json
