@@ -179,6 +179,19 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("bls/state_payrolls_ca")).toEqual({ state: "ca" });
   });
 
+  it("parses Census state-government-finance series", () => {
+    expect(parseStateSourceId("census_govfin/state_totexp_ca")).toEqual({ state: "ca" });
+    expect(parseStateSourceId("census_govfin/state_welfexp_tx")).toEqual({ state: "tx" });
+    expect(parseStateSourceId("census_govfin/state_hwyexp_wy")).toEqual({ state: "wy" });
+  });
+
+  it("does NOT treat census_govfin national totals as state-level", () => {
+    // `census_govfin/us_<series>` is the US aggregate — it must stay
+    // default-visible, not get gated behind the state chip.
+    expect(parseStateSourceId("census_govfin/us_totexp")).toBeNull();
+    expect(parseStateSourceId("census_govfin/us_totrev")).toBeNull();
+  });
+
   it("rejects CD-level IDs (those belong to parseCdSourceId)", () => {
     expect(parseStateSourceId("usaspending/district_tx_01")).toBeNull();
     expect(parseStateSourceId("acs_cd/bachelors_plus_tx_01")).toBeNull();

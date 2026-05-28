@@ -1,0 +1,25 @@
+name: 'Wyoming state government highway expenditure'
+shortName: 'WY state highways'
+description: 'Direct spending on regular highways — state DOT construction, maintenance, and operations (excludes toll facilities). Unlike K-12 (funded by states but spent by local districts), highways are a function states largely build and run directly, for Wyoming''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+kind: timeseries
+pipeline: census_govfin
+dataFile: data/census_govfin/state_hwyexp_wy.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+emphasis: change
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: ' B'
+provenance:
+  provider: U.S. Census Bureau, Annual Survey of State Government Finances
+  series: govsstatefin SF0281
+  url: https://www.census.gov/programs-surveys/state.html
+  license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - us-state
+  - us
+unitClass: currency

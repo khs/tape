@@ -1,0 +1,25 @@
+name: 'New Jersey state government total revenue'
+shortName: 'NJ state revenue'
+description: 'All revenue — taxes, federal and local transfers, current charges, and insurance-trust receipts, for New Jersey''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+kind: timeseries
+pipeline: census_govfin
+dataFile: data/census_govfin/state_totrev_nj.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+emphasis: change
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: ' B'
+provenance:
+  provider: U.S. Census Bureau, Annual Survey of State Government Finances
+  series: govsstatefin SF0001
+  url: https://www.census.gov/programs-surveys/state.html
+  license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - us-state
+  - us
+unitClass: currency

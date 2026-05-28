@@ -1,0 +1,25 @@
+name: 'South Carolina state government public-welfare expenditure'
+shortName: 'SC state welfare'
+description: 'Direct public-welfare spending; the large majority is state Medicaid outlays, making this the single biggest line in most state budgets, for South Carolina''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+kind: timeseries
+pipeline: census_govfin
+dataFile: data/census_govfin/state_welfexp_sc.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+emphasis: change
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: ' B'
+provenance:
+  provider: U.S. Census Bureau, Annual Survey of State Government Finances
+  series: govsstatefin SF0353
+  url: https://www.census.gov/programs-surveys/state.html
+  license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - us-state
+  - us
+unitClass: currency

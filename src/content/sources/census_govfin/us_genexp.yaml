@@ -1,0 +1,24 @@
+name: 'State governments'' general expenditure (US total)'
+shortName: 'State govt general exp (US)'
+description: 'Core public-service spending — excludes utility, liquor-store, and insurance-trust (pension) outlays, so it tracks day-to-day government activity, summed across all 50 state governments. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+kind: timeseries
+pipeline: census_govfin
+dataFile: data/census_govfin/us_genexp.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "billions USD"
+emphasis: change
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  suffix: ' B'
+provenance:
+  provider: U.S. Census Bureau, Annual Survey of State Government Finances
+  series: govsstatefin SF0133
+  url: https://www.census.gov/programs-surveys/state.html
+  license: Public domain (US government data)
+tags:
+  - fiscal
+  - government
+  - us
+unitClass: currency
