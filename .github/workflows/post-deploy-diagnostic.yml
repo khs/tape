@@ -26,7 +26,16 @@ on:
       url:
         description: "Site URL to diagnose (default: production)"
         required: false
-        default: "https://tape.vercel.app"
+        # Vercel project rename from `legible-markets` → `tape`
+        # never landed (Git-integration handoff was the gating
+        # issue in May 2026 — repo is khs/tape but the Vercel
+        # project + its deploy URL stayed legible-markets). Do
+        # NOT change this back to tape.vercel.app until the Vercel
+        # project itself is renamed: tape.vercel.app returns a
+        # "domain not configured" placeholder that 200s on / +
+        # 404s on every real path, which silently fails 15/16
+        # of this diagnostic (saw it 2026-05-28).
+        default: "https://legible-markets.vercel.app"
 
 permissions:
   contents: read
@@ -56,7 +65,13 @@ jobs:
       - name: Resolve URL to diagnose
         id: url
         run: |
-          PROD_URL="https://tape.vercel.app"
+          # PROD_URL must match the Vercel project's current public
+          # domain. The Vercel project rename to "tape" never landed
+          # (May 2026), so prod is still served from the original
+          # legible-markets.vercel.app. Update both this AND the
+          # workflow_dispatch default + the smoke test workflow when
+          # the Vercel project is renamed.
+          PROD_URL="https://legible-markets.vercel.app"
           URL="${{ github.event.inputs.url }}"
           if [ -z "$URL" ]; then URL="$PROD_URL"; fi
           URL="${URL%/}"

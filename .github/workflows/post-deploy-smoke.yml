@@ -28,7 +28,9 @@ on:
       url:
         description: "Site URL to smoke test (default: production)"
         required: false
-        default: "https://tape.vercel.app"
+        # See PROD_URL note in the "Resolve URL to test" step below
+        # for why this is legible-markets.vercel.app, not tape.vercel.app.
+        default: "https://legible-markets.vercel.app"
 
 permissions:
   contents: read
@@ -55,8 +57,16 @@ jobs:
           # hash hostname (tape-<hash>-...) which is gated by
           # Vercel SSO on team accounts and returns 401 to anonymous curl.
           # The public production URL is stable, so just hardcode it.
-          # Swap PROD_URL below if/when a custom domain ships.
-          PROD_URL="https://tape.vercel.app"
+          # The Vercel project rename to "tape" never landed (the
+          # Git-integration handoff was the gating issue in May
+          # 2026 — repo is khs/tape but the Vercel project + its
+          # deploy URL stayed legible-markets). Update PROD_URL
+          # AND the workflow_dispatch default + the diagnostic
+          # workflow's matching field when Vercel project itself
+          # is renamed. Do NOT switch to tape.vercel.app until
+          # then — it returns a "domain not configured" placeholder
+          # that 200s on / + 404s on every real path.
+          PROD_URL="https://legible-markets.vercel.app"
           URL="${{ github.event.inputs.url }}"
           if [ -z "$URL" ]; then URL="$PROD_URL"; fi
           URL="${URL%/}"  # strip trailing slash
