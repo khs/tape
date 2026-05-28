@@ -88,6 +88,17 @@ const isMulti = !chartOp && sources.length > 1;
 // source charts uniformly; ratio / derived charts with at least one
 // FRED leg also trigger.
 const usesFred = sources.some((s) => s.data.pipeline === "fred");
+// Census Data API attribution gate — same requirement as FRED. The
+// Census API ToS mandates a "This product uses the Census Bureau Data
+// API but is not endorsed or certified by the Census Bureau" notice.
+// Detect by provider (not pipeline) so it covers every Census-sourced
+// pipeline (census_govfin, acs_*, derive_acs_state_from_cd, …) while
+// excluding Census-via-FRED series, which carry "via FRED" and fall
+// under the FRED disclaimer above.
+const usesCensus = sources.some((s) => {
+  const provider = s.data.provenance?.provider ?? "";
+  return /census bureau/i.test(provider) && !/via fred/i.test(provider);
+});
 // Resolve normalize mode. If the chart didn't set one, pick a sensible
 // default: "rebase" for multi-source charts, "raw" for single. Heuristic
 // for same-scale multi-source ("3 percent rates": all match formatting +
@@ -926,6 +937,14 @@ const mostRecentUpdate = payload.sources
           </span>
         )
       }
+      {
+        usesCensus && (
+          <span class="dialog-footer-census-disclaimer">
+            This product uses the Census Bureau Data API but is not
+            endorsed or certified by the Census Bureau.
+          </span>
+        )
+      }
     </footer>
   </div>
 
@@ -1471,7 +1490,8 @@ const mostRecentUpdate = payload.sources
      so it's unambiguously associated with the chart, not buried.
      Muted + italic so it reads as a footnote rather than competing
      with the readouts above. */
-  .dialog-footer-fred-disclaimer {
+  .dialog-footer-fred-disclaimer,
+  .dialog-footer-census-disclaimer {
     flex: 1 1 100%;
     font-style: italic;
     color: var(--color-neutral-500);

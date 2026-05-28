@@ -91,6 +91,14 @@ const title = resolved?.chart.data.title ?? chartId;
 // Substack / newsletter readers especially: most never expand.
 const fredDisclaimer =
   resolved?.sources?.some((s) => s.data.pipeline === "fred") ?? false;
+// Census Data API required notice — same rationale as fredDisclaimer.
+// Provider-based so it spans every Census pipeline but skips
+// Census-via-FRED (covered by the FRED notice).
+const censusDisclaimer =
+  resolved?.sources?.some((s) => {
+    const provider = s.data.provenance?.provider ?? "";
+    return /census bureau/i.test(provider) && !/via fred/i.test(provider);
+  }) ?? false;
 ---
 
 <EmbedLayout
@@ -98,6 +106,7 @@ const fredDisclaimer =
   attributionHref={attributionHref}
   expanded={isExpanded}
   fredDisclaimer={fredDisclaimer}
+  censusDisclaimer={censusDisclaimer}
 >
   {/* dashboard-root wrapper: ChartController's hydrate() reads the
       initial window from a .dashboard-root element's

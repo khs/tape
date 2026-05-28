@@ -53,9 +53,16 @@ interface Props {
    *    certified by the Federal Reserve Bank of St. Louis."
    */
   fredDisclaimer?: boolean;
+  /**
+   * Same as fredDisclaimer, for the Census Bureau Data API. The Census
+   * API ToS requires the equivalent "uses the Census Bureau Data API
+   * but is not endorsed" notice on services built on it.
+   */
+  censusDisclaimer?: boolean;
 }
 
-const { title, attributionHref, expanded, fredDisclaimer } = Astro.props;
+const { title, attributionHref, expanded, fredDisclaimer, censusDisclaimer } =
+  Astro.props;
 ---
 
 <!doctype html>
@@ -81,10 +88,19 @@ const { title, attributionHref, expanded, fredDisclaimer } = Astro.props;
       {SITE_BRAND_NAME} &rarr; {SITE_BRAND_URL}
     </a>
     {
-      fredDisclaimer && (
-        <span class="embed-fred-disclaimer">
-          Uses FRED&reg; API. Not endorsed by the Federal Reserve Bank of St. Louis.
-        </span>
+      (fredDisclaimer || censusDisclaimer) && (
+        <div class="embed-disclaimers">
+          {fredDisclaimer && (
+            <span>
+              Uses FRED&reg; API. Not endorsed by the Federal Reserve Bank of St. Louis.
+            </span>
+          )}
+          {censusDisclaimer && (
+            <span>
+              Uses Census Bureau Data API. Not endorsed by the Census Bureau.
+            </span>
+          )}
+        </div>
       )
     }
   </body>
@@ -137,13 +153,25 @@ const { title, attributionHref, expanded, fredDisclaimer } = Astro.props;
      estate is tight; the full sentence appears in the chart's
      dialog footer when the reader clicks through, and on the ToS
      page for anyone who wants the canonical text. */
-  .embed-fred-disclaimer {
+  /* Required API-attribution chips (FRED, Census). Mirrors the brand
+     attribution on the opposite corner. A column so a chart drawing on
+     BOTH APIs shows both notices without the two fixed overlays
+     colliding. Short wording (not the full sentence) because iframe
+     real estate is tight; the canonical sentence lives in the dialog
+     footer + the ToS page. */
+  .embed-disclaimers {
     position: fixed;
     bottom: 8px;
     left: 10px;
     /* Stop short of the right-hand brand chip on narrow iframes —
        max-width keeps the two from overlapping below ~360px wide. */
     max-width: calc(100% - 140px);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 100;
+  }
+  .embed-disclaimers span {
     font-size: 9.5px;
     line-height: 1.2;
     color: #888782;
@@ -151,7 +179,6 @@ const { title, attributionHref, expanded, fredDisclaimer } = Astro.props;
     padding: 4px 6px;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 2px;
-    z-index: 100;
     /* Wrap on very narrow iframes — better than truncating since
        this is required disclaimer text. */
     white-space: normal;
