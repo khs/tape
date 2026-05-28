@@ -1,0 +1,23 @@
+name: 'Kansas unemployment rate — two or more races'
+shortName: 'KS 2+ races unemp'
+description: 'Unemployment rate among two or more races workers (ages 16+) in Kansas, Census American Community Survey 1-year estimates (Subject Table S2301). ACS is a rolling annual survey, so this differs from the monthly BLS state unemployment rate.'
+kind: timeseries
+pipeline: acs_labor
+dataFile: data/acs_labor/state_multi_ks.json
+supportedDeltas: ["1y", "5y"]
+unit: "%"
+emphasis: level
+formatting:
+  style: percent
+  decimals: 1
+provenance:
+  provider: U.S. Census Bureau, American Community Survey (ACS 1-year)
+  series: S2301_C04_018E (ACS 1-year Subject Table S2301)
+  url: https://data.census.gov/table/ACSST1Y2023.S2301
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us-state
+  - us
+unitClass: rate

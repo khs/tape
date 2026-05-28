@@ -192,6 +192,14 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("census_govfin/us_totrev")).toBeNull();
   });
 
+  it("parses ACS race-unemployment state series + spares the US ones", () => {
+    expect(parseStateSourceId("acs_labor/state_black_ca")).toEqual({ state: "ca" });
+    expect(parseStateSourceId("acs_labor/state_hispanic_tx")).toEqual({ state: "tx" });
+    expect(parseStateSourceId("acs_labor/state_total_dc")).toEqual({ state: "dc" });
+    expect(parseStateSourceId("acs_labor/us_black")).toBeNull();
+    expect(parseStateSourceId("acs_labor/us_total")).toBeNull();
+  });
+
   it("rejects CD-level IDs (those belong to parseCdSourceId)", () => {
     expect(parseStateSourceId("usaspending/district_tx_01")).toBeNull();
     expect(parseStateSourceId("acs_cd/bachelors_plus_tx_01")).toBeNull();

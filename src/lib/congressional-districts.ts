@@ -134,6 +134,8 @@ const STATE_CODE_SET = new Set(US_STATES.map((s) => s.code));
  *     (e.g. `bls/state_unemployment_tx`)
  *   - `census_govfin/state_<series>_<st>`   — Census state-government
  *     finance series (e.g. `census_govfin/state_totexp_ca`)
+ *   - `acs_labor/state_<race>_<st>`          — ACS unemployment rate by
+ *     race (e.g. `acs_labor/state_black_ca`)
  *   - `acs_state/<series>_<st>`             — ACS state-level series
  *     derived from the per-CD ACS data by
  *     pipelines/derive_acs_state_from_cd.py (exact sum for counts,
@@ -152,7 +154,7 @@ export function parseStateSourceId(id: string): { state: string } | null {
   // matches. census_govfin carries the Census state-government-finance
   // series (state_totexp_ca, state_welfexp_tx, …); its national
   // siblings are `census_govfin/us_<series>` and correctly don't match.
-  m = id.match(/^(?:fred|bls|census_govfin)\/state_.+_([a-z]{2})$/);
+  m = id.match(/^(?:fred|bls|census_govfin|acs_labor)\/state_.+_([a-z]{2})$/);
   if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
   // acs_state/<series>_<st> — no `state_` prefix on the slug since the
   // pipeline directory already names the scope.

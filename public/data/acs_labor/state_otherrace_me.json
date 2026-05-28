@@ -1,0 +1,13 @@
+{
+  "id": "state_otherrace_me",
+  "name": "state_otherrace_me",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-28T11:58:08Z",
+  "points": [
+    {
+      "t": "2023-07-01",
+      "v": 7.4
+    }
+  ]
+}

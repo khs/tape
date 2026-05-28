@@ -1,0 +1,17 @@
+{
+  "id": "state_nhpi_nc",
+  "name": "state_nhpi_nc",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-28T11:58:08Z",
+  "points": [
+    {
+      "t": "2018-07-01",
+      "v": 17.4
+    },
+    {
+      "t": "2022-07-01",
+      "v": 8.8
+    }
+  ]
+}

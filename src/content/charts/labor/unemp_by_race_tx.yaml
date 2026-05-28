@@ -1,0 +1,27 @@
+title: Texas — unemployment rate by race
+sources:
+  - acs_labor/state_total_tx
+  - acs_labor/state_white_tx
+  - acs_labor/state_black_tx
+  - acs_labor/state_hispanic_tx
+  - acs_labor/state_asian_tx
+  - acs_labor/state_aian_tx
+  - acs_labor/state_nhpi_tx
+  - acs_labor/state_multi_tx
+  - acs_labor/state_otherrace_tx
+render: line
+defaultDelta: 5y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - All workers
+  - White
+  - Black
+  - Hispanic (any race)
+  - Asian
+  - Am. Indian / AK Native
+  - Native Hawaiian / Pac. Isl.
+  - Two or more races
+  - Some other race
+blurb: "Unemployment rate by race and Hispanic origin in Texas, Census ACS 1-year estimates. The gaps between groups persist across the business cycle, narrowing in tight labor markets and widening in downturns."
+tags: [macro, labor]

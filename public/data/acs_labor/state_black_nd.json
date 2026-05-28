@@ -1,0 +1,17 @@
+{
+  "id": "state_black_nd",
+  "name": "state_black_nd",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-28T11:58:08Z",
+  "points": [
+    {
+      "t": "2017-07-01",
+      "v": 3.2
+    },
+    {
+      "t": "2018-07-01",
+      "v": 13.0
+    }
+  ]
+}

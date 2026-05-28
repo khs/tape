@@ -1,0 +1,13 @@
+{
+  "id": "state_nhpi_co",
+  "name": "state_nhpi_co",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-28T11:58:08Z",
+  "points": [
+    {
+      "t": "2015-07-01",
+      "v": 6.5
+    }
+  ]
+}

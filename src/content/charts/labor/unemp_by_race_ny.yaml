@@ -1,0 +1,25 @@
+title: New York — unemployment rate by race
+sources:
+  - acs_labor/state_total_ny
+  - acs_labor/state_white_ny
+  - acs_labor/state_black_ny
+  - acs_labor/state_hispanic_ny
+  - acs_labor/state_asian_ny
+  - acs_labor/state_aian_ny
+  - acs_labor/state_multi_ny
+  - acs_labor/state_otherrace_ny
+render: line
+defaultDelta: 5y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - All workers
+  - White
+  - Black
+  - Hispanic (any race)
+  - Asian
+  - Am. Indian / AK Native
+  - Two or more races
+  - Some other race
+blurb: "Unemployment rate by race and Hispanic origin in New York, Census ACS 1-year estimates. The gaps between groups persist across the business cycle, narrowing in tight labor markets and widening in downturns."
+tags: [macro, labor]

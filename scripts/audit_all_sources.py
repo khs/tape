@@ -30,6 +30,7 @@ PROVIDERS = [
     ("Yahoo",        "audit_yahoo_tickers.py",        []),
     ("Zillow",       "audit_zillow_indexes.py",       []),
     ("Census GovFin", "audit_census_govfin.py",       []),
+    ("ACS Labor",    "audit_acs_labor.py",            []),
 ]
 
 

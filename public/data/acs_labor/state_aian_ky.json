@@ -1,0 +1,13 @@
+{
+  "id": "state_aian_ky",
+  "name": "state_aian_ky",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-28T11:58:08Z",
+  "points": [
+    {
+      "t": "2015-07-01",
+      "v": 11.7
+    }
+  ]
+}

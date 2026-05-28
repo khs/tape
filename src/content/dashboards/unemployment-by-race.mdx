@@ -1,0 +1,43 @@
+---
+title: "Unemployment by race"
+order: 12
+defaultDelta: 5y
+description: "State unemployment rates broken out by race and Hispanic origin, from the Census ACS. Three large, diverse states — California, Texas, New York — each showing every reported group on one axis."
+aboutBlurb: "How the unemployment rate differs by race and Hispanic origin within a state, using Census ACS 1-year estimates. Persistent gaps between groups, shown for three large states."
+sections:
+  - title: "Three states, every reported group"
+    description: "Each chart plots the unemployment rate for every race / Hispanic-origin group the ACS reports for that state, plus the all-workers line. The ordering of the gaps is remarkably stable: they compress when the labor market is tight and widen in downturns, but rarely cross."
+    charts:
+      - labor/unemp_by_race_ca
+      - labor/unemp_by_race_tx
+      - labor/unemp_by_race_ny
+---
+
+## What this shows
+
+The headline state unemployment rate hides large, persistent
+differences between racial and ethnic groups. These charts pull the
+rate apart for three of the largest, most diverse states — California,
+Texas, and New York — plotting every group the Census reports for that
+state on a single axis.
+
+The pattern recurs almost everywhere: the Black unemployment rate runs
+well above the White rate, with Hispanic workers in between and Asian
+workers often at or below the White rate. Tight labor markets compress
+the gaps; recessions widen them. The relative ordering rarely changes.
+
+## On the data
+
+The numbers come from the **Census American Community Survey (ACS)
+1-year estimates**, Subject Table S2301. The ACS is a large rolling
+annual household survey — it is *not* the monthly survey behind the
+headline BLS unemployment rate, so these figures won't match the BLS
+state numbers exactly. The trade-off buys the race and Hispanic-origin
+detail at the state level, which the monthly series doesn't publish.
+
+Smaller groups in smaller states are suppressed when the survey sample
+is too thin to be reliable; that's why a given state may report fewer
+lines. The three states here are large enough to report every group.
+
+To build the same breakdown for another state, open the composer and
+search the **state chip** for that state's unemployment-by-race series.
