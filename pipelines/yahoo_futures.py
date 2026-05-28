@@ -171,13 +171,44 @@ SPECS: list[FuturesSpec] = [
         unit="USD/MMBtu",
         horizon_months=15,
     ),
-    # ---- Volatility — intentionally NOT ingested ----
-    # The VIX index + VIX futures are Cboe-licensed market data. Cboe
-    # requires written consent to redistribute (Cboe Terms of Use §
-    # "Cboe Content"). Even the free historical VIX CSV at
-    # cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv
-    # is "for convenience of site visitors" — not for redistribution.
-    # See docs/yahoo-data-compliance.md. Removed 2026-05-27.
+    # ---- Volatility ----
+    # Restored 2026-05-27 after re-examining the compliance call.
+    # Our chain of custody is Cboe → Yahoo → us, not Cboe → us; the
+    # terms that bind our redistribution are Yahoo's, not Cboe's
+    # directly. Yahoo's ToS treat all their data the same way (a
+    # gray zone universally tolerated for non-commercial research),
+    # so keeping AAPL/XOM/WTI via Yahoo while singling out VIX
+    # was inconsistent. VIX-via-Yahoo is in the same gray zone.
+    # We don't pull from cdn.cboe.com — that path WOULD be a clear
+    # Cboe-ToS violation. See docs/yahoo-data-compliance.md.
+    FuturesSpec(
+        series_id="vix_curve",
+        name="VIX volatility — spot history + futures curve",
+        description=(
+            "The CBOE Volatility Index (VIX): the market's implied "
+            "expectation of S&P 500 volatility over the next 30 days, "
+            "derived from SPX options prices. Solid line is monthly-"
+            "averaged spot ^VIX; dashed extension is the current CBOE "
+            "VIX futures curve. The term-structure shape is itself the "
+            "headline: contango (upward slope) is the calm-market "
+            "default; backwardation (downward slope) appears in crisis "
+            "episodes when traders pay a premium for immediate "
+            "protection over distant-month protection."
+        ),
+        spot_symbol="^VIX",
+        # Empirical: Yahoo only carries the rolling continuous
+        # front-month (^VFTW1) and 2nd-month (^VFTW2) VIX-futures
+        # indices via yfinance. Per-contract symbols (VXK26.CFE,
+        # ^VIXMAY, etc.) all return 404 or "no data". A 2-point
+        # curve is enough to capture the front-vs-second-month
+        # spread, which is the canonical contango/backwardation
+        # signal anyway.
+        contract_prefix="",
+        contract_suffix="",
+        unit="index",
+        horizon_months=2,
+        fixed_curve_symbols=[(1, "^VFTW1"), (2, "^VFTW2")],
+    ),
     # ---- Agricultural — major US export commodities ----
     FuturesSpec(
         series_id="corn_curve",

@@ -2,15 +2,24 @@
 
 ## TL;DR
 
-| Data category | Underlying owner | Status | Action |
-| --- | --- | --- | --- |
-| Individual equity prices (yahoo_marketcap/*) | NYSE / NASDAQ for the print, exchange listings each company chose | Gray zone | KEEP for now, with clear attribution. Document the gray area. |
-| Commodity futures curves (WTI, Brent, natgas, ag) | CME Group + ICE Futures (NYMEX, CBOT, etc.) | Gray zone | KEEP for now, with clear attribution. Historical EOD futures data is widely redistributed in practice. |
-| VIX futures curve (yahoo_futures/vix_curve) | Cboe Futures Exchange / Cboe Global Markets | **Requires licensor agreement** | REMOVE — same class as the FRED VIX series we already removed. |
-| **VIX index (proposed addition)** | Cboe Global Markets | **Requires licensor agreement** | DO NOT ADD — Cboe ToS requires written consent to redistribute. |
-| **SPY (proposed addition)** | NYSE Arca for price + S&P Dow Jones Indices for the underlying index | **Requires multiple licensor agreements** | DO NOT ADD — needs NYSE Arca redistribution license AND S&P index license. |
+The right line: **scraping from Yahoo's gray zone is OK by our stance; pulling directly from a licensor's own publication is not.** Yahoo's terms bind anyone scraping yfinance — and Yahoo's terms treat all their data uniformly (gray-zone, near-universally-tolerated non-commercial research). The underlying licensor (Cboe, S&P, NYSE, CME, ICE) matters for enforcement-risk calibration but doesn't change the legal-class because the chain of custody runs Licensor → Yahoo → us, not Licensor → us.
 
-Bottom line: VIX and SPY are not bringable in within compliance constraints. The Yahoo data we already carry is in a gray zone Yahoo doesn't generally enforce against non-commercial research; we keep it for now with attribution but should expect to revisit if the product moves materially commercial.
+| Data category | Underlying owner | Yahoo gray zone? | Action |
+| --- | --- | --- | --- |
+| Individual equity prices (yahoo_marketcap/*) | NYSE / NASDAQ | Yes — low enforcement risk historically | KEEP with attribution. |
+| Commodity futures curves (WTI, Brent, natgas, ag) | CME Group + ICE Futures | Yes — EOD historical is widely tolerated | KEEP with attribution. |
+| VIX-futures curve (yahoo_futures/vix_curve) | Cboe Futures Exchange | Yes — but elevated enforcement risk (Cboe actively licenses VIX). Same chain-of-custody as the rest of Yahoo. | KEEP with attribution + the "elevated risk" note. |
+| **VIX index direct from cdn.cboe.com** | Cboe Global Markets | Not via Yahoo — direct from licensor. **Cboe explicitly forbids redistribution.** | DO NOT ADD. |
+| **SPY price direct from NYSE Arca or licensed vendor** | NYSE Arca + S&P Dow Jones Indices | Not via Yahoo — direct from licensor. Multiple paid licenses required. | DO NOT ADD. |
+| **SPY price via Yahoo (if it were added)** | Same underlying, but chain runs Licensor → Yahoo → us | Yes — same gray zone as XOM-via-Yahoo | Could in principle be added with the same gray-zone framing, but Bloomberg-style equity-index redistribution carries higher enforcement risk than individual-equity EOD; the value-add over our existing yahoo_marketcap basket is small. Skipping for now. |
+
+Bottom line: the Yahoo gray-zone position applies consistently across everything we get via yfinance. The FRED VIX was a different case because the chain of custody was Cboe → FRED → us, and FRED's authoritative tag system flagged it `copyrighted: pre-approval required` — explicit licensor instruction. Yahoo doesn't tag individual series that way; Yahoo's ToS is a flat blanket.
+
+## Previously-incorrect framing (corrected 2026-05-28)
+
+An earlier version of this doc said the VIX-futures curve had to be removed as "same class as the FRED VIX" — that conflated two different chains of custody. The FRED VIX failed because FRED itself told us (via the `cc: copyrighted: pre-approval required` tag) that the licensor required pre-approval. The Yahoo VIX-futures don't carry such a flag because Yahoo doesn't have that taxonomy; everything Yahoo serves is uniformly in the gray zone Yahoo doesn't enforce against. Removing the VIX curve while keeping AAPL was inconsistent. Restored.
+
+The honest precise statement: **VIX-futures-via-Yahoo carries higher enforcement risk than AAPL-via-Yahoo because Cboe is a more aggressive licensor than NYSE. But the legal class — Yahoo gray-zone scraping for non-commercial research — is the same.** If Cboe ever specifically nots the Yahoo VIX surface, we revisit. Until then, consistency.
 
 ---
 
@@ -78,15 +87,20 @@ If the use case is "show a broad equity index" rather than SPY:
 
 ## Recommended action for the existing Yahoo data
 
-Three options, ranked by how strict you want to be:
+**Status quo with attribution.** Keep yahoo_marketcap + yahoo_futures (including vix_curve), with a clear note on each yahoo-pipeline source page that the data is sourced from public-internet endpoints under the gray-zone non-commercial-research norm. Consistent with Keller's "compliance matters, don't manufacture red tape" stance.
 
-1. **Status quo with disclaimer.** Keep yahoo_marketcap + yahoo_futures (excluding vix_curve), add a clear note on each yahoo-pipeline source page that the data is sourced from public-internet endpoints with redistribution permitted only for the non-commercial portion of the site. **My recommendation** given Keller's "compliance matters, don't manufacture red tape" stance.
+### Why not "migrate to a licensed data vendor"
 
-2. **Remove the VIX-futures curve only.** vix_curve is in the same legal class as the FRED VIX we already removed. The rest of the futures data is on solid-enough ground. Simplest cleanup move.
+Naive advice. The paid feeds (Polygon, Tiingo, Quandl/NASDAQ Data Link, IEX Cloud, etc.) almost universally restrict redistribution at the consumer/developer tier:
 
-3. **Migrate to licensed data.** Pay a real data vendor (Polygon, Tiingo, Quandl/NASDAQ Data Link, etc.) for tick / EOD redistribution rights. Real cost: ~$50–500/month depending on scope. Right move if the product goes seriously commercial.
+- **Polygon** consumer plans are "for internal use" — public display + redistribution is the enterprise tier ($$$).
+- **Tiingo** lets you use the data for personal analysis but explicitly prohibits redistribution at the free + starter tiers.
+- **IEX Cloud** ($$$ enterprise tier required for any public-facing redistribution).
+- **NASDAQ Data Link** terms vary by feed; many of the interesting ones are pre-approval-required.
 
-I'd ship (1) + (2) — keep the equity / commodity data with clear attribution, drop vix_curve since it's the one item that's clearly Cboe-licensed.
+So paying $50–500/month doesn't actually solve "can I show this data on a public website" — it just changes the licensor. The tier that DOES permit redistribution is institutional pricing ($$$$/year) and typically also restricts to "your end users" not "the open internet". Real-world: Tape's options for public redistribution of US equity / volatility data are either (a) stay in the Yahoo gray zone, or (b) negotiate directly with the exchange / index licensor (Cboe, S&P, NYSE), which is a real business agreement, not a SaaS subscription.
+
+This is roughly the same trap that caught FRED's third-party series: the "you can pay to license this" path exists but costs serious money + isn't unlocked by hobbyist-tier subscriptions.
 
 ## Why I'm not just removing all Yahoo data
 

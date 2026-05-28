@@ -1,0 +1,11 @@
+title: VIX volatility — spot + futures curve
+sources: ["yahoo_futures/vix_curve"]
+render: line
+defaultDelta: 5y
+tags: [markets, volatility]
+blurb: |
+  CBOE Volatility Index spot history with the current front-vs-second
+  month VIX-futures spread plotted forward. The shape of those two
+  forward points is the regime indicator: contango (upward) is the
+  calm-market default; backwardation (downward) signals near-term
+  hedging demand outrunning longer-dated.
