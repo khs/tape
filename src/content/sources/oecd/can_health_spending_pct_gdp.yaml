@@ -15,8 +15,7 @@ provenance:
   provider: OECD
   series: health_spending_pct_gdp (CAN)
   url: https://data-explorer.oecd.org/
-  license: OECD terms of use; non-commercial use only, commercial redistribution
-    requires permission
+  license: Reuse permitted including commercial, with attribution (OECD; CC BY 4.0 since Jul 2024)
 tags:
   - government
   - macro

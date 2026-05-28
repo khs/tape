@@ -25,8 +25,8 @@ Canonical license strings keyed by pipeline:
   usaspending         -> "Public domain (US government data)"
   derive_acs_state    -> "Public domain (US government data)"
   worldbank_*         -> "CC BY 4.0"
-  oecd                -> "OECD terms of use; non-commercial use only,
-                         commercial redistribution requires permission"
+  oecd                -> "Reuse permitted including commercial, with
+                         attribution (OECD; CC BY 4.0 since Jul 2024)"
   yahoo_quotes,
   yahoo_marketcap,
   yahoo_futures,
@@ -87,8 +87,14 @@ PIPELINE_LICENSE: dict[str, str] = {
     "worldbank_gdp_raw": "CC BY 4.0",
     "worldbank_extended": "CC BY 4.0",
     "oecd": (
-        "OECD terms of use; non-commercial use only, "
-        "commercial redistribution requires permission"
+        # OECD moved to CC BY 4.0 on 2024-07-01 (commercial reuse OK
+        # with attribution); pre-2024 content was already free to reuse
+        # incl. commercial with citation. The old "non-commercial only"
+        # string was stale + shown to users on each source page.
+        # No "terms:" colon-space — keeps the value a safe unquoted
+        # YAML plain scalar (matches the hand-written source files).
+        "Reuse permitted including commercial, with attribution "
+        "(OECD; CC BY 4.0 since Jul 2024)"
     ),
     "yahoo_quotes": (
         "Free for personal / non-commercial use with attribution. "
