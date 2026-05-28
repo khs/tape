@@ -27,7 +27,7 @@
  * `sourceLookup` parameter rather than imported, again for testability.
  */
 
-export type ChartTitleOp = "divide" | "sum" | "diff" | null | undefined;
+export type ChartTitleOp = "divide" | "sum" | "diff" | "multiply" | null | undefined;
 
 /** A minimal source-metadata shape for title formatting. The composer
  *  has the full library.json source object; we only need the names. */
@@ -55,6 +55,8 @@ function opSymbol(op: NonNullable<ChartTitleOp>): string {
       return "+";
     case "diff":
       return "−";
+    case "multiply":
+      return "×";
   }
 }
 

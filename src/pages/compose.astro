@@ -747,6 +747,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <option value="divide">Divide (A ÷ B)</option>
               <option value="diff">Difference (A − B)</option>
               <option value="sum">Sum (A + B)</option>
+              <option value="multiply">Multiply (A × B)</option>
             </select>
           </label>
           <div class="cc-field">
@@ -790,6 +791,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             />
             <div class="cc-source-list ds-source-list" data-role="ds-a-list"></div>
             <p class="muted small ds-current" data-role="ds-a-current">No source picked yet.</p>
+          </div>
+          <!--
+            Rebuild-total suggestion. Appears when A is a share/rate that
+            carries derivedFrom metadata (a numerator ÷ denominator pair).
+            One click sets op=Multiply and B=<denominator>, reconstructing
+            the underlying count. See syncRebuildSuggestion().
+          -->
+          <div class="ds-rebuild" data-role="ds-rebuild" hidden>
+            <button type="button" class="ds-rebuild-chip" data-role="ds-rebuild-apply"></button>
+            <p class="muted small ds-rebuild-help" data-role="ds-rebuild-help"></p>
           </div>
           <div class="cc-field">
             <span class="eyebrow">B (second operand)</span>
@@ -5744,7 +5755,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               ? " ÷ "
               : inline?.op === "diff"
                 ? " − "
-                : " + ";
+                : inline?.op === "multiply"
+                  ? " × "
+                  : " + ";
             metaText = `custom · ${sourceLabels.join(joiner)}`;
             tile.className = "comp-tile comp-tile-inline";
           } else {
@@ -6519,7 +6532,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // ---- Custom-chart modal ----
   // Modal state (ephemeral — does not live in composed state until Save is clicked).
   type CustomChartMode = "raw" | "rebase" | "dual-axis";
-  type ChartCombineOp = "divide" | "sum" | "diff";
+  type ChartCombineOp = "divide" | "sum" | "diff" | "multiply";
   interface CustomChartModalState {
     editingId: string | null; // inline id being edited, or null for create
     title: string;
@@ -6974,7 +6987,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const [aId, bId] = ccModal.selectedOrder;
       const aLabel = library?.sources[aId]?.shortName ?? library?.sources[aId]?.name ?? aId;
       const bLabel = library?.sources[bId]?.shortName ?? library?.sources[bId]?.name ?? bId;
-      const symbol = ccModal.op === "divide" ? "÷" : ccModal.op === "sum" ? "+" : "−";
+      const symbol = ccModal.op === "divide" ? "÷" : ccModal.op === "sum" ? "+" : ccModal.op === "multiply" ? "×" : "−";
       hint.textContent = `A: ${aLabel}   B: ${bLabel}   →   ${aLabel} ${symbol} ${bLabel}`;
       swap.hidden = false;
     } else {
@@ -7273,7 +7286,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     const spec = state.inlineSources[id];
     if (!spec) return id;
-    const symbol = spec.op === "divide" ? "÷" : spec.op === "sum" ? "+" : "−";
+    const symbol = spec.op === "divide" ? "÷" : spec.op === "sum" ? "+" : spec.op === "multiply" ? "×" : "−";
     return `${describeDerivedExpr(spec.a)} ${symbol} ${describeDerivedExpr(spec.b)}`;
   }
 
@@ -7855,7 +7868,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   interface DerivedModalState {
     name: string;
-    op: "divide" | "sum" | "diff";
+    op: "divide" | "sum" | "diff" | "multiply";
     a: string;
     b: string;
     aSearch: string;
@@ -8123,7 +8136,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // leave the field blank) and the fallback value on submit.
   function computeDerivedDefaultName(): string {
     if (!dsModal.a || !dsModal.b) return "";
-    const symbol = dsModal.op === "divide" ? "÷" : dsModal.op === "sum" ? "+" : "−";
+    const symbol =
+      dsModal.op === "divide"
+        ? "÷"
+        : dsModal.op === "sum"
+          ? "+"
+          : dsModal.op === "multiply"
+            ? "×"
+            : "−";
     return `${dsSourceLabel(dsModal.a)} ${symbol} ${dsSourceLabel(dsModal.b)}`;
   }
 
@@ -8160,6 +8180,55 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         create.removeAttribute("title");
       }
     }
+    syncRebuildSuggestion();
+  }
+
+  // A rate/share source can carry derivedFrom = { numerator, denominator,
+  // scale } linking it back to the count it was divided out of (e.g.
+  // "% adults 25+ with a bachelor's degree" → bachelors_plus ÷ adults_25plus).
+  // When such a source is picked as A, we can offer "× <denominator>" to
+  // rebuild the underlying total. The denominator must itself be a visible
+  // (pickable) source; the numerator may be hidden, so we don't require it
+  // here — the multiply engine reconstructs the count from rate × base.
+  function rebuildCandidateFor(
+    id: string,
+  ): { numerator: string; denominator: string } | null {
+    if (!id || isDerivedId(id)) return null;
+    const df = (
+      library?.sources[id] as
+        | { derivedFrom?: { numerator?: string; denominator?: string } }
+        | undefined
+    )?.derivedFrom;
+    if (!df?.denominator) return null;
+    if (!library?.sources[df.denominator]) return null;
+    return { numerator: df.numerator ?? "", denominator: df.denominator };
+  }
+
+  // Show/refresh the "rebuild total" affordance based on the current A pick.
+  // Driven entirely off dsModal.a + dsModal.op/b so it reflects whether the
+  // suggestion has already been applied. Called from syncDerivedHint (which
+  // fires on every operand/op change), so no separate wiring on each change.
+  function syncRebuildSuggestion(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='ds-rebuild']");
+    const btn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='ds-rebuild-apply']",
+    );
+    const help = shell.querySelector<HTMLElement>("[data-role='ds-rebuild-help']");
+    if (!wrap || !btn || !help) return;
+    const cand = rebuildCandidateFor(dsModal.a);
+    if (!cand) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    const denomLabel = dsSourceLabel(cand.denominator);
+    const aLabel = dsSourceLabel(dsModal.a);
+    const applied = dsModal.op === "multiply" && dsModal.b === cand.denominator;
+    btn.textContent = applied ? `✓ × ${denomLabel}` : `× ${denomLabel}`;
+    btn.classList.toggle("ds-rebuild-chip-active", applied);
+    help.textContent = applied
+      ? `Rebuilding the total: ${aLabel} × ${denomLabel}.`
+      : `${aLabel} is a share. Multiply by ${denomLabel} to rebuild the underlying total.`;
   }
 
   function openDerivedSourceModal(): void {
@@ -8260,6 +8329,26 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     opSelect?.addEventListener("change", () => {
       dsModal.op = opSelect.value as DerivedModalState["op"];
       syncDerivedHint();
+    });
+    // Rebuild-total chip: one click turns a picked share/rate (A) into its
+    // underlying count by setting op=Multiply and B=<derivedFrom.denominator>.
+    // Reads the candidate fresh on click so it always tracks the current A.
+    const rebuildBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='ds-rebuild-apply']",
+    );
+    rebuildBtn?.addEventListener("click", () => {
+      const cand = rebuildCandidateFor(dsModal.a);
+      if (!cand) return;
+      dsModal.op = "multiply";
+      if (opSelect) opSelect.value = "multiply";
+      dsModal.b = cand.denominator;
+      renderDsPicker("a");
+      renderDsPicker("b");
+      syncDerivedHint();
+      track("compose_rebuild_total", {
+        rate: dsModal.a,
+        denom: cand.denominator,
+      });
     });
     aSearch?.addEventListener("input", () => {
       dsModal.aSearch = aSearch.value;
@@ -10384,6 +10473,37 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     border-color: var(--color-accent, #2563eb);
   }
   .ds-quick-help { margin: 6px 0 0; }
+  /* Rebuild-total suggestion: appears between A and B when A is a share
+     that can be multiplied back into a count. Accented to read as a smart
+     hint, not just another control. */
+  .ds-rebuild {
+    margin: -2px 0 2px;
+    padding: 8px 10px;
+    border: 1px dashed var(--color-accent, #2563eb);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-accent, #2563eb) 6%, transparent);
+  }
+  .ds-rebuild-chip {
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 1px solid var(--color-accent, #2563eb);
+    border-radius: 999px;
+    background: var(--color-surface, #fff);
+    color: var(--color-accent, #2563eb);
+    cursor: pointer;
+  }
+  .ds-rebuild-chip:hover {
+    background: var(--color-accent, #2563eb);
+    color: #fff;
+  }
+  .ds-rebuild-chip-active,
+  .ds-rebuild-chip-active:hover {
+    background: var(--color-accent, #2563eb);
+    color: #fff;
+  }
+  .ds-rebuild-help { margin: 6px 0 0; }
   .cc-mode {
     display: flex;
     flex-direction: column;

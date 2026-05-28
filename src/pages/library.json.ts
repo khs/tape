@@ -265,6 +265,10 @@ export const GET: APIRoute = async () => {
       formatting: s.data.formatting,
       emphasis: s.data.emphasis,
       provenance: s.data.provenance,
+      // Rate→(numerator, denominator, scale) link so the composer can offer
+      // "× <denominator>" to rebuild a total and substitute the exact count.
+      // Undefined for non-derived sources (JSON.stringify drops it).
+      derivedFrom: (s.data as { derivedFrom?: unknown }).derivedFrom,
       firstObservation,
       lastObservation,
       tags: tagsList,

@@ -85,6 +85,18 @@ describe("deriveAutoTitle", () => {
     expect(result).not.toContain("- 2Y");
   });
 
+  it("composes 'A × B' for multiply with the Unicode multiplication sign", () => {
+    // U+00D7 MULTIPLICATION SIGN, not the ASCII letter 'x'. Used when a
+    // share/rate is rebuilt into its underlying count (rate × base).
+    const result = deriveAutoTitle(
+      ["fred/dgs10", "fred/dgs2"],
+      "multiply",
+      lookup,
+    );
+    expect(result).toBe("10Y × 2Y");
+    expect(result).toContain("×");
+  });
+
   it("preserves argument order for non-commutative ops", () => {
     // divide and diff produce different titles when the user swaps.
     expect(
