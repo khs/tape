@@ -121,6 +121,8 @@ async function main() {
     sourceIndex.set(id, {
       dataFile: typeof data.dataFile === "string" ? data.dataFile : undefined,
       path,
+      tags: Array.isArray(data.tags) ? data.tags.filter((t) => typeof t === "string") : [],
+      kind: typeof data.kind === "string" ? data.kind : undefined,
     });
   }
 
@@ -239,6 +241,90 @@ async function main() {
         id: sid,
         reason: `only ${nHist} historical point${nHist === 1 ? "" : "s"} + ${nProj} projection point${nProj === 1 ? "" : "s"} (need at least ${MIN_POINTS_FOR_CHART} total to render a chart)`,
         charts: refs,
+      });
+    }
+  }
+
+  // 3b. Topical-tag-pill guard — a fast local mirror of the
+  // build-time invariant in src/pages/library.json.ts. That guard
+  // throws (failing `astro build`, and therefore the Vercel deploy)
+  // when a topical tag pill would render with count 0 in the
+  // SourcePicker's default view — i.e. every source carrying the tag
+  // is hidden behind a geo chip. This exact failure shipped once
+  // (the `tax` tag added only to us-state-tagged tax sources) because
+  // this prebuild audit didn't check it and a full `astro build` is
+  // the only other thing that does. Replicated here so the cheap
+  // prebuild catches the class.
+  //
+  // Geo-detection here is intentionally a SUBSET of library.json's
+  // synthesis (declared umbrella tags + the CD/STATE/COUNTY id
+  // patterns; metro/country synthesis is data-driven and skipped).
+  // Under-detecting hidden sources can only produce false NEGATIVES
+  // (a pill we miss that the full build still catches) — never false
+  // positives that would block a good deploy. That's the safe
+  // direction for a fast gate.
+  const CD_TAG = "congressional-district";
+  const STATE_TAG = "us-state";
+  const METRO_TAG = "metro";
+  const COUNTRY_TAG = "country-specific";
+  const COUNTY_TAG = "us-county";
+  // ID patterns that cause library.json.ts to synthesize an umbrella
+  // geo tag even when the YAML doesn't declare one. Ported from
+  // src/lib/{congressional-districts,county-sources}.ts.
+  const CD_ID = [
+    /^usaspending\/district_[a-z]{2}_[a-z0-9]{2}$/,
+    /^acs_cd\/[a-z0-9_]+_[a-z]{2}_[a-z0-9]{2}$/,
+  ];
+  const STATE_ID = [
+    /^usaspending\/state_[a-z]{2}$/,
+    /^(?:fred|bls)\/state_.+_[a-z]{2}$/,
+    /^acs_state\/.+_[a-z]{2}$/,
+  ];
+  const COUNTY_ID = [/\/(county)_/];
+  const matchesAny = (id, res) => res.some((re) => re.test(id));
+  // Mirror library.json.ts isHiddenByDefault: CD/STATE/METRO/COUNTRY
+  // (NOT county) hide a source from the default list.
+  const isHiddenByDefault = (id, tags) =>
+    tags.includes(CD_TAG) ||
+    tags.includes(STATE_TAG) ||
+    tags.includes(METRO_TAG) ||
+    tags.includes(COUNTRY_TAG) ||
+    matchesAny(id, CD_ID) ||
+    matchesAny(id, STATE_ID);
+  // Mirror library.json.ts isGeoSynthetic: umbrellas + per-entity
+  // metro:/country-specific: tags are NOT topical pills.
+  const isGeoSynthetic = (t) =>
+    t === CD_TAG ||
+    t === STATE_TAG ||
+    t === METRO_TAG ||
+    t === COUNTRY_TAG ||
+    t === COUNTY_TAG ||
+    t.startsWith(`${METRO_TAG}:`) ||
+    t.startsWith(`${COUNTRY_TAG}:`);
+
+  const tagsSeenAnywhere = new Set();
+  const tagsWithVisibleSource = new Set();
+  for (const [id, src] of sourceIndex) {
+    if (src.kind === "hint") continue;
+    const tags = src.tags ?? [];
+    const visible = !isHiddenByDefault(id, tags);
+    for (const t of tags) {
+      if (isGeoSynthetic(t)) continue;
+      tagsSeenAnywhere.add(t);
+      if (visible) tagsWithVisibleSource.add(t);
+    }
+  }
+  for (const t of tagsSeenAnywhere) {
+    if (!tagsWithVisibleSource.has(t)) {
+      failures.push({
+        id: `tag:${t}`,
+        reason:
+          `topical tag pill '${t}' would render with count 0 — every ` +
+          `source carrying it is hidden behind a geo chip. Add the tag ` +
+          `to at least one national/default-visible source, or drop it. ` +
+          `(This mirrors the build-time guard in library.json.ts that ` +
+          `fails the Vercel deploy.)`,
+        charts: [],
       });
     }
   }
