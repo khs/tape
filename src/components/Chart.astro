@@ -484,6 +484,16 @@ const plottedUnitClasses = perSource
   );
 const allowedTransforms = availableTransforms(plottedUnitClasses);
 const showTransformPills = allowedTransforms.length > 1;
+
+// Tile height policy (drives the spark-height CSS below):
+//   "fill"  — 1–3 series: the card pins one total height and the spark
+//             flex-fills, so a row of small cards lines up regardless of
+//             how many legend rows each has (adding a series shrinks the
+//             chart, not grows the card).
+//   "fixed" — 4+ series: stop pinning the total (the legend would crush
+//             the chart) and fix the spark to the same height a one-source
+//             chart gets, letting the card grow downward.
+const sparkMode = perSource.length >= 4 ? "fixed" : "fill";
 const savedTransform =
   (chart as { transform?: TransformKey }).transform ?? "level";
 const effectiveTransform: TransformKey = allowedTransforms.includes(
@@ -613,6 +623,7 @@ const mostRecentUpdate = payload.sources
   data-emphasis={effectiveEmphasis}
   data-multi={isMulti ? "true" : "false"}
   data-series-count={String(perSource.length)}
+  data-spark-mode={sparkMode}
   data-section-locked={sectionLocked ? "1" : undefined}
   data-dashboard-window={dashboardWindow ?? undefined}
   aria-haspopup="dialog"
@@ -1112,22 +1123,39 @@ const mostRecentUpdate = payload.sources
     font-weight: 500;
     text-align: right;
   }
+  /* Tile sparkline height policy (data-spark-mode is set server-side from
+     the series count):
+       • "fill"  (1–3 series) — the CARD pins one total height (below) and
+         the spark flex-fills the space left after the title + legend rows.
+         A row of 1/2/3-source cards therefore lines up, and adding a series
+         shrinks the chart rather than growing the card.
+       • "fixed" (4+ series) — the card stops pinning its total (4+ legend
+         rows would crush a flex spark) and instead fixes the spark to the
+         same height a one-source chart gets, so the chart stays consistent
+         while the card grows downward.
+     The 196 / 72 px figures are the only tunables here. */
   .tile-spark {
-    height: 36px;
+    flex: 1 1 auto;
+    min-height: 40px;
     margin-top: 2px;
+    /* Lift the spark above the .tile-window caption that follows it, so an
+       overflowed Plot.tip tooltip isn't painted under the caption. */
+    position: relative;
+    z-index: 2;
   }
-  /* Proportional growth for multi-series cards. Each extra series adds a
-     legend row, so the spark area gets ~14px taller per series above the
-     baseline — keeping the chart-to-legend ratio readable. Series counts
-     past 6 cap out (those charts are rare and the dialog's better suited
-     for that density anyway). */
-  .chart-tile-multi[data-series-count="2"] .tile-spark { height: 56px; }
-  .chart-tile-multi[data-series-count="3"] .tile-spark { height: 68px; }
-  .chart-tile-multi[data-series-count="4"] .tile-spark { height: 80px; }
-  .chart-tile-multi[data-series-count="5"] .tile-spark { height: 92px; }
-  .chart-tile-multi[data-series-count="6"] .tile-spark,
-  .chart-tile-multi[data-series-count="7"] .tile-spark,
-  .chart-tile-multi[data-series-count="8"] .tile-spark { height: 104px; }
+  .chart-tile[data-spark-mode="fill"] {
+    height: 196px;
+  }
+  .chart-tile[data-spark-mode="fixed"] .tile-spark {
+    flex: none;
+    height: 72px;
+  }
+  /* Keep each tile its own height inside a grid/flex row — without this a
+     1–3 card would stretch to match a tall 4+ neighbour, breaking the
+     pinned/fixed heights above. */
+  .chart-tile {
+    align-self: start;
+  }
   /* Plot.plot creates the SVG at runtime, so Astro's scoped class
      attributes never get applied to it — scoped `.tile-spark svg` rules
      would otherwise miss the actual rendered element. `:global` lets the
@@ -1138,14 +1166,6 @@ const mostRecentUpdate = payload.sources
        viewBox. Without this, hovering near the top of the spark clips
        the tip behind the legend rows above. */
     overflow: visible;
-  }
-  /* Within a tile, the .tile-window caption ("over the past month")
-     comes after .tile-spark in document order and would paint on top of
-     the tip's overflow area. Lift the spark to z-index 2 so its
-     overflowed tip is drawn above the caption. */
-  .tile-spark {
-    position: relative;
-    z-index: 2;
   }
   .tile-window {
     font-size: var(--text-xs);
