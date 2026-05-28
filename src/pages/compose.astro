@@ -4114,11 +4114,50 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return [...generators.selected].filter((c) => c in t.sourceMap);
   }
 
+  /** Profile flavor: how many indicator tiles the picked entity yields
+   *  (indicators that actually have data for it). 0 when no entity picked. */
+  function profileAvailableCount(): number {
+    if (!generatorsIndex || !generators.profileEntity) return 0;
+    const block = generatorsIndex.geoTypes[generators.geo];
+    const order = block.profileOrder ?? block.templates.map((t) => t.id);
+    const byId = new Map(block.templates.map((t) => [t.id, t]));
+    let n = 0;
+    for (const tid of order) {
+      const tpl = byId.get(tid);
+      if (tpl && tpl.sourceMap[generators.profileEntity]) n++;
+    }
+    return n;
+  }
+
+  // Share URL is base64url(JSON(state)); ~150 bytes/tile post-encoding, so
+  // above ~70 tiles it overflows and the user must save to their account.
+  const GEN_URL_SAFE_TILE_BUDGET = 70;
+  function genUrlHint(tiles: number): string {
+    return tiles > GEN_URL_SAFE_TILE_BUDGET
+      ? " · share URL too long for this many tiles — Save to my account will be required."
+      : "";
+  }
+
   function updateGenReadout(): void {
     const readout = shell.querySelector<HTMLElement>(
       "[data-role='gen-readout']",
     );
     if (!readout) return;
+    // Profile flavor counts indicators-for-the-entity (the tile count), NOT
+    // entities — otherwise it reports the entity count (e.g. 393 metros) and
+    // contradicts the "you'll get N tiles" caption above the dropdown.
+    if (generators.layout === "profile") {
+      if (!generators.profileEntity) {
+        readout.textContent = "";
+        return;
+      }
+      const n = profileAvailableCount();
+      readout.textContent =
+        n === 0
+          ? "No indicators have data for this entity."
+          : `${n} chart${n === 1 ? "" : "s"} will be generated.${genUrlHint(n)}`;
+      return;
+    }
     const t = currentTemplate();
     if (!t) {
       readout.textContent = "Pick a series template first.";
@@ -4142,18 +4181,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       requested = generators.selected.size;
     }
     const skip = requested - eff.length;
-    // URL-budget hint: the share URL is base64url(JSON(state)) and
-    // tops out around 12 KB. Each generated tile adds ~150 bytes
-    // post-encoding (chart entry + id reference in the section
-    // array). Above ~70 tiles the URL overflows and the user will
-    // need to save to their account to keep the dashboard past a
-    // refresh. We mention this proactively here so users with large
-    // selections aren't surprised by the post-generate banner.
-    const URL_SAFE_TILE_BUDGET = 70;
-    const urlHint =
-      eff.length > URL_SAFE_TILE_BUDGET
-        ? " · share URL too long for this many tiles — Save to my account will be required."
-        : "";
+    const urlHint = genUrlHint(eff.length);
     if (skip > 0) {
       readout.textContent =
         `${eff.length} chart${eff.length === 1 ? "" : "s"} will be generated · ${skip} skipped (no data for this template).${urlHint}`;
