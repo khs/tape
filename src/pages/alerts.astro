@@ -78,33 +78,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             class="alerts-quickstart-chip"
             data-source="fred/cpi_yoy"
             data-source-label="CPI YoY (US, all urban consumers)"
-            data-condition="gte"
+            data-condition="crosses_above"
             data-threshold="4.0"
-            data-label="CPI inflation at/above 4%"
+            data-label="CPI inflation crosses above 4%"
           >
-            CPI inflation ≥ 4%
+            CPI inflation crosses 4%
           </button>
           <button
             type="button"
             class="alerts-quickstart-chip"
             data-source="fred/us_unemployment"
             data-source-label="US unemployment rate"
-            data-condition="gte"
+            data-condition="crosses_above"
             data-threshold="5.0"
-            data-label="Unemployment ≥ 5%"
+            data-label="Unemployment crosses above 5%"
           >
-            Unemployment ≥ 5%
+            Unemployment crosses 5%
           </button>
           <button
             type="button"
             class="alerts-quickstart-chip"
             data-source="fred/us_10y"
             data-source-label="10-year Treasury yield"
-            data-condition="gte"
+            data-condition="crosses_above"
             data-threshold="5.0"
-            data-label="10Y yield ≥ 5%"
+            data-label="10Y yield crosses above 5%"
           >
-            10Y yield ≥ 5%
+            10Y yield crosses 5%
           </button>
           <button
             type="button"
@@ -260,12 +260,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             <label class="alerts-field">
               <span class="alerts-field-label">Condition</span>
               <select class="alerts-input" data-role="alerts-condition-select" required>
-                <option value="gt">Greater than (&gt;)</option>
-                <option value="gte" selected>At or above (&ge;)</option>
-                <option value="lt">Less than (&lt;)</option>
-                <option value="lte">At or below (&le;)</option>
-                <option value="crosses_above">Crosses above</option>
+                {/* Edge-triggered conditions are the default — they fire
+                    once, on the crossing. The fixed-level conditions
+                    below re-fire every refresh while the series stays
+                    past the threshold (see the warning under the
+                    select), so they're offered but not the default. */}
+                <option value="crosses_above" selected>Crosses above</option>
                 <option value="crosses_below">Crosses below</option>
+                <option value="gt">Stays above (&gt;)</option>
+                <option value="gte">Stays at or above (&ge;)</option>
+                <option value="lt">Stays below (&lt;)</option>
+                <option value="lte">Stays at or below (&le;)</option>
                 <option value="change_above">Absolute change &gt;</option>
               </select>
             </label>
@@ -284,6 +289,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               hidden
             >
               <span data-role="alerts-frequency-hint-text"></span>
+            </div>
+
+            {/* Persistence warning. Shown when a fixed-level condition
+                (gt / gte / lt / lte) is selected. Those re-evaluate on
+                every refresh, so a series that sits past the threshold
+                re-fires every release — most series persist, so that
+                means an email every period. We default to the
+                edge-triggered crosses_* conditions and warn here when
+                the user opts into a level threshold. */}
+            <div
+              class="alerts-condition-warning"
+              data-role="alerts-condition-warning"
+              role="status"
+              hidden
+            >
+              <span data-role="alerts-condition-warning-text"></span>
             </div>
 
             {/* Current-value readout. Appears once a real source is selected
@@ -612,6 +633,34 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       frequencyHintWrap.hidden = false;
     }
 
+    /** Show/hide the persistence warning under the condition selector.
+     *  Fixed-level conditions (gt / gte / lt / lte) re-evaluate on every
+     *  refresh, so a series that sits past the threshold re-fires every
+     *  release — and most series persist past a level once they reach
+     *  it, which means an email every period. The crosses_* conditions
+     *  are edge-triggered (fire once, on the crossing), so we default to
+     *  those and warn here when the user opts into a level threshold.
+     *  Depends only on the selected condition; called alongside
+     *  updateFrequencyHint at every condition transition. */
+    function updateConditionWarning(): void {
+      if (!conditionWarningWrap || !conditionWarningText || !conditionSelect) {
+        return;
+      }
+      const v = conditionSelect.value;
+      const isLevel = v === "gt" || v === "gte" || v === "lt" || v === "lte";
+      if (!isLevel) {
+        conditionWarningWrap.hidden = true;
+        return;
+      }
+      conditionWarningText.textContent =
+        "Heads up: a fixed threshold is re-checked on every refresh, so a " +
+        "series that stays past it will email you every release — and most " +
+        "series persist past a level once they reach it. To be notified " +
+        "once, when it actually crosses, use “Crosses above” / " +
+        "“Crosses below” instead.";
+      conditionWarningWrap.hidden = false;
+    }
+
     /** Recompute + write the default label IF the field is still in
      *  auto mode. No-op when the user has typed their own label. */
     function updateAutoLabel(): void {
@@ -648,6 +697,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     );
     const frequencyHintText = document.querySelector<HTMLElement>(
       "[data-role='alerts-frequency-hint-text']",
+    );
+    const conditionWarningWrap = document.querySelector<HTMLElement>(
+      "[data-role='alerts-condition-warning']",
+    );
+    const conditionWarningText = document.querySelector<HTMLElement>(
+      "[data-role='alerts-condition-warning-text']",
     );
     const chartLink = document.querySelector<HTMLButtonElement>(
       "[data-role='alerts-chart-link']",
@@ -705,10 +760,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // every keystroke for <input type=number>.
     conditionSelect?.addEventListener("change", () => {
       updateAutoLabel();
-      // Frequency hint visibility depends on which condition is
-      // selected — flip immediately so the hint appears/vanishes
-      // in lockstep with the dropdown.
+      // Frequency hint + persistence warning visibility both depend on
+      // which condition is selected — flip immediately so they appear
+      // / vanish in lockstep with the dropdown.
       updateFrequencyHint();
+      updateConditionWarning();
     });
     thresholdInput?.addEventListener("input", () => updateAutoLabel());
     // Label edits decide auto vs. manual. Empty → re-engage auto +
@@ -1541,11 +1597,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             chip.dataset.sourceLabel ?? "",
           );
           if (conditionSelect) {
-            conditionSelect.value = chip.dataset.condition ?? "gte";
+            conditionSelect.value = chip.dataset.condition ?? "crosses_above";
           }
           if (thresholdInput) {
             thresholdInput.value = chip.dataset.threshold ?? "";
           }
+          // Setting <select>.value doesn't fire 'change', so refresh the
+          // condition-dependent UI (cadence hint + persistence warning)
+          // explicitly to match the chip's condition.
+          updateFrequencyHint();
+          updateConditionWarning();
           if (labelInput) {
             labelInput.value = chip.dataset.label ?? "";
             // Quick-start chips ship hand-written, editorial labels
@@ -1752,6 +1813,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: #6f6c66;
     line-height: 1.4;
     padding: 0 2px;
+  }
+  /* Persistence warning under the condition dropdown — shown when a
+     fixed-level (gt/gte/lt/lte) condition is chosen. Louder than the
+     cadence hint above because it's steering the user away from a
+     footgun (an email every refresh): amber tint + left rule so it
+     reads as a caution, not a passing note. */
+  .alerts-condition-warning {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #7a5b12;
+    background: #fdf4e3;
+    border: 1px solid #ecd9a8;
+    border-left: 3px solid #c2820e;
+    border-radius: 4px;
+    padding: 7px 10px;
+    margin-top: 2px;
   }
   .alerts-help code {
     background: #f1efe9;
