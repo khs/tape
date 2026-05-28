@@ -8955,7 +8955,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   .composer-layout {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    /* 360px (was 320) so the four library tabs — Sources / Pregenerated
+       charts / Maps / Generators — fit on one line instead of clipping
+       "Generators" off the right edge. */
+    grid-template-columns: 360px 1fr;
     gap: 24px;
     margin-top: 20px;
     min-height: 70vh;
@@ -8981,7 +8984,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
      rest of the site better than a button-pill style would. */
   .lib-tabs {
     display: flex;
-    gap: 4px;
+    /* Tightened gap + tab padding (below) + the wider column let all four
+       tabs sit on one line. flex-wrap is a safety net: if a future tab or a
+       larger font would still overflow, the strip wraps to a second row
+       instead of clipping a label off the right edge. */
+    gap: 2px;
+    flex-wrap: wrap;
     border-bottom: 1px solid rgba(55, 53, 47, 0.08);
     margin-bottom: 4px;
   }
@@ -8989,13 +8997,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     font: inherit;
     font-size: var(--text-sm);
     font-weight: 500;
-    padding: 6px 10px 8px;
+    padding: 6px 7px 8px;
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
     color: var(--color-neutral-600);
     cursor: pointer;
     margin-bottom: -1px;
+    white-space: nowrap;
   }
   .lib-tab:hover { color: var(--color-neutral-900); }
   .lib-tab-active {
