@@ -569,9 +569,7 @@
     el.dataset.direction = dd.direction;
     if (dd.partial) {
       el.dataset.partial = "1";
-      el.title =
-        `This series' history starts in ${dd.prior.t.slice(0, 4)}, shorter ` +
-        `than the selected window — the change shown is since then, not the full window.`;
+      el.title = `Change shown is since ${dd.prior.t.slice(0, 4)}, the earliest data for this series.`;
     } else {
       delete el.dataset.partial;
       el.removeAttribute("title");
@@ -2219,15 +2217,18 @@
               : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(ddResult.direction)} from ${escapeHtml(priorStr)} ${periodHtml} (${escapeHtml(ddResult.rawText)}).`;
         } else if (ddResult && ddResult.partial) {
           // Window reaches further back than the data — report the change
-          // since the series' first year and say so, instead of the old
-          // "History doesn't cover ..." dead end.
+          // since the series' first year (labelled "since YYYY") rather than
+          // a "—" dead end. Deliberately NO "short of the full Ny" caveat:
+          // the window anchors on the latest data point, not today, so on
+          // lagged annual data (e.g. ACS ending 2022) a 10Y pill dips before
+          // a 2015 start even though 2015 is already >10 calendar years ago —
+          // calling that "short of the full ten years" misleads.
           const baseYear = ddResult.prior.t.slice(0, 4);
           const priorStr = formatValue(ddResult.prior.v, s.formatting);
-          const fullWindow = `the full <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[eff]}</span>`;
           descriptorEl.innerHTML =
             ddResult.direction === "flat"
-              ? `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, roughly unchanged since ${baseYear} — its history starts then, short of ${fullWindow}.`
-              : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(ddResult.direction)} from ${escapeHtml(priorStr)} in ${baseYear} (${escapeHtml(ddResult.rawText)}) — history starts ${baseYear}, short of ${fullWindow}.`;
+              ? `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, roughly unchanged since ${baseYear}.`
+              : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(ddResult.direction)} from ${escapeHtml(priorStr)} in ${baseYear} (${escapeHtml(ddResult.rawText)}).`;
         } else {
           const noHistoryPeriod = fixed
             ? `the range ${escapeHtml(fixed.start)} → ${escapeHtml(fixed.end)}`
