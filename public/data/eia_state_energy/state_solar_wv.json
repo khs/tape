@@ -1,0 +1,17 @@
+{
+  "id": "state_solar_wv",
+  "name": "state_solar_wv",
+  "kind": "timeseries",
+  "unit": "TWh",
+  "lastUpdated": "2026-05-28T12:14:43Z",
+  "points": [
+    {
+      "t": "2024-12-31",
+      "v": 0.185815
+    },
+    {
+      "t": "2025-12-31",
+      "v": 0.26367475
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+title: US electricity generation by source
+sources:
+  - eia_state_energy/us_gas
+  - eia_state_energy/us_coal
+  - eia_state_energy/us_nuclear
+  - eia_state_energy/us_wind
+  - eia_state_energy/us_solar
+  - eia_state_energy/us_hydro
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Natural gas
+  - Coal
+  - Nuclear
+  - Wind
+  - Solar
+  - Hydro
+blurb: "US net electricity generation by fuel, EIA. The energy transition in one frame: coal's long decline, natural gas overtaking it, and wind and solar scaling from rounding errors to major sources."
+tags: [energy]

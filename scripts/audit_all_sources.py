@@ -31,6 +31,7 @@ PROVIDERS = [
     ("Zillow",       "audit_zillow_indexes.py",       []),
     ("Census GovFin", "audit_census_govfin.py",       []),
     ("ACS Labor",    "audit_acs_labor.py",            []),
+    ("EIA Energy",   "audit_eia_state_energy.py",     []),
 ]
 
 

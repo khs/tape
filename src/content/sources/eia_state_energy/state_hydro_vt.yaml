@@ -1,0 +1,23 @@
+name: 'Vermont hydroelectric electricity generation'
+shortName: 'VT hydro gen'
+description: 'Net electricity generation from hydroelectric in Vermont, all sectors, U.S. Energy Information Administration. Annual.'
+kind: timeseries
+pipeline: eia_state_energy
+dataFile: data/eia_state_energy/state_hydro_vt.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "TWh"
+emphasis: level
+formatting:
+  style: number
+  decimals: 1
+  suffix: ' TWh'
+provenance:
+  provider: U.S. Energy Information Administration (EIA)
+  series: EIA electricity generation; fueltypeid=HYC; location=VT
+  url: https://www.eia.gov/electricity/data/browser/
+  license: Public domain (US government data)
+tags:
+  - energy
+  - us-state
+  - us
+unitClass: count

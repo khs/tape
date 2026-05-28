@@ -1,0 +1,23 @@
+name: 'Oklahoma wind electricity generation'
+shortName: 'OK wind gen'
+description: 'Net electricity generation from wind in Oklahoma, all sectors, U.S. Energy Information Administration. Annual.'
+kind: timeseries
+pipeline: eia_state_energy
+dataFile: data/eia_state_energy/state_wind_ok.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "TWh"
+emphasis: level
+formatting:
+  style: number
+  decimals: 1
+  suffix: ' TWh'
+provenance:
+  provider: U.S. Energy Information Administration (EIA)
+  series: EIA electricity generation; fueltypeid=WND; location=OK
+  url: https://www.eia.gov/electricity/data/browser/
+  license: Public domain (US government data)
+tags:
+  - energy
+  - us-state
+  - us
+unitClass: count

@@ -1,0 +1,21 @@
+title: Texas electricity generation by source
+sources:
+  - eia_state_energy/state_gas_tx
+  - eia_state_energy/state_coal_tx
+  - eia_state_energy/state_nuclear_tx
+  - eia_state_energy/state_wind_tx
+  - eia_state_energy/state_solar_tx
+  - eia_state_energy/state_hydro_tx
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Natural gas
+  - Coal
+  - Nuclear
+  - Wind
+  - Solar
+  - Hydro
+blurb: "Texas net electricity generation by fuel, EIA. Gas leads, but Texas is also the runaway national leader in wind generation, with solar climbing fast behind it."
+tags: [energy]

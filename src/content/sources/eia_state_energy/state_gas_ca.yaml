@@ -1,0 +1,23 @@
+name: 'California natural gas electricity generation'
+shortName: 'CA gas gen'
+description: 'Net electricity generation from natural gas in California, all sectors, U.S. Energy Information Administration. Annual.'
+kind: timeseries
+pipeline: eia_state_energy
+dataFile: data/eia_state_energy/state_gas_ca.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "TWh"
+emphasis: level
+formatting:
+  style: number
+  decimals: 1
+  suffix: ' TWh'
+provenance:
+  provider: U.S. Energy Information Administration (EIA)
+  series: EIA electricity generation; fueltypeid=NG; location=CA
+  url: https://www.eia.gov/electricity/data/browser/
+  license: Public domain (US government data)
+tags:
+  - energy
+  - us-state
+  - us
+unitClass: count

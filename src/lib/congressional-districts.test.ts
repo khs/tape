@@ -200,6 +200,14 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("acs_labor/us_total")).toBeNull();
   });
 
+  it("parses EIA state energy-generation series + spares the US ones", () => {
+    expect(parseStateSourceId("eia_state_energy/state_wind_tx")).toEqual({ state: "tx" });
+    expect(parseStateSourceId("eia_state_energy/state_hydro_wa")).toEqual({ state: "wa" });
+    expect(parseStateSourceId("eia_state_energy/state_all_ca")).toEqual({ state: "ca" });
+    expect(parseStateSourceId("eia_state_energy/us_wind")).toBeNull();
+    expect(parseStateSourceId("eia_state_energy/us_all")).toBeNull();
+  });
+
   it("rejects CD-level IDs (those belong to parseCdSourceId)", () => {
     expect(parseStateSourceId("usaspending/district_tx_01")).toBeNull();
     expect(parseStateSourceId("acs_cd/bachelors_plus_tx_01")).toBeNull();

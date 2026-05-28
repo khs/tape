@@ -1,0 +1,21 @@
+title: California electricity generation by source
+sources:
+  - eia_state_energy/state_gas_ca
+  - eia_state_energy/state_coal_ca
+  - eia_state_energy/state_nuclear_ca
+  - eia_state_energy/state_wind_ca
+  - eia_state_energy/state_solar_ca
+  - eia_state_energy/state_hydro_ca
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Natural gas
+  - Coal
+  - Nuclear
+  - Wind
+  - Solar
+  - Hydro
+blurb: "California net electricity generation by fuel, EIA. Gas still does the heavy lifting, but California leads the country in solar, and hydro swings sharply with drought and wet years."
+tags: [energy]

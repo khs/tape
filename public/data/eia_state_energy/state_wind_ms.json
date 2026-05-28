@@ -1,0 +1,17 @@
+{
+  "id": "state_wind_ms",
+  "name": "state_wind_ms",
+  "kind": "timeseries",
+  "unit": "TWh",
+  "lastUpdated": "2026-05-28T12:14:05Z",
+  "points": [
+    {
+      "t": "2024-12-31",
+      "v": 0.346724
+    },
+    {
+      "t": "2025-12-31",
+      "v": 0.500177
+    }
+  ]
+}
