@@ -4,6 +4,7 @@ import {
   applyIndex100,
   applyTransform,
   transformFormatting,
+  availableTransforms,
   TRANSFORM_LABELS,
 } from "./transforms";
 
@@ -62,6 +63,31 @@ describe("applyYoYPercent", () => {
       { t: "2021-01-02", v: 50 },
     ];
     expect(applyYoYPercent(pts)).toEqual([]);
+  });
+
+  it("backstop: drops a point whose ~1y prior is near zero (no explosion)", () => {
+    // Rate-like series that crosses ~0: month 0 sits at 0.008, the rest
+    // hover near 2.5 (median |v| ≈ 2.5, so the near-zero threshold is
+    // 0.0125). Without the backstop, the point one year later divides by
+    // 0.008 and explodes to ~+24,000% (the CPI-YoY artifact). With it,
+    // that point is dropped rather than emitted as a garbage value.
+    const vals = [0.008, 2.4, 2.6, 2.5, 2.3, 2.7, 2.4, 2.5, 2.6, 2.4, 2.5, 2.5, 2.0, 2.1];
+    const pts = monthly(vals.length, (i) => vals[i]);
+    const out = applyYoYPercent(pts);
+    // The month that would divide by 0.008 (index 12) must be absent.
+    expect(out.find((p) => p.t === pts[12].t)).toBeUndefined();
+    // And no emitted value is absurd (the explosion would be ~+24,000%).
+    expect(out.every((p) => Math.abs(p.v) < 1000)).toBe(true);
+  });
+
+  it("backstop leaves a normal level series untouched (no extra drops)", () => {
+    // Values 100..113 — every prior is ~100, far above 0.5% of the
+    // median, so the near-zero guard never fires. Only the first-year
+    // points (no eligible prior) are dropped, same as before the backstop.
+    const pts = monthly(14, (i) => 100 + i);
+    const out = applyYoYPercent(pts);
+    expect(out.length).toBeGreaterThanOrEqual(1);
+    expect(out.every((p) => Number.isFinite(p.v) && p.v > 0)).toBe(true);
   });
 
   it("uses the latest at-or-before-target prior on irregular series", () => {
@@ -160,5 +186,30 @@ describe("TRANSFORM_LABELS", () => {
     expect(TRANSFORM_LABELS.level).toBe("Level");
     expect(TRANSFORM_LABELS.yoy_pct).toBe("YoY %");
     expect(TRANSFORM_LABELS.index_100).toBe("Index = 100");
+  });
+});
+
+describe("availableTransforms — gating by unitClass", () => {
+  const ALL = ["level", "yoy_pct", "index_100"];
+
+  it("offers all three for level-like classes", () => {
+    expect(availableTransforms(["currency"])).toEqual(ALL);
+    expect(availableTransforms(["count", "index"])).toEqual(ALL);
+  });
+
+  it("offers only Level when any plotted series is a rate", () => {
+    expect(availableTransforms(["rate"])).toEqual(["level"]);
+    // Mixed: one rate series is enough to gate the whole chart, since the
+    // transform applies to every line and would corrupt the rate one.
+    expect(availableTransforms(["currency", "rate"])).toEqual(["level"]);
+  });
+
+  it("treats unknown / absent unitClass as level-like (keeps the pills)", () => {
+    expect(availableTransforms([undefined, null])).toEqual(ALL);
+    expect(availableTransforms([])).toEqual(ALL);
+  });
+
+  it("does NOT gate ratio — the near-zero backstop covers zero-crossing ratios", () => {
+    expect(availableTransforms(["ratio"])).toEqual(ALL);
   });
 });

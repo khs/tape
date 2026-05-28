@@ -30,6 +30,7 @@ import {
   applyPercentDisplayOverride,
   type CombineOp,
 } from "../lib/derive";
+import { availableTransforms, type TransformKey } from "../lib/transforms";
 import { SITE_BRAND_URL } from "../lib/brand";
 
 type ChartData = CollectionEntry<"charts">["data"];
@@ -466,6 +467,31 @@ const singleDescriptor: SingleDescriptorParts =
 
 const uniqueId = `dialog-${dashboardSlug}-${chartId.replace(/[^a-z0-9-]/gi, "-")}`;
 
+// Y-axis transform gating. "YoY %" and "Index = 100" are meaningless and
+// numerically explosive on rate series — a YoY-of-a-rate divides by a
+// near-zero denominator at zero crossings (the CPI-YoY +25,000% artifact).
+// Offer them only when no plotted series is unitClass "rate"; otherwise the
+// dialog shows just the level view (the whole pill row is hidden, since a
+// lone "Level" pill is noise) and we coerce any stale saved transform back
+// to "level" so a bad default can't render a broken plot with no pill to
+// escape it. See src/lib/transforms.ts (availableTransforms).
+const plottedUnitClasses = perSource
+  .filter((p) => p.data !== null || p.summary !== null)
+  .map(
+    (p) =>
+      (p.source.data as { unitClass?: import("../lib/derive").UnitClass })
+        .unitClass,
+  );
+const allowedTransforms = availableTransforms(plottedUnitClasses);
+const showTransformPills = allowedTransforms.length > 1;
+const savedTransform =
+  (chart as { transform?: TransformKey }).transform ?? "level";
+const effectiveTransform: TransformKey = allowedTransforms.includes(
+  savedTransform,
+)
+  ? savedTransform
+  : "level";
+
 const payload = {
   // chartId is forwarded so the client-side controller can attach it to
   // telemetry events (e.g. chart_image_exported) and any future per-chart
@@ -498,9 +524,11 @@ const payload = {
   shading: (chart as { shading?: string[] }).shading,
   // Default y-axis transform for the dialog plot (level / yoy_pct /
   // index_100). Tile stays in level mode regardless; the pill row
-  // in the dialog overrides per-session without persisting. See
-  // src/lib/transforms.ts for the math.
-  transform: (chart as { transform?: "level" | "yoy_pct" | "index_100" }).transform ?? "level",
+  // in the dialog overrides per-session without persisting. Coerced to
+  // "level" for rate series (see effectiveTransform above) so a stale
+  // saved yoy_pct/index_100 can't render a broken plot when the pills
+  // that would let a reader switch back are hidden.
+  transform: effectiveTransform,
   // Editorial annotations — labelled date markers rendered on the
   // dialog plot. See src/lib/annotations.ts.
   annotations:
@@ -811,36 +839,40 @@ const mostRecentUpdate = payload.sources
           {/* Y-axis transformation pills. Default = chart.transform (or
               "level" when unset). Per-session — clicking re-renders the
               full plot in the new view but doesn't persist back to
-              the saved chart. See src/lib/transforms.ts for the math. */}
-          <div class="pills transform-pills" role="group" aria-label="Y-axis transformation">
-            <button
-              type="button"
-              class={"pill" + (payload.transform === "level" ? " pill-active" : "")}
-              data-transform="level"
-              aria-pressed={payload.transform === "level" ? "true" : "false"}
-              title="Plot values at their stored level — no transformation."
-            >
-              Level
-            </button>
-            <button
-              type="button"
-              class={"pill" + (payload.transform === "yoy_pct" ? " pill-active" : "")}
-              data-transform="yoy_pct"
-              aria-pressed={payload.transform === "yoy_pct" ? "true" : "false"}
-              title="Year-over-year percent change at each date. Drops the first year of points."
-            >
-              YoY %
-            </button>
-            <button
-              type="button"
-              class={"pill" + (payload.transform === "index_100" ? " pill-active" : "")}
-              data-transform="index_100"
-              aria-pressed={payload.transform === "index_100" ? "true" : "false"}
-              title="Rebase the visible window: first point = 100, everything else proportional."
-            >
-              Index = 100
-            </button>
-          </div>
+              the saved chart. Hidden entirely for rate series, where YoY %
+              and Index = 100 are meaningless (only "Level" would remain).
+              See src/lib/transforms.ts (availableTransforms) for the math. */}
+          {showTransformPills && (
+            <div class="pills transform-pills" role="group" aria-label="Y-axis transformation">
+              <button
+                type="button"
+                class={"pill" + (payload.transform === "level" ? " pill-active" : "")}
+                data-transform="level"
+                aria-pressed={payload.transform === "level" ? "true" : "false"}
+                title="Plot values at their stored level — no transformation."
+              >
+                Level
+              </button>
+              <button
+                type="button"
+                class={"pill" + (payload.transform === "yoy_pct" ? " pill-active" : "")}
+                data-transform="yoy_pct"
+                aria-pressed={payload.transform === "yoy_pct" ? "true" : "false"}
+                title="Year-over-year percent change at each date. Drops the first year of points."
+              >
+                YoY %
+              </button>
+              <button
+                type="button"
+                class={"pill" + (payload.transform === "index_100" ? " pill-active" : "")}
+                data-transform="index_100"
+                aria-pressed={payload.transform === "index_100" ? "true" : "false"}
+                title="Rebase the visible window: first point = 100, everything else proportional."
+              >
+                Index = 100
+              </button>
+            </div>
+          )}
           {isMulti && normalize === "rebase" && (
             <p class="dialog-plot-caption muted">
               Values rebased to 100 at window start.
