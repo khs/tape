@@ -86,6 +86,17 @@ jobs:
         continue-on-error: true
         run: python pipelines/usaspending.py
 
+      # EIA electricity net generation by state + fuel (annual; ~52
+      # light API calls). Needs EIA_API_KEY in repo secrets —
+      # continue-on-error keeps the refresh green if that secret isn't
+      # set yet (the pipeline exits non-zero on a missing key), and the
+      # step starts populating data on its own once the secret lands.
+      - name: Refresh EIA state electricity generation
+        continue-on-error: true
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: python pipelines/eia_state_energy.py
+
       # Generate tile-summary sibling files (<id>.summary.json) from the
       # full source data. Computed BEFORE trimming so summaries capture
       # the longest available history.

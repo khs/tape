@@ -147,6 +147,38 @@ jobs:
         continue-on-error: true
         run: python pipelines/bls_metro.py
 
+      # State-level annual datasets — they update yearly (or biennially
+      # for NAEP), so they live in this monthly workflow rather than the
+      # weekly market-data one. Source YAMLs are static (scaffolded
+      # once, committed); these steps only refresh public/data/, which
+      # the commit step below stages wholesale via `git add public/data/`.
+
+      # Census Annual Survey of State Government Finances (~51 calls).
+      - name: Refresh Census state-government finances
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_govfin.py
+
+      # ACS 1-year unemployment rate by race / Hispanic origin, by state.
+      - name: Refresh ACS unemployment by race (state)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_labor.py
+
+      # NAEP ("Nation's Report Card") state test scores — NCES public
+      # data service, no API key required.
+      - name: Refresh NAEP state test scores
+        continue-on-error: true
+        run: python pipelines/naep_scores.py
+
+      # K-12 per-pupil spending by state — NCES Common Core of Data via
+      # the Urban Institute Education Data Portal, no API key required.
+      - name: Refresh NCES per-pupil K-12 spending
+        continue-on-error: true
+        run: python pipelines/edu_spending.py
+
       # Source YAMLs auto-generate from data files for the ACS pipelines.
       # Idempotent — only writes files that don't already exist.
       - name: Generate ACS-CD source YAMLs from fresh data files
