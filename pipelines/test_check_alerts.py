@@ -191,6 +191,87 @@ class EvaluateConditionTests(unittest.TestCase):
         )
 
 
+class FireInWindowTests(unittest.TestCase):
+    """Windowed evaluation — walk EVERY new observation, not just the
+    endpoints. This is the weekly-eval-on-daily-series fix: a crossing
+    that happened (and maybe reverted) between two weekly runs must
+    still fire."""
+
+    def test_empty_window_no_fire(self) -> None:
+        self.assertIsNone(check_alerts.fire_in_window("gt", 4.0, [], 3.0))
+
+    def test_gt_reports_most_recent_qualifying_point(self) -> None:
+        win = [("2024-01-02", 4.5), ("2024-01-03", 4.7)]
+        self.assertEqual(
+            check_alerts.fire_in_window("gt", 4.0, win, 3.0),
+            ("2024-01-03", 4.7),
+        )
+
+    def test_gt_fires_on_intermediate_even_if_latest_below(self) -> None:
+        # Latest point dipped back below threshold, but an intermediate
+        # point was above — a latest-vs-last-seen check would miss it.
+        win = [("2024-01-02", 4.5), ("2024-01-03", 3.8)]
+        self.assertEqual(
+            check_alerts.fire_in_window("gt", 4.0, win, 3.0),
+            ("2024-01-02", 4.5),
+        )
+
+    def test_crosses_above_midwindow_then_revert_still_fires(self) -> None:
+        # THE regression this fixes. Crossed up to 5.0 then back to 3.5
+        # within one weekly window. Endpoint comparison (anchor 3.0 vs
+        # latest 3.5) sees no crossing; the walk catches it at 5.0.
+        win = [("2024-01-02", 5.0), ("2024-01-03", 3.5)]
+        self.assertEqual(
+            check_alerts.fire_in_window("crosses_above", 4.0, win, 3.0),
+            ("2024-01-02", 5.0),
+        )
+
+    def test_crosses_above_already_above_no_fire(self) -> None:
+        # anchor_prev above threshold + window stays above → no crossing.
+        win = [("2024-01-02", 5.0), ("2024-01-03", 5.5)]
+        self.assertIsNone(
+            check_alerts.fire_in_window("crosses_above", 4.0, win, 4.5),
+        )
+
+    def test_crosses_above_rearms_within_window(self) -> None:
+        # cross up (d2), dip below (d3, re-arm), cross up again (d4).
+        # The rolling prev re-arms; the LAST crossing is reported.
+        win = [
+            ("2024-01-02", 5.0),
+            ("2024-01-03", 3.5),
+            ("2024-01-04", 4.8),
+        ]
+        self.assertEqual(
+            check_alerts.fire_in_window("crosses_above", 4.0, win, 3.0),
+            ("2024-01-04", 4.8),
+        )
+
+    def test_crosses_above_first_run_no_anchor(self) -> None:
+        # Baseline first run: window = [latest], anchor None → a
+        # crosses_above can't fire (no prior to cross from).
+        self.assertIsNone(
+            check_alerts.fire_in_window(
+                "crosses_above", 4.0, [("2024-01-03", 5.0)], None,
+            ),
+        )
+
+    def test_crosses_below_within_window(self) -> None:
+        win = [("2024-01-02", 4.5), ("2024-01-03", 3.5)]
+        self.assertEqual(
+            check_alerts.fire_in_window("crosses_below", 4.0, win, 4.2),
+            ("2024-01-03", 3.5),
+        )
+
+    def test_change_above_step_inside_window(self) -> None:
+        # A +1.5 day-over-day step (anchor 4.0 → 5.5) trips a 1.0
+        # threshold even though the rest of the window is flat.
+        win = [("2024-01-02", 5.5), ("2024-01-03", 5.6)]
+        self.assertEqual(
+            check_alerts.fire_in_window("change_above", 1.0, win, 4.0),
+            ("2024-01-02", 5.5),
+        )
+
+
 class LoadDerivedLatestObservationTests(unittest.TestCase):
     """Migration 0007 added derived_spec to alert_rules. The evaluator
     aligns A and B by date and emits the latest (t, A op B) pair.
@@ -243,6 +324,18 @@ class LoadDerivedLatestObservationTests(unittest.TestCase):
             {"a": "a", "op": "diff", "b": "b"},
         )
         self.assertEqual(diff_obs, ("2024-01-01", 7.0))
+
+    def test_observations_returns_full_aligned_series(self) -> None:
+        # load_derived_observations returns the whole aligned series;
+        # the *_latest wrapper just takes its last element.
+        self._stub_points({
+            "a": [{"t": "2024-01-01", "v": 1.0}, {"t": "2024-02-01", "v": 2.0}],
+            "b": [{"t": "2024-01-01", "v": 10.0}, {"t": "2024-02-01", "v": 20.0}],
+        })
+        series = check_alerts.load_derived_observations(
+            {"a": "a", "op": "sum", "b": "b"},
+        )
+        self.assertEqual(series, [("2024-01-01", 11.0), ("2024-02-01", 22.0)])
 
     def test_alignment_uses_intersection_of_dates(self) -> None:
         # A has Mar 1 but B doesn't; the derived series' latest is

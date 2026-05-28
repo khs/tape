@@ -1,25 +1,37 @@
 """
 Indicator-alert evaluator. Runs after each data refresh: walks every
-active alert_rules row, evaluates its condition against the source's
-latest observation, and inserts an alert_triggers row when the
-condition fires.
+active alert_rules row, evaluates its condition against every source
+observation that has landed since the rule's last run, and inserts an
+alert_triggers row when the condition fires.
 
 Schema lives in supabase/migrations/0005_indicator_alerts.sql.
 
-Conditions:
-  gt              current > threshold
-  gte             current >= threshold
-  lt              current < threshold
-  lte             current <= threshold
-  crosses_above   prev <= threshold AND current > threshold
-  crosses_below   prev >= threshold AND current < threshold
+Conditions (current = an observation, prev = the one before it):
+  gt / gte / lt / lte   level checks (current vs threshold). Fire on
+                        ANY qualifying observation, so they re-fire
+                        while a series stays past the threshold —
+                        which is most series. The /alerts/ UI warns
+                        about this and defaults to the crosses_* ops.
+  crosses_above   prev <= threshold AND current > threshold   edge:
+  crosses_below   prev >= threshold AND current < threshold   fires
+                  once on the crossing, and re-arms when an observation
+                  comes back to the other side of the threshold.
   change_above    abs(current - prev) > threshold
 
-Idempotency: the evaluator stamps `last_value_t` on every rule it
-checks. A rule whose source's latest observation date == the rule's
-last_value_t is skipped (already evaluated for this vintage). So
-running the evaluator twice between data refreshes produces zero new
-triggers.
+Windowed evaluation: the refresh runs WEEKLY but many series publish
+DAILY, so ~5-7 new observations land between runs. We walk ALL of them
+in chronological order (rolling `prev` seeded by the rule's
+last_value_seen) rather than only comparing the two endpoints —
+otherwise a crossing that happened (and maybe reverted) mid-week would
+be missed. See fire_in_window. The crosses_* "going below re-arms the
+indicator" behavior falls out of the rolling prev: once an observation
+lands on the far side, the next crossing fires again.
+
+Idempotency: the evaluator stamps `last_value_t` (the latest
+observation's date) on every rule, and each run's window is everything
+strictly after it. A rule whose source's latest observation date ==
+last_value_t is skipped (no new data). So running the evaluator twice
+between refreshes produces zero new triggers.
 
 Email delivery: out of scope here. This script writes to
 alert_triggers; an out-of-band job (or the user's own infrastructure)
@@ -171,10 +183,29 @@ def _load_points(source_id: str) -> list[dict[str, Any]] | None:
     return points
 
 
-def load_derived_latest_observation(
+def load_observations(source_id: str) -> list[tuple[str, float]] | None:
+    """Full chronological [(t, v)] series for a regular source ID.
+    Same source-id sanitization + path confinement as
+    load_latest_observation (rides on _load_points). Returns None when
+    the source is unresolvable or has no usable points."""
+    pts = _load_points(source_id)
+    if not pts:
+        return None
+    out: list[tuple[str, float]] = []
+    for p in pts:
+        if not isinstance(p, dict):
+            continue
+        t = p.get("t")
+        v = p.get("v")
+        if isinstance(t, str) and isinstance(v, (int, float)):
+            out.append((t, float(v)))
+    return out or None
+
+
+def load_derived_observations(
     spec: dict[str, Any],
-) -> tuple[str, float] | None:
-    """Compute the derived series A op B's latest observation.
+) -> list[tuple[str, float]] | None:
+    """Compute the full derived series A op B, aligned by date.
 
     Alignment: align A and B by date. For each date present in BOTH
     series, compute the operation. Return the latest such (t, v).
@@ -231,10 +262,19 @@ def load_derived_latest_observation(
             derived.append((t, float(v) - b_v))
     if not derived:
         return None
-    # The latest derived observation is the last entry (A's points
-    # are in chronological order per the pipeline contract; the
-    # alignment preserves that).
-    return derived[-1]
+    # A's points are chronological per the pipeline contract and the
+    # alignment preserves that, so `derived` is already ordered.
+    return derived
+
+
+def load_derived_latest_observation(
+    spec: dict[str, Any],
+) -> tuple[str, float] | None:
+    """Latest observation of the derived series — thin wrapper around
+    load_derived_observations, kept for callers/tests that only want
+    the endpoint."""
+    obs = load_derived_observations(spec)
+    return obs[-1] if obs else None
 
 
 def load_latest_observation(source_id: str) -> tuple[str, float] | None:
@@ -329,6 +369,34 @@ def evaluate_condition(
     return False
 
 
+def fire_in_window(
+    condition: str,
+    threshold: float,
+    new_obs: list[tuple[str, float]],
+    anchor_prev: float | None,
+) -> tuple[str, float] | None:
+    """Walk the new observations in chronological order, applying the
+    per-pair condition with a rolling ``prev`` seeded by ``anchor_prev``
+    (the rule's last_value_seen). Returns the (t, v) of the LAST
+    observation in the window that fired, or None if none did.
+
+    The rolling prev is what makes the multi-observation window correct:
+    a crosses_* transition (or a change_above step) that happens BETWEEN
+    two points inside the window is detected — and crosses_* even
+    re-arms within the window (dip below, then cross up again, all since
+    the last run → fires). Level conditions ignore prev, so they fire on
+    any window point that meets the threshold. Reporting the LAST firing
+    point gives the most recent crossing / qualifying value for the
+    trigger snapshot."""
+    prev = anchor_prev
+    last_fire: tuple[str, float] | None = None
+    for (t, v) in new_obs:
+        if evaluate_condition(condition, threshold, v, prev):
+            last_fire = (t, v)
+        prev = v
+    return last_fire
+
+
 def main() -> int:
     supabase_url = env("SUPABASE_URL") or env("PUBLIC_SUPABASE_URL")
     service_key = env("SUPABASE_SERVICE_ROLE_KEY")
@@ -377,13 +445,13 @@ def main() -> int:
             # display sentinel (typically "derived:adhoc") but isn't
             # used for data resolution when derived_spec is present.
             if isinstance(derived_spec, dict) and derived_spec:
-                obs = load_derived_latest_observation(derived_spec)
+                series = load_derived_observations(derived_spec)
             else:
-                obs = load_latest_observation(source_id)
-            if obs is None:
+                series = load_observations(source_id)
+            if not series:
                 skipped += 1
                 continue
-            (latest_t, latest_v) = obs
+            (latest_t, latest_v) = series[-1]
 
             # Idempotency: skip rules whose source hasn't moved since
             # the last evaluation. Sidesteps re-firing on a no-op data
@@ -393,13 +461,33 @@ def main() -> int:
                 continue
 
             prev_v = float(last_v_seen) if isinstance(last_v_seen, (int, float)) else None
-            triggered = evaluate_condition(condition, threshold, latest_v, prev_v)
+
+            # Windowed evaluation. The refresh runs WEEKLY but many
+            # series publish DAILY, so several new observations land
+            # between runs. Evaluate EVERY observation that arrived
+            # since last_value_t — not just the latest-vs-last-seen
+            # endpoints — so a crosses_* transition that happened
+            # mid-window is caught and a level condition fires off a
+            # point that actually met the threshold. The rolling prev is
+            # seeded with last_value_seen (the prior run's final point).
+            # First run (no last_value_t): baseline against the latest
+            # point only, so we don't replay crossings that predate the
+            # rule.
+            if last_t_seen is None:
+                window = [(latest_t, latest_v)]
+            else:
+                window = [(t, v) for (t, v) in series if t > last_t_seen]
+            fire = fire_in_window(condition, threshold, window, prev_v)
+            triggered = fire is not None
 
             if triggered:
                 # Insert trigger snapshot. Service-role auth bypasses
                 # RLS; the row's owner_id is set explicitly so
                 # downstream queries (and the owner's /alerts/ page)
-                # see the right rows.
+                # see the right rows. observed_* is the WINDOW point that
+                # fired (e.g. the mid-week crossing), not necessarily the
+                # latest observation.
+                (obs_t, obs_v) = fire
                 supabase_post(
                     supabase_url,
                     "/rest/v1/alert_triggers",
@@ -411,15 +499,16 @@ def main() -> int:
                         "source_label": rule.get("source_label", source_id),
                         "condition": condition,
                         "threshold": threshold,
-                        "observed_value": latest_v,
-                        "observed_t": latest_t,
+                        "observed_value": obs_v,
+                        "observed_t": obs_t,
                     },
                 )
                 fired += 1
 
-            # Update last_value_* on the rule even when not triggered —
-            # crosses_above / crosses_below need the prior value to
-            # detect the transition next time around.
+            # Advance last_value_* to the LATEST observation even when
+            # not triggered — the next run's window is everything after
+            # last_value_t, and crosses_* / change_above use
+            # last_value_seen as the rolling-prev seed.
             supabase_patch(
                 supabase_url,
                 f"/rest/v1/alert_rules?id=eq.{rule_id}",

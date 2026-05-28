@@ -74,16 +74,17 @@ step "Trim source data files" python pipelines/trim_source_data.py
 #     clean gate). ---
 step "Audit source labels (lenient)" python scripts/audit_all_sources.py
 
-# --- Alert evaluation. Reads every active alert_rules row, evaluates
-#     the condition against the source's latest observation, and inserts
-#     into alert_triggers when it fires. Requires SUPABASE_URL +
-#     SUPABASE_SERVICE_ROLE_KEY in the env. Safe to fail when
-#     unconfigured (no-op + warning); the rest of the refresh proceeds. ---
-step "Indicator alerts" python pipelines/check_alerts.py
-# Email dispatch reads alert_triggers rows where notified_at is null
-# and sends via Resend / Postmark. Optional — silently no-ops when
-# the email-provider env vars are unset.
-step "Alert emails" python pipelines/dispatch_alert_emails.py
+# --- Alert evaluation is DELIBERATELY OMITTED from the desktop run. ---
+# check_alerts.py + dispatch_alert_emails.py talk to PRODUCTION Supabase
+# (the SUPABASE_SERVICE_ROLE_KEY in .env is the prod key), so running
+# them from a laptop refresh would:
+#   (a) send real alert emails to real users from a dev/iteration run, and
+#   (b) advance each rule's last_value_seen / last_value_t against prod —
+#       which would make the scheduled weekly GitHub Actions run skip the
+#       very observations it needs to evaluate (the windowed evaluator
+#       keys its per-run window off last_value_t).
+# Alerts therefore run ONLY from the GitHub workflows. If you truly need
+# to evaluate alerts locally, run check_alerts.py by hand on purpose.
 
 echo "" | tee -a "$LOG" >&2
 echo "[$(date +%H:%M:%S)] DONE. Full log: $LOG" | tee -a "$LOG" >&2
