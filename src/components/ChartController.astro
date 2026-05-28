@@ -488,6 +488,96 @@
     return findPrior(pts, priorMs);
   }
 
+  /** Earliest available observation — the inception baseline used when a
+   *  window reaches back further than the data goes. Summary mode: the
+   *  first point of the requested window's spark (for a window longer
+   *  than the data the spark spans all of it, and downsampling preserves
+   *  endpoints, so spark[0] is the true first observation). Full mode:
+   *  points[0]. */
+  function inceptionPoint(s: SourcePayload, window: DeltaWindow): Point | null {
+    if (s.summary) {
+      const sp = s.summary.sparks[window];
+      return sp && sp.length > 0 ? sp[0] : null;
+    }
+    const pts = s.points;
+    return pts && pts.length > 0 ? pts[0] : null;
+  }
+
+  type DeltaResult = {
+    /** Labeled delta — gets a "since YYYY" suffix on an inception
+     *  fallback so a 10Y readout on a 9-year series can't be mistaken
+     *  for a true 10Y figure. */
+    text: string;
+    /** Bare delta (no suffix), for prose that adds its own framing. */
+    rawText: string;
+    direction: "up" | "down" | "flat";
+    /** Baseline actually used (window prior, or the inception point). */
+    prior: Point;
+    /** True when we fell back to the inception baseline. */
+    partial: boolean;
+  };
+
+  /** Delta display for `s` at `window`, with a graceful inception
+   *  fallback: when there's no prior at the window boundary (the window
+   *  reaches further back than the data — e.g. a 10Y window on a series
+   *  that starts in 2017), use the earliest observation instead and
+   *  label the change with its start year rather than showing a bare
+   *  "—". Returns null only when there's no usable baseline at all (a
+   *  single-point series). Fixed-range views have an explicit start, so
+   *  they never fall back. */
+  function seriesDeltaDisplay(
+    s: SourcePayload,
+    current: Point | null,
+    window: DeltaWindow,
+    fixed?: { start: string; end: string },
+  ): DeltaResult | null {
+    if (!current) return null;
+    const prior = tilePrior(s, window, fixed);
+    if (prior) {
+      const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
+      return { text: dd.text, rawText: dd.text, direction: dd.direction, prior, partial: false };
+    }
+    if (fixed) return null;
+    const base = inceptionPoint(s, window);
+    if (!base) return null;
+    const dd = formatDeltaDisplay(current.v, base.v, s.formatting);
+    return {
+      text: `${dd.text} since ${base.t.slice(0, 4)}`,
+      rawText: dd.text,
+      direction: dd.direction,
+      prior: base,
+      partial: true,
+    };
+  }
+
+  /** Write a DeltaResult into a delta cell: textContent + direction +
+   *  the partial flag/tooltip. `emptyText` is shown when dd is null
+   *  ("—" for legend cells, "" for the single-source tile delta). */
+  function applyDeltaCell(
+    el: HTMLElement,
+    dd: DeltaResult | null,
+    emptyText = "—",
+  ): void {
+    if (!dd) {
+      el.textContent = emptyText;
+      el.dataset.direction = "flat";
+      delete el.dataset.partial;
+      el.removeAttribute("title");
+      return;
+    }
+    el.textContent = dd.text;
+    el.dataset.direction = dd.direction;
+    if (dd.partial) {
+      el.dataset.partial = "1";
+      el.title =
+        `This series' history starts in ${dd.prior.t.slice(0, 4)}, shorter ` +
+        `than the selected window — the change shown is since then, not the full window.`;
+    } else {
+      delete el.dataset.partial;
+      el.removeAttribute("title");
+    }
+  }
+
   /**
    * Points to render the tile sparkline for the given window. In summary
    * mode this is the precomputed ~30-point downsample; in full mode it's
@@ -1982,20 +2072,10 @@
       for (const s of payload.sources) {
         const eff = closestSupported(window, s.supportedDeltas);
         const current = tileCurrent(s, fixed);
-        const prior = tilePrior(s, eff, fixed);
         const row = tile.querySelector<HTMLElement>(
           `[data-role="series-delta"][data-source-id="${CSS.escape(s.id)}"]`,
         );
-        if (row) {
-          if (current && prior) {
-            const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
-            row.textContent = dd.text;
-            row.dataset.direction = dd.direction;
-          } else {
-            row.textContent = "—";
-            row.dataset.direction = "flat";
-          }
-        }
+        if (row) applyDeltaCell(row, seriesDeltaDisplay(s, current, eff, fixed));
       }
       if (sparkEl) renderSparkMulti(sparkEl, payload, window);
     } else {
@@ -2003,7 +2083,6 @@
       if (!s) return;
       const eff = closestSupported(window, s.supportedDeltas);
       const current = tileCurrent(s, fixed);
-      const prior = tilePrior(s, eff, fixed);
 
       const valEl = tile.querySelector<HTMLElement>('[data-role="tile-value"]');
       if (valEl)
@@ -2012,13 +2091,10 @@
       const deltaEl = tile.querySelector<HTMLElement>(
         '[data-role="tile-delta"]',
       );
-      if (deltaEl && current && prior) {
-        const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
-        deltaEl.textContent = dd.text;
-        deltaEl.dataset.direction = dd.direction;
-      } else if (deltaEl) {
-        deltaEl.textContent = "";
-      }
+      // Single tile shows a blank delta (not "—") when there's no usable
+      // baseline, matching its prior look; otherwise the labeled delta.
+      if (deltaEl)
+        applyDeltaCell(deltaEl, seriesDeltaDisplay(s, current, eff, fixed), "");
 
       if (sparkEl) renderSparkSingle(sparkEl, s, eff, fixed, payload.shading);
     }
@@ -2039,7 +2115,6 @@
       for (const s of payload.sources) {
         const eff = closestSupported(window, s.supportedDeltas);
         const current = tileCurrent(s, fixed);
-        const prior = tilePrior(s, eff, fixed);
         const row = dialog.querySelector<HTMLElement>(
           `.multi-readout-row[data-source-id="${CSS.escape(s.id)}"]`,
         );
@@ -2052,16 +2127,7 @@
         );
         if (levelEl)
           levelEl.textContent = current ? formatValue(current.v, s.formatting) : "—";
-        if (deltaEl) {
-          if (current && prior) {
-            const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
-            deltaEl.textContent = dd.text;
-            deltaEl.dataset.direction = dd.direction;
-          } else {
-            deltaEl.textContent = "—";
-            deltaEl.dataset.direction = "flat";
-          }
-        }
+        if (deltaEl) applyDeltaCell(deltaEl, seriesDeltaDisplay(s, current, eff, fixed));
       }
       const captionEl = dialog.querySelector<HTMLElement>(
         '[data-role="descriptor"]',
@@ -2082,7 +2148,6 @@
       if (!s) return;
       const eff = closestSupported(window, s.supportedDeltas);
       const current = tileCurrent(s, fixed);
-      const prior = tilePrior(s, eff, fixed);
 
       const currentStr = current ? formatValue(current.v, s.formatting) : "—";
       const valEl = dialog.querySelector<HTMLElement>('[data-role="value"]');
@@ -2107,25 +2172,30 @@
       const periodHtml = fixed
         ? `from ${escapeHtml(fixed.start)} to ${escapeHtml(fixed.end)}`
         : `over the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[eff]}</span>`;
-      if (current && prior) {
-        const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
-        if (deltaEl) {
-          deltaEl.textContent = dd.text;
-          deltaEl.dataset.direction = dd.direction;
-        }
-        const priorStr = formatValue(prior.v, s.formatting);
-        if (descriptorEl) {
+      const ddResult = seriesDeltaDisplay(s, current, eff, fixed);
+      // Single-source dialog delta uses "" (not "—") for the no-baseline
+      // case to match its prior look; the descriptor below carries the
+      // explanation.
+      if (deltaEl) applyDeltaCell(deltaEl, ddResult, "");
+      if (descriptorEl) {
+        if (ddResult && !ddResult.partial) {
+          const priorStr = formatValue(ddResult.prior.v, s.formatting);
           descriptorEl.innerHTML =
-            dd.direction === "flat"
+            ddResult.direction === "flat"
               ? `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, roughly unchanged ${periodHtml}.`
-              : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(dd.direction)} from ${escapeHtml(priorStr)} ${periodHtml} (${escapeHtml(dd.text)}).`;
-        }
-      } else {
-        if (deltaEl) {
-          deltaEl.textContent = "";
-          deltaEl.dataset.direction = "flat";
-        }
-        if (descriptorEl) {
+              : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(ddResult.direction)} from ${escapeHtml(priorStr)} ${periodHtml} (${escapeHtml(ddResult.rawText)}).`;
+        } else if (ddResult && ddResult.partial) {
+          // Window reaches further back than the data — report the change
+          // since the series' first year and say so, instead of the old
+          // "History doesn't cover ..." dead end.
+          const baseYear = ddResult.prior.t.slice(0, 4);
+          const priorStr = formatValue(ddResult.prior.v, s.formatting);
+          const fullWindow = `the full <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[eff]}</span>`;
+          descriptorEl.innerHTML =
+            ddResult.direction === "flat"
+              ? `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, roughly unchanged since ${baseYear} — its history starts then, short of ${fullWindow}.`
+              : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(ddResult.direction)} from ${escapeHtml(priorStr)} in ${baseYear} (${escapeHtml(ddResult.rawText)}) — history starts ${baseYear}, short of ${fullWindow}.`;
+        } else {
           const noHistoryPeriod = fixed
             ? `the range ${escapeHtml(fixed.start)} → ${escapeHtml(fixed.end)}`
             : `the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[eff]}</span>`;
