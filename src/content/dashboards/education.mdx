@@ -1,0 +1,57 @@
+---
+title: "Education: spending & outcomes"
+order: 18
+defaultDelta: 10y
+description: "K-12 spending per pupil by state (NCES) alongside NAEP test scores (the Nation's Report Card) — the money and the results, for a set of contrasting states."
+aboutBlurb: "What states spend per K-12 pupil and what students actually score on NAEP — shown together for six contrasting states so the (loose) relationship between dollars and outcomes is visible."
+sections:
+  - title: "What states spend"
+    description: "Current spending per pupil — total current K-12 expenditure divided by enrollment. The gap between the highest and lowest spenders is large and durable."
+    charts:
+      - education/per_pupil_spending
+  - title: "What students score (NAEP)"
+    description: "NAEP is the only assessment given identically in every state, so these scores are genuinely comparable. Lined up against the spending chart above, the dollars-to-results link is weaker than you might expect."
+    charts:
+      - education/naep_math_g8
+      - education/naep_reading_g4
+---
+
+## The money and the results, side by side
+
+This dashboard pairs two questions that are usually asked separately:
+how much does a state spend per K-12 student, and how well do its
+students actually do?
+
+**Spending** comes from the NCES Common Core of Data (the F-33
+school-finance survey), as current spending per pupil. The spread is
+striking and stable: the highest-spending states (New York,
+Massachusetts) spend roughly three times per pupil what the lowest
+(Utah, Idaho) do.
+
+**Outcomes** come from NAEP — "the Nation's Report Card" — the one test
+administered identically in every state, which makes its scores
+comparable in a way state proficiency tests are not.
+
+## Why show them together
+
+Line the two up and the relationship between dollars and results is
+looser than the spending gaps alone would suggest:
+
+- **Massachusetts** spends near the top *and* scores near the top — the
+  case that resources and results go together.
+- **Mississippi** spends well below average yet posted some of the
+  country's largest NAEP gains through the 2010s (often credited to its
+  early-literacy retention policy) — the case that they don't.
+- **Utah** spends the least per pupil and lands mid-pack on NAEP.
+
+Spending clearly isn't *irrelevant* — but cost of living, demographics,
+and policy choices drive a lot of both numbers, so per-pupil dollars
+alone predict NAEP scores poorly. Treat the pairing as a starting point
+for questions, not a causal claim.
+
+## On the data
+
+Spending is NCES Common Core of Data via the **Urban Institute
+Education Data Portal** (ODC-BY 1.0; we cite both). NAEP scores are from
+**NCES** directly (public domain). To pull any other state's spending or
+scores, open the composer and search the **state chip**.

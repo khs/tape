@@ -1,0 +1,21 @@
+title: NAEP grade 8 math — selected states
+sources:
+  - naep/us_mathg8
+  - naep/state_mathg8_ny
+  - naep/state_mathg8_ma
+  - naep/state_mathg8_tx
+  - naep/state_mathg8_ut
+  - naep/state_mathg8_ms
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - US
+  - New York
+  - Massachusetts
+  - Texas
+  - Utah
+  - Mississippi
+blurb: "Average NAEP grade-8 math scale score — the same test in every state. Massachusetts has long led; note the 2022 dip after pandemic disruption, and how little the ranking tracks per-pupil spending."
+tags: [education]

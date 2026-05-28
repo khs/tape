@@ -1,0 +1,24 @@
+name: 'Georgia K-12 spending per pupil'
+shortName: 'GA per-pupil K-12'
+description: 'Current spending per pupil on K-12 public education in Georgia — total current expenditure divided by fall enrollment. NCES Common Core of Data (F-33 school-system finance), via the Urban Institute Education Data Portal.'
+kind: timeseries
+pipeline: edu_spending
+dataFile: data/edu_spending/state_perpupil_ga.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "USD"
+emphasis: level
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+provenance:
+  provider: NCES Common Core of Data, via Urban Institute Education Data Portal
+  series: CCD F-33 current spending per pupil (exp_current_elsec_total / enrollment)
+  url: https://educationdata.urban.org/
+  license: 'ODC-BY 1.0 — NCES Common Core of Data (public domain) via Urban Institute Education Data Portal; cite both'
+tags:
+  - education
+  - fiscal
+  - us-state
+  - us
+unitClass: currency

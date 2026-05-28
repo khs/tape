@@ -208,6 +208,14 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("eia_state_energy/us_all")).toBeNull();
   });
 
+  it("parses NAEP + per-pupil education series + spares the US ones", () => {
+    expect(parseStateSourceId("naep/state_mathg8_ca")).toEqual({ state: "ca" });
+    expect(parseStateSourceId("naep/state_readg4_ms")).toEqual({ state: "ms" });
+    expect(parseStateSourceId("edu_spending/state_perpupil_ny")).toEqual({ state: "ny" });
+    expect(parseStateSourceId("naep/us_mathg8")).toBeNull();
+    expect(parseStateSourceId("edu_spending/us_perpupil")).toBeNull();
+  });
+
   it("rejects CD-level IDs (those belong to parseCdSourceId)", () => {
     expect(parseStateSourceId("usaspending/district_tx_01")).toBeNull();
     expect(parseStateSourceId("acs_cd/bachelors_plus_tx_01")).toBeNull();

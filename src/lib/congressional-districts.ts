@@ -138,6 +138,10 @@ const STATE_CODE_SET = new Set(US_STATES.map((s) => s.code));
  *     race (e.g. `acs_labor/state_black_ca`)
  *   - `eia_state_energy/state_<fuel>_<st>`   — EIA electricity net
  *     generation by fuel (e.g. `eia_state_energy/state_wind_tx`)
+ *   - `naep/state_<metric>_<st>`             — NAEP test scores
+ *     (e.g. `naep/state_mathg8_ca`)
+ *   - `edu_spending/state_perpupil_<st>`     — K-12 spending per pupil
+ *     (e.g. `edu_spending/state_perpupil_ny`)
  *   - `acs_state/<series>_<st>`             — ACS state-level series
  *     derived from the per-CD ACS data by
  *     pipelines/derive_acs_state_from_cd.py (exact sum for counts,
@@ -156,7 +160,7 @@ export function parseStateSourceId(id: string): { state: string } | null {
   // matches. census_govfin carries the Census state-government-finance
   // series (state_totexp_ca, state_welfexp_tx, …); its national
   // siblings are `census_govfin/us_<series>` and correctly don't match.
-  m = id.match(/^(?:fred|bls|census_govfin|acs_labor|eia_state_energy)\/state_.+_([a-z]{2})$/);
+  m = id.match(/^(?:fred|bls|census_govfin|acs_labor|eia_state_energy|naep|edu_spending)\/state_.+_([a-z]{2})$/);
   if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
   // acs_state/<series>_<st> — no `state_` prefix on the slug since the
   // pipeline directory already names the scope.

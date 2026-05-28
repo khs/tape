@@ -1,0 +1,22 @@
+name: 'Michigan NAEP grade 8 reading score'
+shortName: 'MI NAEP g8 reading'
+description: 'Average NAEP scale score, grade 8 reading, for Michigan. NAEP ("the Nation''s Report Card", NCES) is administered identically in every state, so scores are directly comparable across states — unlike each state''s own proficiency tests. Public-domain US government data.'
+kind: timeseries
+pipeline: naep
+dataFile: data/naep/state_readg8_mi.json
+supportedDeltas: ["5y", "10y"]
+unit: "scale score"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+provenance:
+  provider: U.S. Dept. of Education, NCES — NAEP (Nation's Report Card)
+  series: NAEP reading grade 8 mean scale score
+  url: https://www.nationsreportcard.gov/
+  license: Public domain (US government data)
+tags:
+  - education
+  - us-state
+  - us
+unitClass: index

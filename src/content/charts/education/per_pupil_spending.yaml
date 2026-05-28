@@ -1,0 +1,21 @@
+title: K-12 spending per pupil — selected states
+sources:
+  - edu_spending/us_perpupil
+  - edu_spending/state_perpupil_ny
+  - edu_spending/state_perpupil_ma
+  - edu_spending/state_perpupil_tx
+  - edu_spending/state_perpupil_ut
+  - edu_spending/state_perpupil_ms
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - US
+  - New York
+  - Massachusetts
+  - Texas
+  - Utah
+  - Mississippi
+blurb: "Current K-12 spending per pupil, NCES Common Core of Data via the Urban Institute. The spread is wide and persistent — New York spends roughly three times what Utah does per student."
+tags: [education, fiscal]
