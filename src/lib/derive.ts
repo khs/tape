@@ -1,7 +1,7 @@
 import type { TimeSeriesData, TimeSeriesPoint } from "./data-types";
 import type { Formatting } from "./format";
 
-export type CombineOp = "divide" | "sum" | "diff";
+export type CombineOp = "divide" | "sum" | "diff" | "multiply";
 
 /**
  * Coarse semantic classification of a source's values. Distinct from
@@ -39,6 +39,7 @@ const OP_LABELS: Record<CombineOp, string> = {
   divide: "÷",
   sum: "+",
   diff: "−",
+  multiply: "×",
 };
 
 export function combineOpLabel(op: CombineOp): string {
@@ -181,6 +182,24 @@ export function combineOpFormatting(
     };
   }
 
+  if (op === "multiply") {
+    // rate × count → count. A rate is stored as a percent (×100), so undo
+    // that with a 0.01 multiplier: "31.0% share × 566,046 adults ≈ 175k
+    // with a degree". Result reads in the count's own formatting. (When the
+    // rate is multiplied by its OWN denominator, the composer substitutes
+    // the exact original count instead — see derivedFrom; this rule covers
+    // the general rate×count case where no substitution applies.)
+    const countFmt: Formatting = { style: "number", decimals: 0, notation: "compact" };
+    if (aClass === "rate" && bClass === "count") {
+      return { formatting: bFmt ?? countFmt, multiplier: 0.01 };
+    }
+    if (aClass === "count" && bClass === "rate") {
+      return { formatting: aFmt ?? countFmt, multiplier: 0.01 };
+    }
+    // General multiply: inherit A's formatting, raw product.
+    return { formatting: a, multiplier: 1 };
+  }
+
   // sum / diff: result inherits A's formatting (units typically match
   // for a sensible sum/diff anyway; mixed-class is the user's problem
   // to interpret). No multiplier rescale.
@@ -227,6 +246,8 @@ export function combineTwo(
       v = lastA / lastB;
     } else if (op === "sum") {
       v = lastA + lastB;
+    } else if (op === "multiply") {
+      v = lastA * lastB;
     } else {
       v = lastA - lastB;
     }

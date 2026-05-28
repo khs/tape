@@ -129,7 +129,7 @@ async function resolveSourceById(
         emphasis: "change" as const,
         provenance: {
           provider: "Derived",
-          notes: `${a.entry.data.shortName ?? a.entry.data.name} ${spec.op === "divide" ? "÷" : spec.op === "sum" ? "+" : "−"} ${b.entry.data.shortName ?? b.entry.data.name}`,
+          notes: `${a.entry.data.shortName ?? a.entry.data.name} ${spec.op === "divide" ? "÷" : spec.op === "sum" ? "+" : spec.op === "multiply" ? "×" : "−"} ${b.entry.data.shortName ?? b.entry.data.name}`,
         },
       },
     } as unknown as CollectionEntry<"sources">;

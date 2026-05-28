@@ -30,6 +30,52 @@ describe("combineOpLabel", () => {
     expect(combineOpLabel("divide")).toBe("÷");
     expect(combineOpLabel("sum")).toBe("+");
     expect(combineOpLabel("diff")).toBe("−");
+    expect(combineOpLabel("multiply")).toBe("×");
+  });
+});
+
+describe("combineTwo / combineOpFormatting — multiply", () => {
+  it("multiplies aligned points", () => {
+    const a = mkSeries("a", [{ t: "2020-01-01", v: 3 }, { t: "2020-02-01", v: 4 }]);
+    const b = mkSeries("b", [{ t: "2020-01-01", v: 10 }, { t: "2020-02-01", v: 5 }]);
+    expect(combineTwo(a, b, "multiply")).toEqual([
+      { t: "2020-01-01", v: 30 },
+      { t: "2020-02-01", v: 20 },
+    ]);
+  });
+
+  it("rate × count → count, undoing the percent ×100 (multiplier 0.01)", () => {
+    const r = combineOpFormatting(FMT_PERCENT, FMT_NUMBER, "multiply", "rate", "count");
+    expect(r.multiplier).toBe(0.01);
+    expect(r.formatting.style).toBe("number");
+    // order-independent
+    const r2 = combineOpFormatting(FMT_NUMBER, FMT_PERCENT, "multiply", "count", "rate");
+    expect(r2.multiplier).toBe(0.01);
+  });
+
+  it("general multiply (no rate/count pair) inherits A's formatting, no rescale", () => {
+    const r = combineOpFormatting(FMT_NUMBER, FMT_NUMBER, "multiply", "count", "count");
+    expect(r.multiplier).toBe(1);
+  });
+
+  // Substitution safety: a rate stored rounded to 1 dp, times its
+  // denominator, reconstructs the original count to within the rounding
+  // error — so the composer can substitute the EXACT original count source
+  // rather than recompute rate × denominator. Bound: the reconstruction is
+  // within half the rate's last digit of the denominator = 0.05% of denom.
+  it("rate × denominator reconstructs the count within rounding tolerance", () => {
+    const cases: [number, number][] = [
+      [175568, 566046], // VA-08 bachelor's
+      [135549, 566046], // VA-08 master's
+      [1, 7],
+      [99999, 100000],
+      [3, 1000003],
+    ];
+    for (const [num, denom] of cases) {
+      const rate = Math.round((num / denom) * 100 * 10) / 10; // 1-dp percent
+      const reconstructed = (rate / 100) * denom;
+      expect(Math.abs(reconstructed - num)).toBeLessThanOrEqual(0.0005 * denom + 1e-6);
+    }
   });
 });
 
