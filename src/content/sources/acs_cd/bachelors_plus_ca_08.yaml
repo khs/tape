@@ -1,6 +1,6 @@
-name: Adults 25+ with bachelor's degree — CA-08
+name: Adults 25+ with a bachelor's degree — CA-08
 shortName: CA-08 bachelors plus
-description: Adults 25+ with bachelor's degree for CA-08, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+description: Adults 25+ with a bachelor's degree for CA-08, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/bachelors_plus_ca_08.json
@@ -16,4 +16,8 @@ provenance:
   series: bachelors_plus
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
+tags:
+  - government
+  - us
 unitClass: count
+hidden: true

@@ -154,6 +154,13 @@ AGG_MEDIAN_DIST = "median_from_distribution"
 # values (e.g., B08303 travel time to work). Less stable-geo-accurate
 # than AGG_MEDIAN_DIST but doesn't need tract-level fetches.
 AGG_MEDIAN_CD_DIST = "median_from_cd_distribution"
+# Percentage = numerator / denominator * 100, both already-computed
+# indicators (referenced by out_id via numerator_id / denominator_id).
+# Computed after the base indicators each vintage; the numerator and
+# denominator MUST share a geo basis (both AGG_SUM, or both CD-level) so
+# the ratio is meaningful. The raw numerator can be kept internal
+# (emit=False) so only the percentage + denominator surface to users.
+AGG_PCT = "pct"
 
 
 @dataclass
@@ -173,6 +180,14 @@ class AcsVar:
     # get summed at fetch time. var_code is left blank in that case;
     # the sum becomes the indicator's value.
     sum_codes: list[str] = field(default_factory=list)
+    # For AGG_PCT: out_ids of the numerator and denominator indicators
+    # (both must be computed earlier this vintage, same geo basis).
+    numerator_id: str = ""
+    denominator_id: str = ""
+    # When False, the indicator is computed but NOT written as a user-
+    # facing series — used to keep a raw count internal as a percentage's
+    # numerator without surfacing it in the picker.
+    emit: bool = True
 
 
 # B19001 = Household Income in the Past 12 Months. Cells 002-017 are
@@ -277,10 +292,23 @@ INDICATORS = [
            "People in poverty", "people", 0, AGG_SUM),
     AcsVar("foreign_born", "B05002_013E",
            "Foreign-born population", "people", 0, AGG_SUM),
+    # Education: the raw degree counts stay emitted (derive_acs_state_from_cd,
+    # the choropleth pipeline, and the composer's "share × population" total
+    # reconstruction all need the underlying series), but they're marked
+    # hidden:true in the generated YAML so they don't clutter the picker.
+    # The user-facing indicators are "Adults 25+" + the two shares below.
     AcsVar("bachelors_plus", "B15003_022E",
-           "Adults 25+ with bachelor's degree", "people", 0, AGG_SUM),
+           "Adults 25+ with a bachelor's degree", "people", 0, AGG_SUM),
     AcsVar("masters_plus", "B15003_023E",
-           "Adults 25+ with master's degree", "people", 0, AGG_SUM),
+           "Adults 25+ with a master's degree", "people", 0, AGG_SUM),
+    AcsVar("adults_25plus", "B15003_001E",
+           "Adults 25+", "people", 0, AGG_SUM),
+    AcsVar("pct_bachelors", "",
+           "Adults 25+ with a bachelor's degree", "%", 1, AGG_PCT,
+           numerator_id="bachelors_plus", denominator_id="adults_25plus"),
+    AcsVar("pct_masters", "",
+           "Adults 25+ with a master's degree", "%", 1, AGG_PCT,
+           numerator_id="masters_plus", denominator_id="adults_25plus"),
     AcsVar("owner_occupied", "B25003_002E",
            "Owner-occupied housing units", "households", 0, AGG_SUM),
     AcsVar("renter_occupied", "B25003_003E",
@@ -708,6 +736,8 @@ def main() -> int:
     cd_single_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL]
     cd_sum_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL_SUM]
     cd_median_dist_indicators = [v for v in INDICATORS if v.agg == AGG_MEDIAN_CD_DIST]
+    pct_indicators = [v for v in INDICATORS if v.agg == AGG_PCT]
+    var_by_id = {v.out_id: v for v in INDICATORS}
     # All CD-level variable codes we need to fetch: the AGG_CD_LEVEL
     # single-var indicators, plus every cell referenced by AGG_CD_LEVEL_SUM
     # indicators, plus every bin cell from AGG_MEDIAN_CD_DIST indicators.
@@ -830,9 +860,24 @@ def main() -> int:
                     if med is not None:
                         cd_values[slug][v.out_id] = med
 
-        # Emit accumulated values into the main series accumulator
+        # Percentages: numerator / denominator * 100, both already computed
+        # this vintage (same geo basis). Skip when either is missing or the
+        # denominator is non-positive (avoids div-by-zero / nonsense shares).
+        for slug, values in cd_values.items():
+            for v in pct_indicators:
+                num = values.get(v.numerator_id)
+                den = values.get(v.denominator_id)
+                if num is not None and den and den > 0:
+                    values[v.out_id] = num / den * 100.0
+
+        # Emit accumulated values into the main series accumulator — but
+        # skip indicators flagged emit=False (raw counts kept only as
+        # percentage numerators).
         for slug, values in cd_values.items():
             for out_id, value in values.items():
+                var = var_by_id.get(out_id)
+                if var is not None and not var.emit:
+                    continue
                 series_accum[(out_id, slug)].append({"t": anchor, "v": value})
 
     # Single-CD states (AK, DE, ND, SD, VT, WY) and DC have one

@@ -1,0 +1,25 @@
+name: Share of adults 25+ with a master's degree — LA-02
+shortName: LA-02 master's degree share
+description: Share of adults 25+ with a master's degree for LA-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_masters_la_02.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_masters
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/masters_plus_la_02
+  denominator: acs_cd/adults_25plus_la_02
+  scale: 100

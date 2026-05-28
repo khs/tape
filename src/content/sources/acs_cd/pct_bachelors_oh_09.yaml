@@ -1,0 +1,25 @@
+name: Share of adults 25+ with a bachelor's degree — OH-09
+shortName: OH-09 bachelor's degree share
+description: Share of adults 25+ with a bachelor's degree for OH-09, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_bachelors_oh_09.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_bachelors
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/bachelors_plus_oh_09
+  denominator: acs_cd/adults_25plus_oh_09
+  scale: 100

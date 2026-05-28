@@ -1,0 +1,22 @@
+name: Adults 25+ — NY-25
+shortName: NY-25 adults 25+
+description: Adults 25+ for NY-25, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/adults_25plus_ny_25.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: adults_25plus
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

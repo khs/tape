@@ -86,6 +86,20 @@ const sources = defineCollection({
     // deleting the data files, breaking any saved dashboard, or
     // pruning git history. Set to true via YAML.
     hidden: z.boolean().optional(),
+    // Reconstruction metadata for a rate series derived as
+    // numerator / denominator * scale (e.g. a share = count / universe * 100).
+    // Lets the composer's custom-source maker (a) auto-suggest the right
+    // multiplier — the denominator — to turn the rate back into a total, and
+    // (b) substitute the exact original `numerator` source instead of
+    // recomputing rate * denominator / scale (which drifts because the rate
+    // is stored rounded). Both ids are full source ids ("acs_cd/<series>").
+    derivedFrom: z
+      .object({
+        numerator: z.string(),
+        denominator: z.string(),
+        scale: z.number().default(1),
+      })
+      .optional(),
   }),
 });
 

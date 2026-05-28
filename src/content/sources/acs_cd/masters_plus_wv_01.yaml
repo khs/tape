@@ -1,6 +1,6 @@
-name: Adults 25+ with master's degree — WV-01
+name: Adults 25+ with a master's degree — WV-01
 shortName: WV-01 masters plus
-description: Adults 25+ with master's degree for WV-01, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+description: Adults 25+ with a master's degree for WV-01, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/masters_plus_wv_01.json
@@ -20,3 +20,4 @@ tags:
   - government
   - us
 unitClass: count
+hidden: true

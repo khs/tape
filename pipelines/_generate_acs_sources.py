@@ -77,10 +77,44 @@ INDICATORS = [
         "agg": "sum",
         "extra_tags": [],
     },
+    # Education attainment as shares. The raw degree counts stay (the
+    # choropleth + state-derivation infra and the composer's total-
+    # reconstruction need them) but are hidden:true so the picker shows
+    # the denominator "Adults 25+" + the two shares instead. The shares
+    # carry derivedFrom metadata so the composer can offer "× Adults 25+"
+    # to rebuild a total and substitute the exact count source.
     {
         "out_id": "bachelors_plus",
-        "name_prefix": "Adults 25+ with bachelor's degree",
+        "name_prefix": "Adults 25+ with a bachelor's degree",
         "short_suffix": "bachelors plus",
+        "unit": "people",
+        "unit_class": "count",
+        "fmt_style": "number",
+        "decimals": 0,
+        "notation": "compact",
+        "table": "B15003",
+        "agg": "sum",
+        "extra_tags": [],
+        "hidden": True,
+    },
+    {
+        "out_id": "masters_plus",
+        "name_prefix": "Adults 25+ with a master's degree",
+        "short_suffix": "masters plus",
+        "unit": "people",
+        "unit_class": "count",
+        "fmt_style": "number",
+        "decimals": 0,
+        "notation": "compact",
+        "table": "B15003",
+        "agg": "sum",
+        "extra_tags": [],
+        "hidden": True,
+    },
+    {
+        "out_id": "adults_25plus",
+        "name_prefix": "Adults 25+",
+        "short_suffix": "adults 25+",
         "unit": "people",
         "unit_class": "count",
         "fmt_style": "number",
@@ -91,17 +125,32 @@ INDICATORS = [
         "extra_tags": [],
     },
     {
-        "out_id": "masters_plus",
-        "name_prefix": "Adults 25+ with master's degree",
-        "short_suffix": "masters plus",
-        "unit": "people",
-        "unit_class": "count",
-        "fmt_style": "number",
-        "decimals": 0,
-        "notation": "compact",
+        "out_id": "pct_bachelors",
+        "name_prefix": "Share of adults 25+ with a bachelor's degree",
+        "short_suffix": "bachelor's degree share",
+        "unit": "%",
+        "unit_class": "rate",
+        "fmt_style": "percent",
+        "decimals": 1,
         "table": "B15003",
-        "agg": "sum",
+        "agg": "pct",
         "extra_tags": [],
+        "numerator": "bachelors_plus",
+        "denominator": "adults_25plus",
+    },
+    {
+        "out_id": "pct_masters",
+        "name_prefix": "Share of adults 25+ with a master's degree",
+        "short_suffix": "master's degree share",
+        "unit": "%",
+        "unit_class": "rate",
+        "fmt_style": "percent",
+        "decimals": 1,
+        "table": "B15003",
+        "agg": "pct",
+        "extra_tags": [],
+        "numerator": "masters_plus",
+        "denominator": "adults_25plus",
     },
     {
         "out_id": "owner_occupied",
@@ -420,7 +469,9 @@ def description_for(ind: dict, slug: str) -> str:
         in effect that year.
     """
     display = slug_to_display(slug)
-    if ind["agg"] in ("sum", "median_dist"):
+    # "pct" rides the same stable 118th-Congress geo as its AGG_SUM
+    # numerator/denominator, so it gets the held-constant-boundaries wording.
+    if ind["agg"] in ("sum", "median_dist", "pct"):
         return (
             f"{ind['name_prefix']} for {display}, on 2023 (118th Congress) "
             f"congressional-district boundaries held constant across years. "
@@ -448,7 +499,9 @@ def render_yaml(ind: dict, slug: str) -> str:
         "pipeline: acs_cd",
         f"dataFile: data/acs_cd/{ind['out_id']}_{slug}.json",
         'supportedDeltas: ["5y", "10y"]',
-        f"unit: {ind['unit']}",
+        # Quote units that aren't a plain word — e.g. "%", which YAML treats
+        # as a reserved directive indicator and js-yaml (astro) rejects bare.
+        f'unit: "{ind["unit"]}"' if not ind["unit"].isalnum() else f"unit: {ind['unit']}",
         "formatting:",
         f"  style: {ind['fmt_style']}",
     ]
@@ -468,6 +521,16 @@ def render_yaml(ind: dict, slug: str) -> str:
         lines.append(f"  - {tag}")
     if ind.get("unit_class"):
         lines.append(f"unitClass: {ind['unit_class']}")
+    if ind.get("hidden"):
+        lines.append("hidden: true")
+    # Rate series: link back to the count + universe it's derived from so
+    # the composer can offer "× Adults 25+" and substitute the exact count.
+    # Stored as a percent (num / denom * 100), hence scale: 100.
+    if ind.get("numerator") and ind.get("denominator"):
+        lines.append("derivedFrom:")
+        lines.append(f"  numerator: acs_cd/{ind['numerator']}_{slug}")
+        lines.append(f"  denominator: acs_cd/{ind['denominator']}_{slug}")
+        lines.append("  scale: 100")
     return "\n".join(lines) + "\n"
 
 
