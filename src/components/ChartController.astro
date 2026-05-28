@@ -1207,6 +1207,37 @@
     return { visible, startMs };
   }
 
+  /**
+   * Stop a tile sparkline's hover crosshair from getting stuck on the tile.
+   *
+   * Observable Plot's pointer interaction (Plot.pointerX, used by the tile
+   * tip) makes the tip "sticky" on pointerdown: a click sets an internal
+   * `state.sticky = true`, after which pointermove early-returns and
+   * pointerleave is a no-op (see node_modules/@observablehq/plot/src/
+   * interactions/pointer.js — pointerdown ~L164, pointerleave ~L173). On a
+   * tile the click is OURS (it opens the dialog), so every tile click
+   * silently flips Plot into sticky mode and freezes the crosshair — moving
+   * the mouse away can no longer clear it.
+   *
+   * We swallow pointerdown on the spark container in the CAPTURE phase so it
+   * never reaches Plot's SVG listener; the tip therefore never goes sticky
+   * and the ordinary mouse pointerleave clears it as designed. The separate
+   * `click` event still fires (stopPropagation ≠ preventDefault) and bubbles
+   * to the tile's open-dialog handler untouched. Guarded so re-renders
+   * (window-pill switches re-run this) don't stack listeners; attached to
+   * the persistent container, not the SVG that replaceChildren swaps out.
+   */
+  function suppressSparkSticky(container: HTMLElement): void {
+    const c = container as HTMLElement & { _tapeStickyGuard?: boolean };
+    if (c._tapeStickyGuard) return;
+    c._tapeStickyGuard = true;
+    container.addEventListener(
+      "pointerdown",
+      (e) => e.stopPropagation(),
+      { capture: true },
+    );
+  }
+
   function renderSparkSingle(
     container: HTMLElement,
     source: SourcePayload,
@@ -1214,6 +1245,7 @@
     fixed?: { start: string; end: string },
     shading?: ShadingKey[],
   ): void {
+    suppressSparkSticky(container);
     // tileSparkPoints handles both summary (precomputed) and full (live
     // slice) modes — the returned array is already trimmed to the window.
     const visible = tileSparkPoints(source, window, fixed);
@@ -1303,6 +1335,7 @@
     payload: Payload,
     window: DeltaWindow,
   ): void {
+    suppressSparkSticky(container);
     const fixed = payload.fixedRange;
     const width = container.clientWidth || 220;
     // Spark height is driven by CSS (.chart-tile-multi[data-series-count])
