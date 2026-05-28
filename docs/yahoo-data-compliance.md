@@ -102,6 +102,20 @@ So paying $50–500/month doesn't actually solve "can I show this data on a publ
 
 This is roughly the same trap that caught FRED's third-party series: the "you can pay to license this" path exists but costs serious money + isn't unlocked by hobbyist-tier subscriptions.
 
+## Takedown-response posture
+
+The gray-zone position is defensible because it's paired with a fast, no-questions takedown response. Keller's stated operating principle:
+
+> A reasonably likely outcome is that I'm asked to stop, and if asked to stop I will, and I think people have to be active assholes to do more than that if I'm appropriately polite and responsive after doing something that was in a grey zone.
+
+Operationally, this means:
+
+- The `/terms/` page has a "Data takedown / removal requests" section pointing at `keller.scholl@gmail.com` with a one-business-week target.
+- A data provider who asks us to remove their series gets the data removed within that window. No demand for justification, no attempt to negotiate, no requirement that they invoke counsel — a polite email is enough.
+- The same applies to attribution / citation corrections.
+
+This posture is what distinguishes the Yahoo gray-zone position from "ask forgiveness not permission as a tactic." It's good-faith use that respects the data provider's right to say no, with friction-free compliance when they exercise it. If Cboe ever specifically tells us to stop showing VIX-from-Yahoo, we stop. Until that happens, the position is consistent across all our Yahoo data.
+
 ## Why I'm not just removing all Yahoo data
 
 It would be consistent with the FRED-third-party stance, but the symmetry breaks because:
