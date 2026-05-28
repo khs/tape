@@ -528,6 +528,18 @@ export const pageTests: DiagnosticTest[] = [
           { id: chosenId, bodyLength: r.body.length },
         );
       }
+      // Regression guard (2026-05-28): the citation block must emit an
+      // ABSOLUTE retrieval URL ("Retrieved … from https://…/source/<id>/"),
+      // never the bare relative "from /source/<id>/" — a relative citation
+      // is useless once pasted into a memo or Substack post. canonicalOrigin
+      // (src/lib/site.ts) supplies the origin; this catches a regression
+      // where the page reverts to BASE_URL-only concatenation.
+      if (r.body.includes(`from /source/${chosenId}/`)) {
+        return fail(
+          "source page citation URL is relative (missing site origin)",
+          { id: chosenId },
+        );
+      }
       return pass(
         `${chosenId} (${(r.body.length / 1024).toFixed(1)}KB)`,
         { sourceId: chosenId, bodyLength: r.body.length },

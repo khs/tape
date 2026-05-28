@@ -3,6 +3,7 @@ import "@fontsource-variable/inter";
 import "../styles/global.css";
 import EmailSignup from "../components/EmailSignup.astro";
 import { SITE_BRAND_NAME } from "../lib/brand";
+import { canonicalOrigin } from "../lib/site";
 
 interface Props {
   title: string;
@@ -21,9 +22,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // Build the absolute URL the social-card crawler will hit. Astro.site is
 // configured in production; in dev we fall back to the request origin so
-// previews work locally too.
-const siteOrigin =
-  Astro.site?.toString().replace(/\/$/, "") ?? Astro.url.origin;
+// previews work locally too. (Shared with the per-source citation block
+// via canonicalOrigin so both resolve the same way.)
+const siteOrigin = canonicalOrigin(Astro);
 const resolvedOgPath = ogImage ?? "/og.png?title=Legible+Markets";
 const absoluteOgUrl = siteOrigin + resolvedOgPath;
 const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;

@@ -33,6 +33,7 @@ import type { TimeSeriesData } from "../../lib/data-types";
 import { encodeComposedState } from "../../lib/composer-state";
 import { isVisibleChart } from "../../lib/resolve-dashboard";
 import type { CitationInput } from "../../lib/citation";
+import { canonicalOrigin } from "../../lib/site";
 
 // Server-rendered per request rather than statically generated. We
 // ship ~21,000 sources (~17,000 ACS-by-CD variants alone); generating
@@ -45,6 +46,10 @@ export const prerender = false;
 
 const sourceId = Astro.params.id ?? "";
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+// Absolute site origin (https://tape.io in prod, request origin in dev).
+// The citation block and JSON-LD need ABSOLUTE URLs — a copied citation
+// reading "Retrieved … from /source/<id>/" is useless off-site.
+const siteOrigin = canonicalOrigin(Astro);
 
 const sources = await getCollection("sources");
 const source = sources.find((s) => s.id === sourceId) ?? null;
@@ -117,7 +122,7 @@ if (source) {
 const today = new Date().toISOString().slice(0, 10);
 
 const provenance = source?.data.provenance;
-const canonicalUrl = `${baseUrl}/source/${sourceId}/`;
+const canonicalUrl = `${siteOrigin}${baseUrl}/source/${sourceId}/`;
 const citation: CitationInput | null = source
   ? {
       title: source.data.name,
@@ -164,7 +169,7 @@ const datasetSchema = source
       variableMeasured: source.data.unit,
       distribution: {
         "@type": "DataDownload",
-        contentUrl: `${baseUrl}/${source.data.dataFile}`,
+        contentUrl: `${siteOrigin}${baseUrl}/${source.data.dataFile}`,
         encodingFormat: "application/json",
       },
     }
