@@ -69,10 +69,7 @@ INDEX_FAMILIES: dict[str, dict] = {
         "describe": (
             "Zillow Home Value Index (ZHVI) — typical home value (35th–65th "
             "percentile band, single-family + condo, smoothed seasonally "
-            "adjusted). Monthly back to January 2000. Zillow's most-cited "
-            "house-price series and an alternative to the Case-Shiller "
-            "index — broader geographic coverage (every ZIP code), faster "
-            "release cadence, less smoothed at the local level."
+            "adjusted). Monthly back to January 2000."
         ),
     },
     "zori": {
@@ -86,9 +83,7 @@ INDEX_FAMILIES: dict[str, dict] = {
         "describe": (
             "Zillow Observed Rent Index (ZORI) — typical observed market-"
             "rate rent across a region, repeat-rent index weighted to the "
-            "rental housing stock. Monthly back to January 2015. Catches "
-            "asking-rent changes ~12 months earlier than CPI Shelter, "
-            "which uses contract rent + a slow-rolling renewal weight."
+            "rental housing stock. Monthly back to January 2015."
         ),
     },
 }

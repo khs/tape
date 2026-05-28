@@ -1,7 +1,6 @@
 name: Zillow Home Value Index — Miami, FL
 shortName: Miami ZHVI
-description: |
-  Zillow Home Value Index (ZHVI) — typical home value (35th–65th percentile band, single-family + condo, smoothed seasonally adjusted). Monthly back to January 2000. Zillow's most-cited house-price series and an alternative to the Case-Shiller index — broader geographic coverage (every ZIP code), faster release cadence, less smoothed at the local level.
+description: Zillow Home Value Index (ZHVI) — typical home value (35th–65th percentile band, single-family + condo, smoothed seasonally adjusted). Monthly back to January 2000.
 kind: timeseries
 pipeline: zillow
 dataFile: data/zillow/zhvi_miami.json

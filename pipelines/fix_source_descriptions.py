@@ -121,6 +121,13 @@ _CPI_YOY_DESC = (
     "Monthly, available since 1948."
 )
 
+# Zillow ZHVI/ZORI descriptions end with an editorial comparison sentence
+# (vs Case-Shiller / CPI Shelter) — coverage, cadence, smoothing. Cut from
+# that sentence to the end (DOTALL spans the literal-block trailing newline).
+_ZILLOW_TAIL = re.compile(
+    r"\.\s+(?:Zillow's most-cited|Catches asking-rent).*", re.S
+)
+
 
 def clean_description(provider: str, path: Path, doc: dict, desc: str) -> str:
     name = str(doc.get("name", "") or "")
@@ -159,6 +166,12 @@ def clean_description(provider: str, path: Path, doc: dict, desc: str) -> str:
             desc,
         )
         return expand_acronyms(name, desc)
+
+    if provider == "zillow":
+        # Drop the editorial comparison tail (vs Case-Shiller / CPI Shelter:
+        # coverage / cadence / smoothing) — a reader looking at the figure
+        # wants what it measures, not why it beats alternatives.
+        return _ZILLOW_TAIL.sub(".", desc, count=1).strip()
 
     # Everything else (fred, oecd, yahoo, cbo, ssa, …): acronym expansion only.
     return expand_acronyms(name, desc)

@@ -1,7 +1,6 @@
 name: Zillow Observed Rent Index — Philadelphia, PA
 shortName: Philadelphia ZORI
-description: |
-  Zillow Observed Rent Index (ZORI) — typical observed market-rate rent across a region, repeat-rent index weighted to the rental housing stock. Monthly back to January 2015. Catches asking-rent changes ~12 months earlier than CPI Shelter, which uses contract rent + a slow-rolling renewal weight.
+description: Zillow Observed Rent Index (ZORI) — typical observed market-rate rent across a region, repeat-rent index weighted to the rental housing stock. Monthly back to January 2015.
 kind: timeseries
 pipeline: zillow
 dataFile: data/zillow/zori_philadelphia.json
