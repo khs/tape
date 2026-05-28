@@ -343,6 +343,159 @@ SPECS: list[FredSpec] = [
         ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"),
         ("WV", "West Virginia"), ("WI", "Wisconsin"), ("WY", "Wyoming"),
     ]],
+    # Per-state government employment, 4 categories × 51 entities
+    # (50 states + DC) = 204 series. Federal / state-govt / local-
+    # govt employees use the SMS-prefixed BLS SAES IDs; total uses
+    # the friendly {ABBR}GOVT alias.
+    #
+    # Why this is on the margin and not in the headline dashboards:
+    # geographic detail is gated behind the SourcePicker's state
+    # chip + the geo-tag synthesis in library.json — the default
+    # browse experience doesn't surface these, only users who
+    # engage the state chip see them.
+    *[
+        FredSpec(f"{abbr}GOVT", f"{name} government employment, total", "thousands of persons")
+        for abbr, fips, name in [
+            ("AL", "01", "Alabama"), ("AK", "02", "Alaska"),
+            ("AZ", "04", "Arizona"), ("AR", "05", "Arkansas"),
+            ("CA", "06", "California"), ("CO", "08", "Colorado"),
+            ("CT", "09", "Connecticut"), ("DE", "10", "Delaware"),
+            ("DC", "11", "District of Columbia"),
+            ("FL", "12", "Florida"), ("GA", "13", "Georgia"),
+            ("HI", "15", "Hawaii"), ("ID", "16", "Idaho"),
+            ("IL", "17", "Illinois"), ("IN", "18", "Indiana"),
+            ("IA", "19", "Iowa"), ("KS", "20", "Kansas"),
+            ("KY", "21", "Kentucky"), ("LA", "22", "Louisiana"),
+            ("ME", "23", "Maine"), ("MD", "24", "Maryland"),
+            ("MA", "25", "Massachusetts"), ("MI", "26", "Michigan"),
+            ("MN", "27", "Minnesota"), ("MS", "28", "Mississippi"),
+            ("MO", "29", "Missouri"), ("MT", "30", "Montana"),
+            ("NE", "31", "Nebraska"), ("NV", "32", "Nevada"),
+            ("NH", "33", "New Hampshire"), ("NJ", "34", "New Jersey"),
+            ("NM", "35", "New Mexico"), ("NY", "36", "New York"),
+            ("NC", "37", "North Carolina"), ("ND", "38", "North Dakota"),
+            ("OH", "39", "Ohio"), ("OK", "40", "Oklahoma"),
+            ("OR", "41", "Oregon"), ("PA", "42", "Pennsylvania"),
+            ("RI", "44", "Rhode Island"), ("SC", "45", "South Carolina"),
+            ("SD", "46", "South Dakota"), ("TN", "47", "Tennessee"),
+            ("TX", "48", "Texas"), ("UT", "49", "Utah"),
+            ("VT", "50", "Vermont"), ("VA", "51", "Virginia"),
+            ("WA", "53", "Washington"), ("WV", "54", "West Virginia"),
+            ("WI", "55", "Wisconsin"), ("WY", "56", "Wyoming"),
+        ]
+    ],
+    # Federal / State / Local government employees per state.
+    # Same state list as above but emitted via 3 inner comprehensions
+    # to keep the source-list compact + so the iteration order
+    # groups all 51 states for each tier together (better cache
+    # locality during pipeline runs).
+    *[
+        FredSpec(
+            f"SMS{fips}000009091000001",
+            f"Federal government employment in {name}",
+            "thousands of persons",
+        )
+        for abbr, fips, name in [
+            ("AL","01","Alabama"),("AK","02","Alaska"),("AZ","04","Arizona"),
+            ("AR","05","Arkansas"),("CA","06","California"),("CO","08","Colorado"),
+            ("CT","09","Connecticut"),("DE","10","Delaware"),("DC","11","District of Columbia"),
+            ("FL","12","Florida"),("GA","13","Georgia"),("HI","15","Hawaii"),
+            ("ID","16","Idaho"),("IL","17","Illinois"),("IN","18","Indiana"),
+            ("IA","19","Iowa"),("KS","20","Kansas"),("KY","21","Kentucky"),
+            ("LA","22","Louisiana"),("ME","23","Maine"),("MD","24","Maryland"),
+            ("MA","25","Massachusetts"),("MI","26","Michigan"),("MN","27","Minnesota"),
+            ("MS","28","Mississippi"),("MO","29","Missouri"),("MT","30","Montana"),
+            ("NE","31","Nebraska"),("NV","32","Nevada"),("NH","33","New Hampshire"),
+            ("NJ","34","New Jersey"),("NM","35","New Mexico"),("NY","36","New York"),
+            ("NC","37","North Carolina"),("ND","38","North Dakota"),("OH","39","Ohio"),
+            ("OK","40","Oklahoma"),("OR","41","Oregon"),("PA","42","Pennsylvania"),
+            ("RI","44","Rhode Island"),("SC","45","South Carolina"),("SD","46","South Dakota"),
+            ("TN","47","Tennessee"),("TX","48","Texas"),("UT","49","Utah"),
+            ("VT","50","Vermont"),("VA","51","Virginia"),("WA","53","Washington"),
+            ("WV","54","West Virginia"),("WI","55","Wisconsin"),("WY","56","Wyoming"),
+        ]
+    ],
+    *[
+        FredSpec(
+            f"SMS{fips}000009092000001",
+            f"State government employment in {name}",
+            "thousands of persons",
+        )
+        for abbr, fips, name in [
+            ("AL","01","Alabama"),("AK","02","Alaska"),("AZ","04","Arizona"),
+            ("AR","05","Arkansas"),("CA","06","California"),("CO","08","Colorado"),
+            ("CT","09","Connecticut"),("DE","10","Delaware"),("DC","11","District of Columbia"),
+            ("FL","12","Florida"),("GA","13","Georgia"),("HI","15","Hawaii"),
+            ("ID","16","Idaho"),("IL","17","Illinois"),("IN","18","Indiana"),
+            ("IA","19","Iowa"),("KS","20","Kansas"),("KY","21","Kentucky"),
+            ("LA","22","Louisiana"),("ME","23","Maine"),("MD","24","Maryland"),
+            ("MA","25","Massachusetts"),("MI","26","Michigan"),("MN","27","Minnesota"),
+            ("MS","28","Mississippi"),("MO","29","Missouri"),("MT","30","Montana"),
+            ("NE","31","Nebraska"),("NV","32","Nevada"),("NH","33","New Hampshire"),
+            ("NJ","34","New Jersey"),("NM","35","New Mexico"),("NY","36","New York"),
+            ("NC","37","North Carolina"),("ND","38","North Dakota"),("OH","39","Ohio"),
+            ("OK","40","Oklahoma"),("OR","41","Oregon"),("PA","42","Pennsylvania"),
+            ("RI","44","Rhode Island"),("SC","45","South Carolina"),("SD","46","South Dakota"),
+            ("TN","47","Tennessee"),("TX","48","Texas"),("UT","49","Utah"),
+            ("VT","50","Vermont"),("VA","51","Virginia"),("WA","53","Washington"),
+            ("WV","54","West Virginia"),("WI","55","Wisconsin"),("WY","56","Wyoming"),
+        ]
+    ],
+    *[
+        FredSpec(
+            f"SMS{fips}000009093000001",
+            f"Local government employment in {name}",
+            "thousands of persons",
+        )
+        for abbr, fips, name in [
+            ("AL","01","Alabama"),("AK","02","Alaska"),("AZ","04","Arizona"),
+            ("AR","05","Arkansas"),("CA","06","California"),("CO","08","Colorado"),
+            ("CT","09","Connecticut"),("DE","10","Delaware"),("DC","11","District of Columbia"),
+            ("FL","12","Florida"),("GA","13","Georgia"),("HI","15","Hawaii"),
+            ("ID","16","Idaho"),("IL","17","Illinois"),("IN","18","Indiana"),
+            ("IA","19","Iowa"),("KS","20","Kansas"),("KY","21","Kentucky"),
+            ("LA","22","Louisiana"),("ME","23","Maine"),("MD","24","Maryland"),
+            ("MA","25","Massachusetts"),("MI","26","Michigan"),("MN","27","Minnesota"),
+            ("MS","28","Mississippi"),("MO","29","Missouri"),("MT","30","Montana"),
+            ("NE","31","Nebraska"),("NV","32","Nevada"),("NH","33","New Hampshire"),
+            ("NJ","34","New Jersey"),("NM","35","New Mexico"),("NY","36","New York"),
+            ("NC","37","North Carolina"),("ND","38","North Dakota"),("OH","39","Ohio"),
+            ("OK","40","Oklahoma"),("OR","41","Oregon"),("PA","42","Pennsylvania"),
+            ("RI","44","Rhode Island"),("SC","45","South Carolina"),("SD","46","South Dakota"),
+            ("TN","47","Tennessee"),("TX","48","Texas"),("UT","49","Utah"),
+            ("VT","50","Vermont"),("VA","51","Virginia"),("WA","53","Washington"),
+            ("WV","54","West Virginia"),("WI","55","Wisconsin"),("WY","56","Wyoming"),
+        ]
+    ],
+    # Per-state total tax collections (Census Quarterly Summary of
+    # State + Local Government Tax Revenue, redistributed via FRED).
+    # Quarterly; the revenue-side complement to govt employment.
+    # Census Govt-Finances expenditure detail (state + local
+    # spending by function) isn't on FRED at the state level — that
+    # would need a direct Census API pipeline as a follow-up.
+    *[
+        FredSpec(
+            f"QTAXTOTALQTAXCAT3{abbr}NO",
+            f"State + local total tax collections, {name}",
+            "thousands USD",
+        )
+        for abbr, name in [
+            ("AL","Alabama"),("AK","Alaska"),("AZ","Arizona"),("AR","Arkansas"),
+            ("CA","California"),("CO","Colorado"),("CT","Connecticut"),("DE","Delaware"),
+            ("DC","District of Columbia"),("FL","Florida"),("GA","Georgia"),
+            ("HI","Hawaii"),("ID","Idaho"),("IL","Illinois"),("IN","Indiana"),
+            ("IA","Iowa"),("KS","Kansas"),("KY","Kentucky"),("LA","Louisiana"),
+            ("ME","Maine"),("MD","Maryland"),("MA","Massachusetts"),("MI","Michigan"),
+            ("MN","Minnesota"),("MS","Mississippi"),("MO","Missouri"),("MT","Montana"),
+            ("NE","Nebraska"),("NV","Nevada"),("NH","New Hampshire"),("NJ","New Jersey"),
+            ("NM","New Mexico"),("NY","New York"),("NC","North Carolina"),("ND","North Dakota"),
+            ("OH","Ohio"),("OK","Oklahoma"),("OR","Oregon"),("PA","Pennsylvania"),
+            ("RI","Rhode Island"),("SC","South Carolina"),("SD","South Dakota"),
+            ("TN","Tennessee"),("TX","Texas"),("UT","Utah"),("VT","Vermont"),
+            ("VA","Virginia"),("WA","Washington"),("WV","West Virginia"),
+            ("WI","Wisconsin"),("WY","Wyoming"),
+        ]
+    ],
 ]
 
 

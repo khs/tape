@@ -3,7 +3,7 @@
   "name": "FHFA all-transactions HPI, DC-MSA",
   "kind": "timeseries",
   "unit": "index",
-  "lastUpdated": "2026-05-27T21:50:09Z",
+  "lastUpdated": "2026-05-28T02:11:22Z",
   "points": [
     {
       "t": "1975-07-01",

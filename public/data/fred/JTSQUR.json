@@ -3,7 +3,7 @@
   "name": "Quits rate (JOLTS)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-27T21:49:36Z",
+  "lastUpdated": "2026-05-28T02:11:00Z",
   "points": [
     {
       "t": "2000-12-01",

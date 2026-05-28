@@ -3,7 +3,7 @@
   "name": "US 2-year Treasury yield",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-27T21:48:28Z",
+  "lastUpdated": "2026-05-28T02:10:13Z",
   "points": [
     {
       "t": "1976-06-01",

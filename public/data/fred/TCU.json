@@ -3,7 +3,7 @@
   "name": "Capacity utilization (total industry)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-27T21:48:56Z",
+  "lastUpdated": "2026-05-28T02:10:30Z",
   "points": [
     {
       "t": "1967-01-01",

@@ -3,7 +3,7 @@
   "name": "NBER recession indicator",
   "kind": "timeseries",
   "unit": "binary",
-  "lastUpdated": "2026-05-27T21:49:40Z",
+  "lastUpdated": "2026-05-28T02:11:03Z",
   "points": [
     {
       "t": "1854-12-01",

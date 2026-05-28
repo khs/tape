@@ -3,7 +3,7 @@
   "name": "St. Louis Fed Financial Stress Index",
   "kind": "timeseries",
   "unit": "index (z-score)",
-  "lastUpdated": "2026-05-27T21:49:59Z",
+  "lastUpdated": "2026-05-28T02:11:16Z",
   "points": [
     {
       "t": "1993-12-31",

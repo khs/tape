@@ -1,0 +1,25 @@
+name: 'State government employment in Indiana'
+shortName: 'IN state govt'
+description: 'Employees of Indiana''s state government (BLS SAES). Higher education, corrections, transportation, and regulatory agencies typically dominate. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/SMS18000009092000001.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "thousands of persons"
+emphasis: level
+formatting:
+  style: number
+  decimals: 1
+  notation: compact
+provenance:
+  provider: U.S. Bureau of Labor Statistics (BLS) via FRED
+  series: SMS18000009092000001
+  url: https://fred.stlouisfed.org/series/SMS18000009092000001
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - labor
+  - government
+  - us-state
+  - us
+unitClass: count

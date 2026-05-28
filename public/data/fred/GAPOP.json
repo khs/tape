@@ -3,7 +3,7 @@
   "name": "Georgia population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:50:22Z",
+  "lastUpdated": "2026-05-28T02:11:32Z",
   "points": [
     {
       "t": "1900-01-01",

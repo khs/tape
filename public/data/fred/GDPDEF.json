@@ -3,7 +3,7 @@
   "name": "GDP price deflator",
   "kind": "timeseries",
   "unit": "index (2017=100)",
-  "lastUpdated": "2026-05-27T21:49:55Z",
+  "lastUpdated": "2026-05-28T02:11:13Z",
   "points": [
     {
       "t": "1947-01-01",

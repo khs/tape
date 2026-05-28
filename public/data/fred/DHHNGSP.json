@@ -3,7 +3,7 @@
   "name": "Henry Hub natural gas spot",
   "kind": "timeseries",
   "unit": "USD/mmbtu",
-  "lastUpdated": "2026-05-27T21:48:39Z",
+  "lastUpdated": "2026-05-28T02:10:21Z",
   "points": [
     {
       "t": "1997-01-07",

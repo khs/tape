@@ -3,7 +3,7 @@
   "name": "Missouri population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:50:50Z",
+  "lastUpdated": "2026-05-28T02:11:42Z",
   "points": [
     {
       "t": "1900-01-01",

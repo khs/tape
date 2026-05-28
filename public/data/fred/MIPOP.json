@@ -3,7 +3,7 @@
   "name": "Michigan population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-27T21:50:45Z",
+  "lastUpdated": "2026-05-28T02:11:41Z",
   "points": [
     {
       "t": "1900-01-01",

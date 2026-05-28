@@ -3,7 +3,7 @@
   "name": "Federal interest payments",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-05-27T21:49:46Z",
+  "lastUpdated": "2026-05-28T02:11:08Z",
   "points": [
     {
       "t": "1947-01-01",

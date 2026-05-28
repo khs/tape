@@ -1,0 +1,26 @@
+name: 'State + local total tax collections, South Carolina'
+shortName: 'SC tax rev'
+description: 'Quarterly state + local tax revenue for South Carolina (Census Quarterly Summary of State + Local Tax Revenue, redistributed via FRED). Income tax + sales tax + property tax + other; total. Revenue-side complement to government employment. Public-domain Census data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/QTAXTOTALQTAXCAT3SCNO.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "thousands USD"
+emphasis: level
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+  scaleFactor: 1000
+provenance:
+  provider: U.S. Census Bureau via FRED
+  series: QTAXTOTALQTAXCAT3SCNO
+  url: https://fred.stlouisfed.org/series/QTAXTOTALQTAXCAT3SCNO
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - government
+  - tax
+  - us-state
+  - us
+unitClass: currency

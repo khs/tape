@@ -1,0 +1,25 @@
+name: 'Federal government employment in Kentucky'
+shortName: 'KY federal govt'
+description: 'Federal civilian employees working in Kentucky, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED. Surfaced on the SourcePicker''s state chip; doesn''t appear in the default browse view.'
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/SMS21000009091000001.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "thousands of persons"
+emphasis: level
+formatting:
+  style: number
+  decimals: 1
+  notation: compact
+provenance:
+  provider: U.S. Bureau of Labor Statistics (BLS) via FRED
+  series: SMS21000009091000001
+  url: https://fred.stlouisfed.org/series/SMS21000009091000001
+  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+tags:
+  - macro
+  - labor
+  - government
+  - us-state
+  - us
+unitClass: count
