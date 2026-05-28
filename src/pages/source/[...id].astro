@@ -167,11 +167,11 @@ const datasetSchema = source
       creator: { "@type": "Organization", name: provenance?.provider ?? "Unknown" },
       temporalCoverage: dataStartIso && dataEndIso ? `${dataStartIso}/${dataEndIso}` : undefined,
       variableMeasured: source.data.unit,
-      distribution: {
-        "@type": "DataDownload",
-        contentUrl: `${siteOrigin}${baseUrl}/${source.data.dataFile}`,
-        encodingFormat: "application/json",
-      },
+      // Deliberately NO `distribution` / DataDownload. Advertising the raw
+      // JSON as a downloadable distribution invites scraping and implies the
+      // files are free-to-grab public documents — they carry no license or
+      // attribution metadata, so we don't present them that way. The chart UI
+      // still fetches them at render time; we just don't link or list them.
     }
   : null;
 
@@ -317,17 +317,10 @@ const frequency = source ? inferFrequency(source.data.supportedDeltas as string[
                 {provenance?.license ?? <em>Not specified.</em>}
               </span>
             </div>
-            <div class="source-detail-row">
-              <span class="source-detail-label">Data file</span>
-              <span class="source-detail-value">
-                <a
-                  href={`${baseUrl}/${source.data.dataFile}`}
-                  class="source-detail-link mono"
-                >
-                  /{source.data.dataFile} &rarr;
-                </a>
-              </span>
-            </div>
+            {/* The raw data-file path is intentionally NOT surfaced or
+                linked here — see the JSON-LD note above. Provenance is
+                covered by Provider / Series ID / Upstream URL; the backing
+                JSON is an app fetch target, not a public-facing download. */}
             {provenance?.notes && (
               <div class="source-detail-row">
                 <span class="source-detail-label">Notes</span>
