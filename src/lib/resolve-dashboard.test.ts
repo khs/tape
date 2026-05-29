@@ -403,3 +403,139 @@ describe("isVisibleChart", () => {
     ).toBe(true);
   });
 });
+
+describe("resolveChart — exact-rebuild substitution", () => {
+  // rate × its-own-denominator should resolve to the exact numerator
+  // count source, not the rounding-drifted product. VA-08 figures: the
+  // share is stored at 1 dp (31.0%), so 0.310 × 566,046 = 175,474 — but
+  // the true count is 175,568. Substitution must show 175,568.
+  const RATE = "acs_cd/pct_bachelors_va_08";
+  const DENOM = "acs_cd/adults_25plus_va_08";
+  const NUM = "acs_cd/bachelors_plus_va_08";
+  const entries: Record<string, { id: string; data: Record<string, unknown> }> = {
+    [RATE]: {
+      id: RATE,
+      data: {
+        kind: "timeseries",
+        dataFile: `data/${RATE}.json`,
+        supportedDeltas: ["5y", "10y"],
+        formatting: { style: "percent", decimals: 1 },
+        unitClass: "rate",
+        derivedFrom: { numerator: NUM, denominator: DENOM, scale: 100 },
+      },
+    },
+    [DENOM]: {
+      id: DENOM,
+      data: {
+        kind: "timeseries",
+        dataFile: `data/${DENOM}.json`,
+        supportedDeltas: ["5y", "10y"],
+        formatting: { style: "number", decimals: 0 },
+        unitClass: "count",
+      },
+    },
+    [NUM]: {
+      id: NUM,
+      data: {
+        kind: "timeseries",
+        dataFile: `data/${NUM}.json`,
+        supportedDeltas: ["5y", "10y"],
+        formatting: { style: "number", decimals: 0 },
+        unitClass: "count",
+      },
+    },
+  };
+  const pointsByFile: Record<string, number> = {
+    [`data/${RATE}.json`]: 31.0,
+    [`data/${DENOM}.json`]: 566046,
+    [`data/${NUM}.json`]: 175568,
+  };
+
+  async function wireMocks() {
+    const { getEntry } = await import("astro:content");
+    (getEntry as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (_collection: string, id: string) =>
+        Promise.resolve(entries[id] ?? undefined),
+    );
+    const { loadSourceData } = await import("./load-data");
+    (loadSourceData as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (dataFile: string) =>
+        Promise.resolve({
+          kind: "timeseries",
+          points: [{ t: "2022-12-31", v: pointsByFile[dataFile] ?? 0 }],
+        }),
+    );
+  }
+
+  it("collapses rate × its-own-denominator to the exact numerator source", async () => {
+    await wireMocks();
+    const inlineCharts: Record<string, InlineChart> = {
+      "inline:reb00001": {
+        title: "VA-08 adults 25+ with a bachelor's",
+        sources: [RATE, DENOM],
+        op: "multiply",
+        normalize: "raw",
+        render: "line",
+      },
+    };
+    const resolved = await resolveChart(
+      "inline:reb00001",
+      inlineCharts,
+      undefined,
+      undefined,
+    );
+    expect(resolved).not.toBeNull();
+    const data = resolved!.chart.data as unknown as {
+      sources: string[];
+      op?: string;
+    };
+    // Collapsed to the single exact source, op dropped.
+    expect(data.sources).toEqual([NUM]);
+    expect(data.op).toBeUndefined();
+    // The preloaded series is the exact count (175,568), NOT the product
+    // 175,474 the multiply engine would have computed from the rounded rate.
+    const preloaded = (resolved as unknown as {
+      preloaded?: Record<string, { points: { v: number }[] }>;
+    }).preloaded;
+    expect(preloaded?.[NUM]?.points[0].v).toBe(175568);
+  });
+
+  it("does NOT substitute when the multiply uses an unrelated denominator", async () => {
+    await wireMocks();
+    const OTHER = "fred/us_population";
+    entries[OTHER] = {
+      id: OTHER,
+      data: {
+        kind: "timeseries",
+        dataFile: `data/${OTHER}.json`,
+        supportedDeltas: ["5y", "10y"],
+        formatting: { style: "number", decimals: 0 },
+        unitClass: "count",
+      },
+    };
+    pointsByFile[`data/${OTHER}.json`] = 333000000;
+    const inlineCharts: Record<string, InlineChart> = {
+      "inline:reb00002": {
+        title: "rate × unrelated",
+        sources: [RATE, OTHER],
+        op: "multiply",
+        normalize: "raw",
+        render: "line",
+      },
+    };
+    const resolved = await resolveChart(
+      "inline:reb00002",
+      inlineCharts,
+      undefined,
+      undefined,
+    );
+    expect(resolved).not.toBeNull();
+    const data = resolved!.chart.data as unknown as {
+      sources: string[];
+      op?: string;
+    };
+    // Genuine product — both operands kept, op preserved.
+    expect(data.sources).toEqual([RATE, OTHER]);
+    expect(data.op).toBe("multiply");
+  });
+});

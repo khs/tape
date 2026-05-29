@@ -47,6 +47,47 @@ export function combineOpLabel(op: CombineOp): string {
 }
 
 /**
+ * The `derivedFrom` metadata a rate/share source carries to point back
+ * at the count it was divided out of: numerator ÷ denominator (× scale).
+ * e.g. "% of adults 25+ with a bachelor's degree" stores
+ *   { numerator: ".../bachelors_plus_…", denominator: ".../adults_25plus_…", scale: 100 }
+ */
+export interface DerivedFromMeta {
+  numerator?: string;
+  denominator?: string;
+  scale?: number;
+}
+
+/**
+ * Detect a "rebuild the total" multiply: rate × its-own-denominator.
+ *
+ * When a share/rate source A was derived as numerator ÷ denominator and
+ * the user multiplies it by that same denominator B, the product is just
+ * the numerator count again. Computing it as A × B re-introduces rounding
+ * drift, because the rate is stored at display precision (e.g. 31.0%, not
+ * 31.0166%). Returning the exact numerator source instead is both exact
+ * and better-cited. Multiply is commutative, so either operand may be the
+ * rate. Returns the numerator source id to show, or null when the pair
+ * isn't a rate × its-own-base multiply.
+ */
+export function multiplyRebuildNumerator(
+  aId: string,
+  aDerivedFrom: DerivedFromMeta | undefined,
+  bId: string,
+  bDerivedFrom: DerivedFromMeta | undefined,
+  op: CombineOp,
+): string | null {
+  if (op !== "multiply") return null;
+  if (aDerivedFrom?.denominator === bId && aDerivedFrom.numerator) {
+    return aDerivedFrom.numerator;
+  }
+  if (bDerivedFrom?.denominator === aId && bDerivedFrom.numerator) {
+    return bDerivedFrom.numerator;
+  }
+  return null;
+}
+
+/**
  * Output-formatting decision for a combineTwo result, plus an optional
  * multiplier applied to the combined values to make the chosen format
  * display sensibly.

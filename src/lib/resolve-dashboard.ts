@@ -6,7 +6,13 @@ import {
   type DeltaWindow,
 } from "./deltas";
 import type { InlineChart, InlineMap, InlineSource } from "./composer-state";
-import { combineTwo, combineOpFormatting, type CombineOp } from "./derive";
+import {
+  combineTwo,
+  combineOpFormatting,
+  multiplyRebuildNumerator,
+  type CombineOp,
+  type DerivedFromMeta,
+} from "./derive";
 import type { TimeSeriesData } from "./data-types";
 import { loadSourceData } from "./load-data";
 
@@ -83,6 +89,33 @@ async function resolveSourceById(
     const b = await resolveSourceById(spec.b, inlineSources, visited);
     visited.delete(id);
     if (!a || !b) return null;
+    // Exact-rebuild substitution: when this is rate × its-own-denominator,
+    // the product is just the numerator count — show that source directly
+    // rather than recomputing it from the display-rounded rate (see
+    // multiplyRebuildNumerator). Carries the numerator's own formatting +
+    // provenance, but keeps the derived source's chosen name. Falls through
+    // to the computed product if the numerator can't be resolved.
+    const subId = multiplyRebuildNumerator(
+      spec.a,
+      (a.entry.data as { derivedFrom?: DerivedFromMeta }).derivedFrom,
+      spec.b,
+      (b.entry.data as { derivedFrom?: DerivedFromMeta }).derivedFrom,
+      spec.op as CombineOp,
+    );
+    if (subId && subId !== id) {
+      const sub = await resolveSourceById(subId, inlineSources, visited);
+      if (sub) {
+        const subEntry = {
+          ...sub.entry,
+          id,
+          data: { ...sub.entry.data, name: spec.name, shortName: spec.name },
+        } as unknown as CollectionEntry<"sources">;
+        return {
+          entry: subEntry,
+          points: { ...sub.points, id, name: spec.name },
+        };
+      }
+    }
     // Pick output formatting + an optional ×N rescale so e.g.
     // currency/currency divides render as "1.10%" instead of "0.011",
     // and currency/count divides render as "$X /person" instead of a
@@ -214,9 +247,33 @@ export async function resolveChart(
         r !== null,
     );
     if (valid.length === 0) return null;
-    const validSources = valid.map((v) => v.entry);
+    // Exact-rebuild substitution (see multiplyRebuildNumerator): a 2-source
+    // `rate × its-own-denominator` multiply renders the exact numerator
+    // count source instead of the rounding-drifted product. Collapses to a
+    // single source with no op, so Chart.astro plots it directly.
+    let renderValid = valid;
+    let effSources: string[] = spec.sources;
+    let effOp = spec.op;
+    if (spec.op === "multiply" && valid.length === 2 && spec.sources.length === 2) {
+      const subId = multiplyRebuildNumerator(
+        spec.sources[0],
+        (valid[0].entry.data as { derivedFrom?: DerivedFromMeta }).derivedFrom,
+        spec.sources[1],
+        (valid[1].entry.data as { derivedFrom?: DerivedFromMeta }).derivedFrom,
+        "multiply",
+      );
+      if (subId) {
+        const sub = await resolveSourceById(subId, inlineSources, new Set());
+        if (sub) {
+          renderValid = [sub];
+          effSources = [subId];
+          effOp = undefined;
+        }
+      }
+    }
+    const validSources = renderValid.map((v) => v.entry);
     const preloaded: Record<string, TimeSeriesData> = {};
-    for (const v of valid) {
+    for (const v of renderValid) {
       // Always preload — for real sources this is harmless duplication;
       // for derived sources it's required.
       preloaded[v.entry.id] = v.points;
@@ -241,7 +298,7 @@ export async function resolveChart(
       id,
       data: {
         title: spec.title,
-        sources: spec.sources,
+        sources: effSources,
         render: spec.render ?? ("line" as const),
         defaultDelta: spec.defaultDelta ?? ("1m" as const),
         normalize,
@@ -250,7 +307,7 @@ export async function resolveChart(
         // can't smuggle it past the composer's UI guard.
         scale: normalize === "dual-axis" ? undefined : spec.scale,
         rightAxisSources: spec.rightAxisSources,
-        op: spec.op,
+        op: effOp,
         blurb: spec.blurb,
         // Visual + presentation fields. These existed on the inline-chart
         // spec since their respective features shipped, but were dropped

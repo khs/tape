@@ -5,6 +5,7 @@ import {
   combineOpFormatting,
   inferUnitClassFromFormatting,
   applyPercentDisplayOverride,
+  multiplyRebuildNumerator,
 } from "./derive";
 import type { TimeSeriesData } from "./data-types";
 import type { Formatting } from "./format";
@@ -31,6 +32,66 @@ describe("combineOpLabel", () => {
     expect(combineOpLabel("sum")).toBe("+");
     expect(combineOpLabel("diff")).toBe("−");
     expect(combineOpLabel("multiply")).toBe("×");
+  });
+});
+
+describe("multiplyRebuildNumerator", () => {
+  const RATE = "acs_cd/pct_bachelors_va_08";
+  const DENOM = "acs_cd/adults_25plus_va_08";
+  const NUM = "acs_cd/bachelors_plus_va_08";
+  const rateDf = { numerator: NUM, denominator: DENOM, scale: 100 };
+
+  it("returns the numerator when A is the rate and B its denominator", () => {
+    expect(
+      multiplyRebuildNumerator(RATE, rateDf, DENOM, undefined, "multiply"),
+    ).toBe(NUM);
+  });
+
+  it("is commutative — finds the numerator when B is the rate", () => {
+    expect(
+      multiplyRebuildNumerator(DENOM, undefined, RATE, rateDf, "multiply"),
+    ).toBe(NUM);
+  });
+
+  it("returns null for ops other than multiply", () => {
+    expect(
+      multiplyRebuildNumerator(RATE, rateDf, DENOM, undefined, "divide"),
+    ).toBeNull();
+    expect(
+      multiplyRebuildNumerator(RATE, rateDf, DENOM, undefined, "sum"),
+    ).toBeNull();
+  });
+
+  it("returns null when neither operand carries derivedFrom", () => {
+    expect(
+      multiplyRebuildNumerator(RATE, undefined, DENOM, undefined, "multiply"),
+    ).toBeNull();
+  });
+
+  it("returns null when the rate's denominator is a different source", () => {
+    // Multiplying the rate by some unrelated count is a genuine product,
+    // not a rebuild — don't substitute.
+    expect(
+      multiplyRebuildNumerator(
+        RATE,
+        rateDf,
+        "fred/us_population",
+        undefined,
+        "multiply",
+      ),
+    ).toBeNull();
+  });
+
+  it("returns null when derivedFrom lacks a numerator", () => {
+    expect(
+      multiplyRebuildNumerator(
+        RATE,
+        { denominator: DENOM, scale: 100 },
+        DENOM,
+        undefined,
+        "multiply",
+      ),
+    ).toBeNull();
   });
 });
 
