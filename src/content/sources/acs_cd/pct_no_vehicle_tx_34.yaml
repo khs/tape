@@ -1,0 +1,25 @@
+name: Share of households with no vehicle — TX-34
+shortName: TX-34 no-vehicle share
+description: Share of households with no vehicle for TX-34. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_no_vehicle_tx_34.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_no_vehicle
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/households_no_vehicle_tx_34
+  denominator: acs_cd/households_total_vehicle_tx_34
+  scale: 100

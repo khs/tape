@@ -1,0 +1,13 @@
+{
+  "id": "pct_workers_wfh_or_06",
+  "name": "Work-from-home share of workers \u2014 OR-06",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T14:02:14Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 14.1
+    }
+  ]
+}

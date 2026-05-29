@@ -1,0 +1,13 @@
+{
+  "id": "pct_workers_wfh_fl_28",
+  "name": "Work-from-home share of workers \u2014 FL-28",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T14:02:13Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 7.7
+    }
+  ]
+}

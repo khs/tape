@@ -400,6 +400,31 @@ INDICATORS = [
     AcsVar("median_commute_minutes", "",
            "Median travel time to work", "minutes", 1, AGG_MEDIAN_CD_DIST,
            bins=B08303_BINS),
+    # ----- Count → share conversions (#102) -----
+    # numerator / denominator * 100, both already-computed indicators sharing
+    # a geo basis (see AGG_PCT). The numerator count stays in the data (the
+    # generator marks it hidden:true) so the composer's rebuild chip can
+    # substitute the exact count via derivedFrom; the denominator stays
+    # user-facing. foreign-born rides the stable-geo SUM basis; wfh + vehicle
+    # ride contemporaneous-CD (same as their numerators). Verified plausible
+    # across diverse districts before shipping.
+    #
+    # NOT included (and why), for a future pass:
+    #   - uninsured, manufacturing, government, $200k+, <$25k: their CD-level
+    #     numerator/denominator cells (tables B27010, C24070, C24080, B19001)
+    #     don't currently fetch at CD level (see the cd-level 0-row gap), so
+    #     there's no data to divide.
+    #   - disability, movers: the underlying COUNTS are wrong, not the ratio.
+    #     people_with_disability is undercounted ~3-4x (B18101 cell sum);
+    #     movers_last_year (B07003_003E) resolves to a near-constant ~50%
+    #     across all districts — a mis-mapped sex cell, not "movers". Fix the
+    #     counts first, then their shares can be added.
+    AcsVar("pct_foreign_born", "", "Foreign-born share of population", "%", 1,
+           AGG_PCT, numerator_id="foreign_born", denominator_id="population"),
+    AcsVar("pct_workers_wfh", "", "Work-from-home share of workers", "%", 1,
+           AGG_PCT, numerator_id="workers_wfh", denominator_id="workers_total_commute"),
+    AcsVar("pct_no_vehicle", "", "Share of households with no vehicle", "%", 1,
+           AGG_PCT, numerator_id="households_no_vehicle", denominator_id="households_total_vehicle"),
 ]
 
 
@@ -914,6 +939,14 @@ def main() -> int:
         name_prefix = var.name_prefix if var else out_id
         unit = var.unit if var else "value"
         if slug in SINGLE_CD_REDUNDANT:
+            # Don't redirect pct shares to acs_state: single-CD states have
+            # no acs_state YAML generator for share indicators, so a
+            # redirected share is an orphan data file (data, no YAML). The
+            # share is still emitted at the CD level for multi-CD states;
+            # counts/medians DO get acs_state YAMLs via
+            # derive_acs_state_from_cd.py, so those still redirect.
+            if var is not None and var.agg == AGG_PCT:
+                continue
             # Route to the state-level path. derive_acs_state_from_cd.py
             # would otherwise produce an empty/single-point series for
             # these because no CD JSON exists to aggregate from.

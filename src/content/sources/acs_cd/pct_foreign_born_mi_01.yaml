@@ -1,0 +1,25 @@
+name: Foreign-born share of population — MI-01
+shortName: MI-01 foreign-born share
+description: Foreign-born share of population for MI-01, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_foreign_born_mi_01.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_foreign_born
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/foreign_born_mi_01
+  denominator: acs_cd/population_mi_01
+  scale: 100

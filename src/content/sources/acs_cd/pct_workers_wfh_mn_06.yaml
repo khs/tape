@@ -1,0 +1,25 @@
+name: Work-from-home share of workers — MN-06
+shortName: MN-06 work-from-home share
+description: Work-from-home share of workers for MN-06. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_workers_wfh_mn_06.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_workers_wfh
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/workers_wfh_mn_06
+  denominator: acs_cd/workers_total_commute_mn_06
+  scale: 100

@@ -450,6 +450,52 @@ INDICATORS = [
 ]
 
 
+# ----- Count → share conversions (#102) -----
+# Mirrors the AGG_PCT entries in census_acs_cd.py. Each share links back to
+# its count numerator + universe denominator via derivedFrom (scale 100,
+# emitted by render_yaml), so the composer's rebuild chip can substitute the
+# exact count ("× <denominator>"). The numerator counts are hidden from the
+# picker (still emitted as data for reconstruction); the denominators stay
+# user-facing. `contemporaneous`: False = rides stable 118th-Congress geo (a
+# SUM-based numerator); True = rides each year's contemporaneous CD
+# boundaries (a CD-level numerator) — only affects the description wording.
+_PCT_CONVERSIONS = [
+    # (out_id, numerator, denominator, name_prefix, short_suffix, contemporaneous)
+    # Mirrors the AGG_PCT entries in census_acs_cd.py — keep the two lists in
+    # sync. Only the three verified-plausible conversions ship; see that file
+    # for why uninsured/manufacturing/government/$200k+/<$25k (no CD-level
+    # data) and disability/movers (broken underlying counts) are excluded.
+    ("pct_foreign_born", "foreign_born", "population",
+     "Foreign-born share of population", "foreign-born share", False),
+    ("pct_workers_wfh", "workers_wfh", "workers_total_commute",
+     "Work-from-home share of workers", "work-from-home share", True),
+    ("pct_no_vehicle", "households_no_vehicle", "households_total_vehicle",
+     "Share of households with no vehicle", "no-vehicle share", True),
+]
+_pct_numerators = {num for _, num, _, _, _, _ in _PCT_CONVERSIONS}
+for _oid, _num, _den, _np, _ss, _contemp in _PCT_CONVERSIONS:
+    INDICATORS.append({
+        "out_id": _oid,
+        "name_prefix": _np,
+        "short_suffix": _ss,
+        "unit": "%",
+        "unit_class": "rate",
+        "fmt_style": "percent",
+        "decimals": 1,
+        "table": "",
+        "agg": "pct",
+        "extra_tags": [],
+        "numerator": _num,
+        "denominator": _den,
+        "contemporaneous": _contemp,
+    })
+# Hide the numerator counts from the picker (still emitted as data so the
+# rebuild chip can substitute them); the denominators stay visible.
+for _ind in INDICATORS:
+    if _ind["out_id"] in _pct_numerators:
+        _ind["hidden"] = True
+
+
 def slug_to_display(slug: str) -> str:
     """va_08 -> VA-08, ak_al -> AK-AL, dc_98 -> DC-98."""
     return slug.upper().replace("_", "-")
@@ -469,9 +515,14 @@ def description_for(ind: dict, slug: str) -> str:
         in effect that year.
     """
     display = slug_to_display(slug)
-    # "pct" rides the same stable 118th-Congress geo as its AGG_SUM
-    # numerator/denominator, so it gets the held-constant-boundaries wording.
-    if ind["agg"] in ("sum", "median_dist", "pct"):
+    # A "pct" rides the geo basis of its numerator/denominator: a SUM-based
+    # share (e.g. foreign-born / population) is stable-geo; a CD-level-based
+    # share (e.g. work-from-home / total workers) reports on each year's
+    # contemporaneous boundaries. The `contemporaneous` flag distinguishes.
+    stable_geo = ind["agg"] in ("sum", "median_dist") or (
+        ind["agg"] == "pct" and not ind.get("contemporaneous")
+    )
+    if stable_geo:
         return (
             f"{ind['name_prefix']} for {display}, on 2023 (118th Congress) "
             f"congressional-district boundaries held constant across years. "

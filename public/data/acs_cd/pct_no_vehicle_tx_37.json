@@ -1,0 +1,13 @@
+{
+  "id": "pct_no_vehicle_tx_37",
+  "name": "Share of households with no vehicle \u2014 TX-37",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T14:02:14Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 5.9
+    }
+  ]
+}
