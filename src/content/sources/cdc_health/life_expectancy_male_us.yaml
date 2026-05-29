@@ -1,0 +1,21 @@
+name: 'Life expectancy at birth, male — United States'
+shortName: 'US life expectancy (male)'
+description: 'Life expectancy at birth, male for the United States, by year. CDC / National Center for Health Statistics (National Vital Statistics System).'
+kind: timeseries
+pipeline: cdc_health
+dataFile: data/cdc_health/life_expectancy_male_us.json
+supportedDeltas: ["1y", "10y", "30y", "50y"]
+unit: "years"
+emphasis: change
+formatting:
+  style: number
+  decimals: 1
+  suffix: " yrs"
+provenance:
+  provider: CDC / National Center for Health Statistics
+  series: 'CDC NCHS life expectancy at birth; All Races; Male'
+  url: https://data.cdc.gov/NCHS/NCHS-Death-rates-and-life-expectancy-at-birth/w9j2-ggv5
+  license: Public domain (US government data)
+tags:
+  - health
+  - us

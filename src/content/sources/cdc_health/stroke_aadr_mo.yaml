@@ -1,0 +1,23 @@
+name: 'Stroke death rate — Missouri'
+shortName: 'MO stroke deaths'
+description: 'Age-adjusted death rate per 100,000 population from stroke for Missouri, by year. CDC / National Center for Health Statistics (Leading Causes of Death).'
+kind: timeseries
+pipeline: cdc_health
+dataFile: data/cdc_health/stroke_aadr_mo.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "per 100k"
+emphasis: change
+formatting:
+  style: number
+  decimals: 1
+  suffix: " per 100k"
+provenance:
+  provider: CDC / National Center for Health Statistics
+  series: 'CDC NCHS leading causes of death; cause=Stroke; geo=mo'
+  url: https://data.cdc.gov/NCHS/NCHS-Leading-Causes-of-Death-United-States/bi63-dtpu
+  license: Public domain (US government data)
+tags:
+  - health
+  - us-state
+  - us
+unitClass: rate
