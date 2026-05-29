@@ -121,7 +121,9 @@ SPECS: list[FredSpec] = [
     # ------------------------------------------------------------------
     # Health analyst
     FredSpec("CES6562000001", "Health care + social assistance employment", "thousands of persons"),
-    FredSpec("HLTHSCPCHCSA", "Health expenditures per capita", "USD"),
+    # Personal/national health spending per capita now comes from CMS NHEA
+    # (pipelines/cms_nhe.py, through 2024) — the BEA HCSA series HLTHSCPCHCSA
+    # that lived here only ran through 2021 and was mislabeled as "BEA NHE".
     # Defense analyst (federal-defense outlays already covered by
     # FDEFX; this adds the % of GDP read).
     FredSpec("A824RE1Q156NBEA", "National defense, share of GDP", "%"),

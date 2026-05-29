@@ -145,6 +145,18 @@ emitted it is correct):
   unit-routing map. Guarded by the `get_counts` preflight (caught corn's
   GRAIN requirement + the planted-vs-harvested-acre yield split) and a
   duplicate-`(geo, year)` counter that must read 0 on write.
+- **`cms_nhe`** (2 YAMLs) — `cms_nhe.py` parses CMS's NHE summary CSV
+  (Table 1) and reads two rows from the *per-capita section only*. It
+  anchors to the "National Health Expenditures (Per Capita Amount)"
+  section header — so the recurring "Personal Health Care" label resolves
+  to the per-capita value, not the aggregate / %-change / %-distribution
+  rows that carry the identical label — and raises if the section header,
+  a wanted row, or the year header is missing, or if a parsed value falls
+  outside the $1k–$100k per-capita sanity band. Those asserts ARE the
+  audit: a CMS table reformat fails the refresh instead of silently
+  mislabelling. Hand-written YAMLs (2 series). The ZIP URL is year-pinned
+  (`...cy-1960-2024.zip`); since the data is annual, it's a manual
+  bump-and-rerun when CMS publishes a new vintage, not a weekly refresh.
 
 For each of these, the right audit is "diff what the pipeline
 WOULD generate today against what's checked in." A `--dry-run`

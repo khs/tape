@@ -1,0 +1,24 @@
+name: 'National health spending per capita'
+shortName: 'Health $/cap (total)'
+description: 'Total per-capita national health spending in the United States — personal health care plus government public-health activity, program administration and net cost of insurance, and health-related investment. From CMS''s National Health Expenditure Accounts, Table 1. Annual, current dollars. Public-domain federal data.'
+kind: timeseries
+pipeline: cms_nhe
+dataFile: data/cms_nhe/nhe_per_capita.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "USD"
+emphasis: level
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+provenance:
+  provider: CMS Office of the Actuary (National Health Expenditure Accounts)
+  series: NHE Summary Table 1 — National Health Expenditures (Per Capita Amount)
+  url: https://www.cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data/historical
+  license: Public domain (US government data)
+tags:
+  - macro
+  - health
+  - consumer
+  - us
+unitClass: currency
