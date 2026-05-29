@@ -138,6 +138,13 @@ emitted it is correct):
   risk = wrong FIPS → name pairing.
 - **`treasury_tic`** (37 YAMLs) — country-keyed transparently. Low
   audit risk; YAML labels are just country names.
+- **`usda_nass`** (377 YAMLs) — `usda_nass.py` constructs each YAML name
+  from the row's own commodity + geography (`state_name`) and stores the
+  authoritative QuickStats `short_desc` verbatim in `provenance.series`.
+  Correct by construction; audit risk = a bug in the commodity-label or
+  unit-routing map. Guarded by the `get_counts` preflight (caught corn's
+  GRAIN requirement + the planted-vs-harvested-acre yield split) and a
+  duplicate-`(geo, year)` counter that must read 0 on write.
 
 For each of these, the right audit is "diff what the pipeline
 WOULD generate today against what's checked in." A `--dry-run`

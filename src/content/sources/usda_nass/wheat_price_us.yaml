@@ -1,0 +1,20 @@
+name: 'Wheat price — United States'
+shortName: 'United States wheat price'
+description: 'Wheat price received for United States (USD / bu, marketing-year average), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+kind: timeseries
+pipeline: usda_nass
+dataFile: data/usda_nass/wheat_price_us.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "USD / bu"
+emphasis: change
+formatting:
+  style: currency
+  decimals: 2
+provenance:
+  provider: USDA National Agricultural Statistics Service (NASS)
+  series: 'WHEAT - PRICE RECEIVED, MEASURED IN $ / BU'
+  url: https://quickstats.nass.usda.gov/
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us

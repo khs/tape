@@ -1,0 +1,23 @@
+name: 'Soybeans production — Alabama'
+shortName: 'Alabama soybeans production'
+description: 'Soybeans production for Alabama (in BU), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+kind: timeseries
+pipeline: usda_nass
+dataFile: data/usda_nass/soybeans_production_al.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "BU"
+emphasis: change
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+provenance:
+  provider: USDA National Agricultural Statistics Service (NASS)
+  series: 'SOYBEANS - PRODUCTION, MEASURED IN BU'
+  url: https://quickstats.nass.usda.gov/
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us-state
+  - us
+unitClass: count

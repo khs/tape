@@ -1,0 +1,22 @@
+name: 'Corn yield — New York'
+shortName: 'New York corn yield'
+description: 'Corn yield for New York (in BU / ACRE), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+kind: timeseries
+pipeline: usda_nass
+dataFile: data/usda_nass/corn_yield_ny.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "BU / ACRE"
+emphasis: change
+formatting:
+  style: number
+  decimals: 1
+provenance:
+  provider: USDA National Agricultural Statistics Service (NASS)
+  series: 'CORN, GRAIN - YIELD, MEASURED IN BU / ACRE'
+  url: https://quickstats.nass.usda.gov/
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us-state
+  - us
+unitClass: rate

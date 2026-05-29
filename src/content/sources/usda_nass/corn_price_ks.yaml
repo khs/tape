@@ -1,0 +1,21 @@
+name: 'Corn price — Kansas'
+shortName: 'Kansas corn price'
+description: 'Corn price received for Kansas (USD / bu, marketing-year average), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+kind: timeseries
+pipeline: usda_nass
+dataFile: data/usda_nass/corn_price_ks.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "USD / bu"
+emphasis: change
+formatting:
+  style: currency
+  decimals: 2
+provenance:
+  provider: USDA National Agricultural Statistics Service (NASS)
+  series: 'CORN, GRAIN - PRICE RECEIVED, MEASURED IN $ / BU'
+  url: https://quickstats.nass.usda.gov/
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us-state
+  - us

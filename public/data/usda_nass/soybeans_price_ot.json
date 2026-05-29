@@ -1,0 +1,17 @@
+{
+  "id": "soybeans_price_ot",
+  "name": "Soybeans price \u2014 Other States",
+  "kind": "timeseries",
+  "unit": "USD / bu",
+  "lastUpdated": "2026-05-29T12:25:28Z",
+  "points": [
+    {
+      "t": "2020-12-31",
+      "v": 0.0
+    },
+    {
+      "t": "2021-12-31",
+      "v": 0.0
+    }
+  ]
+}

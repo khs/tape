@@ -1,0 +1,25 @@
+{
+  "id": "soybeans_production_ot",
+  "name": "Soybeans production \u2014 Other States",
+  "kind": "timeseries",
+  "unit": "BU",
+  "lastUpdated": "2026-05-29T12:25:28Z",
+  "points": [
+    {
+      "t": "2015-12-31",
+      "v": 0.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 0.0
+    },
+    {
+      "t": "2017-12-31",
+      "v": 0.0
+    },
+    {
+      "t": "2018-12-31",
+      "v": 0.0
+    }
+  ]
+}

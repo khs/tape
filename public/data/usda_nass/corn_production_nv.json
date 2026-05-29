@@ -1,0 +1,21 @@
+{
+  "id": "corn_production_nv",
+  "name": "Corn production \u2014 Nevada",
+  "kind": "timeseries",
+  "unit": "BU",
+  "lastUpdated": "2026-05-29T12:25:28Z",
+  "points": [
+    {
+      "t": "1956-12-31",
+      "v": 50000.0
+    },
+    {
+      "t": "1957-12-31",
+      "v": 50000.0
+    },
+    {
+      "t": "1958-12-31",
+      "v": 50000.0
+    }
+  ]
+}
