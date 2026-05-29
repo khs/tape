@@ -229,7 +229,7 @@ const payload = {
   // Uses the same @observablehq/plot bundle the line-chart controller
   // pulls; Vite dedupes the import so we don't double-ship the lib.
   import * as Plot from "@observablehq/plot";
-  import { formatValue, type Formatting } from "../lib/format";
+  import { formatValue, axisTickFormatting, type Formatting } from "../lib/format";
   import { seriesColor } from "../lib/series-colors";
 
   type Row = {
@@ -347,7 +347,7 @@ const payload = {
     // line-chart axes so the bar values read consistently with the
     // rest of the site.
     const tickFormat = (v: number) =>
-      formatting ? formatValue(v, formatting) : String(v);
+      formatting ? formatValue(v, axisTickFormatting(formatting)) : String(v);
 
     // Per-bar fill color — re-use the existing series palette so a
     // bar chart of "GDP by country" colors the bars the same way a

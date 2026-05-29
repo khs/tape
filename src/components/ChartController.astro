@@ -24,6 +24,7 @@
     formatDeltaDisplay,
     formatDate,
     magnitudeFromFormatting,
+    axisTickFormatting,
     type Formatting,
   } from "../lib/format";
   import {
@@ -1702,14 +1703,14 @@
               color: leftAxisColor,
               ticks: 5,
               tickFormat: (v: number) =>
-                formatValue(v, { ...leftFmt, decimals: 1 }),
+                formatValue(v, axisTickFormatting({ ...leftFmt, decimals: 1 })),
             }),
             Plot.axisY({
               anchor: "right",
               color: rightAxisColor,
               ticks: 5,
               tickFormat: (v: number) =>
-                formatValue(unscaleR(v), { ...rightFmt, decimals: 1 }),
+                formatValue(unscaleR(v), axisTickFormatting({ ...rightFmt, decimals: 1 })),
             }),
           );
           const plot = Plot.plot({
@@ -1969,11 +1970,11 @@
     const baseFmt = singleSource?.formatting ?? fullRescale?.axisFormatting;
     const tickFormat = transformActive
       ? (v: number) =>
-          formatValue(v, transformFormatting(baseFmt ?? { style: "number", decimals: 1 }, transform))
+          formatValue(v, axisTickFormatting(transformFormatting(baseFmt ?? { style: "number", decimals: 1 }, transform)))
       : singleSource
-        ? (v: number) => formatValue(v, { ...singleSource.formatting, decimals: 1 })
+        ? (v: number) => formatValue(v, axisTickFormatting({ ...singleSource.formatting, decimals: 1 }))
         : fullRescale
-          ? (v: number) => formatValue(v, { ...fullRescale.axisFormatting, decimals: 1 })
+          ? (v: number) => formatValue(v, axisTickFormatting({ ...fullRescale.axisFormatting, decimals: 1 }))
           : undefined;
 
     const plot = Plot.plot({

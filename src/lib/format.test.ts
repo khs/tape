@@ -7,6 +7,7 @@ import {
   formatDate,
   formatTimestamp,
   magnitudeFromFormatting,
+  axisTickFormatting,
 } from "./format";
 
 describe("formatValue — basic styles", () => {
@@ -364,5 +365,41 @@ describe("formatTimestamp", () => {
     // test runner's timezone, so just check that a digit + colon pair
     // is present — that's the hour:minute separator).
     expect(out).toMatch(/\d:\d/);
+  });
+});
+
+describe("axisTickFormatting", () => {
+  it("strips long word suffixes so axis ticks don't clip in the left margin", () => {
+    // Regression: "Workers per beneficiary" axis showed "4 workers,
+    // 2 workers, 0 workers, 8 workers…" because "3.4 workers" overflowed
+    // the ~64px left margin and lost its leading "3.". The axis should
+    // drop the word and read "3.4".
+    const fmt = { style: "number" as const, decimals: 1, suffix: " workers" };
+    const axisFmt = axisTickFormatting(fmt);
+    expect(axisFmt.suffix).toBeUndefined();
+    expect(formatValue(3.4, axisFmt)).toBe("3.4");
+    expect(formatValue(2.0, axisFmt)).toBe("2.0");
+  });
+
+  it("keeps 1-char magnitude / symbol suffixes (they ARE the axis scale)", () => {
+    expect(axisTickFormatting({ style: "number", decimals: 1, suffix: " B" }).suffix).toBe(" B");
+    expect(axisTickFormatting({ style: "number", decimals: 0, suffix: " T" }).suffix).toBe(" T");
+    expect(axisTickFormatting({ style: "percent", decimals: 1, suffix: "%" }).suffix).toBe("%");
+  });
+
+  it("is a no-op when there's no suffix", () => {
+    const fmt = { style: "currency" as const, decimals: 0, prefix: "$" };
+    expect(axisTickFormatting(fmt)).toEqual(fmt);
+  });
+
+  it("leaves the prefix untouched (always short, carries the unit)", () => {
+    const out = axisTickFormatting({
+      style: "currency",
+      decimals: 0,
+      prefix: "$",
+      suffix: " per capita",
+    });
+    expect(out.prefix).toBe("$");
+    expect(out.suffix).toBeUndefined();
   });
 });

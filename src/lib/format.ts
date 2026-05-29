@@ -152,6 +152,24 @@ export function formatSignedValue(v: number, fmt: Formatting): string {
 }
 
 /**
+ * Formatting for y-axis TICK labels specifically. The plot's left margin
+ * is narrow (~64px), so a long word suffix makes every tick read like
+ * "3.4 workers" (~11 chars) \u2014 which overflows the margin and gets its
+ * leading characters clipped, leaving nonsense like "4 workers",
+ * "2 workers", "0 workers" (just the trailing decimal digit). Strip
+ * such word/unit suffixes from the axis; the unit still appears in the
+ * chart title, the big readout, and the hover tooltip. Short magnitude /
+ * symbol markers (" B", " M", " T", " K", "%") are 1 char after trimming
+ * and ARE the axis scale, so they stay. The prefix (e.g. "$") is left
+ * untouched \u2014 it's always short and carries the unit.
+ */
+export function axisTickFormatting(fmt: Formatting): Formatting {
+  const trimmed = (fmt.suffix ?? "").trim();
+  if (trimmed.length <= 1) return fmt;
+  return { ...fmt, suffix: undefined };
+}
+
+/**
  * Compact delta display string. For percent-style sources the absolute delta
  * appears in parentheses after the relative change, since "+2.4% change" on a
  * series like the unemployment rate is meaningfully different from a +2.4%
