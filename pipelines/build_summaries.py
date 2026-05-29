@@ -215,11 +215,19 @@ def main() -> int:
         return 1
     written = 0
     skipped = 0
+    # Date-range manifest: { "data/<rel>.json": [firstT, lastT] }. library.json
+    # reads this ONE file to fill firstObservation/lastObservation for every
+    # source instead of opening all ~25k data files at build time — that
+    # per-source read was a ~6.5-minute prerender bottleneck. Built here
+    # because this pass already loads every data file.
+    index: dict[str, list[str | None]] = {}
     for full_path in sorted(DATA_ROOT.rglob("*.json")):
-        # Skip summaries we generated previously, and anything inside
-        # _archive (those are historical snapshots — re-summarizing
-        # them would balloon the count).
+        # Skip summaries we generated previously, the manifest itself, and
+        # anything inside _archive (those are historical snapshots —
+        # re-summarizing them would balloon the count).
         if full_path.name.endswith(".summary.json"):
+            continue
+        if full_path.name == "source_index.json":
             continue
         if "_archive" in full_path.parts:
             continue
@@ -229,6 +237,10 @@ def main() -> int:
             print(f"  skip {full_path.relative_to(DATA_ROOT)}: {e}", file=sys.stderr)
             skipped += 1
             continue
+        pts = full.get("points")
+        if isinstance(pts, list) and pts:
+            rel = full_path.relative_to(DATA_ROOT).as_posix()
+            index[f"data/{rel}"] = [pts[0].get("t"), pts[-1].get("t")]
         summary = build_summary(full)
         if summary is None:
             skipped += 1
@@ -240,7 +252,11 @@ def main() -> int:
             encoding="utf-8",
         )
         written += 1
-    print(f"build_summaries: {written} written, {skipped} skipped")
+    (DATA_ROOT / "source_index.json").write_text(
+        json.dumps(index, separators=(",", ":")), encoding="utf-8"
+    )
+    print(f"build_summaries: {written} written, {skipped} skipped; "
+          f"source_index.json {len(index)} entries")
     return 0
 
 

@@ -3,7 +3,6 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
 import { getCollection } from "astro:content";
-import { loadSourceData } from "../lib/load-data";
 import {
   METRO_TAG,
   metroTagsFor,
@@ -131,13 +130,45 @@ function splitMaybeQuoted(line: string): string[] {
  * plus tags from multi-source charts unless the chart's per-source
  * override in MULTI_SOURCE_OVERRIDES restricts which tags go where.
  */
+/**
+ * Date-range manifest: `{ "data/<rel>.json": [firstT, lastT] }`, built by
+ * pipelines/build_summaries.py during its existing all-data pass. Read once
+ * here so the source loop below doesn't open ~25k data files at build time
+ * (that per-source read was a ~6.5-minute prerender bottleneck). Uses the
+ * same cwd / import.meta.url candidate dance as loadMetroLookup because the
+ * prerender cwd is unreliable. Missing/unreadable → {} (graceful: sources
+ * simply report no coverage range).
+ */
+async function loadDateIndex(): Promise<Record<string, [string, string]>> {
+  const candidates = [
+    resolve(process.cwd(), "public", "data", "source_index.json"),
+  ];
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    candidates.push(
+      resolve(here, "..", "..", "public", "data", "source_index.json"),
+    );
+  } catch {
+    // import.meta.url not file-URL-resolvable in this bundler context.
+  }
+  for (const p of candidates) {
+    try {
+      return JSON.parse(await readFile(p, "utf-8"));
+    } catch {
+      // Try next candidate.
+    }
+  }
+  return {};
+}
+
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
-  const [chartsCol, sourcesCol, metroLookup] = await Promise.all([
+  const [chartsCol, sourcesCol, metroLookup, dateIndex] = await Promise.all([
     getCollection("charts"),
     getCollection("sources"),
     loadMetroLookup(),
+    loadDateIndex(),
   ]);
 
   // Restrict the manifest's metro table to CBSAs that actually have at
@@ -158,20 +189,15 @@ export const GET: APIRoute = async () => {
     // field's rationale (mostly: yahoo/<ticker> raw-price sources
     // suppressed in favor of yahoo_marketcap/<ticker>_mc).
     if ((s.data as { hidden?: boolean }).hidden) continue;
-    // Read first / last observation dates from the source's data file at
-    // build time so the composer can flag charts whose data doesn't cover
-    // a fixed-range request without having to fetch each JSON itself.
-    let firstObservation: string | undefined;
-    let lastObservation: string | undefined;
-    try {
-      const data = await loadSourceData(s.data.dataFile);
-      if (data.kind === "timeseries" && data.points.length > 0) {
-        firstObservation = data.points[0].t;
-        lastObservation = data.points[data.points.length - 1].t;
-      }
-    } catch {
-      // Missing data file; leave first/last undefined so callers know.
-    }
+    // First / last observation dates, read from the precomputed
+    // source_index.json manifest (built by pipelines/build_summaries.py in
+    // its existing all-data pass) rather than by opening this source's data
+    // file here. Opening all ~25k files at build was a ~6.5-minute prerender
+    // bottleneck. A missing entry leaves the dates undefined (graceful — the
+    // composer just omits the coverage range for that source).
+    const range = dateIndex[s.data.dataFile];
+    const firstObservation = range?.[0];
+    const lastObservation = range?.[1];
     // Per-source `searchText`: lowercased haystack the composer's source-
     // picker greps against. Includes name/shortName/description (so a
     // ticker like "XOM" or a pipeline-style ID matches even when typing
