@@ -273,19 +273,34 @@ describe("formatSignedValue", () => {
 });
 
 describe("formatDeltaDisplay", () => {
-  // The dual-mode display: percent style shows "+X% (+Y%)" because the
-  // absolute and relative change are both informative; non-percent
-  // styles show only "+X%".
+  // Percent-style sources display the ABSOLUTE pp move; non-percent
+  // styles display the relative %change. The relative change on a
+  // rate-like series with a near-zero baseline (Fed funds 0% → 4%)
+  // would otherwise show a noisy "+thousands%" headline.
 
-  it("emits 'pct (abs)' for percent-style sources", () => {
-    // unemployment 3.5 → 3.7: pct ≈ +5.7%, abs = +0.2%
+  it("emits just the absolute pp delta for percent-style sources (drops the noisy relative)", () => {
+    // Unemployment 3.5 → 3.7 — relative is +5.7% (sounds big), absolute
+    // is +0.2 pp (the real signal). Headline is the pp move.
     const out = formatDeltaDisplay(3.7, 3.5, {
       style: "percent",
       decimals: 1,
     });
-    expect(out.text).toMatch(/^\+\d+\.\d%/); // starts with the relative
-    expect(out.text).toContain("(");
-    expect(out.text).toContain("+0.2");
+    expect(out.text).toContain("+0.2"); // the pp move leads
+    expect(out.text).not.toContain("("); // no parenthetical relative
+    expect(out.pct).toMatch(/%$/); // .pct still exposed for callers
+    expect(out.abs).toContain("+0.2");
+  });
+
+  it("does NOT explode for percent-style sources with near-zero baseline", () => {
+    // 2-year Treasury ran 0.14% → 4.01%: relative = +2,764% (pure noise),
+    // absolute = +3.87 pp. The display must be the pp move.
+    const out = formatDeltaDisplay(4.01, 0.14, {
+      style: "percent",
+      decimals: 2,
+    });
+    expect(out.text).toContain("3.87"); // the pp move
+    expect(out.text).not.toMatch(/\d,\d{3}/); // no comma-thousand "2,764"
+    expect(out.text).not.toContain("(");
   });
 
   it("emits just 'pct' for non-percent sources (decimal / currency)", () => {

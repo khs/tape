@@ -170,13 +170,16 @@ export function axisTickFormatting(fmt: Formatting): Formatting {
 }
 
 /**
- * Compact delta display string. For percent-style sources the absolute delta
- * appears in parentheses after the relative change, since "+2.4% change" on a
- * series like the unemployment rate is meaningfully different from a +2.4%
- * absolute move.
+ * Compact delta display string. For percent-style sources only the absolute
+ * delta is shown — the relative change is meaningless (and often misleading)
+ * for rate-like series with near-zero baselines: a 2-year Treasury that ran
+ * 0.14% → 4.01% in five years has a relative change of +2,764%, which is
+ * pure noise next to the +3.87 pp move that actually matters. Non-percent
+ * series keep the relative %change.
  *
- *   non-percent:  "+2.4%"
- *   percent:      "+2.4% (+0.1%)"
+ *   non-percent:  "+2.4%"     (relative)
+ *   percent:      "+0.2%"     (absolute pp — `.pct` is still exposed for
+ *                              callers that want the relative on hover etc.)
  */
 export function formatDeltaDisplay(
   current: number,
@@ -189,7 +192,7 @@ export function formatDeltaDisplay(
   direction: "up" | "down" | "flat";
 } {
   const d = formatDelta(current, prior, fmt);
-  const text = fmt.style === "percent" ? `${d.pct} (${d.abs})` : d.pct;
+  const text = fmt.style === "percent" ? d.abs : d.pct;
   return { text, pct: d.pct, abs: d.abs, direction: d.direction };
 }
 
