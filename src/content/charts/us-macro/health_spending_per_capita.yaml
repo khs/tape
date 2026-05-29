@@ -1,0 +1,15 @@
+title: US health spending per capita
+sources:
+  - cms_nhe/nhe_per_capita
+  - cms_nhe/phc_per_capita
+render: line
+defaultDelta: 30y
+tags: [health, macro, us, consumer]
+normalize: raw
+blurb: |
+  Health spending per US resident, in current dollars, from CMS's
+  National Health Expenditure Accounts (1960–2024). The upper line is
+  total national health expenditures; the lower line is personal health
+  care — the medical goods and services delivered to individuals. The
+  gap between them is public-health activity, program administration and
+  the net cost of insurance, and health-related investment.
