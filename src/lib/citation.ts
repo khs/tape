@@ -49,6 +49,42 @@ export interface CitationInput {
   license?: string;
 }
 
+/**
+ * The "Retrieved from" URL for a CHART citation. Prefers the actual
+ * dashboard the chart is being viewed on; falls back to a /custom/
+ * dashboard composed of just this chart when there is no hosting
+ * dashboard, so the cited link always renders the chart.
+ *
+ * `surface` is the chart dialog's payload surface (= the page's
+ * `dashboardSlug`):
+ *   "custom"            → composed /custom/?d= dashboard — the state is
+ *                         already in `href` (return it verbatim; do NOT
+ *                         strip the query, which is the whole dashboard).
+ *   "chart"             → per-chart detail page; `href` renders exactly it.
+ *   "u-<slug>"          → saved dashboard → canonical /u/<slug>/ (stable
+ *                         whether viewed on its own page or the home hero).
+ *   "source" | "embed" | "" → no hosting dashboard → `composeSingleChart()`
+ *                         (a /custom/?d=<just this chart> URL).
+ *   anything else       → a preset dashboard slug → canonical /<slug>/.
+ *
+ * `composeSingleChart` is a thunk so the (often-unused) encode only runs
+ * on the fallback path; it returns the absolute fallback URL.
+ */
+export function citationRetrievalUrl(args: {
+  surface: string;
+  origin: string;
+  href: string;
+  composeSingleChart: () => string;
+}): string {
+  const { surface, origin, href, composeSingleChart } = args;
+  if (surface === "custom" || surface === "chart") return href;
+  if (surface.startsWith("u-")) return `${origin}/u/${surface.slice(2)}/`;
+  if (surface && surface !== "source" && surface !== "embed") {
+    return `${origin}/${surface}/`;
+  }
+  return composeSingleChart();
+}
+
 /** Returns the citation as a single plain-text block (joined with spaces). */
 export function buildCitation(input: CitationInput): string {
   const providers = input.providers.filter(Boolean);

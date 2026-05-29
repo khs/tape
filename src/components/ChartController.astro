@@ -49,6 +49,7 @@
     type InlineChart,
   } from "../lib/composer-state";
   import { track } from "../lib/track";
+  import { citationRetrievalUrl } from "../lib/citation";
 
   // One-shot auth probe — used to decide whether tile sparkline tooltips
   // include the "Click to zoom in" affordance line. Signed-in users have
@@ -2874,6 +2875,48 @@
         });
       }
 
+      // Build a composed-state `?d=` param encoding JUST this chart, so it
+      // can render standalone — opened in /compose/ ("Open as dashboard")
+      // or linked from a citation's /custom/ "Retrieved from" URL. Mirrors
+      // the chart's own resolution (sources, normalize, scale, op) and
+      // seeds the current window so the standalone view matches the screen.
+      function singleChartDParam(): string {
+        const cid = payload.chartId ?? "";
+        const inline = cid.startsWith("inline:");
+        const seedTitle = payload.title ?? "New dashboard";
+        // Preserve the current time window so the standalone view opens at
+        // the same timeframe; closestSupported() degrades gracefully if a
+        // chart doesn't support it.
+        const seedDelta = ctx.currentWindow;
+        if (cid && !inline) {
+          // Library chart: composer resolves cid via getEntry().
+          return encodeComposedState({
+            title: seedTitle,
+            defaultDelta: seedDelta,
+            sections: [{ title: "Overview", charts: [cid] }],
+          });
+        }
+        // Inline chart: reconstruct its InlineChart spec from the payload
+        // so the standalone view has a source of truth.
+        const inlineId =
+          cid || `inline:${Math.random().toString(36).slice(2, 10)}`;
+        const inlineSpec: InlineChart = {
+          title: seedTitle,
+          sources: payload.sources.map((s) => s.id),
+          normalize: payload.normalize,
+          scale: payload.scale === "log" ? "log" : undefined,
+          rightAxisSources: payload.rightAxisSources,
+          op: payload.op,
+          defaultDelta: seedDelta,
+        };
+        return encodeComposedState({
+          title: seedTitle,
+          defaultDelta: seedDelta,
+          sections: [{ title: "Overview", charts: [inlineId] }],
+          inlineCharts: { [inlineId]: inlineSpec },
+        });
+      }
+
       const openAsDashBtn = dialog.querySelector<HTMLButtonElement>(
         "[data-role='open-as-dashboard']",
       );
@@ -2891,46 +2934,7 @@
           // their full spec carried over inlineCharts because there's no
           // server-side source of truth for them.
           const chartId = payload.chartId ?? "";
-          const isInline = chartId.startsWith("inline:");
-          const seedTitle = payload.title ?? "New dashboard";
-          // Preserve the user's current time window — if they were
-          // looking at YTD on this chart, the new dashboard should open
-          // at YTD too. closestSupported() in the composer falls back
-          // gracefully if some chart in the dashboard doesn't support it.
-          const seedDelta = ctx.currentWindow;
-          let dParam: string;
-          if (chartId && !isInline) {
-            // Library chart: composer resolves chartId via getEntry().
-            dParam = encodeComposedState({
-              title: seedTitle,
-              defaultDelta: seedDelta,
-              sections: [
-                { title: "Overview", charts: [chartId] },
-              ],
-            });
-          } else {
-            // Inline chart: reconstruct its InlineChart spec from the
-            // payload. The composer keeps it under inlineCharts[id] and
-            // renders it like the original dashboard would have.
-            const inlineId = chartId || `inline:${Math.random().toString(36).slice(2, 10)}`;
-            const inlineSpec: InlineChart = {
-              title: seedTitle,
-              sources: payload.sources.map((s) => s.id),
-              normalize: payload.normalize,
-              scale: payload.scale === "log" ? "log" : undefined,
-              rightAxisSources: payload.rightAxisSources,
-              op: payload.op,
-              defaultDelta: seedDelta,
-            };
-            dParam = encodeComposedState({
-              title: seedTitle,
-              defaultDelta: seedDelta,
-              sections: [
-                { title: "Overview", charts: [inlineId] },
-              ],
-              inlineCharts: { [inlineId]: inlineSpec },
-            });
-          }
+          const dParam = singleChartDParam();
           // Telemetry: each click is a strong-intent "I want to build
           // around this chart" signal; valuable for prioritizing which
           // charts deserve more attention from the curation pass.
@@ -2974,8 +2978,19 @@
             .sort()
             .at(-1);
           const title = payload.title ?? "Untitled chart";
-          const window = ctx.currentWindow;
-          const url = window ? `${location.origin}${location.pathname}` : location.href;
+          // "Retrieved from" should point at a view that renders THIS
+          // chart: the actual dashboard when there is one, else a /custom/
+          // dashboard composed of just this chart (so the link never lands
+          // on a bare /custom/ with the chart's state stripped off the
+          // query). surface = the page's dashboardSlug; the mapping lives
+          // in citationRetrievalUrl.
+          const url = citationRetrievalUrl({
+            surface: payload.surface ?? "",
+            origin: location.origin,
+            href: location.href,
+            composeSingleChart: () =>
+              `${location.origin}/custom/?d=${singleChartDParam()}`,
+          });
           // Compose the block. Each line is a sentence so a reader who
           // pastes it into a paragraph still gets readable prose.
           const lines = [

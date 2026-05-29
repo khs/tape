@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { buildCitation, buildCitationLines, type CitationInput } from "./citation";
+import {
+  buildCitation,
+  buildCitationLines,
+  citationRetrievalUrl,
+  type CitationInput,
+} from "./citation";
 
 const base: CitationInput = {
   title: "US unemployment rate",
@@ -85,5 +90,67 @@ describe("buildCitationLines — array form", () => {
     // title + data + as-of + license + retrieval.
     expect(lines.length).toBe(5);
     expect(lines[3]).toBe("License: CC-BY-4.0.");
+  });
+});
+
+describe("citationRetrievalUrl — chart citation 'retrieved from' target", () => {
+  const fallback = () => "https://x.test/custom/?d=ENCODED";
+  const call = (surface: string) =>
+    citationRetrievalUrl({
+      surface,
+      origin: "https://x.test",
+      href: "https://x.test/custom/?d=STATE&delta=5y",
+      composeSingleChart: fallback,
+    });
+
+  it("cites the full href (query intact) for a composed /custom/ dashboard", () => {
+    // The ?d= state IS the dashboard — stripping it would cite an empty composer.
+    expect(call("custom")).toBe("https://x.test/custom/?d=STATE&delta=5y");
+  });
+
+  it("cites the full href for the per-chart detail page", () => {
+    expect(call("chart")).toBe("https://x.test/custom/?d=STATE&delta=5y");
+  });
+
+  it("builds the canonical /u/<slug>/ URL for a saved dashboard", () => {
+    expect(call("u-my-econ-board")).toBe("https://x.test/u/my-econ-board/");
+  });
+
+  it("builds the canonical /<slug>/ URL for a preset dashboard", () => {
+    expect(call("us-macro")).toBe("https://x.test/us-macro/");
+  });
+
+  it("falls back to a single-chart /custom/ URL for the source page", () => {
+    expect(call("source")).toBe("https://x.test/custom/?d=ENCODED");
+  });
+
+  it("falls back to a single-chart /custom/ URL for an embed", () => {
+    expect(call("embed")).toBe("https://x.test/custom/?d=ENCODED");
+  });
+
+  it("falls back to a single-chart /custom/ URL when surface is unknown/empty", () => {
+    expect(call("")).toBe("https://x.test/custom/?d=ENCODED");
+  });
+
+  it("only invokes the (costly) compose thunk on the fallback path", () => {
+    let calls = 0;
+    const counted = () => {
+      calls++;
+      return "https://x.test/custom/?d=Z";
+    };
+    citationRetrievalUrl({
+      surface: "us-macro",
+      origin: "https://x.test",
+      href: "https://x.test/us-macro/",
+      composeSingleChart: counted,
+    });
+    expect(calls).toBe(0); // dashboard branch — never composed
+    citationRetrievalUrl({
+      surface: "source",
+      origin: "https://x.test",
+      href: "https://x.test/source/fred/cpi/",
+      composeSingleChart: counted,
+    });
+    expect(calls).toBe(1); // fallback branch — composed once
   });
 });
