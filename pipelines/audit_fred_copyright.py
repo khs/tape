@@ -177,9 +177,10 @@ def fred_api_lookup(series_id: str, api_key: str) -> Optional[tuple[str, list[st
     derived from whichever copyright-class tag (group_id == "cc")
     the series carries.
 
-    Retries 5xx transients up to 3 times with exponential backoff —
-    FRED occasionally returns 502 / 503 under load and a one-shot
-    failure shouldn't sink a CI audit over 130+ series.
+    Retries transient failures up to 3 times with exponential backoff —
+    5xx / 429 responses AND raw socket timeouts / connection resets, which
+    FRED throws under load. A one-shot network hiccup shouldn't sink a CI
+    audit over 130+ series (it surfaces the row as UNKNOWN instead).
     """
     url = (
         f"https://api.stlouisfed.org/fred/series/tags"
@@ -201,7 +202,12 @@ def fred_api_lookup(series_id: str, api_key: str) -> Optional[tuple[str, list[st
                 time.sleep(2 * (attempt + 1))
                 continue
             raise
-        except (URLError, json.JSONDecodeError) as e:
+        except (URLError, TimeoutError, ConnectionError, json.JSONDecodeError) as e:
+            # URLError = DNS / refused; TimeoutError = the raw socket
+            # read/connect timeout urlopen(timeout=) raises (it is an
+            # OSError, NOT a URLError, so it previously escaped this handler
+            # and crashed the whole CI job on a single FRED hiccup);
+            # ConnectionError = resets under load. All transient → retry.
             last_exc = e
             time.sleep(2 * (attempt + 1))
             continue
