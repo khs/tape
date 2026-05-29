@@ -1474,7 +1474,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // can't overflow the share-URL limit when the main Preview didn't. Opened
   // in a new tab so the composer session is preserved.
   function singleChartPreviewUrl(chartId: string): string {
+    // Carry the time window the user is viewing so the preview opens at
+    // the same timeframe — not the chart's own defaultDelta. Effective
+    // window = the chart's section setting if any, else the dashboard
+    // default; a pinned fixedRange (which overrides defaultDelta) is
+    // carried the same way. Without this, the single-tile preview lost
+    // the dashboard timeframe and silently fell back to each chart's
+    // own default — the reported mismatch.
+    const owningSection = state.sections.find((s) =>
+      s.charts.includes(chartId),
+    );
+    const effectiveDelta = ((owningSection?.defaultDelta as
+      | DeltaWindow
+      | undefined) || (state.defaultDelta || undefined)) as
+      | DeltaWindow
+      | undefined;
+    const effectiveFixedRange = owningSection?.fixedRange ?? state.fixedRange;
     const clean: Omit<ComposedState, "v"> = {
+      defaultDelta: effectiveDelta,
+      fixedRange: effectiveFixedRange,
       sections: [
         {
           title: "",
@@ -1490,6 +1508,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       inlineMaps: referencedInlineMaps(),
       chartOverrides: referencedChartOverrides(),
     };
+    if (!clean.defaultDelta) delete clean.defaultDelta;
+    if (!clean.fixedRange) delete clean.fixedRange;
     if (!clean.inlineCharts) delete clean.inlineCharts;
     if (!clean.inlineSources) delete clean.inlineSources;
     if (!clean.inlineMaps) delete clean.inlineMaps;
