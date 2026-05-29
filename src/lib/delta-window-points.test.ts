@@ -171,24 +171,96 @@ describe("filterSupportedDeltas", () => {
     expect(result.length).toBeGreaterThan(0);
   });
 
-  it("never filters out ytd, regardless of point count", () => {
-    // YTD is a calendar window — its point count varies through the
-    // year and we explicitly opt it out of the filter.
-    const earlyJanSource: SourceForWindowCount = {
+  it("keeps ytd when its emptiness can't be measured (no latest date → permissive)", () => {
+    // YTD is a calendar window we don't point-count. With no `latest`
+    // on the summary (and no full points), we can't tell whether the
+    // current year has data, so we stay permissive and keep the pill.
+    const unknownLatest: SourceForWindowCount = {
       summary: {
         sparks: {
           "1m": new Array(30).fill(null),
           "1y": new Array(250).fill(null),
         },
-        // No ytd spark — pointsInDeltaWindow returns Infinity for ytd
-        // anyway. This test exercises the filter-side opt-out too.
       },
     };
     const result = filterSupportedDeltas(
       ["1m", "ytd", "1y"],
-      [earlyJanSource],
+      [unknownLatest],
     );
     expect(result).toContain("ytd");
+  });
+
+  it("keeps a sparse ytd when the latest observation is in the current year", () => {
+    // A current series whose latest point is March of this year: ytd is
+    // sparse but non-empty, so it reads naturally and stays.
+    const now = new Date("2026-05-29T00:00:00Z");
+    const current: SourceForWindowCount = {
+      summary: {
+        latest: { t: "2026-03-01" },
+        sparks: { "1m": new Array(30).fill(null) },
+      },
+    };
+    const result = filterSupportedDeltas(
+      ["ytd", "5y"],
+      [current],
+      MIN_POINTS_FOR_WINDOW,
+      now,
+    );
+    expect(result).toContain("ytd");
+  });
+
+  it("drops a zero-point ytd when the latest observation predates the current year", () => {
+    // Stale/annual series: latest point is 2021, today is 2026, so the
+    // ytd window has no data. It should drop so the default escalates to
+    // the next-larger window that does. The other windows here are
+    // unmeasurable (no sparks/points), so they stay — ytd is the lone drop.
+    const now = new Date("2026-05-29T00:00:00Z");
+    const staleAnnual: SourceForWindowCount = {
+      summary: { latest: { t: "2021-01-01" } },
+    };
+    const result = filterSupportedDeltas(
+      ["1m", "ytd", "5y"],
+      [staleAnnual],
+      MIN_POINTS_FOR_WINDOW,
+      now,
+    );
+    expect(result).not.toContain("ytd");
+    expect(result).toEqual(["1m", "5y"]);
+  });
+
+  it("drops ytd if ANY source lacks current-year data (shared pill row)", () => {
+    const now = new Date("2026-05-29T00:00:00Z");
+    const current: SourceForWindowCount = {
+      summary: { latest: { t: "2026-04-01" } },
+    };
+    const staleAnnual: SourceForWindowCount = {
+      summary: { latest: { t: "2021-01-01" } },
+    };
+    const result = filterSupportedDeltas(
+      ["ytd", "5y"],
+      [current, staleAnnual],
+      MIN_POINTS_FOR_WINDOW,
+      now,
+    );
+    expect(result).not.toContain("ytd");
+  });
+
+  it("detects an empty ytd from full points when no summary is present", () => {
+    // Full-data renders (no tile summary) must still detect an empty ytd
+    // via the last point's date.
+    const now = new Date("2026-05-29T00:00:00Z");
+    const fullStale: SourceForWindowCount = {
+      data: {
+        points: [{ t: "2019-01-01" }, { t: "2020-01-01" }, { t: "2021-01-01" }],
+      },
+    };
+    const result = filterSupportedDeltas(
+      ["ytd", "5y"],
+      [fullStale],
+      MIN_POINTS_FOR_WINDOW,
+      now,
+    );
+    expect(result).not.toContain("ytd");
   });
 
   it("drops a window only if EVERY source agrees it has data — multi-source rule", () => {
