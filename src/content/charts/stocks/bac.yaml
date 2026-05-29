@@ -2,4 +2,4 @@ title: Bank of America
 sources: ["yahoo_marketcap/bac_mc"]
 render: line
 defaultDelta: 1m
-tags: [us, single-name]
+tags: [us, large-stocks]

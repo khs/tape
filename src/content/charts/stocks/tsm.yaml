@@ -2,4 +2,4 @@ title: TSMC
 sources: ["yahoo_marketcap/tsm_mc"]
 render: line
 defaultDelta: 1m
-tags: [us, single-name]
+tags: [us, large-stocks]

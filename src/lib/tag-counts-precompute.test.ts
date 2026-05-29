@@ -41,7 +41,7 @@ describe("isGeoSyntheticTag", () => {
   });
   test("topical tags are NOT considered geo", () => {
     expect(isGeoSyntheticTag("agriculture")).toBe(false);
-    expect(isGeoSyntheticTag("single-name")).toBe(false);
+    expect(isGeoSyntheticTag("large-stocks")).toBe(false);
     expect(isGeoSyntheticTag("macro")).toBe(false);
     expect(isGeoSyntheticTag("us")).toBe(false);
     // 'metropolitan' must not match metro: prefix — colon is required.
@@ -89,12 +89,12 @@ describe("computeTagCountsByGeo", () => {
   test("default-visible sources land in __all only", () => {
     const out = computeTagCountsByGeo({
       "fred/gdp": { tags: ["macro", "us"] },
-      "yahoo_marketcap/xom_mc": { tags: ["single-name", "energy"] },
+      "yahoo_marketcap/xom_mc": { tags: ["large-stocks", "energy"] },
     });
     expect(out.__all).toEqual({
       macro: 1,
       us: 1,
-      "single-name": 1,
+      "large-stocks": 1,
       energy: 1,
     });
   });

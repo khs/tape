@@ -159,7 +159,7 @@ const charts = defineCollection({
     // Per-chart short labels for series (overrides source.shortName for this chart).
     seriesLabels: z.array(z.string()).optional(),
     // Topic tags for the composer library filter. Multi-tag allowed; proposed
-    // starter taxonomy (expand as needed): rates, equity-index, single-name,
+    // starter taxonomy (expand as needed): rates, equity-index, large-stocks,
     // macro, commodities, credit, world.
     tags: z.array(z.string()).default([]),
     // Chart-ID stability contract: deprecated charts with an aliasOf resolve

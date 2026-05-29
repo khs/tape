@@ -3,4 +3,4 @@ sources:
   - yahoo/amt
 render: line
 defaultDelta: 1y
-tags: [real-estate, single-name, us]
+tags: [real-estate, large-stocks, us]

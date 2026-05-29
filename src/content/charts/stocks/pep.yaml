@@ -2,4 +2,4 @@ title: PepsiCo
 sources: ["yahoo_marketcap/pep_mc"]
 render: line
 defaultDelta: 1m
-tags: [us, single-name]
+tags: [us, large-stocks]

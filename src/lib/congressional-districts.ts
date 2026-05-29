@@ -6,7 +6,7 @@
  * them (435 districts × ~5 series each: USAspending federal spending +
  * ACS bachelor's-plus / median household income / population / poverty
  * count). Surfacing them at the same level as the ~150 country / sector
- * / single-name sources would drown out everything else.
+ * / large-stocks sources would drown out everything else.
  *
  * Instead, a dedicated "Congressional district" chip on each picker
  * gates them: when active, a State dropdown appears; once a state is

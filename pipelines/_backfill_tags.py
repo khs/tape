@@ -23,7 +23,7 @@ def tags_for(rel_path: str) -> list[str]:
     if dir_name == "commodities":
         return ["commodities"]
     if dir_name == "stocks":
-        return ["single-name"]
+        return ["large-stocks"]
     if dir_name == "countries":
         return ["world", "equity-index"]
 
@@ -63,7 +63,7 @@ def tags_for(rel_path: str) -> list[str]:
         if stem in {"indices"}:
             return ["equity-index"]
         # Mega-cap tech stocks
-        return ["single-name"]
+        return ["large-stocks"]
 
     if dir_name == "oil":
         if stem in {"xle", "transition"}:

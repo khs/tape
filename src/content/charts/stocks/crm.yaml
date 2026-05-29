@@ -2,4 +2,4 @@ title: Salesforce
 sources: ["yahoo_marketcap/crm_mc"]
 render: line
 defaultDelta: 1m
-tags: [us, single-name]
+tags: [us, large-stocks]

@@ -2,4 +2,4 @@ title: Walt Disney
 sources: ["yahoo_marketcap/dis_mc"]
 render: line
 defaultDelta: 1m
-tags: [us, single-name]
+tags: [us, large-stocks]

@@ -2,4 +2,4 @@ title: Cisco Systems
 sources: ["yahoo_marketcap/csco_mc"]
 render: line
 defaultDelta: 1m
-tags: [us, single-name]
+tags: [us, large-stocks]

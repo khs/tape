@@ -68,8 +68,8 @@ SOURCES_ROOT = REPO_ROOT / "src" / "content" / "sources"
 # (think: a stock vs its underlying commodity, a country ETF vs the
 # world index, a sector vs the broad market).
 MULTI_SOURCE_OVERRIDES: dict[str, dict[str, list[str]]] = {
-    # XOM (US single-name) vs WTI (global commodity). Only 'energy'
-    # cleanly applies to both sides; 'us'/'single-name' shouldn't go
+    # XOM (US large-stocks) vs WTI (global commodity). Only 'energy'
+    # cleanly applies to both sides; 'us'/'large-stocks' shouldn't go
     # on a commodity and 'commodities' shouldn't go on a stock.
     "stocks/xom_vs_wti": {
         "yahoo_marketcap/xom_mc": ["energy"],

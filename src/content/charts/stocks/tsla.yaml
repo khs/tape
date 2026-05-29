@@ -2,7 +2,7 @@ title: Tesla
 sources: ["yahoo_marketcap/tsla_mc"]
 render: line
 defaultDelta: 5y
-tags: [us, single-name, auto]
+tags: [us, large-stocks, auto]
 annotations:
   - date: "2020-08-31"
     label: 5-for-1 split
