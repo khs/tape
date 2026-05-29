@@ -9,6 +9,7 @@ import {
   magnitudeFromFormatting,
   axisTickFormatting,
 } from "./format";
+import { AXIS_LABEL_MARGIN_PX, AXIS_LABEL_FONT_PX } from "./chart-layout";
 
 describe("formatValue — basic styles", () => {
   it("renders percent values with explicit %", () => {
@@ -405,22 +406,32 @@ describe("axisTickFormatting", () => {
 });
 
 describe("axisTickFormatting — y-tick labels fit the plot's left margin", () => {
-  // The dialog plot is rendered with marginLeft: 64 (px) in
-  // ChartController. A y-tick label wider than that margin has its
-  // leading characters clipped by the SVG viewport — which is exactly
-  // how "3.4 workers" rendered as "4 workers" (only the trailing
-  // decimal digit survived). Real glyph widths can't be measured in a
-  // unit test, so approximate with a generous upper bound for the 12px
-  // axis font and assert the FORMATTED axis label stays inside the
-  // margin (minus the tick mark + label gap). Regression guard: if a
-  // word suffix sneaks back onto the axis, the estimate trips.
-  const MARGIN_LEFT_PX = 64; // keep in sync with ChartController marginLeft
+  // The dialog plot reserves AXIS_LABEL_MARGIN_PX on the left for y-tick
+  // labels (ChartController). A label wider than that margin has its
+  // leading characters clipped by the SVG viewport — which is exactly how
+  // "3.4 workers" rendered as "4 workers" (only the trailing decimal
+  // digit survived). Real glyph widths can't be measured in a unit test,
+  // so estimate from the axis font size and assert the FORMATTED label
+  // stays inside the margin (minus the tick mark + gap). The budget is
+  // DERIVED from the shared constants — not hardcoded — so shrinking the
+  // margin or bumping the font in ChartController re-evaluates these
+  // assertions instead of silently passing.
   const TICK_GAP_PX = 9; // tick mark + padding consumed before the text
-  const MAX_CHAR_PX = 7; // generous per-glyph upper bound at 12px Inter
-  const budgetPx = MARGIN_LEFT_PX - TICK_GAP_PX; // 55px for the label text
-  const estWidthPx = (s: string) => s.length * MAX_CHAR_PX;
+  // ~0.6em per glyph is a generous upper bound for a proportional font;
+  // scales with the axis font so a font bump tightens the check.
+  const charPx = AXIS_LABEL_FONT_PX * 0.6;
+  const budgetPx = AXIS_LABEL_MARGIN_PX - TICK_GAP_PX;
+  const estWidthPx = (s: string) => s.length * charPx;
 
-  it("drops the word so the OASDI 'workers' tick clears the 64px margin", () => {
+  it("pins the axis margin + font the clipping guard assumes", () => {
+    // Canary: changing either constant in ChartController fails this on
+    // purpose — re-check that y-tick labels still clear the margin (see
+    // axisTickFormatting) before bumping these to match.
+    expect(AXIS_LABEL_MARGIN_PX).toBe(64);
+    expect(AXIS_LABEL_FONT_PX).toBe(12);
+  });
+
+  it("drops the word so the OASDI 'workers' tick clears the margin", () => {
     const src = { style: "number" as const, decimals: 1, suffix: " workers" };
     // The un-stripped label is the form that overflowed and clipped.
     expect(formatValue(3.4, src)).toBe("3.4 workers");

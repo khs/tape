@@ -27,6 +27,7 @@
     axisTickFormatting,
     type Formatting,
   } from "../lib/format";
+  import { AXIS_LABEL_MARGIN_PX, AXIS_LABEL_FONT_PX } from "../lib/chart-layout";
   import {
     bandsFor,
     SHADING_FILL_OPACITY,
@@ -1716,14 +1717,14 @@
           const plot = Plot.plot({
             height: 280,
             width,
-            marginLeft: 64,
+            marginLeft: AXIS_LABEL_MARGIN_PX,
             marginBottom: 28,
             marginTop: 10,
-            marginRight: 64,
+            marginRight: AXIS_LABEL_MARGIN_PX,
             style: {
               fontFamily:
                 '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-              fontSize: "12px",
+              fontSize: `${AXIS_LABEL_FONT_PX}px`,
               color: "#55524C",
               background: "transparent",
             },
@@ -1746,8 +1747,8 @@
           wireHoverCard(container, {
             bundles: dualBundles,
             domainMs: dualDomainMs,
-            marginLeft: 64,
-            marginRight: 64,
+            marginLeft: AXIS_LABEL_MARGIN_PX,
+            marginRight: AXIS_LABEL_MARGIN_PX,
           });
           return;
         }
@@ -1980,14 +1981,14 @@
     const plot = Plot.plot({
       height: 280,
       width,
-      marginLeft: 64,
+      marginLeft: AXIS_LABEL_MARGIN_PX,
       marginBottom: 28,
       marginTop: 10,
       marginRight: 16,
       style: {
         fontFamily:
           '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontSize: "12px",
+        fontSize: `${AXIS_LABEL_FONT_PX}px`,
         color: "#55524C",
         background: "transparent",
       },
@@ -2034,7 +2035,7 @@
     wireHoverCard(container, {
       bundles,
       domainMs: zoomedDomainMs ?? standardDomainMs ?? null,
-      marginLeft: 64,
+      marginLeft: AXIS_LABEL_MARGIN_PX,
       marginRight: 16,
     });
   }
