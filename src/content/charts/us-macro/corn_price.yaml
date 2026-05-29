@@ -1,0 +1,10 @@
+title: US corn price received by farmers
+sources:
+  - usda_nass/corn_price_us
+render: line
+defaultDelta: 50y
+tags: [agriculture, us]
+normalize: raw
+blurb: |
+  Marketing-year average price received by US corn farmers, dollars
+  per bushel. From USDA NASS QuickStats.

@@ -1,0 +1,12 @@
+title: CPI — food at home vs food away from home
+sources:
+  - fred/cpi_food_at_home
+  - fred/cpi_food_away
+render: line
+defaultDelta: 10y
+tags: [macro, us, consumer, inflation]
+normalize: rebase
+blurb: |
+  CPI for grocery (food at home) vs restaurant (food away from home),
+  both rebased to 100 at the start of the window. Monthly, seasonally
+  adjusted, from BLS via FRED.
