@@ -306,6 +306,29 @@ SPECS: list[FredSpec] = [
     FredSpec("ULCNFB", "Nonfarm business: unit labor costs", "index 2017=100"),
     # Manufacturing-sector productivity for the "is reshoring real?" debate
     FredSpec("OPHMFG", "Manufacturing: output per hour", "index 2017=100"),
+    # ------------------------------------------------------------------
+    # Agriculture (2026-05). Quick-win public-domain series so the new
+    # "agriculture" section has first-class national data alongside the
+    # USGS water-use sources. All verified resolving + concept-checked
+    # against FRED's official titles before ingest; all public-domain
+    # (BLS/BEA/USDA federal sources). audit_fred_copyright.py gates them.
+    #   WPU01    is the live farm-products PPI (the SA variant WPS01 is
+    #            DISCONTINUED, so we use the not-seasonally-adjusted WPU01).
+    #   WPS0652  is fertilizer-materials PPI (SA) — fertilizer is the input
+    #            cost farmers watch hardest; spiked hard in 2021-22.
+    #   B1448C1A027NBEA / B181RC1Q027SBEA are BEA NIPA dollar series already
+    #            reported in billions (canonical currency base), so no
+    #            rescale — net farm income (annual) + ag exports (quarterly).
+    #   CPI food-at-home vs food-away splits the grocery/restaurant wedge.
+    #   LNS12034560 is the agriculture employment level (CPS) — "thousands"
+    #            metadata → rescaled to raw persons by the count guard below.
+    FredSpec("WPU01", "PPI: Farm products", "index (1982=100)"),
+    FredSpec("WPS0652", "PPI: Fertilizer materials", "index (1982=100)"),
+    FredSpec("B1448C1A027NBEA", "Net farm income (USDA)", "billions USD"),
+    FredSpec("B181RC1Q027SBEA", "US agricultural exports", "billions USD"),
+    FredSpec("CUSR0000SAF11", "CPI: Food at home", "index (1982-84=100)"),
+    FredSpec("CUSR0000SEFV", "CPI: Food away from home", "index (1982-84=100)"),
+    FredSpec("LNS12034560", "Employment: agriculture & related industries", "thousands of persons"),
     # ---- DC-metro variants (for the VA-08 + DC-area workbooks) ----
     # The Washington-Arlington-Alexandria MSA cuts across DC, parts of VA,
     # parts of MD, and parts of WV — so these series capture economic
@@ -522,6 +545,10 @@ def _infer_raw_count_unit(series_id: str, fred_unit: str) -> str:
         ("payrolls", "jobs"),
         ("payems", "jobs"),
         ("employment", "jobs"),
+        # CPS "Employment Level" family (LNS12*) — series IDs carry no
+        # English hint, so match the prefix. LNS14*/LNS11* are rates (%),
+        # never thousand-counts, so they never reach this inference.
+        ("lns12", "jobs"),
         ("claim", "claims"),
         ("ics", "claims"),
         ("ccs", "claims"),

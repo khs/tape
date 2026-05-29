@@ -1,0 +1,21 @@
+name: PPI - Fertilizer materials
+shortName: PPI fertilizer
+description: Producer Price Index for fertilizer materials, a major farm input cost. Seasonally adjusted, monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/WPS0652.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index (1982=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: WPS0652
+  url: https://fred.stlouisfed.org/series/WPS0652
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us
+unitClass: index

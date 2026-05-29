@@ -1,0 +1,21 @@
+name: PPI - Farm products
+shortName: PPI farm products
+description: Producer Price Index for farm products — wholesale prices received by farmers for crops and livestock. Not seasonally adjusted, monthly.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/WPU01.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "index (1982=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: WPU01
+  url: https://fred.stlouisfed.org/series/WPU01
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us
+unitClass: index

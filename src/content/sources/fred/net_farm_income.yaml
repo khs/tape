@@ -1,0 +1,22 @@
+name: Net farm income
+shortName: Net farm income
+description: USDA net farm income — the farm sector's profit after expenses, nationwide. Annual, in current dollars.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/B1448C1A027NBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 0
+  suffix: "B"
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: B1448C1A027NBEA
+  url: https://fred.stlouisfed.org/series/B1448C1A027NBEA
+  license: Public domain (US government data)
+tags:
+  - agriculture
+  - us
+unitClass: currency
