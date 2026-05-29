@@ -1,7 +1,6 @@
 name: Manufacturing productivity
 shortName: Mfg productivity
-description: Output per hour in the manufacturing sector specifically. Useful 
-  for the "is US reshoring real?" debate.
+description: Output per hour in the manufacturing sector specifically.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/OPHMFG.json
