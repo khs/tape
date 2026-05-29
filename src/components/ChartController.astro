@@ -42,7 +42,7 @@
     annotationsHiddenSummary,
     type Annotation,
   } from "../lib/annotations";
-  import { SITE_BRAND_URL } from "../lib/brand";
+  import { SITE_BRAND_NAME } from "../lib/brand";
   import { readStoredSession } from "../lib/supabase";
   import {
     encodeComposedState,
@@ -2436,13 +2436,13 @@
     const wrapper = [
       `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">`,
       `<rect width="${W}" height="${H}" fill="#fefefe"/>`,
-      `<text x="${pad}" y="${pad + 14}" font-size="11" font-weight="600" letter-spacing="1.2" fill="#0d7a6a">LEGIBLE MARKETS</text>`,
+      `<text x="${pad}" y="${pad + 14}" font-size="11" font-weight="600" letter-spacing="1.2" fill="#0d7a6a">${escapeXml(SITE_BRAND_NAME.toUpperCase())}</text>`,
       `<text x="${pad}" y="${pad + 46}" font-size="22" font-weight="600" fill="#111">${escapeXml(title)}</text>`,
       sourceLine
         ? `<text x="${pad}" y="${pad + 70}" font-size="13" fill="#666">${escapeXml(sourceLine)} · ${escapeXml(windowLabel)} window</text>`
         : "",
       `<g transform="translate(${pad}, ${pad + headerH})">${plotInner}</g>`,
-      `<text x="${pad}" y="${H - pad / 2}" font-size="12" fill="#888">${escapeXml(SITE_BRAND_URL)}</text>`,
+      `<text x="${pad}" y="${H - pad / 2}" font-size="12" fill="#888">${escapeXml(window.location.host)}</text>`,
       updatedStr
         ? `<text x="${W - pad}" y="${H - pad / 2}" font-size="12" fill="#888" text-anchor="end">Data through ${escapeXml(updatedStr)}</text>`
         : "",

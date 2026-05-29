@@ -25,7 +25,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 // previews work locally too. (Shared with the per-source citation block
 // via canonicalOrigin so both resolve the same way.)
 const siteOrigin = canonicalOrigin(Astro);
-const resolvedOgPath = ogImage ?? "/og.png?title=Legible+Markets";
+const resolvedOgPath = ogImage ?? `/og.png?title=${encodeURIComponent(SITE_BRAND_NAME)}`;
 const absoluteOgUrl = siteOrigin + resolvedOgPath;
 const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
 ---
