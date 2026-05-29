@@ -322,7 +322,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <span class="muted small" data-role="map-indicator-info">&nbsp;</span>
             </label>
 
-            <label class="map-field" data-role="map-state-field" hidden>
+            <div class="map-field" data-role="map-state-field" hidden>
               <span class="map-field-label">State(s)</span>
               <div class="map-region-presets" data-role="map-region-presets">
                 <span class="muted small">Quick regions:</span>
@@ -365,6 +365,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               <select
                 class="map-input map-state-multi"
                 data-role="map-state"
+                aria-label="States"
                 multiple
                 size="6"
               ></select>
@@ -374,11 +375,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 multi-select.
               </span>
               <span class="muted small" data-role="map-state-readout">&nbsp;</span>
-            </label>
+            </div>
 
             <label class="map-field">
               <span class="map-field-label">Color scheme</span>
               <select class="map-input" data-role="map-color-scheme">
+                <option value="viridis">Viridis (perceptually uniform)</option>
+                <option value="batlow">Batlow (perceptually uniform)</option>
                 <option value="reds">Reds</option>
                 <option value="blues">Blues</option>
                 <option value="greens">Greens</option>
@@ -386,8 +389,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <option value="oranges">Oranges</option>
                 <option value="ylorrd">Yellow–Orange–Red</option>
                 <option value="rdylgn">Red–Yellow–Green (diverging)</option>
-                <option value="viridis">Viridis (perceptually uniform)</option>
-                <option value="batlow">Batlow (perceptually uniform)</option>
               </select>
             </label>
 
@@ -3292,7 +3293,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     vintage: "2022",
     geo: "county",
     states: ["VA"],
-    colorScheme: "reds",
+    colorScheme: "viridis",
     colorScale: "linear",
     bbox: null,
     customTitle: "",
@@ -3439,45 +3440,58 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         '<p class="muted small">bbox is only useful at tract or block-group resolution. State and county maps already cover the whole area at a glance.</p>';
       return;
     }
-    preview.innerHTML = '<p class="muted small">Loading state outline…</p>';
-    // Always use the TRACT topology for the preview, even when the
-    // user picked block-group — tracts are 1/5 the size, render fast,
-    // and give the user the same sense of state shape for drawing.
-    // For multi-state selections, preview the FIRST state (drawing a
-    // bbox over a stitched multi-state image at this preview size is
-    // hard to do precisely; the bbox itself still clips features
-    // from all selected states at render time).
-    const previewState = mapBuilder.states[0];
-    if (!previewState) {
+    preview.innerHTML = '<p class="muted small">Loading state outlines…</p>';
+    // Always use the TRACT topology for the preview, even when the user
+    // picked block-group — tracts are 1/5 the size, render fast, and give
+    // the same sense of state shape for drawing. ALL selected states are
+    // loaded and fit into one preview, so adding a state (Ctrl-click)
+    // expands the drawable area to match the actual coverage; the bbox
+    // clips features from every selected state at render time.
+    const previewStates = mapBuilder.states;
+    if (previewStates.length === 0) {
       preview.innerHTML =
         '<p class="muted small">Pick at least one state above to enable bbox drawing.</p>';
       return;
     }
-    const topoUrl = `/maps/${previewState.toLowerCase()}-tracts-topo.json`;
     // Topojson and d3-geo types are picky about Topology<Objects<...>>
-    // generics; the actual JSON we ship is plain JSON. The runtime cast
-    // is unavoidable since we don't carry the full type generic
-    // through fetch + JSON.parse.
-    let topo = mapBboxTopoCache.get(topoUrl) as
-      | { type: "Topology"; objects: Record<string, unknown>; arcs: unknown[] }
-      | undefined;
-    if (!topo) {
-      try {
-        const resp = await fetch(topoUrl);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        topo = await resp.json();
-        mapBboxTopoCache.set(topoUrl, topo);
-      } catch (e) {
-        preview.innerHTML =
-          `<p class="muted small">Could not load topology for ${previewState}: ${(e as Error).message}</p>`;
-        return;
-      }
+    // generics; the JSON we ship is plain JSON, so the casts are
+    // unavoidable. Fetch each selected state's tracts (cached per state)
+    // and concatenate the features for a combined-extent preview. A
+    // state whose topology fails to load is skipped rather than aborting
+    // the whole preview.
+    const featureGroups = await Promise.all(
+      previewStates.map(async (st) => {
+        const topoUrl = `/maps/${st.toLowerCase()}-tracts-topo.json`;
+        let topo = mapBboxTopoCache.get(topoUrl) as
+          | { type: "Topology"; objects: Record<string, unknown>; arcs: unknown[] }
+          | undefined;
+        if (!topo) {
+          try {
+            const resp = await fetch(topoUrl);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            topo = await resp.json();
+            mapBboxTopoCache.set(topoUrl, topo);
+          } catch {
+            return null;
+          }
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fc = topoFeature(topo as any, (topo as any).objects.tracts) as
+          unknown as { features: unknown[] };
+        return fc.features;
+      }),
+    );
+    const features = featureGroups
+      .filter((g): g is unknown[] => g !== null)
+      .flat();
+    if (features.length === 0) {
+      preview.innerHTML =
+        `<p class="muted small">Could not load topology for ${previewStates.join(", ")}.</p>`;
+      return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fc = topoFeature(topo as any, (topo as any).objects.tracts) as
-      unknown as { features: unknown[]; type: "FeatureCollection" };
     const width = 360, height = 280;
-    const projection = geoAlbers().fitSize([width, height], fc as never);
+    const combinedFc = { type: "FeatureCollection", features };
+    const projection = geoAlbers().fitSize([width, height], combinedFc as never);
     const pathGen = geoPath(projection);
 
     preview.innerHTML = "";
@@ -3489,7 +3503,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     preview.appendChild(svgEl);
     const tractsG = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svgEl.appendChild(tractsG);
-    for (const f of (fc.features as Array<{ id?: string }>)) {
+    for (const f of (features as Array<{ id?: string }>)) {
       const d = pathGen(f as never);
       if (!d) continue;
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
