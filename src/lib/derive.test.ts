@@ -119,6 +119,21 @@ describe("combineTwo / combineOpFormatting — multiply", () => {
     expect(r.multiplier).toBe(1);
   });
 
+  it("price × count → currency compact (raw $ value, multiplier 1)", () => {
+    // NASS price ($/bu, unitClass "price", stored raw) × quantity (bu, count)
+    // → production value in raw $, rendered compact ("$69.8B"). NOT the
+    // rate×count 0.01 path (price isn't percent-stored).
+    const r = combineOpFormatting(FMT_CURRENCY, FMT_NUMBER, "multiply", "price", "count");
+    expect(r.formatting.style).toBe("currency");
+    expect(r.formatting.notation).toBe("compact");
+    expect(r.multiplier).toBe(1);
+    // commutative — count × price gives the same result
+    const r2 = combineOpFormatting(FMT_NUMBER, FMT_CURRENCY, "multiply", "count", "price");
+    expect(r2.formatting.style).toBe("currency");
+    expect(r2.formatting.notation).toBe("compact");
+    expect(r2.multiplier).toBe(1);
+  });
+
   // Substitution safety: a rate stored rounded to 1 dp, times its
   // denominator, reconstructs the original count to within the rounding
   // error — so the composer can substitute the EXACT original count source

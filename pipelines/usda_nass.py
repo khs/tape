@@ -138,8 +138,11 @@ def classify(statisticcat: str, unit_desc: str) -> SeriesType | None:
         if "/" not in u:
             return None
         denom = u.split("/")[-1].strip().lower()  # "$ / BU" → "bu"
-        # unitClass intentionally unset ("") — see module docstring.
-        return SeriesType("price", "price", "", f"USD / {denom}", 2, None, "currency")
+        # unitClass "price" = currency-per-unit, stored raw. Lets the
+        # composer's multiply render price × quantity as a $-value (see
+        # src/lib/derive.ts combineOpFormatting) without the billions
+        # invariant or the rate×count 0.01 factor.
+        return SeriesType("price", "price", "price", f"USD / {denom}", 2, None, "currency")
     return None
 
 
@@ -206,7 +209,8 @@ def _yaml_str(s: str) -> str:
 
 
 def write_yaml(sid: str, name: str, short_name: str, description: str,
-               geo_key: str, st: SeriesType, short_desc: str) -> None:
+               geo_key: str, st: SeriesType, short_desc: str,
+               combine: dict | None = None) -> None:
     YAML_DIR.mkdir(parents=True, exist_ok=True)
     tags = ["agriculture"]
     if geo_key != "us":
@@ -239,6 +243,13 @@ def write_yaml(sid: str, name: str, short_name: str, description: str,
     ]
     if st.unit_class:
         lines.append(f"unitClass: {st.unit_class}")
+    if combine:
+        lines += [
+            "combineHint:",
+            f"  partner: {combine['partner']}",
+            f"  op: {combine['op']}",
+            f"  resultLabel: {_yaml_str(combine['resultLabel'])}",
+        ]
     lines.append("")
     (YAML_DIR / f"{sid}.yaml").write_text("\n".join(lines), encoding="utf-8")
 
@@ -291,8 +302,24 @@ def build() -> int:
         else:
             desc = (f"{c.label} {st.label} for {geo_name} (in {st.unit_out}), annual. "
                     f"USDA National Agricultural Statistics Service (QuickStats survey).")
+        # combineHint: link price <-> production for the same crop+geo so
+        # the composer can offer "price × quantity → production value" (and
+        # vice-versa) as a one-click chip. Only when the partner exists with
+        # enough history to plot.
+        combine = None
+        if st.key in ("price", "production"):
+            other = "production" if st.key == "price" else "price"
+            partner = sid.replace(f"_{st.key}_", f"_{other}_", 1)
+            pr = series.get(partner)
+            if pr and len(pr["points"]) >= 2:
+                combine = {
+                    "partner": f"{PIPELINE}/{partner}",
+                    "op": "multiply",
+                    "resultLabel": f"{c.label} production value — {geo_name}",
+                }
         write_timeseries(PIPELINE, sid, name, pts, unit=st.unit_out, merge=False)
-        write_yaml(sid, name, short_name, desc, rec["geo_key"], st, rec["short_desc"])
+        write_yaml(sid, name, short_name, desc, rec["geo_key"], st,
+                   rec["short_desc"], combine=combine)
         n += 1
     print(f"[usda_nass] wrote {n} series (+ YAMLs); {dups} duplicate "
           f"(geo,year) rows collapsed.")

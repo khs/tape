@@ -19,7 +19,7 @@ export type CombineOp = "divide" | "sum" | "diff" | "multiply";
  * inferUnitClassFromFormatting below is the fallback when callers
  * don't have a unitClass to pass through.
  */
-export type UnitClass = "currency" | "count" | "rate" | "index" | "ratio";
+export type UnitClass = "currency" | "count" | "rate" | "index" | "ratio" | "price";
 
 export function inferUnitClassFromFormatting(
   fmt: Formatting | undefined,
@@ -224,6 +224,21 @@ export function combineOpFormatting(
   }
 
   if (op === "multiply") {
+    // price × count → currency value (raw product). A "price" is currency
+    // per physical unit ($/bu), stored raw (NOT billions like other
+    // currency), so price × quantity is raw dollars; render compact so e.g.
+    // corn price ($/bu) × production (bu) shows "$69.8B". Kept distinct from
+    // rate×count below — a "rate" is percent-stored (×100) and would
+    // wrongly pull the 0.01 factor.
+    if (
+      (aClass === "price" && bClass === "count") ||
+      (aClass === "count" && bClass === "price")
+    ) {
+      return {
+        formatting: { style: "currency", decimals: 1, notation: "compact" },
+        multiplier: 1,
+      };
+    }
     // rate × count → count. A rate is stored as a percent (×100), so undo
     // that with a 0.01 multiplier: "31.0% share × 566,046 adults ≈ 175k
     // with a degree". Result reads in the count's own formatting. (When the

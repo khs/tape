@@ -19,3 +19,8 @@ tags:
   - agriculture
   - us-state
   - us
+unitClass: price
+combineHint:
+  partner: usda_nass/corn_production_mn
+  op: multiply
+  resultLabel: 'Corn production value — Minnesota'

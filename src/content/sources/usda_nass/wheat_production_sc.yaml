@@ -21,3 +21,7 @@ tags:
   - us-state
   - us
 unitClass: count
+combineHint:
+  partner: usda_nass/wheat_price_sc
+  op: multiply
+  resultLabel: 'Wheat production value — South Carolina'

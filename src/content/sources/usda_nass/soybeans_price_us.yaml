@@ -18,3 +18,8 @@ provenance:
 tags:
   - agriculture
   - us
+unitClass: price
+combineHint:
+  partner: usda_nass/soybeans_production_us
+  op: multiply
+  resultLabel: 'Soybeans production value — United States'

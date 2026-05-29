@@ -19,3 +19,8 @@ tags:
   - agriculture
   - us-state
   - us
+unitClass: price
+combineHint:
+  partner: usda_nass/wheat_production_ut
+  op: multiply
+  resultLabel: 'Wheat production value — Utah'

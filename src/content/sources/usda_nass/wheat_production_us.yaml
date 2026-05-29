@@ -20,3 +20,7 @@ tags:
   - agriculture
   - us
 unitClass: count
+combineHint:
+  partner: usda_nass/wheat_price_us
+  op: multiply
+  resultLabel: 'Wheat production value — United States'

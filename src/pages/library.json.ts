@@ -295,6 +295,9 @@ export const GET: APIRoute = async () => {
       // "× <denominator>" to rebuild a total and substitute the exact count.
       // Undefined for non-derived sources (JSON.stringify drops it).
       derivedFrom: (s.data as { derivedFrom?: unknown }).derivedFrom,
+      // One-click combine suggestion (e.g. NASS price × quantity → value).
+      // Undefined for sources without it (JSON.stringify drops it).
+      combineHint: (s.data as { combineHint?: unknown }).combineHint,
       firstObservation,
       lastObservation,
       tags: tagsList,

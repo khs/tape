@@ -74,8 +74,10 @@ const sources = defineCollection({
     //   rate     — percentage rate, basis points
     //   index    — unitless level (CPI, market index, etc.)
     //   ratio    — unitless ratio (the default for derived sources)
+    //   price    — currency per physical unit ($/bu), stored raw not
+    //              billions; price × count → currency value (see derive.ts).
     unitClass: z
-      .enum(["currency", "count", "rate", "index", "ratio"])
+      .enum(["currency", "count", "rate", "index", "ratio", "price"])
       .optional(),
     // When true, library.json drops the source from the composer's
     // browse + search surface. Existing dashboards that reference the
@@ -98,6 +100,19 @@ const sources = defineCollection({
         numerator: z.string(),
         denominator: z.string(),
         scale: z.number().default(1),
+      })
+      .optional(),
+    // Composer one-click suggestion: combine this source with `partner`
+    // via `op` to produce a meaningful derived series, surfaced as a chip
+    // in the derived-source modal (mirrors the rebuild-total chip). NASS
+    // emits this on price + quantity series so the composer offers
+    // "× quantity → production value" (price × quantity). `partner` is a
+    // full source id; `resultLabel` names the derived result.
+    combineHint: z
+      .object({
+        partner: z.string(),
+        op: z.enum(["divide", "sum", "diff", "multiply"]),
+        resultLabel: z.string(),
       })
       .optional(),
   }),

@@ -21,3 +21,7 @@ tags:
   - us-state
   - us
 unitClass: count
+combineHint:
+  partner: usda_nass/corn_price_de
+  op: multiply
+  resultLabel: 'Corn production value — Delaware'

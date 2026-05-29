@@ -19,3 +19,8 @@ tags:
   - agriculture
   - us-state
   - us
+unitClass: price
+combineHint:
+  partner: usda_nass/soybeans_production_ar
+  op: multiply
+  resultLabel: 'Soybeans production value — Arkansas'

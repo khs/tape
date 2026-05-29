@@ -802,6 +802,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             <button type="button" class="ds-rebuild-chip" data-role="ds-rebuild-apply"></button>
             <p class="muted small ds-rebuild-help" data-role="ds-rebuild-help"></p>
           </div>
+          <!--
+            Combine-hint suggestion (combineHint metadata). Appears when A
+            carries a one-click partner (e.g. a NASS price whose quantity
+            partner exists). One click sets op + B = partner and names the
+            result (price × quantity → production value). See
+            syncPxqSuggestion(). Reuses the ds-rebuild chip styling.
+          -->
+          <div class="ds-rebuild" data-role="ds-pxq" hidden>
+            <button type="button" class="ds-rebuild-chip" data-role="ds-pxq-apply"></button>
+            <p class="muted small ds-rebuild-help" data-role="ds-pxq-help"></p>
+          </div>
           <div class="cc-field">
             <span class="eyebrow">B (second operand)</span>
             <input
@@ -8244,6 +8255,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
     }
     syncRebuildSuggestion();
+    syncPxqSuggestion();
   }
 
   // A rate/share source can carry derivedFrom = { numerator, denominator,
@@ -8292,6 +8304,56 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     help.textContent = applied
       ? `Rebuilding the total: ${aLabel} × ${denomLabel}.`
       : `${aLabel} is a share. Multiply by ${denomLabel} to rebuild the underlying total.`;
+  }
+
+  // combineHint chip: A carries `combineHint { partner, op, resultLabel }`
+  // (e.g. a NASS price linked to its quantity partner). Returns it when the
+  // partner is a real, pickable source. Mirrors rebuildCandidateFor.
+  function pxqCandidateFor(
+    id: string,
+  ): { partner: string; op: ChartCombineOp; resultLabel: string } | null {
+    if (!id || isDerivedId(id)) return null;
+    const hint = (
+      library?.sources[id] as
+        | {
+            combineHint?: {
+              partner?: string;
+              op?: ChartCombineOp;
+              resultLabel?: string;
+            };
+          }
+        | undefined
+    )?.combineHint;
+    if (!hint?.partner || !hint.op || !hint.resultLabel) return null;
+    if (!library?.sources[hint.partner]) return null;
+    return { partner: hint.partner, op: hint.op, resultLabel: hint.resultLabel };
+  }
+
+  // Show/refresh the combine-hint chip off the current A pick. Mirrors
+  // syncRebuildSuggestion; called from syncDerivedHint alongside it.
+  function syncPxqSuggestion(): void {
+    const wrap = shell.querySelector<HTMLElement>("[data-role='ds-pxq']");
+    const btn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='ds-pxq-apply']",
+    );
+    const help = shell.querySelector<HTMLElement>("[data-role='ds-pxq-help']");
+    if (!wrap || !btn || !help) return;
+    const cand = pxqCandidateFor(dsModal.a);
+    if (!cand) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    const partnerLabel = dsSourceLabel(cand.partner);
+    const sym = cand.op === "multiply" ? "×" : cand.op === "divide" ? "÷" : "+";
+    const applied = dsModal.op === cand.op && dsModal.b === cand.partner;
+    btn.textContent = applied
+      ? `✓ ${sym} ${partnerLabel}`
+      : `${sym} ${partnerLabel}`;
+    btn.classList.toggle("ds-rebuild-chip-active", applied);
+    help.textContent = applied
+      ? `Showing ${cand.resultLabel}.`
+      : `${sym} ${partnerLabel} → ${cand.resultLabel}.`;
   }
 
   function openDerivedSourceModal(): void {
@@ -8411,6 +8473,30 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       track("compose_rebuild_total", {
         rate: dsModal.a,
         denom: cand.denominator,
+      });
+    });
+    // combineHint chip: one click sets op + B = partner and names the
+    // result (e.g. NASS price × quantity → "Corn production value — Iowa").
+    const pxqBtn = shell.querySelector<HTMLButtonElement>(
+      "[data-role='ds-pxq-apply']",
+    );
+    pxqBtn?.addEventListener("click", () => {
+      const cand = pxqCandidateFor(dsModal.a);
+      if (!cand) return;
+      dsModal.op = cand.op;
+      if (opSelect) opSelect.value = cand.op;
+      dsModal.b = cand.partner;
+      if (!dsModal.name.trim()) {
+        dsModal.name = cand.resultLabel;
+        if (nameInput) nameInput.value = cand.resultLabel;
+      }
+      renderDsPicker("a");
+      renderDsPicker("b");
+      syncDerivedHint();
+      track("compose_combine_hint", {
+        a: dsModal.a,
+        partner: cand.partner,
+        op: cand.op,
       });
     });
     aSearch?.addEventListener("input", () => {

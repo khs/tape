@@ -21,3 +21,7 @@ tags:
   - us-state
   - us
 unitClass: count
+combineHint:
+  partner: usda_nass/soybeans_price_sc
+  op: multiply
+  resultLabel: 'Soybeans production value — South Carolina'

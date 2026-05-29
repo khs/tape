@@ -18,3 +18,8 @@ provenance:
 tags:
   - agriculture
   - us
+unitClass: price
+combineHint:
+  partner: usda_nass/corn_production_us
+  op: multiply
+  resultLabel: 'Corn production value — United States'

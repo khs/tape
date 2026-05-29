@@ -18,3 +18,8 @@ provenance:
 tags:
   - agriculture
   - us
+unitClass: price
+combineHint:
+  partner: usda_nass/wheat_production_us
+  op: multiply
+  resultLabel: 'Wheat production value — United States'

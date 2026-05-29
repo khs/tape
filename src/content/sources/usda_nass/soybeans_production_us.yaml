@@ -20,3 +20,7 @@ tags:
   - agriculture
   - us
 unitClass: count
+combineHint:
+  partner: usda_nass/soybeans_price_us
+  op: multiply
+  resultLabel: 'Soybeans production value — United States'
