@@ -1,6 +1,6 @@
 name: iShares MSCI Mexico ETF (EWW)
 shortName: EWW
-description: iShares MSCI Mexico ETF — large- and mid-cap Mexican equities. Daily adjusted close. (ETF = exchange-traded fund; MSCI = Morgan Stanley Capital International.)
+description: iShares MSCI Mexico ETF — large- and mid-cap Mexican equities. Daily adjusted close. (MSCI = Morgan Stanley Capital International; ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWW.json

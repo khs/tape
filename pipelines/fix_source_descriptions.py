@@ -70,15 +70,59 @@ def replace_scalar(text: str, key: str, new_value: str, indent: str = "") -> str
 # inline-substitute) keeps existing sentences intact and avoids nested
 # parens like "(% of Gross Domestic Product (GDP))".
 # --------------------------------------------------------------------------
+# Trailing glossary parenthetical, e.g. "(ETF = exchange-traded fund;
+# FTSE = Financial Times Stock Exchange.)". Requires an "=" so non-glossary
+# tails like "(Alternative II)" don't match. [^()]* avoids spanning nested
+# parens.
+_GLOSSARY_RE = re.compile(r"\s*\(([^()]*=[^()]*)\)\s*$")
+
+
+def reorder_glossary(name: str, desc: str) -> str:
+    """Reorder an EXISTING trailing acronym glossary so its entries follow
+    first-appearance order in the title. expand_acronyms only ever appends,
+    so a glossary written in the wrong order (e.g. "ETF; FTSE" for a title
+    that reads "...FTSE...ETF") would otherwise stay wrong forever. Reorders
+    in place without consulting the ACRONYMS dict, so entries for acronyms
+    not in the dict are preserved. Entries whose acronym isn't in the title
+    sort to the end (stable)."""
+    m = _GLOSSARY_RE.search(desc)
+    if not m:
+        return desc
+    body = m.group(1).rstrip().rstrip(".")
+    entries = [e.strip() for e in body.split(";") if "=" in e]
+    if len(entries) < 2:
+        return desc  # single entry — nothing to reorder
+    def pos(entry: str) -> int:
+        acr = entry.split("=", 1)[0].strip()
+        mm = re.search(rf"\b{re.escape(acr)}\b", name)
+        return mm.start() if mm else len(name) + 1
+    ordered = sorted(entries, key=pos)
+    if ordered == entries:
+        return desc  # already in title order
+    head = desc[: m.start()].rstrip()
+    sep = " " if head.endswith((".", "!", "?")) else ". "
+    return f"{head}{sep}({'; '.join(ordered)}.)"
+
+
 def expand_acronyms(name: str, desc: str) -> str:
-    missing: list[tuple[str, str]] = []
+    # First normalize the order of any glossary that's already present.
+    desc = reorder_glossary(name, desc)
+    missing: list[tuple[int, str, str]] = []
     low = desc.lower()
     for acr, exp in ACRONYMS.items():
-        if re.search(rf"\b{re.escape(acr)}\b", name) and exp.lower() not in low:
-            missing.append((acr, exp))
+        m = re.search(rf"\b{re.escape(acr)}\b", name)
+        if m and exp.lower() not in low:
+            missing.append((m.start(), acr, exp))
     if not missing:
         return desc
-    gloss = "; ".join(f"{a} = {e}" for a, e in missing)
+    # Order the glossary by first appearance in the TITLE, not by the
+    # ACRONYMS dict order. The reader meets the acronyms left-to-right
+    # (e.g. "Vanguard FTSE Developed Markets ETF" → FTSE before ETF), and
+    # the earlier term is usually the more specialized one that most needs
+    # defining first. A trailing generic ("ETF") is the most familiar and
+    # belongs last.
+    missing.sort(key=lambda t: t[0])
+    gloss = "; ".join(f"{a} = {e}" for _, a, e in missing)
     d = desc.rstrip()
     sep = " " if d.endswith((".", "!", "?")) else ". "
     return f"{d}{sep}({gloss}.)"

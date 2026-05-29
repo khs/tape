@@ -1,6 +1,6 @@
 name: iShares MSCI Brazil ETF (EWZ)
 shortName: EWZ
-description: iShares MSCI Brazil ETF — large- and mid-cap Brazilian equities. Daily adjusted close. (ETF = exchange-traded fund; MSCI = Morgan Stanley Capital International.)
+description: iShares MSCI Brazil ETF — large- and mid-cap Brazilian equities. Daily adjusted close. (MSCI = Morgan Stanley Capital International; ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/EWZ.json
