@@ -178,10 +178,13 @@ const datasetSchema = source
 // Frequency: inferred from supportedDeltas. Not perfect (a source
 // supporting "1w" might be either daily or weekly), but it's a useful
 // hint until we add an explicit field in the license audit follow-up.
+// Disambiguating quarterly vs annual: a quarterly source ships "ytd"
+// (the year-to-date window is meaningful sub-annual); a purely annual
+// series doesn't bother — its supportedDeltas start at "1y" or longer.
 function inferFrequency(deltas: readonly string[]): string {
   if (deltas.includes("1w")) return "Daily or weekly";
   if (deltas.includes("1m")) return "Monthly";
-  if (deltas.includes("ytd") || deltas.includes("1y")) return "Quarterly or annual";
+  if (deltas.includes("ytd")) return "Quarterly";
   return "Annual";
 }
 const frequency = source ? inferFrequency(source.data.supportedDeltas as string[]) : "—";
