@@ -1,0 +1,13 @@
+{
+  "id": "households_below_25k_mt_01",
+  "name": "Households with income under $25k \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 38182
+    }
+  ]
+}

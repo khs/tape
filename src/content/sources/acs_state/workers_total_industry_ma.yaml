@@ -1,0 +1,23 @@
+name: Total workers (industry-table denominator) — MA
+shortName: MA workers total (industry)
+description: Total workers (industry-table denominator) for MA (statewide). Aggregated from the 10 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table C24070), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/workers_total_industry_ma.json
+supportedDeltas: ["5y", "10y"]
+unit: workers
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: workers_total_industry_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - labor
+unitClass: count

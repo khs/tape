@@ -1,0 +1,13 @@
+{
+  "id": "people_uninsured_fl_28",
+  "name": "People without health insurance coverage \u2014 FL-28",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 106848
+    }
+  ]
+}

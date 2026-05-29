@@ -1,0 +1,13 @@
+{
+  "id": "workers_manufacturing_nc_14",
+  "name": "Workers in manufacturing \u2014 NC-14",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-05-29T15:15:11Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 38819.0
+    }
+  ]
+}

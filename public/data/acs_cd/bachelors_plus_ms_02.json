@@ -1,9 +1,9 @@
 {
   "id": "bachelors_plus_ms_02",
-  "name": "Adults 25+ with bachelor's degree \u2014 MS-02",
+  "name": "Adults 25+ with a bachelor's degree \u2014 MS-02",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:43Z",
+  "lastUpdated": "2026-05-29T15:13:42Z",
   "points": [
     {
       "t": "2017-12-31",

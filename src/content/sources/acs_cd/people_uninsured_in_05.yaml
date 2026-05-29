@@ -1,0 +1,23 @@
+name: People without health insurance coverage — IN-05
+shortName: IN-05 uninsured
+description: People without health insurance coverage for IN-05. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/people_uninsured_in_05.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: people_uninsured
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count
+hidden: true

@@ -1,0 +1,13 @@
+{
+  "id": "pct_uninsured_tx_38",
+  "name": "Uninsured share of population \u2014 TX-38",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:13Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 11.4
+    }
+  ]
+}

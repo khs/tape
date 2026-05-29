@@ -1,0 +1,13 @@
+{
+  "id": "households_above_200k_tx_37",
+  "name": "Households with income $200k+ \u2014 TX-37",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 59695.0
+    }
+  ]
+}

@@ -471,6 +471,18 @@ _PCT_CONVERSIONS = [
      "Work-from-home share of workers", "work-from-home share", True),
     ("pct_no_vehicle", "households_no_vehicle", "households_total_vehicle",
      "Share of households with no vehicle", "no-vehicle share", True),
+    ("pct_movers", "movers_last_year", "mobility_universe",
+     "Share who moved in the past year", "recent-mover share", True),
+    ("pct_disability", "people_with_disability", "people_disability_universe",
+     "Share of people with a disability", "disability share", True),
+    ("pct_uninsured", "people_uninsured", "insurance_universe",
+     "Uninsured share of population", "uninsured share", True),
+    ("pct_manufacturing", "workers_manufacturing", "workers_total_industry",
+     "Manufacturing share of workers", "manufacturing share", True),
+    ("pct_households_above_200k", "households_above_200k", "households_total_income",
+     "Share of households earning $200k+", "$200k+ household share", True),
+    ("pct_households_below_25k", "households_below_25k", "households_total_income",
+     "Share of households earning under $25k", "under-$25k household share", True),
 ]
 _pct_numerators = {num for _, num, _, _, _, _ in _PCT_CONVERSIONS}
 for _oid, _num, _den, _np, _ss, _contemp in _PCT_CONVERSIONS:

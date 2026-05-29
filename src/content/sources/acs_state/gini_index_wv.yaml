@@ -1,0 +1,21 @@
+name: Income inequality (Gini index) — WV
+shortName: WV Gini index
+description: Income inequality (Gini index) for WV (statewide). Population-weighted average of the 3 congressional-district income inequality (gini index) values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B19083), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/gini_index_wv.json
+supportedDeltas: ["5y", "10y"]
+unit: ratio
+formatting:
+  style: number
+  decimals: 3
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: gini_index_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: ratio

@@ -3,8 +3,16 @@
   "name": "Median gross rent \u2014 VT",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-17T19:03:40Z",
+  "lastUpdated": "2026-05-29T15:11:15Z",
   "points": [
+    {
+      "t": "2015-12-31",
+      "v": 895.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 913.0
+    },
     {
       "t": "2017-12-31",
       "v": 945.0

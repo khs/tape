@@ -1,9 +1,9 @@
 {
   "id": "bachelors_plus_wi_04",
-  "name": "Adults 25+ with bachelor's degree \u2014 WI-04",
+  "name": "Adults 25+ with a bachelor's degree \u2014 WI-04",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:45Z",
+  "lastUpdated": "2026-05-29T15:15:08Z",
   "points": [
     {
       "t": "2017-12-31",

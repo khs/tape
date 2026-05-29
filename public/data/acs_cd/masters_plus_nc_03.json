@@ -1,9 +1,9 @@
 {
   "id": "masters_plus_nc_03",
-  "name": "Adults 25+ with master's degree \u2014 NC-03",
+  "name": "Adults 25+ with a master's degree \u2014 NC-03",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:44Z",
+  "lastUpdated": "2026-05-29T15:14:44Z",
   "points": [
     {
       "t": "2017-12-31",

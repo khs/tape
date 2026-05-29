@@ -3,8 +3,16 @@
   "name": "Median gross rent \u2014 AK",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-17T19:03:36Z",
+  "lastUpdated": "2026-05-29T15:13:03Z",
   "points": [
+    {
+      "t": "2015-12-31",
+      "v": 1146.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 1173.0
+    },
     {
       "t": "2017-12-31",
       "v": 1200.0

@@ -1,0 +1,13 @@
+{
+  "id": "gini_index_nc_14",
+  "name": "Income inequality (Gini index) \u2014 NC-14",
+  "kind": "timeseries",
+  "unit": "ratio",
+  "lastUpdated": "2026-05-29T15:15:11Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 0.505
+    }
+  ]
+}

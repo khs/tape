@@ -1,0 +1,13 @@
+{
+  "id": "pct_manufacturing_tx_38",
+  "name": "Manufacturing share of workers \u2014 TX-38",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:13Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 10.1
+    }
+  ]
+}

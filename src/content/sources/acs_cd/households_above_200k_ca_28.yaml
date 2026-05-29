@@ -1,0 +1,23 @@
+name: Households with income $200k+ — CA-28
+shortName: CA-28 HHs $200k+
+description: Households with income $200k+ for CA-28. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/households_above_200k_ca_28.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: households_above_200k
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count
+hidden: true

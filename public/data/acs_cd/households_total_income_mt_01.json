@@ -1,0 +1,13 @@
+{
+  "id": "households_total_income_mt_01",
+  "name": "Total households (income-table denominator) \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 223381.0
+    }
+  ]
+}

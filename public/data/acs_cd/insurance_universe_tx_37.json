@@ -1,0 +1,13 @@
+{
+  "id": "insurance_universe_tx_37",
+  "name": "Total population (insurance-table denominator) \u2014 TX-37",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 764078.0
+    }
+  ]
+}

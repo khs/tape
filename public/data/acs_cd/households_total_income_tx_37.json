@@ -1,0 +1,13 @@
+{
+  "id": "households_total_income_tx_37",
+  "name": "Total households (income-table denominator) \u2014 TX-37",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 344890.0
+    }
+  ]
+}

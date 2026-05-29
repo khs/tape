@@ -3,8 +3,16 @@
   "name": "Median gross rent \u2014 WY",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-17T19:03:40Z",
+  "lastUpdated": "2026-05-29T15:11:27Z",
   "points": [
+    {
+      "t": "2015-12-31",
+      "v": 789.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 802.0
+    },
     {
       "t": "2017-12-31",
       "v": 828.0

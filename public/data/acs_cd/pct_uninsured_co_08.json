@@ -1,0 +1,13 @@
+{
+  "id": "pct_uninsured_co_08",
+  "name": "Uninsured share of population \u2014 CO-08",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:09Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 9.6
+    }
+  ]
+}

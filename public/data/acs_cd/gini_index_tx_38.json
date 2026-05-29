@@ -1,0 +1,13 @@
+{
+  "id": "gini_index_tx_38",
+  "name": "Income inequality (Gini index) \u2014 TX-38",
+  "kind": "timeseries",
+  "unit": "ratio",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 0.492
+    }
+  ]
+}

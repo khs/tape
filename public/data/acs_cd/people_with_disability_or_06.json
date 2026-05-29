@@ -3,11 +3,11 @@
   "name": "People with a disability \u2014 OR-06",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:45Z",
+  "lastUpdated": "2026-05-29T15:15:12Z",
   "points": [
     {
       "t": "2022-12-31",
-      "v": 28831
+      "v": 98170
     }
   ]
 }

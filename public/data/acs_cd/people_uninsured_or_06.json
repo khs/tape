@@ -1,0 +1,13 @@
+{
+  "id": "people_uninsured_or_06",
+  "name": "People without health insurance coverage \u2014 OR-06",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 47659
+    }
+  ]
+}

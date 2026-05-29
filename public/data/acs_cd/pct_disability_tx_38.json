@@ -1,0 +1,13 @@
+{
+  "id": "pct_disability_tx_38",
+  "name": "Share of people with a disability \u2014 TX-38",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:13Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 8.9
+    }
+  ]
+}

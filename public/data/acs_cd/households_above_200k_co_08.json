@@ -1,0 +1,13 @@
+{
+  "id": "households_above_200k_co_08",
+  "name": "Households with income $200k+ \u2014 CO-08",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-29T15:15:09Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 25101.0
+    }
+  ]
+}

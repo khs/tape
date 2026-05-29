@@ -1,0 +1,13 @@
+{
+  "id": "median_year_built_mt_01",
+  "name": "Median year housing structure built \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "year",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 1985.0
+    }
+  ]
+}

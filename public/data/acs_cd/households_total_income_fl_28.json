@@ -1,0 +1,13 @@
+{
+  "id": "households_total_income_fl_28",
+  "name": "Total households (income-table denominator) \u2014 FL-28",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 246688.0
+    }
+  ]
+}

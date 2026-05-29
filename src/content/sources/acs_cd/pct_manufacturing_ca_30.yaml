@@ -1,0 +1,25 @@
+name: Manufacturing share of workers — CA-30
+shortName: CA-30 manufacturing share
+description: Manufacturing share of workers for CA-30. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_manufacturing_ca_30.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_manufacturing
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/workers_manufacturing_ca_30
+  denominator: acs_cd/workers_total_industry_ca_30
+  scale: 100

@@ -3,8 +3,16 @@
   "name": "Median home value (owner-occupied) \u2014 WY",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-17T19:03:36Z",
+  "lastUpdated": "2026-05-29T15:11:27Z",
   "points": [
+    {
+      "t": "2015-12-31",
+      "v": 194800.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 199900.0
+    },
     {
       "t": "2017-12-31",
       "v": 204900.0

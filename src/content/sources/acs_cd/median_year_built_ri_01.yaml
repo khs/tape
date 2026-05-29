@@ -1,0 +1,22 @@
+name: Median year housing structure built — RI-01
+shortName: RI-01 median year built
+description: Median year housing structure built for RI-01. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/median_year_built_ri_01.json
+supportedDeltas: ["5y", "10y"]
+unit: year
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: median_year_built
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: ratio

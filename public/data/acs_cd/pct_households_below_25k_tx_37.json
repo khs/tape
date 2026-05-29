@@ -1,0 +1,13 @@
+{
+  "id": "pct_households_below_25k_tx_37",
+  "name": "Share of households earning under $25k \u2014 TX-37",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 12.3
+    }
+  ]
+}

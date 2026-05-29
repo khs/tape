@@ -1,0 +1,13 @@
+{
+  "id": "workers_total_industry_mt_01",
+  "name": "Total workers (industry-table denominator) \u2014 MT-01",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 273248.0
+    }
+  ]
+}

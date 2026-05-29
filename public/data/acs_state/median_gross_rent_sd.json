@@ -3,8 +3,16 @@
   "name": "Median gross rent \u2014 SD",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-17T19:03:39Z",
+  "lastUpdated": "2026-05-29T15:11:01Z",
   "points": [
+    {
+      "t": "2015-12-31",
+      "v": 655.0
+    },
+    {
+      "t": "2016-12-31",
+      "v": 676.0
+    },
     {
       "t": "2017-12-31",
       "v": 696.0

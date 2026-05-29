@@ -1,9 +1,9 @@
 {
   "id": "masters_plus_tx_03",
-  "name": "Adults 25+ with master's degree \u2014 TX-03",
+  "name": "Adults 25+ with a master's degree \u2014 TX-03",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:44Z",
+  "lastUpdated": "2026-05-29T15:15:00Z",
   "points": [
     {
       "t": "2017-12-31",

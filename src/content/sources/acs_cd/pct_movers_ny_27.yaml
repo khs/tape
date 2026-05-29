@@ -1,0 +1,25 @@
+name: Share who moved in the past year — NY-27
+shortName: NY-27 recent-mover share
+description: Share who moved in the past year for NY-27. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_movers_ny_27.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_movers
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/movers_last_year_ny_27
+  denominator: acs_cd/mobility_universe_ny_27
+  scale: 100

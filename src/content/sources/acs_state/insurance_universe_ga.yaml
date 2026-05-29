@@ -1,0 +1,22 @@
+name: Total population (insurance-table denominator) — GA
+shortName: GA pop. total (insurance)
+description: Total population (insurance-table denominator) for GA (statewide). Aggregated from the 14 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B27010), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/insurance_universe_ga.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: insurance_universe_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

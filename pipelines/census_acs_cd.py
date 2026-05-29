@@ -359,8 +359,14 @@ INDICATORS = [
     AcsVar("insurance_universe", "B27010_001E",
            "Total population (insurance-table denominator)", "people",
            0, AGG_CD_LEVEL),
-    AcsVar("movers_last_year", "B07003_003E",
-           "People who moved in the last year", "people", 0, AGG_CD_LEVEL),
+    # Movers = everyone who moved in the past year: the sum of the four
+    # "Moved ..." totals (within county / different county same state /
+    # different state / from abroad). B07003_003E was WRONG — that's the
+    # FEMALE subtotal (~50% of the universe everywhere), not movers. Fixed
+    # 2026-05-29 after the share view exposed the constant-~50% giveaway.
+    AcsVar("movers_last_year", "",
+           "People who moved in the last year", "people", 0, AGG_CD_LEVEL_SUM,
+           sum_codes=["B07003_007E", "B07003_010E", "B07003_013E", "B07003_016E"]),
     AcsVar("mobility_universe", "B07003_001E",
            "Total population (mobility-table denominator)", "people",
            0, AGG_CD_LEVEL),
@@ -400,31 +406,39 @@ INDICATORS = [
     AcsVar("median_commute_minutes", "",
            "Median travel time to work", "minutes", 1, AGG_MEDIAN_CD_DIST,
            bins=B08303_BINS),
-    # ----- Count → share conversions (#102) -----
+    # ----- Count → share conversions (#102, expanded #112) -----
     # numerator / denominator * 100, both already-computed indicators sharing
     # a geo basis (see AGG_PCT). The numerator count stays in the data (the
     # generator marks it hidden:true) so the composer's rebuild chip can
     # substitute the exact count via derivedFrom; the denominator stays
-    # user-facing. foreign-born rides the stable-geo SUM basis; wfh + vehicle
-    # ride contemporaneous-CD (same as their numerators). Verified plausible
-    # across diverse districts before shipping.
+    # user-facing. foreign-born rides the stable-geo SUM basis; the rest ride
+    # contemporaneous-CD. All verified plausible across diverse districts
+    # (e.g. Arlington 28% earning $200k+ vs rural WV 2%; rural VA 14%
+    # manufacturing vs Manhattan 3%).
     #
-    # NOT included (and why), for a future pass:
-    #   - uninsured, manufacturing, government, $200k+, <$25k: their CD-level
-    #     numerator/denominator cells (tables B27010, C24070, C24080, B19001)
-    #     don't currently fetch at CD level (see the cd-level 0-row gap), so
-    #     there's no data to divide.
-    #   - disability, movers: the underlying COUNTS are wrong, not the ratio.
-    #     people_with_disability is undercounted ~3-4x (B18101 cell sum);
-    #     movers_last_year (B07003_003E) resolves to a near-constant ~50%
-    #     across all districts — a mis-mapped sex cell, not "movers". Fix the
-    #     counts first, then their shares can be added.
+    # disability, movers, uninsured, manufacturing, $200k+, <$25k were
+    # unblocked by the #112 cd-level fetch fix (movers used the wrong cell —
+    # B07003_003E is Female, not movers — and the robust chunked fetch
+    # stopped an invalid neighbor var zeroing its whole 45-var chunk).
+    # pct_government stays out: C24080 (class of worker) has no CD-level data.
     AcsVar("pct_foreign_born", "", "Foreign-born share of population", "%", 1,
            AGG_PCT, numerator_id="foreign_born", denominator_id="population"),
     AcsVar("pct_workers_wfh", "", "Work-from-home share of workers", "%", 1,
            AGG_PCT, numerator_id="workers_wfh", denominator_id="workers_total_commute"),
     AcsVar("pct_no_vehicle", "", "Share of households with no vehicle", "%", 1,
            AGG_PCT, numerator_id="households_no_vehicle", denominator_id="households_total_vehicle"),
+    AcsVar("pct_movers", "", "Share who moved in the past year", "%", 1,
+           AGG_PCT, numerator_id="movers_last_year", denominator_id="mobility_universe"),
+    AcsVar("pct_disability", "", "Share of people with a disability", "%", 1,
+           AGG_PCT, numerator_id="people_with_disability", denominator_id="people_disability_universe"),
+    AcsVar("pct_uninsured", "", "Uninsured share of population", "%", 1,
+           AGG_PCT, numerator_id="people_uninsured", denominator_id="insurance_universe"),
+    AcsVar("pct_manufacturing", "", "Manufacturing share of workers", "%", 1,
+           AGG_PCT, numerator_id="workers_manufacturing", denominator_id="workers_total_industry"),
+    AcsVar("pct_households_above_200k", "", "Share of households earning $200k+", "%", 1,
+           AGG_PCT, numerator_id="households_above_200k", denominator_id="households_total_income"),
+    AcsVar("pct_households_below_25k", "", "Share of households earning under $25k", "%", 1,
+           AGG_PCT, numerator_id="households_below_25k", denominator_id="households_total_income"),
 ]
 
 
@@ -729,6 +743,48 @@ def fetch_vintage_cd_level(
     return out
 
 
+def fetch_cd_level_robust(
+    year: int,
+    codes: list[str],
+    key: str,
+) -> dict[tuple[str, str], dict[str, float]]:
+    """CD-level fetch that tolerates variables a vintage doesn't publish.
+
+    The Census API rejects the ENTIRE request (HTTP 400) if any requested
+    variable is unknown for the year — which used to silently zero every
+    other variable sharing that 45-var chunk (the bug that under-summed
+    people_with_disability and zeroed whole tables). We fetch in <=45-var
+    chunks; when a chunk comes back empty we binary-split it to isolate the
+    offending variable(s), dropping only the ones that fail on their own.
+    Valid variables always make it through. Sub-chunk results are cached by
+    fetch_vintage_cd_level's own (year, vars-hash) key."""
+    merged: dict[tuple[str, str], dict[str, float]] = {}
+
+    def absorb(part: dict[tuple[str, str], dict[str, float]]) -> None:
+        for k, per_var in part.items():
+            merged.setdefault(k, {}).update(per_var)
+
+    def recurse(sub: list[str]) -> None:
+        if not sub:
+            return
+        data = fetch_vintage_cd_level(year, sub, key)
+        if data:
+            absorb(data)
+            return
+        # Empty → an invalid var poisoned the request (or there's genuinely no
+        # CD-level data). A lone var that fails is the bad one — drop it.
+        # Otherwise split to isolate it from its valid neighbors.
+        if len(sub) <= 1:
+            return
+        mid = len(sub) // 2
+        recurse(sub[:mid])
+        recurse(sub[mid:])
+
+    for i in range(0, len(codes), 45):
+        recurse(codes[i:i + 45])
+    return merged
+
+
 # ---------------------------------------------------------------------
 # Main aggregation
 # ---------------------------------------------------------------------
@@ -846,14 +902,14 @@ def main() -> int:
         # under the Census API's 50-variable-per-call cap; results are
         # merged back into one per-CD dict.
         if cd_level_codes:
-            cd_level_merged: dict[tuple[str, str], dict[str, float]] = {}
-            for chunk_start in range(0, len(cd_level_codes), 45):
-                chunk = cd_level_codes[chunk_start:chunk_start + 45]
-                chunk_data = fetch_vintage_cd_level(year, chunk, key)
-                for key_tuple, per_var in chunk_data.items():
-                    if key_tuple not in cd_level_merged:
-                        cd_level_merged[key_tuple] = {}
-                    cd_level_merged[key_tuple].update(per_var)
+            # Robust fetch: the Census API 400s the WHOLE request if ANY
+            # requested variable is unknown for the vintage, which silently
+            # zeroed every other variable in the same 45-var chunk. That
+            # under-summed people_with_disability ~6x (B18101 cells sharing a
+            # chunk with an invalid neighbor such as C24080_001E, unknown in
+            # 2022) and zeroed entire tables. fetch_cd_level_robust isolates
+            # the invalid vars by binary-splitting any failed chunk.
+            cd_level_merged = fetch_cd_level_robust(year, cd_level_codes, key)
             for (state_fips, cd_raw), per_var in cd_level_merged.items():
                 slug = cd_slug(state_fips, cd_raw)
                 if not slug:

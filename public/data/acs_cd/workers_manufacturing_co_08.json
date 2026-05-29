@@ -1,0 +1,13 @@
+{
+  "id": "workers_manufacturing_co_08",
+  "name": "Workers in manufacturing \u2014 CO-08",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-05-29T15:15:09Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 35031.0
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+name: Share of households earning under $25k — NY-06
+shortName: NY-06 under-$25k household share
+description: Share of households earning under $25k for NY-06. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_households_below_25k_ny_06.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_households_below_25k
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/households_below_25k_ny_06
+  denominator: acs_cd/households_total_income_ny_06
+  scale: 100

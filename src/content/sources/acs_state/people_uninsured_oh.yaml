@@ -1,0 +1,22 @@
+name: People without health insurance coverage — OH
+shortName: OH uninsured
+description: People without health insurance coverage for OH (statewide). Aggregated from the 18 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B27010), released annually.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/people_uninsured_oh.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: people_uninsured_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

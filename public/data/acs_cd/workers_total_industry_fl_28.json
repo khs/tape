@@ -1,0 +1,13 @@
+{
+  "id": "workers_total_industry_fl_28",
+  "name": "Total workers (industry-table denominator) \u2014 FL-28",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-05-29T15:15:10Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 372262.0
+    }
+  ]
+}

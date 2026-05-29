@@ -1,9 +1,9 @@
 {
   "id": "masters_plus_ca_14",
-  "name": "Adults 25+ with master's degree \u2014 CA-14",
+  "name": "Adults 25+ with a master's degree \u2014 CA-14",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:43Z",
+  "lastUpdated": "2026-05-29T15:13:54Z",
   "points": [
     {
       "t": "2017-12-31",

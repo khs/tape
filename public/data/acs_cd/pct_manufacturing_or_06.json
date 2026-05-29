@@ -1,0 +1,13 @@
+{
+  "id": "pct_manufacturing_or_06",
+  "name": "Manufacturing share of workers \u2014 OR-06",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:12Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 11.3
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "pct_disability_nc_14",
+  "name": "Share of people with a disability \u2014 NC-14",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-05-29T15:15:11Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 9.6
+    }
+  ]
+}

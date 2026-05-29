@@ -1,0 +1,22 @@
+name: Total population (insurance-table denominator) — TN-03
+shortName: TN-03 pop. total (insurance)
+description: Total population (insurance-table denominator) for TN-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/insurance_universe_tn_03.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: insurance_universe
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

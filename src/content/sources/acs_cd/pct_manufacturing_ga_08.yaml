@@ -1,0 +1,25 @@
+name: Manufacturing share of workers — GA-08
+shortName: GA-08 manufacturing share
+description: Manufacturing share of workers for GA-08. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/pct_manufacturing_ga_08.json
+supportedDeltas: ["5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: pct_manufacturing
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: rate
+derivedFrom:
+  numerator: acs_cd/workers_manufacturing_ga_08
+  denominator: acs_cd/workers_total_industry_ga_08
+  scale: 100

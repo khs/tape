@@ -1,0 +1,23 @@
+name: Total workers (industry-table denominator) — AZ-04
+shortName: AZ-04 workers total (industry)
+description: Total workers (industry-table denominator) for AZ-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/workers_total_industry_az_04.json
+supportedDeltas: ["5y", "10y"]
+unit: workers
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: workers_total_industry
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - labor
+unitClass: count
