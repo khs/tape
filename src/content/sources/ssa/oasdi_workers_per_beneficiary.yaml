@@ -1,6 +1,6 @@
 name: Covered workers per OASDI beneficiary
 shortName: Workers per beneficiary
-description: Number of workers covered by Social Security per one OASDI beneficiary. The classic demographic-pressure ratio — historically declining as life expectancy has risen and baby-boomer cohorts have moved into retirement. Historical values are SSA actuals; the dashed extension is the intermediate-cost projection from the most recent OASDI Trustees Report. (OASDI = Old-Age, Survivors, and Disability Insurance.)
+description: Number of workers covered by Social Security per one OASDI beneficiary. Historical values are SSA actuals; the dashed extension is the intermediate-cost projection from the most recent OASDI Trustees Report. (OASDI = Old-Age, Survivors, and Disability Insurance.)
 kind: timeseries
 pipeline: ssa
 dataFile: data/ssa/oasdi_workers_per_beneficiary.json

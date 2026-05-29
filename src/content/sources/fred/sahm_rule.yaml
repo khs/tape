@@ -1,19 +1,13 @@
 name: Sahm rule recession indicator (real-time)
 shortName: Sahm rule
 description: |
-  Triggers a recession-indicator reading when the 3-month MA of U3
-  unemployment rises 0.5pp above its trailing-12-month minimum.
-  Devised by Claudia Sahm (2019) as a single-number summary of
-  labor-market cycle stress that's both fast (no revisions needed)
-  and easy to interpret (a 0.5pp + reading historically signals
-  early recession). Monthly.
+  Triggers a recession-indicator reading when the 3-month moving
+  average of the U-3 unemployment rate rises 0.5pp above its
+  trailing-12-month minimum. Devised by Claudia Sahm (2019). Monthly.
 
-  This is the SAHMREALTIME variant — uses the unemployment-rate
-  data available AT EACH PUBLICATION DATE, with no benefit of
-  later revisions. The SAHMCURRENT variant uses revised data and
-  is easier to dismiss as backfit. For the "would this have
-  signaled in real time" question, the realtime series is the
-  honest one.
+  This is the SAHMREALTIME variant — built from the unemployment data
+  available at each publication date, with no later revisions. The
+  SAHMCURRENT variant uses revised data.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SAHMREALTIME.json

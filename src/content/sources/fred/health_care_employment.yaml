@@ -1,6 +1,6 @@
 name: 'Health care + social assistance employment'
 shortName: 'Healthcare jobs'
-description: 'All employees in the health care + social assistance sector (BLS CES). Largest single industry by employment in the modern US economy and one of the most counter-cyclical — keeps growing through recessions when other sectors shed jobs. Public-domain federal-agency data via FRED.'
+description: 'All employees in the health care + social assistance sector (BLS CES). Public-domain federal-agency data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CES6562000001.json

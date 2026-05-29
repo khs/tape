@@ -1,6 +1,6 @@
 name: Average weekly hours, manufacturing
 shortName: Mfg weekly hours
-description: Average weekly hours worked by production and nonsupervisory employees in manufacturing, seasonally adjusted. Monthly. A classic leading indicator - when demand softens, hours per worker contract before headcount does, so this turns down 3-6 months ahead of the broader labor market.
+description: Average weekly hours worked by production and nonsupervisory employees in manufacturing, seasonally adjusted. Monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/AWHMAN.json

@@ -1,6 +1,6 @@
 name: 'Unemployment rate, Black or African American'
 shortName: 'Unrate (B)'
-description: 'Civilian unemployment rate, Black or African American workers (BLS CPS). Historically runs roughly 2× the White unemployment rate; the gap narrows in late-cycle full-employment regimes (2018-19, 2022-25) but doesn''t close. Public-domain federal-agency data via FRED.'
+description: 'Civilian unemployment rate, Black or African American workers (BLS CPS). Public-domain federal-agency data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/LNS14000006.json

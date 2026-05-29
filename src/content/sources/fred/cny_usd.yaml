@@ -1,6 +1,6 @@
 name: Chinese yuan per US dollar (CNY/USD)
 shortName: CNY/USD
-description: Spot exchange rate, Chinese yuan per US dollar, daily noon buying rates from the Federal Reserve H.10 release. A widely watched political-economy currency - the PBoC manages CNY tightly, so big moves are usually deliberate signals.
+description: Spot exchange rate, Chinese yuan per US dollar, daily noon buying rates from the Federal Reserve H.10 release.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DEXCHUS.json

@@ -1,6 +1,6 @@
 name: Quits rate (JOLTS)
 shortName: Quits rate
-description: 'Number of voluntary quits as a percent of total employment. Commonly read as worker-confidence: high quits = workers feel safe job-hopping. Was a key signal during the post-COVID labor reshuffle. (JOLTS = Job Openings and Labor Turnover Survey.)'
+description: 'Number of voluntary quits as a percent of total employment. (JOLTS = Job Openings and Labor Turnover Survey.)'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSQUR.json
