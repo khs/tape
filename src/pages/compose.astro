@@ -6044,7 +6044,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           // crowd the top-right edit/remove controls.
           const preview = document.createElement("button");
           preview.type = "button";
-          preview.className = "comp-tile-preview";
+          // Distinct class from the .comp-tile-preview visual-preview slot
+          // (the lazy-filled chart thumbnail container) — they previously
+          // collided, and the container's `> svg { width:100% }` rule
+          // ballooned this button's icon into a full-size "broken-image"
+          // looking glyph.
+          preview.className = "comp-tile-preview-btn";
           preview.title = "Preview chart";
           preview.setAttribute("aria-label", "Preview chart");
           preview.draggable = false;
@@ -10093,7 +10098,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .comp-tile.has-override .comp-tile-edit {
     color: var(--color-accent);
   }
-  .comp-tile-preview {
+  .comp-tile-preview-btn {
     position: absolute;
     bottom: 4px;
     right: 4px;
@@ -10113,12 +10118,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     color: var(--color-neutral-400);
     cursor: pointer;
   }
-  .comp-tile-preview svg {
+  .comp-tile-preview-btn svg {
     width: 1.3em;
     height: 1.3em;
     display: block;
   }
-  .comp-tile-preview:hover { color: var(--color-accent); }
+  .comp-tile-preview-btn:hover { color: var(--color-accent); }
   .comp-tile-title {
     font-size: var(--text-sm);
     font-weight: 500;
