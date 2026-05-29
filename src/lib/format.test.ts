@@ -403,3 +403,38 @@ describe("axisTickFormatting", () => {
     expect(out.suffix).toBeUndefined();
   });
 });
+
+describe("axisTickFormatting — y-tick labels fit the plot's left margin", () => {
+  // The dialog plot is rendered with marginLeft: 64 (px) in
+  // ChartController. A y-tick label wider than that margin has its
+  // leading characters clipped by the SVG viewport — which is exactly
+  // how "3.4 workers" rendered as "4 workers" (only the trailing
+  // decimal digit survived). Real glyph widths can't be measured in a
+  // unit test, so approximate with a generous upper bound for the 12px
+  // axis font and assert the FORMATTED axis label stays inside the
+  // margin (minus the tick mark + label gap). Regression guard: if a
+  // word suffix sneaks back onto the axis, the estimate trips.
+  const MARGIN_LEFT_PX = 64; // keep in sync with ChartController marginLeft
+  const TICK_GAP_PX = 9; // tick mark + padding consumed before the text
+  const MAX_CHAR_PX = 7; // generous per-glyph upper bound at 12px Inter
+  const budgetPx = MARGIN_LEFT_PX - TICK_GAP_PX; // 55px for the label text
+  const estWidthPx = (s: string) => s.length * MAX_CHAR_PX;
+
+  it("drops the word so the OASDI 'workers' tick clears the 64px margin", () => {
+    const src = { style: "number" as const, decimals: 1, suffix: " workers" };
+    // The un-stripped label is the form that overflowed and clipped.
+    expect(formatValue(3.4, src)).toBe("3.4 workers");
+    expect(estWidthPx("3.4 workers")).toBeGreaterThan(budgetPx);
+    // The axis label drops the word and fits well inside the margin.
+    const axisLabel = formatValue(3.4, axisTickFormatting(src));
+    expect(axisLabel).toBe("3.4");
+    expect(estWidthPx(axisLabel)).toBeLessThanOrEqual(budgetPx);
+  });
+
+  it("a kept 1-char magnitude marker ('300 B') still fits the margin", () => {
+    const src = { style: "number" as const, decimals: 0, suffix: " B" };
+    const axisLabel = formatValue(300, axisTickFormatting(src));
+    expect(axisLabel).toBe("300 B");
+    expect(estWidthPx(axisLabel)).toBeLessThanOrEqual(budgetPx);
+  });
+});
