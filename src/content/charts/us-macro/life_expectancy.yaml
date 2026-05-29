@@ -1,0 +1,11 @@
+title: US life expectancy at birth, by sex
+sources:
+  - cdc_health/life_expectancy_male_us
+  - cdc_health/life_expectancy_female_us
+render: line
+defaultDelta: 50y
+tags: [health, us]
+normalize: raw
+blurb: |
+  Years of life expected at birth, by sex, for the US population.
+  From CDC National Vital Statistics. Annual series back to 1900.

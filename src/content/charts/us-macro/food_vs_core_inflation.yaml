@@ -1,0 +1,11 @@
+title: US food prices vs core inflation
+sources:
+  - fred/cpi_food
+  - fred/core_cpi
+render: line
+defaultDelta: 10y
+tags: [macro, us, consumer, inflation]
+normalize: rebase
+blurb: |
+  CPI for food vs core CPI (excluding food and energy), both rebased
+  to 100 at the start of the window. Monthly, seasonally adjusted.

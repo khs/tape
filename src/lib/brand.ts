@@ -45,7 +45,7 @@ export const ENTERPRISE_INQUIRY_URL =
  * see exercised in the walkthrough, edit this constant + add the
  * feature to the walkthrough dashboard in the same commit.
  */
-export const LAST_FEATURE_UPDATE = "2026-05-22";
+export const LAST_FEATURE_UPDATE = "2026-05-29";
 // 2026-05-21 covered: smart-dispatch alert UX (acknowledge,
 // auto-pause), the request-fallback + Unicode-minus polish, the
 // walkthrough wiring, the US row added to Countries vs. world, the

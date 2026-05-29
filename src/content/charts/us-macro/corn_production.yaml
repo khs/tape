@@ -1,0 +1,9 @@
+title: US corn production
+sources:
+  - usda_nass/corn_production_us
+render: line
+defaultDelta: 50y
+tags: [agriculture, us]
+normalize: raw
+blurb: |
+  Annual US corn production, in bushels. From USDA NASS QuickStats.

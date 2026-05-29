@@ -1,0 +1,12 @@
+title: US water withdrawals — total
+sources:
+  - usgs_water/total_us
+render: line
+defaultDelta: 30y
+tags: [water, us, resources]
+normalize: raw
+blurb: |
+  Total US freshwater withdrawals, in million gallons per day, from
+  the USGS National Water-Use Survey. Released every five years —
+  1985 through 2015 currently available; the 2020 vintage is pending
+  USGS publication.
