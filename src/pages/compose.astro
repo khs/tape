@@ -2644,13 +2644,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // The CD / metro / country chips live in the geo strip ABOVE this
     // row (renderCdChip, renderMetroChip, renderCountryChip). Topical
     // tags only here.
+    // Geo breakdown active = a metro, country, or congressional-district
+    // filter is engaged. At the plain "All" level a topical tag matching
+    // only 1-2 sources is more clutter than help, so require >=3 to show
+    // its pill; inside a geo drill-down (where per-place counts are
+    // naturally small) keep the looser >=1 so refinements stay visible.
+    const geoBreakdownActive =
+      !!libGeo.selectedMetroCbsa ||
+      !!libGeo.selectedCountryCode ||
+      sourcesSelectedTags.has(CD_TAG);
+    const minTagCount = geoBreakdownActive ? 1 : 3;
     for (const t of tags) {
       if (t === CD_TAG || t === STATE_TAG) continue; // surfaced via CD chip
       if (t === COUNTRY_TAG || t.startsWith(`${COUNTRY_TAG}:`)) continue; // country chip
       const count = tagCounts.get(t) ?? 0;
-      // Skip count-0 pills — clicking would yield zero results, which is
-      // worse than the pill simply not being there.
-      if (count === 0) continue;
+      // Hide sparse pills: a 0-count pill yields nothing, and at the All
+      // level a 1-2 count pill is just noise (see minTagCount above).
+      if (count < minTagCount) continue;
       host.appendChild(makeBtn(t, `${t} (${count})`, sourcesSelectedTags.has(t)));
     }
   }
