@@ -1,0 +1,24 @@
+name: 'Total water withdrawals — Florida'
+shortName: 'FL water use'
+description: 'Total water withdrawals for Florida, 1985–2015 (compiled every five years), in million gallons per day (Mgal/d). U.S. Geological Survey, Estimated Use of Water in the United States.'
+kind: timeseries
+pipeline: usgs_water
+dataFile: data/usgs_water/total_fl.json
+supportedDeltas: ["5y", "10y", "30y"]
+unit: "Mgal/d"
+emphasis: change
+formatting:
+  style: number
+  decimals: 0
+  suffix: " Mgal/d"
+provenance:
+  provider: U.S. Geological Survey
+  series: 'USGS water use 1985-2015 total; geo=fl'
+  url: https://www.sciencebase.gov/catalog/item/6197decad34eb622f692eea9
+  license: Public domain (US government data)
+tags:
+  - water
+  - government
+  - us-state
+  - us
+unitClass: count

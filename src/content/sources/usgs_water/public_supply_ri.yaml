@@ -1,0 +1,24 @@
+name: 'Public-supply water withdrawals — Rhode Island'
+shortName: 'RI public-supply water'
+description: 'Public-supply water withdrawals for Rhode Island, 2015, in million gallons per day (Mgal/d). U.S. Geological Survey, Estimated Use of Water in the United States.'
+kind: timeseries
+pipeline: usgs_water
+dataFile: data/usgs_water/public_supply_ri.json
+supportedDeltas: ["10y", "30y"]
+unit: "Mgal/d"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+  suffix: " Mgal/d"
+provenance:
+  provider: U.S. Geological Survey
+  series: 'USGS water use 2015; category=public_supply; geo=ri'
+  url: https://water.usgs.gov/watuse/data/data2015.html
+  license: Public domain (US government data)
+tags:
+  - water
+  - government
+  - us-state
+  - us
+unitClass: count

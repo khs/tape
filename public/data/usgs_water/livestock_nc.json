@@ -1,0 +1,13 @@
+{
+  "id": "livestock_nc",
+  "name": "Livestock water withdrawals \u2014 North Carolina",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 66.5
+    }
+  ]
+}

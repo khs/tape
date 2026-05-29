@@ -1,0 +1,13 @@
+{
+  "id": "domestic_sc",
+  "name": "Self-supplied domestic water withdrawals \u2014 South Carolina",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 118.3
+    }
+  ]
+}

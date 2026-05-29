@@ -1,0 +1,24 @@
+name: 'Aquaculture water withdrawals — Florida'
+shortName: 'FL aquaculture water'
+description: 'Aquaculture water withdrawals for Florida, 2015, in million gallons per day (Mgal/d). U.S. Geological Survey, Estimated Use of Water in the United States.'
+kind: timeseries
+pipeline: usgs_water
+dataFile: data/usgs_water/aquaculture_fl.json
+supportedDeltas: ["10y", "30y"]
+unit: "Mgal/d"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+  suffix: " Mgal/d"
+provenance:
+  provider: U.S. Geological Survey
+  series: 'USGS water use 2015; category=aquaculture; geo=fl'
+  url: https://water.usgs.gov/watuse/data/data2015.html
+  license: Public domain (US government data)
+tags:
+  - water
+  - government
+  - us-state
+  - us
+unitClass: count

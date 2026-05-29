@@ -1,0 +1,13 @@
+{
+  "id": "industrial_nm",
+  "name": "Self-supplied industrial water withdrawals \u2014 New Mexico",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 3.4
+    }
+  ]
+}

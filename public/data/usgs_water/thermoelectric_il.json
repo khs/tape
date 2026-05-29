@@ -1,0 +1,13 @@
+{
+  "id": "thermoelectric_il",
+  "name": "Thermoelectric-power water withdrawals \u2014 Illinois",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 8138.6
+    }
+  ]
+}

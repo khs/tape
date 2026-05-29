@@ -1,0 +1,24 @@
+name: 'Self-supplied industrial water withdrawals — Ohio'
+shortName: 'OH industrial water'
+description: 'Self-supplied industrial water withdrawals for Ohio, 2015, in million gallons per day (Mgal/d). U.S. Geological Survey, Estimated Use of Water in the United States.'
+kind: timeseries
+pipeline: usgs_water
+dataFile: data/usgs_water/industrial_oh.json
+supportedDeltas: ["10y", "30y"]
+unit: "Mgal/d"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+  suffix: " Mgal/d"
+provenance:
+  provider: U.S. Geological Survey
+  series: 'USGS water use 2015; category=industrial; geo=oh'
+  url: https://water.usgs.gov/watuse/data/data2015.html
+  license: Public domain (US government data)
+tags:
+  - water
+  - government
+  - us-state
+  - us
+unitClass: count

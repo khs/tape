@@ -1,0 +1,13 @@
+{
+  "id": "public_supply_ca",
+  "name": "Public-supply water withdrawals \u2014 California",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 5147.7
+    }
+  ]
+}

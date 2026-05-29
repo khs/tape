@@ -1,0 +1,13 @@
+{
+  "id": "thermoelectric_wi",
+  "name": "Thermoelectric-power water withdrawals \u2014 Wisconsin",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 4205.9
+    }
+  ]
+}

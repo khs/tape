@@ -1,0 +1,13 @@
+{
+  "id": "domestic_ut",
+  "name": "Self-supplied domestic water withdrawals \u2014 Utah",
+  "kind": "timeseries",
+  "unit": "Mgal/d",
+  "lastUpdated": "2026-05-29T03:06:59Z",
+  "points": [
+    {
+      "t": "2015-01-01",
+      "v": 10.4
+    }
+  ]
+}
