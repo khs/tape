@@ -232,30 +232,48 @@ const warnCount = checks.filter((c) => c.status === "warn").length;
 const failCount = checks.filter((c) => c.status === "fail").length;
 const totalMs = checks.reduce((s, c) => s + c.durationMs, 0);
 
+// Two report shapes — concise when every check is green, full table
+// when there's anything to act on. The Diagnostics issue accrues a
+// comment per deploy; showing the per-check breakdown on every healthy
+// deploy creates attention fatigue, so green deploys collapse to a
+// one-line "all pass" and the heading carries a ✅/⚠️/❌ glyph so the
+// comment list is scannable at a glance.
+const allGreen = failCount === 0 && warnCount === 0;
+const headingGlyph = failCount > 0 ? "❌" : warnCount > 0 ? "⚠️" : "✅";
 const lines = [];
-lines.push("## Post-deploy diagnostic");
+lines.push(`## Post-deploy diagnostic ${headingGlyph}`);
 lines.push("");
-lines.push(`**Target:** ${targetUrl}`);
-lines.push(
-  `**Result:** ${passCount}/${checks.length} pass · ${warnCount} warn · ${failCount} fail · ${(totalMs / 1000).toFixed(2)}s`,
-);
-lines.push(`**Timestamp:** ${new Date().toISOString()}`);
-lines.push(`**Commit:** ${process.env.GITHUB_SHA || "(unset)"}`);
-lines.push("");
-lines.push("| Status | Test | Detail | Time |");
-lines.push("|---|---|---|---|");
-for (const c of checks) {
-  const glyph =
-    c.status === "pass"
-      ? "✅"
-      : c.status === "warn"
-        ? "⚠️"
-        : c.status === "fail"
-          ? "❌"
-          : c.status;
-  // Escape pipes in detail so the markdown table doesn't break.
-  const detail = (c.detail ?? "").replace(/\|/g, "\\|");
-  lines.push(`| ${glyph} | ${c.name} | ${detail} | ${c.durationMs}ms |`);
+if (allGreen) {
+  lines.push(
+    `**Result:** All ${checks.length} checks pass in ${(totalMs / 1000).toFixed(2)}s.`,
+  );
+  lines.push("");
+  lines.push(`**Target:** ${targetUrl}`);
+  lines.push(`**Timestamp:** ${new Date().toISOString()}`);
+  lines.push(`**Commit:** ${process.env.GITHUB_SHA || "(unset)"}`);
+} else {
+  lines.push(`**Target:** ${targetUrl}`);
+  lines.push(
+    `**Result:** ${passCount}/${checks.length} pass · ${warnCount} warn · ${failCount} fail · ${(totalMs / 1000).toFixed(2)}s`,
+  );
+  lines.push(`**Timestamp:** ${new Date().toISOString()}`);
+  lines.push(`**Commit:** ${process.env.GITHUB_SHA || "(unset)"}`);
+  lines.push("");
+  lines.push("| Status | Test | Detail | Time |");
+  lines.push("|---|---|---|---|");
+  for (const c of checks) {
+    const glyph =
+      c.status === "pass"
+        ? "✅"
+        : c.status === "warn"
+          ? "⚠️"
+          : c.status === "fail"
+            ? "❌"
+            : c.status;
+    // Escape pipes in detail so the markdown table doesn't break.
+    const detail = (c.detail ?? "").replace(/\|/g, "\\|");
+    lines.push(`| ${glyph} | ${c.name} | ${detail} | ${c.durationMs}ms |`);
+  }
 }
 console.log(lines.join("\n"));
 
