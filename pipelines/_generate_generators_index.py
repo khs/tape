@@ -275,6 +275,32 @@ def _match_state_bls(sid: str) -> MatchResult:
     return ("state", f"bls_state_{m.group(1)}", abbr)
 
 
+def _match_state_usgs_water(sid: str) -> MatchResult:
+    # usgs_water/<sector>_<state>, e.g. usgs_water/public_supply_al.
+    # The "_us" national rollups fail the STATE_ABBR_TO_NAME check and
+    # drop out — they're not per-state series.
+    m = re.match(r"^usgs_water/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"usgs_water_{m.group(1)}", abbr)
+
+
+def _match_state_usda_nass(sid: str) -> MatchResult:
+    # usda_nass/<crop>_<metric>_<state>, e.g. usda_nass/corn_price_ia,
+    # usda_nass/wheat_yield_wy. National "_us" rollups drop out via the
+    # STATE_ABBR_TO_NAME guard.
+    m = re.match(r"^usda_nass/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"usda_nass_{m.group(1)}", abbr)
+
+
 def _match_country_wb_gdp(sid: str) -> MatchResult:
     m = re.match(r"^worldbank_gdp_raw/([a-z_]+)$", sid)
     if not m:
@@ -325,6 +351,8 @@ MATCHERS: list[Matcher] = [
     _match_state_acs,
     _match_state_fred,
     _match_state_bls,
+    _match_state_usgs_water,
+    _match_state_usda_nass,
     _match_country_wb_gdp,
     _match_country_wb_ext,
     _match_country_countries_gdp,
