@@ -534,9 +534,30 @@ const EDITORIAL_FEATURES: string[] = [
       // from cache instead of going over the network. Click-to-chart
       // drops by the round-trip latency.
       //
-      // requestIdleCallback would only fire when the main thread is
-      // idle — perfect for this kind of non-blocking warm-up. Falls
-      // back to setTimeout on Safari (no idle-callback support).
+      // Ordering — "after the page is up, but guaranteed":
+      //   1. Wait for window.load — fires after the page's
+      //      synchronous resources (images, fonts, EMBED IFRAMES
+      //      including their chart payloads) finish loading. Without
+      //      this, prefetch can compete with the inline-preview
+      //      iframe loads, slowing both.
+      //   2. Then schedule via requestIdleCallback with timeout:5000
+      //      — the browser fires when the main thread is idle OR by
+      //      t=5s after load, whichever comes first. The timeout is
+      //      the "absolutely starting then" guarantee: even on pages
+      //      that never go idle (animations, polling, etc.), prefetch
+      //      will fire within 5s.
+      //   3. requestIdleCallback isn't supported in Safari — fall
+      //      back to setTimeout(2000) after load.
+      //
+      // Verification hooks (so we can answer "are we sure it's
+      // firing?" without grepping the source):
+      //   - console.info('[welcome:prefetch] ...') — visible in
+      //     devtools Network/Console panels with timings.
+      //   - <html data-welcome-prefetch="<state>"> — readable from
+      //     puppeteer / cypress / curl-with-headless tools without
+      //     diffing the JS. States: "queued" → "fired" → "done".
+      //   - CustomEvent("welcome:prefetch-fired") on window — gives
+      //     downstream code (analytics, tests) a hook.
       //
       // Pointer-enter + focus also trigger an immediate prefetch for
       // any chip that the idle pass hasn't covered yet: covers fast
@@ -568,6 +589,13 @@ const EDITORIAL_FEATURES: string[] = [
         return true;
       }
       if (shouldPrefetch()) {
+        // Tag the document root with a state machine the test harness
+        // (or anyone running window.getComputedStyle on <html>) can
+        // poll. States: "queued" (waiting for load), "scheduled"
+        // (waiting for idle/timeout), "fired" (link tags injected).
+        document.documentElement.setAttribute(
+          "data-welcome-prefetch", "queued",
+        );
         const prefetchedEmbeds = new Set<string>();
         const prefetchEmbed = (chartId: string): void => {
           if (!chartId || prefetchedEmbeds.has(chartId)) return;
@@ -586,21 +614,59 @@ const EDITORIAL_FEATURES: string[] = [
           document.head.appendChild(link);
         };
         const bulkPrefetchChips = (): void => {
-          document
-            .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
-            .forEach((chip) => {
-              const id = chip.dataset.chartId;
-              if (id) prefetchEmbed(id);
-            });
+          const chips = document.querySelectorAll<HTMLButtonElement>(
+            ".welcome-coverage-chip",
+          );
+          let queued = 0;
+          chips.forEach((chip) => {
+            const id = chip.dataset.chartId;
+            if (id) {
+              prefetchEmbed(id);
+              queued += 1;
+            }
+          });
+          document.documentElement.setAttribute(
+            "data-welcome-prefetch", "fired",
+          );
+          // eslint-disable-next-line no-console
+          console.info(
+            `[welcome:prefetch] queued ${queued} coverage-chip embed prefetches ` +
+            `at t=${Math.round(performance.now())}ms`,
+          );
+          window.dispatchEvent(
+            new CustomEvent("welcome:prefetch-fired", { detail: { count: queued } }),
+          );
         };
-        const ric = (window as unknown as {
-          requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => void;
-        }).requestIdleCallback;
-        if (ric) {
-          ric(bulkPrefetchChips, { timeout: 5000 });
+        // Step 1: wait for window.load (or fire immediately if already
+        // loaded — possible when the script is in document body and
+        // the page is small enough that load already fired).
+        const schedulePrefetch = (): void => {
+          document.documentElement.setAttribute(
+            "data-welcome-prefetch", "scheduled",
+          );
+          const ric = (window as unknown as {
+            requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => void;
+          }).requestIdleCallback;
+          if (ric) {
+            // timeout:5000 guarantees firing within 5s of being
+            // scheduled, even on pages that never go truly idle.
+            ric(bulkPrefetchChips, { timeout: 5000 });
+          } else {
+            // Safari fallback. 2000ms picked to mirror "main thread
+            // settles" without competing with the inline-preview
+            // iframe loads that just finished.
+            setTimeout(bulkPrefetchChips, 2000);
+          }
+        };
+        if (document.readyState === "complete") {
+          schedulePrefetch();
         } else {
-          setTimeout(bulkPrefetchChips, 1500);
+          window.addEventListener("load", schedulePrefetch, { once: true });
         }
+        // Pointer-enter / focus still bypass the wait — for an
+        // impatient user we'd rather prefetch THEIR target ASAP than
+        // wait for the bulk pass. Each chip's prefetchEmbed is a
+        // no-op after the bulk pass fires (deduped via the Set).
         document
           .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
           .forEach((chip) => {
@@ -610,6 +676,13 @@ const EDITORIAL_FEATURES: string[] = [
             chip.addEventListener("pointerenter", trigger, { once: true });
             chip.addEventListener("focus", trigger, { once: true });
           });
+      } else {
+        // Slow connection / Save Data — record that we deliberately
+        // skipped so a future debug session doesn't go hunting for a
+        // bug that isn't one.
+        document.documentElement.setAttribute(
+          "data-welcome-prefetch", "skipped",
+        );
       }
     </script>
 
