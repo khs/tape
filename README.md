@@ -5,7 +5,7 @@ journalists, and curious generalists — not for traders. The premise is that
 "levels alone" and "changes alone" each leave half the picture out, so every
 chart shows both, with curator notes explaining what to look at.
 
-Live: TBD (Vercel)
+Live: https://legible-markets.vercel.app/
 
 <!--
 Drop screenshots here when ready. Suggested:
@@ -19,12 +19,17 @@ Drop screenshots here when ready. Suggested:
 
 - **Level + change, side by side.** Pick a window (1W / 1M / 1Y / 5Y / 10Y);
   every chart shows current value and the move over that window.
-- **Composable dashboards.** Eleven curated preset dashboards (US macro,
-  VA-08, federal budget, tech, inflation deep-dive, labor market, rates
-  & credit, recession monitor, housing market, countries, stocks) plus a
-  drag-to-reorder composer where any visitor can pick from 170+ charts
-  (or assemble new ones from raw sources), add section commentary, and
-  share via URL.
+- **Composable dashboards.** ~17 curated preset dashboards (US macro,
+  VA-08, federal budget, fiscal outlook, markets outlook, tech,
+  inflation deep-dive, labor market, rates, recession monitor, housing,
+  countries, stocks, education, unemployment-by-race, state-electricity-
+  generation, plus the walkthrough tour and 4 regional state-atlas
+  pages) plus a drag-to-reorder composer where any visitor can pick
+  from 200+ line/bar charts (and 300+ choropleth tiles), assemble new
+  ones from raw sources via the Sources / Pregenerated / Generators /
+  Maps tabs, add section commentary, and share via URL — saved as
+  state in the URL itself for anonymous shares, or saved under a
+  Google-OAuth account at `/u/<your-slug>/`.
 - **Choropleth maps with zoom + year slider.** ACS demographic indicators
   at state, county, census-tract, and block-group granularity. Click any
   tile for an expanded dialog with mouse-wheel zoom (Ctrl+/-/0 also
@@ -44,7 +49,7 @@ Drop screenshots here when ready. Suggested:
 | Styling | Tailwind v4 (via `@tailwindcss/vite`) + a small editorial token set |
 | Auth + DB | [Supabase](https://supabase.com/) (Postgres + Google OAuth, RLS-gated) |
 | Hosting | [Vercel](https://vercel.com/) (`@astrojs/vercel`) |
-| Data pipelines | Python (`yfinance`, FRED API, World Bank API) |
+| Data pipelines | Python (`yfinance`, FRED, World Bank, BLS, Census, OECD, USDA NASS, CDC Socrata, USGS NWIS, CMS NHE XLSX, CBO XLSX, SSA XLSX, EIA, NCES, NAEP) |
 | Refresh | GitHub Actions, weekly cron |
 
 ## Data lineage
@@ -53,13 +58,21 @@ Drop screenshots here when ready. Suggested:
 | --- | --- | --- |
 | [FRED](https://fred.stlouisfed.org/) (St. Louis Fed) | Rates, inflation, employment, GDP, most US macro | `pipelines/fred_series.py` |
 | [BLS](https://www.bls.gov/) | State-level unemployment, payrolls, CPI subcomponents; metro labor data | `pipelines/bls.py`, `pipelines/bls_metro.py` |
-| [Census ACS 5-year](https://www.census.gov/programs-surveys/acs) | Demographic indicators at congressional-district, metro, state, county, tract, and block-group granularity | `pipelines/census_acs_cd.py`, `census_acs_metro.py`, `census_acs_state.py`, `census_acs_choropleth.py` |
+| [CBO](https://www.cbo.gov/data/budget-economic-data) | Budget & Economic Outlook baseline + Historical Budget Data: federal debt / deficit / outlays / revenues as % of GDP, with multi-vintage projection map | `pipelines/cbo.py` |
 | [USAspending.gov](https://www.usaspending.gov/) | Federal contracts/grants/loans/direct payments by recipient state, CBSA, CD, fiscal year | `pipelines/usaspending.py`, `usaspending_metro.py` |
+| [Census Bureau](https://www.census.gov/) | American Community Survey 5-year at CD / metro / state / county / tract / block-group granularity, plus the Annual Survey of State Government Finances | `pipelines/census_acs_cd.py`, `census_acs_metro.py`, `census_acs_state.py`, `census_acs_choropleth.py`, `census_acs_labor.py`, `census_govfin.py` |
+| [NCES + NAEP](https://nces.ed.gov/) | K-12 per-pupil spending (NCES CCD F-33 via Urban Institute Education Data Portal) + NAEP grade-4 math scale scores, per-state | `pipelines/edu_spending.py`, `pipelines/naep.py` |
+| [SSA](https://www.ssa.gov/oact/TR/) | OASDI Trustees Report — cost / GDP, income / GDP, worker-per-beneficiary ratio, with Alternative-II long-range projection | `pipelines/ssa.py` |
+| [EIA](https://www.eia.gov/electricity/data/browser/) | State-level electricity net generation by fuel | `pipelines/eia_state_energy.py` |
 | [OECD](https://stats.oecd.org/) | Harmonized cross-country macro comparisons | `pipelines/oecd.py` |
-| [World Bank](https://data.worldbank.org/) | Country GDP shares + extended deep-dive (53 countries × 7 indicators) | `pipelines/worldbank_gdp.py`, `worldbank_extended.py` |
 | [US Treasury (TIC)](https://home.treasury.gov/data/treasury-international-capital-tic-system) | Foreign holdings of US Treasuries | `pipelines/treasury_tic.py` |
-| [Yahoo Finance](https://finance.yahoo.com/) (via `yfinance`) | Equity tickers, ETFs, futures, market caps | `pipelines/yahoo_quotes.py`, `pipelines/yahoo_marketcap.py` |
-| EIA | Retail fuel prices (selected) | (within `fred_series.py`) |
+| [World Bank](https://data.worldbank.org/) | Country GDP shares + extended deep-dive (53 countries × 7 indicators) | `pipelines/worldbank_gdp.py`, `worldbank_extended.py` |
+| [USDA NASS](https://quickstats.nass.usda.gov/) | Crop production / yield / price for corn, soybeans, wheat (state + national). "Not endorsed or certified by NASS." | `pipelines/usda_nass.py` |
+| [CDC / NCHS](https://data.cdc.gov/) | US life expectancy at birth (male / female / total) + state age-adjusted all-causes death rate | `pipelines/cdc_health.py` |
+| [USGS](https://www.usgs.gov/mission-areas/water-resources/science/water-use-united-states) | National Water-Use Survey: freshwater withdrawals by sector for US + each state (released every 5 years) | `pipelines/usgs_water.py` |
+| [CMS Office of the Actuary](https://www.cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data) | National Health Expenditure per capita (NHE total + Personal Health Care) | `pipelines/cms_nhe.py` |
+| [Zillow Research](https://www.zillow.com/research/data/) | ZHVI home values + ZORI rents for US + 12 major metros | `pipelines/zillow.py` |
+| [Yahoo Finance](https://finance.yahoo.com/) (via `yfinance`) | Equity tickers, ETFs, futures, market caps | `pipelines/yahoo_quotes.py`, `pipelines/yahoo_marketcap.py`, `pipelines/yahoo_futures.py` |
 
 Every series writes to `public/data/<provider>/<id>.json`, gets committed back
 into the repo by the weekly GitHub Actions job, and is served from Vercel's
@@ -99,6 +112,10 @@ src/
     library.json.ts                   composer's chart manifest
 supabase/
   migrations/0001_init.sql            saved_dashboards table + RLS
+  migrations/0002…0004                rate limits + anonymous-compose cap
+  migrations/0005_indicator_alerts    alert_rules + alert_triggers tables
+  migrations/0006_alert_smart_dispatch  auto-pause + ack flow
+  migrations/0007_alert_derived_spec  derived-source alerts
 ```
 
 The hierarchy is **Source → Chart → Dashboard.** A *Source* is a single time
@@ -195,7 +212,7 @@ Chart YAML shape:
 ```yaml
 title: Federal funds rate
 sources: ["fred/fed_funds"]
-render: line          # line | curve | smallMultiples | sparkDelta | deltaGrid | relativeReturns
+render: line          # line | bar | choropleth
 defaultDelta: 1y      # default time window
 tags: [rates, macro]  # used by composer's library filter
 blurb: |              # optional curator note shown in the expanded view
