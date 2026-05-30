@@ -88,6 +88,7 @@ jobs:
           python -m unittest pipelines.test_generators_index -v
           python -m unittest pipelines.test_common -v
           python -m unittest pipelines.test_about_page_coverage -v
+          python -m unittest pipelines.test_welcome_page_coverage -v
 
       - name: Build
         # SITE_URL is unset here, so Astro.site is undefined and sitemap()
