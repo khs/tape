@@ -859,20 +859,75 @@ const statesJoined = stateCodes.join(",");
     //   • state / county: albers-usa puts Alaska + Hawaii in
     //     canonical insets at the bottom-left.
     //   • tract / block-group: regular albers with an EXPLICIT
-    //     domain pointing at the clipped FeatureCollection.
-    //     Without the explicit domain, Plot's auto-fit for the
-    //     bare "albers" projection sometimes produced a viewport
-    //     with the DMV crammed into a sliver — visually that read
-    //     as a white tile because the actual polygons sat off the
-    //     visible canvas. Forcing the domain tells Plot to fit the
-    //     projection so the clipped features fill the canvas.
-    const projection: unknown =
-      b.geo === "state" || b.geo === "county"
-        ? "albers-usa"
-        : {
-            type: "albers",
-            domain: { type: "FeatureCollection", features: clipped },
-          };
+    //     domain pointing at the clipped FeatureCollection. Plus
+    //     a rotate + parallels computed from that domain's geographic
+    //     extent so north points STRAIGHT UP at the rendered region.
+    //
+    // The rotate / parallels matter for off-center regions like New
+    // England (MA+CT+RI+NH). d3.geoAlbers defaults to rotate=[96,0] /
+    // parallels=[29.5, 45.5] — calibrated for the contiguous US with
+    // central meridian at 96°W. New England sits around 71°W, so with
+    // the default rotation the meridians visibly curve and "north" at
+    // the eastern edge tilts ~6° east-of-up. Re-centering on the bbox
+    // (rotate longitude to the bbox-center, set parallels to bracket
+    // the latitude range) puts the central meridian in the middle of
+    // the rendered region — meridians are vertical, north is up.
+    //
+    // Without the explicit domain, Plot's auto-fit for the bare
+    // "albers" projection sometimes produced a viewport with the DMV
+    // crammed into a sliver — visually that read as a white tile
+    // because the actual polygons sat off the visible canvas.
+    let projection: unknown;
+    if (b.geo === "state" || b.geo === "county") {
+      projection = "albers-usa";
+    } else {
+      // Compute the geographic bbox of the clipped features so we can
+      // center the projection on them. Walk each feature's geometry
+      // once — cheap relative to the actual paint.
+      let minLon = Infinity, maxLon = -Infinity;
+      let minLat = Infinity, maxLat = -Infinity;
+      const visit = (geom: unknown): void => {
+        if (!geom || typeof geom !== "object") return;
+        const g = geom as { type?: string; coordinates?: unknown };
+        if (g.type === "Polygon" && Array.isArray(g.coordinates)) {
+          for (const ring of g.coordinates as number[][][]) {
+            for (const pt of ring) {
+              if (pt[0] < minLon) minLon = pt[0];
+              if (pt[0] > maxLon) maxLon = pt[0];
+              if (pt[1] < minLat) minLat = pt[1];
+              if (pt[1] > maxLat) maxLat = pt[1];
+            }
+          }
+        } else if (g.type === "MultiPolygon" && Array.isArray(g.coordinates)) {
+          for (const poly of g.coordinates as number[][][][]) {
+            for (const ring of poly) {
+              for (const pt of ring) {
+                if (pt[0] < minLon) minLon = pt[0];
+                if (pt[0] > maxLon) maxLon = pt[0];
+                if (pt[1] < minLat) minLat = pt[1];
+                if (pt[1] > maxLat) maxLat = pt[1];
+              }
+            }
+          }
+        }
+      };
+      for (const f of clipped) visit((f as { geometry?: unknown }).geometry);
+      const ok = Number.isFinite(minLon) && Number.isFinite(maxLat);
+      const centerLon = ok ? (minLon + maxLon) / 2 : -96;
+      // Parallels bracket the latitude range with a small inset so
+      // they're well inside the rendered region (d3 albers wants the
+      // standard parallels close to the data's latitudinal extent).
+      const latPad = ok ? Math.max(0.1, (maxLat - minLat) * 0.15) : 0;
+      const parallels: [number, number] = ok
+        ? [minLat + latPad, maxLat - latPad]
+        : [29.5, 45.5];
+      projection = {
+        type: "albers",
+        rotate: [-centerLon, 0],
+        parallels,
+        domain: { type: "FeatureCollection", features: clipped },
+      };
+    }
     const plotSpec = {
       projection,
       width,
