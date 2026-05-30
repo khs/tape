@@ -231,7 +231,7 @@ rename — old slugs are freed for re-use, by design.
 
 ## License
 
-MIT (TBD — confirm before public). Data carries upstream provider terms;
+MIT (see [LICENSE](LICENSE)). Data carries upstream provider terms;
 attribution links live on every chart's expanded view.
 
 ## Contact
