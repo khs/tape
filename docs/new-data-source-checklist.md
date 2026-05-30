@@ -157,6 +157,17 @@ emitted it is correct):
   mislabelling. Hand-written YAMLs (2 series). The ZIP URL is year-pinned
   (`...cy-1960-2024.zip`); since the data is annual, it's a manual
   bump-and-rerun when CMS publishes a new vintage, not a weekly refresh.
+- **`cdc_health`** (~150 YAMLs) — `cdc_health.py` fetches via
+  data.cdc.gov Socrata endpoints (CDC's public-use aggregates) and
+  constructs YAML names from CDC's own column labels. Correct by
+  construction; audit risk = a bug in the indicator → human-name map.
+  Guarded by an in-pipeline shape check on the Socrata response.
+- **`usgs_water`** (~480 YAMLs) — `usgs_water.py` parses the USGS
+  National Water-Use Survey XLSX into per-state per-sector totals.
+  Labels are constructed from the source XLSX column headers + a
+  per-state lookup; correct by construction. Audit risk = an XLSX
+  column-header reshuffle (USGS releases every 5 years so this is
+  detected at the next vintage rather than incrementally).
 
 For each of these, the right audit is "diff what the pipeline
 WOULD generate today against what's checked in." A `--dry-run`

@@ -119,8 +119,11 @@ but it surfaces drift loudly in the workflow logs.
 ## Audit results from the May 2026 sweep
 
 After fixing the four federal-spending mismaps, I ran the audit
-across all 145 FRED source YAMLs. Beyond the four already known,
-three more turned out to need label corrections:
+across all 145 FRED source YAMLs (the count at the time of the
+May 2026 sweep; as of the spring-26 expansion the FRED set has
+grown to 420 YAMLs — see `docs/fred-copyright-audit.md` for the
+current bucketing). Beyond the four already known, three more
+turned out to need label corrections:
 
 - **`federal_subsidies`** had been pointing at W994 ("Net lending
   or net borrowing, NIPAs: Private") instead of B096 ("Federal

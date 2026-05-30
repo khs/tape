@@ -18,6 +18,46 @@ is the queue + status.
   `pipelines/zillow.py`, 26 source YAMLs, audit at
   `scripts/audit_zillow_indexes.py` (structural — Zillow has no
   "official label" API endpoint). Charts on the Housing dashboard.
+- **CBO** — Historical Budget Data + Budget & Economic Outlook
+  baseline. 4 source YAMLs (debt / deficit / outlays / revenues as
+  % of GDP), each carrying historical actuals plus the multi-vintage
+  projection map. Surfaces on Federal-budget + Fiscal-outlook.
+- **SSA Trustees Report** — OASDI cost / GDP, income / GDP,
+  worker-per-beneficiary ratio. 3 source YAMLs with the
+  intermediate-cost (Alternative II) long-range projection.
+  Surfaces on Fiscal-outlook.
+- **CMS Office of the Actuary** — National Health Expenditure
+  per-capita. 2 source YAMLs (NHE total + Personal Health Care),
+  hand-written; the per-capita anchor section in
+  `pipelines/cms_nhe.py` doubles as the audit.
+- **NCES + NAEP** — K-12 per-pupil spending (CCD F-33 via Urban
+  Institute Education Data Portal) + NAEP grade-4 math scale scores.
+  Per-state, all 50 + DC. Audits at `scripts/audit_naep.py` and
+  `scripts/audit_edu_spending.py`. Surfaces on Education dashboard.
+- **CDC / NCHS** — US life expectancy at birth (male / female /
+  total) + state-level age-adjusted all-causes death rate, from
+  data.cdc.gov Socrata endpoints. Pipeline-generated; correct by
+  construction (no audit script needed — see
+  `docs/new-data-source-checklist.md` discussion).
+- **USGS National Water-Use Survey** — total + per-sector freshwater
+  withdrawals (aquaculture, irrigation, public supply, etc.) for the
+  US and each state. Released every five years; 1985-2015 currently
+  shipped. Pipeline-generated.
+- **USDA NASS QuickStats** — state + national crop production /
+  yield / price for corn, soybeans, wheat. Pipeline-generated;
+  audit via the pipeline's preflight (`get_counts` + the
+  duplicate-`(geo, year)` counter must read 0 on write).
+- **EIA state-level electricity** — net generation by fuel by state,
+  all 50 + DC. Annual. Audit at `scripts/audit_eia_state_energy.py`.
+  Surfaces on State-electricity-generation dashboard.
+- **Census Annual Survey of State Government Finances** — state
+  general expenditure (excludes utility / liquor / insurance-trust)
+  for all 50 states. Audit at `scripts/audit_census_govfin.py`.
+- **Treasury TIC** — Major Foreign Holders of Treasury Securities,
+  37 country rows monthly. Surfaces on Federal-budget dashboard.
+- **ACS labor (race-stratified)** — state unemployment rates by
+  race / Hispanic origin from ACS S2301. Only CA / TX / NY shipped
+  as the demo set so far. Audit at `scripts/audit_acs_labor.py`.
 
 ### Queued — clean-API, fastest to ship next
 
@@ -113,17 +153,15 @@ https://sdw-wsrest.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?
 Estimated implementation: 60 min for the headline euro-area
 macro series (M3, HICP, deposit/lending rates, EUR/USD).
 
-#### SSA (Social Security Administration)
+#### SSA — additional beneficiary geo breakdowns
 
-Open data portal at `https://www.ssa.gov/data/`. Annual XLSX files
-for OASDI Beneficiaries by Congressional District + by ZIP + by
-State/County. No API.
+The Trustees Report time series (OASDI cost / GDP etc.) shipped — see
+the Shipped section above. What's still queued: per-CD beneficiary
+counts + payment totals from the annual XLSX at
+`https://www.ssa.gov/policy/docs/factsheets/cong_stats/<YYYY>/cd-data.xlsx`.
+Pairs with the VA-08 dashboard.
 
-Key file: `https://www.ssa.gov/policy/docs/factsheets/cong_stats/
-2025/cd-data.xlsx` (one row per congressional district).
-
-Estimated implementation: 45 min for CD-level beneficiary counts +
-total payments (our user has the VA-08 dashboard angle already).
+Estimated implementation: 45 min.
 
 #### USPTO PatentsView (or successor — migrating to data.uspto.gov on March 20, 2026)
 
@@ -142,37 +180,15 @@ maybe top-20 firms.
 
 ### Queued — XLSX-wrangling, slower
 
-#### CBO
+#### CMS NHE — additional tables
 
-NO API. Bulk XLSX downloads only. Two key files:
-- Historical Budget Data:
-  `https://www.cbo.gov/system/files/<YYYY-MM>/51134-<YYYY-MM>-Historical-Budget-Data.xlsx`
-- Budget + Economic Outlook projections:
-  `https://www.cbo.gov/system/files/<YYYY-MM>/51119-<YYYY-MM>-budget-projections.xlsx`
-  (published each February + August)
+Headline NHE per-capita shipped — see Shipped above. What's still
+queued: the by-source breakdown (private / public / Medicare /
+Medicaid) and the sponsor-share table from the same CMS XLSX
+release. Useful for "who pays for healthcare" narratives.
 
-Implementation requires `openpyxl` for XLSX parsing. The harder
-part is the multi-vintage forecast pattern — see the "Forecast UI"
-proposal below.
-
-Estimated implementation: 2-3 hours including the multi-vintage
-ingest. This is the biggest of the queued providers.
-
-#### CMS National Health Expenditure
-
-NO API. XLSX downloads from
-`https://www.cms.gov/data-research/statistics-trends-and-reports/
-national-health-expenditure-data/historical` and `.../projected`.
-
-Files include:
-- NHE 1960-2023 by source (private/public/Medicare/Medicaid/etc.)
-- NHE projections 2024-2032
-
-XLSX has the standard "table with merged header rows" pattern that
-needs careful parsing.
-
-Estimated implementation: 90 min for the headline NHE table +
-sponsor-share table.
+Estimated implementation: 60 min on top of the existing
+`pipelines/cms_nhe.py` parser.
 
 ### Queued — partial-API, requires more care
 
@@ -222,16 +238,16 @@ Note: politically sensitive. Treat with caveats in chart blurbs.
 Estimated implementation: 90 min for state-level annual violent
 + property crime rates.
 
-#### NCES (National Center for Education Statistics)
+#### NCES — additional indicators
 
-CCD = K-12. IPEDS = postsecondary. Both are bulk CSV/XLSX, no API.
+K-12 per-pupil spending + NAEP grade-4 math shipped — see Shipped
+above. What's still queued from NCES: enrollment by state (and the
+denominator behind per-pupil), graduation rates, additional NAEP
+subjects (reading at multiple grades, science). IPEDS (post-
+secondary) is a separate pipeline, not yet started.
 
-CCD files at `https://nces.ed.gov/ccd/files.asp`. Standard format:
-one file per (year, dataset). Enrollment, finance (NPEFS), staff.
-
-Estimated implementation: 90 min for enrollment + per-pupil
-spending by state. Lower priority unless education policy becomes
-a topic.
+Estimated implementation: 60 min for the enrollment + grad-rate
+adds; IPEDS would be a larger separate effort.
 
 ### Documented as "polling," but mostly behind paywalls
 
@@ -252,27 +268,34 @@ or scrape carefully.
 
 ## Implementation order suggestion
 
-If shipping one provider per session:
+If shipping one provider per session (queue order after the
+spring-26 expansion):
 
 1. **BEA** — clean API, state GDP closes a big DC-econ gap.
 2. **OWID** — quick to add, ~450 sources surfaced in one batch.
 3. **ECB** — clean API, opens the door to European econ comparisons.
-4. **SSA** — supports the existing VA-08 angle directly.
-5. **HMDA** — pairs with choropleth feature.
-6. **CMS NHE** — supports healthcare-spending narratives.
-7. **CBO** — biggest payoff for fiscal-policy work but tied to
-   the Forecast UI proposal below.
-8. **USPTO** — supports innovation-policy stories.
-9. **NCES** — education-policy angle.
-10. **FBI UCR + CDC WONDER** — politically sensitive, lower priority.
+4. **HMDA** — pairs with the existing choropleth feature.
+5. **SSA per-CD beneficiary detail** — incremental on the existing
+   pipeline, supports VA-08.
+6. **USPTO** — supports innovation-policy stories.
+7. **CMS NHE by-source / sponsor-share** — incremental on the
+   existing pipeline.
+8. **NCES enrollment + IPEDS** — incremental + the postsecondary add.
+9. **FBI UCR + CDC WONDER** — politically sensitive, lower priority.
 
-## Forecast UI — design proposal
+## Forecast UI — Phase 1 + 2 shipped, Phase 3 still queued
 
 **Goal (per user request):** treat forecast/projected data as a
 first-class time-series, with two key features:
-1. Visually distinguish historical from projected ranges.
+1. Visually distinguish historical from projected ranges. **Shipped.**
 2. "View as of date X" — show only the forecast that was current
    on date X (i.e., snapshot a particular forecast vintage).
+   **Phase 3, not yet shipped.**
+
+The schema below describes the data shape both phases share. The
+"Renderer behavior" + "Schema changes" sections describe what
+shipped in Phase 1+2; the "Phasing" subsection at the end notes
+what's still open.
 
 ### Data shape
 
@@ -347,16 +370,21 @@ Two UI surfaces:
 ### Phasing
 
 1. Phase 1: schema + storage. Pipelines write projections; renderer
-   just renders points (no UI yet). Lets us land the data structure
-   without breaking the existing render path.
+   just renders points (no UI yet). **Shipped.** `projections` field
+   on `TimeSeriesData`; CBO + SSA pipelines emit it.
 2. Phase 2: render the latest projection as a dashed extension of
-   the historical line. No picker yet.
-3. Phase 3: vintage picker.
+   the historical line. **Shipped.** `Chart.astro` draws the
+   projection segment with a dashed stroke + lighter fill.
+3. Phase 3: vintage picker — dialog selector that masks forecasts
+   published AFTER the picked date. **Not yet shipped.** Phase 2's
+   default-to-latest behavior is sufficient for most use cases; the
+   vintage picker becomes the right addition once we have enough
+   shipped multi-vintage series to make "view as of" interesting
+   (CBO already has multiple vintages baked into the projections
+   map; SSA Trustees Report ships one per year).
 
-Phase 1 + 2 = ~1 week of work. Phase 3 = another week. None of
-this is necessary to ship the CBO data; CBO can land as
-historical-only first, with the projections-array stored but not
-yet rendered.
+CBO + SSA both live on /fiscal-outlook/ with the Phase 2 dashed-
+extension rendering.
 
 ### Open design questions
 
