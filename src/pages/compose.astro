@@ -5419,14 +5419,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       boundaryUrl = `${baseUrl}${spec.boundaryFile.startsWith("/") ? "" : "/"}${spec.boundaryFile}`;
       layerName = spec.geo === "block-group" ? "block_groups" : "tracts";
     } else if (spec.states && spec.states.length > 0) {
-      // Multi-state inline map (no pre-built boundaryFile). The tile
-      // preview only renders ONE state's silhouette — full multi-state
-      // merging would burn through 4 fetches for a thumbnail. The
-      // /custom/ + /u/<slug>/ render paths still load all states; this
-      // is a deliberate compromise for the preview chrome.
-      const previewState = spec.states[0].toLowerCase();
-      const seg = spec.geo === "block-group" ? "block-groups" : "tracts";
-      boundaryUrl = `${baseUrl}/maps/${previewState}-${seg}-topo.json`;
+      // Multi-state inline map (no pre-built boundaryFile). Handled in
+      // the multi-fetch branch below — set layerName here and a
+      // placeholder boundaryUrl just so the single-fetch code path
+      // (which the boundaryFile case still uses) compiles cleanly.
+      boundaryUrl = "";
       layerName = spec.geo === "block-group" ? "block_groups" : "tracts";
     } else if (spec.state) {
       const seg = spec.geo === "block-group" ? "block-groups" : "tracts";
@@ -5435,53 +5432,112 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     } else {
       return;
     }
-    let topo: { objects: Record<string, unknown> } | null = null;
-    try {
-      if (mapBboxTopoCache.has(boundaryUrl)) {
-        topo = mapBboxTopoCache.get(boundaryUrl) as typeof topo;
-      } else {
-        const r = await fetch(boundaryUrl);
-        if (!r.ok) return;
-        topo = await r.json();
-        mapBboxTopoCache.set(boundaryUrl, topo);
-      }
-    } catch {
-      return;
-    }
-    if (!topo) return;
-    const obj = (topo.objects ?? {})[layerName];
-    if (!obj) return;
-    const fc = topoFeature(topo as never, obj as never) as unknown as {
-      features: { id?: string | number; properties?: Record<string, unknown> }[];
+    // Boundary fetch: single file in the common case, parallel multi-
+    // fetch + merge for the multi-state Maps-tab spec. Used to be
+    // single-fetch-only with the first state's silhouette serving as
+    // a stand-in — but that was confusing to users who'd selected 4
+    // states and only saw MA's outline (Keller, 2026-05-30). The
+    // ~500KB-1MB per-state files are CDN-cached after first load, so
+    // the worst-case multi-state preview adds 1-3 cached fetches on
+    // subsequent renders.
+    const isMultiState = !!(spec.states && spec.states.length > 0);
+    const fc: { features: { id?: string | number; properties?: Record<string, unknown> }[] } = {
+      features: [],
     };
+    if (isMultiState) {
+      const seg = spec.geo === "block-group" ? "block-groups" : "tracts";
+      const urls = spec.states!.map(
+        (st) => `${baseUrl}/maps/${st.toLowerCase()}-${seg}-topo.json`,
+      );
+      const topos = await Promise.all(urls.map(async (u) => {
+        try {
+          if (mapBboxTopoCache.has(u)) {
+            return mapBboxTopoCache.get(u) as { objects: Record<string, unknown> };
+          }
+          const r = await fetch(u);
+          if (!r.ok) return null;
+          const j = (await r.json()) as { objects: Record<string, unknown> };
+          mapBboxTopoCache.set(u, j);
+          return j;
+        } catch {
+          return null;
+        }
+      }));
+      for (const t of topos) {
+        if (!t) continue;
+        const obj = (t.objects ?? {})[layerName];
+        if (!obj) continue;
+        const shard = topoFeature(t as never, obj as never) as unknown as {
+          features: { id?: string | number; properties?: Record<string, unknown> }[];
+        };
+        fc.features.push(...shard.features);
+      }
+      if (fc.features.length === 0) return;
+    } else {
+      let topo: { objects: Record<string, unknown> } | null = null;
+      try {
+        if (mapBboxTopoCache.has(boundaryUrl)) {
+          topo = mapBboxTopoCache.get(boundaryUrl) as typeof topo;
+        } else {
+          const r = await fetch(boundaryUrl);
+          if (!r.ok) return;
+          topo = await r.json();
+          mapBboxTopoCache.set(boundaryUrl, topo);
+        }
+      } catch {
+        return;
+      }
+      if (!topo) return;
+      const obj = (topo.objects ?? {})[layerName];
+      if (!obj) return;
+      const single = topoFeature(topo as never, obj as never) as unknown as {
+        features: typeof fc.features;
+      };
+      fc.features = single.features;
+    }
 
-    // Try to load the data file so the preview can paint values, not
-    // just outlines. Same path scheme ChartChoropleth.astro uses.
-    // Multi-state preview only loads the FIRST state's values (matches
-    // the single-state silhouette above).
+    // Try to load the data file(s) so the preview can paint values,
+    // not just outlines. Same path scheme ChartChoropleth.astro uses.
+    // Multi-state previews merge values from all state shards so the
+    // tint is consistent across the displayed region — matches the
+    // /custom/ + /u/<slug>/ behavior.
     const dataDirSeg =
       spec.geo === "block-group" ? "acs_block_group" : `acs_${spec.geo}`;
-    const previewStateCode =
-      (spec.states && spec.states.length > 0
-        ? spec.states[0]
-        : spec.state) ?? null;
-    const stateForUrl = previewStateCode ? previewStateCode.toLowerCase() : null;
-    const dataUrl =
+    const dataStates =
       spec.geo === "state" || spec.geo === "county"
-        ? `${baseUrl}/data/${dataDirSeg}/${spec.indicator}_${spec.vintage}.json`
-        : stateForUrl
-          ? `${baseUrl}/data/${dataDirSeg}/${stateForUrl}/${spec.indicator}_${spec.vintage}.json`
-          : null;
+        ? null
+        : isMultiState
+          ? spec.states!.map((s) => s.toLowerCase())
+          : spec.state
+            ? [spec.state.toLowerCase()]
+            : null;
     let values: Record<string, number> = {};
-    if (dataUrl) {
+    if (spec.geo === "state" || spec.geo === "county") {
       try {
-        const r = await fetch(dataUrl);
+        const r = await fetch(
+          `${baseUrl}/data/${dataDirSeg}/${spec.indicator}_${spec.vintage}.json`,
+        );
         if (r.ok) {
           const j = (await r.json()) as { values?: Record<string, number> };
           values = j.values ?? {};
         }
       } catch {
-        // ignore — fall through to outline-only render
+        // ignore — outline-only render
+      }
+    } else if (dataStates) {
+      const shards = await Promise.all(dataStates.map(async (st) => {
+        try {
+          const r = await fetch(
+            `${baseUrl}/data/${dataDirSeg}/${st}/${spec.indicator}_${spec.vintage}.json`,
+          );
+          if (!r.ok) return null;
+          return (await r.json()) as { values?: Record<string, number> };
+        } catch {
+          return null;
+        }
+      }));
+      for (const s of shards) {
+        if (s?.values) Object.assign(values, s.values);
       }
     }
 
