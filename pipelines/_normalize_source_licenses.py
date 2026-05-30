@@ -127,9 +127,11 @@ def desired_license(pipeline: str, provider: str | None) -> str | None:
     if not base:
         return None
     # FRED-pipeline overrides: a few series come from EIA (free,
-    # US govt) or Nasdaq OMX (re-distributed by FRED under different
-    # terms). Provenance.provider on those YAMLs encodes the
-    # underlying source.
+    # US govt), Nasdaq OMX, or other third-party redistributors.
+    # FRED's authoritative tag (per audit_fred_copyright.py) is the
+    # ground truth, but we duplicate the well-known ones here so
+    # _normalize_source_licenses doesn't undo correct attributions.
+    # Provenance.provider on those YAMLs encodes the underlying source.
     if pipeline == "fred_series" and provider:
         if "EIA" in provider:
             return "Public domain (US government data, EIA)"
@@ -138,6 +140,21 @@ def desired_license(pipeline: str, provider: str | None) -> str | None:
                 "Re-distributed by FRED under upstream provider terms; "
                 "verify with the upstream provider for commercial reuse"
             )
+        # Freddie Mac PMMS (mortgage_15y/30y) — citation required per
+        # FRED's "Copyrighted: Citation required" tag. Verified by
+        # audit_fred_copyright.py against the FRED API.
+        if "Freddie Mac" in provider:
+            return (
+                "Freddie Mac Primary Mortgage Market Survey — "
+                "citation required, via FRED"
+            )
+        # Realtor.com (median_listing_price, dc_median_listing) —
+        # same citation-required class as Freddie Mac.
+        if "Realtor.com" in provider:
+            return "Realtor.com — citation required, via FRED"
+        # NBER recession indicator — citation required.
+        if "NBER" in provider:
+            return "NBER — citation required, via FRED"
     return base
 
 

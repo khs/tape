@@ -424,15 +424,34 @@ def _match_country_countries(sid: str) -> MatchResult:
     return ("country", "countries_equity_ratio", m.group(1))
 
 
+_TREASURY_TIC_EXTRA_COUNTRIES = {
+    # Taiwan is a major TIC holder (~$300B+) but has no World Bank
+    # population file (WB doesn't list TWN as a sovereign), so it's
+    # absent from COUNTRY_SLUGS_BY_LEN. Treat as a recognized holder.
+    "taiwan",
+}
+_TREASURY_TIC_AGGREGATES = {
+    # Singleton aggregates that intentionally have no per-country
+    # template (no "Grand total" or "All foreign holdings" country page).
+    # Without listing them here they'd silently fail to classify, which
+    # looks like the same gap as a missing-country bug.
+    "grand_total",
+}
+
+
 def _match_country_treasury_tic(sid: str) -> MatchResult:
     # treasury_tic/<country>, e.g. treasury_tic/uk, treasury_tic/hong_kong.
     # Singleton-per-country (one source per holder country, no
     # per-series prefix). Country slugs use the same canonical list as
-    # _match_country_wb_ext to handle multi-word ones correctly.
+    # _match_country_wb_ext to handle multi-word ones correctly, plus
+    # the per-pipeline extras above.
     if not sid.startswith("treasury_tic/"):
         return None
     rest = sid[len("treasury_tic/"):]
-    if rest in COUNTRY_SLUGS_BY_LEN:
+    if rest in _TREASURY_TIC_AGGREGATES:
+        # Aggregate row; don't surface as a country template.
+        return None
+    if rest in COUNTRY_SLUGS_BY_LEN or rest in _TREASURY_TIC_EXTRA_COUNTRIES:
         return ("country", "treasury_tic_holdings", rest)
     return None
 

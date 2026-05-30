@@ -706,6 +706,43 @@ class MatcherCoverageTest(unittest.TestCase):
         if orphans:
             self._fail_with_orphans(orphans, "country")
 
+    def test_treasury_tic_known_holders_classify(self) -> None:
+        """Regression: code-review found _match_country_treasury_tic
+        silently failed taiwan + grand_total because the matcher only
+        accepted slugs from COUNTRY_SLUGS_BY_LEN (built from World Bank
+        population YAMLs). The orphan test above misses this — the
+        treasury_tic group has 35-of-37 classifying, which passes the
+        "any classified > 0" check while the two real holders fall off.
+
+        Lock down: every per-country TIC YAML (excluding the known
+        grand_total aggregate) must classify, and grand_total itself
+        must NOT classify (it's a singleton aggregate, not a country
+        template)."""
+        sources_dir = HERE.parent / "src" / "content" / "sources" / "treasury_tic"
+        slugs = sorted(p.stem for p in sources_dir.iterdir() if p.suffix == ".yaml")
+        # grand_total is the documented aggregate; everything else is
+        # a per-country holder and must be classifiable.
+        per_country = [s for s in slugs if s != "grand_total"]
+        unclassified = [
+            s for s in per_country
+            if gen_idx.classify_source(f"treasury_tic/{s}") is None
+        ]
+        self.assertFalse(
+            unclassified,
+            f"TIC per-country YAMLs that fail to classify (would "
+            f"silently disappear from the Generators tab's country pages): "
+            f"{unclassified}. Either add the slug to "
+            f"_TREASURY_TIC_EXTRA_COUNTRIES in _generate_generators_index.py "
+            f"or to the World Bank canonical list."
+        )
+        # And the aggregate is intentionally NOT a country template.
+        self.assertIsNone(
+            gen_idx.classify_source("treasury_tic/grand_total"),
+            "treasury_tic/grand_total is an aggregate — it should NOT "
+            "classify as a country template. If you added a per-country "
+            "page for it, that's a bug.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
