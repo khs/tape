@@ -562,5 +562,78 @@ class BuildCountryPresetsTests(unittest.TestCase):
             )
 
 
+class StateMatcherCoverageTest(unittest.TestCase):
+    """Catches the class of bug where a new provider ships per-state
+    sources following the convention ``<provider>/<series>_<state>``
+    but nobody added a matcher to MATCHERS — so the Generators tab
+    silently loses the templates. Hit in May 2026 with usgs_water +
+    usda_nass (and then 5 more: cdc_health, acs_labor, census_govfin,
+    edu_spending, eia_state_energy, naep, usaspending) which had been
+    sitting un-templated on the shelf since they shipped.
+
+    Strategy: walk every source YAML, group by (provider, series_prefix)
+    where series_prefix = filename minus the trailing ``_<state-abbr>``.
+    For each group with WIDE coverage (>= 25 distinct state suffixes —
+    half the states), assert classify_source returns a non-None result
+    for at least one of its sources. The wide-coverage threshold is the
+    key to ruling out false positives: BLS county-unemployment sources
+    end in ``_<state>`` too (``county_unemployment_alexandria_va``) but
+    each county shows up only once, so its (provider, series_prefix)
+    group has 1 entry — below threshold. A real per-state series has
+    one source per state and trips the floor."""
+
+    def test_no_provider_has_orphan_state_template(self) -> None:
+        from collections import defaultdict
+        sources_dir = HERE.parent / "src" / "content" / "sources"
+        state_lower = {a.lower() for a in gen_idx.STATE_ABBR_TO_NAME}
+
+        # (provider, series_prefix) → {state_suffixes, classified, example}
+        groups: dict[tuple[str, str], dict] = defaultdict(
+            lambda: {"states": set(), "classified": 0, "example": None},
+        )
+        for path in sources_dir.rglob("*.yaml"):
+            rel = path.relative_to(sources_dir).with_suffix("").as_posix()
+            parts = rel.split("/")
+            if len(parts) < 2:
+                continue
+            provider = parts[0]
+            fname = parts[-1]
+            if "_" not in fname:
+                continue
+            prefix, suffix = fname.rsplit("_", 1)
+            if suffix not in state_lower:
+                continue
+            g = groups[(provider, prefix)]
+            g["states"].add(suffix)
+            if gen_idx.classify_source(rel) is not None:
+                g["classified"] += 1
+            else:
+                g["example"] = rel
+
+        # Half the states or more = unmistakably a per-state series.
+        WIDE_COVERAGE = 25
+        orphans = sorted(
+            (key, g)
+            for key, g in groups.items()
+            if len(g["states"]) >= WIDE_COVERAGE and g["classified"] == 0
+        )
+
+        if orphans:
+            msg = [
+                f"{len(orphans)} per-state series have wide state coverage but "
+                "no matcher in MATCHERS — Generators tab silently drops them:",
+            ]
+            for (provider, prefix), g in orphans:
+                msg.append(
+                    f"  {provider}/{prefix}_*  ({len(g['states'])} states, "
+                    f"e.g. {g['example']})"
+                )
+            msg.append(
+                "Add a matcher per provider in pipelines/_generate_generators_index.py "
+                "and register it in MATCHERS.",
+            )
+            self.fail("\n".join(msg))
+
+
 if __name__ == "__main__":
     unittest.main()

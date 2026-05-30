@@ -301,6 +301,87 @@ def _match_state_usda_nass(sid: str) -> MatchResult:
     return ("state", f"usda_nass_{m.group(1)}", abbr)
 
 
+def _match_state_cdc_health(sid: str) -> MatchResult:
+    # cdc_health/<cause>_aadr_<state>, e.g. cdc_health/cancer_aadr_wy.
+    # The CDC US-rollup IDs end in "_us" and drop out.
+    m = re.match(r"^cdc_health/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"cdc_health_{m.group(1)}", abbr)
+
+
+def _match_state_acs_labor(sid: str) -> MatchResult:
+    # acs_labor/state_<race>_<state>, e.g. acs_labor/state_aian_wy.
+    m = re.match(r"^acs_labor/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"acs_labor_{m.group(1)}", abbr)
+
+
+def _match_state_census_govfin(sid: str) -> MatchResult:
+    # census_govfin/state_<measure>_<state>, e.g. state_totrev_wy.
+    m = re.match(r"^census_govfin/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"census_govfin_{m.group(1)}", abbr)
+
+
+def _match_state_edu_spending(sid: str) -> MatchResult:
+    # edu_spending/state_<measure>_<state>, e.g. state_perpupil_wy.
+    m = re.match(r"^edu_spending/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"edu_spending_{m.group(1)}", abbr)
+
+
+def _match_state_eia_energy(sid: str) -> MatchResult:
+    # eia_state_energy/state_<source>_<state>, e.g. state_solar_wy.
+    m = re.match(r"^eia_state_energy/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"eia_state_energy_{m.group(1)}", abbr)
+
+
+def _match_state_naep(sid: str) -> MatchResult:
+    # naep/state_<subject><grade>_<state>, e.g. state_mathg4_wy.
+    m = re.match(r"^naep/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"naep_{m.group(1)}", abbr)
+
+
+def _match_state_usaspending(sid: str) -> MatchResult:
+    # usaspending/state_<state>, e.g. usaspending/state_wy. Singleton
+    # series (no per-series prefix between "state" and the state code).
+    # CD- and metro-level usaspending IDs match the existing
+    # _match_metro_usaspending earlier in MATCHERS or fall through.
+    m = re.match(r"^usaspending/state_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(1).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", "usaspending_state_spending", abbr)
+
+
 def _match_country_wb_gdp(sid: str) -> MatchResult:
     m = re.match(r"^worldbank_gdp_raw/([a-z_]+)$", sid)
     if not m:
@@ -353,6 +434,13 @@ MATCHERS: list[Matcher] = [
     _match_state_bls,
     _match_state_usgs_water,
     _match_state_usda_nass,
+    _match_state_cdc_health,
+    _match_state_acs_labor,
+    _match_state_census_govfin,
+    _match_state_edu_spending,
+    _match_state_eia_energy,
+    _match_state_naep,
+    _match_state_usaspending,
     _match_country_wb_gdp,
     _match_country_wb_ext,
     _match_country_countries_gdp,
