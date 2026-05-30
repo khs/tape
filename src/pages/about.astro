@@ -50,14 +50,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         all 50 states and DC; productivity; CPI subcomponents.
       </li>
       <li>
+        <strong>CBO</strong> — Congressional Budget Office Historical
+        Budget Data plus the 10-year baseline projection from the most
+        recent Budget &amp; Economic Outlook: federal debt, deficit,
+        outlays, and revenues as a share of GDP.
+      </li>
+      <li>
         <strong>USAspending.gov</strong> — federal contracts, grants,
         loans, and direct payments by recipient state and by congressional
         district, fiscal-year, back to FY2008.
       </li>
       <li>
         <strong>Census Bureau</strong> — American Community Survey 5-year
-        estimates for income, population, poverty, and education at the
-        congressional-district level.
+        estimates (income, population, poverty, education) at the
+        congressional-district and metro level, plus the Annual Survey
+        of State Government Finances (general expenditures by state).
+      </li>
+      <li>
+        <strong>NCES / NAEP</strong> — National Center for Education
+        Statistics: K&ndash;12 spending per pupil (Common Core of Data
+        F-33, via the Urban Institute Education Data Portal) and NAEP
+        ("the Nation's Report Card") state achievement scores.
+      </li>
+      <li>
+        <strong>SSA</strong> — Social Security Administration OASDI
+        Trustees Report: program cost, income, and worker-to-beneficiary
+        ratio, with the intermediate-cost long-range projection extended
+        as a dashed line.
+      </li>
+      <li>
+        <strong>EIA</strong> — U.S. Energy Information Administration
+        state-level electricity net generation, annual, for all 50
+        states and DC.
       </li>
       <li>
         <strong>OECD</strong> — harmonized cross-country comparisons of
@@ -91,6 +115,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <strong>CMS Office of the Actuary</strong> — National Health
         Expenditure Accounts: total and personal health-care spending
         per capita, 1960&ndash;present.
+      </li>
+      <li>
+        <strong>Zillow Research</strong> — Zillow Home Value Index
+        (ZHVI) and Zillow Observed Rent Index (ZORI), nationally and
+        for a dozen major metros, monthly back to 2000.
       </li>
       <li>
         <strong>Yahoo Finance</strong> (via <code>yfinance</code>) — equity
@@ -201,13 +230,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </p>
     <p>
       <strong>Data licensing.</strong> Underlying series carry their
-      providers' licensing terms: FRED, BLS, USAspending.gov, Census
-      Bureau, USDA NASS, and US Treasury data are US public domain; World Bank
-      Open Data is CC BY-4.0; OECD data is used under OECD terms;
-      Yahoo Finance is used under each provider's published terms of
-      service. Charts and dashboards composed from these sources
-      inherit those terms; please credit the underlying provider when
-      reproducing data elsewhere.
+      providers' licensing terms. US government data — FRED, BLS, CBO,
+      USAspending.gov, Census Bureau, NCES, SSA, EIA, US Treasury,
+      USDA NASS, CDC / NCHS, USGS, and CMS — is in the public domain.
+      The Urban Institute Education Data Portal (used as the access
+      layer for NCES CCD) is licensed ODC-BY 1.0. World Bank Open Data
+      is CC BY-4.0. OECD data is used under OECD terms. Zillow Research
+      is used under Zillow's published terms (free for public use).
+      Yahoo Finance is used under its terms of service. Charts and
+      dashboards composed from these sources inherit those terms; please
+      credit the underlying provider when reproducing data elsewhere.
     </p>
 
     <p class="footer-note">
