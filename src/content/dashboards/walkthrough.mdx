@@ -114,11 +114,35 @@ The composer is where you build a custom dashboard:
   provider (FRED, World Bank, Census, BLS, etc.). The expanded chart
   dialog shows the data file path so anyone reading your saved
   dashboard can verify the numbers themselves.
+- **Per-source pages** at `/source/<provider>/<series>/` carry a full
+  citation block: provider name, series ID, license, last-updated
+  date, frequency, and a copy-paste APA citation. Click the chart
+  source label to land there.
 - Data is refreshed weekly (market data) or monthly (demographics).
   Each refresh commits to git, so any historical vintage of any
   series can be resurrected from the repo's commit log if a
   researcher ever needs to reproduce a chart at the value it had on
   a specific date.
+
+### Embed a chart in a piece
+
+- Open the expanded view of any chart and copy the `<iframe>`
+  snippet — it renders the chart on your blog, Substack, or research
+  note, and auto-updates as the underlying series refreshes (no
+  re-export needed).
+- Embeds keep the same window pills + tooltip + source link the
+  live chart has, so readers can interact with the data without
+  leaving your page.
+
+### Alerts when a series moves
+
+- The [alerts page](/alerts/) sets email alerts on any source:
+  greater-than, less-than, crosses-above, crosses-below, or
+  absolute-change thresholds. Tape evaluates on every data refresh
+  and emails on the cross.
+- Smart-dispatch auto-pauses an alert that fires repeatedly without
+  acknowledgement, so a chronically-tripping threshold doesn't
+  bury your inbox.
 
 ### Where to go next
 
