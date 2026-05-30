@@ -1021,8 +1021,14 @@ const EDITORIAL_FEATURES: string[] = [
     display: none;
   }
   .welcome-popout-iframe {
+    /* Fill nearly the whole viewport. The 1280px cap was leaving a
+       lot of grey backdrop on wide displays; the new cap is set high
+       enough that the overlay's 32px padding (around 64px total) is
+       the only inset. Combined with the chart-detail page's iframe-
+       widened content cap (see src/pages/chart/[...id].astro), the
+       actual chart fills the modal cleanly. */
     width: 100%;
-    max-width: 1280px;
+    max-width: 1800px;
     height: 100%;
     max-height: 100%;
     background: var(--color-white);

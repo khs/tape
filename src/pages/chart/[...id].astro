@@ -62,6 +62,22 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
   description={resolved?.chart.data.blurb ?? "A single chart from the Tape library."}
   ogImage={`/og.png?chart=${encodeURIComponent(chartId)}`}
 >
+  {/*
+    Synchronous, runs before first paint. When this page is loaded
+    INSIDE an iframe (the welcome-page COVERAGE popout overlay, or
+    any future host that pops a chart out), widen the content cap
+    by tagging the document root. The CSS in <style> below picks up
+    `.chart-detail-host-popout .chart-detail` and removes the 880px
+    cap so the chart fills the iframe instead of sitting centered
+    with white space on both sides (which read as wasted modal area
+    on wide displays). Standalone /chart/<id>/ visits stay at 880px
+    for readable line lengths.
+  */}
+  <script is:inline>
+    if (window.parent !== window) {
+      document.documentElement.classList.add("chart-detail-host-popout");
+    }
+  </script>
   <div
     class="chart-detail dashboard-root max-w-[880px] mx-auto px-6 pt-8 pb-16"
     data-chart-id={chartId}
@@ -243,5 +259,22 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
        handles both cases. */
     width: 100%;
     max-width: 360px;
+  }
+  /* When loaded inside an iframe (welcome page's COVERAGE popout, or
+     any future host that pops the chart out), drop the 880px cap on
+     the outer wrapper so the chart fills the iframe instead of
+     leaving wide white margins on each side. Tailwind's
+     max-w-[880px] uses !important via responsive prefixes by
+     default — match it here. */
+  :global(.chart-detail-host-popout) .chart-detail {
+    max-width: none !important;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  /* Inside the wider popout-frame layout, also let the tile grow so
+     the chart itself uses the new space rather than staying pinned
+     at 360px. */
+  :global(.chart-detail-host-popout) .chart-detail-tile {
+    max-width: none;
   }
 </style>
