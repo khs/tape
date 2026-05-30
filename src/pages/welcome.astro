@@ -101,6 +101,17 @@ const COVERAGE: CoverageCategory[] = [
     ],
   },
   {
+    title: "Health, environment, agriculture",
+    blurb: "Longer-tail series outside the standard markets picture — life expectancy, healthcare cost growth, water withdrawals, crop production. Often the right answer for sourcing a single statistic in a piece.",
+    items: [
+      { label: "US life expectancy at birth (CDC)", sourceHref: "/source/cdc_health/life_expectancy_us/", chartId: "us-macro/life_expectancy" },
+      { label: "US health spending per capita (CMS)", sourceHref: "/source/cms_nhe/phc_per_capita/", chartId: "us-macro/health_spending_per_capita" },
+      { label: "US water withdrawals (USGS)", sourceHref: "/source/usgs_water/total_us/", chartId: "us-macro/water_use_us" },
+      { label: "US corn production (USDA NASS)", sourceHref: "/source/usda_nass/corn_production_us/", chartId: "us-macro/corn_production" },
+      { label: "CPI: food at home vs food away", chartId: "us-macro/cpi_food_at_home_vs_away" },
+    ],
+  },
+  {
     title: "Stocks",
     blurb: "Market-cap-adjusted price history (SEC EDGAR + Yahoo) for the names that matter to the macro picture.",
     items: [
