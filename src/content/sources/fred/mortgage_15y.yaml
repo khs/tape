@@ -16,7 +16,7 @@ provenance:
   provider: FRED (St. Louis Fed) / Freddie Mac
   series: MORTGAGE15US
   url: https://fred.stlouisfed.org/series/MORTGAGE15US
-  license: Public domain (US government data)
+  license: Freddie Mac Primary Mortgage Market Survey — citation required, via FRED
 tags:
   - macro
   - rates

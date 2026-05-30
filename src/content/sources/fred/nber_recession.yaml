@@ -14,7 +14,7 @@ provenance:
   provider: FRED (St. Louis Fed) / NBER
   series: USREC
   url: https://fred.stlouisfed.org/series/USREC
-  license: Public domain (US government data)
+  license: NBER — citation required, via FRED
 tags:
   - macro
   - us

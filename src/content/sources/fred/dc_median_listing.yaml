@@ -14,10 +14,10 @@ formatting:
   notation: compact
 emphasis: change
 provenance:
-  provider: FRED (St. Louis Fed)
+  provider: FRED (St. Louis Fed) / Realtor.com
   series: MEDLISPRI47900
   url: https://fred.stlouisfed.org/series/MEDLISPRI47900
-  license: Public domain (US government data)
+  license: Realtor.com — citation required, via FRED
 tags:
   - real-estate
   - us

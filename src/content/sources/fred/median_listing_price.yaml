@@ -14,8 +14,8 @@ formatting:
   decimals: 0
 emphasis: change
 provenance:
-  provider: FRED (St. Louis Fed)
+  provider: FRED (St. Louis Fed) / Realtor.com
   series: MEDLISPRIUS
   url: https://fred.stlouisfed.org/series/MEDLISPRIUS
-  license: Public domain (US government data)
+  license: Realtor.com — citation required, via FRED
 unitClass: currency

@@ -10,10 +10,10 @@ formatting:
   style: percent
   decimals: 2
 provenance:
-  provider: FRED (St. Louis Fed)
+  provider: FRED (St. Louis Fed) / Freddie Mac
   series: MORTGAGE30US
   url: https://fred.stlouisfed.org/series/MORTGAGE30US
-  license: Public domain (US government data)
+  license: Freddie Mac Primary Mortgage Market Survey — citation required, via FRED
 tags:
   - macro
   - rates
