@@ -83,35 +83,70 @@ def latest_point(data_file_rel: str) -> tuple[float | None, str | None]:
 
 
 def classify(value: float, unit: str, fmt_style: str) -> str:
-    """Heuristic plausibility check for the (value, unit) pair."""
-    if value is None:
-        return "no-data"
-    if value == 0:
-        return "zero"
-    abs_v = abs(value)
+    """Heuristic plausibility check for the (value, unit) pair.
 
-    # Percent-style: should be 0-100 (or a touch over for niche cases).
+    Designed to find scale regressions (raw dollars stored as if billions,
+    %-as-decimal vs %-as-100, etc.) without false-flagging legitimate
+    cases:
+      - raw counts in the billions (bushels, people, gallons/day)
+      - sub-cent crypto memecoins (style=currency, value <<1)
+      - legitimate zeros from aggregator-state codes (DC has no farms,
+        OT="Other states" is a residual)
+    """
+    if value is None:
+        # Caller filters these out — no-data means the JSON file exists
+        # but has no points yet (projection-only series, queued metro).
+        return "ok-no-data"
+    abs_v = abs(value) if value != 0 else 0
+
+    # Percent-style: should be 0-100 (or a touch over for niche cases like
+    # China's broad-money/GDP which runs above 200%).
     if fmt_style == "percent" or "%" in unit.lower():
-        if 0 < abs_v < 100:
+        if 0 <= abs_v < 100:
             return "ok"
-        if abs_v <= 200:
+        if abs_v <= 300:
             return "ok (>100% — unusual but possible)"
         return "CHECK percent looks too high"
 
-    # Index-style: typically 50-500 (CPI, market indices).
+    # Index-style: spans z-scores (sub-1, can be negative) through CPI
+    # (~300) through Nasdaq (~20000). Just bound the upper tail.
     if fmt_style == "index" or "index" in unit.lower():
-        if 1 < abs_v < 10000:
+        if abs_v < 1e6:
             return "ok"
         return "CHECK index out of typical range"
 
-    # Currency / numerical magnitude bands.
-    if abs_v >= 1e12:
-        return "HUGE (>= 1T — raw value? expected compact?)"
-    if abs_v >= 1e9:
-        return "HUGE (>= 1B — raw value? expected M/B scaling?)"
-    if abs_v < 1e-4:
-        return "TINY (< 0.0001 — sub-unit lost in conversion?)"
+    # Currency: normalize to raw USD using the unit string, then flag at
+    # implausible scales. The unit text tells us the storage convention:
+    #   "billions USD"   → multiply by 1e9
+    #   "millions USD"   → multiply by 1e6
+    #   "thousands USD"  → multiply by 1e3
+    #   "USD" (raw)      → multiply by 1
+    # The "regression" class this catches is something stored in the wrong
+    # base (raw $ where billions $ was expected, or vice versa). We
+    # SHOULD see roughly plausible $ figures after normalization.
+    if fmt_style == "currency":
+        u = unit.lower()
+        if "billion" in u:
+            normalized = abs_v * 1e9
+        elif "million" in u:
+            normalized = abs_v * 1e6
+        elif "thousand" in u:
+            normalized = abs_v * 1e3
+        else:
+            normalized = abs_v
+        if normalized >= 1e16:
+            return f"HUGE ({abs_v:.3g} {unit} = >${normalized:.1g} — scale regression?)"
+        # Sub-cent currencies are real (memecoins, JPY pre-conversion).
+        return "ok"
 
+    # Counts: pipelines store RAW (per the canonical-units invariant).
+    # Bushels, people, gallons/day, TWh — all legitimately in the billions
+    # for large aggregates. Only flag at trillion-scale, which IS unusual.
+    # Zero is legitimate for aggregator-suffix locations (DC has no farms,
+    # OT = "Other states" residual), so don't flag plain zeros — only
+    # zero-when-positive-expected, which we can't detect without a baseline.
+    if abs_v >= 1e13:
+        return "HUGE (>= 10T raw — likely a scale regression)"
     return "ok"
 
 
@@ -138,7 +173,10 @@ def main() -> int:
         fmt = spec.get("formatting") or {}
         fmt_style = fmt.get("style") or "number"
         value, date = latest_point(data_file)
-        verdict = classify(value, unit, fmt_style) if value is not None else "no-data"
+        # `ok-no-data` is intentional: empty data files exist for projection-
+        # only series (SSA OASDI cost) and queued metros (USAspending) — not
+        # scale regressions, so don't drag them into "Flagged for review."
+        verdict = classify(value, unit, fmt_style) if value is not None else "ok-no-data"
         grouped.setdefault(folder, []).append((sid, value, unit, fmt_style, date or "", verdict))
 
     # Pretty print.
@@ -152,7 +190,7 @@ def main() -> int:
             marker = "" if verdict.startswith("ok") else "  <-- " + verdict
             print(f"  {sid:<48}  {v_str}  {unit:<16}  {fmt_style:<10}{marker}")
             if marker:
-                flagged.append(f"{sid}: latest={value} unit='{unit}' style={fmt_style}  → {verdict}")
+                flagged.append(f"{sid}: latest={value} unit='{unit}' style={fmt_style}  -> {verdict}")
 
     print("\n\n=== Flagged for review ===")
     if not flagged:
