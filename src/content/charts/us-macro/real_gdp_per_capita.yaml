@@ -9,9 +9,9 @@ tags: [us, macro, derived, ratio, gdp]
 blurb: |
   Real GDP (chained 2017 dollars, quarterly) divided by US
   population (monthly). Reads as roughly real per-person economic
-  output: about $30K in 1970, $80K+ today. Doesn't account for
-  distribution; useful as a long-run trend benchmark for how
-  productive the average American has become.
+  output: about $26K in 1970, $70K+ in the mid-2020s. Doesn't
+  account for distribution; useful as a long-run trend benchmark
+  for how productive the average American has become.
   <br/><br/>
   This is the walkthrough's <strong>division</strong> example —
   pick any aggregate-by-country / aggregate-by-state / aggregate-

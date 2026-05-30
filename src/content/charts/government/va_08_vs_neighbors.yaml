@@ -12,12 +12,12 @@ normalize: rebase
 blurb: |
   Federal spending across the DC-metro congressional districts, rebased
   to 100 at window start so growth trajectories are comparable. Raw
-  levels differ enough (DC ~$50B, VA-11 ~$30B, VA-08 ~$30B, MD ~$15B)
-  that side-by-side rebase tells a clearer story than absolute dollars.
+  levels differ severalfold (VA-11 ~$80B, DC ~$40B, VA-08 ~$35B, MD-08
+  ~$12B, MD-05 ~$6B) so side-by-side rebase tells a clearer story
+  than absolute dollars.
   <br/><br/>
-  VA-11 (Loudoun / outer Fairfax — Gerry Connolly's seat) has grown
-  fastest as data-center and contractor build-out spread west. MD
-  districts grew slower as Bethesda/NIH spending stabilized; DC's
-  growth was middle-of-pack despite being the seat of government,
-  because most of its federal flow is salaries rather than the kind
-  of contract money that's grown fastest.
+  VA-11 (outer Fairfax) has grown fastest as data-center and contractor
+  build-out spread west. MD districts grew slower as Bethesda/NIH
+  spending stabilized; DC's growth was middle-of-pack despite being
+  the seat of government, because most of its federal flow is salaries
+  rather than the kind of contract money that's grown fastest.
