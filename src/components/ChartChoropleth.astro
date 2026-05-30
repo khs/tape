@@ -469,6 +469,51 @@ const statesJoined = stateCodes.join(",");
   import { specialTractName } from "../lib/special-tract-names";
   import { disambiguateCountyCityNames } from "../lib/disambiguate-county-city";
 
+  // Lazy-loaded county FIPS (5-digit) → name lookup. Block-group
+  // hover labels need this to resolve the parent county from the
+  // BG's 12-digit GEOID — without it the topology label is just
+  // "Block Group 1" which repeats in every county and is useless
+  // for orientation. Fetched once on the first BG render; the
+  // Promise itself is cached so concurrent BG renders share the
+  // single fetch. ~500KB file, but the browser caches it, and the
+  // alternative (compiling a 3,140-row TS literal at build time)
+  // would inflate every page's JS bundle even for charts that
+  // never need it.
+  let countyNamesPromise: Promise<Map<string, string>> | null = null;
+  function loadCountyNames(): Promise<Map<string, string>> {
+    if (countyNamesPromise) return countyNamesPromise;
+    const root = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+    countyNamesPromise = (async () => {
+      try {
+        const r = await fetch(`${root}/maps/us-counties-2024-10m.json`);
+        if (!r.ok) return new Map<string, string>();
+        const topo = (await r.json()) as {
+          objects?: { counties?: { geometries?: Array<{
+            id?: string | number;
+            properties?: { NAME?: string };
+          }> } };
+        };
+        const m = new Map<string, string>();
+        for (const g of topo.objects?.counties?.geometries ?? []) {
+          if (g.id == null) continue;
+          // The us-counties-2024-10m topology stores id as a numeric
+          // value (e.g. 1069 for Houston, AL = "01069"). Pad to 5 to
+          // match the 12-digit BG GEOID's state-county prefix.
+          const id = String(g.id).padStart(5, "0");
+          const name = g.properties?.NAME;
+          if (name) m.set(id, name);
+        }
+        return m;
+      } catch {
+        // Network failure / 404: return empty map so the BG renderer
+        // falls back to the tract-only label. Don't throw — a missing
+        // county lookup shouldn't blank out the entire choropleth.
+        return new Map<string, string>();
+      }
+    })();
+    return countyNamesPromise;
+  }
+
   type ChoroBindings = {
     chartId: string;
     dataUrls: string[];   // 1+ shard files merged client-side
@@ -700,6 +745,13 @@ const statesJoined = stateCodes.join(",");
     // block-group files have it under properties.name (lowercase).
     // Normalize to properties.name so tooltips and titles can read
     // one key regardless of boundary-file vintage.
+    // Block-group GEOIDs are 12 chars (state2 + county3 + tract6 + bg1).
+    // To produce a useful hover label we need the parent county's
+    // name — load the FIPS→name map once before the per-feature loop.
+    // For non-BG geo levels this is skipped entirely.
+    const countyNames = b.geo === "block-group"
+      ? await loadCountyNames()
+      : null;
     for (const f of features) {
       const props = (f as { properties?: { id?: string; name?: string; NAME?: string } }).properties;
       if (!f.id && props?.id) {
@@ -720,6 +772,29 @@ const statesJoined = stateCodes.join(",");
       if (fid && props) {
         const colloquial = specialTractName(fid);
         if (colloquial) props.name = colloquial;
+      }
+      // Block-group hover: the raw topology label is just
+      // "Block Group N" — same N repeats in every county, which is
+      // useless for orientation. Reformat to
+      // "Block Group N, Tract X.YY, <County> County" using the
+      // 12-digit GEOID and the lazy-loaded county-FIPS lookup.
+      // If the lookup is unavailable, fall back to the tract-only
+      // label so the hover stays informative.
+      if (b.geo === "block-group" && fid && fid.length === 12 && props) {
+        const countyFips = fid.slice(0, 5);          // state2 + county3
+        const tractCode = fid.slice(5, 11);          // 6-digit tract code
+        const bgNumber = fid.slice(11, 12);          // 1-digit BG number
+        // Census tract display format is NNNN.NN — e.g. raw "020600"
+        // is shown as "206.00". parseInt drops leading zeros on the
+        // integer part to match the form the tract topology uses
+        // ("Census Tract 9303.02").
+        const tractInt = parseInt(tractCode.slice(0, 4), 10);
+        const tractFrac = tractCode.slice(4, 6);
+        const tractFormatted = `${tractInt}.${tractFrac}`;
+        const countyName = countyNames?.get(countyFips);
+        props.name = countyName
+          ? `Block Group ${bgNumber}, Tract ${tractFormatted}, ${countyName} County`
+          : `Block Group ${bgNumber}, Tract ${tractFormatted}`;
       }
     }
     // Disambiguate same-name county/independent-city pairs (Baltimore,
