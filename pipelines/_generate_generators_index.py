@@ -424,6 +424,19 @@ def _match_country_countries(sid: str) -> MatchResult:
     return ("country", "countries_equity_ratio", m.group(1))
 
 
+def _match_country_treasury_tic(sid: str) -> MatchResult:
+    # treasury_tic/<country>, e.g. treasury_tic/uk, treasury_tic/hong_kong.
+    # Singleton-per-country (one source per holder country, no
+    # per-series prefix). Country slugs use the same canonical list as
+    # _match_country_wb_ext to handle multi-word ones correctly.
+    if not sid.startswith("treasury_tic/"):
+        return None
+    rest = sid[len("treasury_tic/"):]
+    if rest in COUNTRY_SLUGS_BY_LEN:
+        return ("country", "treasury_tic_holdings", rest)
+    return None
+
+
 MATCHERS: list[Matcher] = [
     _match_metro_usaspending,
     _match_metro_bls,
@@ -445,6 +458,7 @@ MATCHERS: list[Matcher] = [
     _match_country_wb_ext,
     _match_country_countries_gdp,
     _match_country_countries,
+    _match_country_treasury_tic,
 ]
 
 

@@ -562,77 +562,149 @@ class BuildCountryPresetsTests(unittest.TestCase):
             )
 
 
-class StateMatcherCoverageTest(unittest.TestCase):
-    """Catches the class of bug where a new provider ships per-state
-    sources following the convention ``<provider>/<series>_<state>``
-    but nobody added a matcher to MATCHERS — so the Generators tab
-    silently loses the templates. Hit in May 2026 with usgs_water +
-    usda_nass (and then 5 more: cdc_health, acs_labor, census_govfin,
-    edu_spending, eia_state_energy, naep, usaspending) which had been
-    sitting un-templated on the shelf since they shipped.
+class MatcherCoverageTest(unittest.TestCase):
+    """Catches the class of bug where a new provider ships per-entity
+    sources following one of the standard conventions but nobody added a
+    matcher to MATCHERS — so the Generators tab silently loses the
+    templates. Hit in May 2026 with 9 state-level providers (usgs_water,
+    usda_nass, cdc_health, acs_labor, census_govfin, edu_spending,
+    eia_state_energy, naep, usaspending) and treasury_tic at the country
+    tier — all had been sitting un-templated on the shelf since they
+    shipped.
 
     Strategy: walk every source YAML, group by (provider, series_prefix)
-    where series_prefix = filename minus the trailing ``_<state-abbr>``.
-    For each group with WIDE coverage (>= 25 distinct state suffixes —
-    half the states), assert classify_source returns a non-None result
-    for at least one of its sources. The wide-coverage threshold is the
-    key to ruling out false positives: BLS county-unemployment sources
-    end in ``_<state>`` too (``county_unemployment_alexandria_va``) but
-    each county shows up only once, so its (provider, series_prefix)
-    group has 1 entry — below threshold. A real per-state series has
-    one source per state and trips the floor."""
+    where series_prefix = filename minus the entity-suffix. For each
+    group with WIDE coverage of the geo's entities, assert
+    classify_source returns a non-None result for at least one. The
+    wide-coverage threshold rules out the obvious false positives —
+    e.g. BLS county-unemployment ends in ``_<state>`` too
+    (``county_unemployment_alexandria_va``) but each county shows up
+    once, so its group has 1 entry and stays below the threshold.
 
-    def test_no_provider_has_orphan_state_template(self) -> None:
+    Geo-specific detectors live as nested closures: state = trailing
+    ``_<lower-2>`` matching a known abbr; metro = trailing
+    ``_<5-digit>`` matching a known CBSA; country = longest-suffix
+    match against the canonical slug list (handles ``hong_kong``,
+    ``costa_rica``)."""
+
+    def _find_orphans(
+        self,
+        suffix_detector,
+        wide_threshold: int,
+        geo_label: str,
+    ) -> list[tuple[tuple[str, str], dict]]:
+        """Walk source YAMLs, group by (provider, series_prefix) using
+        the geo-specific detector, return groups that are wide-coverage
+        but have zero classified sources. Each group dict carries
+        ``suffixes`` (set), ``classified`` (int), ``example`` (str|None).
+        """
         from collections import defaultdict
         sources_dir = HERE.parent / "src" / "content" / "sources"
-        state_lower = {a.lower() for a in gen_idx.STATE_ABBR_TO_NAME}
-
-        # (provider, series_prefix) → {state_suffixes, classified, example}
         groups: dict[tuple[str, str], dict] = defaultdict(
-            lambda: {"states": set(), "classified": 0, "example": None},
+            lambda: {"suffixes": set(), "classified": 0, "example": None},
         )
         for path in sources_dir.rglob("*.yaml"):
             rel = path.relative_to(sources_dir).with_suffix("").as_posix()
             parts = rel.split("/")
             if len(parts) < 2:
                 continue
-            provider = parts[0]
-            fname = parts[-1]
-            if "_" not in fname:
+            provider, fname = parts[0], parts[-1]
+            detected = suffix_detector(fname)
+            if detected is None:
                 continue
-            prefix, suffix = fname.rsplit("_", 1)
-            if suffix not in state_lower:
-                continue
+            prefix, suffix = detected
             g = groups[(provider, prefix)]
-            g["states"].add(suffix)
+            g["suffixes"].add(suffix)
             if gen_idx.classify_source(rel) is not None:
                 g["classified"] += 1
             else:
                 g["example"] = rel
-
-        # Half the states or more = unmistakably a per-state series.
-        WIDE_COVERAGE = 25
-        orphans = sorted(
+        return sorted(
             (key, g)
             for key, g in groups.items()
-            if len(g["states"]) >= WIDE_COVERAGE and g["classified"] == 0
+            if len(g["suffixes"]) >= wide_threshold and g["classified"] == 0
         )
 
-        if orphans:
-            msg = [
-                f"{len(orphans)} per-state series have wide state coverage but "
-                "no matcher in MATCHERS — Generators tab silently drops them:",
-            ]
-            for (provider, prefix), g in orphans:
-                msg.append(
-                    f"  {provider}/{prefix}_*  ({len(g['states'])} states, "
-                    f"e.g. {g['example']})"
-                )
+    def _fail_with_orphans(
+        self,
+        orphans: list[tuple[tuple[str, str], dict]],
+        geo_label: str,
+    ) -> None:
+        msg = [
+            f"{len(orphans)} per-{geo_label} series have wide {geo_label} "
+            "coverage but no matcher in MATCHERS — Generators tab silently "
+            "drops them:",
+        ]
+        for (provider, prefix), g in orphans:
+            display = f"{provider}/{prefix}_*" if prefix else f"{provider}/*"
             msg.append(
-                "Add a matcher per provider in pipelines/_generate_generators_index.py "
-                "and register it in MATCHERS.",
+                f"  {display}  ({len(g['suffixes'])} {geo_label}s, "
+                f"e.g. {g['example']})"
             )
-            self.fail("\n".join(msg))
+        msg.append(
+            "Add a matcher per provider in "
+            "pipelines/_generate_generators_index.py and register it in MATCHERS."
+        )
+        self.fail("\n".join(msg))
+
+    def test_no_orphan_state_template(self) -> None:
+        state_lower = {a.lower() for a in gen_idx.STATE_ABBR_TO_NAME}
+
+        def detect(fname: str):
+            if "_" not in fname:
+                return None
+            prefix, suffix = fname.rsplit("_", 1)
+            if suffix not in state_lower:
+                return None
+            return (prefix, suffix)
+
+        orphans = self._find_orphans(detect, wide_threshold=25, geo_label="state")
+        if orphans:
+            self._fail_with_orphans(orphans, "state")
+
+    def test_no_orphan_metro_template(self) -> None:
+        # 5-digit CBSA codes only — known via the same crosswalk the
+        # matchers use, so a 5-digit non-CBSA suffix (rare; usually a
+        # year-vintage) doesn't false-positive.
+        import re as _re
+        metro_pat = _re.compile(r"^(.+)_(\d{5})$")
+        cbsa_set = set(gen_idx.CBSA_LABELS)
+
+        def detect(fname: str):
+            m = metro_pat.match(fname)
+            if not m:
+                return None
+            prefix, cbsa = m.group(1), m.group(2)
+            if cbsa not in cbsa_set:
+                return None
+            return (prefix, cbsa)
+
+        # ~390 CBSAs total; 50 is a clear "fanned out across most metros".
+        orphans = self._find_orphans(detect, wide_threshold=50, geo_label="metro")
+        if orphans:
+            self._fail_with_orphans(orphans, "metro")
+
+    def test_no_orphan_country_template(self) -> None:
+        # Country slugs are variable-length ("us", "hong_kong"); use the
+        # canonical slug list with longest-suffix matching to avoid
+        # slicing a multi-word slug at the wrong underscore. Empty
+        # prefix is fine — some providers ship singleton-per-country
+        # (treasury_tic/<country>) with no per-series prefix.
+        slugs_by_len = sorted(gen_idx.COUNTRY_SLUGS_BY_LEN, key=len, reverse=True)
+
+        def detect(fname: str):
+            for slug in slugs_by_len:
+                if fname == slug:
+                    return ("", slug)
+                if fname.endswith("_" + slug):
+                    return (fname[: -len(slug) - 1], slug)
+            return None
+
+        # ~250 worldbank slugs total (sovereigns + regional aggregates);
+        # 30 is comfortably above the noise floor.
+        orphans = self._find_orphans(detect, wide_threshold=30, geo_label="country")
+        if orphans:
+            self._fail_with_orphans(orphans, "country")
 
 
 if __name__ == "__main__":
