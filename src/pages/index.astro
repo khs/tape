@@ -93,6 +93,9 @@ const tabs: TabSpec[] = sorted.map((d) => ({
           For organizations &rarr;
         </a>
       </p>
+      <p class="hero-walkthrough-line">
+        New here? <a href={`${baseUrl}/walkthrough/`}>Take the 5-minute tour</a> — every Tape feature in one annotated dashboard.
+      </p>
     </div>
 
 
@@ -625,6 +628,20 @@ const tabs: TabSpec[] = sorted.map((d) => ({
   .hero-cta-secondary:hover {
     color: var(--color-neutral-900);
     text-decoration: underline;
+  }
+  /* "Take the 5-minute tour" link below the hero CTAs. Sized down + muted
+     so it doesn't compete with the primary CTAs but stays discoverable for
+     visitors who land on / and aren't ready to commit to "Build a dashboard"
+     yet. Mirrors the welcome.astro pattern (.welcome-walkthrough-line). */
+  .hero-walkthrough-line {
+    margin: 14px 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-500);
+  }
+  .hero-walkthrough-line a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   /* "Your dashboards" lede shown to signed-in users with saves. Slimmer
