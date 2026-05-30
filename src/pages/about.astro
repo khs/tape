@@ -167,34 +167,46 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     <h2 id="recent">Recent additions</h2>
     <ul>
       <li>
+        <strong>Composer.</strong> Build a dashboard from any combination
+        of library charts, raw sources, derived sources (divide / multiply
+        / sum two existing series), or generator templates. Save it to
+        your account, pin it as your homepage default, share by URL, or
+        copy an <code>&lt;iframe&gt;</code> embed for a single chart.
+        Try the <a href={`${baseUrl}/compose/`}>composer</a>.
+      </li>
+      <li>
+        <strong>Generators tab.</strong> Pick a geography — any state,
+        congressional district, MSA, or country — and the composer
+        offers every series Tape has for it as a ready-to-add chart.
+        Backed by ~1,800 per-state / per-CD / per-MSA / per-country
+        source files, indexed in one click.
+      </li>
+      <li>
+        <strong>Indicator alerts.</strong> Get an email when a series
+        crosses a threshold (10-year Treasury yield above 5%, headline
+        CPI YoY above 4%, etc.). Manage on the <a
+          href={`${baseUrl}/alerts/`}>alerts page</a>; smart-dispatch
+        auto-pauses noisy alerts.
+      </li>
+      <li>
+        <strong>Spring 2026 data expansion.</strong> Eight new providers:
+        CDC / NCHS (life expectancy + leading causes of death by state),
+        USGS (water-use survey), CMS Office of the Actuary (national
+        health expenditure per capita), USDA NASS + FRED (agricultural
+        production, prices, food CPI), EIA (state electricity generation),
+        NCES + NAEP (per-pupil spending, achievement scores by state),
+        SSA Trustees Report (OASDI long-range projection), and CBO
+        Budget &amp; Economic Outlook (federal debt / deficit baseline).
+      </li>
+      <li>
         <strong>Choropleth maps.</strong> ACS demographic indicators at
-        state, county, census-tract, and block-group resolution — poverty
-        rate, median household income, bachelor's-degree share, and
-        foreign-born share. Click any tile for an expanded view with
-        mouse-wheel zoom (Ctrl+/-/0 for keyboard), a year slider through
-        2010-2022 vintages, color-scheme picker, and real fullscreen.
-        Featured on the <a href={`${baseUrl}/va-08/`}>VA-08</a> and
+        state, county, census-tract, and block-group resolution. Click
+        any tile for an expanded view with mouse-wheel zoom (Ctrl+/-/0
+        for keyboard), a year slider through 2010&ndash;2022 vintages,
+        color-scheme picker, and real fullscreen. Featured on the
+        <a href={`${baseUrl}/va-08/`}>VA-08</a> and
         <a href={`${baseUrl}/federal-budget/`}>Federal-budget</a>
         dashboards.
-      </li>
-      <li>
-        <strong>Federal-budget dashboard.</strong> Outlays / receipts /
-        deficit / debt as % of GDP, spending by function (entitlements,
-        defense, interest), where the money lands geographically, and
-        external counterparts (foreign Treasury holdings, trade balance).
-        Plus the four US-wide demographic heatmaps for context.
-      </li>
-      <li>
-        <strong>Inflation deep-dive.</strong> Headline measures (CPI,
-        PCE, headline + core for both) and the components that drive
-        them: food, energy, shelter, rent, medical care. The "what the
-        bond market expects" section uses 5y + 10y breakevens.
-      </li>
-      <li>
-        <strong>Labor, Rates, Recession-monitor, and Housing dashboards.</strong>
-        Dedicated pages with framing essays. Recession-monitor includes
-        NY Fed's term-structure model probability and the Senior Loan
-        Officer Survey tightening series.
       </li>
     </ul>
 
