@@ -1,0 +1,23 @@
+name: Revolving consumer credit (credit cards)
+shortName: Revolving credit
+description: Outstanding revolving consumer credit — mostly credit-card balances (seasonally adjusted), monthly from the Federal Reserve G.19. Sums with nonrevolving credit to total consumer credit.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/REVOLSL.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 0
+  suffix: "B"
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: REVOLSL
+  url: https://fred.stlouisfed.org/series/REVOLSL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - consumer
+unitClass: currency

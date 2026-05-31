@@ -1,0 +1,15 @@
+title: Employment-population ratio vs. participation
+sources:
+  - fred/employment_population_ratio
+  - fred/labor_participation
+render: line
+defaultDelta: 30y
+seriesLabels: ["Employment-population ratio", "Labor-force participation"]
+tags: [us, labor]
+blurb: |
+  Two ways of measuring how much of the working-age population is
+  engaged in the labor market (both from the BLS). Participation
+  counts everyone working or looking for work; the employment-
+  population ratio counts only those actually employed. The gap
+  between them widens in recessions, when more people are searching
+  without yet finding a job.

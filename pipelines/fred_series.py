@@ -28,6 +28,16 @@ class FredSpec:
     # When set, the output file is named {series_id}_{transformation.upper()}.json
     # so it doesn't collide with the un-transformed series.
     transformation: str | None = None
+    # Multiplicative rescale applied to every value at write time. Used to
+    # bring a FRED series into Tape's canonical currency base (billions USD)
+    # when FRED publishes it in another magnitude. The G.19 consumer-credit
+    # family (TOTALSL / REVOLSL / NONREVSL) is published in MILLIONS, so
+    # scale=1e-3 converts to billions — matching the invariant derive.ts
+    # relies on ("currency on the books is billions"). Leave at 1.0 for
+    # series already in their canonical base. NOTE: mutually exclusive with
+    # the "thousands of persons" count guard below — a series is either a
+    # thousands-count (auto ×1000 → raw) or a scaled currency, never both.
+    scale: float = 1.0
 
 
 SPECS: list[FredSpec] = [
@@ -106,7 +116,13 @@ SPECS: list[FredSpec] = [
     #     read — saving up when worried.)
     FredSpec("DSPIC96", "Real disposable personal income", "billions chained 2017 USD"),
     FredSpec("JTSQUR", "JOLTS quits rate", "%"),
-    FredSpec("TOTALSL", "Total consumer credit (owned and securitized)", "billions USD"),
+    # FRED publishes the G.19 consumer-credit family in MILLIONS of $ (the
+    # api units_short is "Mil. of U.S. $"). Without the scale this stored
+    # ~5,140,540 while labeled "billions USD" — a 1000x scale bug that
+    # escaped audit_source_scales.py (5.14e15 sits just under its 1e16
+    # HUGE threshold) and silently inflated any per-capita / ratio derive
+    # on consumer credit. scale=1e-3 converts to canonical billions.
+    FredSpec("TOTALSL", "Total consumer credit (owned and securitized)", "billions USD", scale=1e-3),
     # Monetary / Fed
     FredSpec("M2SL", "M2 money supply", "billions USD"),
     FredSpec("WALCL", "Fed total assets (balance sheet)", "millions USD"),
@@ -521,6 +537,48 @@ SPECS: list[FredSpec] = [
             ("WI","Wisconsin"),("WY","Wyoming"),
         ]
     ],
+    # ------------------------------------------------------------------
+    # Library expansion v4 (2026-05): peer-gap fill. Series that FRED,
+    # USAFacts, Trading Economics, and Our-World-in-Data all surface
+    # prominently but Tape lacked. Every one verified PUBLIC-DOMAIN via
+    # the authoritative FRED tags API before ingest (BEA / BLS / Federal
+    # Reserve Board / regional-Fed federal sources). audit_fred_copyright.py
+    # re-gates them in CI.
+    # ------------------------------------------------------------------
+    # BEA national accounts — the nominal + headline-growth complements to
+    # the real-GDP series (GDPC1) we already carry.
+    FredSpec("GDP", "US GDP (nominal)", "billions USD"),
+    FredSpec("A191RL1Q225SBEA", "US real GDP growth rate (annualized)", "%"),
+    FredSpec("PCE", "Personal consumption expenditures", "billions USD"),
+    FredSpec("DSPI", "Disposable personal income", "billions USD"),
+    # Federal Reserve H.10 — the trade-weighted dollar + the three most-
+    # watched bilateral rates beyond the yuan (DEXCHUS) we already carry.
+    # FX rates are published in FRED's own quote convention: EUR and GBP
+    # as USD-per-unit, JPY and CAD as units-per-USD. Labels match FRED so
+    # the audit's token-overlap check passes.
+    FredSpec("DTWEXBGS", "US dollar index, broad (nominal)", "index (Jan 2006=100)"),
+    FredSpec("DEXUSEU", "US dollars per euro (USD/EUR)", "USD per EUR"),
+    FredSpec("DEXJPUS", "Japanese yen per US dollar (JPY/USD)", "JPY per USD"),
+    FredSpec("DEXCAUS", "Canadian dollars per US dollar (CAD/USD)", "CAD per USD"),
+    FredSpec("DEXUSUK", "US dollars per UK pound (USD/GBP)", "USD per GBP"),
+    # BLS labor levels + ratio. The headline UNRATE is a ratio; these are
+    # the underlying counts (and the employment-population ratio, the
+    # participation measure that doesn't move with discouraged-worker
+    # reclassification the way the unemployment rate does).
+    FredSpec("EMRATIO", "Employment-population ratio", "%"),
+    FredSpec("UNEMPLOY", "Unemployment level", "thousands of persons"),
+    FredSpec("CLF16OV", "Civilian labor force level", "thousands of persons"),
+    # Federal Reserve monetary + household-credit health. M1 complements
+    # the M2 we carry. The G.19 components (revolving = credit cards,
+    # nonrevolving = auto + student) sum to TOTALSL; all three published in
+    # MILLIONS, so scale=1e-3 → billions. The two delinquency rates + the
+    # debt-service ratio are the standard "are households stressed?" panel.
+    FredSpec("M1SL", "M1 money supply", "billions USD"),
+    FredSpec("REVOLSL", "Revolving consumer credit (credit cards)", "billions USD", scale=1e-3),
+    FredSpec("NONREVSL", "Nonrevolving consumer credit (auto + student)", "billions USD", scale=1e-3),
+    FredSpec("DRCCLACBS", "Credit card delinquency rate (all commercial banks)", "%"),
+    FredSpec("DRSFRMACBS", "Single-family mortgage delinquency rate", "%"),
+    FredSpec("TDSP", "Household debt-service ratio", "%"),
 ]
 
 
@@ -544,6 +602,11 @@ def _infer_raw_count_unit(series_id: str, fred_unit: str) -> str:
     for keyword, noun in (
         ("population", "people"),
         ("popthm", "people"),
+        # CPS "Level" series published as "Thousands of Persons" with no
+        # English hint in the ID (UNEMPLOY, CLF16OV, …). Match the unit
+        # noun so they rescale to raw people rather than the generic
+        # "count" fallback.
+        ("person", "people"),
         ("payrolls", "jobs"),
         ("payems", "jobs"),
         ("employment", "jobs"),
@@ -704,6 +767,11 @@ def main(argv: list[str] | None = None) -> int:
                 if spec.series_id in ALREADY_RAW_DESPITE_THOUSANDS
                 else spec.unit
             )
+        # Canonical-currency rescale: bring millions-published series into
+        # billions (the base derive.ts assumes). Applied after the count
+        # guard; the two never both fire on one series (see FredSpec.scale).
+        if spec.scale != 1.0:
+            points = [{"t": p["t"], "v": p["v"] * spec.scale} for p in points]
         out = write_timeseries(
             pipeline="fred",
             series_id=out_id,

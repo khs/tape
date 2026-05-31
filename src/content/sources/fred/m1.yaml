@@ -1,0 +1,21 @@
+name: M1 money supply
+shortName: M1
+description: M1 money stock — currency, demand deposits, and other liquid deposits (seasonally adjusted), monthly from the Federal Reserve. The narrow-money complement to M2.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/M1SL.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 0
+  suffix: "B"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: M1SL
+  url: https://fred.stlouisfed.org/series/M1SL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: currency

@@ -1,0 +1,22 @@
+name: Single-family mortgage delinquency rate
+shortName: Mortgage delinquency
+description: Share of single-family residential mortgage balances at least 30 days past due, all commercial banks (seasonally adjusted), quarterly from the Federal Reserve.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DRSFRMACBS.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DRSFRMACBS
+  url: https://fred.stlouisfed.org/series/DRSFRMACBS
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - real-estate
+unitClass: rate

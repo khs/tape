@@ -1,0 +1,21 @@
+name: Employment-population ratio
+shortName: Emp-pop ratio
+description: Share of the civilian noninstitutional population aged 16+ that is employed (seasonally adjusted), monthly from the BLS. A participation measure that, unlike the unemployment rate, doesn't move when discouraged workers leave the labor force.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/EMRATIO.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: EMRATIO
+  url: https://fred.stlouisfed.org/series/EMRATIO
+  license: Public domain (US government data)
+tags:
+  - labor
+  - us
+unitClass: rate

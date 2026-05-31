@@ -72,6 +72,20 @@ ALLOWLIST: dict[str, str] = {
     # U6RATE: BLS labor-utilization U-6 measure. The official title
     # is a paragraph; "U-6 unemployment rate" is the standard label.
     "U6RATE": "U-6 unemployment rate = the full BLS broader-measure formula",
+    # GDP: BEA's "Gross Domestic Product" (current-dollar). We label it
+    # "US GDP (nominal)" to disambiguate from the real-GDP series GDPC1 —
+    # the acronym shares no word-tokens with the spelled-out FRED title,
+    # so the overlap heuristic needs this explicit pass.
+    "GDP": "US GDP (nominal) = Gross Domestic Product, current dollars (BEA)",
+    # A191RL1Q225SBEA: BEA real GDP expressed as % change from the prior
+    # quarter (SAAR) — the headline quarterly growth number. FRED's title
+    # is just "Real Gross Domestic Product" (the growth aspect lives in the
+    # units field), so the YAML's "growth rate" shorthand needs a pass.
+    "A191RL1Q225SBEA": "Real GDP growth rate = Real Gross Domestic Product, % change SAAR (BEA)",
+    # USSTHPI (pre-existing): FHFA's flagship "All-Transactions House Price
+    # Index for the United States." The YAML uses the common short label
+    # "FHFA national home price index" — same series, unambiguous.
+    "USSTHPI": "FHFA national home price index = All-Transactions House Price Index for the US (FHFA)",
 }
 
 # A few normalizations to compare YAML names to FRED titles

@@ -2,7 +2,7 @@
 
 Source: FRED API + heuristic backup.
 
-Total FRED YAMLs audited: **420**.
+Total FRED YAMLs audited: **438**.
 
 Bucket meanings come from FRED's Terms of Use § III:
   - `PRE-APPROVAL`: third-party copyrighted; needs licensor permission for anything beyond personal use.
@@ -23,14 +23,14 @@ _(none)_
 
 | YAML | Series | Declared provider | Declared license | Owner (resolved) | Source |
 | --- | --- | --- | --- | --- | --- |
-| `src/content/sources/fred/dc_median_listing.yaml` | `MEDLISPRI47900` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
-| `src/content/sources/fred/median_listing_price.yaml` | `MEDLISPRIUS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
-| `src/content/sources/fred/mortgage_15y.yaml` | `MORTGAGE15US` | FRED (St. Louis Fed) / Freddie Mac | Public domain (US government data) | — | api |
-| `src/content/sources/fred/mortgage_30y.yaml` | `MORTGAGE30US` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
-| `src/content/sources/fred/nber_recession.yaml` | `USREC` | FRED (St. Louis Fed) / NBER | Public domain (US government data) | — | api |
+| `src/content/sources/fred/dc_median_listing.yaml` | `MEDLISPRI47900` | FRED (St. Louis Fed) / Realtor.com | Realtor.com — citation required, via FRED | — | api |
+| `src/content/sources/fred/median_listing_price.yaml` | `MEDLISPRIUS` | FRED (St. Louis Fed) / Realtor.com | Realtor.com — citation required, via FRED | — | api |
+| `src/content/sources/fred/mortgage_15y.yaml` | `MORTGAGE15US` | FRED (St. Louis Fed) / Freddie Mac | Freddie Mac Primary Mortgage Market Survey — citation required, via FRED | — | api |
+| `src/content/sources/fred/mortgage_30y.yaml` | `MORTGAGE30US` | FRED (St. Louis Fed) / Freddie Mac | Freddie Mac Primary Mortgage Market Survey — citation required, via FRED | — | api |
+| `src/content/sources/fred/nber_recession.yaml` | `USREC` | FRED (St. Louis Fed) / NBER | NBER — citation required, via FRED | — | api |
 | `src/content/sources/fred/stlfsi.yaml` | `STLFSI4` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 
-## PUBLIC-DOMAIN (414)
+## PUBLIC-DOMAIN (432)
 
 **Action**: KEEP. Verify citation acknowledges the original source.
 
@@ -41,6 +41,7 @@ _(none)_
 | `src/content/sources/fred/avg_hourly_earnings.yaml` | `AHETPI` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/avg_hourly_earnings_all.yaml` | `CES0500000003` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/building_permits.yaml` | `PERMIT` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/cad_per_usd.yaml` | `DEXCAUS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/capacity_util.yaml` | `TCU` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/cny_usd.yaml` | `DEXCHUS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/computer_electronics_orders.yaml` | `A34SNO` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
@@ -56,11 +57,16 @@ _(none)_
 | `src/content/sources/fred/cpi_rent.yaml` | `CUUR0000SEHA` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/cpi_shelter.yaml` | `CUUR0000SAH1` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/cpi_yoy.yaml` | `CPIAUCSL (transformation=pc1)` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/credit_card_delinquency.yaml` | `DRCCLACBS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/dc_cpi.yaml` | `CUUSA311SA0` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/dc_payrolls.yaml` | `WASH911NA` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/dc_unemployment_rate.yaml` | `WASH911URN` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/debt_service_ratio.yaml` | `TDSP` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/defense_pct_gdp.yaml` | `A824RE1Q156NBEA` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
+| `src/content/sources/fred/disposable_personal_income.yaml` | `DSPI` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/dollar_index_broad.yaml` | `DTWEXBGS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/electric_power_production.yaml` | `IPG2211S` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
+| `src/content/sources/fred/employment_population_ratio.yaml` | `EMRATIO` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/fed_balance_sheet.yaml` | `WALCL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/fed_funds.yaml` | `FEDFUNDS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/federal_debt_pct_gdp.yaml` | `GFDEGDQ188S` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
@@ -91,18 +97,24 @@ _(none)_
 | `src/content/sources/fred/initial_claims.yaml` | `ICSA` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/jolts_openings.yaml` | `JTSJOL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/jolts_quits_rate.yaml` | `JTSQUR` | U.S. Bureau of Labor Statistics (BLS) via FRED | Public domain (US government data; BLS Job Openings and Labor Turnover Survey) | — | api |
+| `src/content/sources/fred/jpy_per_usd.yaml` | `DEXJPUS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/labor_force_level.yaml` | `CLF16OV` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/labor_participation.yaml` | `CIVPART` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/local_employment.yaml` | `CES9093000001` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
+| `src/content/sources/fred/m1.yaml` | `M1SL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/m2.yaml` | `M2SL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/manufacturing_employment.yaml` | `MANEMP` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/manufacturing_weekly_hours.yaml` | `AWHMAN` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/median_home_price.yaml` | `MSPUS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/months_supply.yaml` | `MSACSR` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/mortgage_delinquency.yaml` | `DRSFRMACBS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/nat_gas_henry_hub.yaml` | `DHHNGSP` | FRED (St. Louis Fed) / EIA | Public domain (US government data, EIA) | — | api |
 | `src/content/sources/fred/net_farm_income.yaml` | `B1448C1A027NBEA` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/new_home_sales.yaml` | `HSN1F` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/nonrevolving_credit.yaml` | `NONREVSL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/oil_gas_production.yaml` | `IPG211S` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
 | `src/content/sources/fred/payrolls.yaml` | `PAYEMS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/personal_consumption.yaml` | `PCE` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/personal_income.yaml` | `PI` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/ppi_data_processing_hosting.yaml` | `PCU518210518210` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/ppi_farm_products.yaml` | `WPU01` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
@@ -117,6 +129,7 @@ _(none)_
 | `src/content/sources/fred/recession_probability_ny_fed.yaml` | `RECPROUSM156N` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/rental_vacancy.yaml` | `RRVRUSQ156N` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/retail_sales.yaml` | `RSAFS` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/revolving_credit.yaml` | `REVOLSL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/sahm_rule.yaml` | `SAHMREALTIME` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/saving_rate.yaml` | `PSAVERT` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/semiconductor_capacity_util.yaml` | `CAPUTLG3344S` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
@@ -436,6 +449,7 @@ _(none)_
 | `src/content/sources/fred/u6_unemployment.yaml` | `U6RATE` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/unemployment_black.yaml` | `LNS14000006` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
 | `src/content/sources/fred/unemployment_hispanic.yaml` | `LNS14000009` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
+| `src/content/sources/fred/unemployment_level.yaml` | `UNEMPLOY` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/unemployment_white.yaml` | `LNS14000003` | U.S. federal-agency data via FRED | Public domain (US government data; see FRED tag 'public domain: citation requested') | — | api |
 | `src/content/sources/fred/unit_labor_costs.yaml` | `ULCNFB` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_10y.yaml` | `DGS10` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
@@ -444,12 +458,16 @@ _(none)_
 | `src/content/sources/fred/us_3mo.yaml` | `DGS3MO` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_5y.yaml` | `DGS5` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_cpi.yaml` | `CPIAUCSL` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/us_gdp_nominal.yaml` | `GDP` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_industrial_production.yaml` | `INDPRO` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_population.yaml` | `POPTHM` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_real_gdp.yaml` | `GDPC1` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/us_real_gdp_growth.yaml` | `A191RL1Q225SBEA` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_retail_diesel.yaml` | `GASDESW` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_retail_gasoline.yaml` | `GASREGW` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 | `src/content/sources/fred/us_unemployment.yaml` | `UNRATE` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/usd_per_eur.yaml` | `DEXUSEU` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/usd_per_gbp.yaml` | `DEXUSUK` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
 
 ## UNKNOWN (0)
 

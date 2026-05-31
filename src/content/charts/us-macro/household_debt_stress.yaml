@@ -1,0 +1,16 @@
+title: Household debt stress
+sources:
+  - fred/debt_service_ratio
+  - fred/credit_card_delinquency
+  - fred/mortgage_delinquency
+render: line
+defaultDelta: 30y
+seriesLabels: ["Debt-service ratio", "Card delinquency", "Mortgage delinquency"]
+tags: [us, macro, consumer]
+blurb: |
+  Three Federal Reserve gauges of household financial strain on one
+  axis (all percentages). The debt-service ratio is required debt
+  payments as a share of disposable income; the two delinquency
+  rates track loans 30+ days past due. All three spiked in the
+  2008–09 financial crisis and stayed historically low through the
+  2010s — watch them together for early signs of consumer stress.

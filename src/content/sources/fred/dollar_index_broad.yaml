@@ -1,0 +1,22 @@
+name: US dollar index, broad (nominal)
+shortName: Dollar index
+description: Trade-weighted value of the US dollar against a broad basket of partner currencies, daily, Federal Reserve H.10. Indexed to January 2006 = 100; higher means a stronger dollar.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DTWEXBGS.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "index (Jan 2006=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DTWEXBGS
+  url: https://fred.stlouisfed.org/series/DTWEXBGS
+  license: Public domain (US government data)
+tags:
+  - fx
+  - macro
+  - us
+unitClass: index

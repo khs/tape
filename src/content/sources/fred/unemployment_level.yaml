@@ -1,0 +1,21 @@
+name: Unemployment level
+shortName: Unemployed
+description: Number of people aged 16+ who are unemployed and actively seeking work (seasonally adjusted), monthly from the BLS. The count behind the unemployment rate.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/UNEMPLOY.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: UNEMPLOY
+  url: https://fred.stlouisfed.org/series/UNEMPLOY
+  license: Public domain (US government data)
+tags:
+  - labor
+  - us
+unitClass: count

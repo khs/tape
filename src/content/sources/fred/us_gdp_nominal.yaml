@@ -1,0 +1,21 @@
+name: US GDP (nominal)
+shortName: Nominal GDP
+description: Gross domestic product in current dollars (seasonally adjusted annual rate), quarterly from the BEA. The nominal complement to real GDP — use it as a per-capita or ratio denominator.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/GDP.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 0
+  suffix: "B"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: GDP
+  url: https://fred.stlouisfed.org/series/GDP
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: currency

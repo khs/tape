@@ -1,0 +1,14 @@
+title: Money supply — M1 and M2
+sources:
+  - fred/m1
+  - fred/m2
+render: line
+defaultDelta: 10y
+seriesLabels: ["M1 (narrow)", "M2 (broad)"]
+tags: [us, macro]
+blurb: |
+  The two headline money-stock measures from the Federal Reserve. M1
+  is the most liquid money — currency plus checkable and savings
+  deposits; M2 adds small time deposits and retail money-market
+  funds. The 2020 redefinition that folded savings deposits into M1
+  shows up as a one-time step in the M1 line.

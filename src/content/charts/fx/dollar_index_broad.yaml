@@ -1,0 +1,14 @@
+title: US dollar index (Fed broad)
+sources:
+  - fred/dollar_index_broad
+render: line
+defaultDelta: 10y
+emphasis: change
+tags: [fx, us, macro]
+blurb: |
+  The Federal Reserve's trade-weighted nominal broad dollar index —
+  the dollar's value against a basket of currencies weighted by US
+  trade flows. Broader than the market's ICE dollar index (DXY),
+  which weights only six major currencies; the Fed measure includes
+  China, Mexico, and other large trading partners. Daily, indexed to
+  January 2006 = 100.

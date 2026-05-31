@@ -1,0 +1,21 @@
+name: US real GDP growth rate (annualized)
+shortName: Real GDP growth
+description: Percent change in real gross domestic product (GDP) from the preceding quarter at a seasonally adjusted annual rate (BEA). This is the headline "GDP grew at X%" figure reported each quarter.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/A191RL1Q225SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: level
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: A191RL1Q225SBEA
+  url: https://fred.stlouisfed.org/series/A191RL1Q225SBEA
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: rate

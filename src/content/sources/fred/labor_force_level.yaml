@@ -1,0 +1,21 @@
+name: Civilian labor force
+shortName: Labor force
+description: Number of people aged 16+ who are either employed or actively seeking work (seasonally adjusted), monthly from the BLS.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CLF16OV.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: "people"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: CLF16OV
+  url: https://fred.stlouisfed.org/series/CLF16OV
+  license: Public domain (US government data)
+tags:
+  - labor
+  - us
+unitClass: count

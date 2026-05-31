@@ -1,0 +1,13 @@
+title: Real GDP growth rate
+sources:
+  - fred/us_real_gdp_growth
+render: line
+defaultDelta: 10y
+emphasis: level
+tags: [us, macro]
+blurb: |
+  The headline "GDP grew at X%" figure — quarter-over-quarter change
+  in real GDP, annualized and seasonally adjusted (BEA). Negative
+  prints are contractions; two in a row is the rule-of-thumb
+  recession signal. Pair with the NBER recession shading to see how
+  the official cycle dates line up.

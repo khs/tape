@@ -1,0 +1,22 @@
+name: Household debt-service ratio
+shortName: Debt-service ratio
+description: Total required household debt payments as a share of disposable personal income (seasonally adjusted), quarterly from the Federal Reserve. A summary gauge of household financial stress.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/TDSP.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: TDSP
+  url: https://fred.stlouisfed.org/series/TDSP
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - consumer
+unitClass: rate
