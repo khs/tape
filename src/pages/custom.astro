@@ -228,13 +228,10 @@ const barSnapshots = await resolveBarSnapshots(
             const saveBtn = document.querySelector<HTMLButtonElement>(
               "[data-role='save']",
             );
-            console.log("[custom save] button found:", !!saveBtn, "| sb configured:", isSupabaseConfigured);
             if (saveBtn && isSupabaseConfigured) {
               const sb = createSupabase();
-              console.log("[custom save] sb client:", !!sb);
               if (sb) {
                 saveBtn.addEventListener("click", async () => {
-                  console.log("[custom save] click fired");
                   // Step 1: user clicked save on a viewer page. Different
                   // event name from the composer save so we can tell which
                   // surface (composer vs. /custom/ viewer) is doing the work.
@@ -242,9 +239,7 @@ const barSnapshots = await resolveBarSnapshots(
                   try {
                     const { data: sess } = await sb.auth.getSession();
                     const user = sess.session?.user ?? null;
-                    console.log("[custom save] user:", user?.email ?? null);
                     if (!user) {
-                      console.log("[custom save] not signed in → redirecting to OAuth");
                       await sb.auth.signInWithOAuth({
                         provider: "google",
                         options: {
@@ -262,13 +257,11 @@ const barSnapshots = await resolveBarSnapshots(
                       document.querySelector<HTMLScriptElement>(
                         "[data-role='custom-base-url']",
                       );
-                    console.log("[custom save] stateEl textContent length:", stateEl?.textContent?.length ?? 0);
                     if (!stateEl?.textContent) {
                       alert("No composition to save.");
                       return;
                     }
                     const state = JSON.parse(stateEl.textContent);
-                    console.log("[custom save] parsed state:", state);
                     if (!state) {
                       alert("This dashboard's state is malformed.");
                       return;
@@ -305,7 +298,6 @@ const barSnapshots = await resolveBarSnapshots(
                       // on a shared link), the update affects zero
                       // rows and we fall back to insert as a fresh
                       // copy.
-                      console.log("[custom save] updating slug:", editingSlug);
                       const { data: upd, error: updErr } = await sb
                         .from("saved_dashboards")
                         .update({
@@ -314,7 +306,6 @@ const barSnapshots = await resolveBarSnapshots(
                         })
                         .eq("slug", editingSlug)
                         .select();
-                      console.log("[custom save] update result:", { upd, updErr });
                       if (updErr) {
                         alert(`Update failed: ${updErr.message}`);
                         saveBtn.disabled = false;
@@ -337,8 +328,7 @@ const barSnapshots = await resolveBarSnapshots(
                       }
                     }
                     const slug = nanoid(10);
-                    console.log("[custom save] inserting slug:", slug);
-                    const { data: ins, error } = await sb
+                    const { error } = await sb
                       .from("saved_dashboards")
                       .insert({
                         slug,
@@ -347,7 +337,6 @@ const barSnapshots = await resolveBarSnapshots(
                         state_json: state,
                       })
                       .select();
-                    console.log("[custom save] insert result:", { ins, error });
                     saveBtn.disabled = false;
                     saveBtn.textContent = restoreLabel;
                     if (error) {

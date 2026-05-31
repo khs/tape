@@ -6562,17 +6562,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         saveBtn.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     }
-    console.log("[save] wire:", {
-      saveBtn: !!saveBtn,
-      supabaseConfigured: isSupabaseConfigured,
-      editingSlug,
-    });
     if (saveBtn && isSupabaseConfigured) {
       const sb = createSupabase();
-      console.log("[save] client:", !!sb);
       if (sb) {
         saveBtn.addEventListener("click", async () => {
-          console.log("[save] click fired");
           // Step 1 of the save funnel: user clicked save. Captures whether
           // they were signed in or got bounced through OAuth.
           track("compose_save_attempted", {
@@ -6581,7 +6574,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           });
           try {
             const stored = readStoredSession();
-            console.log("[save] stored session user:", stored?.user?.email ?? null);
             if (!stored) {
               await sb.auth.signInWithOAuth({
                 provider: "google",
@@ -6607,7 +6599,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 charts: [...s.charts],
                 markdown: s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
               }));
-            console.log("[save] cleanSections:", cleanSections.length);
             if (cleanSections.length === 0) {
               alert("Add at least one chart or markdown block before saving.");
               return;
@@ -6635,7 +6626,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               // matched, so we explicitly fetch representation to confirm.
               targetSlug = editingSlug;
               const url = `${SUPABASE_REST_URL}/rest/v1/saved_dashboards?slug=eq.${encodeURIComponent(targetSlug)}`;
-              console.log("[save] patching slug:", targetSlug);
               res = await fetch(url, {
                 method: "PATCH",
                 headers: {
@@ -6651,7 +6641,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               });
             } else {
               targetSlug = nanoid(10);
-              console.log("[save] inserting slug:", targetSlug);
               res = await fetch(`${SUPABASE_REST_URL}/rest/v1/saved_dashboards`, {
                 method: "POST",
                 headers: {
@@ -6670,7 +6659,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             }
             saveBtn.disabled = false;
             saveBtn.textContent = restoreLabel;
-            console.log("[save] HTTP status:", res.status);
             if (!res.ok) {
               const msg = await res.text().catch(() => `HTTP ${res.status}`);
               console.error("[save] error:", msg);
@@ -6689,7 +6677,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 return;
               }
             }
-            console.log("[save] success, redirecting");
             // Step 2 of the save funnel: persisted. compose_save_attempted →
             // compose_save_succeeded ratio tells us how often the save flow
             // actually completes vs. dies in OAuth or hits a Supabase error.

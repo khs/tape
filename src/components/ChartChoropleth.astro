@@ -1047,18 +1047,25 @@ const statesJoined = stateCodes.join(",");
       return;
     }
     canvas.appendChild(fig);
-    // After-append diagnostic so the user (and us, if a bug-report
-    // screenshot doesn't include console output) can confirm the
-    // figure landed in the canvas with non-trivial dimensions. If
-    // this logs "0 × 0" the issue is layout/sizing, not Plot.
+    // After-append diagnostic — but deferred a rAF so we measure
+    // AFTER the first layout pass. Without the defer, the SVG reads
+    // 0×0 at append time on every healthy map (the parent flexbox
+    // hasn't laid out yet), spamming 5+ warnings per page load on
+    // any dashboard with maps. The genuine-bug signal (a permanently
+    // stuck 0-size SVG) still surfaces because rAF resolves before
+    // paint.
     const svgChild = fig.querySelector?.("svg") as SVGSVGElement | null;
-    const svgW = svgChild?.clientWidth ?? 0;
-    const svgH = svgChild?.clientHeight ?? 0;
-    if (svgW === 0 || svgH === 0) {
-      console.warn(
-        `[choropleth] ${b.chartId}: rendered svg has zero size ` +
-        `(${svgW}×${svgH}) — features=${clipped.length}, values=${obs.length}`,
-      );
+    if (svgChild) {
+      requestAnimationFrame(() => {
+        const svgW = svgChild.clientWidth ?? 0;
+        const svgH = svgChild.clientHeight ?? 0;
+        if (svgW === 0 || svgH === 0) {
+          console.warn(
+            `[choropleth] ${b.chartId}: rendered svg has zero size ` +
+            `(${svgW}×${svgH}) — features=${clipped.length}, values=${obs.length}`,
+          );
+        }
+      });
     }
     // Tooltip on hover. Performance-tuned because the chart can carry
     // thousands of <path> elements (3,143 counties, ~74k tracts) and
@@ -1214,11 +1221,15 @@ const statesJoined = stateCodes.join(",");
           if (missingExamples.length < 3) missingExamples.push(d.id);
         }
       });
-      console.info(
-        `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
-        `hatched ${hatchedSpecial} special-land-use (e.g. ${specialExamples.join(", ") || "—"}) ` +
-        `+ ${hatchedMissing} missing-data (e.g. ${missingExamples.join(", ") || "—"})`,
-      );
+      // Diagnostic: only log when something was actually hatched, so a
+      // page with N healthy maps doesn't add N noise lines per render.
+      if (hatchedSpecial + hatchedMissing > 0) {
+        console.info(
+          `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
+          `hatched ${hatchedSpecial} special-land-use (e.g. ${specialExamples.join(", ") || "—"}) ` +
+          `+ ${hatchedMissing} missing-data (e.g. ${missingExamples.join(", ") || "—"})`,
+        );
+      }
       // Static legend note: when any regions came back hatched, pin a
       // one-liner under the figure explaining what the stripes mean.
       // The per-region hover tooltip explains specific cases (9800
@@ -1398,16 +1409,18 @@ const statesJoined = stateCodes.join(",");
           geoGroup = wrapper;
         }
       }
-      // Diagnostic so a screenshot of devtools tells us whether
-      // zoom failed to set up vs. failed to fire. CHORO_BUILD is
-      // hoisted above (shared with the hatching diagnostic).
-      console.info(
-        `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
-        `zoom setup ${geoGroup ? "starting" : "SKIPPED (no paths found)"}; ` +
-        `figure=${(fig as HTMLElement).tagName}, svg=${svgEl.tagName}, ` +
-        `total-paths=${allPaths.length}, ` +
-        `groups=${svgEl.querySelectorAll("g").length}`,
-      );
+      // Diagnostic so a screenshot of devtools tells us whether zoom
+      // failed to set up. Only log the SKIPPED case — the healthy case
+      // shouldn't add a line per render to every dashboard with maps.
+      if (!geoGroup) {
+        console.info(
+          `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
+          `zoom setup SKIPPED (no paths found); ` +
+          `figure=${(fig as HTMLElement).tagName}, svg=${svgEl.tagName}, ` +
+          `total-paths=${allPaths.length}, ` +
+          `groups=${svgEl.querySelectorAll("g").length}`,
+        );
+      }
       if (geoGroup) {
         // Apply non-scaling-stroke to every geo path. Plot doesn't
         // expose a hook for this; the cheapest path is a one-shot
