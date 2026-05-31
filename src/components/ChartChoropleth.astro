@@ -1134,8 +1134,15 @@ const statesJoined = stateCodes.join(",");
     // hatching block AND the zoom-setup block below. Bump when
     // shipping a new behavior so a screenshot of devtools tells us
     // whether the user is on the right bundle.
-    const CHORO_BUILD = "hatch-v5-all-missing-2026-05-19";
-    if (b.geo === "tract" || b.geo === "block-group") {
+    const CHORO_BUILD = "hatch-v6-all-levels-2026-05-30";
+    // Hatch ALL no-data polygons regardless of geo level. The earlier
+    // gate (tract / block-group only) made sense when the only
+    // no-data case was 9800-series special-land-use tracts. With the
+    // expansion to per-state metro maps + state-level partial-coverage
+    // indicators, state and county levels also need the same visual
+    // "intentionally not colored" treatment instead of rendering as
+    // confusing white holes against the colored regions.
+    {
       const svgEl = svg as unknown as SVGSVGElement;
       // Inject the hatching pattern into <defs> once per dialog. The
       // ID is per-canvas so multiple maps on the same page don't
@@ -1212,6 +1219,32 @@ const statesJoined = stateCodes.join(",");
         `hatched ${hatchedSpecial} special-land-use (e.g. ${specialExamples.join(", ") || "—"}) ` +
         `+ ${hatchedMissing} missing-data (e.g. ${missingExamples.join(", ") || "—"})`,
       );
+      // Static legend note: when any regions came back hatched, pin a
+      // one-liner under the figure explaining what the stripes mean.
+      // The per-region hover tooltip explains specific cases (9800
+      // special land use vs missed vintage) but a reader scanning the
+      // map needs to know the visual code WITHOUT hovering every grey
+      // polygon. Mode "tile" suppresses (dashboard thumbnails are
+      // chrome-free) but expanded + fullscreen show it. Skipped when
+      // every polygon has data (most common case).
+      const totalHatched = hatchedSpecial + hatchedMissing;
+      if (totalHatched > 0 && mode !== "tile") {
+        // De-dupe if a re-paint happens — replace any prior note.
+        canvas.querySelector(".choro-nodata-note")?.remove();
+        const note = document.createElement("p");
+        note.className = "choro-nodata-note";
+        note.style.cssText =
+          "margin: 6px 4px 0; font-size: 12px; color: var(--color-neutral-600); display: flex; align-items: center; gap: 6px;";
+        const swatch = document.createElement("span");
+        swatch.style.cssText =
+          "display: inline-block; width: 14px; height: 14px; border: 1px solid #bababa; background: repeating-linear-gradient(45deg, #ececec 0 2.5px, #bababa 2.5px 5px); flex-shrink: 0;";
+        note.appendChild(swatch);
+        const text = document.createElement("span");
+        text.textContent =
+          `Hatched: ${totalHatched.toLocaleString()} region${totalHatched === 1 ? "" : "s"} with no published data for this indicator + vintage. Hover for details.`;
+        note.appendChild(text);
+        canvas.appendChild(note);
+      }
     }
     const tooltip = document.createElement("div");
     tooltip.className = "choro-tooltip";
@@ -1248,23 +1281,27 @@ const statesJoined = stateCodes.join(",");
       // `specialTractName` block above) — no per-pointermove lookup.
       const name = d.properties?.name ?? d.id;
       if (v == null || !Number.isFinite(v)) {
-        // Distinguish the two no-data cases so the tooltip explains
-        // why the area is hatched rather than silently hiding.
+        // No-data polygon — explain why it's hatched. The two
+        // tract/block-group special cases get a sharper message
+        // (9800-series special-land-use vs missed-vintage); state /
+        // county get a generic "not published for this indicator +
+        // vintage" since the cause isn't usually knowable from the
+        // geo code alone (could be sample suppression, indicator
+        // doesn't cover that region, etc.).
         const isTractGeo = b.geo === "tract" || b.geo === "block-group";
-        if (isTractGeo) {
-          if (isSpecialLandUseTract(d.id)) {
-            tooltip.textContent =
-              `${name} — special land use (no resident population, no ACS data)`;
-          } else {
-            tooltip.textContent =
-              `${name} — no data published for this vintage`;
-          }
-          tooltip.style.display = "block";
-          tooltip.style.left = (ev.clientX - rectCache.rect.left + 12) + "px";
-          tooltip.style.top = (ev.clientY - rectCache.rect.top + 12) + "px";
-          return;
+        if (isTractGeo && isSpecialLandUseTract(d.id)) {
+          tooltip.textContent =
+            `${name} — special land use (no resident population, no ACS data)`;
+        } else if (isTractGeo) {
+          tooltip.textContent =
+            `${name} — no data published for this vintage`;
+        } else {
+          tooltip.textContent =
+            `${name} — no data published for this indicator + vintage`;
         }
-        if (tooltip.style.display !== "none") tooltip.style.display = "none";
+        tooltip.style.display = "block";
+        tooltip.style.left = (ev.clientX - rectCache.rect.left + 12) + "px";
+        tooltip.style.top = (ev.clientY - rectCache.rect.top + 12) + "px";
         return;
       }
       tooltip.textContent = `${name}: ${fmtValue(v, b.unit, b.decimals)}`;
