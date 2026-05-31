@@ -26,7 +26,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <strong>Custom data sources.</strong> Private feeds, internal
         indicators, third-party APIs the free tier doesn't pull from —
         ingested into the same composer flow as the public charts, with
-        access scoped to your team.
+        access scoped to your team. We can add a new public data source
+        in under a day, or work out a longer engagement for private
+        feeds or recurring ingest.
       </li>
       <li>
         <strong>Stability guarantees.</strong> SLA on uptime and data
@@ -52,10 +54,27 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       </li>
     </ul>
 
+    <h2>Pricing</h2>
+    <ul class="enterprise-pricing">
+      <li>
+        <strong>One-off data integrations.</strong> $10,000&ndash;$25,000
+        per public source; private feeds and proprietary data are
+        higher.
+      </li>
+      <li>
+        <strong>Engagements.</strong> Typically start at $40,000/year,
+        with most landing in the $40k&ndash;$120k range depending on
+        data complexity, SLA tightness, and bespoke-feature scope.
+      </li>
+    </ul>
+    <p class="enterprise-pricing-note">
+      Discounts available for non-profits and government users.
+    </p>
+
     <h2>How it works</h2>
     <p>
-      Send a note — we'll book a 30-minute call, walk through what your
-      team currently does and where the friction is, and scope an
+      Book the call below — we'll spend 30 minutes walking through what
+      your team currently does and where the friction is, then scope an
       engagement from there. Pricing is per-engagement; we'll quote
       based on data complexity, the SLA you need, and how much bespoke
       work is in scope.
@@ -129,6 +148,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   .enterprise-features strong {
     color: var(--color-neutral-900);
     font-weight: 600;
+  }
+  .enterprise-pricing {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: var(--color-neutral-700);
+  }
+  .enterprise-pricing strong {
+    color: var(--color-neutral-900);
+    font-weight: 600;
+  }
+  .enterprise-pricing-note {
+    margin: 14px 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
   }
   .enterprise-cta-row {
     display: flex;
