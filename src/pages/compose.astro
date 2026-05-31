@@ -639,6 +639,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             axis. <strong>+ Derived source</strong> turns A÷B,&nbsp;A−B,
             or A+B into a reusable source.
           </p>
+          {/*
+            First-touch escape hatch. A cold visitor landing on /compose/
+            sees an empty canvas + four library tabs and may not know
+            where to start. The walkthrough is the curated guided tour
+            of every feature — link it here so the visitor has a
+            "what does this thing do" path that isn't "click around
+            until something happens."
+          */}
+          <p class="muted small comp-empty-walkthrough">
+            First time?
+            <a href={`${baseUrl}/walkthrough/`}>Take the 5-minute tour &rarr;</a>
+          </p>
         </div>
         <div class="comp-sections" data-role="comp-sections"></div>
         <div class="comp-controls">
@@ -10048,6 +10060,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
      don't know that "+ Custom chart" is the multi-source path. */
   .comp-empty-hint { max-width: 56ch; margin-top: 4px; line-height: 1.5; }
   .comp-empty-hint strong { color: var(--color-neutral-700); font-weight: 500; }
+  /* "Take the 5-minute tour" line — sits below the empty-state hint
+     as the cold-visitor escape hatch. Same muted weight as the hint
+     paragraph but with the link colored so the affordance is
+     visible. */
+  .comp-empty-walkthrough {
+    max-width: 56ch;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+  .comp-empty-walkthrough a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-left: 4px;
+  }
   .comp-section {
     border: 1px solid rgba(55, 53, 47, 0.08);
     border-radius: var(--radius);

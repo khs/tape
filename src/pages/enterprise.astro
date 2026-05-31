@@ -62,8 +62,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </p>
 
     <p class="enterprise-cta-row">
-      <a href={ENTERPRISE_INQUIRY_URL} class="enterprise-cta-primary">
-        Get in touch &rarr;
+      <a
+        href={ENTERPRISE_INQUIRY_URL}
+        class="enterprise-cta-primary"
+        rel="noopener"
+      >
+        Book a 30-minute intro call &rarr;
       </a>
       <a href={`${baseUrl}/about/`} class="enterprise-cta-secondary">
         Read more about the project

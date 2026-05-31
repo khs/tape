@@ -1,7 +1,21 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { LAST_FEATURE_UPDATE } from "../lib/brand";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Render LAST_FEATURE_UPDATE in a UTC-anchored "Month D, YYYY" so
+// the date is identical regardless of where the build runs (matches
+// the equivalent date on /me/).
+const lastUpdatedDate = new Date(`${LAST_FEATURE_UPDATE}T00:00:00Z`);
+const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
+  ? LAST_FEATURE_UPDATE
+  : lastUpdatedDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    });
 ---
 
 <BaseLayout
@@ -17,6 +31,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       axes, going back to the 80s, by 8 a.m. Tape gets you from
       that ask to a chart you can paste into a memo — with a citation,
       a last-updated date, and a URL a colleague can open and modify.
+    </p>
+
+    <p class="about-byline">
+      Built by <a href="https://kellerscholl.com" rel="noopener">Keller
+      Scholl</a> — 7 years at the RAND Corporation, made Tape because
+      he was tired of handling data manually.
+    </p>
+
+    <p class="about-stamp">
+      Last shipped a new user-visible feature on <strong>{lastUpdatedLabel}</strong>.
+      ~33,000 individual data series across 17 providers. Data
+      refreshes weekly.
     </p>
 
     <p>
@@ -155,13 +181,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       </a>.
     </p>
 
-    <h2>Built by</h2>
+    <h2>Contact</h2>
     <p>
-      <a href="https://kellerscholl.com" rel="noopener">Keller Scholl</a>,
-      based in DC. Started this because nobody else seemed to be doing it
-      and I kept needing it.
       Notes, corrections, and suggestions at
       <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.
+      (Bio + project status moved to the top of this page.)
     </p>
 
     <h2 id="recent">Recent additions</h2>
@@ -282,6 +306,28 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     margin: 0 0 24px;
     line-height: 1.1;
     letter-spacing: -0.025em;
+  }
+  /* Author byline (right under the .lead). Smaller + muted to read as
+     a meta line, but with the link colored so the click affordance is
+     visible. Lead-with-bio per the Patrick-McKenzie-pass — readers
+     buying from a sole operator want to know who, before what. */
+  .about-byline {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+    margin: 0 0 8px;
+  }
+  /* Trust-signal stamp: last-feature-ship date + scope + refresh
+     cadence in a single sentence. Same muted weight as the byline so
+     they read as a unit — three quick facts that establish the
+     project is real, current, and broad. */
+  .about-stamp {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+    margin: 0 0 24px;
+  }
+  .about-stamp strong {
+    color: var(--color-neutral-800);
+    font-weight: 600;
   }
   .about-root h2 {
     font-size: var(--text-base);

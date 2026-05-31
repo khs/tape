@@ -17,15 +17,17 @@ export const SITE_BRAND_NAME = "Tape";
 
 /**
  * Where the "Ask about enterprise" CTA points — a Notion form or
- * similar lightweight intake surface. Swap this string when the real
- * intake URL is ready; falls back to a mailto so the link is never
- * dead while the form is being set up.
+ * similar lightweight intake surface.
+ *
+ * 2026-05-31: swapped from a mailto placeholder to Keller's Calendly.
+ * Patrick-McKenzie-style: don't make prospects email-and-wait when
+ * you can give them a 30-minute slot they can self-book.
  *
  * Used by /enterprise/, the /me/ account section, and the footer link
- * — keeping the URL central means one edit when the form moves.
+ * — keeping the URL central means one edit when the link moves.
  */
 export const ENTERPRISE_INQUIRY_URL =
-  "mailto:keller.scholl@gmail.com?subject=Tape%20Enterprise%20Inquiry";
+  "https://calendly.com/keller-scholl/30min";
 
 /**
  * Date of the most recent user-visible feature ship.
