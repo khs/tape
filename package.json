@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "cross-env UV_THREADPOOL_SIZE=128 astro dev",
     "prebuild": "node scripts/audit-source-data.mjs",

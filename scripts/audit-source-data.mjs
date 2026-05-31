@@ -280,7 +280,9 @@ async function main() {
     /^(?:fred|bls)\/state_.+_[a-z]{2}$/,
     /^acs_state\/.+_[a-z]{2}$/,
   ];
-  const COUNTY_ID = [/\/(county)_/];
+  // (No COUNTY_ID pattern: county sources are NOT hidden by default —
+  // see isHiddenByDefault below. If county-level mass-classification
+  // is ever needed, mirror the CD/STATE pattern here.)
   const matchesAny = (id, res) => res.some((re) => re.test(id));
   // Mirror library.json.ts isHiddenByDefault: CD/STATE/METRO/COUNTRY
   // (NOT county) hide a source from the default list.
