@@ -1,0 +1,17 @@
+title: CO2 per capita — selected countries
+sources:
+  - owid_co2/co2_per_capita_united_states
+  - owid_co2/co2_per_capita_china
+  - owid_co2/co2_per_capita_india
+  - owid_co2/co2_per_capita_germany
+  - owid_co2/co2_per_capita_world
+render: line
+defaultDelta: 50y
+seriesLabels: ["United States", "China", "India", "Germany", "World"]
+tags: [world, climate, energy]
+blurb: |
+  Per-person CO2 emissions (tonnes), which tell a very different
+  story from the national totals. US per-capita emissions dwarf
+  China's even though China's total is larger, and India's remain a
+  fraction of the world average despite its large total. From Our
+  World in Data.

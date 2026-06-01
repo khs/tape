@@ -1,0 +1,22 @@
+name: "CO2 emissions from oil — Australia"
+shortName: Australia Oil CO2
+description: Annual CO2 emissions from oil, in million tonnes. Values for Australia, annual, from Our World in Data's CO2 dataset.
+kind: timeseries
+pipeline: owid_co2
+dataFile: data/owid_co2/oil_co2_australia.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "million tonnes CO2"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: Our World in Data (CO2 dataset)
+  series: oil_co2 / AUS
+  url: https://github.com/owid/co2-data
+  license: CC BY 4.0 (Our World in Data)
+tags:
+  - climate
+  - energy
+  - macro
+unitClass: count

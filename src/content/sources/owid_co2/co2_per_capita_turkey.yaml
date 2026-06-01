@@ -1,0 +1,22 @@
+name: "CO2 emissions per capita — Turkey"
+shortName: Turkey CO2 per capita
+description: Annual production-based CO2 emissions divided by population, in tonnes per person. Values for Turkey, annual, from Our World in Data's CO2 dataset.
+kind: timeseries
+pipeline: owid_co2
+dataFile: data/owid_co2/co2_per_capita_turkey.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "tonnes CO2 per person"
+formatting:
+  style: number
+  decimals: 2
+emphasis: change
+provenance:
+  provider: Our World in Data (CO2 dataset)
+  series: co2_per_capita / TUR
+  url: https://github.com/owid/co2-data
+  license: CC BY 4.0 (Our World in Data)
+tags:
+  - climate
+  - energy
+  - macro
+unitClass: ratio

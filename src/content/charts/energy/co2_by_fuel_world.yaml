@@ -1,0 +1,15 @@
+title: Global CO2 emissions by fuel
+sources:
+  - owid_co2/coal_co2_world
+  - owid_co2/oil_co2_world
+  - owid_co2/gas_co2_world
+render: line
+defaultDelta: 50y
+seriesLabels: ["Coal", "Oil", "Gas"]
+tags: [world, climate, energy]
+blurb: |
+  Global CO2 emissions split by fossil-fuel source, in million
+  tonnes (Our World in Data). Coal is still the single largest
+  contributor and the most volatile; gas has grown steadily as it
+  displaced coal in some economies. The three sum to most of global
+  fossil CO2 (cement and flaring make up the rest).

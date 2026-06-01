@@ -1,0 +1,22 @@
+name: "Share of global CO2 emissions — World"
+shortName: World Share of global CO2
+description: The country's annual CO2 emissions as a percentage of the global total. Values for World, annual, from Our World in Data's CO2 dataset.
+kind: timeseries
+pipeline: owid_co2
+dataFile: data/owid_co2/share_global_co2_world.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: Our World in Data (CO2 dataset)
+  series: share_global_co2 / WRL
+  url: https://github.com/owid/co2-data
+  license: CC BY 4.0 (Our World in Data)
+tags:
+  - climate
+  - energy
+  - macro
+unitClass: rate

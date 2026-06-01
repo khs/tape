@@ -1,0 +1,22 @@
+name: "Cumulative CO2 emissions — Russia"
+shortName: Russia Cumulative CO2
+description: Total CO2 emitted by the country since 1750 — a measure of historical contribution. Million tonnes. Values for Russia, annual, from Our World in Data's CO2 dataset.
+kind: timeseries
+pipeline: owid_co2
+dataFile: data/owid_co2/cumulative_co2_russia.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "million tonnes CO2"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: Our World in Data (CO2 dataset)
+  series: cumulative_co2 / RUS
+  url: https://github.com/owid/co2-data
+  license: CC BY 4.0 (Our World in Data)
+tags:
+  - climate
+  - energy
+  - macro
+unitClass: count

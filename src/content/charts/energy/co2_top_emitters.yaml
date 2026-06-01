@@ -1,0 +1,18 @@
+title: CO2 emissions — top emitters
+sources:
+  - owid_co2/co2_china
+  - owid_co2/co2_united_states
+  - owid_co2/co2_india
+  - owid_co2/co2_russia
+  - owid_co2/co2_japan
+render: line
+defaultDelta: 50y
+seriesLabels: ["China", "United States", "India", "Russia", "Japan"]
+tags: [world, climate, energy]
+blurb: |
+  Annual CO2 emissions for the five largest emitters, in million
+  tonnes (Our World in Data). China overtook the US around 2006 and
+  has kept climbing; US emissions have drifted down from their
+  mid-2000s peak; India's are rising fast off a low base. Production-
+  based accounting — emissions are attributed to where goods are
+  made, not consumed.

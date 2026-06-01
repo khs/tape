@@ -1,0 +1,22 @@
+name: "Primary energy consumption per capita — South Africa"
+shortName: South Africa Energy per capita
+description: Primary energy consumption per person, in kilowatt-hours. Values for South Africa, annual, from Our World in Data's CO2 dataset.
+kind: timeseries
+pipeline: owid_co2
+dataFile: data/owid_co2/energy_per_capita_south_africa.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "kWh per person"
+formatting:
+  style: number
+  decimals: 0
+emphasis: change
+provenance:
+  provider: Our World in Data (CO2 dataset)
+  series: energy_per_capita / ZAF
+  url: https://github.com/owid/co2-data
+  license: CC BY 4.0 (Our World in Data)
+tags:
+  - climate
+  - energy
+  - macro
+unitClass: ratio
