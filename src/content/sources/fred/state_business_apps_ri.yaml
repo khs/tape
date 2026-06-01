@@ -1,0 +1,24 @@
+name: Business applications — Rhode Island
+shortName: Rhode Island business applications
+description: Total business applications in Rhode Island, monthly (seasonally adjusted). From the Census Bureau's Business Formation Statistics, via FRED — a high-frequency gauge of new-business creation.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/BABATOTALSARI.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "applications"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed) / US Census Bureau
+  series: BABATOTALSARI
+  url: https://fred.stlouisfed.org/series/BABATOTALSARI
+  license: Public domain (US government data)
+tags:
+  - business
+  - us
+  - us-state
+unitClass: count
+

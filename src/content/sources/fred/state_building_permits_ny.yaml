@@ -1,0 +1,24 @@
+name: Building permits — New York
+shortName: New York building permits
+description: New privately-owned housing units authorized by building permits in New York, monthly (not seasonally adjusted). From the Census Bureau's Building Permits Survey, via FRED — a leading indicator of residential construction.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/NYBPPRIV.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed) / US Census Bureau
+  series: NYBPPRIV
+  url: https://fred.stlouisfed.org/series/NYBPPRIV
+  license: Public domain (US government data)
+tags:
+  - real-estate
+  - us
+  - us-state
+unitClass: count
+

@@ -1,0 +1,24 @@
+name: Building permits — District of Columbia
+shortName: District of Columbia building permits
+description: New privately-owned housing units authorized by building permits in District of Columbia, monthly (not seasonally adjusted). From the Census Bureau's Building Permits Survey, via FRED — a leading indicator of residential construction.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DCBPPRIV.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed) / US Census Bureau
+  series: DCBPPRIV
+  url: https://fred.stlouisfed.org/series/DCBPPRIV
+  license: Public domain (US government data)
+tags:
+  - real-estate
+  - us
+  - us-state
+unitClass: count
+

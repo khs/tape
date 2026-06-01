@@ -40,6 +40,24 @@ class FredSpec:
     scale: float = 1.0
 
 
+# 50 states + DC, (postal, name) — shared by the v5 per-state batches below.
+_STATES_51 = [
+    ("AL", "Alabama"), ("AK", "Alaska"), ("AZ", "Arizona"), ("AR", "Arkansas"),
+    ("CA", "California"), ("CO", "Colorado"), ("CT", "Connecticut"), ("DE", "Delaware"),
+    ("DC", "District of Columbia"), ("FL", "Florida"), ("GA", "Georgia"), ("HI", "Hawaii"),
+    ("ID", "Idaho"), ("IL", "Illinois"), ("IN", "Indiana"), ("IA", "Iowa"),
+    ("KS", "Kansas"), ("KY", "Kentucky"), ("LA", "Louisiana"), ("ME", "Maine"),
+    ("MD", "Maryland"), ("MA", "Massachusetts"), ("MI", "Michigan"), ("MN", "Minnesota"),
+    ("MS", "Mississippi"), ("MO", "Missouri"), ("MT", "Montana"), ("NE", "Nebraska"),
+    ("NV", "Nevada"), ("NH", "New Hampshire"), ("NJ", "New Jersey"), ("NM", "New Mexico"),
+    ("NY", "New York"), ("NC", "North Carolina"), ("ND", "North Dakota"), ("OH", "Ohio"),
+    ("OK", "Oklahoma"), ("OR", "Oregon"), ("PA", "Pennsylvania"), ("RI", "Rhode Island"),
+    ("SC", "South Carolina"), ("SD", "South Dakota"), ("TN", "Tennessee"), ("TX", "Texas"),
+    ("UT", "Utah"), ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"),
+    ("WV", "West Virginia"), ("WI", "Wisconsin"), ("WY", "Wyoming"),
+]
+
+
 SPECS: list[FredSpec] = [
     FredSpec("DGS10", "US 10-year Treasury yield", "%"),
     FredSpec("DGS2", "US 2-year Treasury yield", "%"),
@@ -592,6 +610,20 @@ SPECS: list[FredSpec] = [
     FredSpec("CORESTICKM159SFRBATL", "Sticky-price CPI, less food & energy (YoY)", "%"),
     FredSpec("MEDCPIM158SFRBCLE", "Median CPI (annualized monthly)", "%"),
     FredSpec("T5YIFR", "5-year, 5-year forward inflation expectation", "%"),
+    # ------------------------------------------------------------------
+    # Library expansion v5 (2026-06): Census data via FRED's clean
+    # endpoints — building permits (Census BPS) + business applications
+    # (Census BFS), per state + DC. All public-domain (Census, via FRED).
+    # Monthly. Counts → stored raw. Slugged state_* so library.json
+    # synthesizes the us-state geo tag + the Generators tab picks them up.
+    # ------------------------------------------------------------------
+    # Building permits — new privately-owned housing units authorized
+    # (Census Building Permits Survey, monthly, NSA): <ST>BPPRIV.
+    *[FredSpec(f"{a}BPPRIV", f"Building permits — {n}", "units") for a, n in _STATES_51],
+    # Business applications — Census Business Formation Statistics
+    # (monthly, SA): national BABATOTALSAUS + per-state BABATOTALSA<ST>.
+    FredSpec("BABATOTALSAUS", "Business applications (US total)", "applications"),
+    *[FredSpec(f"BABATOTALSA{a}", f"Business applications — {n}", "applications") for a, n in _STATES_51],
 ]
 
 
