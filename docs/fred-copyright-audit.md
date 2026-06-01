@@ -17,7 +17,7 @@ Bucket meanings come from FRED's Terms of Use § III:
 
 _(none)_
 
-## CITATION-REQUIRED (6)
+## CITATION-REQUIRED (9)
 
 **Action**: KEEP. Verify citation reads 'Source: <owner> via FRED'.
 
@@ -29,6 +29,9 @@ _(none)_
 | `src/content/sources/fred/mortgage_30y.yaml` | `MORTGAGE30US` | FRED (St. Louis Fed) / Freddie Mac | Freddie Mac Primary Mortgage Market Survey — citation required, via FRED | — | api |
 | `src/content/sources/fred/nber_recession.yaml` | `USREC` | FRED (St. Louis Fed) / NBER | NBER — citation required, via FRED | — | api |
 | `src/content/sources/fred/stlfsi.yaml` | `STLFSI4` | FRED (St. Louis Fed) | Public domain (US government data) | — | api |
+| `src/content/sources/fred/sticky_cpi.yaml` | `CORESTICKM159SFRBATL` | FRED (St. Louis Fed) / Federal Reserve Bank of Atlanta | Citation required — Federal Reserve Bank of Atlanta (via FRED) | — | api |
+| `src/content/sources/fred/median_cpi.yaml` | `MEDCPIM158SFRBCLE` | FRED (St. Louis Fed) / Federal Reserve Bank of Cleveland | Citation required — Federal Reserve Bank of Cleveland (via FRED) | — | api |
+| `src/content/sources/fred/forward_inflation_5y5y.yaml` | `T5YIFR` | FRED (St. Louis Fed) / Federal Reserve Board | Citation required — Federal Reserve Board (via FRED) | — | api |
 
 ## PUBLIC-DOMAIN (432)
 
