@@ -357,6 +357,17 @@ def _match_state_eia_energy(sid: str) -> MatchResult:
     return ("state", f"eia_state_energy_{m.group(1)}", abbr)
 
 
+def _match_state_eia_prices(sid: str) -> MatchResult:
+    # eia_prices/<measure>_<state>, e.g. electricity_price_wy, natural_gas_price_ca.
+    m = re.match(r"^eia_prices/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"eia_prices_{m.group(1)}", abbr)
+
+
 def _match_state_naep(sid: str) -> MatchResult:
     # naep/state_<subject><grade>_<state>, e.g. state_mathg4_wy.
     m = re.match(r"^naep/(.+)_([a-z]{2})$", sid)
@@ -471,6 +482,7 @@ MATCHERS: list[Matcher] = [
     _match_state_census_govfin,
     _match_state_edu_spending,
     _match_state_eia_energy,
+    _match_state_eia_prices,
     _match_state_naep,
     _match_state_usaspending,
     _match_country_wb_gdp,
