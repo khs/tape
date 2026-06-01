@@ -284,9 +284,16 @@ jobs:
               fi
             done
             git reset --hard origin/main
-            # Replay only the paths the workflow generates.
-            rm -rf public/data
-            cp -r "$tmp/public/data" public/
+            # NON-DESTRUCTIVE overlay — do NOT `rm -rf public/data`. Another
+            # job (or a manual push) may have ADDED a provider's data to main
+            # during this 30-min run; wiping the dir and restoring only our
+            # snapshot deletes it. That is the 2026-06 incident: this refresh's
+            # snapshot (taken before noaa/owid/fbi/bea were pushed) clobbered
+            # all 4 providers. Overlay updates what we regenerated and leaves
+            # every other provider's data intact.
+            cp -r "$tmp/public/data/." public/data/
+            # The acs* source-YAML dirs are owned solely by this workflow, so
+            # replacing them wholesale is safe (no other job adds to them).
             for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
               if [ -d "$tmp/src/content/sources/$dir" ]; then
                 rm -rf "src/content/sources/$dir"
@@ -294,7 +301,11 @@ jobs:
               fi
             done
             rm -rf "$tmp"
-            git add public/data/
+            # Rebuild cross-provider aggregates from the merged tree so a
+            # provider added by another job during this run stays indexed.
+            python pipelines/build_summaries.py
+            python pipelines/_generate_generators_index.py
+            git add public/data/ public/generators-index.json
             for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
               git add "src/content/sources/$dir/" 2>/dev/null || true
             done

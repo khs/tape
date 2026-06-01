@@ -201,10 +201,22 @@ jobs:
             tmp=$(mktemp -d)
             cp -r public/data "$tmp/" 2>/dev/null || true
             git reset --hard origin/main
-            rm -rf public/data
-            cp -r "$tmp/data" public/
+            # NON-DESTRUCTIVE overlay — do NOT `rm -rf public/data`. Another
+            # job (or a manual push) may have ADDED a provider's data to main
+            # during this run; wiping the dir and restoring only our snapshot
+            # would delete it. That is exactly the 2026-06 incident where a
+            # refresh snapshot (taken before noaa/owid/fbi/bea were pushed)
+            # clobbered all 4 providers. Overlay updates the files we
+            # regenerated and leaves every other provider's data intact.
+            cp -r "$tmp/data/." public/data/
             rm -rf "$tmp"
-            git add public/data/
+            # source_index.json + generators-index.json are cross-provider
+            # aggregates — rebuild from the merged tree so a provider added by
+            # another job during this run stays indexed (its data files are
+            # present from the reset; the overlay didn't remove them).
+            python pipelines/build_summaries.py
+            python pipelines/_generate_generators_index.py
+            git add public/data/ public/generators-index.json
             if git diff --cached --quiet; then
               echo "No data changes to commit (attempt $attempt)."
               exit 0
