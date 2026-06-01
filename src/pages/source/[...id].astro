@@ -86,6 +86,9 @@ const headlineChart = source
           ? ("5y" as const)
           : (source.data.supportedDeltas[0] as any),
         tags: source.data.tags ?? [],
+        // Inherit the source's default editorial notes (e.g. FEC
+        // redistricting boundaries) on the headline single-series chart.
+        annotations: source.data.defaultAnnotations ?? [],
       },
     } as any)
   : null;

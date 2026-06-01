@@ -18,6 +18,7 @@
  * Source-ID conventions this module recognizes:
  *   - `usaspending/district_<st>_<dst>`   (federal spending per CD)
  *   - `acs_cd/<series>_<st>_<dst>`        (ACS demographic series per CD)
+ *   - `fec/house_spending_<st>_<dst>`     (House campaign spending per CD)
  * where `<st>` is the lowercase 2-letter state code and `<dst>` is a
  * 2-character district code (`01`–`53`, `al` for at-large, `98` for DC's
  * non-voting delegate).
@@ -190,6 +191,15 @@ export function parseCdSourceId(
   if (id.startsWith("acs_cd/")) {
     const m = id.match(/^acs_cd\/[a-z0-9_]+_([a-z]{2})_([a-z0-9]{2})$/);
     if (m) return { state: m[1], district: m[2] };
+    return null;
+  }
+  // fec/house_spending_<st>_<dst> — House campaign spending per district.
+  // Validate the state against the table so the national-total series
+  // (fec/house_spending_us_total) doesn't false-positive — "us" is not a
+  // state code, so it parses to null and stays in the general browse.
+  if (id.startsWith("fec/house_spending_")) {
+    const m = id.match(/^fec\/house_spending_([a-z]{2})_([a-z0-9]{2})$/);
+    if (m && STATE_CODE_SET.has(m[1])) return { state: m[1], district: m[2] };
     return null;
   }
   return null;

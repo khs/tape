@@ -60,6 +60,34 @@ describe("parseCdSourceId", () => {
     });
   });
 
+  it("parses fec House-spending district IDs", () => {
+    expect(parseCdSourceId("fec/house_spending_tx_07")).toEqual({
+      state: "tx",
+      district: "07",
+    });
+    expect(parseCdSourceId("fec/house_spending_ca_52")).toEqual({
+      state: "ca",
+      district: "52",
+    });
+    // At-large + DC delegate share the same al/98 coding as the other
+    // CD providers, so FEC spending buckets alongside ACS / USAspending
+    // data for the very same seat in the drill-down.
+    expect(parseCdSourceId("fec/house_spending_wy_al")).toEqual({
+      state: "wy",
+      district: "al",
+    });
+    expect(parseCdSourceId("fec/house_spending_dc_98")).toEqual({
+      state: "dc",
+      district: "98",
+    });
+  });
+
+  it("does NOT treat the FEC national total as a CD", () => {
+    // fec/house_spending_us_total is the nationwide sum — "us" is not a
+    // state code, so it must stay in the general browse, not the chip.
+    expect(parseCdSourceId("fec/house_spending_us_total")).toBeNull();
+  });
+
   it("rejects state-level (non-CD) IDs", () => {
     expect(parseCdSourceId("usaspending/state_tx")).toBeNull();
     expect(parseCdSourceId("usaspending/state_dc")).toBeNull();

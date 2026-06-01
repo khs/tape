@@ -1214,6 +1214,9 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     kind?: string;
     supportedDeltas?: DeltaWindow[];
     unit?: string;
+    // Editorial annotations seeded onto a chart created from this source
+    // (e.g. FEC per-district redistricting notes). Carried in library.json.
+    defaultAnnotations?: Annotation[];
   };
   type MetroEntry = { shortName: string; name: string };
   type CountryEntry = { name: string };
@@ -3119,10 +3122,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       | (LibrarySource & { name?: string })
       | undefined;
     const chartId = INLINE_PREFIX + nanoid(8);
+    // Seed the chart's editorial annotations from the source's defaults
+    // (e.g. FEC per-district redistricting boundary notes). The user can
+    // edit or clear them in the chart-config modal — they're a starting
+    // point, not a lock, so we materialize them into the spec rather than
+    // re-deriving at render time (which would fight a user's removal).
+    const seededAnnotations = sourceMeta?.defaultAnnotations;
     state.inlineCharts[chartId] = {
       title: sourceMeta?.name ?? sourceId,
       sources: [sourceId],
       normalize: "raw",
+      ...(seededAnnotations && seededAnnotations.length
+        ? { annotations: seededAnnotations }
+        : {}),
     };
     target.charts.push(chartId);
     writeUrl();

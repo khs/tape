@@ -303,6 +303,10 @@ export const GET: APIRoute = async () => {
       tags: tagsList,
       searchText: sourceSearchText,
       unitClass: s.data.unitClass,
+      // Editorial annotations a chart inherits when this source is added
+      // as a chart (composer) — e.g. FEC redistricting boundary notes.
+      // Undefined for sources without it (JSON.stringify drops it).
+      defaultAnnotations: s.data.defaultAnnotations,
     };
   }
 
