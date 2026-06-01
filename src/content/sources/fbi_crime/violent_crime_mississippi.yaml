@@ -1,0 +1,21 @@
+name: "Violent crime rate — Mississippi"
+shortName: Mississippi Violent crime
+description: Reported violent-crime offenses (homicide, rape, robbery, aggravated assault) per 100,000 population per year, from the FBI's Crime Data Explorer. Values for Mississippi.
+kind: timeseries
+pipeline: fbi_crime
+dataFile: data/fbi_crime/violent_crime_mississippi.json
+supportedDeltas: ["10y", "30y"]
+unit: "per 100k"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FBI (Crime Data Explorer)
+  series: summarized/state/MS/V / rate per 100k
+  url: https://cde.ucr.cjis.gov/
+  license: Public domain (US government data)
+tags:
+  - crime
+  - us
+

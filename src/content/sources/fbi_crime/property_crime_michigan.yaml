@@ -1,0 +1,21 @@
+name: "Property crime rate — Michigan"
+shortName: Michigan Property crime
+description: Reported property-crime offenses (burglary, larceny-theft, motor-vehicle theft, arson) per 100,000 population per year, from the FBI's Crime Data Explorer. Values for Michigan.
+kind: timeseries
+pipeline: fbi_crime
+dataFile: data/fbi_crime/property_crime_michigan.json
+supportedDeltas: ["10y", "30y"]
+unit: "per 100k"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FBI (Crime Data Explorer)
+  series: summarized/state/MI/P / rate per 100k
+  url: https://cde.ucr.cjis.gov/
+  license: Public domain (US government data)
+tags:
+  - crime
+  - us
+

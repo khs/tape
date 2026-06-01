@@ -97,6 +97,7 @@ PROVIDER_FEATURED_ON_WELCOME: dict[str, bool] = {
     "zillow": False,            # housing; not on current welcome grid (could add later)
     "owid_co2": False,          # climate/energy cross-country; via composer + energy charts
     "bea": False,               # per-state GDP/income detail; via composer + Maps/Generators
+    "fbi_crime": False,         # per-state crime rates; via composer + government charts
     "noaa_climate": False,      # city climate series; via composer + energy charts
     "yahoo": False,             # generic ticker prices; surfaced via marketcap
     # Internal / helper data
