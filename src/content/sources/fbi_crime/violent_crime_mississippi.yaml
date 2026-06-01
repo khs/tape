@@ -4,7 +4,7 @@ description: Reported violent-crime offenses (homicide, rape, robbery, aggravate
 kind: timeseries
 pipeline: fbi_crime
 dataFile: data/fbi_crime/violent_crime_mississippi.json
-supportedDeltas: ["10y", "30y"]
+supportedDeltas: ["10y", "30y", "50y"]
 unit: "per 100k"
 formatting:
   style: number

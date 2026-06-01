@@ -31,6 +31,21 @@ describe("parseMetroSourceId", () => {
     });
   });
 
+  it("maps a NOAA city-climate ID to its metro CBSA", () => {
+    expect(parseMetroSourceId("noaa_climate/temperature_washington_dc")).toEqual({
+      pipeline: "noaa_climate",
+      series: "temperature",
+      cbsa: "47900",
+    });
+    expect(parseMetroSourceId("noaa_climate/precipitation_new_orleans")).toEqual({
+      pipeline: "noaa_climate",
+      series: "precipitation",
+      cbsa: "35380",
+    });
+    // a NOAA city not in the metro map → not a metro source
+    expect(parseMetroSourceId("noaa_climate/temperature_anchorage")).toBeNull();
+  });
+
   it("parses a bls metro payrolls ID", () => {
     expect(parseMetroSourceId("bls/metro_payrolls_16980")).toEqual({
       pipeline: "bls",

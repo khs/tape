@@ -4,7 +4,7 @@ description: Reported property-crime offenses (burglary, larceny-theft, motor-ve
 kind: timeseries
 pipeline: fbi_crime
 dataFile: data/fbi_crime/property_crime_north_dakota.json
-supportedDeltas: ["10y", "30y"]
+supportedDeltas: ["10y", "30y", "50y"]
 unit: "per 100k"
 formatting:
   style: number

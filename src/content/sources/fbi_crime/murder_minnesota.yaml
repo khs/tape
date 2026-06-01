@@ -1,0 +1,21 @@
+name: "Murder rate — Minnesota"
+shortName: Minnesota Murder
+description: Reported murders and nonnegligent manslaughters per 100,000 population per year, from the FBI's Crime Data Explorer. The most reliable crime measure — homicide is consistently reported, so it's the least subject to the reporting artifacts that affect other categories. Multiply by a population series to recover the total count. Values for Minnesota.
+kind: timeseries
+pipeline: fbi_crime
+dataFile: data/fbi_crime/murder_minnesota.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "per 100k"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FBI (Crime Data Explorer)
+  series: summarized/state/MN/HOM / rate per 100k
+  url: https://cde.ucr.cjis.gov/
+  license: Public domain (US government data)
+tags:
+  - crime
+  - us
+

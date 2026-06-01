@@ -65,6 +65,11 @@ class Offense:
 
 
 OFFENSES = [
+    # Murder first, on purpose: the homicide rate is the most reliable
+    # crime statistic — least distorted by reporting practices and
+    # definitional drift that can swamp the other categories.
+    Offense("HOM", "murder", "Murder rate", "Murder",
+            "Reported murders and nonnegligent manslaughters per 100,000 population per year, from the FBI's Crime Data Explorer. The most reliable crime measure — homicide is consistently reported, so it's the least subject to the reporting artifacts that affect other categories. Multiply by a population series to recover the total count."),
     Offense("V", "violent_crime", "Violent crime rate", "Violent crime",
             "Reported violent-crime offenses (homicide, rape, robbery, aggravated assault) per 100,000 population per year, from the FBI's Crime Data Explorer."),
     Offense("P", "property_crime", "Property crime rate", "Property crime",
@@ -165,7 +170,7 @@ def yaml_for(off: Offense, geo: str, slug: str, path: str) -> str:
         "kind: timeseries",
         "pipeline: fbi_crime",
         f"dataFile: data/fbi_crime/{data_id}.json",
-        'supportedDeltas: ["10y", "30y"]',
+        'supportedDeltas: ["10y", "30y", "50y"]',
         'unit: "per 100k"',
         "formatting:",
         "  style: number",

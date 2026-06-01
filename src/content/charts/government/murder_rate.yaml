@@ -1,0 +1,20 @@
+title: Murder rate — US and selected states
+sources:
+  - fbi_crime/murder_united_states
+  - fbi_crime/murder_louisiana
+  - fbi_crime/murder_california
+  - fbi_crime/murder_new_york
+  - fbi_crime/murder_maine
+render: line
+defaultDelta: 50y
+seriesLabels: ["United States", "Louisiana", "California", "New York", "Maine"]
+tags: [crime, us]
+blurb: |
+  Murders and nonnegligent manslaughters per 100,000 residents, from
+  the FBI's Crime Data Explorer — the most reliable crime statistic,
+  since homicides are consistently reported regardless of changing
+  practices for other offenses. The national rate peaked around 1991,
+  fell by half through 2014, and jumped sharply in 2020. Louisiana has
+  long run highest among states; Maine among the lowest. Multiply any
+  series by a population source to recover the total number of
+  murders.

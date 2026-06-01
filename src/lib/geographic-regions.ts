@@ -104,6 +104,24 @@ const LEGACY_METRO_IDS: Record<
 };
 
 /**
+ * NOAA city-climate sources (pipeline `noaa_climate`) are slugged by city
+ * name (e.g. `temperature_washington_dc`) rather than CBSA, because each
+ * is a single long-record airport station — the canonical reading for its
+ * metro, not an areal MSA aggregate. This map registers each city to its
+ * metro's CBSA so the climate series surface under the composer's
+ * "Metro area" drill-down alongside the ACS/BLS metro data. Keep in sync
+ * with CITIES in pipelines/noaa_climate.py.
+ */
+const NOAA_CITY_CBSA: Record<string, string> = {
+  washington_dc: "47900", new_york: "35620", chicago: "16980",
+  los_angeles: "31080", houston: "26420", miami: "33100",
+  atlanta: "12060", boston: "14460", seattle: "42660",
+  denver: "19740", phoenix: "38060", dallas: "19100",
+  san_francisco: "41860", minneapolis: "33460", detroit: "19820",
+  philadelphia: "37980", san_diego: "41740", new_orleans: "35380",
+};
+
+/**
  * Parse a source ID against the metro-source patterns above. Returns
  * null when the ID isn't a metro source — caller can fall back to other
  * geo parsers (district / county / state) as those land.
@@ -129,6 +147,14 @@ export function parseMetroSourceId(
   if (slash >= 0) {
     pipeline = sourceId.slice(0, slash);
     slug = sourceId.slice(slash + 1);
+  }
+  // NOAA city-climate: name-slugged (<metric>_<city>) → metro CBSA lookup.
+  if (!pipeline || pipeline === "noaa_climate") {
+    const nm = /^(temperature|precipitation)_(.+)$/.exec(slug);
+    if (nm) {
+      const cbsa = NOAA_CITY_CBSA[nm[2]];
+      if (cbsa) return { pipeline: "noaa_climate", series: nm[1], cbsa };
+    }
   }
   for (const p of PATTERNS) {
     if (pipeline && pipeline !== p.pipeline) continue;
