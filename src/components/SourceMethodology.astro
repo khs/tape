@@ -1,0 +1,208 @@
+---
+/**
+ * "How to reproduce" card for a source whose data we manipulate.
+ *
+ * Renders the per-pipeline methodology (from src/lib/methodology.ts) plus
+ * this source's own upstream identifier, so a reader can trace the stored
+ * number back to the raw provider response and re-run the exact pipeline.
+ * Only mounted when getMethodology() returns an entry — passthrough sources
+ * show nothing (their provenance grid already says everything).
+ *
+ * Visual treatment intentionally echoes CitationBlock: a bordered, slightly
+ * tinted card so reproduction reads as a first-class artifact, not a
+ * footnote. The linked pipeline file is the ground-truth method.
+ */
+import { type ProviderMethodology, repoFileUrl } from "../lib/methodology";
+
+interface Props {
+  methodology: ProviderMethodology;
+  /** This source's exact upstream identifier (provenance.series). */
+  series?: string;
+  /** Upstream landing URL (provenance.url), if any. */
+  upstreamUrl?: string;
+}
+
+const { methodology: m, series, upstreamUrl } = Astro.props;
+const codeUrl = repoFileUrl(m.pipelineFile);
+---
+
+<section class="repro-card" data-role="methodology">
+  <h3 class="repro-heading">How to reproduce</h3>
+
+  <dl class="repro-meta">
+    <div class="repro-row">
+      <dt>Upstream</dt>
+      <dd>
+        {m.upstream}
+        {upstreamUrl && (
+          <>
+            {" — "}
+            <a href={upstreamUrl} target="_blank" rel="noopener noreferrer">
+              portal &rarr;
+            </a>
+          </>
+        )}
+      </dd>
+    </div>
+    <div class="repro-row">
+      <dt>Access</dt>
+      <dd class="mono">{m.access}</dd>
+    </div>
+    {series && (
+      <div class="repro-row">
+        <dt>This series</dt>
+        <dd class="mono">{series}</dd>
+      </div>
+    )}
+  </dl>
+
+  <p class="repro-subhead">How we transform it</p>
+  <ol class="repro-steps">
+    {m.steps.map((s) => <li>{s}</li>)}
+  </ol>
+
+  {m.caveats && m.caveats.length > 0 && (
+    <>
+      <p class="repro-subhead">Caveats for an exact match</p>
+      <ul class="repro-caveats">
+        {m.caveats.map((c) => <li>{c}</li>)}
+      </ul>
+    </>
+  )}
+
+  <dl class="repro-meta repro-meta-foot">
+    {m.storedAs && (
+      <div class="repro-row">
+        <dt>Stored as</dt>
+        <dd>{m.storedAs}</dd>
+      </div>
+    )}
+    <div class="repro-row">
+      <dt>Source code</dt>
+      <dd>
+        <a href={codeUrl} target="_blank" rel="noopener noreferrer" class="mono">
+          {m.pipelineFile} &rarr;
+        </a>
+      </dd>
+    </div>
+    <div class="repro-row">
+      <dt>Run it</dt>
+      <dd><code class="repro-cmd">{m.runCommand}</code></dd>
+    </div>
+  </dl>
+
+  <p class="repro-foot">
+    The linked pipeline is the authoritative, always-current method — this
+    summary paraphrases it.
+  </p>
+</section>
+
+<style>
+  .repro-card {
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: var(--radius, 6px);
+    background: #fbfaf6;
+    padding: 16px 18px 14px;
+    margin: 8px 0 24px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #2d2d2a;
+  }
+  .repro-heading {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6f6c66;
+    margin: 0 0 10px;
+  }
+  .repro-meta {
+    margin: 0 0 12px;
+  }
+  .repro-meta-foot {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(55, 53, 47, 0.1);
+  }
+  .repro-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px;
+    padding: 2px 0;
+    align-items: baseline;
+  }
+  .repro-row dt {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8a8780;
+    margin: 0;
+  }
+  .repro-row dd {
+    margin: 0;
+    color: #2d2d2a;
+  }
+  .repro-subhead {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8a8780;
+    margin: 12px 0 4px;
+  }
+  .repro-steps {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .repro-steps li {
+    padding: 2px 0;
+  }
+  .repro-caveats {
+    margin: 0;
+    padding-left: 18px;
+    list-style: none;
+  }
+  .repro-caveats li {
+    padding: 2px 0;
+    position: relative;
+  }
+  .repro-caveats li::before {
+    content: "\2014"; /* em dash bullet */
+    position: absolute;
+    left: -18px;
+    color: #b5b1a6;
+  }
+  .mono,
+  .repro-cmd {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+  .repro-cmd {
+    background: #f0eee7;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: 3px;
+    padding: 1px 6px;
+    word-break: break-all;
+  }
+  .repro-card a {
+    color: #2d2d2a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .repro-card a:hover {
+    color: #000;
+  }
+  .repro-foot {
+    margin: 12px 0 0;
+    font-size: 11px;
+    color: #8a8780;
+    font-style: italic;
+  }
+  @media (max-width: 560px) {
+    .repro-row {
+      grid-template-columns: 1fr;
+      gap: 1px;
+    }
+  }
+</style>

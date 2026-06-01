@@ -26,6 +26,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Chart from "../../components/Chart.astro";
 import ChartController from "../../components/ChartController.astro";
 import CitationBlock from "../../components/CitationBlock.astro";
+import SourceMethodology from "../../components/SourceMethodology.astro";
 import {
   loadSourceData,
 } from "../../lib/load-data";
@@ -34,6 +35,7 @@ import { encodeComposedState } from "../../lib/composer-state";
 import { isVisibleChart } from "../../lib/resolve-dashboard";
 import type { CitationInput } from "../../lib/citation";
 import { canonicalOrigin } from "../../lib/site";
+import { getMethodology } from "../../lib/methodology";
 
 // Server-rendered per request rather than statically generated. We
 // ship ~21,000 sources (~17,000 ACS-by-CD variants alone); generating
@@ -191,6 +193,12 @@ function inferFrequency(deltas: readonly string[]): string {
   return "Annual";
 }
 const frequency = source ? inferFrequency(source.data.supportedDeltas as string[]) : "—";
+
+// "How to reproduce" card — only for pipelines that do non-trivial
+// manipulation (aggregation, disambiguation, rescaling, derived rates,
+// geo remapping). Passthrough sources return null and show nothing; the
+// provenance grid already covers a plain fetch. See src/lib/methodology.ts.
+const methodology = source ? getMethodology(source.data.pipeline) : null;
 ---
 
 <BaseLayout
@@ -336,6 +344,14 @@ const frequency = source ? inferFrequency(source.data.supportedDeltas as string[
           </div>
 
           {citation && <CitationBlock input={citation} heading="Cite this source" />}
+
+          {methodology && (
+            <SourceMethodology
+              methodology={methodology}
+              series={provenance?.series}
+              upstreamUrl={provenance?.url}
+            />
+          )}
 
           <div class="source-actions">
             <a href={composeUrl} class="source-action-link">
