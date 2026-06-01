@@ -86,6 +86,7 @@ PROVIDER_TO_ABOUT_LABEL: dict[str, str | None] = {
     "cms_nhe": "CMS Office of the Actuary",
     "zillow": "Zillow Research",
     "bea": "BEA",
+    "noaa_climate": "NOAA",
     "owid_co2": "Our World in Data",
     "yahoo": "Yahoo Finance",
     "yahoo_futures": "Yahoo Finance",

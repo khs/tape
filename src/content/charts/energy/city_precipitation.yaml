@@ -1,0 +1,16 @@
+title: Annual precipitation — major cities
+sources:
+  - noaa_climate/precipitation_new_orleans
+  - noaa_climate/precipitation_miami
+  - noaa_climate/precipitation_seattle
+  - noaa_climate/precipitation_washington_dc
+  - noaa_climate/precipitation_phoenix
+render: line
+defaultDelta: 50y
+seriesLabels: ["New Orleans", "Miami", "Seattle", "Washington DC", "Phoenix"]
+tags: [climate, us]
+blurb: |
+  Annual total precipitation at each metro's long-record station, from
+  NOAA. Seattle's reputation notwithstanding, New Orleans and Miami
+  are far wetter on the year (Seattle's rain is frequent but light);
+  Phoenix sits near the bottom at well under 10 inches a year.

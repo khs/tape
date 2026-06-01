@@ -1,0 +1,21 @@
+name: "Average temperature — Chicago"
+shortName: Chicago Avg temp
+description: Annual average temperature in degrees Fahrenheit, from NOAA's Global Summary of the Year. Recorded at the Chicago metro long-record station (GHCND:USW00094846).
+kind: timeseries
+pipeline: noaa_climate
+dataFile: data/noaa_climate/temperature_chicago.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "°F"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: NOAA (NCEI Climate Data Online)
+  series: TAVG / GHCND:USW00094846
+  url: https://www.ncei.noaa.gov/cdo-web/datasets/GSOY/stations/GHCND:USW00094846/detail
+  license: Public domain (US government data)
+tags:
+  - climate
+  - us
+

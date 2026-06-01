@@ -1,0 +1,21 @@
+name: "Average temperature — New York"
+shortName: New York Avg temp
+description: Annual average temperature in degrees Fahrenheit, from NOAA's Global Summary of the Year. Recorded at the New York metro long-record station (GHCND:USW00094728).
+kind: timeseries
+pipeline: noaa_climate
+dataFile: data/noaa_climate/temperature_new_york.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "°F"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: NOAA (NCEI Climate Data Online)
+  series: TAVG / GHCND:USW00094728
+  url: https://www.ncei.noaa.gov/cdo-web/datasets/GSOY/stations/GHCND:USW00094728/detail
+  license: Public domain (US government data)
+tags:
+  - climate
+  - us
+

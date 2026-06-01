@@ -1,0 +1,21 @@
+name: "Total precipitation — Washington, DC"
+shortName: Washington, DC Precipitation
+description: Annual total precipitation in inches, from NOAA's Global Summary of the Year. Recorded at the Washington, DC metro long-record station (GHCND:USW00013743).
+kind: timeseries
+pipeline: noaa_climate
+dataFile: data/noaa_climate/precipitation_washington_dc.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "inches"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: NOAA (NCEI Climate Data Online)
+  series: PRCP / GHCND:USW00013743
+  url: https://www.ncei.noaa.gov/cdo-web/datasets/GSOY/stations/GHCND:USW00013743/detail
+  license: Public domain (US government data)
+tags:
+  - climate
+  - us
+

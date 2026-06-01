@@ -1,0 +1,21 @@
+name: "Total precipitation — San Diego"
+shortName: San Diego Precipitation
+description: Annual total precipitation in inches, from NOAA's Global Summary of the Year. Recorded at the San Diego metro long-record station (GHCND:USW00023188).
+kind: timeseries
+pipeline: noaa_climate
+dataFile: data/noaa_climate/precipitation_san_diego.json
+supportedDeltas: ["10y", "30y", "50y"]
+unit: "inches"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: NOAA (NCEI Climate Data Online)
+  series: PRCP / GHCND:USW00023188
+  url: https://www.ncei.noaa.gov/cdo-web/datasets/GSOY/stations/GHCND:USW00023188/detail
+  license: Public domain (US government data)
+tags:
+  - climate
+  - us
+
