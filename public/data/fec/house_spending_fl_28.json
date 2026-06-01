@@ -1,0 +1,17 @@
+{
+  "id": "house_spending_fl_28",
+  "name": "House campaign spending \u2014 Florida 28",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2022-01-01",
+      "v": 1.641
+    },
+    {
+      "t": "2024-01-01",
+      "v": 2.457
+    }
+  ]
+}

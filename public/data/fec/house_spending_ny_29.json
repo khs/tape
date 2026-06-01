@@ -1,0 +1,21 @@
+{
+  "id": "house_spending_ny_29",
+  "name": "House campaign spending \u2014 New York 29",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 3.88
+    },
+    {
+      "t": "2010-01-01",
+      "v": 2.58
+    },
+    {
+      "t": "2022-01-01",
+      "v": 0.0
+    }
+  ]
+}

@@ -88,6 +88,7 @@ PROVIDER_TO_ABOUT_LABEL: dict[str, str | None] = {
     "zillow": "Zillow Research",
     "bea": "BEA",
     "fbi_crime": "FBI",
+    "fec": "FEC",
     "noaa_climate": "NOAA",
     "owid_co2": "Our World in Data",
     "yahoo": "Yahoo Finance",

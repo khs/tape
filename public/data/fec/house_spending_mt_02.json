@@ -1,0 +1,17 @@
+{
+  "id": "house_spending_mt_02",
+  "name": "House campaign spending \u2014 Montana 02",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2022-01-01",
+      "v": 2.475
+    },
+    {
+      "t": "2024-01-01",
+      "v": 6.423
+    }
+  ]
+}

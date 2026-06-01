@@ -1,0 +1,21 @@
+{
+  "id": "house_spending_la_07",
+  "name": "House campaign spending \u2014 Louisiana 07",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 2.23
+    },
+    {
+      "t": "2010-01-01",
+      "v": 1.261
+    },
+    {
+      "t": "2020-01-01",
+      "v": 0.0
+    }
+  ]
+}

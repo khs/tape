@@ -1,0 +1,23 @@
+name: House campaign spending — Florida 20
+shortName: FL-20 campaign $
+description: Total campaign disbursements by all U.S. House candidates who ran in Florida district 20, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses).
+kind: timeseries
+pipeline: fec
+dataFile: data/fec/house_spending_fl_20.json
+supportedDeltas: ["10y", "30y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "M"
+emphasis: change
+provenance:
+  provider: FEC (Federal Election Commission)
+  series: candidates/totals office=H sum(disbursements) FL-20
+  url: https://www.fec.gov/data/
+  license: Public domain (US government data)
+tags:
+  - elections
+  - us
+  - us-cd
+unitClass: currency

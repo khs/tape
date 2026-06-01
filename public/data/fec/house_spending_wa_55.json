@@ -1,0 +1,13 @@
+{
+  "id": "house_spending_wa_55",
+  "name": "House campaign spending \u2014 Washington 55",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:15Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 0.0
+    }
+  ]
+}

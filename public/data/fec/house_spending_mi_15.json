@@ -1,0 +1,17 @@
+{
+  "id": "house_spending_mi_15",
+  "name": "House campaign spending \u2014 Michigan 15",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 2.542
+    },
+    {
+      "t": "2010-01-01",
+      "v": 3.948
+    }
+  ]
+}

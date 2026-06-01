@@ -1,0 +1,17 @@
+{
+  "id": "house_spending_ma_10",
+  "name": "House campaign spending \u2014 Massachusetts 10",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 1.218
+    },
+    {
+      "t": "2010-01-01",
+      "v": 4.73
+    }
+  ]
+}

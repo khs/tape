@@ -1,0 +1,25 @@
+{
+  "id": "house_spending_oh_18",
+  "name": "House campaign spending \u2014 Ohio 18",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 2.689
+    },
+    {
+      "t": "2010-01-01",
+      "v": 4.479
+    },
+    {
+      "t": "2012-01-01",
+      "v": 0.058
+    },
+    {
+      "t": "2020-01-01",
+      "v": 0.0
+    }
+  ]
+}

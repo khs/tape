@@ -1,0 +1,13 @@
+{
+  "id": "house_spending_nc_00",
+  "name": "House campaign spending \u2014 North Carolina (at-large)",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2014-01-01",
+      "v": 0.0
+    }
+  ]
+}

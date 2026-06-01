@@ -1,0 +1,21 @@
+{
+  "id": "house_spending_il_19",
+  "name": "House campaign spending \u2014 Illinois 19",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 1.39
+    },
+    {
+      "t": "2010-01-01",
+      "v": 1.871
+    },
+    {
+      "t": "2022-01-01",
+      "v": 0.0
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "house_spending_mo_09",
+  "name": "House campaign spending \u2014 Missouri 09",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 6.041
+    },
+    {
+      "t": "2010-01-01",
+      "v": 1.259
+    }
+  ]
+}

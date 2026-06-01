@@ -1,0 +1,23 @@
+name: House campaign spending — US total
+shortName: US House campaign $
+description: Total campaign disbursements by all U.S. House candidates nationwide, summed per two-year election cycle, from the Federal Election Commission.
+kind: timeseries
+pipeline: fec
+dataFile: data/fec/house_spending_us_total.json
+supportedDeltas: ["10y", "30y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  decimals: 0
+  suffix: "M"
+emphasis: change
+provenance:
+  provider: FEC (Federal Election Commission)
+  series: candidates/totals office=H sum(disbursements) national
+  url: https://www.fec.gov/data/
+  license: Public domain (US government data)
+tags:
+  - elections
+  - us
+  - macro
+unitClass: currency

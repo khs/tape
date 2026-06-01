@@ -1,0 +1,21 @@
+{
+  "id": "house_spending_nj_13",
+  "name": "House campaign spending \u2014 New Jersey 13",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2008-01-01",
+      "v": 0.802
+    },
+    {
+      "t": "2010-01-01",
+      "v": 0.714
+    },
+    {
+      "t": "2012-01-01",
+      "v": 0.0
+    }
+  ]
+}

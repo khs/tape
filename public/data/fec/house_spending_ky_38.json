@@ -1,0 +1,13 @@
+{
+  "id": "house_spending_ky_38",
+  "name": "House campaign spending \u2014 Kentucky 38",
+  "kind": "timeseries",
+  "unit": "millions USD",
+  "lastUpdated": "2026-06-01T15:19:14Z",
+  "points": [
+    {
+      "t": "2022-01-01",
+      "v": 0.0
+    }
+  ]
+}
