@@ -3,7 +3,7 @@
   "name": "Services value-added (% of GDP) \u2014 United Kingdom",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:18Z",
+  "lastUpdated": "2026-06-01T14:28:18Z",
   "points": [
     {
       "t": "1990-12-31",
@@ -147,6 +147,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 72.4462431770253
+    },
+    {
+      "t": "2026-06-01",
       "v": 72.4462431770253
     }
   ]

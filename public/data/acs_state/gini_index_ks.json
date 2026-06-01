@@ -3,7 +3,7 @@
   "name": "Income inequality (Gini index) \u2014 KS",
   "kind": "timeseries",
   "unit": "ratio",
-  "lastUpdated": "2026-05-29T15:31:19Z",
+  "lastUpdated": "2026-06-01T12:06:30Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -11,7 +11,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 0.448
+      "v": 0.453
     },
     {
       "t": "2019-12-31",

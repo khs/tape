@@ -3,7 +3,7 @@
   "name": "Agriculture, forestry, fishing value-added (% of GDP) \u2014 Sweden",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:47Z",
+  "lastUpdated": "2026-06-01T14:41:45Z",
   "points": [
     {
       "t": "1980-12-31",
@@ -187,6 +187,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 1.4222920532684
+    },
+    {
+      "t": "2026-06-01",
       "v": 1.4222920532684
     }
   ]

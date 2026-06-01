@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 Sweden",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:50Z",
+  "lastUpdated": "2026-06-01T14:15:05Z",
   "points": [
     {
       "t": "1980-12-31",
@@ -187,6 +187,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 21.6861135924505
+    },
+    {
+      "t": "2026-06-01",
       "v": 21.6861135924505
     }
   ]

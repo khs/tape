@@ -3,7 +3,7 @@
   "name": "Detroit-Warren-Dearborn \u2014 unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:20:30Z",
+  "lastUpdated": "2026-06-01T14:46:51Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -444,6 +444,10 @@
     {
       "t": "2026-03-15",
       "v": 5.3
+    },
+    {
+      "t": "2026-04-15",
+      "v": 4.4
     }
   ]
 }

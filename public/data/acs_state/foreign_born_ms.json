@@ -3,7 +3,7 @@
   "name": "Foreign-born population \u2014 MS",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:18:24Z",
+  "lastUpdated": "2026-06-01T12:06:30Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -23,7 +23,7 @@
     },
     {
       "t": "2021-12-31",
-      "v": 34109
+      "v": 26518
     },
     {
       "t": "2022-12-31",

@@ -3,7 +3,7 @@
   "name": "Adults 25+ with a bachelor's degree \u2014 KS-01",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-28T22:04:55Z",
+  "lastUpdated": "2026-06-01T12:05:55Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -11,7 +11,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 16.4
+      "v": 17.6
     },
     {
       "t": "2019-12-31",

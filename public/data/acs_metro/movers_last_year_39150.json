@@ -3,23 +3,23 @@
   "name": "People who moved in the last year \u2014 Prescott Valley-Prescott",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:18:08Z",
+  "lastUpdated": "2026-06-01T12:06:16Z",
   "points": [
     {
       "t": "2019-12-31",
-      "v": 115975.0
+      "v": 36833
     },
     {
       "t": "2020-12-31",
-      "v": 118159.0
+      "v": 33899
     },
     {
       "t": "2021-12-31",
-      "v": 118278.0
+      "v": 33147
     },
     {
       "t": "2022-12-31",
-      "v": 119958.0
+      "v": 32685
     }
   ]
 }

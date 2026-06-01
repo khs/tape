@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Canada",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:57Z",
+  "lastUpdated": "2026-06-01T14:18:21Z",
   "points": [
     {
       "t": "1997-12-31",
@@ -107,6 +107,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 9.25454311712137
+    },
+    {
+      "t": "2026-06-01",
       "v": 9.25454311712137
     }
   ]

@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 China",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-21T22:44:38Z",
+  "lastUpdated": "2026-06-01T13:55:02Z",
   "points": [
     {
       "t": "2004-12-31",
@@ -95,6 +95,10 @@
     },
     {
       "t": "2026-05-21",
+      "v": 24.8692407436614
+    },
+    {
+      "t": "2026-06-01",
       "v": 24.8692407436614
     }
   ]

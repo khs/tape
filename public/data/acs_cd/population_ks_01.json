@@ -3,7 +3,7 @@
   "name": "Total population \u2014 KS-01",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:17:43Z",
+  "lastUpdated": "2026-06-01T12:05:55Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -11,7 +11,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 709203
+      "v": 1665
     },
     {
       "t": "2019-12-31",

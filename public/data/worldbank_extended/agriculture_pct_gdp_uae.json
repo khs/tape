@@ -3,7 +3,7 @@
   "name": "Agriculture, forestry, fishing value-added (% of GDP) \u2014 United Arab Emirates",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:47Z",
+  "lastUpdated": "2026-06-01T14:42:10Z",
   "points": [
     {
       "t": "1975-12-31",
@@ -207,6 +207,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 0.769419245488961
+    },
+    {
+      "t": "2026-06-01",
       "v": 0.769419245488961
     }
   ]

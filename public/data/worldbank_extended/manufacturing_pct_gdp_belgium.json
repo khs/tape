@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Belgium",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:02Z",
+  "lastUpdated": "2026-06-01T14:18:39Z",
   "points": [
     {
       "t": "1995-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 11.4375020757029
+    },
+    {
+      "t": "2026-06-01",
       "v": 11.4375020757029
     }
   ]

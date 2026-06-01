@@ -3,7 +3,7 @@
   "name": "Adults 25+ with a bachelor's degree \u2014 OK-03",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-29T15:14:18Z",
+  "lastUpdated": "2026-06-01T12:05:55Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -11,7 +11,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 77982
+      "v": 77699
     },
     {
       "t": "2019-12-31",

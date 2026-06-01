@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 Japan",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:35Z",
+  "lastUpdated": "2026-06-01T14:10:26Z",
   "points": [
     {
       "t": "1994-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 28.6021835997719
+    },
+    {
+      "t": "2026-06-01",
       "v": 28.6021835997719
     }
   ]

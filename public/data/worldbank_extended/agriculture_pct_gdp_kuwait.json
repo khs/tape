@@ -3,7 +3,7 @@
   "name": "Agriculture, forestry, fishing value-added (% of GDP) \u2014 Kuwait",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:49Z",
+  "lastUpdated": "2026-06-01T14:43:17Z",
   "points": [
     {
       "t": "1995-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 0.492980678536301
+    },
+    {
+      "t": "2026-06-01",
       "v": 0.492980678536301
     }
   ]
