@@ -164,9 +164,69 @@ def yaml_for(ind: Indicator, geoname: str, slug: str, geofips: str) -> str:
     return "\n".join(lines) + "\n"
 
 
+def fetch_county_year(line: str, year: str, key: str) -> list[dict]:
+    params = {
+        "UserID": key, "method": "GetData", "datasetname": "Regional",
+        "TableName": "CAINC1", "LineCode": line, "GeoFIPS": "COUNTY",
+        "Year": year, "ResultFormat": "JSON",
+    }
+    url = f"{API}?{urllib.parse.urlencode(params)}"
+    data = json.loads(urllib.request.urlopen(
+        urllib.request.Request(url, headers={"User-Agent": "tape/1.0"}), timeout=90).read())
+    api = data.get("BEAAPI", {})
+    if api.get("Error"):
+        raise SystemExit(f"BEA error CAINC1/county/{year}: {api['Error']}")
+    return api.get("Results", {}).get("Data", [])
+
+
+def county_choropleth(key: str) -> int:
+    """Write per-vintage county per-capita-income choropleth data files
+    (CAINC1 line 3) to public/data/acs_county/ — the county-geo choropleth
+    store the renderer reads (joined to the county topojson by FIPS).
+    Not per-county time-series sources: county data on this site is
+    choropleth-primary."""
+    import datetime
+    out_dir = HERE.parent / "public" / "data" / "acs_county"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+    written = 0
+    for year in [str(y) for y in range(2014, 2024)]:
+        rows = fetch_county_year("3", year, key)
+        values: dict[str, float] = {}
+        for r in rows:
+            fips = (r.get("GeoFips") or "").strip()
+            raw = (r.get("DataValue") or "").replace(",", "")
+            # real counties only: 5-digit FIPS, drop state (XX000) + US (00000)
+            if not re.fullmatch(r"\d{5}", fips) or fips.endswith("000"):
+                continue
+            if not re.fullmatch(r"-?\d+(\.\d+)?", raw):
+                continue
+            mult = int(r.get("UNIT_MULT") or 0)  # per-capita income → 0 (raw $)
+            v = round(float(raw) * (10 ** mult))
+            if v <= 0:  # BEA reports combined-area placeholders as 0/NA — drop
+                continue
+            values[fips] = v
+        if not values:
+            continue
+        payload = {
+            "geo": "county", "indicator": "bea_per_capita_income", "vintage": year,
+            "unit": "$", "decimals": 0,
+            "valueLabel": "Per-capita personal income ($)",
+            "lastUpdated": stamp, "values": values,
+        }
+        (out_dir / f"bea_per_capita_income_{year}.json").write_text(
+            json.dumps(payload), encoding="utf-8")
+        written += 1
+        print(f"  bea county choropleth {year}: {len(values)} counties")
+    print(f"bea county choropleth: wrote {written} vintages.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     filters = [a.lower() for a in (argv or [])[1:]]
     key = _load_key()
+    if filters and filters[0] in ("county", "choropleth"):
+        return county_choropleth(key)
     SOURCES_DIR.mkdir(parents=True, exist_ok=True)
     written = 0
     for ind in INDICATORS:

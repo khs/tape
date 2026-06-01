@@ -1,0 +1,15 @@
+title: Per-capita personal income by US county (2023)
+render: choropleth
+geo: county
+indicator: bea_per_capita_income
+vintage: "2023"
+colorScheme: greens
+colorScale: linear
+tags: [government, us, economy]
+blurb: |
+  Per-capita personal income by county, from the BEA's regional
+  accounts (CAINC1). Darker = higher. Income concentrates in the
+  big-metro cores, the DC suburbs, and a handful of resort and
+  resource counties — Teton County, Wyoming tops the list by a wide
+  margin on capital-gains income. A decade of vintages is available
+  via the year selector.
