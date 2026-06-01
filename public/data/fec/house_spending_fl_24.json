@@ -3,8 +3,20 @@
   "name": "House campaign spending \u2014 Florida 24",
   "kind": "timeseries",
   "unit": "millions USD",
-  "lastUpdated": "2026-06-01T17:24:47Z",
+  "lastUpdated": "2026-06-01T21:09:46Z",
   "points": [
+    {
+      "t": "2002-01-01",
+      "v": 5.952
+    },
+    {
+      "t": "2004-01-01",
+      "v": 0.706
+    },
+    {
+      "t": "2006-01-01",
+      "v": 1.838
+    },
     {
       "t": "2008-01-01",
       "v": 4.197

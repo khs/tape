@@ -1,6 +1,6 @@
 name: House campaign spending — Montana 01
 shortName: MT-01 campaign $
-description: Total campaign disbursements by all U.S. House candidates who ran in Montana district 1, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses).
+description: Total campaign disbursements by all U.S. House candidates who ran in Montana district 1, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 1990, 2000, 2010, and 2020 censuses).
 kind: timeseries
 pipeline: fec
 dataFile: data/fec/house_spending_mt_01.json
@@ -11,6 +11,15 @@ formatting:
   decimals: 1
   suffix: "M"
 emphasis: change
+defaultAnnotations:
+  - date: "1992-01-01"
+    label: "Boundaries redrawn — 1990 Census"
+  - date: "2002-01-01"
+    label: "Boundaries redrawn — 2000 Census"
+  - date: "2012-01-01"
+    label: "Boundaries redrawn — 2010 Census"
+  - date: "2022-01-01"
+    label: "Boundaries redrawn — 2020 Census"
 provenance:
   provider: FEC (Federal Election Commission)
   series: candidates/totals office=H sum(disbursements) MT-01

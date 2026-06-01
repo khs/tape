@@ -1,6 +1,6 @@
 name: House campaign spending — Oregon 04
 shortName: OR-04 campaign $
-description: Total campaign disbursements by all U.S. House candidates who ran in Oregon district 4, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses).
+description: Total campaign disbursements by all U.S. House candidates who ran in Oregon district 4, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 1990, 2000, 2010, and 2020 censuses).
 kind: timeseries
 pipeline: fec
 dataFile: data/fec/house_spending_or_04.json
@@ -12,6 +12,10 @@ formatting:
   suffix: "M"
 emphasis: change
 defaultAnnotations:
+  - date: "1992-01-01"
+    label: "Boundaries redrawn — 1990 Census"
+  - date: "2002-01-01"
+    label: "Boundaries redrawn — 2000 Census"
   - date: "2012-01-01"
     label: "Boundaries redrawn — 2010 Census"
   - date: "2022-01-01"

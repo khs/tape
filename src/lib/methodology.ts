@@ -65,14 +65,14 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
     access:
       "GET api.open.fec.gov/v1/candidates/totals?office=H&cycle=<YYYY> (api.data.gov key), paginated over all House candidates",
     steps: [
-      "Fetch every House candidate's financial totals for each even-year election cycle, 2008–2024.",
+      "Fetch every House candidate's financial totals for each even-year election cycle, 1990–2024.",
       "Sum `disbursements` (money actually spent) across all candidates, grouped by (state, district).",
       "Disambiguate FEC's `district` field: code \"00\" is the genuine at-large seat for single-member states (AK, DE, ND, SD, VT, WY in every cycle; MT through 2020) and the non-voting delegate seat for DC — but in multi-district states it's just spending FEC couldn't assign to a district. Keep the real seats (coded \"al\" / \"98\"); drop the unassigned residual.",
       "Drop impossible district numbers (> 53, above any state's real count) and any series that never recorded real spending.",
       "Convert dollars to millions (÷ 1e6) and record one point per cycle — a deliberate 2-year cadence, not monthly.",
     ],
     caveats: [
-      "District numbers reflect the boundaries in effect that cycle. Redistricting redrew them after the 2010 and 2020 censuses, so a seat numbered N before 2012 / 2022 is a different geographic area than the same number after — charts of a district mark those boundary years.",
+      "District numbers reflect the boundaries in effect that cycle. Redistricting redrew them after the 1990, 2000, 2010, and 2020 censuses, so a seat numbered N before a new map's first cycle (1992 / 2002 / 2012 / 2022) is a different geographic area than the same number after — charts of a district mark those boundary years.",
       "The small residual of spending FEC couldn't place in a valid district is included in the national total but in no per-district series, so districts sum to slightly less than the national line.",
     ],
     storedAs: "millions USD per cycle",

@@ -1,6 +1,6 @@
 name: House campaign spending — South Carolina 07
 shortName: SC-07 campaign $
-description: Total campaign disbursements by all U.S. House candidates who ran in South Carolina district 7, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses).
+description: Total campaign disbursements by all U.S. House candidates who ran in South Carolina district 7, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 1990, 2000, 2010, and 2020 censuses).
 kind: timeseries
 pipeline: fec
 dataFile: data/fec/house_spending_sc_07.json

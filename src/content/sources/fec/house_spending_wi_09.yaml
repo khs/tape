@@ -1,0 +1,25 @@
+name: House campaign spending — Wisconsin 09
+shortName: WI-09 campaign $
+description: Total campaign disbursements by all U.S. House candidates who ran in Wisconsin district 9, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 1990, 2000, 2010, and 2020 censuses).
+kind: timeseries
+pipeline: fec
+dataFile: data/fec/house_spending_wi_09.json
+supportedDeltas: ["10y", "30y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "M"
+emphasis: change
+defaultAnnotations:
+  - date: "1992-01-01"
+    label: "Boundaries redrawn — 1990 Census"
+provenance:
+  provider: FEC (Federal Election Commission)
+  series: candidates/totals office=H sum(disbursements) WI-09
+  url: https://www.fec.gov/data/
+  license: Public domain (US government data)
+tags:
+  - elections
+  - us
+unitClass: currency

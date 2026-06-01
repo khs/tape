@@ -12,10 +12,10 @@ Paginated per cycle; we sum `disbursements` grouped by (state, district).
 Public domain (FEC).
 
 REDISTRICTING CAVEAT: a district's number reflects the boundaries in
-effect that cycle. Boundaries were redrawn after the 2010 and 2020
-censuses, so e.g. "TX-07" pre-2022 and post-2022 are not the same
-geographic area. Each point is "spending in the seat numbered N that
-cycle." Noted in every source description.
+effect that cycle. Boundaries were redrawn after the 1990, 2000, 2010,
+and 2020 censuses, so e.g. "TX-07" pre-2022 and post-2022 are not the
+same geographic area. Each point is "spending in the seat numbered N
+that cycle." Noted in every source description.
 
 Units: stored in millions USD (a district's total runs ~$1-50M/cycle).
 SECURITY: the key is a query param — never log the URL.
@@ -39,7 +39,7 @@ from common import write_timeseries
 HERE = Path(__file__).resolve().parent
 SOURCES_DIR = HERE.parent / "src" / "content" / "sources" / "fec"
 API = "https://api.open.fec.gov/v1/candidates/totals/"
-CYCLES = list(range(2008, 2026, 2))  # 2008..2024
+CYCLES = list(range(1990, 2026, 2))  # 1990..2024 (18 cycles)
 
 # Congressional-district coding to match the composer's drill-down
 # convention (src/lib/congressional-districts.ts): single-member
@@ -49,14 +49,20 @@ CYCLES = list(range(2008, 2026, 2))  # 2008..2024
 # so "00" alone is ambiguous — we disambiguate with the canonical
 # at-large roster below rather than by dollar amount (some unassigned
 # "00" buckets in multi-district states like IN/SC carry >$1M).
-ALWAYS_AT_LARGE = {"AK", "DE", "ND", "SD", "VT", "WY"}  # single seat, 2008-2024
-# Montana had one at-large seat through the 2020 cycle, then gained a
-# second seat (MT-01/MT-02) starting 2022 — handled per-cycle below.
+ALWAYS_AT_LARGE = {"AK", "DE", "ND", "SD", "VT", "WY"}  # single seat, every cycle 1990-2024
+# Montana is the one oscillator in this window: 2 seats in the 1990 cycle,
+# down to a single at-large seat for 1992–2020 (the 1990-census cut), then
+# back to 2 seats (MT-01/MT-02) in 2022 — handled per-cycle below.
 #
 # Decennial redistricting: maps drawn from each census first took effect
 # in the cycle shown. A district whose series spans one of these covers
 # two different geographic areas, so we seed an editable default note.
-REDISTRICTING = [(2012, "2010"), (2022, "2020")]  # (first cycle, census)
+REDISTRICTING = [
+    (1992, "1990"),
+    (2002, "2000"),
+    (2012, "2010"),
+    (2022, "2020"),
+]  # (first cycle under new lines, census)
 
 STATE_NAME = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -143,7 +149,7 @@ def final_district_code(state: str, raw: str, cycle: int) -> str | None:
     single_member = (
         state == "DC"
         or state in ALWAYS_AT_LARGE
-        or (state == "MT" and cycle <= 2020)
+        or (state == "MT" and 1992 <= cycle <= 2020)
     )
     if raw == "00":
         if state == "DC":
@@ -201,7 +207,7 @@ def main(argv: list[str] | None = None) -> int:
             where, disp, redistrict = f"the {STATE_NAME[st]} non-voting delegate seat", "(delegate)", ""
         else:
             where, disp = f"{STATE_NAME[st]} district {int(code)}", code
-            redistrict = " District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses)."
+            redistrict = " District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 1990, 2000, 2010, and 2020 censuses)."
         name = f"House campaign spending — {STATE_NAME[st]} {disp}"
         # Redistricting default annotations: a numbered district with data
         # on both sides of a decennial boundary spans two different maps —
