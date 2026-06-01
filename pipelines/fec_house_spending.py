@@ -235,7 +235,12 @@ def main(argv: list[str] | None = None) -> int:
             f"  series: candidates/totals office=H sum(disbursements) {st}-{code.upper()}",
             "  url: https://www.fec.gov/data/",
             "  license: Public domain (US government data)",
-            "tags:", "  - elections", "  - us", "  - us-cd",
+            # No `us-cd` tag: the synthesized `congressional-district` tag
+            # (parseCdSourceId in library.json) already gates these behind the
+            # "States & districts" chip, matching usaspending/acs_cd CD sources.
+            # A bare `us-cd` topical tag would render an empty pill (every
+            # carrier is chip-hidden) and trip library.json's build-time guard.
+            "tags:", "  - elections", "  - us",
             "unitClass: currency", "",
         ]), encoding="utf-8")
         written += 1
