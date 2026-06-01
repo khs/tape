@@ -1,0 +1,22 @@
+name: Sticky-price CPI, less food & energy (YoY)
+shortName: Sticky CPI
+description: Year-over-year change in the sticky-price consumer price index (CPI) excluding food and energy — the basket of prices that adjust infrequently, which the Atlanta Fed tracks as a gauge of inflation's persistent trend. Monthly, seasonally adjusted.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/CORESTICKM159SFRBATL.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: level
+provenance:
+  provider: FRED (St. Louis Fed) / Federal Reserve Bank of Atlanta
+  series: CORESTICKM159SFRBATL
+  url: https://fred.stlouisfed.org/series/CORESTICKM159SFRBATL
+  license: Citation required — Federal Reserve Bank of Atlanta (via FRED)
+tags:
+  - inflation
+  - macro
+  - us
+unitClass: rate

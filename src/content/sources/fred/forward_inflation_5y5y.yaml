@@ -1,0 +1,22 @@
+name: 5-year, 5-year forward inflation expectation
+shortName: 5y5y forward
+description: Market-implied expected average inflation over the five-year period beginning five years from now, derived by the Federal Reserve Board from TIPS and nominal Treasury yields. A long-horizon gauge of whether inflation expectations stay anchored. Daily.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/T5YIFR.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed) / Federal Reserve Board
+  series: T5YIFR
+  url: https://fred.stlouisfed.org/series/T5YIFR
+  license: Citation required — Federal Reserve Board (via FRED)
+tags:
+  - inflation
+  - macro
+  - us
+unitClass: rate

@@ -579,6 +579,19 @@ SPECS: list[FredSpec] = [
     FredSpec("DRCCLACBS", "Credit card delinquency rate (all commercial banks)", "%"),
     FredSpec("DRSFRMACBS", "Single-family mortgage delinquency rate", "%"),
     FredSpec("TDSP", "Household debt-service ratio", "%"),
+    # ------------------------------------------------------------------
+    # Underlying-inflation gauges (2026-05). These are CITATION-REQUIRED
+    # on FRED (group_id=cc), NOT public domain: the regional-Fed CPIs are
+    # original analytical products of the Atlanta/Cleveland Reserve Banks,
+    # and T5YIFR is a Board-computed series. All three are licit to
+    # redistribute WITH attribution (the citation block on each chart +
+    # source page provides it). Their source YAMLs carry an explicit
+    # "Citation required (… via FRED)" license string — do NOT relabel
+    # them "Public domain" (that's the discrepancy the copyright audit
+    # flags on the 6 older citation-required FRED sources).
+    FredSpec("CORESTICKM159SFRBATL", "Sticky-price CPI, less food & energy (YoY)", "%"),
+    FredSpec("MEDCPIM158SFRBCLE", "Median CPI (annualized monthly)", "%"),
+    FredSpec("T5YIFR", "5-year, 5-year forward inflation expectation", "%"),
 ]
 
 

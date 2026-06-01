@@ -1,0 +1,22 @@
+name: Median CPI (annualized monthly)
+shortName: Median CPI
+description: The Cleveland Fed's median consumer price index (CPI) — the one-month inflation rate of the item at the middle of the price-change distribution, annualized. Strips outsized moves in any single category to show core inflation's central tendency. Monthly, seasonally adjusted.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/MEDCPIM158SFRBCLE.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: level
+provenance:
+  provider: FRED (St. Louis Fed) / Federal Reserve Bank of Cleveland
+  series: MEDCPIM158SFRBCLE
+  url: https://fred.stlouisfed.org/series/MEDCPIM158SFRBCLE
+  license: Citation required — Federal Reserve Bank of Cleveland (via FRED)
+tags:
+  - inflation
+  - macro
+  - us
+unitClass: rate
