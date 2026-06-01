@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 Russia",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:38Z",
+  "lastUpdated": "2026-06-01T14:11:33Z",
   "points": [
     {
       "t": "1989-12-31",
@@ -151,6 +151,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 30.7201326538798
+    },
+    {
+      "t": "2026-06-01",
       "v": 30.7201326538798
     }
   ]

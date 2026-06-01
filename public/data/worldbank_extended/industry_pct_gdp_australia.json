@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 Australia",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:38Z",
+  "lastUpdated": "2026-06-01T14:11:34Z",
   "points": [
     {
       "t": "1990-12-31",
@@ -147,6 +147,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 25.5307319894404
+    },
+    {
+      "t": "2026-06-01",
       "v": 25.5307319894404
     }
   ]

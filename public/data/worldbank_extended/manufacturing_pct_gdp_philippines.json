@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Philippines",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:15Z",
+  "lastUpdated": "2026-06-01T14:27:24Z",
   "points": [
     {
       "t": "2000-12-31",
@@ -107,6 +107,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 15.6771530992166
+    },
+    {
+      "t": "2026-06-01",
       "v": 15.6771530992166
     }
   ]

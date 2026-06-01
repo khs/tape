@@ -3,23 +3,23 @@
   "name": "People who moved in the last year \u2014 Dayton-Kettering-Beavercreek",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:18:08Z",
+  "lastUpdated": "2026-06-01T12:06:16Z",
   "points": [
     {
       "t": "2019-12-31",
-      "v": 408327.0
+      "v": 139739
     },
     {
       "t": "2020-12-31",
-      "v": 409301.0
+      "v": 131407
     },
     {
       "t": "2021-12-31",
-      "v": 409824.0
+      "v": 127943
     },
     {
       "t": "2022-12-31",
-      "v": 409989.0
+      "v": 123858
     }
   ]
 }

@@ -3,11 +3,11 @@
   "name": "Median household income \u2014 MT-AL",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-20T04:17:43Z",
+  "lastUpdated": "2026-06-01T12:05:55Z",
   "points": [
     {
       "t": "2017-12-31",
-      "v": 51283.99312989086
+      "v": 51220.18433125049
     },
     {
       "t": "2018-12-31",

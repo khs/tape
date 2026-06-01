@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Austria",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:01Z",
+  "lastUpdated": "2026-06-01T14:18:28Z",
   "points": [
     {
       "t": "1976-12-31",
@@ -203,6 +203,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 15.1337527310645
+    },
+    {
+      "t": "2026-06-01",
       "v": 15.1337527310645
     }
   ]

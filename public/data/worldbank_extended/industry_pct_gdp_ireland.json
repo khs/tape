@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 Ireland",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:45Z",
+  "lastUpdated": "2026-06-01T14:13:02Z",
   "points": [
     {
       "t": "1995-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 33.6325795420542
+    },
+    {
+      "t": "2026-06-01",
       "v": 33.6325795420542
     }
   ]

@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Japan",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:56Z",
+  "lastUpdated": "2026-06-01T14:16:52Z",
   "points": [
     {
       "t": "1994-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 20.5810487191941
+    },
+    {
+      "t": "2026-06-01",
       "v": 20.5810487191941
     }
   ]

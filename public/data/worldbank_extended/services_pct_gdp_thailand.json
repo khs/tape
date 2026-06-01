@@ -3,7 +3,7 @@
   "name": "Services value-added (% of GDP) \u2014 Thailand",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:36Z",
+  "lastUpdated": "2026-06-01T14:36:32Z",
   "points": [
     {
       "t": "1993-12-31",
@@ -135,6 +135,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 59.1528957274226
+    },
+    {
+      "t": "2026-06-01",
       "v": 59.1528957274226
     }
   ]

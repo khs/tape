@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 United States",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-21T23:01:01Z",
+  "lastUpdated": "2026-06-01T14:16:49Z",
   "points": [
     {
       "t": "1997-12-31",
@@ -107,6 +107,10 @@
     },
     {
       "t": "2026-05-21",
+      "v": 10.7103708073141
+    },
+    {
+      "t": "2026-06-01",
       "v": 10.7103708073141
     }
   ]

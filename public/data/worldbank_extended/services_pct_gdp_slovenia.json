@@ -3,7 +3,7 @@
   "name": "Services value-added (% of GDP) \u2014 Slovenia",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:31Z",
+  "lastUpdated": "2026-06-01T14:34:47Z",
   "points": [
     {
       "t": "1995-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 57.9394382652417
+    },
+    {
+      "t": "2026-06-01",
       "v": 57.9394382652417
     }
   ]

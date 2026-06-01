@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Kuwait",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:14Z",
+  "lastUpdated": "2026-06-01T14:27:08Z",
   "points": [
     {
       "t": "1995-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 7.9982179419611
+    },
+    {
+      "t": "2026-06-01",
       "v": 7.9982179419611
     }
   ]

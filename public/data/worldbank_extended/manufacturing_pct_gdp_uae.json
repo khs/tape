@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 United Arab Emirates",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:13Z",
+  "lastUpdated": "2026-06-01T14:25:11Z",
   "points": [
     {
       "t": "1975-12-31",
@@ -207,6 +207,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 9.37363347602288
+    },
+    {
+      "t": "2026-06-01",
       "v": 9.37363347602288
     }
   ]

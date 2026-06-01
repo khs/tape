@@ -3,7 +3,7 @@
   "name": "Agriculture, forestry, fishing value-added (% of GDP) \u2014 Germany",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:37Z",
+  "lastUpdated": "2026-06-01T14:36:45Z",
   "points": [
     {
       "t": "1991-12-31",
@@ -143,6 +143,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 0.914397651173374
+    },
+    {
+      "t": "2026-06-01",
       "v": 0.914397651173374
     }
   ]

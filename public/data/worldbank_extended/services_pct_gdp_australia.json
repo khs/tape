@@ -3,7 +3,7 @@
   "name": "Services value-added (% of GDP) \u2014 Australia",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:22Z",
+  "lastUpdated": "2026-06-01T14:30:35Z",
   "points": [
     {
       "t": "1990-12-31",
@@ -147,6 +147,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 66.1399054113301
+    },
+    {
+      "t": "2026-06-01",
       "v": 66.1399054113301
     }
   ]

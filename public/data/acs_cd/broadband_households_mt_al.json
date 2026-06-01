@@ -3,11 +3,11 @@
   "name": "Households with broadband internet \u2014 MT-AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-05-20T04:17:43Z",
+  "lastUpdated": "2026-06-01T12:05:55Z",
   "points": [
     {
       "t": "2017-12-31",
-      "v": 344277
+      "v": 341741
     },
     {
       "t": "2018-12-31",

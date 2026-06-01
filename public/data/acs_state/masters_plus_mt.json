@@ -3,11 +3,11 @@
   "name": "Adults 25+ with master's degree \u2014 MT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:18:28Z",
+  "lastUpdated": "2026-06-01T12:06:30Z",
   "points": [
     {
       "t": "2017-12-31",
-      "v": 52930
+      "v": 52794
     },
     {
       "t": "2018-12-31",

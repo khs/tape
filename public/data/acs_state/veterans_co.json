@@ -3,7 +3,7 @@
   "name": "Civilian veteran population (18+) \u2014 CO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-05-20T04:18:34Z",
+  "lastUpdated": "2026-06-01T12:06:30Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -11,7 +11,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 377227
+      "v": 377149
     },
     {
       "t": "2019-12-31",

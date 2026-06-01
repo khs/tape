@@ -3,7 +3,7 @@
   "name": "Services value-added (% of GDP) \u2014 Portugal",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:18:31Z",
+  "lastUpdated": "2026-06-01T14:34:43Z",
   "points": [
     {
       "t": "1995-12-31",
@@ -127,6 +127,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 66.2769355054703
+    },
+    {
+      "t": "2026-06-01",
       "v": 66.2769355054703
     }
   ]

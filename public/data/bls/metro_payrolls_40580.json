@@ -3,7 +3,7 @@
   "name": "Rocky Mount \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-05-19T13:45:51Z",
+  "lastUpdated": "2026-06-01T14:46:51Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -447,7 +447,11 @@
     },
     {
       "t": "2026-03-15",
-      "v": 55000.0
+      "v": 55100.0
+    },
+    {
+      "t": "2026-04-15",
+      "v": 55200.0
     }
   ]
 }

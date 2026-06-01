@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 Germany",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-05-20T05:17:35Z",
+  "lastUpdated": "2026-06-01T14:10:27Z",
   "points": [
     {
       "t": "1991-12-31",
@@ -143,6 +143,10 @@
     },
     {
       "t": "2026-05-20",
+      "v": 25.6229541900267
+    },
+    {
+      "t": "2026-06-01",
       "v": 25.6229541900267
     }
   ]
