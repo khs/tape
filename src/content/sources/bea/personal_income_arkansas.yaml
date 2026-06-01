@@ -1,0 +1,23 @@
+name: "Personal income — Arkansas"
+shortName: Arkansas Personal income
+description: Total personal income by state, annual (BEA Regional table SAINC1). Values for Arkansas.
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/personal_income_arkansas.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "B"
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: SAINC1 line 1 / 05000
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - us-state
+unitClass: currency

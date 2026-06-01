@@ -1,0 +1,22 @@
+name: "Per-capita personal income — Oklahoma"
+shortName: Oklahoma Per-capita income
+description: Personal income per resident by state, annual (BEA Regional table SAINC1, per-capita line). Values for Oklahoma.
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/pc_personal_income_oklahoma.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "USD"
+formatting:
+  style: currency
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: SAINC1 line 3 / 40000
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - us-state
+unitClass: currency

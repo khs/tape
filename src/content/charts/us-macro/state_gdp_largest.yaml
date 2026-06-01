@@ -1,0 +1,17 @@
+title: GDP by state — largest economies
+sources:
+  - bea/gdp_california
+  - bea/gdp_texas
+  - bea/gdp_new_york
+  - bea/gdp_florida
+  - bea/gdp_illinois
+  - bea/gdp_pennsylvania
+render: bar
+defaultDelta: 1y
+seriesLabels: ["California", "Texas", "New York", "Florida", "Illinois", "Pennsylvania"]
+tags: [us, macro, us-state]
+blurb: |
+  Current-dollar GDP for the six largest state economies, from the
+  BEA's regional accounts. California alone would rank among the
+  world's largest national economies. Bars show the most recent
+  year; click the tile to see each state's trajectory over time.

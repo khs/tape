@@ -1,0 +1,15 @@
+title: Per-capita personal income — high vs. low states
+sources:
+  - bea/pc_personal_income_district_of_columbia
+  - bea/pc_personal_income_connecticut
+  - bea/pc_personal_income_mississippi
+  - bea/pc_personal_income_united_states
+render: line
+defaultDelta: 30y
+seriesLabels: ["District of Columbia", "Connecticut", "Mississippi", "United States"]
+tags: [us, macro, us-state]
+blurb: |
+  Personal income per resident, from the BEA. The gap between the
+  richest and poorest states is wide and persistent — DC and
+  Connecticut run roughly double Mississippi. The US line is the
+  national average for reference.

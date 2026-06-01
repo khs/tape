@@ -96,6 +96,7 @@ PROVIDER_FEATURED_ON_WELCOME: dict[str, bool] = {
     "countries_relative": False, # already represented via worldbank_gdp_raw
     "zillow": False,            # housing; not on current welcome grid (could add later)
     "owid_co2": False,          # climate/energy cross-country; via composer + energy charts
+    "bea": False,               # per-state GDP/income detail; via composer + Maps/Generators
     "yahoo": False,             # generic ticker prices; surfaced via marketcap
     # Internal / helper data
     "countries": False,         # label lookup, not a feed
