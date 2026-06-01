@@ -89,6 +89,7 @@ PROVIDER_FEATURED_ON_WELCOME: dict[str, bool] = {
     "naep": False,              # per-state only, no national line
     "edu_spending": False,      # per-state only, no national line
     "eia_state_energy": False,  # per-state only, no national line
+    "eia_prices": False,        # per-state energy prices; via composer + energy charts
     "oecd": False,              # OECD G7 charts surface via composer
     "treasury_tic": False,      # foreign-holders detail; via /federal-budget/
     "worldbank_extended": False, # broader-than-GDP; rarely first stop

@@ -74,6 +74,7 @@ PROVIDER_TO_ABOUT_LABEL: dict[str, str | None] = {
     "edu_spending": "NCES / NAEP",
     "ssa": "SSA",
     "eia_state_energy": "EIA",
+    "eia_prices": "EIA",
     "oecd": "OECD",
     "treasury_tic": "US Treasury",
     "worldbank_extended": "World Bank",

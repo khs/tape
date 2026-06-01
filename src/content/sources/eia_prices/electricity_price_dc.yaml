@@ -1,0 +1,23 @@
+name: Electricity price — District of Columbia
+shortName: District of Columbia electricity price
+description: Average retail price of electricity (all sectors) in District of Columbia, annual, in cents per kilowatt-hour. From the U.S. Energy Information Administration.
+kind: timeseries
+pipeline: eia_prices
+dataFile: data/eia_prices/electricity_price_dc.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "cents/kWh"
+formatting:
+  style: number
+  decimals: 2
+emphasis: change
+provenance:
+  provider: U.S. Energy Information Administration (EIA)
+  series: electricity/retail-sales price; sectorid=ALL; stateid=DC
+  url: https://www.eia.gov/opendata/
+  license: Public domain (US government data)
+tags:
+  - energy
+  - us
+  - us-state
+unitClass: price
+

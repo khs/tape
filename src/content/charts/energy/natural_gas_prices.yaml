@@ -1,0 +1,16 @@
+title: Residential natural gas prices — selected states
+sources:
+  - eia_prices/natural_gas_price_ca
+  - eia_prices/natural_gas_price_ny
+  - eia_prices/natural_gas_price_fl
+  - eia_prices/natural_gas_price_tx
+  - eia_prices/natural_gas_price_il
+render: line
+defaultDelta: 10y
+seriesLabels: ["California", "New York", "Florida", "Texas", "Illinois"]
+tags: [energy, us, us-state]
+blurb: |
+  Price of natural gas delivered to residential consumers, dollars per
+  thousand cubic feet, from the EIA. Gas-producing states (Texas) and
+  pipeline-served regions tend to run cheaper than coastal and
+  import-dependent markets. Swap in any state from the composer.

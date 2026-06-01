@@ -1,0 +1,23 @@
+name: Natural gas price (residential) — North Dakota
+shortName: North Dakota gas price
+description: Price of natural gas delivered to residential consumers in North Dakota, annual, in dollars per thousand cubic feet. From the U.S. Energy Information Administration.
+kind: timeseries
+pipeline: eia_prices
+dataFile: data/eia_prices/natural_gas_price_nd.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "$/MCF"
+formatting:
+  style: number
+  decimals: 2
+emphasis: change
+provenance:
+  provider: U.S. Energy Information Administration (EIA)
+  series: natural-gas/pri/sum value; process=PRS; duoarea=SND
+  url: https://www.eia.gov/opendata/
+  license: Public domain (US government data)
+tags:
+  - energy
+  - us
+  - us-state
+unitClass: price
+
