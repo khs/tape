@@ -115,6 +115,22 @@ const sources = defineCollection({
         resultLabel: z.string(),
       })
       .optional(),
+    // Editorial annotations a chart inherits by default when this source
+    // is added as a chart (composer's addSourceAsChart) or rendered on
+    // its own /source/ page. Same {date,label,position?} shape as the
+    // chart-level `annotations` field — see annotations.ts. The end user
+    // can edit or remove them per-chart; they're a seed, not a lock. Used
+    // by FEC per-district series to mark the 2012/2020-census
+    // redistricting boundaries a district's history spans.
+    defaultAnnotations: z
+      .array(
+        z.object({
+          date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+          label: z.string(),
+          position: z.enum(["above", "below"]).optional(),
+        }),
+      )
+      .optional(),
   }),
 });
 

@@ -1,0 +1,23 @@
+name: House campaign spending — Delaware (at-large)
+shortName: DE-AL campaign $
+description: Total campaign disbursements by all U.S. House candidates who ran in Delaware's at-large House district, summed per two-year election cycle, from the Federal Election Commission.
+kind: timeseries
+pipeline: fec
+dataFile: data/fec/house_spending_de_al.json
+supportedDeltas: ["10y", "30y"]
+unit: "millions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "M"
+emphasis: change
+provenance:
+  provider: FEC (Federal Election Commission)
+  series: candidates/totals office=H sum(disbursements) DE-AL
+  url: https://www.fec.gov/data/
+  license: Public domain (US government data)
+tags:
+  - elections
+  - us
+  - us-cd
+unitClass: currency

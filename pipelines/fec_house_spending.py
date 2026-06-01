@@ -41,6 +41,23 @@ SOURCES_DIR = HERE.parent / "src" / "content" / "sources" / "fec"
 API = "https://api.open.fec.gov/v1/candidates/totals/"
 CYCLES = list(range(2008, 2026, 2))  # 2008..2024
 
+# Congressional-district coding to match the composer's drill-down
+# convention (src/lib/congressional-districts.ts): single-member
+# ("at-large") states use "al", DC's non-voting delegate uses "98",
+# numbered districts use a 2-digit code. FEC's API returns "00" for
+# at-large seats AND for candidates it couldn't assign to a district,
+# so "00" alone is ambiguous — we disambiguate with the canonical
+# at-large roster below rather than by dollar amount (some unassigned
+# "00" buckets in multi-district states like IN/SC carry >$1M).
+ALWAYS_AT_LARGE = {"AK", "DE", "ND", "SD", "VT", "WY"}  # single seat, 2008-2024
+# Montana had one at-large seat through the 2020 cycle, then gained a
+# second seat (MT-01/MT-02) starting 2022 — handled per-cycle below.
+#
+# Decennial redistricting: maps drawn from each census first took effect
+# in the cycle shown. A district whose series spans one of these covers
+# two different geographic areas, so we seed an editable default note.
+REDISTRICTING = [(2012, "2010"), (2022, "2020")]  # (first cycle, census)
+
 STATE_NAME = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
     "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
@@ -114,6 +131,35 @@ def cycle_totals(cycle: int, key: str) -> dict[tuple[str, str], float]:
     return sums
 
 
+def final_district_code(state: str, raw: str, cycle: int) -> str | None:
+    """Map an FEC (state, raw 2-digit district, cycle) to the composer's
+    CD code, or None to drop the bucket from the per-district series.
+
+    Drops: unassigned "00" spending in multi-district states, stray
+    numbered filings in single-member states, and impossible district
+    numbers (>53 — California's historical max was 53). Callers still
+    add every dollar to the national total; only per-CD placement drops.
+    """
+    single_member = (
+        state == "DC"
+        or state in ALWAYS_AT_LARGE
+        or (state == "MT" and cycle <= 2020)
+    )
+    if raw == "00":
+        if state == "DC":
+            return "98"  # non-voting delegate
+        return "al" if single_member else None
+    try:
+        n = int(raw)
+    except ValueError:
+        return None
+    if not (1 <= n <= 53):
+        return None  # district number that cannot exist
+    if single_member:
+        return None  # stray numbered filing in an at-large state
+    return f"{n:02d}"
+
+
 def main(argv: list[str] | None = None) -> int:
     key = _key()
     SOURCES_DIR.mkdir(parents=True, exist_ok=True)
@@ -127,30 +173,66 @@ def main(argv: list[str] | None = None) -> int:
     for cyc in cycles:
         sums = cycle_totals(cyc, key)
         cyc_total = 0.0
-        for (st, d2), disb in sums.items():
-            per_cd[(st, d2)].append({"t": f"{cyc}-01-01", "v": round(disb / 1e6, 3)})
-            cyc_total += disb
+        placed = 0
+        for (st, raw), disb in sums.items():
+            cyc_total += disb  # every dollar counts toward the US total
+            code = final_district_code(st, raw, cyc)
+            if code is None:
+                continue  # unassigned / impossible district — not a real seat
+            per_cd[(st, code)].append({"t": f"{cyc}-01-01", "v": round(disb / 1e6, 3)})
+            placed += 1
         national.append({"t": f"{cyc}-01-01", "v": round(cyc_total / 1e6, 1)})
-        print(f"  cycle {cyc}: {len(sums)} districts, ${cyc_total/1e9:.2f}B total")
+        print(f"  cycle {cyc}: {placed} placed districts, ${cyc_total/1e9:.2f}B total")
 
     written = 0
-    for (st, d2), points in sorted(per_cd.items()):
+    dropped_empty = 0
+    for (st, code), points in sorted(per_cd.items()):
         points.sort(key=lambda p: p["t"])
-        slug = f"house_spending_{st.lower()}_{d2}"
-        dist_label = "at-large" if d2 == "00" else f"district {int(d2)}"
-        name = f"House campaign spending — {STATE_NAME[st]} {('(at-large)' if d2=='00' else d2)}"
+        # Belt-and-suspenders: drop a series that never recorded real
+        # spending (an in-state-invalid district number that slipped
+        # through as $0). Real seats run millions per cycle.
+        if sum(p["v"] for p in points) < 0.05:
+            dropped_empty += 1
+            continue
+        slug = f"house_spending_{st.lower()}_{code}"
+        if code == "al":
+            where, disp, redistrict = f"{STATE_NAME[st]}'s at-large House district", "(at-large)", ""
+        elif code == "98":
+            where, disp, redistrict = f"the {STATE_NAME[st]} non-voting delegate seat", "(delegate)", ""
+        else:
+            where, disp = f"{STATE_NAME[st]} district {int(code)}", code
+            redistrict = " District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses)."
+        name = f"House campaign spending — {STATE_NAME[st]} {disp}"
+        # Redistricting default annotations: a numbered district with data
+        # on both sides of a decennial boundary spans two different maps —
+        # seed an editable note. At-large / delegate seats have no internal
+        # lines, so they get none.
+        ann_lines: list[str] = []
+        if code not in ("al", "98"):
+            years = [int(p["t"][:4]) for p in points]
+            notes = [
+                (f"{bnd}-01-01", f"Boundaries redrawn — {census} Census")
+                for bnd, census in REDISTRICTING
+                if any(y < bnd for y in years) and any(y >= bnd for y in years)
+            ]
+            if notes:
+                ann_lines.append("defaultAnnotations:")
+                for date, label in notes:
+                    ann_lines.append(f'  - date: "{date}"')
+                    ann_lines.append(f'    label: "{label}"')
         write_timeseries(pipeline="fec", series_id=slug, name=name, points=points, unit="millions USD")
         (SOURCES_DIR / f"{slug}.yaml").write_text("\n".join([
             f"name: {name}",
-            f"shortName: {st}-{d2} campaign $",
-            f"description: Total campaign disbursements by all U.S. House candidates who ran in {STATE_NAME[st]} {dist_label}, summed per two-year election cycle, from the Federal Election Commission. District numbers reflect the boundaries in effect each cycle (redistricting redrew them after the 2010 and 2020 censuses).",
+            f"shortName: {st}-{code.upper()} campaign $",
+            f"description: Total campaign disbursements by all U.S. House candidates who ran in {where}, summed per two-year election cycle, from the Federal Election Commission.{redistrict}",
             "kind: timeseries", "pipeline: fec",
             f"dataFile: data/fec/{slug}.json",
             'supportedDeltas: ["10y", "30y"]', 'unit: "millions USD"',
             "formatting:", "  style: currency", "  decimals: 1", '  suffix: "M"',
             "emphasis: change",
+            *ann_lines,
             "provenance:", "  provider: FEC (Federal Election Commission)",
-            f"  series: candidates/totals office=H sum(disbursements) {st}-{d2}",
+            f"  series: candidates/totals office=H sum(disbursements) {st}-{code.upper()}",
             "  url: https://www.fec.gov/data/",
             "  license: Public domain (US government data)",
             "tags:", "  - elections", "  - us", "  - us-cd",
@@ -182,7 +264,7 @@ def main(argv: list[str] | None = None) -> int:
         ]), encoding="utf-8")
         written += 1
 
-    print(f"fec_house_spending: wrote {written} series.")
+    print(f"fec_house_spending: wrote {written} series ({dropped_empty} empty dropped).")
     return 0
 
 
