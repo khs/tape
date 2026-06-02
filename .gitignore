@@ -48,3 +48,7 @@ pipelines/_tract_topo_cache/
 
 .tmp_*
 
+
+# Session-handoff notes (HANDOFF.md): generated for resuming on another
+# machine, moved manually (not via git). Untracked on purpose.
+/HANDOFF.md
