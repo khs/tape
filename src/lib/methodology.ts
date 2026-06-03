@@ -17,9 +17,9 @@
  * per-pipeline method, so it stays DRY across a provider's many series and
  * can't drift from one source to the next.
  *
- * The authoritative, always-current method is the pipeline source file
- * itself, linked via {@link repoFileUrl}. Prose can paraphrase; the code
- * is ground truth.
+ * The prose here is a faithful summary of the production pipeline's
+ * transformation; it describes what we do to the upstream data, not the
+ * internal code or commands that do it.
  */
 
 export interface ProviderMethodology {
@@ -34,24 +34,6 @@ export interface ProviderMethodology {
   caveats?: string[];
   /** How the value ends up stored (canonical unit / scaling note). */
   storedAs?: string;
-  /** Repo-relative path to the pipeline that produces these sources.
-   *  Linked on the page — the code is the ground-truth method. */
-  pipelineFile: string;
-  /** Exact local command to regenerate the data. */
-  runCommand: string;
-}
-
-/**
- * Public repository. The pipeline file is the authoritative, always-current
- * description of the method, so every methodology card links to it. Pinned
- * to the default branch (latest method) rather than a commit SHA — the data
- * refreshes on a schedule, and `main` is what produced the current numbers.
- */
-export const REPO_BLOB_BASE = "https://github.com/khs/tape/blob/main";
-
-/** Build a GitHub link to a repo-relative pipeline file. */
-export function repoFileUrl(pipelineFile: string): string {
-  return `${REPO_BLOB_BASE}/${pipelineFile}`;
 }
 
 /**
@@ -76,8 +58,6 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "The small residual of spending FEC couldn't place in a valid district is included in the national total but in no per-district series, so districts sum to slightly less than the national line.",
     ],
     storedAs: "millions USD per cycle",
-    pipelineFile: "pipelines/fec_house_spending.py",
-    runCommand: "python pipelines/fec_house_spending.py",
   },
 
   bea: {
@@ -91,11 +71,9 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "Drop combined-area and placeholder rows (non-positive values) that BEA includes for completeness.",
     ],
     caveats: [
-      "County per-capita personal income is published here as a choropleth map layer (public/data/acs_county/…), not as a per-county time series.",
+      "County per-capita personal income is shown as a choropleth map layer, not as a per-county time series.",
     ],
     storedAs: "billions USD (per-capita income in USD)",
-    pipelineFile: "pipelines/bea.py",
-    runCommand: "python pipelines/bea.py        # pass `county` for the county-income map",
   },
 
   fred_series: {
@@ -112,8 +90,6 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "We use only the official keyless CSV (or the FRED API with a key); FRED's terms prohibit scraping or mirroring the catalog, so there is no bulk copy.",
     ],
     storedAs: "as published (dollar aggregates normalized to billions USD)",
-    pipelineFile: "pipelines/fred_series.py",
-    runCommand: "python pipelines/fred_series.py",
   },
 
   noaa_climate: {
@@ -129,8 +105,6 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "Each city is one representative long-record (usually airport) station, registered to its metro area (MSA) so it appears under the metro picker — it is a station, not a metro-wide average.",
     ],
     storedAs: "°F (temperature), inches (precipitation)",
-    pipelineFile: "pipelines/noaa_climate.py",
-    runCommand: "python pipelines/noaa_climate.py",
   },
 
   fbi_crime: {
@@ -148,8 +122,6 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "The per-capita rate is stored; multiply by the population to recover the raw count.",
     ],
     storedAs: "offenses per 100,000 people",
-    pipelineFile: "pipelines/fbi_crime.py",
-    runCommand: "python pipelines/fbi_crime.py",
   },
 
   acs_cd: {
@@ -165,8 +137,6 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "Every vintage is mapped to current (118th-Congress) boundaries so a district is comparable over time — these are not the contemporaneous districts where lines have since changed.",
     ],
     storedAs: "people (counts), percent (derived rate indicators)",
-    pipelineFile: "pipelines/census_acs_cd.py",
-    runCommand: "CENSUS_API_KEY=<key> python pipelines/census_acs_cd.py",
   },
 };
 

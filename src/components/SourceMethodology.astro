@@ -12,7 +12,7 @@
  * tinted card so reproduction reads as a first-class artifact, not a
  * footnote. The linked pipeline file is the ground-truth method.
  */
-import { type ProviderMethodology, repoFileUrl } from "../lib/methodology";
+import { type ProviderMethodology } from "../lib/methodology";
 
 interface Props {
   methodology: ProviderMethodology;
@@ -23,7 +23,6 @@ interface Props {
 }
 
 const { methodology: m, series, upstreamUrl } = Astro.props;
-const codeUrl = repoFileUrl(m.pipelineFile);
 ---
 
 <section class="repro-card" data-role="methodology">
@@ -70,30 +69,18 @@ const codeUrl = repoFileUrl(m.pipelineFile);
     </>
   )}
 
-  <dl class="repro-meta repro-meta-foot">
-    {m.storedAs && (
+  {m.storedAs && (
+    <dl class="repro-meta repro-meta-foot">
       <div class="repro-row">
         <dt>Stored as</dt>
         <dd>{m.storedAs}</dd>
       </div>
-    )}
-    <div class="repro-row">
-      <dt>Source code</dt>
-      <dd>
-        <a href={codeUrl} target="_blank" rel="noopener noreferrer" class="mono">
-          {m.pipelineFile} &rarr;
-        </a>
-      </dd>
-    </div>
-    <div class="repro-row">
-      <dt>Run it</dt>
-      <dd><code class="repro-cmd">{m.runCommand}</code></dd>
-    </div>
-  </dl>
+    </dl>
+  )}
 
   <p class="repro-foot">
-    The linked pipeline is the authoritative, always-current method — this
-    summary paraphrases it.
+    This is a summary of how the series is produced — the upstream source and
+    exact identifier above let you reproduce it from the original data.
   </p>
 </section>
 
