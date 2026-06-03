@@ -21,12 +21,17 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
+
+# cached_get now stores HTTP responses in the shared pipeline cache
+# (_cache.py); the CachedGetTests patch _cache.CACHE_ROOT to redirect it.
+import _cache
 
 HERE = Path(__file__).resolve().parent
 MODULE_PATH = HERE / "common.py"
@@ -232,16 +237,20 @@ class WriteTimeseriesIntegrationTests(unittest.TestCase):
 
 
 class CachedGetTests(unittest.TestCase):
-    """cached_get short-circuits when a recent cache entry is on disk."""
+    """cached_get short-circuits when a recent cache entry is on disk.
+
+    cached_get stores responses in the shared pipeline cache (_cache.py),
+    so these tests patch ``_cache.CACHE_ROOT`` (not ``common.CACHE_ROOT``,
+    which no longer exists) and freshness is the cache file's mtime."""
 
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.tmp = Path(self._tmp.name)
-        self._orig = common.CACHE_ROOT
-        common.CACHE_ROOT = self.tmp
+        self._orig = _cache.CACHE_ROOT
+        _cache.CACHE_ROOT = self.tmp
 
     def tearDown(self) -> None:
-        common.CACHE_ROOT = self._orig
+        _cache.CACHE_ROOT = self._orig
         self._tmp.cleanup()
 
     def _mock_session(self, body: str):
@@ -259,8 +268,8 @@ class CachedGetTests(unittest.TestCase):
         )
         self.assertEqual(body, "hello")
         self.assertEqual(sess.get.call_count, 1)
-        # Check the cache file was written.
-        files = list(self.tmp.rglob("*.json"))
+        # Check the cache file was written (one .txt body under the cache).
+        files = list(self.tmp.rglob("*.txt"))
         self.assertEqual(len(files), 1)
 
     def test_second_call_within_ttl_hits_cache(self) -> None:
@@ -282,12 +291,11 @@ class CachedGetTests(unittest.TestCase):
         common.cached_get(
             "https://example.test/x", ttl_seconds=3600, session=sess,
         )
-        # Hand-edit the cache entry to look ancient.
-        cache_file = next(self.tmp.rglob("*.json"))
-        data = json.loads(cache_file.read_text())
-        long_ago = datetime.now(timezone.utc) - timedelta(days=30)
-        data["fetched_at"] = long_ago.isoformat().replace("+00:00", "Z")
-        cache_file.write_text(json.dumps(data))
+        # Backdate the cache file's mtime so it reads as stale (freshness
+        # is mtime-based now, not a JSON fetched_at field).
+        cache_file = next(self.tmp.rglob("*.txt"))
+        long_ago = (datetime.now(timezone.utc) - timedelta(days=30)).timestamp()
+        os.utime(cache_file, (long_ago, long_ago))
         # Now a new call should refetch.
         sess2 = self._mock_session("new")
         body = common.cached_get(
@@ -308,7 +316,7 @@ class CachedGetTests(unittest.TestCase):
         )
         # Both calls hit the network (different cache keys).
         self.assertEqual(sess.get.call_count, 2)
-        files = list(self.tmp.rglob("*.json"))
+        files = list(self.tmp.rglob("*.txt"))
         self.assertEqual(len(files), 2)
 
 

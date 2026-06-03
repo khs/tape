@@ -16,8 +16,10 @@ Two cross-cutting behaviors live here and benefit every pipeline that calls
     timestamp collisions, so legitimate restatements still flow through.
 
   - **Optional response cache.** ``cached_get`` is a thin shim around HTTP
-    GET with a TTL-keyed on-disk cache at ``pipelines/_response_cache/``
-    (gitignored). Useful for local iteration (re-running a pipeline twice
+    GET with a TTL-keyed on-disk cache. It stores responses in the shared
+    pipeline cache (``pipelines/_cache/`` via ``_cache.py``) so there is
+    ONE on-disk cache for the whole pipeline layer rather than a second
+    parallel store. Useful for local iteration (re-running a pipeline twice
     in an hour doesn't double-tax the upstream API); not as useful in CI
     where runs are weekly. Pipelines opt in by replacing their direct
     ``requests.get(url)`` with ``cached_get(url, ttl_seconds=...)``.
@@ -32,10 +34,12 @@ from typing import Any, Mapping
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = REPO_ROOT / "public" / "data"
-# Gitignored on-disk HTTP response cache. Persists across local runs of
-# the pipeline scripts; never gets committed. See .gitignore for the
-# exclusion rule.
-CACHE_ROOT = REPO_ROOT / "pipelines" / "_response_cache"
+
+# Bucket name under the shared pipeline cache (pipelines/_cache/, owned by
+# _cache.py) where cached_get stashes HTTP responses. Keeping HTTP responses
+# in the same store as the artifact cache means there's a single on-disk
+# cache directory for the whole pipeline layer.
+_HTTP_CACHE_BUCKET = "http"
 
 
 def utc_now_iso() -> str:
@@ -240,15 +244,25 @@ def cached_get(
     during development. The local cache means hammering a pipeline
     while iterating doesn't hammer the upstream API.
 
-    Cache key: SHA-256 of ``url + sorted(params) + sorted(headers)``.
-    Cache directory: ``pipelines/_response_cache/<first-two-hex>/<key>.json``
-    holding ``{fetched_at, body}``.
+    Storage: the shared pipeline cache (``_cache.py``). The response body is
+    stored at ``pipelines/_cache/http/<key>.txt`` where ``key`` is the
+    SHA-256 of ``url + sorted(params) + sorted(headers)`` — so different
+    params/headers get distinct cache entries. Freshness is the cache
+    file's age: ``ttl_seconds`` is converted to days for ``_cache.cache_get``
+    (which compares against the file's mtime). The file's mtime is its fetch
+    time, so the two are equivalent.
 
     Returns the response body as text. Raises on HTTP error.
 
     Pipelines using this should pass a session if they have one (it
     keeps connection pooling). Default uses ``requests.get`` directly.
     """
+    # The shared on-disk cache. Lazy-imported (like `requests` below) so
+    # merely importing common.py doesn't require pipelines/ to be on the
+    # path; cached_get is only called from within a running pipeline /
+    # test where it is.
+    from _cache import cache_get, cache_put
+
     canon_params = "&".join(
         f"{k}={v}" for k, v in sorted((params or {}).items())
     )
@@ -257,23 +271,12 @@ def cached_get(
     )
     key_input = f"{url}|{canon_params}|{canon_headers}".encode("utf-8")
     key = hashlib.sha256(key_input).hexdigest()
-    cache_path = CACHE_ROOT / key[:2] / f"{key}.json"
-    now = datetime.now(timezone.utc)
 
-    if cache_path.exists():
-        try:
-            data = json.loads(cache_path.read_text(encoding="utf-8"))
-            fetched_at = datetime.fromisoformat(
-                data["fetched_at"].replace("Z", "+00:00"),
-            )
-            age = (now - fetched_at).total_seconds()
-            if age < ttl_seconds:
-                body = data.get("body")
-                if isinstance(body, str):
-                    return body
-        except (OSError, json.JSONDecodeError, KeyError, ValueError):
-            # Cache entry corrupt — fall through to fresh fetch.
-            pass
+    cached = cache_get(
+        _HTTP_CACHE_BUCKET, key, max_age_days=ttl_seconds / 86400.0, suffix=".txt",
+    )
+    if cached is not None:
+        return cached.decode("utf-8")
 
     # Lazy-import `requests` here so the CI test environment (which
     # passes a fake session and never hits this branch) doesn't need
@@ -292,16 +295,5 @@ def cached_get(
     resp.raise_for_status()
     body = resp.text
 
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-    cache_path.write_text(
-        json.dumps({
-            "fetched_at": now.isoformat().replace("+00:00", "Z"),
-            "body": body,
-            # Saved for debugging — never read back. The cache is
-            # request-keyed, not URL-keyed, so the user-visible URL is
-            # already encoded in the filename hash.
-            "_url": url,
-        }),
-        encoding="utf-8",
-    )
+    cache_put(_HTTP_CACHE_BUCKET, key, body, suffix=".txt")
     return body

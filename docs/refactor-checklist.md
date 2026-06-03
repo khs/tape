@@ -10,11 +10,26 @@
 > SSR-touching changes curl the affected pages on the deploy preview.
 > **Explicit OK from Keller before every push to `main` (= prod).**
 
+## Laptop dev environment (set up 2026-06-03)
+- Node **22.22.3** (portable, `%LOCALAPPDATA%\nodejs`, on user PATH) + npm 10.9.8.
+  Matches `package.json` engines `22.x`. winget no longer carries 22.x.
+- Python **3.13.13** (winget user scope, on user PATH) + `pytest pyyaml
+  python-dotenv requests` (pip --user). Run pipeline tests via `python -m pytest`.
+- `npm install --legacy-peer-deps` done (704 pkgs).
+- ⚠️ **Low RAM (7.4 GB):** the `@astrojs/vercel` build:done function-tracer OOMs
+  at Node's ~2 GB default heap. Fixed with user env var
+  `NODE_OPTIONS=--max-old-space-size=4096` (laptop-only; does NOT affect CI/Vercel).
+  Full `npm run build` takes ~14 min on this machine.
+- `.env` present with all 9 keys (7 provider + both PUBLIC_SUPABASE_*).
+- Pre-existing issue spawned as a side task: /va-08/ references two missing
+  block-group map charts (poverty_rate, foreign_born_pct) — dangling refs,
+  non-fatal build warnings.
+
 ## Execution order
 
-1. [ ] **Plan 8 — exposure scrub** (launch blocker, low risk)
-2. [ ] **Plan 6 — cache consolidation** (pipelines, isolated)
-3. [ ] **Plan 5 — chartOverride schema unification** (option A + parity tests)
+1. [x] **Plan 8 — exposure scrub** (launch blocker, low risk) — DONE + build-verified
+2. [x] **Plan 6 — cache consolidation** (pipelines, isolated) — DONE + VERIFIED
+3. [ ] **Plan 5 — chartOverride schema unification** (option A + parity tests) ← NEXT
 4. [ ] **Plan 4 — dashboard renderer dedup**
 5. [ ] **Plan 1 + 2 — compose.astro decompose + source-filters migration**
 6. [ ] **Plan 3 — adopt SourcePicker.astro in composer**
@@ -22,7 +37,7 @@
 
 ---
 
-## Plan 8 — Remove public GitHub / internal-detail exposure  ⟶ EDITS DONE, BUILD-VERIFY PENDING
+## Plan 8 — Remove public GitHub / internal-detail exposure  ⟶ DONE + BUILD-VERIFIED
 **Decision (Keller):** KEEP the methodology cards; cull only repo links, run
 commands, and internal paths.
 - [x] `src/lib/methodology.ts`: removed `REPO_BLOB_BASE` + `repoFileUrl`; dropped
@@ -47,17 +62,25 @@ commands, and internal paths.
       files issues to `api.github.com/repos/khs/tape` via an env-gated token —
       internal ops endpoint, not a visible link. Confirm it's not abusable.
 - [x] Verify grep: only developer comments + OWID provenance remain in `src/`.
-- [ ] **BLOCKED:** `npm run build` + curl `/source/fec/...` on preview —
-      requires a working Node toolchain (absent on this laptop; see log).
+- [x] `npm run build` → clean `Complete!` (exit 0) after the env was set up.
+      Static render phase (incl. library.json prerender-invariant guards) and
+      the methodology test (3/3, with the new leak guard) both pass.
+      (SSR `/source/` render not exercised by build — verify by curl post-deploy.)
 
-## Plan 6 — Consolidate the two on-disk caches
-- [ ] Make `pipelines/_cache.py` the single storage layer (readable bucket/key).
-- [ ] Reimplement `common.cached_get` on top of it (same signature; bucket =
-      caller, key = url+params, seconds→days). No ingest-pipeline changes.
-- [ ] Migrate `_response_cache/` users transparently; delete old dir; tidy
-      `.gitignore`.
-- [ ] Verify: `pytest pipelines/test_common.py pipelines/test_cache.py`; run
-      `cdc_health.py` twice → second run is a cache hit.
+## Plan 6 — Consolidate the two on-disk caches  ⟶ DONE + VERIFIED
+- [x] `_cache.py` is the single storage layer; both its artifact caching and
+      `cached_get`'s HTTP responses (under bucket `"http"`) live in
+      `pipelines/_cache/`. The `_response_cache/` store is retired.
+- [x] Reimplemented `common.cached_get` on top of `_cache.cache_get`/`cache_put`
+      (same signature; sha256 key under `http` bucket; `ttl_seconds/86400` →
+      `max_age_days`; mtime-based freshness). No ingest-pipeline changes — the
+      8 `cached_get` callers are untouched.
+- [x] Removed `common.CACHE_ROOT`; tidied `.gitignore` (dropped the
+      `_response_cache/` rule, noted `_cache/` is now the single cache).
+- [x] Verify: rewrote `CachedGetTests` for the new store; `pytest
+      pipelines/test_common.py pipelines/test_cache.py` → 40 passed; full
+      `pytest pipelines/` → 192 passed; live integration check (mock session,
+      real `_cache/http/`) confirmed fetch-once + cache-hit, artifact cleaned up.
 
 ## Plan 5 — Unify chartOverride schema (option A) + parity tests
 - [ ] Define the chart-field set once (in `src/content/config.ts` or a shared
@@ -137,8 +160,11 @@ Incremental, each step its own commit + build:
 ## Progress log
 - 2026-06-03: checklist created; all 8 approved; starting Plan 8.
 - 2026-06-03: Plan 8 code edits complete on branch `refactor/structural-cleanup`.
-  BLOCKER discovered: this laptop has no working dev toolchain — Node not
-  installed, `node_modules` absent (`npm install` never run here), `python` is
-  the Microsoft Store stub only. Cannot run `npm run build` / astro check /
-  vitest / pytest, so NOTHING is build-verified and nothing can be pushed under
-  the project's validation rule. Awaiting Keller's call on environment setup.
+  BLOCKER discovered: this laptop had no working dev toolchain.
+- 2026-06-03: Toolchain set up on the laptop (Node 22.22.3 + Python 3.13.13 +
+  npm install + NODE_OPTIONS heap fix — see "Laptop dev environment" above).
+  Plan 8 now BUILD-VERIFIED (`npm run build` → Complete!, methodology test 3/3).
+  Starting Plan 6 (cache consolidation).
+- 2026-06-03: Plan 6 DONE + VERIFIED — `cached_get` re-backed on `_cache.py`;
+  single `pipelines/_cache/` store; `_response_cache/` retired. Full pipeline
+  pytest 192 passed. Next: Plan 5.

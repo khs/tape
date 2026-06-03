@@ -21,14 +21,11 @@ pipelines/_crosswalks_cache/
 # Per-pipeline intermediate caches ("don't re-hit upstream for data
 # we already fetched recently"). Each pipeline that opts in writes
 # here; regenerable so it stays out of the repo. See pipelines/_cache.py.
+# This is the SINGLE on-disk pipeline cache: both _cache.py's artifact
+# caching (ACS/Zillow/SSA) AND common.py's cached_get() HTTP responses
+# (under the "http" bucket) live here. The old pipelines/_response_cache/
+# store was retired in favor of this one — safe to delete if present.
 pipelines/_cache/
-
-# HTTP response cache used by pipelines/common.py's cached_get().
-# TTL-keyed; same regenerable-so-not-committed story as the other
-# cache dirs. Local-only; never deploys, never commits. Useful for
-# laptop iteration; doesn't help much on the weekly CI cadence
-# because last fetch was ~7 days ago anyway.
-pipelines/_response_cache/
 
 # CBO XLSX uploads. cbo.gov is behind DataDome and often blocks CI
 # fetches; the manual fallback is to drop browser-downloaded files
