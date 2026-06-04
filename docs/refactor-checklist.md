@@ -30,8 +30,8 @@
 1. [x] **Plan 8 — exposure scrub** (launch blocker, low risk) — DONE + build-verified
 2. [x] **Plan 6 — cache consolidation** (pipelines, isolated) — DONE + VERIFIED
 3. [x] **Plan 5 — chartOverride schema unification** (option A + parity tests) — DONE + VERIFIED
-4. [ ] **Plan 4 — dashboard renderer dedup** ← NEXT
-5. [ ] **Plan 1 + 2 — compose.astro decompose + source-filters migration**
+4. [x] **Plan 4 — dashboard renderer dedup** — DONE + VERIFIED + LIVE
+5. [ ] **Plan 1 + 2 — compose.astro decompose + source-filters migration** ← NEXT
 6. [ ] **Plan 3 — adopt SourcePicker.astro in composer**
 7. [ ] **Plan 7 — inline-YAML standardization** (lowest urgency, splittable)
 
@@ -184,3 +184,15 @@ Incremental, each step its own commit + build:
   charts can't exist; removed the dangling refs + corrected dashboard copy.
   Verified: audit 0 warnings, build Complete!, warnings gone. Branch is
   local-only, separate from the refactor branch.
+- 2026-06-04: NOTE — abandoned the local feature-branch approach; per Keller,
+  shipping each verified plan straight to `main` (= prod). Plans 8/6/5 + va-08
+  were merged to main + pushed earlier (CI green, curl-verified).
+- 2026-06-04: Plan 4 DONE + VERIFIED + LIVE — `resolveDashboardForRender` lib
+  fn + `<DashboardGrid>` component; [...slug]/custom/index all migrated (3
+  increments). index now renders bar/choropleth on featured dashboards (was
+  using <Chart> directly). Pushed to main (3461eeb6ea); CI + post-deploy smoke
+  + diagnostic all green; curled /, /us-macro/, /custom/ — DashboardGrid
+  renders on SSR home + prerendered presets. Next: Plan 1+2 (compose.astro).
+  NOTE for next session: the laptop build needs NODE_OPTIONS=--max-old-space
+  -size=4096 (set as user env var); builds ~14 min; sleep-guard auto-keeps the
+  machine awake while plugged in (see C:\Users\kelle\.tape-tools\SLEEPGUARD.md).
