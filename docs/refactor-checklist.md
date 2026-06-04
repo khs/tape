@@ -10,6 +10,42 @@
 > SSR-touching changes curl the affected pages on the deploy preview.
 > **Explicit OK from Keller before every push to `main` (= prod).**
 
+---
+
+## ⮕ RESUME HERE — state at end of 2026-06-04 session
+
+**Live on prod (pushed, CI-green, curl-verified):** Plans **8, 6, 5, 4** + the
+**va-08** dangling-ref fix.
+
+**Local commits on `main`, NOT pushed (prod is untouched by these):** run
+`git log --oneline origin/main..HEAD`. Four commits:
+`a237fb639f` dev-scanner fix (real), `433d43a38e` choropleth tile-mode fill
+(**PARTIAL + unverified** — see below), plus two docs commits. Push the safe
+ones (dev-scanner + docs) when ready; **do NOT** push the choropleth fix as
+"done" until the popout bug is actually verified.
+
+**In-progress bug — `docs/popout-sizing-bug.md`:** welcome-popout charts don't
+fill the modal. Tile-mode choropleth width fixed + committed but the
+**expanded-choropleth + line-chart-dialog** widths (what the user screenshotted)
+are NOT done/verified. That doc has exact files, line numbers, and faithful
+repro steps. The Claude-in-Chrome browser is connected (account-level — a new
+session can `list_connected_browsers` + reselect) for live prod inspection.
+
+**Stale branches — SUPERSEDED, safe to delete:** `refactor/structural-cleanup`
+and `fix/va08-bg-map-refs` are fully merged into `main` (and live on prod). Work
+on `main`.
+
+**Remaining refactor plans (this file):** Plan **1+2** (compose.astro decompose
++ source-filters migration — the big one), Plan **3** (SourcePicker adoption),
+Plan **7** (inline-YAML standardization).
+
+**Env / tooling (laptop):** Node 22 + Python 3.13 installed; `npm install` done;
+**`NODE_OPTIONS=--max-old-space-size=4096`** user env var (build OOMs without it;
+builds take ~14 min). `npm run dev` BOOTS but content pages 500 (Vite-8 content
+transport timeout under the 35k-file collection — own effort; see
+`docs/popout-sizing-bug.md`). Autonomous **sleep-guard** keeps the machine awake
+during builds while on AC — `C:\Users\kelle\.tape-tools\SLEEPGUARD.md`.
+
 ## Laptop dev environment (set up 2026-06-03)
 - Node **22.22.3** (portable, `%LOCALAPPDATA%\nodejs`, on user PATH) + npm 10.9.8.
   Matches `package.json` engines `22.x`. winget no longer carries 22.x.
