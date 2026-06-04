@@ -177,5 +177,10 @@ Incremental, each step its own commit + build:
 - 2026-06-03: Plan 5 DONE + VERIFIED — shared `chart-schema.ts` factory; both
   schemas unified (16 fields); fork no longer lossy; NO version bump (additive);
   temporary parity tests added (13 passed); `npm run build` → Complete!.
-  Next: Plan 4. (Side task: va-08 dangling bg-map refs — fixing on its own
-  branch off main next.)
+  Next: Plan 4.
+- 2026-06-03: Side task DONE — va-08 dangling bg-map refs fixed on branch
+  `fix/va08-bg-map-refs` (off main, commit 38069b7d26). Root cause: Census
+  suppresses poverty + place-of-birth at block-group level, so 2 of the 4 BG
+  charts can't exist; removed the dangling refs + corrected dashboard copy.
+  Verified: audit 0 warnings, build Complete!, warnings gone. Branch is
+  local-only, separate from the refactor branch.
