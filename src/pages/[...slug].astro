@@ -74,23 +74,12 @@ const forkUrl =
     defaultDelta: dashboard.data.defaultDelta,
     sections: dashboard.data.sections ?? undefined,
     charts: !dashboard.data.sections ? dashboard.data.charts : undefined,
-    // The cast here strips the override down to the three fields the
-    // composer state schema accepts. The string→DeltaWindow narrowing
-    // is sound because the source field already passed the dashboard-
-    // schema validation, but TypeScript can't see through the
-    // Object.fromEntries indirection so we annotate explicitly.
-    chartOverrides: dashboard.data.chartOverrides
-      ? Object.fromEntries(
-          Object.entries(dashboard.data.chartOverrides).map(([k, v]) => [
-            k,
-            {
-              title: v.title,
-              defaultDelta: v.defaultDelta,
-              blurb: v.blurb,
-            },
-          ]),
-        )
-      : undefined,
+    // The composer URL-state schema now shares its chartOverride field set
+    // with the dashboard schema (src/lib/chart-schema.ts), so a forked preset
+    // carries the FULL override (emphasis, normalize, scale, transform,
+    // annotations, shading, bar settings, …) rather than the old
+    // title/defaultDelta/blurb subset. encodeComposedState strips undefined.
+    chartOverrides: dashboard.data.chartOverrides ?? undefined,
   });
 ---
 

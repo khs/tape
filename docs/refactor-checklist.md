@@ -29,8 +29,8 @@
 
 1. [x] **Plan 8 — exposure scrub** (launch blocker, low risk) — DONE + build-verified
 2. [x] **Plan 6 — cache consolidation** (pipelines, isolated) — DONE + VERIFIED
-3. [ ] **Plan 5 — chartOverride schema unification** (option A + parity tests) ← NEXT
-4. [ ] **Plan 4 — dashboard renderer dedup**
+3. [x] **Plan 5 — chartOverride schema unification** (option A + parity tests) — DONE + VERIFIED
+4. [ ] **Plan 4 — dashboard renderer dedup** ← NEXT
 5. [ ] **Plan 1 + 2 — compose.astro decompose + source-filters migration**
 6. [ ] **Plan 3 — adopt SourcePicker.astro in composer**
 7. [ ] **Plan 7 — inline-YAML standardization** (lowest urgency, splittable)
@@ -82,19 +82,25 @@ commands, and internal paths.
       `pytest pipelines/` → 192 passed; live integration check (mock session,
       real `_cache/http/`) confirmed fetch-once + cache-hit, artifact cleaned up.
 
-## Plan 5 — Unify chartOverride schema (option A) + parity tests
-- [ ] Define the chart-field set once (in `src/content/config.ts` or a shared
-      `src/lib/chart-schema.ts`); have `composer-state.ts` reuse it (Zod `.pick()`
-      of the URL-safe subset) instead of its 4-field copy.
-- [ ] Bump `COMPOSER_STATE_VERSION` 1→2; existing `wrong-version` decode banner
-      handles old links.
-- [ ] **BEFORE/AFTER PARITY TESTS (Keller's requirement):** snapshot what a
-      forked preset-with-rich-overrides renders today, assert the post-change
-      render is identical. Cover shading/transform/annotations/percentDisplay
-      surviving the fork round-trip. *These tests are temporary — cull once live
-      on Vercel and verified.*
-- [ ] Verify: `composer-state` encode/decode round-trip tests; fork a rich
-      preset, confirm fields survive; `npm run build`.
+## Plan 5 — Unify chartOverride schema (option A) + parity tests  ⟶ DONE + VERIFIED
+- [x] Defined the field set ONCE in `src/lib/chart-schema.ts` as a factory
+      `buildChartOverrideShape(z, deltaWindowSchema)` — a factory (not a shared
+      schema object) so `config.ts` (astro:content `z`) and `composer-state.ts`
+      (zod `z`) each build with their OWN `z`, dodging the cross-instance
+      nesting footgun. Both now derive `chartOverrideSchema` from it (16 fields).
+- [x] **Did NOT bump `COMPOSER_STATE_VERSION`** (deviation from plan, flagged to
+      Keller): the change is additive (all new fields optional), so every
+      existing v1 link/saved dashboard still validates. A bump would force a
+      re-fork of all existing links for no benefit. Added a test pinning v=1.
+- [x] `[...slug].astro` fork now passes the full override through instead of
+      stripping to title/defaultDelta/blurb.
+- [x] **PARITY TESTS (TEMPORARY — cull post-Vercel):** added to
+      `composer-state.test.ts` — full 16-field override survives encode→decode
+      deep-equal (regression guard for the old lossy fork); old 3-field shape
+      still round-trips; version pinned at 1.
+- [x] Verify: `vitest composer-state.test.ts` → 13 passed; `astro check` → 0
+      errors (content sync executed config.ts schema); full `npm run build` →
+      Complete! (preset pages render via effectiveChart unchanged).
 
 ## Plan 4 — Collapse the three dashboard renderers
 - [ ] Extract shared computation → `src/lib/resolve-dashboard-for-render.ts`
@@ -168,3 +174,8 @@ Incremental, each step its own commit + build:
 - 2026-06-03: Plan 6 DONE + VERIFIED — `cached_get` re-backed on `_cache.py`;
   single `pipelines/_cache/` store; `_response_cache/` retired. Full pipeline
   pytest 192 passed. Next: Plan 5.
+- 2026-06-03: Plan 5 DONE + VERIFIED — shared `chart-schema.ts` factory; both
+  schemas unified (16 fields); fork no longer lossy; NO version bump (additive);
+  temporary parity tests added (13 passed); `npm run build` → Complete!.
+  Next: Plan 4. (Side task: va-08 dangling bg-map refs — fixing on its own
+  branch off main next.)

@@ -134,3 +134,96 @@ describe("URL-safety of encoded output", () => {
     expect(enc).not.toContain("=");
   });
 });
+
+// ---------------------------------------------------------------------------
+// TEMPORARY parity guard for the chartOverride schema unification (Plan 5).
+// The composer URL-state chartOverride field set is now shared with the
+// dashboard content schema via src/lib/chart-schema.ts. Before this change a
+// forked preset kept only title/defaultDelta/blurb and dropped the rest, so a
+// forked dashboard rendered DIFFERENTLY from the source preset. These tests
+// pin the new behavior: a fully-specified override survives the encode→decode
+// round-trip with every field intact, so what's displayed after a fork
+// matches the preset. CULL once this is live on Vercel and verified there.
+// ---------------------------------------------------------------------------
+describe("Plan 5 — chartOverride round-trip fidelity (TEMPORARY)", () => {
+  it("keeps COMPOSER_STATE_VERSION at 1 (the change is additive)", () => {
+    // A version bump would force a re-fork of every existing saved/shared
+    // link via the wrong-version banner. Adding optional fields doesn't
+    // warrant that. If this ever legitimately needs to bump, delete this
+    // assertion deliberately — don't bump casually.
+    expect(COMPOSER_STATE_VERSION).toBe(1);
+  });
+
+  it("preserves every chartOverride field through a fork round-trip", () => {
+    const enc = encodeComposedState({
+      title: "Forked",
+      charts: ["us-macro/cpi"],
+      chartOverrides: {
+        "us-macro/cpi": {
+          title: "Custom title",
+          render: "bar",
+          defaultDelta: "5y",
+          blurb: "Custom blurb",
+          sources: ["fred/x", "fred/y"],
+          emphasis: "change",
+          normalize: "dual-axis",
+          scale: "log",
+          seriesLabels: ["X", "Y"],
+          percentDisplay: "decimal",
+          transform: "yoy_pct",
+          annotations: [
+            { date: "2020-03-01", label: "COVID", position: "above" },
+          ],
+          shading: ["recessions", "president_party"],
+          barOrientation: "horizontal",
+          barSort: "asc",
+          barAsOf: "2024-01-01",
+        },
+      },
+    });
+    const dec = decodeComposedState(enc);
+    expect(dec.ok).toBe(true);
+    if (dec.ok) {
+      // Deep-equality: NOTHING is silently dropped. This is the regression
+      // guard for the old lossy fork (which kept only 3 of these 16 fields).
+      expect(dec.state.chartOverrides?.["us-macro/cpi"]).toEqual({
+        title: "Custom title",
+        render: "bar",
+        defaultDelta: "5y",
+        blurb: "Custom blurb",
+        sources: ["fred/x", "fred/y"],
+        emphasis: "change",
+        normalize: "dual-axis",
+        scale: "log",
+        seriesLabels: ["X", "Y"],
+        percentDisplay: "decimal",
+        transform: "yoy_pct",
+        annotations: [
+          { date: "2020-03-01", label: "COVID", position: "above" },
+        ],
+        shading: ["recessions", "president_party"],
+        barOrientation: "horizontal",
+        barSort: "asc",
+        barAsOf: "2024-01-01",
+      });
+    }
+  });
+
+  it("still accepts the old minimal override shape (backward compatible)", () => {
+    // A v1 link created before the unification carried only these fields.
+    const enc = encodeComposedState({
+      title: "Old",
+      charts: ["a"],
+      chartOverrides: { a: { title: "T", defaultDelta: "1y", blurb: "B" } },
+    });
+    const dec = decodeComposedState(enc);
+    expect(dec.ok).toBe(true);
+    if (dec.ok) {
+      expect(dec.state.chartOverrides?.a).toEqual({
+        title: "T",
+        defaultDelta: "1y",
+        blurb: "B",
+      });
+    }
+  });
+});

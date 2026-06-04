@@ -1,5 +1,6 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import { buildChartOverrideShape } from "../lib/chart-schema";
 
 const deltaWindow = z.enum([
   "1w",
@@ -337,52 +338,11 @@ const charts = defineCollection({
     ),
 });
 
+// Field set is defined once in src/lib/chart-schema.ts and shared with the
+// composer's URL-state schema (src/lib/composer-state.ts) so a forked preset
+// preserves every override instead of dropping all but title/delta/blurb.
 const chartOverrideSchema = z
-  .object({
-    title: z.string(),
-    render: z.enum([
-      "line",
-      "curve",
-      "smallMultiples",
-      "sparkDelta",
-      "deltaGrid",
-      "relativeReturns",
-      "bar",
-    ]),
-    defaultDelta: deltaWindow,
-    blurb: z.string(),
-    sources: z.array(z.string()),
-    emphasis,
-    normalize: z.enum(["rebase", "raw", "dual-axis"]),
-    scale: z.enum(["linear", "log"]),
-    seriesLabels: z.array(z.string()),
-    percentDisplay: z.enum(["percent", "decimal"]),
-    transform: z.enum(["level", "yoy_pct", "index_100"]),
-    annotations: z.array(
-      z.object({
-        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        label: z.string(),
-        position: z.enum(["above", "below"]).optional(),
-      }),
-    ),
-    // Mirror of the chart-level `shading` field. Lets a dashboard
-    // override the bands on a specific tile (e.g. all-charts use
-    // recessions, but ONE chart wants party shading instead).
-    shading: z.array(
-      z.enum([
-        "recessions",
-        "president_party",
-        "senate_majority",
-        "house_majority",
-        "bear_markets",
-        "fed_chairs",
-      ]),
-    ),
-    // Bar-snapshot overrides (mirror the chart-level fields).
-    barOrientation: z.enum(["vertical", "horizontal"]),
-    barSort: z.enum(["desc", "asc", "source-order"]),
-    barAsOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  })
+  .object(buildChartOverrideShape(z, deltaWindow))
   .partial();
 
 const sectionSchema = z

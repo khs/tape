@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DELTA_WINDOWS, type DeltaWindow } from "./deltas";
+import { buildChartOverrideShape } from "./chart-schema";
 
 /**
  * Schema version for composed-dashboard URL state. Bump this whenever the
@@ -21,13 +22,15 @@ const shadingSchema = z.array(
   ]),
 );
 
+// Field set shared with the dashboard content schema via the factory in
+// chart-schema.ts. Previously this carried only title/defaultDelta/blurb/
+// shading, so forking a preset with richer overrides (emphasis, normalize,
+// scale, transform, annotations, bar settings, …) dropped them. The factory
+// is the single source of truth; this is the full set, all optional. The
+// change is additive — every existing v1 state still validates — so
+// COMPOSER_STATE_VERSION stays 1 (no forced re-fork of saved/shared links).
 const chartOverrideSchema = z
-  .object({
-    title: z.string(),
-    defaultDelta: deltaWindowSchema,
-    blurb: z.string(),
-    shading: shadingSchema,
-  })
+  .object(buildChartOverrideShape(z, deltaWindowSchema))
   .partial();
 
 // Sections can carry their own time-window settings, overriding the
