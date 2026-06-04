@@ -41,6 +41,19 @@ DATA_ROOT = REPO_ROOT / "public" / "data"
 # cache directory for the whole pipeline layer.
 _HTTP_CACHE_BUCKET = "http"
 
+# Resolve the shared on-disk cache module. This works whether common.py is
+# imported as a top-level module (production `python pipelines/X.py`, and
+# pytest — both put pipelines/ on sys.path so `import _cache` resolves) OR as
+# part of the `pipelines` package (CI runs `python -m unittest
+# pipelines.test_common` from the repo root, where the sibling is
+# `pipelines._cache`). The pipelines AND the tests must resolve the SAME module
+# object so cache_get/put and the tests' CACHE_ROOT patch line up —
+# test_common.py uses the identical try/except fallback.
+try:
+    import _cache as _cache_module
+except ModuleNotFoundError:  # imported as the `pipelines` package (CI unittest)
+    from pipelines import _cache as _cache_module
+
 
 def utc_now_iso() -> str:
     return (
@@ -257,12 +270,6 @@ def cached_get(
     Pipelines using this should pass a session if they have one (it
     keeps connection pooling). Default uses ``requests.get`` directly.
     """
-    # The shared on-disk cache. Lazy-imported (like `requests` below) so
-    # merely importing common.py doesn't require pipelines/ to be on the
-    # path; cached_get is only called from within a running pipeline /
-    # test where it is.
-    from _cache import cache_get, cache_put
-
     canon_params = "&".join(
         f"{k}={v}" for k, v in sorted((params or {}).items())
     )
@@ -272,7 +279,7 @@ def cached_get(
     key_input = f"{url}|{canon_params}|{canon_headers}".encode("utf-8")
     key = hashlib.sha256(key_input).hexdigest()
 
-    cached = cache_get(
+    cached = _cache_module.cache_get(
         _HTTP_CACHE_BUCKET, key, max_age_days=ttl_seconds / 86400.0, suffix=".txt",
     )
     if cached is not None:
@@ -295,5 +302,5 @@ def cached_get(
     resp.raise_for_status()
     body = resp.text
 
-    cache_put(_HTTP_CACHE_BUCKET, key, body, suffix=".txt")
+    _cache_module.cache_put(_HTTP_CACHE_BUCKET, key, body, suffix=".txt")
     return body

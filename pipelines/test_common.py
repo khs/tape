@@ -31,7 +31,13 @@ from unittest import mock
 
 # cached_get now stores HTTP responses in the shared pipeline cache
 # (_cache.py); the CachedGetTests patch _cache.CACHE_ROOT to redirect it.
-import _cache
+# Use the SAME dual-context resolver as common.py so we patch the exact module
+# object cached_get uses, whether run via pytest (pipelines/ on sys.path) or
+# CI's `python -m unittest pipelines.test_common` (the `pipelines` package).
+try:
+    import _cache
+except ModuleNotFoundError:  # imported as the `pipelines` package (CI unittest)
+    from pipelines import _cache
 
 HERE = Path(__file__).resolve().parent
 MODULE_PATH = HERE / "common.py"
