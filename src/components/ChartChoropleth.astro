@@ -892,11 +892,21 @@ const statesJoined = stateCodes.join(",");
     const width =
       mode === "fullscreen" ? Math.min(vw - 40, 2400)
       : mode === "expanded" ? 1000
-      : 620;
+      // Tile mode: fill the container when it's wider than the legacy 620
+      // default — the /chart/<id>/ detail page, the welcome popout, and big
+      // embeds give the map a full-width container. Keep 620 as a FLOOR so
+      // small dashboard-grid tiles render exactly as before (the svg's
+      // max-width:100% scales the 620 canvas down to the cell). Without this
+      // the map stayed a fixed 620px and sat left-aligned with a wide blank
+      // gap on the right in any container wider than 620.
+      : Math.max(620, Math.round(canvas.clientWidth || 0));
     const height =
       mode === "fullscreen" ? Math.min(vh - 160, 1500)
       : mode === "expanded" ? 620
-      : 360;
+      // Scale tile height with width to preserve the 620×360 aspect, so the
+      // map fills the wider canvas instead of being pinned to a fixed 360
+      // height (which would re-introduce horizontal gaps via the projection).
+      : Math.round(width * (360 / 620));
     // Resolve the scheme: user override (if any) > chart author's
     // colorScheme > Blues fallback. Plot's color spec accepts EITHER
     // a named scheme string OR an explicit range[] of stops (which
