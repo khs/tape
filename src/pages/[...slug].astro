@@ -4,14 +4,9 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionChart from "../components/SectionChart.astro";
 import ChartController from "../components/ChartController.astro";
-import { resolveBarSnapshots } from "../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
-import {
-  resolveSections,
-  dashboardSupportedDeltas,
-  resolveDashboardDefault,
-  effectiveChart,
-} from "../lib/resolve-dashboard";
+import { effectiveChart } from "../lib/resolve-dashboard";
+import { resolveDashboardForRender } from "../lib/resolve-dashboard-for-render";
 import { encodeComposedState } from "../lib/composer-state";
 import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
 import { renderMarkdown } from "../lib/markdown";
@@ -30,40 +25,25 @@ interface Props {
 
 const { dashboard } = Astro.props;
 
-const resolvedSections = await resolveSections({
+// Shared resolve pipeline (see src/lib/resolve-dashboard-for-render.ts) —
+// sections, window-pill set, default window, bar-snapshots, telemetry totals.
+const {
+  sections: resolvedSections,
+  supportedDeltas: supported,
+  defaultDelta: dashboardDefaultDelta,
+  barSnapshots,
+  viewedSourceIds,
+  viewedChartCount,
+} = await resolveDashboardForRender({
   sections: dashboard.data.sections,
   charts: dashboard.data.charts,
+  chartOverrides: dashboard.data.chartOverrides,
+  defaultDelta: dashboard.data.defaultDelta,
+  fixedRange: dashboard.data.fixedRange,
 });
-const supported = dashboardSupportedDeltas(resolvedSections);
-const dashboardDefaultDelta = resolveDashboardDefault(
-  dashboard.data.defaultDelta,
-  supported,
-);
-
-// Pre-resolve bar-chart snapshots so each ChartBar can be passed
-// concrete data props in the JSX below (JSX can't `await` inline).
-// Wide-fan-out: parallel load across all bar charts on the
-// dashboard. A no-op for dashboards that have no bar charts.
-const barSnapshots = await resolveBarSnapshots(
-  resolvedSections.flatMap((s) => s.charts),
-);
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const { Content } = await render(dashboard);
-
-// Flatten the resolved-source list for the dashboard_viewed telemetry event.
-// Deduped server-side; the analytics helper will further truncate as needed.
-const viewedSourceIds = Array.from(
-  new Set(
-    resolvedSections.flatMap((sec) =>
-      sec.charts.flatMap((c) => c.sources.map((s) => s.id)),
-    ),
-  ),
-);
-const viewedChartCount = resolvedSections.reduce(
-  (acc, sec) => acc + sec.charts.length,
-  0,
-);
 
 const forkUrl =
   baseUrl +

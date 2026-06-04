@@ -2,14 +2,12 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionChart from "../components/SectionChart.astro";
 import ChartController from "../components/ChartController.astro";
-import { resolveBarSnapshots } from "../lib/resolve-bar-snapshots";
 import { DELTA_LABELS_SHORT } from "../lib/deltas";
+import { effectiveChart } from "../lib/resolve-dashboard";
 import {
-  resolveSections,
-  dashboardSupportedDeltas,
-  resolveDashboardDefault,
-  effectiveChart,
-} from "../lib/resolve-dashboard";
+  resolveDashboardForRender,
+  type DashboardForRender,
+} from "../lib/resolve-dashboard-for-render";
 import { decodeComposedState } from "../lib/composer-state";
 import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
 import { renderMarkdown } from "../lib/markdown";
@@ -37,9 +35,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 let title = "Composed dashboard";
 let description: string | undefined;
-let defaultDeltaRequested: ReturnType<typeof resolveDashboardDefault> | undefined;
-let resolvedSections: Awaited<ReturnType<typeof resolveSections>> = [];
-let supported: ReturnType<typeof dashboardSupportedDeltas> = [];
+let defaultDeltaRequested: DashboardForRender["defaultDelta"] | undefined;
+let resolvedSections: DashboardForRender["sections"] = [];
+let supported: DashboardForRender["supportedDeltas"] = [];
+let barSnapshots: DashboardForRender["barSnapshots"] = new Map();
+let viewedSourceIds: DashboardForRender["viewedSourceIds"] = [];
+let viewedChartCount = 0;
 let errorMessage: string | null = null;
 let forkUrl: string | null = null;
 let chartOverrides: Record<string, Partial<import("astro:content").CollectionEntry<"charts">["data"]>> | undefined;
@@ -53,9 +54,10 @@ if (!decoded.ok) {
   description = st.description;
   chartOverrides = st.chartOverrides as typeof chartOverrides;
   fixedRange = st.fixedRange;
-  resolvedSections = await resolveSections({
+  const r = await resolveDashboardForRender({
     sections: st.sections,
     charts: st.charts,
+    chartOverrides,
     inlineCharts: st.inlineCharts,
     inlineSources: st.inlineSources,
     // Inline maps are a parallel registry to inlineCharts — resolve-
@@ -66,8 +68,12 @@ if (!decoded.ok) {
     // tile vanishes on Preview while still appearing in the composer.
     inlineMaps: st.inlineMaps,
   });
-  supported = dashboardSupportedDeltas(resolvedSections);
-  defaultDeltaRequested = resolveDashboardDefault(st.defaultDelta, supported);
+  resolvedSections = r.sections;
+  supported = r.supportedDeltas;
+  defaultDeltaRequested = r.defaultDelta;
+  barSnapshots = r.barSnapshots;
+  viewedSourceIds = r.viewedSourceIds;
+  viewedChartCount = r.viewedChartCount;
   forkUrl = baseUrl + "/compose/?d=" + (dParam ?? "");
   // If we're previewing an edit, the "Open in composer" link should
   // keep the edit-slug context so the user lands back where they
@@ -77,23 +83,9 @@ if (!decoded.ok) {
   }
 }
 
-// Flatten resolved sources for the dashboard_viewed telemetry event.
-const viewedSourceIds = Array.from(
-  new Set(
-    resolvedSections.flatMap((sec) =>
-      sec.charts.flatMap((c) => c.sources.map((s) => s.id)),
-    ),
-  ),
-);
-const viewedChartCount = resolvedSections.reduce(
-  (acc, sec) => acc + sec.charts.length,
-  0,
-);
-// Bar-chart snapshots: pre-resolve so the JSX below can pluck the
-// snapshot Map by chart ID without inline `await`.
-const barSnapshots = await resolveBarSnapshots(
-  resolvedSections.flatMap((s) => s.charts),
-);
+// viewedSourceIds / viewedChartCount / barSnapshots are populated by
+// resolveDashboardForRender in the success branch above; the error branch
+// leaves the empty defaults so the JSX renders the error panel cleanly.
 ---
 
 <BaseLayout
