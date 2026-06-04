@@ -1,5 +1,5 @@
 """
-Auto-generate per-state tract choropleth chart YAMLs.
+Auto-generate per-state tract map chart YAMLs.
 
 After committing per-state tract topology files (commit edfb4a26bf)
 and per-state tract data (commit 4cf8f2be03), every state has the
@@ -84,7 +84,7 @@ def write_chart(state_code: str, state_name: str, indicator: str,
     out_path = OUT_DIR / f"{state_code.lower()}_{indicator}_2022.yaml"
     title = f"{label.capitalize()} by census tract — {state_name} (2022)"
     content = f"""title: {title}
-render: choropleth
+render: map
 geo: tract
 states: [{state_code}]
 indicator: {indicator}

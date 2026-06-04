@@ -1,5 +1,5 @@
 title: Median household income by census tract — Iowa (2022)
-render: choropleth
+render: map
 geo: tract
 states: [IA]
 indicator: median_hh_income

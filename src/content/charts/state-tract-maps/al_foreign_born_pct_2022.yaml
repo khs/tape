@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Alabama (2022)
-render: choropleth
+render: map
 geo: tract
 states: [AL]
 indicator: foreign_born_pct

@@ -38,7 +38,7 @@
  *                    ("metro" | "country" | "state" | "county" |
  *                    "cd" | "maps-tab"). "maps-tab" handles tract /
  *                    block-group hints since those levels are
- *                    choropleth-only.
+ *                    map-only.
  *     - searchText:  Lowercased haystack the composer's filter
  *                    matches. Includes the series name, series
  *                    aliases (jobs → payrolls), and level-name
@@ -126,8 +126,8 @@ const LEVEL_SYNONYMS: Record<HintLevel, string[]> = {
   ],
   metro: ["metro", "msa", "metropolitan", "city", "urban"],
   county: ["county", "counties", "dmv", "local"],
-  tract: ["tract", "census-tract", "neighborhood", "choropleth", "map"],
-  bg: ["block-group", "block group", "bg", "choropleth", "map"],
+  tract: ["tract", "census-tract", "neighborhood", "map", "map"],
+  bg: ["block-group", "block group", "bg", "map", "map"],
 };
 
 /**
@@ -296,8 +296,8 @@ const LEVEL_DISPLAY: Record<
   },
 };
 
-/** Choropleth-only levels: tract and block group. We don't ship
- *  per-source rows for these (they're choropleth maps, not time
+/** Map-only levels: tract and block group. We don't ship
+ *  per-source rows for these (they're maps, not time
  *  series), so we hand-list the series available rather than
  *  detecting them from a sources iteration. */
 const CHOROPLETH_SERIES: Record<"tract" | "bg", ReadonlyArray<string>> = {
@@ -318,14 +318,14 @@ export interface SourceMetaForHints {
 /**
  * Build the list of hint entries to inject into library.json. One
  * hint per (level, series) pair we detect, plus the hand-listed
- * tract + bg choropleth hints.
+ * tract + bg map hints.
  *
- * `choroplethLevelsAvailable` defaults true; pass false in tests
+ * `mapLevelsAvailable` defaults true; pass false in tests
  * that want only the real-data hints.
  */
 export function synthesizeSourceHints(
   sources: ReadonlyArray<SourceMetaForHints>,
-  choroplethLevelsAvailable: boolean = true,
+  mapLevelsAvailable: boolean = true,
 ): SourceHint[] {
   // (level, series) → distinct geos. Drives the per-level count
   // in the description.
@@ -375,11 +375,11 @@ export function synthesizeSourceHints(
     const count = counts.get(key)?.size ?? 0;
     hints.push(buildHint(level, series, count));
   }
-  if (choroplethLevelsAvailable) {
+  if (mapLevelsAvailable) {
     for (const level of ["tract", "bg"] as const) {
       for (const series of CHOROPLETH_SERIES[level]) {
         // Count placeholder: 50 (all states ship these). We don't
-        // actually iterate the choropleth chart YAMLs to derive a
+        // actually iterate the map chart YAMLs to derive a
         // real count — too tied to the per-state file layout — but
         // 50 is honest enough for the hint copy.
         hints.push(buildHint(level, series, 50));
@@ -468,9 +468,9 @@ export function hintsFromLibrary(
     name: string;
     tags: ReadonlyArray<string>;
   }>,
-  choroplethLevelsAvailable: boolean = true,
+  mapLevelsAvailable: boolean = true,
 ): SourceHint[] {
-  return synthesizeSourceHints(entries, choroplethLevelsAvailable);
+  return synthesizeSourceHints(entries, mapLevelsAvailable);
 }
 
 export type SourceEntry = CollectionEntry<"sources">;

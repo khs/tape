@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census tract — New Hampshire (2022)
-render: choropleth
+render: map
 geo: tract
 states: [NH]
 indicator: bachelors_plus_pct

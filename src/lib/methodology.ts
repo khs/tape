@@ -71,7 +71,7 @@ export const METHODOLOGY: Record<string, ProviderMethodology> = {
       "Drop combined-area and placeholder rows (non-positive values) that BEA includes for completeness.",
     ],
     caveats: [
-      "County per-capita personal income is shown as a choropleth map layer, not as a per-county time series.",
+      "County per-capita personal income is shown as a map layer, not as a per-county time series.",
     ],
     storedAs: "billions USD (per-capita income in USD)",
   },

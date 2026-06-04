@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Delaware (2022)
-render: choropleth
+render: map
 geo: tract
 states: [DE]
 indicator: foreign_born_pct

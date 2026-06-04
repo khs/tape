@@ -53,15 +53,15 @@ function sectionWith(
 }
 
 describe("perChartSupportedDeltas", () => {
-  it("returns [] for choropleth charts regardless of any sources", () => {
-    // Choropleth charts don't bind to time-series sources at all;
+  it("returns [] for map charts regardless of any sources", () => {
+    // Map charts don't bind to time-series sources at all;
     // they reference a (geo, indicator, vintage) tuple. Even if some
     // future hand-crafted chart YAML attached a sources[] to a
-    // choropleth chart, the resolver should still report no time
+    // map chart, the resolver should still report no time
     // windows so the dashboard-level pill computation doesn't try
     // to surface useless delta buttons.
     const section = sectionWith([
-      makeChart("choropleth", [["1y", "10y"]]),
+      makeChart("map", [["1y", "10y"]]),
     ]);
     expect(perChartSupportedDeltas([section])).toEqual([[]]);
   });
@@ -77,22 +77,22 @@ describe("perChartSupportedDeltas", () => {
     expect(perChartSupportedDeltas([section])[0]).toEqual(["1y", "10y"]);
   });
 
-  it("mixes choropleth + time-series in the same dashboard correctly", () => {
+  it("mixes map + time-series in the same dashboard correctly", () => {
     const section = sectionWith([
       makeChart("line", [["1y", "10y"]]),
-      makeChart("choropleth"),
+      makeChart("map"),
       makeChart("line", [["1m", "1y"]]),
     ]);
     const result = perChartSupportedDeltas([section]);
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual(["1y", "10y"]);
-    expect(result[1]).toEqual([]); // choropleth
+    expect(result[1]).toEqual([]); // map
     expect(result[2]).toEqual(["1m", "1y"]);
   });
 });
 
 describe("dashboardSupportedDeltas", () => {
-  it("falls back to the full window list when every chart is choropleth", () => {
+  it("falls back to the full window list when every chart is map", () => {
     // A dashboard with nothing but heatmaps would otherwise produce
     // an empty pill row, which the layout's window-selector renders
     // as a bare gap. The fallback to the full DELTA_WINDOWS keeps
@@ -100,8 +100,8 @@ describe("dashboardSupportedDeltas", () => {
     // on snapshot maps) and prevents the layout from breaking on
     // an otherwise-valid configuration.
     const section = sectionWith([
-      makeChart("choropleth"),
-      makeChart("choropleth"),
+      makeChart("map"),
+      makeChart("map"),
     ]);
     const supported = dashboardSupportedDeltas([section]);
     // Should include some standard windows in the fallback.
@@ -123,10 +123,10 @@ describe("dashboardSupportedDeltas", () => {
     expect(supported).toContain("30y");
   });
 
-  it("excludes choropleth charts from the union but still uses other charts", () => {
+  it("excludes map charts from the union but still uses other charts", () => {
     const section = sectionWith([
       makeChart("line", [["1y", "10y"]]),
-      makeChart("choropleth"),
+      makeChart("map"),
     ]);
     const supported = dashboardSupportedDeltas([section]);
     expect(supported).toEqual(["1y", "10y"]);

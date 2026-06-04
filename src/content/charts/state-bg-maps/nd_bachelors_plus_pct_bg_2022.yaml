@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census block group — North Dakota (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [ND]
 indicator: bachelors_plus_pct

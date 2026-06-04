@@ -59,7 +59,7 @@ if (!decoded.ok) {
     inlineSources: st.inlineSources,
     // Inline maps are a parallel registry to inlineCharts — resolve-
     // dashboard.ts dispatches `inlinemap:<id>` references through this
-    // map and synthesizes a CollectionEntry with render="choropleth".
+    // map and synthesizes a CollectionEntry with render="map".
     // Without passing it here, every inline map silently drops out of
     // the resolved sections (filtered as "unresolved chart") and the
     // tile vanishes on Preview while still appearing in the composer.

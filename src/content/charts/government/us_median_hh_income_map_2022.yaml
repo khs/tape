@@ -1,5 +1,5 @@
 title: Median household income by US state (2022)
-render: choropleth
+render: map
 geo: state
 indicator: median_hh_income
 vintage: "2022"

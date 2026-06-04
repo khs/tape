@@ -27,8 +27,8 @@ describe("synthesizeSourceHints — overall shape", () => {
     expect(hints).toEqual([]);
   });
 
-  it("emits the choropleth-only tract + bg hints with choroplethLevelsAvailable=true", () => {
-    // Tract / BG have no per-source rows (choropleth-only); the
+  it("emits the map-only tract + bg hints with mapLevelsAvailable=true", () => {
+    // Tract / BG have no per-source rows (map-only); the
     // hint set comes from CHOROPLETH_SERIES regardless of input.
     const hints = synthesizeSourceHints([], true);
     // tract: 4 indicators × 1 level + bg: 2 indicators × 1 level = 6.

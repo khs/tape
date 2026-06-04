@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — South Carolina (2022)
-render: choropleth
+render: map
 geo: tract
 states: [SC]
 indicator: poverty_rate

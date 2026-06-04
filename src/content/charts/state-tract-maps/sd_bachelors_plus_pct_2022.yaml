@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census tract — South Dakota (2022)
-render: choropleth
+render: map
 geo: tract
 states: [SD]
 indicator: bachelors_plus_pct

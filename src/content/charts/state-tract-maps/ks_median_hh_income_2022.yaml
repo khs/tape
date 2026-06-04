@@ -1,5 +1,5 @@
 title: Median household income by census tract — Kansas (2022)
-render: choropleth
+render: map
 geo: tract
 states: [KS]
 indicator: median_hh_income

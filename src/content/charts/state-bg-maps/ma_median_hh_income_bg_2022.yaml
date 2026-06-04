@@ -1,5 +1,5 @@
 title: Median household income by census block group — Massachusetts (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [MA]
 indicator: median_hh_income

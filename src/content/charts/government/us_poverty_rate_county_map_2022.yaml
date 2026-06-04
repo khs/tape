@@ -1,5 +1,5 @@
 title: Poverty rate by US county (2022)
-render: choropleth
+render: map
 geo: county
 indicator: poverty_rate
 vintage: "2022"

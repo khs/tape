@@ -1,5 +1,5 @@
 title: Adults 25+ with a bachelor's degree by US county (2022)
-render: choropleth
+render: map
 geo: county
 indicator: bachelors_plus_pct
 vintage: "2022"

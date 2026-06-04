@@ -1,5 +1,5 @@
 title: Median household income by census block group — Florida (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [FL]
 indicator: median_hh_income

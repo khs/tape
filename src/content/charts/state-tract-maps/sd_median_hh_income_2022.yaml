@@ -1,5 +1,5 @@
 title: Median household income by census tract — South Dakota (2022)
-render: choropleth
+render: map
 geo: tract
 states: [SD]
 indicator: median_hh_income

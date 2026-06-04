@@ -1,5 +1,5 @@
 title: Poverty rate by US state (2022)
-render: choropleth
+render: map
 geo: state
 indicator: poverty_rate
 vintage: "2022"

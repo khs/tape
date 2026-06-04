@@ -25,12 +25,12 @@ Drop screenshots here when ready. Suggested:
   countries, stocks, education, unemployment-by-race, state-electricity-
   generation, plus the walkthrough tour and 4 regional state-atlas
   pages) plus a drag-to-reorder composer where any visitor can pick
-  from 200+ line/bar charts (and 300+ choropleth tiles), assemble new
+  from 200+ line/bar charts (and 300+ map tiles), assemble new
   ones from raw sources via the Sources / Pregenerated / Generators /
   Maps tabs, add section commentary, and share via URL — saved as
   state in the URL itself for anonymous shares, or saved under a
   Google-OAuth account at `/u/<your-slug>/`.
-- **Choropleth maps with zoom + year slider.** ACS demographic indicators
+- **Maps with zoom + year slider.** ACS demographic indicators
   at state, county, census-tract, and block-group granularity. Click any
   tile for an expanded dialog with mouse-wheel zoom (Ctrl+/-/0 also
   supported), year slider through 2010-2022 vintages, color-scheme
@@ -212,7 +212,7 @@ Chart YAML shape:
 ```yaml
 title: Federal funds rate
 sources: ["fred/fed_funds"]
-render: line          # line | bar | choropleth
+render: line          # line | bar | map
 defaultDelta: 1y      # default time window
 tags: [rates, macro]  # used by composer's library filter
 blurb: |              # optional curator note shown in the expanded view

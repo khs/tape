@@ -1,9 +1,9 @@
 /**
- * County/city name disambiguation for the choropleth renderer.
+ * County/city name disambiguation for the map renderer.
  *
  * The us-counties topology carries 6 known collisions where a county
  * and an independent city share the same NAME within the same state.
- * Without disambiguation the choropleth tooltip just says "Fairfax"
+ * Without disambiguation the map tooltip just says "Fairfax"
  * for both, and the reader can't tell which one's lit up. This module
  * computes per-GEOID name overrides — " (county)" / " (city)" suffixes
  * — that the renderer applies to feature properties before drawing.
@@ -44,7 +44,7 @@ const INDEPENDENT_CITY_FIPS_MIN = "510";
 /** Independent-city county-FIPS upper bound (inclusive). */
 const INDEPENDENT_CITY_FIPS_MAX = "840";
 
-/** A feature entry the disambiguator needs to look at. The choropleth
+/** A feature entry the disambiguator needs to look at. The map
  *  renderer's feature properties carry more than this; only these two
  *  fields drive the disambiguation. */
 export interface DisambiguationEntry {

@@ -1,5 +1,5 @@
 """
-Auto-generate per-state block-group choropleth chart YAMLs.
+Auto-generate per-state block-group map chart YAMLs.
 
 Parallel to _generate_state_tract_charts.py but for the block-group
 geography. Census suppresses 2 of the 4 ACS indicators we publish at
@@ -69,7 +69,7 @@ def write_chart(state_code: str, state_name: str, indicator: str,
     out_path = OUT_DIR / f"{state_code.lower()}_{indicator}_bg_2022.yaml"
     title = f"{label.capitalize()} by census block group — {state_name} (2022)"
     content = f"""title: {title}
-render: choropleth
+render: map
 geo: block-group
 states: [{state_code}]
 indicator: {indicator}

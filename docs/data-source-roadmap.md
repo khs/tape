@@ -208,7 +208,7 @@ has these pre-aggregated at
 which is much cleaner than the raw LAR.
 
 Estimated implementation: 2 hours for the Urban tract summaries
-ingest. Aligns with the choropleth feature (per-tract data).
+ingest. Aligns with the map feature (per-tract data).
 
 #### CDC WONDER (mortality)
 
@@ -274,7 +274,7 @@ spring-26 expansion):
 1. **BEA** — clean API, state GDP closes a big DC-econ gap.
 2. **OWID** — quick to add, ~450 sources surfaced in one batch.
 3. **ECB** — clean API, opens the door to European econ comparisons.
-4. **HMDA** — pairs with the existing choropleth feature.
+4. **HMDA** — pairs with the existing map feature.
 5. **SSA per-CD beneficiary detail** — incremental on the existing
    pipeline, supports VA-08.
 6. **USPTO** — supports innovation-policy stories.
@@ -363,7 +363,7 @@ Two UI surfaces:
   stroke. Default to latest vintage.
 - `src/components/ChartController.astro`: dialog gets a new
   "Vintage" picker showing available projection vintages,
-  similar to the year slider on choropleth dialogs.
+  similar to the year slider on map dialogs.
 - New chart-YAML field: `defaultProjectionVintage` (one of: "latest",
   "none", or a YYYY-MM key).
 

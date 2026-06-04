@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Kansas (2022)
-render: choropleth
+render: map
 geo: tract
 states: [KS]
 indicator: foreign_born_pct

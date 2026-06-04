@@ -1,6 +1,6 @@
 ---
 /**
- * Choropleth (heatmap) chart tile.
+ * Map (heatmap) chart tile.
  *
  * Renders one US map colored by an ACS indicator at a given vintage,
  * at one of four geographic granularities (state / county / tract /
@@ -41,7 +41,7 @@ import {
 // deployment's own static-assets URL.
 //
 // load-data.ts has the same pattern for the SourceData + summary
-// loaders; this is the choropleth-flavored equivalent for snapshot
+// loaders; this is the map-flavored equivalent for snapshot
 // JSON + boundary TopoJSON reads. Without the fetch fallback the
 // /custom/ + /u/<slug>/ paths show "data not yet fetched" even though
 // the files ARE in the static bundle.
@@ -78,7 +78,7 @@ interface Props {
 // alongside) flags unused declarations. Same pattern as SectionChart.
 const { chartId, chart, dashboardSlug } = Astro.props as Props;
 
-// Resolve the data file path from the chart's choropleth fields. The
+// Resolve the data file path from the chart's map fields. The
 // pipeline writes:
 //   public/data/acs_state/<indicator>_<vintage>.json
 //   public/data/acs_county/<indicator>_<vintage>.json
@@ -106,7 +106,7 @@ const dataFileRels: string[] =
       );
 // Client-facing data URLs. The server-side summary reads
 // dataFileRels directly off disk; the client fetches the URLs
-// version through choropleth-canvas's data-data-urls attr.
+// version through map-canvas's data-data-urls attr.
 const dataFileUrls = dataFileRels.map((r) => `/${r}`);
 
 // Year-slider discovery. Glob the data directory for sibling
@@ -390,16 +390,16 @@ const statesJoined = stateCodes.join(",");
 ---
 
 <article
-  class="chart-tile choro-tile"
+  class="chart-tile map-tile"
   data-chart-id={chartId}
   data-dashboard-slug={dashboardSlug}
   data-role="chart-tile"
-  data-choro="1"
+  data-map="1"
 >
   <header class="chart-tile-header">
     <h3 class="chart-tile-title">{tileTitle}</h3>
     {summary && (
-      <p class="choro-eyebrow muted small">
+      <p class="map-eyebrow muted small">
         {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : "block groups"}
         {" · range "}
         {fmt(summary.min, summary.unit, summary.decimals)}
@@ -410,14 +410,14 @@ const statesJoined = stateCodes.join(",");
       </p>
     )}
     {!summary && loadError && (
-      <p class="choro-eyebrow muted small text-error">
+      <p class="map-eyebrow muted small text-error">
         Data unavailable: {loadError}
       </p>
     )}
   </header>
   <div
-    class="choro-canvas"
-    data-role="choro-canvas"
+    class="map-canvas"
+    data-role="map-canvas"
     data-chart-id={chartId}
     data-data-urls={dataUrlsJson}
     data-boundary-url={boundaryUrl}
@@ -507,7 +507,7 @@ const statesJoined = stateCodes.join(",");
       } catch {
         // Network failure / 404: return empty map so the BG renderer
         // falls back to the tract-only label. Don't throw — a missing
-        // county lookup shouldn't blank out the entire choropleth.
+        // county lookup shouldn't blank out the entire map.
         return new Map<string, string>();
       }
     })();
@@ -582,7 +582,7 @@ const statesJoined = stateCodes.join(",");
   // colors on the same page is the design goal — each user pick
   // affects only the chart whose dialog produced it.
   function lsKey(chartId: string): string {
-    return `tape.choro.${chartId}.scheme`;
+    return `tape.map.${chartId}.scheme`;
   }
   function loadOverride(chartId: string): string | null {
     try {
@@ -619,7 +619,7 @@ const statesJoined = stateCodes.join(",");
   }
 
   // Cache fetched boundary + values JSON across tiles on the same page
-  // so a dashboard with N choropleths only does ONE boundary fetch.
+  // so a dashboard with N maps only does ONE boundary fetch.
   const boundaryCache = new Map<string, Promise<unknown>>();
   const valuesCache = new Map<string, Promise<Record<string, number>>>();
 
@@ -708,7 +708,7 @@ const statesJoined = stateCodes.join(",");
     const topos = await Promise.all(urls.map(async (u) => {
       try { return await getBoundary(u); }
       catch (err) {
-        console.warn(`[choro] boundary fetch failed for ${u}:`, err);
+        console.warn(`[map] boundary fetch failed for ${u}:`, err);
         return null;
       }
     }));
@@ -927,7 +927,7 @@ const statesJoined = stateCodes.join(",");
     const colorSpec: Record<string, unknown> = {
       type: b.colorScale,
       domain: colorDomain,
-      // Tile mode: drop the legend. A choropleth tile is short
+      // Tile mode: drop the legend. A map tile is short
       // (~280px in embeds, ~200px in dashboard grids); the legend
       // figure consumes 30-50px of vertical space, leaving the
       // actual map a thin strip. The expanded / fullscreen views
@@ -1054,7 +1054,7 @@ const statesJoined = stateCodes.join(",");
       // Without this catch the failure bubbles up to hydrateAll's
       // catch which renders a generic "Map failed to load" — but
       // the user still wants the error visible in the console.
-      console.error("[choropleth] Plot.plot threw:", e, plotSpec);
+      console.error("[map] Plot.plot threw:", e, plotSpec);
       canvas.innerHTML = `<p class="muted small">Map render failed: ${String((e as Error)?.message ?? e)}</p>`;
       return;
     }
@@ -1062,7 +1062,7 @@ const statesJoined = stateCodes.join(",");
       // Plot returned undefined / null — defensive case, shouldn't
       // normally happen but better a visible message than silent
       // white space.
-      console.error("[choropleth] Plot.plot returned nothing", plotSpec);
+      console.error("[map] Plot.plot returned nothing", plotSpec);
       canvas.innerHTML = `<p class="muted small">Map render produced no output (${clipped.length} regions, ${obs.length} values).</p>`;
       return;
     }
@@ -1081,7 +1081,7 @@ const statesJoined = stateCodes.join(",");
         const svgH = svgChild.clientHeight ?? 0;
         if (svgW === 0 || svgH === 0) {
           console.warn(
-            `[choropleth] ${b.chartId}: rendered svg has zero size ` +
+            `[map] ${b.chartId}: rendered svg has zero size ` +
             `(${svgW}×${svgH}) — features=${clipped.length}, values=${obs.length}`,
           );
         }
@@ -1178,7 +1178,7 @@ const statesJoined = stateCodes.join(",");
       // levels (without it, zooming in 16× turns the hatch into solid
       // blocks of grey).
       const safeId = b.chartId.replace(/[^a-z0-9-]/gi, "-");
-      const patternId = `choro-no-data-${safeId}`;
+      const patternId = `map-no-data-${safeId}`;
       let defs = svgEl.querySelector("defs");
       if (!defs) {
         defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
@@ -1245,7 +1245,7 @@ const statesJoined = stateCodes.join(",");
       // page with N healthy maps doesn't add N noise lines per render.
       if (hatchedSpecial + hatchedMissing > 0) {
         console.info(
-          `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
+          `[map ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
           `hatched ${hatchedSpecial} special-land-use (e.g. ${specialExamples.join(", ") || "—"}) ` +
           `+ ${hatchedMissing} missing-data (e.g. ${missingExamples.join(", ") || "—"})`,
         );
@@ -1261,9 +1261,9 @@ const statesJoined = stateCodes.join(",");
       const totalHatched = hatchedSpecial + hatchedMissing;
       if (totalHatched > 0 && mode !== "tile") {
         // De-dupe if a re-paint happens — replace any prior note.
-        canvas.querySelector(".choro-nodata-note")?.remove();
+        canvas.querySelector(".map-nodata-note")?.remove();
         const note = document.createElement("p");
-        note.className = "choro-nodata-note";
+        note.className = "map-nodata-note";
         note.style.cssText =
           "margin: 6px 4px 0; font-size: 12px; color: var(--color-neutral-600); display: flex; align-items: center; gap: 6px;";
         const swatch = document.createElement("span");
@@ -1278,7 +1278,7 @@ const statesJoined = stateCodes.join(",");
       }
     }
     const tooltip = document.createElement("div");
-    tooltip.className = "choro-tooltip";
+    tooltip.className = "map-tooltip";
     tooltip.style.display = "none";
     canvas.appendChild(tooltip);
     const rectCache = { rect: canvas.getBoundingClientRect() };
@@ -1382,8 +1382,8 @@ const statesJoined = stateCodes.join(",");
       // a custom projection domain, the geo group's aria-label
       // attribute isn't applied: the user saw 4 <g> elements in
       // the SVG, all with null aria-label. The canonical d3-zoom-
-      // for-choropleth pattern (per Brett Johnson's Zoomable
-      // Choropleth + d3-zoom docs) is to bind d3-zoom to the SVG
+      // for-map pattern (per Brett Johnson's Zoomable
+      // Map + d3-zoom docs) is to bind d3-zoom to the SVG
       // and apply the transform to a single <g> that wraps every
       // path. We find that g empirically: walk up from path[0]
       // until we hit either a g whose siblings are also paths or
@@ -1415,7 +1415,7 @@ const statesJoined = stateCodes.join(",");
             "http://www.w3.org/2000/svg",
             "g",
           ) as SVGGElement;
-          wrapper.setAttribute("data-role", "choro-zoom-wrap");
+          wrapper.setAttribute("data-role", "map-zoom-wrap");
           // Move every direct child of the SVG except <style>,
           // <defs>, and <title> into the wrapper. Those non-render
           // elements should stay at the top level.
@@ -1434,7 +1434,7 @@ const statesJoined = stateCodes.join(",");
       // shouldn't add a line per render to every dashboard with maps.
       if (!geoGroup) {
         console.info(
-          `[choropleth ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
+          `[map ${CHORO_BUILD}] ${b.chartId} (${b.geo}, mode=${mode}): ` +
           `zoom setup SKIPPED (no paths found); ` +
           `figure=${(fig as HTMLElement).tagName}, svg=${svgEl.tagName}, ` +
           `total-paths=${allPaths.length}, ` +
@@ -1462,7 +1462,7 @@ const statesJoined = stateCodes.join(",");
           extentMaxY = extentMinY + svgEl.viewBox.baseVal.height;
         }
         // Bind d3-zoom to the SVG element itself (canonical
-        // pattern; see Brett Johnson's Zoomable Choropleth and the
+        // pattern; see Brett Johnson's Zoomable Map and the
         // d3-zoom docs). Previous attempt attached to the canvas
         // wrapper div hoping to catch wheel events on the legend
         // area too, but d3-zoom's touch-detection probe runs on
@@ -1502,7 +1502,7 @@ const statesJoined = stateCodes.join(",");
         // dialog-level keyboard shortcut + reset button can reach
         // it. Using a hidden property avoids polluting the global
         // namespace and survives multiple maps on the page.
-        (canvas as unknown as { __choroZoom?: unknown }).__choroZoom = {
+        (canvas as unknown as { __mapZoom?: unknown }).__mapZoom = {
           zoom, sel: listenerSel,
         };
         // Visual affordance: cursor changes to grab so the user
@@ -1535,17 +1535,17 @@ const statesJoined = stateCodes.join(",");
   function getZoomCtx(canvas: HTMLElement | null) {
     if (!canvas) return null;
     return (canvas as unknown as {
-      __choroZoom?: {
+      __mapZoom?: {
         zoom: ZoomBehavior<Element, unknown>;
         sel: ReturnType<typeof d3select<Element, unknown>>;
       };
-    }).__choroZoom ?? null;
+    }).__mapZoom ?? null;
   }
   function zoomScaleBy(canvas: HTMLElement, factor: number) {
     const ctx = getZoomCtx(canvas);
     if (!ctx) {
       console.warn(
-        "[choropleth] zoomScaleBy: no __choroZoom on canvas — " +
+        "[map] zoomScaleBy: no __mapZoom on canvas — " +
         "zoom block didn't run during paint(). data-geo=" +
         canvas.dataset.geo + ", mode=" + canvas.dataset.mode,
       );
@@ -1557,7 +1557,7 @@ const statesJoined = stateCodes.join(",");
     const ctx = getZoomCtx(canvas);
     if (!ctx) {
       console.warn(
-        "[choropleth] zoomReset: no __choroZoom on canvas — " +
+        "[map] zoomReset: no __mapZoom on canvas — " +
         "zoom block didn't run during paint(). data-geo=" +
         canvas.dataset.geo + ", mode=" + canvas.dataset.mode,
       );
@@ -1568,7 +1568,7 @@ const statesJoined = stateCodes.join(",");
 
   function hydrateAll() {
     const canvases = document.querySelectorAll<HTMLElement>(
-      "[data-role='choro-canvas']",
+      "[data-role='map-canvas']",
     );
     canvases.forEach((canvas) => {
       if (canvas.dataset.hydrated === "1") return;
@@ -1637,39 +1637,39 @@ const statesJoined = stateCodes.join(",");
   // boring-and-correct shape: no per-tile setup ordering issues, no
   // missed tiles that hydrated late, no double-bind risk on re-render.
   function ensureDialog(): HTMLDialogElement {
-    let dialog = document.querySelector<HTMLDialogElement>("#choro-expand-dialog");
+    let dialog = document.querySelector<HTMLDialogElement>("#map-expand-dialog");
     if (dialog) return dialog;
     dialog = document.createElement("dialog");
-    dialog.id = "choro-expand-dialog";
-    dialog.className = "choro-dialog";
+    dialog.id = "map-expand-dialog";
+    dialog.className = "map-dialog";
     // Build the scheme-picker options HTML once.
     const optsHtml = SCHEMES.map(
       (s) => `<option value="${s.key}">${s.label}</option>`,
     ).join("");
     dialog.innerHTML = `
-      <header class="choro-dialog-header">
-        <div class="choro-dialog-titles">
-          <h3 class="choro-dialog-title"></h3>
-          <p class="choro-dialog-eyebrow muted small"></p>
+      <header class="map-dialog-header">
+        <div class="map-dialog-titles">
+          <h3 class="map-dialog-title"></h3>
+          <p class="map-dialog-eyebrow muted small"></p>
         </div>
-        <div class="choro-dialog-actions">
-          <label class="choro-dialog-scheme">
+        <div class="map-dialog-actions">
+          <label class="map-dialog-scheme">
             <span class="muted small">Color</span>
-            <select class="choro-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
+            <select class="map-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
           </label>
-          <button type="button" class="choro-dialog-zoom-out" aria-label="Zoom out" title="Zoom out (Ctrl+−)">−</button>
-          <button type="button" class="choro-dialog-zoom-in" aria-label="Zoom in" title="Zoom in (Ctrl+=)">+</button>
-          <button type="button" class="choro-dialog-zoom-reset" aria-label="Reset zoom" title="Reset zoom (Ctrl+0)">⟲ Reset zoom</button>
-          <button type="button" class="choro-dialog-fullscreen" aria-label="Toggle full screen">⤢ Full screen</button>
-          <button type="button" class="choro-dialog-close" aria-label="Close">&times;</button>
+          <button type="button" class="map-dialog-zoom-out" aria-label="Zoom out" title="Zoom out (Ctrl+−)">−</button>
+          <button type="button" class="map-dialog-zoom-in" aria-label="Zoom in" title="Zoom in (Ctrl+=)">+</button>
+          <button type="button" class="map-dialog-zoom-reset" aria-label="Reset zoom" title="Reset zoom (Ctrl+0)">⟲ Reset zoom</button>
+          <button type="button" class="map-dialog-fullscreen" aria-label="Toggle full screen">⤢ Full screen</button>
+          <button type="button" class="map-dialog-close" aria-label="Close">&times;</button>
         </div>
       </header>
-      <div class="choro-dialog-year" hidden>
-        <label class="muted small" for="choro-year-slider">Year</label>
-        <input class="choro-dialog-year-slider" id="choro-year-slider" type="range" min="0" max="0" value="0" step="1" aria-label="ACS 5-year vintage" />
-        <output class="choro-dialog-year-readout"></output>
+      <div class="map-dialog-year" hidden>
+        <label class="muted small" for="map-year-slider">Year</label>
+        <input class="map-dialog-year-slider" id="map-year-slider" type="range" min="0" max="0" value="0" step="1" aria-label="ACS 5-year vintage" />
+        <output class="map-dialog-year-readout"></output>
       </div>
-      <details class="choro-dialog-why">
+      <details class="map-dialog-why">
         <summary>Why no rainbow?</summary>
         <p>
           Rainbow color maps look bright but mislead the reader. The
@@ -1691,10 +1691,10 @@ const statesJoined = stateCodes.join(",");
           science communication</a> (Nature Communications, 2020).
         </p>
       </details>
-      <div class="choro-dialog-canvas-wrap"></div>
-      <footer class="choro-dialog-footer">
-        <p class="muted small choro-dialog-meta"></p>
-        <p class="muted small choro-dialog-zoom-hint" hidden>Scroll to zoom · drag to pan · Ctrl+0 to reset</p>
+      <div class="map-dialog-canvas-wrap"></div>
+      <footer class="map-dialog-footer">
+        <p class="muted small map-dialog-meta"></p>
+        <p class="muted small map-dialog-zoom-hint" hidden>Scroll to zoom · drag to pan · Ctrl+0 to reset</p>
       </footer>
     `;
     document.body.appendChild(dialog);
@@ -1705,29 +1705,29 @@ const statesJoined = stateCodes.join(",");
     dialog.addEventListener("click", (e) => {
       if (e.target === dialog) dialog!.close();
     });
-    dialog.querySelector(".choro-dialog-close")?.addEventListener("click", () => {
+    dialog.querySelector(".map-dialog-close")?.addEventListener("click", () => {
       dialog!.close();
     });
     // Fullscreen toggle — CSS-only expansion of the dialog to fill
     // the viewport. NOT the OS Fullscreen API (which removes the
-    // browser chrome and was disorienting). The .choro-dialog-wide
+    // browser chrome and was disorienting). The .map-dialog-wide
     // class flips the dialog to 100vw × 100vh; we then re-paint the
     // canvas in "fullscreen" mode so the SVG actually grows to fill
     // the new space.
-    const fullscreenBtn = dialog.querySelector<HTMLButtonElement>(".choro-dialog-fullscreen");
+    const fullscreenBtn = dialog.querySelector<HTMLButtonElement>(".map-dialog-fullscreen");
     function syncFullscreenUI(isFs: boolean) {
       if (fullscreenBtn) {
         fullscreenBtn.textContent = isFs ? "⤡ Exit full screen" : "⤢ Full screen";
       }
-      dialog!.classList.toggle("choro-dialog-wide", isFs);
+      dialog!.classList.toggle("map-dialog-wide", isFs);
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (dialogCanvas) {
         dialogCanvas.dataset.mode = isFs ? "fullscreen" : "expanded";
         dialogCanvas.removeAttribute("data-hydrated");
         dialogCanvas.innerHTML = "";
-        // Defer to next frame so the new .choro-dialog-wide layout
+        // Defer to next frame so the new .map-dialog-wide layout
         // applies before paint() reads window dimensions. Without
         // this, the SVG is sometimes sized using the pre-toggle
         // viewport.
@@ -1735,17 +1735,17 @@ const statesJoined = stateCodes.join(",");
       }
     }
     fullscreenBtn?.addEventListener("click", () => {
-      const isFs = dialog!.classList.contains("choro-dialog-wide");
+      const isFs = dialog!.classList.contains("map-dialog-wide");
       syncFullscreenUI(!isFs);
     });
     dialog.addEventListener("close", () => {
       // Clear the canvas so re-opening doesn't show a stale map for
       // a moment while the new one paints.
-      const wrap = dialog!.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
+      const wrap = dialog!.querySelector(".map-dialog-canvas-wrap") as HTMLElement;
       if (wrap) wrap.innerHTML = "";
-      dialog!.classList.remove("choro-dialog-wide");
+      dialog!.classList.remove("map-dialog-wide");
       // Reset the fullscreen button text. The dialog is SHARED across
-      // every choropleth chart on the page (single #choro-expand-dialog
+      // every map chart on the page (single #map-expand-dialog
       // node via ensureDialog), so leaving the text as "Exit full screen"
       // means the next chart that opens this dialog shows stale label
       // text — and the next click reads classList (correctly NOT wide
@@ -1760,11 +1760,11 @@ const statesJoined = stateCodes.join(",");
     // there's a zoom binding active (county-and-finer); on state
     // maps it would be a no-op so we hide it via classList.
     const resetBtn = dialog.querySelector<HTMLButtonElement>(
-      ".choro-dialog-zoom-reset",
+      ".map-dialog-zoom-reset",
     );
     resetBtn?.addEventListener("click", () => {
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (dialogCanvas) zoomReset(dialogCanvas);
     });
@@ -1773,20 +1773,20 @@ const statesJoined = stateCodes.join(",");
     // (touchpad-without-momentum, browser quirks, etc.) — the user
     // can always reach the same zoom states via these.
     const zoomInBtn = dialog.querySelector<HTMLButtonElement>(
-      ".choro-dialog-zoom-in",
+      ".map-dialog-zoom-in",
     );
     const zoomOutBtn = dialog.querySelector<HTMLButtonElement>(
-      ".choro-dialog-zoom-out",
+      ".map-dialog-zoom-out",
     );
     zoomInBtn?.addEventListener("click", () => {
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (dialogCanvas) zoomScaleBy(dialogCanvas, 1.5);
     });
     zoomOutBtn?.addEventListener("click", () => {
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (dialogCanvas) zoomScaleBy(dialogCanvas, 1 / 1.5);
     });
@@ -1801,7 +1801,7 @@ const statesJoined = stateCodes.join(",");
     dialog.addEventListener("keydown", (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey)) return;
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (!dialogCanvas) return;
       if (e.key === "=" || e.key === "+") {
@@ -1820,7 +1820,7 @@ const statesJoined = stateCodes.join(",");
     // canvas + the source tile so the user sees the new color
     // immediately in both places.
     const sel = dialog.querySelector<HTMLSelectElement>(
-      ".choro-dialog-scheme-select",
+      ".map-dialog-scheme-select",
     );
     sel?.addEventListener("change", () => {
       const chartId = dialog!.dataset.activeChartId;
@@ -1828,7 +1828,7 @@ const statesJoined = stateCodes.join(",");
       saveOverride(chartId, sel.value);
       // Re-paint dialog canvas in place.
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (dialogCanvas) {
         dialogCanvas.removeAttribute("data-hydrated");
@@ -1838,7 +1838,7 @@ const statesJoined = stateCodes.join(",");
       // the page keep their own schemes, but the chart whose dialog
       // we changed should update its tile in lockstep.
       const tileCanvas = document.querySelector<HTMLElement>(
-        `[data-choro='1'][data-chart-id='${chartId}'] [data-role='choro-canvas']`,
+        `[data-map='1'][data-chart-id='${chartId}'] [data-role='map-canvas']`,
       );
       if (tileCanvas) {
         tileCanvas.removeAttribute("data-hydrated");
@@ -1852,7 +1852,7 @@ const statesJoined = stateCodes.join(",");
     // avoids triggering a paint on every pixel of drag while still
     // feeling responsive.
     const slider = dialog.querySelector<HTMLInputElement>(
-      ".choro-dialog-year-slider",
+      ".map-dialog-year-slider",
     );
     slider?.addEventListener("input", () => {
       const vintages = (
@@ -1862,7 +1862,7 @@ const statesJoined = stateCodes.join(",");
       const newVintage = vintages[idx];
       if (!newVintage) return;
       const readout = dialog!.querySelector<HTMLElement>(
-        ".choro-dialog-year-readout",
+        ".map-dialog-year-readout",
       );
       if (readout) readout.textContent = newVintage;
     });
@@ -1874,11 +1874,11 @@ const statesJoined = stateCodes.join(",");
       const newVintage = vintages[idx];
       if (!newVintage) return;
       const readout = dialog!.querySelector<HTMLElement>(
-        ".choro-dialog-year-readout",
+        ".map-dialog-year-readout",
       );
       if (readout) readout.textContent = newVintage;
       const dialogCanvas = dialog!.querySelector<HTMLElement>(
-        "[data-role='choro-canvas']",
+        "[data-role='map-canvas']",
       );
       if (!dialogCanvas) return;
       // Rebuild dataUrls by swapping the vintage. URL shape:
@@ -1909,7 +1909,7 @@ const statesJoined = stateCodes.join(",");
           .then((r) => r.json())
           .then((j) => {
             const meta = dialog!.querySelector<HTMLElement>(
-              ".choro-dialog-meta",
+              ".map-dialog-meta",
             );
             if (!meta) return;
             const updated = j.lastUpdated
@@ -1927,19 +1927,19 @@ const statesJoined = stateCodes.join(",");
   }
 
   function openExpanded(tile: HTMLElement) {
-    const canvasSrc = tile.querySelector<HTMLElement>("[data-role='choro-canvas']");
+    const canvasSrc = tile.querySelector<HTMLElement>("[data-role='map-canvas']");
     if (!canvasSrc) return;
     const title = tile.querySelector<HTMLElement>(".chart-tile-title")?.textContent ?? "";
-    const eyebrow = tile.querySelector<HTMLElement>(".choro-eyebrow")?.textContent ?? "";
+    const eyebrow = tile.querySelector<HTMLElement>(".map-eyebrow")?.textContent ?? "";
     const dialog = ensureDialog();
     const chartId = tile.dataset.chartId ?? "";
     dialog.dataset.activeChartId = chartId;
-    (dialog.querySelector(".choro-dialog-title") as HTMLElement).textContent = title;
-    (dialog.querySelector(".choro-dialog-eyebrow") as HTMLElement).textContent = eyebrow;
+    (dialog.querySelector(".map-dialog-title") as HTMLElement).textContent = title;
+    (dialog.querySelector(".map-dialog-eyebrow") as HTMLElement).textContent = eyebrow;
     // Pre-select the dropdown to the currently-effective scheme so
     // the user sees their current choice (default OR override).
     const sel = dialog.querySelector<HTMLSelectElement>(
-      ".choro-dialog-scheme-select",
+      ".map-dialog-scheme-select",
     );
     if (sel) {
       const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
@@ -1950,10 +1950,10 @@ const statesJoined = stateCodes.join(",");
     // dialog header doesn't show dead buttons. Same hide-rule for
     // the "scroll to zoom" hint in the footer.
     const zoomBtns = dialog.querySelectorAll<HTMLButtonElement>(
-      ".choro-dialog-zoom-reset, .choro-dialog-zoom-in, .choro-dialog-zoom-out",
+      ".map-dialog-zoom-reset, .map-dialog-zoom-in, .map-dialog-zoom-out",
     );
     const zoomHint = dialog.querySelector<HTMLElement>(
-      ".choro-dialog-zoom-hint",
+      ".map-dialog-zoom-hint",
     );
     const isStateLevel = canvasSrc.dataset.geo === "state";
     zoomBtns.forEach((b) => { b.hidden = isStateLevel; });
@@ -1962,12 +1962,12 @@ const statesJoined = stateCodes.join(",");
     // Show only when there's more than one vintage to choose from —
     // a single-vintage indicator (or one with discovery failure)
     // gets a hidden slider so the dialog stays uncluttered.
-    const yearWrap = dialog.querySelector<HTMLElement>(".choro-dialog-year");
+    const yearWrap = dialog.querySelector<HTMLElement>(".map-dialog-year");
     const slider = dialog.querySelector<HTMLInputElement>(
-      ".choro-dialog-year-slider",
+      ".map-dialog-year-slider",
     );
     const yearReadout = dialog.querySelector<HTMLElement>(
-      ".choro-dialog-year-readout",
+      ".map-dialog-year-readout",
     );
     let vintages: string[] = [];
     try {
@@ -1989,11 +1989,11 @@ const statesJoined = stateCodes.join(",");
     }
     // Fresh canvas — copy the source tile's data-* attrs so the
     // expanded paint runs with identical bindings + mode=expanded.
-    const wrap = dialog.querySelector(".choro-dialog-canvas-wrap") as HTMLElement;
+    const wrap = dialog.querySelector(".map-dialog-canvas-wrap") as HTMLElement;
     wrap.innerHTML = "";
     const expandedCanvas = document.createElement("div");
-    expandedCanvas.className = "choro-canvas choro-canvas-expanded";
-    expandedCanvas.setAttribute("data-role", "choro-canvas");
+    expandedCanvas.className = "map-canvas map-canvas-expanded";
+    expandedCanvas.setAttribute("data-role", "map-canvas");
     for (const attr of Array.from(canvasSrc.attributes)) {
       if (attr.name === "class") continue;
       expandedCanvas.setAttribute(attr.name, attr.value);
@@ -2014,7 +2014,7 @@ const statesJoined = stateCodes.join(",");
       fetch(firstUrl)
         .then((r) => r.json())
         .then((j) => {
-          const meta = dialog.querySelector(".choro-dialog-meta") as HTMLElement;
+          const meta = dialog.querySelector(".map-dialog-meta") as HTMLElement;
           const updated = j.lastUpdated
             ? new Date(j.lastUpdated).toLocaleDateString("en-US", {
                 year: "numeric", month: "short", day: "numeric",
@@ -2038,18 +2038,18 @@ const statesJoined = stateCodes.join(",");
 
   function init() {
     hydrateAll();
-    // Delegate clicks on choro tiles to the document, so we don't
+    // Delegate clicks on map tiles to the document, so we don't
     // race the per-tile DOM-ready handler and don't miss tiles
     // hydrated late (e.g. by routing or re-mounts).
     document.addEventListener("click", (e) => {
       const tile = (e.target as HTMLElement | null)?.closest<HTMLElement>(
-        "[data-choro='1']",
+        "[data-map='1']",
       );
       if (!tile) return;
       // Ignore clicks that originated inside an already-open dialog
       // (re-clicks on the expanded canvas shouldn't re-trigger
       // the open).
-      if ((e.target as HTMLElement | null)?.closest(".choro-dialog")) return;
+      if ((e.target as HTMLElement | null)?.closest(".map-dialog")) return;
       openExpanded(tile);
     });
   }
@@ -2062,7 +2062,7 @@ const statesJoined = stateCodes.join(",");
 </script>
 
 <style>
-  .choro-tile {
+  .map-tile {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -2078,29 +2078,29 @@ const statesJoined = stateCodes.join(",");
     grid-column: span 2;
   }
   @media (max-width: 720px) {
-    .choro-tile { grid-column: span 1; }
+    .map-tile { grid-column: span 1; }
   }
-  .choro-tile .chart-tile-header { margin: 0; }
-  .choro-tile .chart-tile-title {
+  .map-tile .chart-tile-header { margin: 0; }
+  .map-tile .chart-tile-title {
     margin: 0;
     font-size: var(--text-sm);
     font-weight: 500;
     color: var(--color-neutral-900);
   }
-  .choro-eyebrow { margin: 2px 0 0; }
-  .choro-canvas {
+  .map-eyebrow { margin: 2px 0 0; }
+  .map-canvas {
     flex: 1;
     min-height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .choro-canvas { position: relative; }
-  .choro-canvas svg { max-width: 100%; height: auto; }
+  .map-canvas { position: relative; }
+  .map-canvas svg { max-width: 100%; height: auto; }
   /* Custom mousemove tooltip — bypasses the slow native SVG <title>
      hover delay. Positioned absolutely inside the canvas wrapper so
      scrolling doesn't desync it from the cursor. */
-  .choro-tooltip {
+  .map-tooltip {
     position: absolute;
     padding: 4px 8px;
     background: var(--color-neutral-900);
@@ -2123,7 +2123,7 @@ const statesJoined = stateCodes.join(",");
      d3-zoom relies on the wheel reaching the SVG to trigger
      scroll-to-zoom. overscroll-behavior: contain stops the
      scroll chain at the dialog boundary in either direction. */
-  .choro-dialog {
+  .map-dialog {
     /* See chart-dialog comment: Tailwind v4 preflight zeros margin
        on every element, defeating <dialog>'s UA-default margin:auto
        centering. Restore it. */
@@ -2139,11 +2139,11 @@ const statesJoined = stateCodes.join(",");
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  .choro-dialog::backdrop {
+  .map-dialog::backdrop {
     background: rgba(0, 0, 0, 0.45);
   }
-  .choro-dialog:fullscreen,
-  .choro-dialog.choro-dialog-wide {
+  .map-dialog:fullscreen,
+  .map-dialog.map-dialog-wide {
     width: 100vw;
     height: 100vh;
     max-width: none;
@@ -2164,34 +2164,34 @@ const statesJoined = stateCodes.join(",");
     flex-direction: column;
     overflow: hidden;
   }
-  .choro-dialog.choro-dialog-wide .choro-dialog-canvas-wrap {
+  .map-dialog.map-dialog-wide .map-dialog-canvas-wrap {
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
   }
-  .choro-dialog-header {
+  .map-dialog-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
     padding: 16px 20px 8px;
   }
-  .choro-dialog-titles { flex: 1; min-width: 0; }
-  .choro-dialog-title {
+  .map-dialog-titles { flex: 1; min-width: 0; }
+  .map-dialog-title {
     margin: 0;
     font-size: var(--text-base);
     font-weight: 600;
   }
-  .choro-dialog-eyebrow {
+  .map-dialog-eyebrow {
     margin: 4px 0 0;
   }
-  .choro-dialog-actions {
+  .map-dialog-actions {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
   }
-  .choro-dialog-fullscreen {
+  .map-dialog-fullscreen {
     font-size: var(--text-xs);
     background: transparent;
     border: 1px solid rgba(55, 53, 47, 0.12);
@@ -2200,12 +2200,12 @@ const statesJoined = stateCodes.join(",");
     cursor: pointer;
     color: var(--color-neutral-700);
   }
-  .choro-dialog-fullscreen:hover { background: var(--color-neutral-100); }
+  .map-dialog-fullscreen:hover { background: var(--color-neutral-100); }
   /* Reset-zoom button: same visual weight as fullscreen so the
      dialog action row reads as a row of utility controls. Hidden
      via [hidden] attr on state-level maps where there's no zoom
      to reset. */
-  .choro-dialog-zoom-reset {
+  .map-dialog-zoom-reset {
     font-size: var(--text-xs);
     background: transparent;
     border: 1px solid rgba(55, 53, 47, 0.12);
@@ -2214,13 +2214,13 @@ const statesJoined = stateCodes.join(",");
     cursor: pointer;
     color: var(--color-neutral-700);
   }
-  .choro-dialog-zoom-reset:hover { background: var(--color-neutral-100); }
-  .choro-dialog-zoom-reset[hidden] { display: none; }
+  .map-dialog-zoom-reset:hover { background: var(--color-neutral-100); }
+  .map-dialog-zoom-reset[hidden] { display: none; }
   /* Manual +/- buttons — same visual treatment as the reset, narrower
      to keep the action row compact. Tabular-numeric padding so the
      glyphs sit centered in their boxes. */
-  .choro-dialog-zoom-in,
-  .choro-dialog-zoom-out {
+  .map-dialog-zoom-in,
+  .map-dialog-zoom-out {
     font-size: var(--text-sm);
     font-weight: 600;
     line-height: 1;
@@ -2232,20 +2232,20 @@ const statesJoined = stateCodes.join(",");
     color: var(--color-neutral-700);
     min-width: 28px;
   }
-  .choro-dialog-zoom-in:hover,
-  .choro-dialog-zoom-out:hover { background: var(--color-neutral-100); }
-  .choro-dialog-zoom-in[hidden],
-  .choro-dialog-zoom-out[hidden] { display: none; }
+  .map-dialog-zoom-in:hover,
+  .map-dialog-zoom-out:hover { background: var(--color-neutral-100); }
+  .map-dialog-zoom-in[hidden],
+  .map-dialog-zoom-out[hidden] { display: none; }
   /* Color-scheme picker in the dialog actions row. Tightly styled so
      it doesn't dominate the dialog header — it's a refinement, not a
      primary action. */
-  .choro-dialog-scheme {
+  .map-dialog-scheme {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: var(--text-xs);
   }
-  .choro-dialog-scheme-select {
+  .map-dialog-scheme-select {
     font-size: var(--text-xs);
     background: var(--color-white);
     border: 1px solid rgba(55, 53, 47, 0.12);
@@ -2257,7 +2257,7 @@ const statesJoined = stateCodes.join(",");
   /* Year-slider row. Spans below the header so the slider has room
      to breathe. Hidden when only one vintage is available — single-
      year charts shouldn't show a slider that can't move. */
-  .choro-dialog-year {
+  .map-dialog-year {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -2265,14 +2265,14 @@ const statesJoined = stateCodes.join(",");
     font-size: var(--text-xs);
     color: var(--color-neutral-700);
   }
-  .choro-dialog-year[hidden] { display: none; }
-  .choro-dialog-year-slider {
+  .map-dialog-year[hidden] { display: none; }
+  .map-dialog-year-slider {
     flex: 1;
     min-width: 200px;
     max-width: 460px;
     accent-color: var(--color-accent);
   }
-  .choro-dialog-year-readout {
+  .map-dialog-year-readout {
     font-variant-numeric: tabular-nums;
     min-width: 4ch;
     color: var(--color-neutral-900);
@@ -2281,25 +2281,25 @@ const statesJoined = stateCodes.join(",");
   /* "Why no rainbow?" disclosure. Collapsed by default; expands
      inline above the map. Reads as a sidebar note, not a primary
      element of the dialog. */
-  .choro-dialog-why {
+  .map-dialog-why {
     margin: 0 20px 8px;
     color: var(--color-neutral-700);
   }
-  .choro-dialog-why summary {
+  .map-dialog-why summary {
     cursor: pointer;
     font-size: var(--text-xs);
     color: var(--color-neutral-500);
     user-select: none;
   }
-  .choro-dialog-why summary:hover { color: var(--color-neutral-800); }
-  .choro-dialog-why p {
+  .map-dialog-why summary:hover { color: var(--color-neutral-800); }
+  .map-dialog-why p {
     margin: 8px 0 0;
     font-size: var(--text-sm);
     line-height: 1.55;
     max-width: 64ch;
   }
-  .choro-dialog-why a { color: var(--color-accent); }
-  .choro-dialog-close {
+  .map-dialog-why a { color: var(--color-accent); }
+  .map-dialog-close {
     font-size: 22px;
     line-height: 1;
     background: transparent;
@@ -2308,8 +2308,8 @@ const statesJoined = stateCodes.join(",");
     padding: 4px 8px;
     color: var(--color-neutral-500);
   }
-  .choro-dialog-close:hover { color: var(--color-neutral-900); }
-  .choro-dialog-canvas-wrap {
+  .map-dialog-close:hover { color: var(--color-neutral-900); }
+  .map-dialog-canvas-wrap {
     padding: 0 12px 12px;
     display: flex;
     align-items: center;
@@ -2321,29 +2321,29 @@ const statesJoined = stateCodes.join(",");
        the dialog instead of zooming the map. */
     overscroll-behavior: contain;
   }
-  .choro-canvas-expanded {
+  .map-canvas-expanded {
     width: 100%;
     /* touch-action: none routes trackpad pinch + two-finger pans to
        d3-zoom instead of the browser's native page-zoom / scroll. */
     touch-action: none;
     overscroll-behavior: contain;
   }
-  .choro-canvas-expanded svg { max-width: 100%; height: auto; }
+  .map-canvas-expanded svg { max-width: 100%; height: auto; }
   /* In fullscreen, fit the SVG inside the flex-grown canvas wrap
      (height-bounded by the wrap, not by intrinsic aspect-ratio scaling
      from width). The default rule above sets max-width:100% +
      height:auto, which scales the SVG by width only — at a 1900-wide
      wrap on a 1080-tall viewport the resulting height (~1200px after
      aspect-ratio scaling) blew past the dialog's 100vh and surfaced a
-     vertical scrollbar even though .choro-dialog-wide has
+     vertical scrollbar even though .map-dialog-wide has
      overflow:hidden. Explicit max-height + width/height: 100% lets the
      SVG's built-in viewBox + preserveAspectRatio="xMidYMid meet" do
      the right thing: scale to fit within the wrap, leaving whitespace
      on whichever axis runs short. */
-  .choro-dialog.choro-dialog-wide .choro-dialog-canvas-wrap {
+  .map-dialog.map-dialog-wide .map-dialog-canvas-wrap {
     overflow: hidden;
   }
-  .choro-dialog.choro-dialog-wide .choro-canvas-expanded {
+  .map-dialog.map-dialog-wide .map-canvas-expanded {
     width: 100%;
     height: 100%;
     min-height: 0;
@@ -2351,17 +2351,17 @@ const statesJoined = stateCodes.join(",");
     align-items: center;
     justify-content: center;
   }
-  .choro-dialog.choro-dialog-wide .choro-canvas-expanded svg {
+  .map-dialog.map-dialog-wide .map-canvas-expanded svg {
     width: 100%;
     height: 100%;
     max-width: 100%;
     max-height: 100%;
   }
-  .choro-dialog-footer {
+  .map-dialog-footer {
     padding: 8px 20px 16px;
     border-top: 1px solid rgba(55, 53, 47, 0.06);
   }
-  .choro-dialog-footer p { margin: 0; }
-  .choro-dialog-zoom-hint { margin-top: 4px !important; opacity: 0.7; }
-  .choro-dialog-zoom-hint[hidden] { display: none; }
+  .map-dialog-footer p { margin: 0; }
+  .map-dialog-zoom-hint { margin-top: 4px !important; opacity: 0.7; }
+  .map-dialog-zoom-hint[hidden] { display: none; }
 </style>

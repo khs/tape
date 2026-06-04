@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Louisiana (2022)
-render: choropleth
+render: map
 geo: tract
 states: [LA]
 indicator: foreign_born_pct

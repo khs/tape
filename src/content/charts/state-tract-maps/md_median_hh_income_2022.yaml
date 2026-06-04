@@ -1,5 +1,5 @@
 title: Median household income by census tract — Maryland (2022)
-render: choropleth
+render: map
 geo: tract
 states: [MD]
 indicator: median_hh_income

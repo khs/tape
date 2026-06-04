@@ -1,5 +1,5 @@
 title: Median household income by census block group — Washington (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [WA]
 indicator: median_hh_income

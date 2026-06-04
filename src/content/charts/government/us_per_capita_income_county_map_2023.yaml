@@ -1,5 +1,5 @@
 title: Per-capita personal income by US county (2023)
-render: choropleth
+render: map
 geo: county
 indicator: bea_per_capita_income
 vintage: "2023"

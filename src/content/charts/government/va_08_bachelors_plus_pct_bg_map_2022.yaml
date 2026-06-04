@@ -1,5 +1,5 @@
 title: Adults 25+ with a bachelor's degree by census block group — VA-08 (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [VA]
 indicator: bachelors_plus_pct

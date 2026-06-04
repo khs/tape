@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census block group — Utah (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [UT]
 indicator: bachelors_plus_pct

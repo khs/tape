@@ -64,7 +64,7 @@ const source = sources.find((s) => s.id === sourceId) ?? null;
 const allCharts = await getCollection("charts");
 const referencingCharts = allCharts
   .filter(isVisibleChart)
-  .filter((c) => c.data.render !== "choropleth")
+  .filter((c) => c.data.render !== "map")
   .filter((c) => (c.data.sources ?? []).includes(sourceId));
 
 // Synthesize a minimal CollectionEntry-shaped chart so we can hand

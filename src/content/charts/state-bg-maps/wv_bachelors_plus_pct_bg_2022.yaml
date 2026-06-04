@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census block group — West Virginia (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [WV]
 indicator: bachelors_plus_pct

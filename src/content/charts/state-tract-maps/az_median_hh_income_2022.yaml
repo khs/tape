@@ -1,5 +1,5 @@
 title: Median household income by census tract — Arizona (2022)
-render: choropleth
+render: map
 geo: tract
 states: [AZ]
 indicator: median_hh_income

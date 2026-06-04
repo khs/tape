@@ -11,7 +11,7 @@
  * Pentagon.
  *
  * This table maps a small starter set of GEOIDs to their everyday
- * names. The choropleth tooltip uses this to label hatched tracts
+ * names. The map tooltip uses this to label hatched tracts
  * with their recognizable identity:
  *
  *   without:  Census Tract 9801 — special land use (no resident...)

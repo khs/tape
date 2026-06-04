@@ -1,5 +1,5 @@
 title: Median household income by census tract — North Carolina (2022)
-render: choropleth
+render: map
 geo: tract
 states: [NC]
 indicator: median_hh_income

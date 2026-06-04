@@ -1,5 +1,5 @@
 title: Median household income by census block group — New York (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [NY]
 indicator: median_hh_income

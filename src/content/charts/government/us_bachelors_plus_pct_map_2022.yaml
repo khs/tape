@@ -1,5 +1,5 @@
 title: Adults 25+ with a bachelor's degree by US state (2022)
-render: choropleth
+render: map
 geo: state
 indicator: bachelors_plus_pct
 vintage: "2022"

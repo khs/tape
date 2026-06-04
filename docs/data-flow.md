@@ -62,8 +62,8 @@ Three ordering constraints are load-bearing:
   country-ETF series by VT, both written by the former.
 - **`census_acs_cd.py` before `derive_acs_state_from_cd.py` and
   `census_acs_choropleth_derive_state.py`** — the per-state series and state
-  choropleth snapshots are *derived from* the per-CD data on disk, no API
-  call. The *direct* state choropleth fetch then runs last to override
+  map snapshots are *derived from* the per-CD data on disk, no API
+  call. The *direct* state map fetch then runs last to override
   derivation gaps (Connecticut 2022's planning-region tract GEOIDs, DC's
   missing aggregates).
 - **`build_summaries.py` before `trim_source_data.py`** — summaries must see
@@ -252,7 +252,7 @@ stored in **billions USD**, counts **raw**; see §8.
 - **`census_acs_choropleth.py`** — **cross-sectional snapshots** (not
   timeseries) for maps: per (indicator, vintage, geo) a `{values:{GEOID:v}}`
   file → `public/data/acs_{state,county,tract,block_group}/`.
-- **`census_acs_choropleth_derive_state.py`** — derives state choropleth
+- **`census_acs_choropleth_derive_state.py`** — derives state map
   snapshots from on-disk `acs_state` timeseries (no API key).
 - **`derive_acs_state_from_cd.py`** — aggregates per-CD ACS into per-state
   timeseries (counts sum; medians population-weighted).
@@ -280,7 +280,7 @@ after every refresh.
 - **`_generate_content.py`** — one-off source+chart YAML generator for a
   library expansion (with a cadence→`supportedDeltas` helper).
 - **`_generate_state_tract_charts.py` / `_generate_state_bg_charts.py`** —
-  per-state choropleth **chart** YAMLs under `src/content/charts/state-*-maps/`.
+  per-state map **chart** YAMLs under `src/content/charts/state-*-maps/`.
 - **`_generate_state_atlas_dashboards.py`** — 4 regional "State Atlas"
   **dashboard** MDX files.
 - **`_backfill_tags.py` / `backfill_source_tags.py`** — rule-based `tags:` on
@@ -310,7 +310,7 @@ These are the cross-provider aggregates the front end depends on.
   pipelines and the generators index.
 - **`build_state_tract_topo.py`** — Census TIGER shapefiles → per-state
   TopoJSON (via `mapshaper`), cached in `_tract_topo_cache/`. Feeds the
-  choropleth chart YAMLs.
+  map chart YAMLs.
 
 Crosswalk builders are run rarely/manually (their inputs are decennial), not
 in the scheduled refresh.
@@ -422,7 +422,7 @@ Not part of the refresh; run by hand when needed.
 | | Weekly (`refresh-data.yml`) | Monthly (`refresh-demographics.yml`) | Local (`run-data-refresh-local.sh`) |
 |---|---|---|---|
 | Cadence | Sun 06:00 UTC | 1st of month 06:00 UTC | manual, one command |
-| Ingest set | market data (FRED, Yahoo, WB-GDP, BLS, CBO, OECD, TIC, USAspending, EIA) | Census ACS (CD/metro/national/choropleth), WB-extended, USAspending-metro, BLS-metro, state annual sets | both sets |
+| Ingest set | market data (FRED, Yahoo, WB-GDP, BLS, CBO, OECD, TIC, USAspending, EIA) | Census ACS (CD/metro/national/map), WB-extended, USAspending-metro, BLS-metro, state annual sets | both sets |
 | Runtime | ~15 min | ~3–4 hr clean, less on cache hits | full sequence |
 | Alerts | yes | yes | **no** (prod-Supabase safety) |
 | Commit | race-safe overlay | race-safe overlay (+ owns the `acs_*` YAML dirs) | none (you commit by hand) |

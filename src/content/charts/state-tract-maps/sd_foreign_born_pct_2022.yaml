@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — South Dakota (2022)
-render: choropleth
+render: map
 geo: tract
 states: [SD]
 indicator: foreign_born_pct

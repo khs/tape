@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — North Dakota (2022)
-render: choropleth
+render: map
 geo: tract
 states: [ND]
 indicator: foreign_born_pct

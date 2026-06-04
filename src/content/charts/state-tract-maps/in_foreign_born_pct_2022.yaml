@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Indiana (2022)
-render: choropleth
+render: map
 geo: tract
 states: [IN]
 indicator: foreign_born_pct

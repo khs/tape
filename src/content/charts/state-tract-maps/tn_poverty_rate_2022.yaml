@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Tennessee (2022)
-render: choropleth
+render: map
 geo: tract
 states: [TN]
 indicator: poverty_rate

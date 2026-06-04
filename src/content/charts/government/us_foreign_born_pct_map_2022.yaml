@@ -1,5 +1,5 @@
 title: Foreign-born population share by US state (2022)
-render: choropleth
+render: map
 geo: state
 indicator: foreign_born_pct
 vintage: "2022"

@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Wisconsin (2022)
-render: choropleth
+render: map
 geo: tract
 states: [WI]
 indicator: poverty_rate

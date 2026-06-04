@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Wyoming (2022)
-render: choropleth
+render: map
 geo: tract
 states: [WY]
 indicator: foreign_born_pct

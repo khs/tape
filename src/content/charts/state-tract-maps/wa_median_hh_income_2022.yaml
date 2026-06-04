@@ -1,5 +1,5 @@
 title: Median household income by census tract — Washington (2022)
-render: choropleth
+render: map
 geo: tract
 states: [WA]
 indicator: median_hh_income

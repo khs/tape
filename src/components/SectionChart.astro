@@ -4,13 +4,13 @@
  *
  * Three preset / custom / saved-dashboard page renderers each had a
  * near-identical 25-line if/else picking among `<Chart>`,
- * `<ChartChoropleth>`, and `<ChartBar>`. Drift across the three copies
+ * `<ChartMap>`, and `<ChartBar>`. Drift across the three copies
  * is a real risk (the bar branch was a 3-place manual edit when it
  * shipped) so they live here as one component.
  *
  * Page renderers pass everything for the union of all three target
  * components; this wrapper picks the right one. Type-wise, props are
- * deliberately loose — Chart / ChartChoropleth / ChartBar each have
+ * deliberately loose — Chart / ChartMap / ChartBar each have
  * their own strict prop shapes, and the wrapper's job is only to
  * forward the relevant subset.
  */
@@ -18,7 +18,7 @@ import type { CollectionEntry } from "astro:content";
 import type { DeltaWindow } from "../lib/deltas";
 import type { TimeSeriesData } from "../lib/data-types";
 import Chart from "./Chart.astro";
-import ChartChoropleth from "./ChartChoropleth.astro";
+import ChartMap from "./ChartMap.astro";
 import ChartBar from "./ChartBar.astro";
 
 type ChartEntry = CollectionEntry<"charts">;
@@ -35,7 +35,7 @@ interface Props {
    *  application in their JSX. */
   chart: ChartEntry["data"];
   /** Resolved source list. Required for line + bar charts; ignored
-   *  by choropleth (it binds to a geo/indicator/vintage tuple). */
+   *  by map (it binds to a geo/indicator/vintage tuple). */
   sources: SourceEntry[];
   dashboardSlug: string;
   /** Section-level window (passed to line charts). */
@@ -62,8 +62,8 @@ const {
 ---
 
 {
-  chart.render === "choropleth" ? (
-    <ChartChoropleth
+  chart.render === "map" ? (
+    <ChartMap
       chartId={chartId}
       chart={chart}
       dashboardSlug={dashboardSlug}

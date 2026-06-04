@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — DC (2022)
-render: choropleth
+render: map
 geo: tract
 states: [DC]
 indicator: poverty_rate

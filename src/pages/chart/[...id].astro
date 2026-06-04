@@ -15,13 +15,13 @@ import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astr
 export async function getStaticPaths() {
   const charts = await getCollection("charts");
   // Skip deprecated-without-alias entries (the composer hides them too).
-  // Choropleth charts ARE included — SectionChart's dispatch handles
-  // them (renders ChartChoropleth), and the welcome page's coverage
+  // Map charts ARE included — SectionChart's dispatch handles
+  // them (renders ChartMap), and the welcome page's coverage
   // chips link here. They used to be filtered out under the rationale
   // that "snapshot-only doesn't fit the expand-a-tile UX," but in
-  // practice choropleth has its own click-to-open dialog (the choro-
+  // practice map has its own click-to-open dialog (the map-
   // dialog with the year slider and full-screen toggle), so the
-  // detail page works fine — click the tile, the choro dialog opens.
+  // detail page works fine — click the tile, the map dialog opens.
   return charts
     .filter(isVisibleChart)
     .map((c) => ({ params: { id: c.id }, props: { chartId: c.id } }));
@@ -38,7 +38,7 @@ const resolved = await resolveChart(chartId);
 const effChart = resolved ? effectiveChart(resolved) : null;
 // Bar charts need per-source snapshot data preloaded so ChartBar's
 // JSX can render without an inline await. Cheap for the line +
-// choropleth paths (single chart, single call) — bypass the
+// map paths (single chart, single call) — bypass the
 // filesystem read entirely when not needed.
 const barSnapshot =
   resolved && effChart?.render === "bar"
@@ -136,7 +136,7 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
               bar charts (countries/gdp_snapshot etc.) rendered via
               Chart.astro as multi-source line tiles — showing each
               source's delta-over-defaultDelta instead of the bar
-              snapshot. Choropleth charts are filtered out of
+              snapshot. Map charts are filtered out of
               getStaticPaths above; the dispatch handles them
               gracefully if that filter is ever removed.
             */}
@@ -217,7 +217,7 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
         // (see `.chart-detail-host-popout .chart-dialog` below). Nudge a
         // resize after the dialog opens so the line-chart plot re-renders to
         // fill the wider dialog instead of its default ~820px width. (The
-        // choropleth reads the popout class at render time and sizes itself;
+        // map reads the popout class at render time and sizes itself;
         // this nudge is the line-chart path's belt-and-suspenders.)
         if (document.documentElement.classList.contains("chart-detail-host-popout")) {
           setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 150);

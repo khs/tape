@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Nebraska (2022)
-render: choropleth
+render: map
 geo: tract
 states: [NE]
 indicator: poverty_rate

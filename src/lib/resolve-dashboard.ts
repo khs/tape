@@ -208,15 +208,15 @@ export async function resolveChart(
     const spec = inlineMaps?.[id];
     if (!spec) return null;
     // Synthesize a CollectionEntry-shaped chart object so the
-    // downstream render dispatch (Chart.astro for line, ChartChoropleth
-    // for "choropleth") can treat inline maps identically to library
-    // choropleth charts. Only `data.render` + the geo/indicator/vintage
-    // fields are read by ChartChoropleth.
+    // downstream render dispatch (Chart.astro for line, ChartMap
+    // for "map") can treat inline maps identically to library
+    // map charts. Only `data.render` + the geo/indicator/vintage
+    // fields are read by ChartMap.
     const fakeChart = {
       id,
       data: {
         title: spec.title,
-        render: "choropleth" as const,
+        render: "map" as const,
         geo: spec.geo,
         indicator: spec.indicator,
         vintage: spec.vintage,
@@ -340,13 +340,13 @@ export async function resolveChart(
     const target = await getEntry("charts", chart.data.aliasOf);
     if (target) chart = target;
   }
-  // Choropleth charts don't reference time-series sources — they bind
+  // Map charts don't reference time-series sources — they bind
   // to a (geo, indicator, vintage) tuple and load a cross-sectional
   // snapshot at render time. Return them with an empty sources array;
-  // ChartChoropleth.astro handles the rest. The renderer call site
+  // ChartMap.astro handles the rest. The renderer call site
   // dispatches on chart.data.render and never reads sources for
-  // choropleth, so an empty list is safe.
-  if (chart.data.render === "choropleth") {
+  // map, so an empty list is safe.
+  if (chart.data.render === "map") {
     return { chart, sources: [] };
   }
   const sources = await Promise.all(
@@ -410,10 +410,10 @@ export function perChartSupportedDeltas(
 ): DeltaWindow[][] {
   return sections.flatMap((sec) =>
     sec.charts.map((c) => {
-      // Choropleth charts are a snapshot — no time-window selector
+      // Map charts are a snapshot — no time-window selector
       // applies. Return an empty list so the dashboard-level pill
       // computation correctly excludes them from the union.
-      if (c.chart.data.render === "choropleth") return [];
+      if (c.chart.data.render === "map") return [];
       return DELTA_WINDOWS.filter((w) =>
         c.sources.every((s) => s.data.supportedDeltas.includes(w)),
       );

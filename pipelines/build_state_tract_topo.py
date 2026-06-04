@@ -79,7 +79,7 @@ def tiger_url(geo: str, fips: str) -> str:
 
 def geo_layer_name(geo: str) -> str:
     """Topojson layer name the renderer looks for. tract -> 'tracts',
-    block_group -> 'block_groups' (per ChartChoropleth.astro)."""
+    block_group -> 'block_groups' (per ChartMap.astro)."""
     return {"tract": "tracts", "block_group": "block_groups"}[geo]
 
 

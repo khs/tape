@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Minnesota (2022)
-render: choropleth
+render: map
 geo: tract
 states: [MN]
 indicator: foreign_born_pct

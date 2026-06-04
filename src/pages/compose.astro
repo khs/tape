@@ -122,7 +122,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             data-tab="maps"
             role="tab"
             aria-selected="false"
-            title="Build a choropleth map from ACS demographic data"
+            title="Build a map from ACS demographic data"
           >Maps</button>
           <button
             type="button"
@@ -261,7 +261,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         </div>
 
         <!--
-          Maps tab: build a choropleth map from ACS demographic data.
+          Maps tab: build a map from ACS demographic data.
           Form-driven (not search-driven like the other two tabs) because
           the input set is a 5-axis cross-product (indicator × vintage ×
           geo × state × color) rather than a list to filter. Form values
@@ -272,7 +272,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="lib-panel lib-panel-maps" data-role="lib-panel-maps" hidden>
           <div class="map-builder">
             <p class="muted small map-builder-intro">
-              Build a choropleth map of an ACS demographic indicator.
+              Build a map of an ACS demographic indicator.
               The map is added to your current section like any other
               tile.
             </p>
@@ -1294,8 +1294,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     sections: UISection[];
     inlineCharts: Record<string, InlineChart>;
     inlineSources: Record<string, InlineSource>;
-    // Ad-hoc choropleth maps built in the Maps tab. Parallel to
-    // inlineCharts but for the choropleth render path. Keyed by
+    // Ad-hoc maps built in the Maps tab. Parallel to
+    // inlineCharts but for the map render path. Keyed by
     // `inlinemap:<id>`; referenced from sections.charts with the
     // same prefix, dispatched server-side in resolve-dashboard.ts.
     inlineMaps: Record<string, InlineMap>;
@@ -3157,7 +3157,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // into a fresh `inlinemap:<id>` entry on `state.inlineMaps`, appends
   // the reference to the active section, and writes URL state. The
   // server-side `resolve-dashboard.ts` synthesizes a CollectionEntry
-  // shape from the InlineMap spec; ChartChoropleth.astro takes it from
+  // shape from the InlineMap spec; ChartMap.astro takes it from
   // there.
 
   type MapGeo = "state" | "county" | "tract" | "block-group";
@@ -3790,7 +3790,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     const title = mapBuilder.customTitle.trim() || defaultMapTitle();
     // Single-state tract/BG: keep `state` for back-compat (existing
-    // saved dashboards + the choropleth renderer's pre-multi paths
+    // saved dashboards + the map renderer's pre-multi paths
     // both read state when states[] is absent). Multi-state: set
     // states[] and leave boundaryFile undefined so the renderer
     // derives one `/maps/<st>-<seg>-topo.json` per state and merges
@@ -3816,7 +3816,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             : `/maps/${mapBuilder.states[0].toLowerCase()}-tracts-topo.json`;
       } else {
         entry.states = [...mapBuilder.states];
-        // boundaryFile intentionally absent — ChartChoropleth derives
+        // boundaryFile intentionally absent — ChartMap derives
         // per-state URLs from states[] when the explicit file isn't
         // set and merges the topologies client-side.
       }
@@ -5348,7 +5348,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // ---- Tile previews ----------------------------------------------
   //
   // Each composer tile gets a lightweight visual preview appended below
-  // its title/meta line: a sparkline for chart tiles, a tiny choropleth
+  // its title/meta line: a sparkline for chart tiles, a tiny map
   // silhouette for inline-map tiles. The goal is "the composer should
   // approximate what Preview will render" — without bringing the full
   // ChartController stack into the editor (it expects SSR-rendered
@@ -5419,7 +5419,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
   }
 
-  // Mini-choropleth preview for inline maps. Loads the same TopoJSON
+  // Mini-map preview for inline maps. Loads the same TopoJSON
   // the full /custom/ render uses, then paints a static silhouette
   // tinted by the data values (if available). When the data file
   // isn't present (newer indicator, narrower state set), falls back
@@ -5534,7 +5534,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
 
     // Try to load the data file(s) so the preview can paint values,
-    // not just outlines. Same path scheme ChartChoropleth.astro uses.
+    // not just outlines. Same path scheme ChartMap.astro uses.
     // Multi-state previews merge values from all state shards so the
     // tint is consistent across the displayed region — matches the
     // /custom/ + /u/<slug>/ behavior.
@@ -5609,7 +5609,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     svg.setAttribute("height", String(height));
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     // Diagonal-stripe pattern for no-data regions. Same visual
-    // language as the full ChartChoropleth view's `choro-no-data-*`
+    // language as the full ChartMap view's `map-no-data-*`
     // pattern, scaled down for the thumbnail (smaller tile = smaller
     // stripe gap). Distinguishes "no data published for this
     // polygon" from "valid data at the low end of the color ramp",
@@ -5957,7 +5957,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             // for a YAML chart with that ID, didn't find one, and
             // rendered a bare "inlinemap:abc12345" string. Maps get
             // their own tile class so the CSS can size the preview
-            // area for a square-ish choropleth rather than the wider
+            // area for a square-ish map rather than the wider
             // timeseries sparkline.
             const m = state.inlineMaps[chartId];
             titleText = m?.title ?? chartId;
@@ -6012,7 +6012,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             `<div class="comp-tile-meta">${escapeHtml(metaText)}</div>` +
             `<div class="comp-tile-preview" data-role="tile-preview"></div>`;
           // Lazy-render the visual preview (sparkline for charts, mini
-          // choropleth for maps). Async + fire-and-forget — the tile
+          // map for maps). Async + fire-and-forget — the tile
           // is already in the DOM with title/meta, the preview just
           // fills in when its data lands. Cached fetches make the
           // second render of a given source / topology near-instant.

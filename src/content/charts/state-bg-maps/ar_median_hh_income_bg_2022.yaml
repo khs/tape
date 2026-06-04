@@ -1,5 +1,5 @@
 title: Median household income by census block group — Arkansas (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [AR]
 indicator: median_hh_income

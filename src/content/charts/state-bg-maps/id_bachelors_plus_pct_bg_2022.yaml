@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census block group — Idaho (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [ID]
 indicator: bachelors_plus_pct

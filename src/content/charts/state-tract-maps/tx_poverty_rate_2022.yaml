@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Texas (2022)
-render: choropleth
+render: map
 geo: tract
 states: [TX]
 indicator: poverty_rate

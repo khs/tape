@@ -1,5 +1,5 @@
 title: Median household income by census block group — Vermont (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [VT]
 indicator: median_hh_income

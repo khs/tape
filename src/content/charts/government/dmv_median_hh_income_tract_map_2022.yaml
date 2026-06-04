@@ -1,5 +1,5 @@
 title: Median household income by census tract — DC metro area (2022)
-render: choropleth
+render: map
 geo: tract
 states: [VA, MD, DC]
 indicator: median_hh_income

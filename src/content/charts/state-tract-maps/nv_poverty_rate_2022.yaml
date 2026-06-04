@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Nevada (2022)
-render: choropleth
+render: map
 geo: tract
 states: [NV]
 indicator: poverty_rate

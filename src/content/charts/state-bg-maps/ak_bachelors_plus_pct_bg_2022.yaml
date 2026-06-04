@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census block group — Alaska (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [AK]
 indicator: bachelors_plus_pct

@@ -199,13 +199,13 @@ describe("resolveBarSnapshots", () => {
         sources: [{ id: "x", data: { dataFile: "data/x.json" } }],
       },
       {
-        chart: { id: "choropleth1", data: { render: "choropleth" } },
+        chart: { id: "map1", data: { render: "map" } },
         sources: [{ id: "x", data: { dataFile: "data/x.json" } }],
       },
     ]);
     expect(result.has("bar1")).toBe(true);
     expect(result.has("line1")).toBe(false);
-    expect(result.has("choropleth1")).toBe(false);
+    expect(result.has("map1")).toBe(false);
     expect(result.size).toBe(1);
   });
 

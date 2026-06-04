@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census tract — Missouri (2022)
-render: choropleth
+render: map
 geo: tract
 states: [MO]
 indicator: bachelors_plus_pct

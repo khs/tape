@@ -1,5 +1,5 @@
 title: Median household income by census block group — Iowa (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [IA]
 indicator: median_hh_income

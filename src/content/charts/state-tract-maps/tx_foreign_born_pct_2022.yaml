@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Texas (2022)
-render: choropleth
+render: map
 geo: tract
 states: [TX]
 indicator: foreign_born_pct

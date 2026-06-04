@@ -4,7 +4,7 @@
  * The 6 documented collisions are nailed down case-by-case so a
  * future rewrite (e.g. switching the bucket key, changing the FIPS
  * threshold, replacing the suffix copy) gets caught before it ships.
- * Choropleth tooltips are silent failures: nobody catches "Fairfax"
+ * Map tooltips are silent failures: nobody catches "Fairfax"
  * appearing twice unless they look closely at the right map.
  */
 import { describe, it, expect } from "vitest";

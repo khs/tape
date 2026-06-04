@@ -138,8 +138,8 @@ const censusDisclaimer =
         <div class="embed-tile-wrap">
           {/*
             SectionChart dispatches on chart.render — Chart for line,
-            ChartBar for bar, ChartChoropleth for choropleth. Embedding
-            Chart directly here used to render bar + choropleth charts
+            ChartBar for bar, ChartMap for map. Embedding
+            Chart directly here used to render bar + map charts
             as empty line-chart tiles (the welcome page's gdp_snapshot
             and county-map embeds came up blank).
           */}
@@ -205,9 +205,9 @@ const censusDisclaimer =
         requestAnimationFrame(function () {
           // .chart-tile catches Chart.astro and ChartBar.astro tiles
           // (button.chart-tile and button.chart-tile.chart-bar-tile);
-          // ChartChoropleth's article.chart-tile.choro-tile also
+          // ChartMap's article.chart-tile.map-tile also
           // matches, and the global click-delegate in
-          // ChartChoropleth.astro handles its own dialog opening.
+          // ChartMap.astro handles its own dialog opening.
           const tile = document.querySelector(".chart-tile");
           if (tile instanceof HTMLElement) tile.click();
         });
@@ -342,14 +342,14 @@ const censusDisclaimer =
     font-size: 15px;
     line-height: 1.3;
   }
-  /* Choropleth tiles: hide the stats eyebrow (count / range / median)
+  /* Map tiles: hide the stats eyebrow (count / range / median)
      in embeds. With the legend already off via the renderer's
      mode !== "tile" guard, the eyebrow is the last bit of chrome
      stealing vertical pixels from the map. The map itself + the
      chart title is enough at embed scale; full stats land in the
-     pop-out's expanded view. Use the choro-eyebrow class directly
-     so this only affects choropleth tiles, not bar/line tiles. */
-  .embed-shell .choro-eyebrow {
+     pop-out's expanded view. Use the map-eyebrow class directly
+     so this only affects map tiles, not bar/line tiles. */
+  .embed-shell .map-eyebrow {
     display: none !important;
   }
   /* Map canvas gets every leftover pixel below the title — without
@@ -358,17 +358,17 @@ const censusDisclaimer =
      embed dimensions.
 
      align-items: flex-start pins the SVG to the TOP of the canvas
-     (the base .choro-canvas CSS centers vertically, which leaves
+     (the base .map-canvas CSS centers vertically, which leaves
      a tall whitespace gap between the title and the map when the
      iframe is taller than the SVG's natural height — exactly what
      happens at the welcome page's 280px render-showcase iframes).
      Horizontal centering stays for visual balance. */
-  .embed-shell .choro-canvas {
+  .embed-shell .map-canvas {
     flex: 1 1 auto;
     min-height: 0;
     align-items: flex-start;
   }
-  .embed-shell .chart-tile.choro-tile {
+  .embed-shell .chart-tile.map-tile {
     display: flex;
     flex-direction: column;
     /* Tighten the title→map spacing further — the default 8px gap

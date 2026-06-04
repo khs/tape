@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Arizona (2022)
-render: choropleth
+render: map
 geo: tract
 states: [AZ]
 indicator: foreign_born_pct

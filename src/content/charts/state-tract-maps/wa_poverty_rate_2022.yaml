@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Washington (2022)
-render: choropleth
+render: map
 geo: tract
 states: [WA]
 indicator: poverty_rate

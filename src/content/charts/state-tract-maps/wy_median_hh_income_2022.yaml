@@ -1,5 +1,5 @@
 title: Median household income by census tract — Wyoming (2022)
-render: choropleth
+render: map
 geo: tract
 states: [WY]
 indicator: median_hh_income

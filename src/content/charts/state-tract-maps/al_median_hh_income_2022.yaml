@@ -1,5 +1,5 @@
 title: Median household income by census tract — Alabama (2022)
-render: choropleth
+render: map
 geo: tract
 states: [AL]
 indicator: median_hh_income

@@ -1,5 +1,5 @@
 title: Median household income by census tract — New Jersey (2022)
-render: choropleth
+render: map
 geo: tract
 states: [NJ]
 indicator: median_hh_income

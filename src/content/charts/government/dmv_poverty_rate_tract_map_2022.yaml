@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — DC metro area (2022)
-render: choropleth
+render: map
 geo: tract
 states: [VA, MD, DC]
 indicator: poverty_rate

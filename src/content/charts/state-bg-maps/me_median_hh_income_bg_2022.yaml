@@ -1,5 +1,5 @@
 title: Median household income by census block group — Maine (2022)
-render: choropleth
+render: map
 geo: block-group
 states: [ME]
 indicator: median_hh_income

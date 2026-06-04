@@ -43,7 +43,7 @@ interface CoverageItem {
   label: string;
   /** Optional canonical source page to navigate to via "Open full
    *  source page →" when the user wants more depth than the inline
-   *  embed shows. Left undefined when the source is choropleth-only
+   *  embed shows. Left undefined when the source is map-only
    *  (no time-series source page applies). */
   sourceHref?: string;
   /** Chart ID for the inline embed iframe (/embed/chart/<id>/).
@@ -92,7 +92,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Geographic",
-    blurb: "All 435 congressional districts, all 50 states + DC, 393 US metros, plus ~50 countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles, the choropleth-only ones live on the Maps tab in the composer.",
+    blurb: "All 435 congressional districts, all 50 states + DC, 393 US metros, plus ~50 countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles, the map-only ones live on the Maps tab in the composer.",
     items: [
       { label: "Federal spending by state (top 10)", sourceHref: "/source/usaspending/state_va/", chartId: "government/federal_spending_by_state_top10" },
       { label: "Per-CD spending (VA-08 in context)", sourceHref: "/source/usaspending/district_va_08/", chartId: "government/va_08_federal_spending" },
@@ -160,7 +160,7 @@ const USE_CASES: UseCase[] = [
  * Render-type showcase: three small embedded charts demonstrating the
  * shapes data takes on Tape. Picked deliberately so each one looks
  * obviously different from the others — line is the daily/monthly
- * arc, bar is "where it stands today, ranked," choropleth is "how it
+ * arc, bar is "where it stands today, ranked," map is "how it
  * varies across geography." A reader scanning down the page sees
  * three render shapes and gets the breadth-of-render signal in
  * about three seconds.
@@ -185,7 +185,7 @@ const RENDER_SHOWCASE: RenderShowcase[] = [
     chartHref: "/chart/countries/gdp_snapshot/",
   },
   {
-    label: "Choropleth",
+    label: "Map",
     blurb: "Cross-sectional geographic variation. State, county, tract, or block-group level, with ACS demographic indicators and other geographic series.",
     chartId: "government/us_bachelors_plus_pct_county_map_2022",
     chartHref: "/chart/government/us_bachelors_plus_pct_county_map_2022/",
@@ -265,7 +265,7 @@ const EDITORIAL_FEATURES: string[] = [
            combination signal: not any one of these is differentiating,
            but the stack of them is.
         2. A 3-up grid of live embed iframes showing three render
-           types (line / bar / choropleth). Each is the production
+           types (line / bar / map). Each is the production
            /embed/chart/<id>/ endpoint, which means the same iframe
            handshake we use for the coverage chips applies here too —
            clicking a tile pops it OUT to the welcome-page viewport
@@ -357,7 +357,7 @@ const EDITORIAL_FEATURES: string[] = [
         Inline preview region. Populated when the user clicks any
         chip. The iframe loads /embed/chart/<id>/ at a "big tile"
         size — non-compact enough that bar charts show country
-        labels and choropleths show the full US map. Clicking the
+        labels and maps show the full US map. Clicking the
         tile INSIDE the iframe sends a postMessage handshake to
         this page and the welcome popout opens at full-screen with
         the dialog auto-expanded.
@@ -962,7 +962,7 @@ const EDITORIAL_FEATURES: string[] = [
   .welcome-render-iframe {
     width: 100%;
     /* 280px fits a tile cleanly — title, current value + delta
-       readout, plus a ~140px sparkline at minimum height. Choropleth
+       readout, plus a ~140px sparkline at minimum height. Map
        embeds expand to fill, so a 280 floor keeps the map legible
        too. */
     height: 280px;

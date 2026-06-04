@@ -164,19 +164,19 @@ const inlineSourceSchema = z.object({
 export type InlineSource = z.infer<typeof inlineSourceSchema>;
 
 /**
- * An ad-hoc choropleth map built in the composer's Maps tab.
+ * An ad-hoc map built in the composer's Maps tab.
  *
- * Choropleth charts don't fit the standard `inlineChartSchema` (which
+ * Map charts don't fit the standard `inlineChartSchema` (which
  * requires a `sources` list and uses `render` to dispatch a renderer).
- * Maps are dispatched by `render === "choropleth"` at the existing
- * Chart.astro / ChartChoropleth.astro boundary; we encode them as
+ * Maps are dispatched by `render === "map"` at the existing
+ * Chart.astro / ChartMap.astro boundary; we encode them as
  * their own schema here so the composer + renderer share the same
  * field set without overloading the time-series shape.
  *
  * Referenced from section chart lists by `inlinemap:<id>`. Lives in
  * `composedState.inlineMaps`, mirroring how `inlineCharts` works.
  *
- * Field semantics match `src/content/config.ts`'s choropleth-chart
+ * Field semantics match `src/content/config.ts`'s map-chart
  * shape exactly — see that file for the canonical reference. Briefly:
  *   geo            tract | block-group | county | state
  *   indicator      out_id from census_acs_choropleth.py's INDICATORS

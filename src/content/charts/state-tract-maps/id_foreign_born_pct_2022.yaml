@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Idaho (2022)
-render: choropleth
+render: map
 geo: tract
 states: [ID]
 indicator: foreign_born_pct

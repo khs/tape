@@ -1,5 +1,5 @@
 title: Foreign-born population share by US county (2022)
-render: choropleth
+render: map
 geo: county
 indicator: foreign_born_pct
 vintage: "2022"

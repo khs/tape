@@ -226,7 +226,7 @@ export const browserTests: DiagnosticTest[] = [
     label: "d3 bundle is loadable",
     timeoutMs: 10000,
     run: async () => {
-      // d3 used by choropleth zoom + selection. Same probe pattern.
+      // d3 used by map zoom + selection. Same probe pattern.
       try {
         const mod = await import("d3");
         if (typeof (mod as { select?: unknown }).select !== "function") {

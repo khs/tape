@@ -1,5 +1,5 @@
 title: Median household income by census tract — Delaware (2022)
-render: choropleth
+render: map
 geo: tract
 states: [DE]
 indicator: median_hh_income

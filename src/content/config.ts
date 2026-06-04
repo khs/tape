@@ -140,7 +140,7 @@ const charts = defineCollection({
   schema: z
     .object({
     title: z.string(),
-    // `sources` is required for everything except choropleth charts —
+    // `sources` is required for everything except map charts —
     // those bind to a (geo, indicator, vintage) tuple via the
     // dedicated fields below, not to a list of time-series source
     // IDs. Renderer dispatch is by `render`; the refine() at the
@@ -154,7 +154,7 @@ const charts = defineCollection({
         "sparkDelta",
         "deltaGrid",
         "relativeReturns",
-        "choropleth",
+        "map",
         "bar",
       ])
       .default("line"),
@@ -251,7 +251,7 @@ const charts = defineCollection({
         ]),
       )
       .optional(),
-    // ---- Choropleth-specific fields (render === "choropleth") ----
+    // ---- Map-specific fields (render === "map") ----
     // Geographic granularity. State + county data ship for the full
     // US. Tract + block-group data ship state-sharded; charts at
     // those levels must specify `state` (and may add `bbox` to clip
@@ -318,7 +318,7 @@ const charts = defineCollection({
   })
     .refine(
       (c) => {
-        if (c.render === "choropleth") {
+        if (c.render === "map") {
           if (!c.geo || !c.indicator || !c.vintage) return false;
           // tract + block-group require either `state` (single) or
           // `states` (multi-state span like DMV).
@@ -327,12 +327,12 @@ const charts = defineCollection({
           }
           return true;
         }
-        // Non-choropleth charts must have at least one source.
+        // Non-map charts must have at least one source.
         return (c.sources?.length ?? 0) > 0;
       },
       {
         message:
-          "Chart shape mismatch: choropleth needs geo/indicator/vintage " +
+          "Chart shape mismatch: map needs geo/indicator/vintage " +
           "(and state for tract/block-group); other render types need sources.",
       },
     ),

@@ -1,5 +1,5 @@
 title: Bachelor's-or-higher share by census tract — Vermont (2022)
-render: choropleth
+render: map
 geo: tract
 states: [VT]
 indicator: bachelors_plus_pct

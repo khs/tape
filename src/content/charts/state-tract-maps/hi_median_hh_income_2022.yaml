@@ -1,5 +1,5 @@
 title: Median household income by census tract — Hawaii (2022)
-render: choropleth
+render: map
 geo: tract
 states: [HI]
 indicator: median_hh_income

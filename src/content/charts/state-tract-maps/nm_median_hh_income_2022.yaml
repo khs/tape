@@ -1,5 +1,5 @@
 title: Median household income by census tract — New Mexico (2022)
-render: choropleth
+render: map
 geo: tract
 states: [NM]
 indicator: median_hh_income

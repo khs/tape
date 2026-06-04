@@ -1,5 +1,5 @@
 title: Foreign-born share by census tract — Oklahoma (2022)
-render: choropleth
+render: map
 geo: tract
 states: [OK]
 indicator: foreign_born_pct

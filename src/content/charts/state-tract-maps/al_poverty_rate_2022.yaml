@@ -1,5 +1,5 @@
 title: Poverty rate by census tract — Alabama (2022)
-render: choropleth
+render: map
 geo: tract
 states: [AL]
 indicator: poverty_rate

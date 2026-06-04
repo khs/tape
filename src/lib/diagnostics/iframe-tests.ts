@@ -52,7 +52,7 @@ async function withHiddenIframe<T>(
   iframe.style.top = "-9999px";
   iframe.style.left = "-9999px";
   iframe.style.width = "1280px";
-  // Default 900px viewport works for most tests. Choropleth-bearing
+  // Default 900px viewport works for most tests. Map-bearing
   // pages need a taller viewport so lazy-loaded (IntersectionObserver-
   // gated) charts below the fold actually mount their canvas.
   iframe.style.height = `${opts?.heightPx ?? 900}px`;
@@ -337,32 +337,32 @@ export const iframeTests: DiagnosticTest[] = [
     },
   },
   {
-    id: "iframe/choropleth-renders",
+    id: "iframe/map-renders",
     category: "iframe",
-    label: "a choropleth tile produces an SVG with features",
+    label: "a map tile produces an SVG with features",
     timeoutMs: 35000,
     run: async (): Promise<DiagnosticResult> => {
       // /federal-budget/ has a "Demographic context (heatmaps)" section
-      // with 4+ choropleths at state + county granularity. Tall
+      // with 4+ maps at state + county granularity. Tall
       // iframe so IntersectionObserver-gated lazy mounts fire even
       // for below-the-fold tiles.
       return await withHiddenIframe(
         "/federal-budget/",
         7000, // boundary TopoJSON fetch + d3 render = slow
         (_win, doc, errors) => {
-          const choroTiles = doc.querySelectorAll('[data-choro="1"]');
-          if (choroTiles.length === 0) {
+          const mapTiles = doc.querySelectorAll('[data-map="1"]');
+          if (mapTiles.length === 0) {
             return fail(
-              "no [data-choro] tiles found — selector drift or wrong dashboard",
+              "no [data-map] tiles found — selector drift or wrong dashboard",
             );
           }
           // Check at least one rendered an SVG with paths inside its
-          // choro-canvas. An empty canvas means the boundary fetch
+          // map-canvas. An empty canvas means the boundary fetch
           // failed, Plot crashed, or the data file 404'd.
           let renderedCount = 0;
           let pathTotal = 0;
-          for (const tile of Array.from(choroTiles)) {
-            const canvas = tile.querySelector(".choro-canvas");
+          for (const tile of Array.from(mapTiles)) {
+            const canvas = tile.querySelector(".map-canvas");
             const svg = canvas?.querySelector("svg");
             if (!svg) continue;
             const paths = svg.querySelectorAll("path");
@@ -373,22 +373,22 @@ export const iframeTests: DiagnosticTest[] = [
           }
           if (renderedCount === 0) {
             return fail(
-              `${choroTiles.length} choropleth tiles found but NONE rendered SVG paths — boundary fetch or render failure`,
+              `${mapTiles.length} map tiles found but NONE rendered SVG paths — boundary fetch or render failure`,
               {
-                choroTileCount: choroTiles.length,
+                mapTileCount: mapTiles.length,
                 consoleErrors: errors.slice(0, 5),
               },
             );
           }
           if (errors.length > 0) {
             return warn(
-              `${renderedCount}/${choroTiles.length} choropleths rendered (${pathTotal} paths) but ${errors.length} console.errors`,
+              `${renderedCount}/${mapTiles.length} maps rendered (${pathTotal} paths) but ${errors.length} console.errors`,
               { errors: errors.slice(0, 3) },
             );
           }
           return pass(
-            `${renderedCount}/${choroTiles.length} rendered, ${pathTotal} feature paths`,
-            { renderedCount, totalTiles: choroTiles.length, pathTotal },
+            `${renderedCount}/${mapTiles.length} rendered, ${pathTotal} feature paths`,
+            { renderedCount, totalTiles: mapTiles.length, pathTotal },
           );
         },
         { heightPx: 4000 },
@@ -396,18 +396,18 @@ export const iframeTests: DiagnosticTest[] = [
     },
   },
   {
-    id: "iframe/choropleth-dialog-has-fullscreen-and-scheme-picker",
+    id: "iframe/map-dialog-has-fullscreen-and-scheme-picker",
     category: "iframe",
     label:
-      "clicking a choropleth tile opens a dialog with scheme picker + fullscreen button",
+      "clicking a map tile opens a dialog with scheme picker + fullscreen button",
     timeoutMs: 35000,
     run: async (): Promise<DiagnosticResult> => {
       return await withHiddenIframe(
         "/federal-budget/",
         7000, // boundary fetch + first paint
         async (_win, doc, errors) => {
-          const tile = doc.querySelector<HTMLElement>('[data-choro="1"]');
-          if (!tile) return fail("no [data-choro] tile to click");
+          const tile = doc.querySelector<HTMLElement>('[data-map="1"]');
+          if (!tile) return fail("no [data-map] tile to click");
           // The tile root is wrapped in <a class="chart-tile">; click
           // the tile (or its inner anchor) to open the dialog. The
           // outer <a> swallows the click in either case.
@@ -424,21 +424,21 @@ export const iframeTests: DiagnosticTest[] = [
             );
           }
           const fullscreenBtn = dialog.querySelector(
-            ".choro-dialog-fullscreen",
+            ".map-dialog-fullscreen",
           );
-          // Scheme picker is a <select> (see ChartChoropleth.astro).
+          // Scheme picker is a <select> (see ChartMap.astro).
           // We don't lock down a specific class; look for any select
           // inside the dialog as a permissive check.
           const schemeSelect = dialog.querySelector("select");
           if (!fullscreenBtn) {
             return fail(
-              "choropleth dialog opened but has no .choro-dialog-fullscreen button",
+              "map dialog opened but has no .map-dialog-fullscreen button",
               { errors: errors.slice(0, 3) },
             );
           }
           if (!schemeSelect) {
             return fail(
-              "choropleth dialog opened but has no scheme <select> picker",
+              "map dialog opened but has no scheme <select> picker",
               { errors: errors.slice(0, 3) },
             );
           }
@@ -586,7 +586,7 @@ export const iframeTests: DiagnosticTest[] = [
             5000,
             (_win, doc) => ({
               tileCount: doc.querySelectorAll(
-                "[data-chart-ref], .chart-tile, [data-choro='1']",
+                "[data-chart-ref], .chart-tile, [data-map='1']",
               ).length,
               svgCount: doc.querySelectorAll("svg").length,
               textLen: (doc.body?.textContent ?? "").length,
