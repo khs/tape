@@ -1,15 +1,9 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Chart from "../components/Chart.astro";
 import ChartController from "../components/ChartController.astro";
-import { DELTA_LABELS_SHORT } from "../lib/deltas";
-import {
-  resolveSections,
-  effectiveChart,
-  dashboardSupportedDeltas,
-  resolveDashboardDefault,
-} from "../lib/resolve-dashboard";
+import DashboardGrid from "../components/DashboardGrid.astro";
+import { resolveDashboardForRender } from "../lib/resolve-dashboard-for-render";
 import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../lib/brand";
 
 // Server-rendered so we can pick which preset dashboard to feature based on
@@ -37,16 +31,19 @@ const active =
 // just the one keeps the body weight to a single dashboard's worth
 // (~1-3MB raw, much less gzipped) which is what `/<slug>/` pages already
 // ship.
-const activeSections = active
-  ? await resolveSections({
+const dash = active
+  ? await resolveDashboardForRender({
       sections: active.data.sections,
       charts: active.data.charts,
+      chartOverrides: active.data.chartOverrides,
+      defaultDelta: active.data.defaultDelta,
+      fixedRange: active.data.fixedRange,
     })
-  : [];
-const activeSupported = dashboardSupportedDeltas(activeSections);
-const activeDefaultDelta = active
-  ? resolveDashboardDefault(active.data.defaultDelta, activeSupported)
-  : "1m";
+  : null;
+const activeSections = dash?.sections ?? [];
+const activeSupported = dash?.supportedDeltas ?? [];
+const activeDefaultDelta = dash?.defaultDelta ?? "1m";
+const activeBarSnapshots = dash?.barSnapshots ?? new Map();
 
 type TabSpec = { slug: string; title: string };
 const tabs: TabSpec[] = sorted.map((d) => ({
@@ -150,74 +147,16 @@ const tabs: TabSpec[] = sorted.map((d) => ({
             </p>
           </header>
 
-          {activeSupported.length > 0 && (
-            <div
-              class="dashboard-window"
-              role="group"
-              aria-label="Default window"
-            >
-              <span class="eyebrow">Window</span>
-              <div class="pills" data-dashboard-window-control>
-                {activeSupported.map((w) => (
-                  <button
-                    type="button"
-                    class={
-                      "pill" + (w === activeDefaultDelta ? " pill-active" : "")
-                    }
-                    data-dashboard-window={w}
-                    aria-pressed={w === activeDefaultDelta ? "true" : "false"}
-                  >
-                    {DELTA_LABELS_SHORT[w]}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeSections.map((section) => {
-            // Per-section overrides win over the dashboard-level pill
-            // for the charts inside this section. fixedRange beats
-            // defaultDelta when both set. The user-facing pattern is
-            // "show the same chart-set across N decades with a
-            // different commentary per section" — each section can
-            // pin its own window without disturbing the others.
-            const sectionDelta = section.defaultDelta ?? activeDefaultDelta;
-            const sectionFixed = section.fixedRange ?? active.data.fixedRange;
-            return (
-            <section class="dash-section">
-              {section.title && (
-                <h4 class="section-heading">{section.title}</h4>
-              )}
-              {section.description && (
-                <p class="section-description">{section.description}</p>
-              )}
-              {(section.fixedRange || section.defaultDelta) && (
-                <p class="section-window muted small">
-                  Window:{" "}
-                  {section.fixedRange
-                    ? `${section.fixedRange.start} → ${section.fixedRange.end}`
-                    : section.defaultDelta}
-                </p>
-              )}
-              <div class="chart-grid">
-                {section.charts.map((c) => (
-                  <Chart
-                    chartId={c.chart.id}
-                    chart={effectiveChart(
-                      c,
-                      active.data.chartOverrides?.[c.chart.id],
-                    )}
-                    sources={c.sources}
-                    dashboardSlug={active.id}
-                    dashboardWindow={sectionDelta}
-                    dashboardFixedRange={sectionFixed}
-                    sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                  />
-                ))}
-              </div>
-            </section>
-            );
-          })}
+          <DashboardGrid
+            sections={activeSections}
+            supportedDeltas={activeSupported}
+            defaultDelta={activeDefaultDelta}
+            dashboardSlug={active.id}
+            fixedRange={active.data.fixedRange}
+            chartOverrides={active.data.chartOverrides}
+            barSnapshots={activeBarSnapshots}
+            headingLevel="h4"
+          />
         </div>
       </section>
     )}
@@ -832,70 +771,9 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     text-decoration: underline;
   }
 
-  /* Mirror the dashboard-page styling for the inline chart grid so the
-     featured-dashboard section reads as a real dashboard, not a teaser. */
-  .featured .dashboard-window {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .featured .dashboard-window .pills {
-    display: flex;
-    gap: 4px;
-    font-size: var(--text-xs);
-    font-weight: 500;
-  }
-  .featured .dashboard-window .pill {
-    padding: 4px 10px;
-    border: 1px solid rgba(55, 53, 47, 0.1);
-    border-radius: var(--radius-sm);
-    background: var(--color-white);
-    color: var(--color-neutral-600);
-    cursor: pointer;
-    font: inherit;
-  }
-  .featured .dashboard-window .pill:hover {
-    background: var(--color-neutral-100);
-  }
-  .featured .dashboard-window .pill-active,
-  .featured .dashboard-window .pill-active:hover {
-    background: var(--color-neutral-900);
-    color: var(--color-white);
-    border-color: var(--color-neutral-900);
-  }
-  .featured .dash-section {
-    margin-bottom: 32px;
-  }
-  .featured .section-heading {
-    font-size: var(--text-base);
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    margin: 0 0 4px;
-  }
-  .featured .section-description {
-    font-size: var(--text-sm);
-    color: var(--color-neutral-600);
-    line-height: 1.5;
-    margin: 0 0 12px;
-    max-width: 720px;
-    white-space: pre-wrap;
-  }
-  .featured .section-window {
-    margin: -4px 0 12px;
-    font-variant-numeric: tabular-nums;
-  }
-  .featured .chart-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
-  }
-  @media (min-width: 768px) {
-    .featured .chart-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
+  /* The featured-dashboard grid markup + CSS now lives in
+     src/components/DashboardGrid.astro (shared with the preset + /custom
+     renderers). Only the .featured chrome (tabs, header) is styled here. */
 
   @media (max-width: 640px) {
     .hero {

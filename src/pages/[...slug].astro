@@ -2,14 +2,11 @@
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import SectionChart from "../components/SectionChart.astro";
 import ChartController from "../components/ChartController.astro";
-import { DELTA_LABELS_SHORT } from "../lib/deltas";
-import { effectiveChart } from "../lib/resolve-dashboard";
+import DashboardGrid from "../components/DashboardGrid.astro";
 import { resolveDashboardForRender } from "../lib/resolve-dashboard-for-render";
 import { encodeComposedState } from "../lib/composer-state";
 import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
-import { renderMarkdown } from "../lib/markdown";
 
 export async function getStaticPaths() {
   const dashboards = await getCollection("dashboards");
@@ -91,75 +88,15 @@ const forkUrl =
       )}
     </header>
 
-    <div class="dashboard-window" role="group" aria-label="Default window">
-      <span class="eyebrow">Window</span>
-      <div class="pills" data-dashboard-window-control>
-        {
-          supported.map((w) => (
-            <button
-              type="button"
-              class={
-                "pill" + (w === dashboardDefaultDelta ? " pill-active" : "")
-              }
-              data-dashboard-window={w}
-              aria-pressed={w === dashboardDefaultDelta ? "true" : "false"}
-            >
-              {DELTA_LABELS_SHORT[w]}
-            </button>
-          ))
-        }
-      </div>
-    </div>
-
-    {
-      resolvedSections.map((section) => {
-        // Per-section overrides win over dashboard-level ones for the
-        // charts in that section. fixedRange beats defaultDelta when
-        // both are set (matches the dashboard-level precedence). The
-        // user composes the same chart list across multiple sections
-        // with different windows + commentary per window — e.g., a
-        // "1990s" section + "2000s" + "2010s" each pinned to its decade.
-        const sectionDelta = section.defaultDelta ?? dashboardDefaultDelta;
-        const sectionFixed = section.fixedRange ?? dashboard.data.fixedRange;
-        return (
-        <section class={`dash-section${section.charts.length === 0 && section.markdown ? " dash-section-markdown" : ""}`}>
-          {section.title && (
-            <h2 class="section-heading">{section.title}</h2>
-          )}
-          {section.description && (
-            <p class="section-description">{section.description}</p>
-          )}
-          {(section.fixedRange || section.defaultDelta) && (
-            <p class="section-window muted small">
-              Window:{" "}
-              {section.fixedRange
-                ? `${section.fixedRange.start} → ${section.fixedRange.end}`
-                : section.defaultDelta}
-            </p>
-          )}
-          {section.markdown && section.markdown.trim().length > 0 && (
-            <div class="section-markdown" set:html={renderMarkdown(section.markdown)} />
-          )}
-          {section.charts.length > 0 && (
-          <div class="chart-grid">
-            {section.charts.map((c) => (
-              <SectionChart
-                chartId={c.chart.id}
-                chart={effectiveChart(c, dashboard.data.chartOverrides?.[c.chart.id])}
-                sources={c.sources}
-                dashboardSlug={dashboard.id}
-                sectionDelta={sectionDelta}
-                sectionFixedRange={sectionFixed}
-                sectionLocked={!!(section.defaultDelta || section.fixedRange)}
-                barSnapshot={barSnapshots.get(c.chart.id)}
-              />
-            ))}
-          </div>
-          )}
-        </section>
-        );
-      })
-    }
+    <DashboardGrid
+      sections={resolvedSections}
+      supportedDeltas={supported}
+      defaultDelta={dashboardDefaultDelta}
+      dashboardSlug={dashboard.id}
+      fixedRange={dashboard.data.fixedRange}
+      chartOverrides={dashboard.data.chartOverrides}
+      barSnapshots={barSnapshots}
+    />
 
     {dashboard.data.aboutBlurb && (
       <section class="mt-10 pt-8 border-t hairline max-w-[640px]">
@@ -214,103 +151,6 @@ const forkUrl =
   }
   .fork-cta:active {
     transform: translateY(1px);
-  }
-  .dashboard-window {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .dashboard-window .pills {
-    display: flex;
-    gap: 4px;
-    font-size: var(--text-xs);
-    font-weight: 500;
-  }
-  .dashboard-window .pill {
-    padding: 4px 10px;
-    border: 1px solid rgba(55, 53, 47, 0.1);
-    border-radius: var(--radius-sm);
-    background: var(--color-white);
-    color: var(--color-neutral-600);
-    cursor: pointer;
-    font: inherit;
-    transition: background 0.1s, color 0.1s;
-  }
-  .dashboard-window .pill:hover {
-    background: var(--color-neutral-100);
-  }
-  .dashboard-window .pill-active,
-  .dashboard-window .pill-active:hover {
-    background: var(--color-neutral-900);
-    color: var(--color-white);
-    border-color: var(--color-neutral-900);
-  }
-  .dash-section {
-    margin-bottom: 32px;
-  }
-  .dash-section:last-of-type {
-    margin-bottom: 0;
-  }
-  .section-heading {
-    font-size: var(--text-base);
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    margin: 0 0 4px;
-  }
-  .section-description {
-    font-size: var(--text-sm);
-    color: var(--color-neutral-600);
-    line-height: 1.5;
-    margin: 0 0 12px;
-    max-width: 720px;
-    white-space: pre-wrap;
-  }
-  /* Markdown body inside a section. Editorial prose styling — see
-     the equivalent block in src/pages/u/[slug].astro for the
-     rationale comment. */
-  .section-markdown {
-    max-width: 720px;
-    margin: 4px 0 16px;
-    font-size: var(--text-sm);
-    line-height: 1.6;
-    color: var(--color-neutral-700);
-  }
-  .section-markdown :global(p) { margin: 0 0 10px; }
-  .section-markdown :global(h2) { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 14px 0 6px; }
-  .section-markdown :global(h3) { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-900); margin: 12px 0 4px; }
-  .section-markdown :global(h4) { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-600); margin: 10px 0 4px; }
-  .section-markdown :global(ul),
-  .section-markdown :global(ol) { margin: 0 0 10px; padding-left: 22px; }
-  .section-markdown :global(li) { margin: 0 0 3px; }
-  .section-markdown :global(a) { color: var(--color-neutral-900); text-decoration: underline; text-underline-offset: 2px; }
-  .section-markdown :global(code) { background: var(--color-neutral-100); padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
-  .section-markdown :global(pre) { background: var(--color-neutral-100); padding: 8px 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
-  .section-markdown :global(pre code) { background: transparent; padding: 0; }
-  .dash-section-markdown .section-markdown { max-width: 880px; }
-  .dash-section-markdown { padding-bottom: 8px; border-bottom: 1px solid rgba(55, 53, 47, 0.06); }
-  /* Section-level window override chip. Renders below the
-     description as a quiet caption — it's a structural label, not
-     a primary heading. */
-  .section-window {
-    margin: -4px 0 12px;
-    font-variant-numeric: tabular-nums;
-  }
-  .chart-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
-  }
-  @media (min-width: 768px) {
-    .chart-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  @media (min-width: 1100px) {
-    .chart-grid {
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    }
   }
   .prose-about :global(p) {
     margin: 0 0 0.9em;
