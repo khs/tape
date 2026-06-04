@@ -6,12 +6,11 @@ defaultDelta: 10y
 aboutBlurb: "A dashboard for one of the most federally-dependent congressional districts in the country — Don Beyer's VA-08, covering Arlington, Alexandria, Falls Church, and inner Fairfax County."
 sections:
   - title: "how VA-08 compares"
-    description: "ACS heatmaps at four geographic scales — state, county, DMV-tract, VA-08-block-group — for four indicators. Click any tile for an expanded dialog with a color-scheme picker and full-screen toggle. Coverage caveat: block-group tiles populate on the next demographics-workflow run; until then the four BG rows may render empty."
+    description: "ACS heatmaps across geographic scales — state, county, and DMV-tract for all four indicators, plus VA-08 block-group resolution for income and education. (The Census Bureau suppresses poverty and place-of-birth statistics at the block-group level under its disclosure-avoidance rules, so those two indicators stop at tract resolution.) Click any tile for an expanded dialog with a color-scheme picker and full-screen toggle."
     charts:
       - government/us_poverty_rate_map_2022
       - government/us_poverty_rate_county_map_2022
       - government/dmv_poverty_rate_tract_map_2022
-      - government/va_08_poverty_rate_bg_map_2022
       - government/us_median_hh_income_map_2022
       - government/us_median_hh_income_county_map_2022
       - government/dmv_median_hh_income_tract_map_2022
@@ -23,7 +22,6 @@ sections:
       - government/us_foreign_born_pct_map_2022
       - government/us_foreign_born_pct_county_map_2022
       - government/dmv_foreign_born_pct_tract_map_2022
-      - government/va_08_foreign_born_pct_bg_map_2022
   - title: "Federal money flow"
     description: "VA-08 is structurally federal-spending-heavy: Pentagon-adjacent, dense with DoD prime contractors, and home to a large federal-employee population. Total federal dollars (contracts + grants + loans + direct payments) flowing to district recipients tell the story."
     charts:
