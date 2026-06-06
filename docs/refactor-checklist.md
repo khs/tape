@@ -4,10 +4,15 @@
 > review. This file is the durable source of truth across sessions — update
 > the checkboxes as work lands. Companion: `docs/data-flow.md` (pipeline map).
 >
-> **Global gate for every change:** full `npm run build` locally before any
-> push (astro check + vitest + pytest do NOT exercise library.json prerender
-> invariants or SSR pages); `node scripts/audit-source-data.mjs`; for
-> SSR-touching changes curl the affected pages on the deploy preview.
+> **Global gate for every change (laptop rule, updated 2026-06-06):** local
+> `astro check` + `vitest` (+ a parity test for behavior-preserving refactors).
+> Do NOT run a full `npm run build` on the laptop — the Vercel function-bundle
+> step (copies the ~290 MB `public/data` tree into the SSR bundle, ~4 GB heap)
+> OOMs / crashes this 7.4 GB machine (it crashed it once, 2026-06-06). **CI is
+> the authoritative build gate** (Linux — no fs/RAM limits): push at a logical
+> checkpoint and verify CI + post-deploy smoke + diagnostic. Never leave
+> `astro dev` running (its node proc leaks to multiple GB). `pytest` for pipeline
+> changes is still fine locally (cheap).
 > **Explicit OK from Keller before every push to `main` (= prod).**
 
 ---
