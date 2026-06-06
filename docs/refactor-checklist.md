@@ -21,15 +21,39 @@ locally (built code in a popout-sized iframe) and post-deploy smoke + diagnostic
 green. The popout bug is **resolved**; `docs/popout-sizing-bug.md` is now
 historical. `origin/main..HEAD` was empty after that push.
 
-**Working tree — choropleth→map rename (this session, NOT yet committed):**
+**Live on prod — choropleth→map rename (`c6ca51b3fd`, CI + post-deploy green):**
 Renamed "choropleth"→"map" across everything user-facing + app internals: the
 `render` enum value (`config.ts` + all **321** chart YAMLs + every dispatch site
 + tests), the component (`ChartChoropleth.astro` → **`ChartMap.astro`**), the
 `.choro-*` CSS / `data-choro` attr → `.map-*` / `data-map`, the
 welcome/about/compose/custom/source/user pages + MDX dashboards, `source-hints`,
 `methodology`, diagnostics, and docs. **Typecheck 0/0/0, vitest 706 pass, pytest
-192 pass.** Full build was running at cutover; commit + push pending build-green
-+ Keller's OK.
+192 pass; full astro build Complete!** Committed + pushed; CI + post-deploy
+smoke + diagnostic all green. **LIVE on prod.**
+
+**Live on prod (`a50849168c` / `fab4deefb7` / `8c44b2a4ca`; CI + post-deploy
+smoke + diagnostic green):**
+- **Popout single-frame fix** (`src/pages/chart/[...id].astro`) — in the welcome
+  popout the map auto-enters its `.map-dialog-wide` fullscreen layout, and a
+  popout rule forces that dialog to `position:fixed; inset:0` (fills the iframe
+  exactly — beats ChartMap's `width:100vw` by source order) with html/body/dialog
+  `overflow:hidden` (no doubled scrollbars). Non-wide `.chart-dialog` /
+  `.map-dialog:not(.map-dialog-wide)` still widen to `min(96vw,1700px)`; the
+  auto-expand inline script clicks the map's Full-screen control 150ms after open.
+  Verified clean-room in Incognito: dialog fills the iframe (1472×631 at the test
+  viewport), 0 visible scrollbars.
+- **Build auto-clean** (`scripts/clean-build-output.mjs` + `package.json`
+  `prebuild`) — robust `rmSync` of `dist/` + `.vercel/output` before each build so
+  a sleep/lid-killed build never poisons the next (the Vite
+  `prepareOutDir`/`statSync` crash). Self-healed build #4's leftover in practice
+  (`[clean] cleared dist`). No-op on fresh CI/Vercel checkouts.
+- **Welcome copy** (`src/pages/welcome.astro`) — Compose use-case blurb rewritten
+  to "Build your dashboard." (source breadth macro→weather + the US-vs-China GDP
+  derived-series hook + annotations + sharing).
+- **Search-in-composer inconsistency** (ds-modal "New derived source" uses its own
+  inline operand search vs the shared `SourcePicker.astro`) — Keller deferred the
+  fix to **Plan 3** (3a), since there are no users yet. Symptom: typing
+  "United States GDP" in an operand finds nothing.
 
 **"choropleth" deliberately KEPT (14 files) — the Python data-engineering layer:**
 `census_acs_choropleth.py` + `census_acs_choropleth_derive_state.py` (filenames
