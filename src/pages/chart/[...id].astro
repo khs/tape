@@ -220,7 +220,23 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
         // map reads the popout class at render time and sizes itself;
         // this nudge is the line-chart path's belt-and-suspenders.)
         if (document.documentElement.classList.contains("chart-detail-host-popout")) {
-          setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 150);
+          setTimeout(function () {
+            // Line/bar dialog: nudge a resize so the plot re-renders into
+            // the widened dialog.
+            window.dispatchEvent(new Event("resize"));
+            // Map dialog: the modal-over-page nesting reads as a "doubled
+            // frame" — the centered dialog (its own scrollbar) floating over
+            // the dimmed chart-detail page (another scrollbar). Entering the
+            // map's fullscreen/wide layout (100vw x 100vh, no margin/radius,
+            // overflow hidden, SVG refit) collapses it to one clean frame.
+            // Click the existing Full-screen control so the canvas also
+            // re-paints in fullscreen mode — CSS alone wouldn't refit the SVG.
+            var mapDlg = document.querySelector("#map-expand-dialog[open]");
+            if (mapDlg && !mapDlg.classList.contains("map-dialog-wide")) {
+              var fsBtn = mapDlg.querySelector(".map-dialog-fullscreen");
+              if (fsBtn && typeof fsBtn.click === "function") fsBtn.click();
+            }
+          }, 150);
         }
       });
     });
@@ -286,13 +302,47 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
   :global(.chart-detail-host-popout) .chart-detail-tile {
     max-width: none;
   }
-  /* The auto-opened chart DIALOG (line/multi-source charts) is a normal-width
-     modal (~820px). In the full-screen popout that leaves wide grey margins.
-     Widen it to fill the popout; ChartController re-renders the plot to the
-     new width (the auto-expand script above nudges a resize after open).
-     :global because the dialog is rendered by ChartController, not this page. */
-  :global(.chart-detail-host-popout .chart-dialog) {
+  /* The auto-opened DIALOG is a normal-width modal that leaves wide grey
+     margins in the full-screen popout. Two dialog types need widening:
+       - the line/multi-source dialog (.chart-dialog, ~820px default), and
+       - the choropleth dialog (.map-dialog in ChartMap.astro), capped at
+         min(1100px, 96vw).
+     EXCEPT the map dialog's own fullscreen layout (.map-dialog-wide →
+     100vw x 100vh), which the auto-expand script enters in the popout. That
+     rule has the SAME specificity as this one, so WITHOUT the :not() this
+     widen wins by source order and clamps the fullscreen dialog back to 96vw
+     — leaving side margins and a second scrollbar (the "doubled frame"). The
+     :not() lets the fullscreen layout govern when it's active.
+     :global because both dialogs are rendered by their components, not this
+     page. */
+  :global(.chart-detail-host-popout .chart-dialog),
+  :global(.chart-detail-host-popout .map-dialog:not(.map-dialog-wide)) {
     width: min(96vw, 1700px);
     max-width: min(96vw, 1700px);
+  }
+  /* In the popout the chart page is only a backdrop for the auto-opened
+     dialog. Force the fullscreen map dialog to fill the iframe EXACTLY via
+     inset:0 — ChartMap's `.map-dialog-wide { width:100vw }` leaves the dialog
+     hugging its ~(vw-40) SVG, exposing a ~40px strip of the scrollable page on
+     the right (the "doubled frame"). inset:0 sizes it to the visible viewport
+     with no scrollbar-gutter quirk and no content-hugging; this rule is more
+     specific than ChartMap's `.map-dialog.map-dialog-wide`, so it wins. Then
+     hide overflow on html, body, and the dialog so no scrollbar survives — one
+     clean frame. (The map SVG fits via its viewBox, so clipping the dialog's
+     overflow hides nothing.) */
+  :global(html.chart-detail-host-popout),
+  :global(.chart-detail-host-popout body) {
+    overflow: hidden;
+  }
+  :global(.chart-detail-host-popout .map-dialog-wide) {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
   }
 </style>
