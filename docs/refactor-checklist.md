@@ -191,9 +191,9 @@ commands, and internal paths.
 
 ## Plan 1 + 2 — Decompose compose.astro + finish source-filters migration
 Incremental, each step its own commit + build:
-- [ ] **2a.** Move `<style is:global>` (9311–11007, ~1,700 lines) → `src/styles/
+- [x] **2a.** (DONE + LIVE `f193eac42a`) Move `<style is:global>` (9311–11007, ~1,700 lines) → `src/styles/
       compose.css`, import from page. (CSS-only, lowest risk.)
-- [ ] **2b.** Extract leaf helpers + the filter swap → `src/lib/composer/
+- [x] **2b.** (DONE + LIVE `e9bfb00370`; geo-filter.ts + parity test, compose.astro 11,007 → ~9,100 lines) Extract leaf helpers + the filter swap → `src/lib/composer/
       geo-filter.ts`. Replace compose's inline `passesCdFilter`/`passesMetro
       Filter`/`passesCountryFilter`/`passesCountyFilter` (1745–1957) and the
       unlock memos with `src/lib/source-filters.ts` calls. Reconcile: lib's
@@ -205,6 +205,21 @@ Incremental, each step its own commit + build:
 - [ ] **2c.** Introduce `src/lib/composer/state.ts` — one `ComposerStore` object
       replacing script-scope vars (1630–1679, 6876 ccModal, 8146 dsModal).
       Functions import the store instead of closing over locals.
+      **SCOPED 2026-06-06, ready to execute (← NEXT):**
+      (1) MOVE type defs → `state.ts` + import back: `ChartOverride`/`UISection`/
+      `UIState` (~1267), `GeoState`+`newGeoState` (~1647), `CustomChartMode`/
+      `ChartCombineOp` (~6573), `CustomChartModalState` (~6575), `DerivedModalState`
+      (~7908). Deps: InlineChart/Map/Source (composer-state), DeltaWindow (deltas).
+      (2) WIRE via the ALIAS trick (ref-analysis verified): `state` (394 refs),
+      `libGeo` (12), `ccModal` (205), `dsModal` (86) are NEVER reassigned →
+      `const state = store.state` etc. = ZERO churn. `library` (122) is reassigned
+      once on load (~9079) → keep the local `let library` + set `store.library =
+      lib` on load (zero churn). Only the reassigned scalars become `store.x`:
+      `sourcesSearchQuery` (7), `sourcesCdState` (7), `sourcesCdDistrict` (6),
+      `activeSectionIdx` (28) ≈ 48 ref updates total.
+      (3) GUARD: `astro check` (catches every missed/wrong ref) + `vitest`; then
+      push → CI build + post-deploy diagnostic + a live-composer walkthrough
+      (add source → chart → derived → map → share). No local full build.
 - [ ] **2d.** Extract by feature → `src/lib/composer/`: `library-load.ts`,
       `sources-tab.ts`, `cc-modal.ts`, `ds-modal.ts`, `maps.ts`, `generators.ts`,
       `share.ts`. Page `<script>` becomes a thin bootstrap.
