@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "cross-env UV_THREADPOOL_SIZE=128 astro dev",
-    "prebuild": "node scripts/audit-source-data.mjs",
+    "clean": "node scripts/clean-build-output.mjs",
+    "prebuild": "node scripts/clean-build-output.mjs && node scripts/audit-source-data.mjs",
     "build": "astro build",
     "build:vercel": "npm run typecheck && npm run test && npm run build",
     "preview": "astro preview",
