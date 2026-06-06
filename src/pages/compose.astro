@@ -1136,6 +1136,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     type InlineMap,
     type InlineSource,
   } from "../lib/composer-state";
+  import { createComposerGeoFilters } from "../lib/composer/geo-filter";
   import {
     DELTA_WINDOWS,
     DELTA_LABELS_SHORT,
@@ -1172,7 +1173,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { deriveAutoTitle, isTitleAuto } from "../lib/chart-title";
   import { METRO_TAG } from "../lib/geographic-regions";
   import { COUNTRY_TAG, isRegionCode } from "../lib/countries";
-  import { COUNTY_TAG, parseCountySourceId } from "../lib/county-sources";
   import {
     bandsFor,
     SHADING_FILL_OPACITY,
@@ -1187,7 +1187,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     formatDistrictLabel,
     formatCdShortLabel,
     stateNameFor,
-    US_STATES,
   } from "../lib/congressional-districts";
 
   type LibraryChart = {
@@ -1727,235 +1726,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     );
   }
 
-  // Apply geo-region-visibility rules to one source ID + its tag list.
-  // Used by all three picker surfaces (Sources tab, cc-modal, ds-modal)
-  // so they share identical semantics for the "States & districts" chip:
+  // Geo-region-visibility rules for one source ID + its tag list, shared by all
+  // three picker surfaces (Sources tab, cc-modal, ds-modal). The matching logic
+  // now lives in src/lib/source-filters.ts (pure + unit-tested, shared with
+  // SourcePicker + the alerts page); createComposerGeoFilters binds it to the
+  // composer's `library` and restores the per-query unlock memo + the CD chip's
+  // "pick a state" gate. See src/lib/composer/geo-filter.ts (+ its parity test).
   //
-  //   - Chip OFF: hide everything tagged CD_TAG or STATE_TAG. (Returns
-  //     non-geo sources unchanged.)
-  //   - Chip ON, no state: hide all geo sources (state pick is the gate).
-  //   - Chip ON + state, no district: keep geo sources for that state —
-  //     both the state-level series AND every CD's series.
-  //   - Chip ON + state + district = STATEWIDE_DISTRICT_CODE: keep only
-  //     that state's state-level series; CDs hidden.
-  //   - Chip ON + state + specific district: keep only that exact CD's
-  //     series; state-level sources hidden.
-  //
-  // Tied to CD_TAG as the chip's master "is active" flag for backwards
-  // compatibility with the migration's existing tag presence.
-  function passesCdFilter(
-    id: string,
-    tags: string[],
-    selectedTags: Set<string>,
-    cdState: string | null,
-    cdDistrict: string | null,
-    query: string = "",
-  ): boolean {
-    const isCd = tags.includes(CD_TAG);
-    const isStateLevel = tags.includes(STATE_TAG);
-    const isGeo = isCd || isStateLevel;
-    if (!selectedTags.has(CD_TAG)) {
-      if (!isGeo) return true; // non-geo: always
-      // Chip off, geo source. Allow only if the query unlocks the
-      // source's state via a 4+-char state-name match (same pattern
-      // as the MSA unlock). Typing "Texas" surfaces TX state-level
-      // + every TX CD source; typing "tx" alone does not.
-      const unlock = unlockedStatesForQuery(query);
-      if (!unlock) return false;
-      const parsed = isCd ? parseCdSourceId(id) : parseStateSourceId(id);
-      return !!parsed && unlock.has(parsed.state);
-    }
-    // Chip active → only geo sources eligible, gated by state + district.
-    if (!isGeo) return false;
-    if (!cdState) return false; // gate: pick a state first
-    // District = STATEWIDE: only state-level sources for that state.
-    if (cdDistrict === STATEWIDE_DISTRICT_CODE) {
-      if (!isStateLevel) return false;
-      const parsed = parseStateSourceId(id);
-      return parsed?.state === cdState;
-    }
-    // District = specific CD: only that CD's sources, state-level filtered out.
-    if (cdDistrict) {
-      if (!isCd) return false;
-      const parsed = parseCdSourceId(id);
-      return parsed?.state === cdState && parsed?.district === cdDistrict;
-    }
-    // District unset = "All": both state-level + CDs of that state.
-    if (isStateLevel) return parseStateSourceId(id)?.state === cdState;
-    if (isCd) return parseCdSourceId(id)?.state === cdState;
-    return false;
-  }
+  //   - Chip OFF: hide everything tagged CD_TAG / STATE_TAG (non-geo passes; a
+  //     >=4-char state-name query unlocks that state's geo sources).
+  //   - Chip ON, no state: hide all geo sources (the state pick is the gate).
+  //   - Chip ON + state[, district]: keep that state's series per the district.
+  const {
+    passesCdFilter,
+    passesMetroFilter,
+    passesCountryFilter,
+    passesCountyFilter,
+  } = createComposerGeoFilters(() => library);
 
-  /** Set of state codes (2-letter, lowercase) whose name contains the
-   *  search query as a substring. Returns null for queries below the
-   *  4-char threshold or with no name match. Same semantics as
-   *  unlockedMetrosForQuery — gives the user a typed-name shortcut
-   *  past the chip gate without exposing every geo source to broad
-   *  queries like "cars".
-   *
-   *  Memoized by query string: this function is called from
-   *  passesCdFilter once per source per render, and renderTagFilters
-   *  / renderSourcesList both call it for every source. Without the
-   *  cache, a 4-char query rebuilds the result set ~20k times per
-   *  keystroke and freezes the UI. */
-  let _stateUnlockCache: { q: string; result: Set<string> | null } | null = null;
-  function unlockedStatesForQuery(q: string): Set<string> | null {
-    if (_stateUnlockCache && _stateUnlockCache.q === q) return _stateUnlockCache.result;
-    let result: Set<string> | null = null;
-    if (q.length >= 4) {
-      const matched = new Set<string>();
-      const ql = q.toLowerCase();
-      for (const s of US_STATES) {
-        if (s.name.toLowerCase().includes(ql)) matched.add(s.code);
-      }
-      if (matched.size > 0) result = matched;
-    }
-    _stateUnlockCache = { q, result };
-    return result;
-  }
-
-  // Cache of CBSA codes "unlocked" by the current search query — set of
-  // metro:<cbsa> tags any of which lets a metro-tagged source through
-  // the chip gate even when the chip is inactive. A query unlocks a
-  // CBSA when it's ≥ 4 chars AND a substring of the CBSA's short or
-  // full name. Cleared when the query changes (computed lazily).
-  // Rationale: user wants the chip to be the default opt-in but typing
-  // "Abilene" should also surface Abilene-tagged sources. Typing
-  // "cars" must not surface households-with-cars-in-Abilene.
-  // Memoized — see unlockedStatesForQuery for the rationale.
-  let _metroUnlockCache: { q: string; result: Set<string> | null } | null = null;
-  function unlockedMetrosForQuery(q: string): Set<string> | null {
-    if (_metroUnlockCache && _metroUnlockCache.q === q) return _metroUnlockCache.result;
-    let result: Set<string> | null = null;
-    if (q.length >= 4 && library?.metros) {
-      const matched = new Set<string>();
-      const ql = q.toLowerCase();
-      for (const [code, entry] of Object.entries(library.metros)) {
-        const hay = (entry.shortName + " " + entry.name).toLowerCase();
-        if (hay.includes(ql)) matched.add(`${METRO_TAG}:${code}`);
-      }
-      if (matched.size > 0) result = matched;
-    }
-    _metroUnlockCache = { q, result };
-    return result;
-  }
-
-  /** Returns true if a source passes the metro chip's filter for a
-   *  given surface state + search query. Non-metro sources always
-   *  pass. Metro sources pass when the chip has a specific CBSA
-   *  picked AND the source carries that CBSA's tag, OR when the
-   *  query unlocks the source's CBSA via the 4-char name match. */
-  function passesMetroFilter(
-    sTags: string[],
-    selectedCbsa: string | null,
-    query: string,
-  ): boolean {
-    if (selectedCbsa) {
-      // Active metro pick — narrows to that CBSA's sources only.
-      return sTags.includes(`${METRO_TAG}:${selectedCbsa}`);
-    }
-    // A source counts as metro-tagged when it carries EITHER the bare
-    // METRO_TAG (synthetic, injected by library.json for sources whose
-    // IDs match metroTagsFor's regex) OR a per-CBSA `metro:<cbsa>` tag
-    // declared directly in YAML. Older code only checked the bare
-    // umbrella tag and missed sources like Zillow that declare the
-    // per-CBSA tag without the umbrella — they leaked Atlanta /
-    // Boston / Miami etc. into the default Sources list even when the
-    // user hadn't picked the metro chip OR typed a 4-char query.
-    const hasMetroTag = sTags.some(
-      (t) => t === METRO_TAG || t.startsWith(`${METRO_TAG}:`),
-    );
-    if (!hasMetroTag) return true; // non-metro: always
-    const unlock = unlockedMetrosForQuery(query);
-    if (!unlock) return false;
-    for (const t of sTags) {
-      if (unlock.has(t)) return true;
-    }
-    return false;
-  }
-
-  /** Set of country/region codes whose display name contains the
-   *  search query as a substring. Same 4-char threshold as the metro
-   *  + state unlocks: typing "Australia" unlocks AUS-tagged sources;
-   *  typing "Aus" alone (3 chars) does not. Memoized — see
-   *  unlockedStatesForQuery for the rationale. */
-  let _countryUnlockCache: { q: string; result: Set<string> | null } | null = null;
-  function unlockedCountriesForQuery(q: string): Set<string> | null {
-    if (_countryUnlockCache && _countryUnlockCache.q === q) return _countryUnlockCache.result;
-    let result: Set<string> | null = null;
-    if (q.length >= 4 && library?.countries) {
-      const matched = new Set<string>();
-      const ql = q.toLowerCase();
-      for (const [code, entry] of Object.entries(library.countries)) {
-        if (entry.name.toLowerCase().includes(ql)) {
-          matched.add(`${COUNTRY_TAG}:${code}`);
-        }
-      }
-      if (matched.size > 0) result = matched;
-    }
-    _countryUnlockCache = { q, result };
-    return result;
-  }
-
-  /** Returns true if a source passes the country chip's filter.
-   *  Non-country sources always pass. Country sources pass when the
-   *  chip has a specific entity picked AND the source carries that
-   *  entity's tag, OR when the query unlocks the source's entity via
-   *  the 4-char name match. */
-  function passesCountryFilter(
-    sTags: string[],
-    selectedCountryCode: string | null,
-    query: string = "",
-  ): boolean {
-    if (selectedCountryCode) {
-      return sTags.includes(`${COUNTRY_TAG}:${selectedCountryCode}`);
-    }
-    if (!sTags.includes(COUNTRY_TAG)) return true;
-    const unlock = unlockedCountriesForQuery(query);
-    if (!unlock) return false;
-    for (const t of sTags) {
-      if (unlock.has(t)) return true;
-    }
-    return false;
-  }
-
-  /** Returns true if a source passes the county-source filter.
-   *  Non-county sources always pass. County sources are HIDDEN by
-   *  default — there's no county drill-down chip yet (only 8
-   *  counties ship today, mostly DMV-area BLS unemployment) — so
-   *  the only way to surface them is to type a 4+-char query that
-   *  matches the county's source-ID slug.
-   *
-   *  Why slug-match rather than name-match: the source's display
-   *  name + searchText already power the global string filter; if
-   *  the user types "Alexandria" the searchText path will keep the
-   *  source eligible. This filter just enforces the "don't show
-   *  every county in the default list" rule. A query that doesn't
-   *  hit the slug is treated as "user isn't looking for a county
-   *  right now," and the row is dropped.
-   *
-   *  Match target: the county-NAME portion only (e.g.
-   *  "alexandria", "prince_georges") — NOT the full series-plus-
-   *  county slug. Earlier shipped behavior matched the whole slug,
-   *  which meant typing the series name ("unemployment") matched
-   *  every county source ("unemployment_alexandria" contains
-   *  "unemployment"). That defeated the chip's "hide by default"
-   *  intent: searching "unemployment" surfaced every county we ship.
-   *  Now "alex" still matches Alexandria, "prince" matches Prince
-   *  George's + Prince William, "city" matches anything with city
-   *  in its name — but a query for the series doesn't leak the
-   *  county set. Regression locked down in county-sources.test.ts. */
-  function passesCountyFilter(
-    id: string,
-    sTags: string[],
-    query: string = "",
-  ): boolean {
-    if (!sTags.includes(COUNTY_TAG)) return true;
-    if (query.length < 4) return false;
-    const parsed = parseCountySourceId(id);
-    if (!parsed) return false; // defensive — should never happen if COUNTY_TAG is on
-    return parsed.countyName.toLowerCase().includes(query.toLowerCase());
-  }
   // Index of the currently-focused section. Library clicks append here.
   let activeSectionIdx: number = 0;
 
