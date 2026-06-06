@@ -1,0 +1,1695 @@
+  .composer-shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 24px 40px;
+  }
+  .composer-topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+    flex-wrap: wrap;
+  }
+  .composer-title-wrap { flex: 1 1 280px; }
+  .composer-title-input {
+    width: 100%;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    padding: 4px 0;
+    color: var(--color-neutral-900);
+  }
+  .composer-title-input::placeholder { color: var(--color-neutral-400); }
+  .composer-description-wrap {
+    padding: 8px 24px 16px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .composer-description-input {
+    width: 100%;
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-neutral-700);
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    resize: vertical;
+    min-height: 32px;
+  }
+  .composer-description-input::placeholder { color: var(--color-neutral-400); }
+  .composer-description-input:focus { outline: none; }
+  .composer-window-wrap { display: flex; align-items: center; gap: 8px; }
+  .composer-window-wrap select {
+    font: inherit;
+    padding: 4px 8px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .composer-actions { display: flex; gap: 8px; }
+  .btn-primary, .btn-secondary {
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    color: var(--color-neutral-900);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-color: var(--color-accent);
+  }
+  .btn-primary:hover { background: var(--color-accent-hover); }
+  .btn-secondary:hover { background: var(--color-neutral-100); }
+  /* Disabled state is otherwise nearly indistinguishable from active on
+     the green accent; reported as "Create chart button does nothing"
+     when the prerequisite (title or source) hadn't been filled. Mute
+     hard so it's obvious the click won't fire. */
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .btn-primary:disabled:hover,
+  .btn-secondary:disabled:hover {
+    background: var(--color-accent);
+  }
+
+  .composer-layout {
+    display: grid;
+    /* 360px (was 320) so the four library tabs — Sources / Pregenerated
+       charts / Maps / Generators — fit on one line instead of clipping
+       "Generators" off the right edge. */
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    margin-top: 20px;
+    min-height: 70vh;
+  }
+  @media (max-width: 800px) {
+    .composer-layout { grid-template-columns: 1fr; }
+  }
+
+  .composer-library {
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius);
+    padding: 14px;
+    background: var(--color-neutral-50);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 80vh;
+    overflow: hidden;
+  }
+  /* Library tabs — Sources (primary) vs Pregenerated charts. Stays
+     thin so most of the panel's vertical space goes to the result list.
+     Underline-style active state matches the editorial feel of the
+     rest of the site better than a button-pill style would. */
+  .lib-tabs {
+    display: flex;
+    /* Tightened gap + tab padding (below) + the wider column let all four
+       tabs sit on one line. flex-wrap is a safety net: if a future tab or a
+       larger font would still overflow, the strip wraps to a second row
+       instead of clipping a label off the right edge. */
+    gap: 2px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+    margin-bottom: 4px;
+  }
+  .lib-tab {
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    padding: 6px 7px 8px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-neutral-600);
+    cursor: pointer;
+    margin-bottom: -1px;
+    white-space: nowrap;
+  }
+  .lib-tab:hover { color: var(--color-neutral-900); }
+  .lib-tab-active {
+    color: var(--color-neutral-900);
+    border-bottom-color: var(--color-accent);
+  }
+  .lib-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+  .lib-panel[hidden] { display: none; }
+
+  /* ---- Maps tab ---------------------------------------------------- */
+  /* Maps panel deliberately doesn't scroll inside the library sidebar
+     — the form ends in a "+ Add map to dashboard" button that users
+     missed when it was tucked below a panel-local scrollbar. Instead
+     the panel grows as tall as it needs and the WHOLE PAGE scrolls.
+     `.composer-library` cancels its own max-height when the maps tab
+     is the active one (see the `[data-active-tab='maps']` rule
+     below). */
+  .lib-panel-maps {
+    overflow: visible;
+  }
+  /* Same treatment for the Maps and Generators tabs — both are
+     form-driven panels that end in a primary "+ Add" / "+ Generate"
+     button. Letting the panel scroll internally tucks the action
+     button under a scrollbar and users miss it. With the panel-local
+     overflow gone (here) and the library-shell max-height cancelled
+     (below), the whole composer column grows as tall as the form
+     needs and the WHOLE PAGE scrolls. Sources / Pregenerated stay
+     bounded because their result lists run to hundreds of rows. */
+  .composer-library[data-active-tab='maps'],
+  .composer-library[data-active-tab='generators'] {
+    max-height: none;
+    overflow: visible;
+  }
+  .map-geo-caveat {
+    margin: 0;
+    color: var(--color-neutral-600);
+    font-style: italic;
+  }
+  /* Region-preset chips above the multi-select. Quick fills for the
+     common multi-state regions (DMV, NY tri-state, etc.) — sized to
+     be obviously clickable without crowding the panel. */
+  .map-region-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .map-region-chip {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .map-region-chip:hover {
+    background: var(--color-accent-soft, rgba(15, 118, 110, 0.08));
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .map-state-multi {
+    /* Native multi-select renders rows comfortably at our default font
+       size, no extra tweaks needed. Pinned here so a future
+       .map-input override doesn't accidentally compress it. */
+    min-height: 132px;
+  }
+  .map-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .map-builder-intro {
+    margin: 0;
+  }
+  .map-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .map-field-label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--color-neutral-700);
+  }
+  .map-input,
+  .map-builder select.map-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    font: inherit;
+    font-size: var(--text-sm);
+  }
+  .map-vintage-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .map-vintage-row input[type="range"] { flex: 1; }
+  .map-vintage-readout {
+    min-width: 3em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .map-geo-radios,
+  .map-scale-radios {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .map-radio-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .map-radio-row input[type="radio"] { margin-top: 4px; }
+  /* Greyed-out radio row — applied to the Preset row in the
+     Generators tab when no preset has any entities for the current
+     template + geography. Disable the radio's `disabled` attribute
+     drops it from the tab order; this CSS rule additionally dims
+     the text and switches the cursor so the reader can see at a
+     glance that the option isn't available right now. */
+  .map-radio-row-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .map-radio-row-disabled input[type="radio"] {
+    cursor: not-allowed;
+  }
+  .map-geo-warning {
+    margin: 4px 0 0;
+    padding: 6px 10px;
+    background: #fff8e6;
+    border-left: 3px solid #d4a017;
+    border-radius: var(--radius-sm);
+    line-height: 1.45;
+  }
+  .map-bbox-section {
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+  }
+  .map-bbox-section summary {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 0;
+  }
+  .map-bbox-section[open] summary { margin-bottom: 8px; }
+  .map-bbox-preview {
+    margin: 8px 0;
+    min-height: 100px;
+    background: #fafbfc;
+    border-radius: var(--radius-sm);
+    padding: 6px;
+  }
+  .map-bbox-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  .map-bbox-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--text-xs);
+  }
+  .map-bbox-clear {
+    padding: 4px 10px;
+    font-size: var(--text-xs);
+  }
+  /* d3-brush styling: light-blue translucent rectangle with a darker
+     border. Matches the rest of the composer's selection visuals. */
+  .map-bbox-brush .selection {
+    fill: rgba(80, 130, 220, 0.22);
+    stroke: rgba(80, 130, 220, 0.85);
+    stroke-width: 1.5;
+  }
+  .map-bbox-brush .handle {
+    fill: rgba(80, 130, 220, 0.45);
+  }
+  .map-actions {
+    margin-top: 8px;
+  }
+  .map-add-btn {
+    width: 100%;
+    padding: 10px 14px;
+    font-weight: 600;
+  }
+
+  /* ---- Generators tab ---------------------------------------------- */
+  .lib-panel-generators {
+    /* No internal scrollbar — matches the Maps panel's behavior so
+       the "+ Generate" button at the bottom of the form is never
+       tucked under a scrollbar. The library-shell max-height
+       cancellation lives in the shared
+       [data-active-tab='maps'], [data-active-tab='generators']
+       rule above. */
+    overflow: visible;
+  }
+  .gen-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .gen-template-select {
+    /* Make the template dropdown a scrollable listbox so users can
+       see ~8 options at once without re-opening it. */
+    height: auto;
+    min-height: 8em;
+    padding: 4px;
+    font-size: var(--text-sm);
+  }
+  .gen-preset-wrap,
+  .gen-custom-wrap {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  /* Sort-by control above the Entities mode radios. Single-line
+     pill-style radios so it reads as a tertiary chooser rather than
+     a competing radio group with the mode picker below. */
+  .gen-sort-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    margin-bottom: 8px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+  }
+  .gen-sort-label {
+    font-weight: 600;
+    color: var(--color-neutral-800);
+  }
+  .gen-sort-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .gen-sort-opt input { margin: 0; }
+  .gen-entity-actions {
+    display: flex;
+    gap: 8px;
+    font-size: var(--text-xs);
+  }
+  .gen-entity-list {
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    background: var(--color-white);
+  }
+  .gen-entity-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .gen-entity-row input[type="checkbox"] { margin: 0; }
+  .gen-entity-row:hover { background: rgba(0, 0, 0, 0.02); }
+  .btn-tertiary {
+    font: inherit;
+    font-size: var(--text-xs);
+    background: transparent;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: var(--radius-sm);
+    padding: 3px 8px;
+    cursor: pointer;
+    color: var(--color-neutral-700);
+  }
+  .btn-tertiary:hover {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+  }
+
+  .lib-controls { display: flex; flex-direction: column; gap: 10px; }
+  .lib-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    font: inherit;
+    font-size: var(--text-sm);
+  }
+  .lib-tag-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag-pill {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+  }
+  .tag-pill:hover { background: var(--color-neutral-100); }
+  /* :hover has specificity (0,2,0) and .tag-pill-active is (0,1,0),
+     so without an explicit hover rule the hover background (neutral-
+     100, near-white) wins over the active background (neutral-900,
+     dark) — and the active color (white) is left on a near-white
+     hover bg, making the label invisible right after you click a
+     pill (the cursor is still over it). Pin the active hover state
+     to the same dark bg so the label always reads. */
+  .tag-pill-active,
+  .tag-pill-active:hover {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border-color: var(--color-neutral-900);
+  }
+  /* Geo drill-down chip strip — US metro areas, States & districts,
+     Regions & countries. Sits between the search input and the
+     topical tag pills. Hidden when none of the three has any data. */
+  .lib-geo-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .lib-geo-chips[hidden] { display: none; }
+  .lib-geo-chip-wrap { position: relative; }
+  /* The CD chip host renders inline as a flex sibling so its chip +
+     state dropdown + district dropdown all flow naturally in the
+     same row as the popover chips. */
+  .lib-geo-cd-host { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .lib-geo-chip {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lib-geo-chip:hover { background: var(--color-neutral-100); }
+  .lib-geo-chip-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border-color: var(--color-neutral-900);
+  }
+  .lib-geo-chip-active:hover { background: var(--color-neutral-800); }
+  .lib-geo-chip-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+  }
+  .lib-geo-chip-clear:hover { background: rgba(255, 255, 255, 0.32); }
+  .lib-geo-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 280px;
+    max-width: 90vw;
+    max-height: 320px;
+    z-index: 20;
+    background: var(--color-white);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 24px rgba(15, 15, 15, 0.12);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 6px;
+  }
+  .lib-geo-popover[hidden] { display: none; }
+  .lib-geo-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    font: inherit;
+    font-size: var(--text-sm);
+  }
+  .lib-geo-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+  }
+  .lib-geo-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font: inherit;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-800);
+  }
+  .lib-geo-list-item:hover { background: var(--color-neutral-100); }
+  .lib-geo-list-item-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+  }
+  .lib-geo-list-item-active:hover { background: var(--color-neutral-800); }
+  .lib-geo-list-item-name { font-weight: 500; }
+  .lib-geo-list-item-code { opacity: 0.7; }
+  .lib-geo-list-item-active .lib-geo-list-item-code { color: rgba(255, 255, 255, 0.7); }
+  /* Section header inside the Countries & regions popover. Sits flush
+     left of the items, treated like an eyebrow so it's distinguishable
+     from a selectable row. Margin-top zero on the first header so it
+     hugs the top of the list. */
+  .lib-geo-list-header {
+    margin: 8px 4px 2px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-500);
+  }
+  .lib-geo-list-header:first-child { margin-top: 0; }
+  /* The congressional-district drill-down chip gets a slightly different
+     accent so users notice it's not "just another tag" — it expands a
+     state/district selector when activated rather than just narrowing
+     the existing list. */
+  .cd-tag-pill {
+    border-style: dashed;
+  }
+  .cd-tag-pill.tag-pill-active {
+    border-style: solid;
+  }
+  /* State + district dropdowns that follow the CD chip when active.
+     Inline-flex so they wrap onto a new line with the chip strip if
+     the row gets crowded, but otherwise sit on the same line. */
+  .cd-drilldown-select {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(55, 53, 47, 0.15);
+    background: var(--color-white);
+    color: var(--color-neutral-800);
+    max-width: 220px;
+  }
+  /* Source-card district badge ("TX-12" / "AK-AL" / "DC-98"). Slightly
+     more prominent than the generic shortName badge because, when a
+     user is filtered to a state's districts, the district code is the
+     primary thing they're scanning for. */
+  .source-card-cd-badge {
+    color: var(--color-neutral-700);
+    background: var(--color-neutral-100);
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+  }
+  .lib-results {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .lib-group-heading {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-neutral-500);
+    margin: 10px 0 2px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .lib-group-heading:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+  .chart-card {
+    text-align: left;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    padding: 8px 10px;
+    cursor: pointer;
+    font: inherit;
+  }
+  .chart-card:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+  .chart-card-title {
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-900);
+  }
+  .chart-card-meta {
+    margin-top: 2px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+
+  /* Source-card variant of chart-card with room for the description +
+     a short-name (ticker) badge. Same hover-and-click affordance. */
+  .source-card {
+    text-align: left;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    padding: 8px 10px;
+    cursor: pointer;
+    font: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .source-card:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+  .source-card-title {
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-900);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .source-card-short {
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-neutral-500);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .source-card-desc {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-600);
+    line-height: 1.35;
+    /* Two-line clamp keeps tall descriptions from making the list
+       feel uneven — pickable rows should be visually similar in
+       height for fast scanning. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .source-card-tags {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  /* Synthetic "See also" cards (kind: hint) — same shape as the
+     real source cards but tinted so a quick scan distinguishes
+     them from selectable sources. The leading eyebrow tag says
+     "See also" so even without colour the user understands these
+     are signposts, not data. Click engages the relevant chip
+     (see engageHintChip in the script). */
+  .source-card-hint {
+    background: var(--color-neutral-50);
+    border-color: rgba(55, 53, 47, 0.06);
+  }
+  .source-card-hint:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+  }
+  .source-card-hint-eyebrow {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-500);
+    background: var(--color-neutral-100);
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-right: 6px;
+  }
+
+  .composer-composition {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .comp-empty p { color: var(--color-neutral-500); font-size: var(--text-sm); }
+  /* Slightly tighter + dimmer follow-up hint that explains the two
+     ways of getting a chart on screen. First-time visitors otherwise
+     don't know that "+ Custom chart" is the multi-source path. */
+  .comp-empty-hint { max-width: 56ch; margin-top: 4px; line-height: 1.5; }
+  .comp-empty-hint strong { color: var(--color-neutral-700); font-weight: 500; }
+  /* "Take the 5-minute tour" line — sits below the empty-state hint
+     as the cold-visitor escape hatch. Same muted weight as the hint
+     paragraph but with the link colored so the affordance is
+     visible. */
+  .comp-empty-walkthrough {
+    max-width: 56ch;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+  .comp-empty-walkthrough a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-left: 4px;
+  }
+  .comp-section {
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    background: var(--color-white);
+    cursor: pointer;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  }
+  .comp-section-active {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+    cursor: default;
+  }
+  .comp-section-active-hint {
+    font-size: var(--text-xs);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+  .comp-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .comp-section-drag-handle {
+    user-select: none;
+    cursor: grab;
+    color: var(--color-neutral-400);
+    font-size: var(--text-sm);
+    line-height: 1;
+    padding: 0 2px;
+    letter-spacing: -3px;
+    flex-shrink: 0;
+  }
+  .comp-section-drag-handle:active {
+    cursor: grabbing;
+  }
+  .comp-section-drag-handle:hover {
+    color: var(--color-neutral-700);
+  }
+  /* Section drop indicators — a thin accent line above or below the target. */
+  .comp-section.drop-before {
+    box-shadow: 0 -3px 0 0 var(--color-accent);
+  }
+  .comp-section.drop-after {
+    box-shadow: 0 3px 0 0 var(--color-accent);
+  }
+  .comp-section.dragging {
+    opacity: 0.5;
+  }
+  .comp-section-title {
+    flex: 1;
+    font: inherit;
+    font-weight: 600;
+    font-size: var(--text-base);
+    color: var(--color-neutral-900);
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+  }
+  .comp-section-del {
+    font: inherit;
+    font-size: var(--text-lg);
+    line-height: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-neutral-400);
+    cursor: pointer;
+    padding: 0 6px;
+  }
+  .comp-section-del:hover { color: var(--color-error); }
+  .comp-section-desc {
+    width: 100%;
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-neutral-600);
+    background: transparent;
+    border: none;
+    padding: 0 0 8px;
+    resize: vertical;
+    min-height: 28px;
+  }
+  .comp-section-desc::placeholder { color: var(--color-neutral-400); }
+  .comp-section-desc:focus { outline: none; }
+  /* Markdown body textarea — distinct visual treatment from the
+     description: monospace-ish font hint (so users see they can
+     write code/markdown), slightly recessed background so the
+     content authoring surface reads as a different artifact than
+     the title + description. */
+  .comp-section-md {
+    width: 100%;
+    font: inherit;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--color-neutral-800);
+    background: rgba(55, 53, 47, 0.04);
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin: 4px 0 6px;
+    resize: vertical;
+    min-height: 60px;
+  }
+  .comp-section-md::placeholder { color: var(--color-neutral-400); }
+  .comp-section-md:focus {
+    outline: none;
+    border-color: rgba(55, 53, 47, 0.3);
+    background: rgba(55, 53, 47, 0.02);
+  }
+  .comp-section-md[hidden] { display: none; }
+  .comp-section-md-toggle {
+    background: none;
+    border: none;
+    color: var(--color-neutral-500);
+    font: inherit;
+    font-size: 11px;
+    padding: 0 0 6px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .comp-section-md-toggle:hover { color: var(--color-neutral-900); }
+  .comp-section-md-toggle[hidden] { display: none; }
+  /* Section-level window override row — sits between the
+     description textarea and the chart grid. Tight visual weight so
+     it doesn't compete with the title + chart tiles. */
+  .comp-section-window {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--text-xs);
+    padding: 0 0 8px;
+    flex-wrap: wrap;
+  }
+  .comp-section-window-label { white-space: nowrap; }
+  .comp-section-window-select {
+    font: inherit;
+    font-size: var(--text-xs);
+    background: var(--color-white);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 3px 6px;
+    color: var(--color-neutral-800);
+    cursor: pointer;
+  }
+  .comp-section-window-dates {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .comp-section-window-date {
+    font: inherit;
+    font-size: var(--text-xs);
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+  }
+  .comp-section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    /* Make the grid a forgiving drop target even when nearly empty. */
+    min-height: 32px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.12s ease, outline-color 0.12s ease;
+    outline: 2px dashed transparent;
+    outline-offset: -2px;
+  }
+  .comp-section-grid.drop-target {
+    background: rgba(0, 0, 0, 0.02);
+    outline-color: var(--color-accent);
+  }
+  .comp-tile.dragging {
+    opacity: 0.35;
+  }
+  .comp-empty-slot {
+    grid-column: 1 / -1;
+    padding: 18px;
+    text-align: center;
+    border: 1px dashed rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+  }
+  .comp-tile {
+    position: relative;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    padding: 10px 52px 10px 12px;
+    background: var(--color-neutral-50);
+  }
+  .comp-tile-edit {
+    position: absolute;
+    top: 4px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: 1;
+    padding: 2px 4px;
+    color: var(--color-neutral-400);
+    cursor: pointer;
+  }
+  .comp-tile-edit:hover { color: var(--color-accent); }
+  .comp-tile.has-override .comp-tile-edit {
+    color: var(--color-accent);
+  }
+  .comp-tile-preview-btn {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* font-size anchors the icon's em sizing: the SVG below is 1.3em, so
+       it renders ~30% larger than the edit pencil (which sits at --text-sm). */
+    font-size: var(--text-sm);
+    line-height: 1;
+    padding: 2px;
+    border: none;
+    border-radius: var(--radius-sm);
+    /* Faint tile-colored backing so the icon stays legible over the
+       sparkline that fills the tile body. */
+    background: color-mix(in srgb, var(--color-neutral-50) 78%, transparent);
+    color: var(--color-neutral-400);
+    cursor: pointer;
+  }
+  .comp-tile-preview-btn svg {
+    width: 1.3em;
+    height: 1.3em;
+    display: block;
+  }
+  .comp-tile-preview-btn:hover { color: var(--color-accent); }
+  .comp-tile-title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-neutral-900);
+  }
+  .comp-tile-meta {
+    margin-top: 2px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  .comp-tile-del {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: transparent;
+    border: none;
+    font: inherit;
+    font-size: var(--text-base);
+    line-height: 1;
+    color: var(--color-neutral-400);
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  .comp-tile-del:hover { color: var(--color-error); }
+  .comp-tile-inline {
+    border-style: dashed;
+  }
+  /* Inline-map tile variant — same chrome as regular chart tiles but
+     the map preview takes more vertical room, so let it set its own
+     min-height rather than being squashed. */
+  .comp-tile-map {
+    border-style: dashed;
+  }
+  /* Visual preview slot under the title/meta. Lazy-filled by
+     renderTilePreview(); empty (height: 0) until the SVG / Plot
+     output replaces its contents. The fixed heights below take over
+     as soon as the preview lands, so layout doesn't flicker on the
+     async fill. */
+  .comp-tile-preview {
+    margin-top: 6px;
+  }
+  .comp-tile-preview:empty {
+    display: none;
+  }
+  .comp-tile-preview > svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .comp-tile-map .comp-tile-preview {
+    background: rgba(15, 118, 110, 0.04);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .comp-tile-coverage-warn {
+    border-color: var(--color-error);
+    box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.25);
+  }
+  .comp-tile-coverage-flag {
+    color: var(--color-error);
+  }
+  .composer-fixed-inputs {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+  }
+  .composer-date {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 2px 6px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .comp-tile-editable {
+    cursor: pointer;
+  }
+  .comp-tile-editable:hover {
+    border-color: var(--color-accent);
+  }
+  .comp-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Hover-merge buildup. Two-layer visual to read unmistakably as
+     "something is about to happen":
+       1. The tile body picks up a colored outline + tinted background
+          the instant the buildup class lands.
+       2. A progress bar fills along the bottom of the tile over the
+          remaining HOVER_MERGE_HOLD_MS - HOVER_MERGE_BUILDUP_DELAY_MS,
+          so the user sees the merge approaching and can move the cursor
+          away to cancel.
+     The combination — instant tint + animated bar — is louder than the
+     prior subtle box-shadow pulse, which several testers couldn't see. */
+  @keyframes hover-merge-fill {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+  .comp-tile.hover-merge-buildup {
+    border-color: var(--color-accent) !important;
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+  .comp-tile.hover-merge-buildup::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 0;
+    background: var(--color-accent);
+    border-bottom-left-radius: inherit;
+    animation: hover-merge-fill 800ms linear forwards;
+    pointer-events: none;
+  }
+
+  /* Tip line shown under the composition when 2+ charts are present and
+     the user hasn't dismissed it yet. Subtle so it doesn't compete with
+     the dashboard, but visible enough to teach. */
+  .comp-hover-merge-tip {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: var(--color-accent-soft);
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .comp-hover-merge-tip-dismiss {
+    background: transparent;
+    border: none;
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: 1;
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  .comp-hover-merge-tip-dismiss:hover { color: var(--color-neutral-900); }
+
+  /* Combine-with menu shown on touch long-press. Absolute-positioned by
+     JS near the long-pressed tile; scrolls if it overflows the viewport.
+     The body listener click-outside handler hides it. */
+  .combine-with-menu {
+    position: fixed;
+    z-index: 60;
+    min-width: 220px;
+    max-width: min(360px, calc(100vw - 16px));
+    max-height: 60vh;
+    overflow-y: auto;
+    background: var(--color-white);
+    border: 1px solid rgba(55, 53, 47, 0.15);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 6px;
+    font-size: var(--text-sm);
+  }
+  .combine-with-menu-heading {
+    padding: 6px 10px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+    border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+    margin-bottom: 4px;
+  }
+  .combine-with-menu-empty {
+    padding: 8px 10px;
+    color: var(--color-neutral-500);
+    font-size: var(--text-xs);
+    font-style: italic;
+  }
+  .combine-with-menu-item,
+  .combine-with-menu-cancel {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    font: inherit;
+    font-size: var(--text-sm);
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--color-neutral-900);
+  }
+  .combine-with-menu-item:hover,
+  .combine-with-menu-item:focus {
+    background: var(--color-accent-soft);
+    outline: none;
+  }
+  .combine-with-menu-cancel {
+    color: var(--color-neutral-500);
+    margin-top: 4px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+    border-radius: 0;
+  }
+  .combine-with-menu-cancel:hover {
+    background: var(--color-neutral-100);
+  }
+
+  /* ---- Custom-chart modal ---- */
+  .cc-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .cc-modal-backdrop[hidden] { display: none; }
+  .cc-modal {
+    background: var(--color-white);
+    border-radius: var(--radius);
+    max-width: 560px;
+    width: 100%;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+  /* Wider modal when the body uses the split form/preview layout. */
+  .cc-modal:has(.cc-modal-split) {
+    max-width: 960px;
+  }
+  .cc-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .cc-modal-header h3 { margin: 0; font-size: var(--text-base); font-weight: 600; }
+  .cc-modal-close {
+    font: inherit;
+    font-size: var(--text-xl);
+    line-height: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .cc-modal-close:hover { color: var(--color-neutral-900); }
+  .cc-modal-body {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+  }
+  /* Split layout: form left, live preview right; stacks below 720px. */
+  .cc-modal-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .cc-modal-split {
+      grid-template-columns: 1fr;
+    }
+  }
+  .cc-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+  .cc-modal-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    border-left: 1px solid rgba(55, 53, 47, 0.06);
+    padding-left: 18px;
+  }
+  @media (max-width: 720px) {
+    .cc-modal-preview {
+      border-left: none;
+      border-top: 1px solid rgba(55, 53, 47, 0.06);
+      padding-left: 0;
+      padding-top: 14px;
+    }
+  }
+  .cc-preview-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .cc-preview-status {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  .cc-preview-plot {
+    min-height: 220px;
+    background: var(--color-neutral-50);
+    border-radius: var(--radius-sm);
+    padding: 6px;
+  }
+  .cc-preview-legend {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-700);
+  }
+  .cc-preview-legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cc-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  /* Right-column "Dialog presentation" group — sits under the preview
+     plot/legend and holds the controls that change how the EXPANDED
+     dialog renders (default y-axis transform, background shading,
+     annotations). Subtle top divider so it's visually separated from
+     the live preview but stays in the same column. */
+  .cc-preview-presentation {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .cc-preview-presentation-heading {
+    /* Tiny group label so the three controls below read as a unit. */
+    margin-bottom: -4px;
+  }
+  /* Annotation-range warning under the cc-modal Annotations textarea.
+     Subtle amber tone — flags a deliberate authoring mistake without
+     looking like a hard error (the save still works). */
+  .cc-annotations-warn {
+    margin: 4px 0 0;
+    padding: 6px 9px;
+    background: #fff8e8;
+    border: 1px solid rgba(217, 183, 96, 0.5);
+    border-radius: 3px;
+    font-size: 11.5px;
+    color: #6d521b;
+    line-height: 1.45;
+  }
+  .cc-annotations-warn[hidden] {
+    display: none;
+  }
+  .cc-field { display: flex; flex-direction: column; gap: 6px; }
+  .cc-field input[type="text"],
+  .cc-field input[type="search"],
+  .cc-source-search {
+    font: inherit;
+    padding: 6px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .cc-sources-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .cc-sources-count {
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+  }
+  .cc-source-list {
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--color-white);
+  }
+  .cc-source-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.04);
+  }
+  .cc-source-row:last-child { border-bottom: none; }
+  .cc-source-row:hover { background: var(--color-neutral-100); }
+  .cc-source-row input[type="checkbox"] { margin-top: 3px; }
+  .cc-source-row-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--text-sm);
+  }
+  .cc-source-primary { color: var(--color-neutral-900); font-weight: 500; }
+  .cc-source-secondary { color: var(--color-neutral-500); font-size: var(--text-xs); }
+  .cc-source-axis {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 0;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .cc-axis-pill {
+    font: inherit;
+    font-size: var(--text-xs);
+    line-height: 1;
+    padding: 3px 8px;
+    background: var(--color-white);
+    border: none;
+    color: var(--color-neutral-600);
+    cursor: pointer;
+  }
+  .cc-axis-pill + .cc-axis-pill {
+    border-left: 1px solid rgba(55, 53, 47, 0.12);
+  }
+  .cc-axis-pill:hover { background: var(--color-neutral-100); }
+  .cc-axis-pill-active {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+  }
+  .cc-source-row { align-items: center; }
+  /* Derived-source picker rows are buttons, not labels (single-select). */
+  .ds-source-list {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .ds-source-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    font-size: var(--text-sm);
+    background: var(--color-white);
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--color-neutral-900);
+    border-bottom: 1px solid rgba(55, 53, 47, 0.04);
+  }
+  .ds-source-row:last-child { border-bottom: none; }
+  .ds-source-row:hover { background: var(--color-neutral-100); }
+  .ds-source-row-selected {
+    background: var(--color-accent-soft, rgba(37, 99, 235, 0.12));
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+  .ds-source-row-disabled {
+    color: var(--color-neutral-400);
+    cursor: not-allowed;
+  }
+  .ds-source-row-disabled:hover { background: var(--color-white); }
+  .ds-source-row-derived::before {
+    content: "◇ ";
+    color: var(--color-accent);
+  }
+  .ds-current { margin-top: 4px; font-style: italic; }
+  /* Auto-insert toggle in the derived-source modal — pre-checked so the
+     dominant "I want X / Y as a tile right now" path takes zero extra
+     clicks. Indented and dim so it reads as an optional refinement,
+     not as a primary CTA. */
+  .ds-add-as-chart {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .ds-add-as-chart input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .ds-add-as-chart > span {
+    line-height: 1.4;
+  }
+  /* Quick-divisor chips — one-click pre-fill of op + B in the
+     derived-source modal for the common per-capita / per-worker /
+     share-of-GDP recipes. Sits above Name + Operation so it reads
+     as a shortcut row rather than a third operand. */
+  .ds-quick-divisors {
+    background: var(--color-neutral-100);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+  }
+  .ds-quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .ds-quick-chip {
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: 4px 10px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    background: var(--color-white);
+    border-radius: 999px;
+    color: var(--color-neutral-800);
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .ds-quick-chip:hover {
+    border-color: rgba(55, 53, 47, 0.3);
+    background: var(--color-neutral-100);
+  }
+  .ds-quick-chip-active {
+    background: var(--color-accent, #2563eb);
+    border-color: var(--color-accent, #2563eb);
+    color: var(--color-white);
+  }
+  .ds-quick-chip-active:hover {
+    background: var(--color-accent, #2563eb);
+    border-color: var(--color-accent, #2563eb);
+  }
+  .ds-quick-help { margin: 6px 0 0; }
+  /* Rebuild-total suggestion: appears between A and B when A is a share
+     that can be multiplied back into a count. Accented to read as a smart
+     hint, not just another control. */
+  .ds-rebuild {
+    margin: -2px 0 2px;
+    padding: 8px 10px;
+    border: 1px dashed var(--color-accent, #2563eb);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-accent, #2563eb) 6%, transparent);
+  }
+  .ds-rebuild-chip {
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 1px solid var(--color-accent, #2563eb);
+    border-radius: 999px;
+    background: var(--color-surface, #fff);
+    color: var(--color-accent, #2563eb);
+    cursor: pointer;
+  }
+  .ds-rebuild-chip:hover {
+    background: var(--color-accent, #2563eb);
+    color: #fff;
+  }
+  .ds-rebuild-chip-active,
+  .ds-rebuild-chip-active:hover {
+    background: var(--color-accent, #2563eb);
+    color: #fff;
+  }
+  .ds-rebuild-help { margin: 6px 0 0; }
+  .cc-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .cc-mode legend {
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  .cc-mode-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-700);
+    line-height: 1.35;
+  }
+  .cc-mode-opt input { margin-top: 3px; flex-shrink: 0; }
+  .cc-mode-opt-disabled {
+    color: var(--color-neutral-400);
+    cursor: not-allowed;
+  }
+  .cc-mode-opt-disabled input { cursor: not-allowed; }
+  /* Log-scale toggle sits as a sibling to the scale-mode fieldset, not
+     inside it (it's an independent axis decision, not a normalize mode).
+     Matches the .cc-mode-opt visuals so they read as one cluster of
+     scale-related controls. */
+  .cc-log-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+    font-size: var(--text-sm);
+    color: var(--color-neutral-700);
+    line-height: 1.35;
+  }
+  .cc-log-opt input { margin-top: 3px; flex-shrink: 0; }
+  .cc-log-opt.cc-log-opt-disabled {
+    color: var(--color-neutral-400);
+    cursor: not-allowed;
+  }
+  .cc-log-opt.cc-log-opt-disabled input { cursor: not-allowed; }
+  .cc-op-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(55, 53, 47, 0.06);
+  }
+  .cc-op-wrap[hidden] { display: none; }
+  .cc-op-wrap select {
+    font: inherit;
+    padding: 4px 8px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .cc-op-hint {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .cc-op-swap {
+    align-self: flex-start;
+    font-size: var(--text-xs);
+  }
+  .cc-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+
+  .composer-url-warn {
+    margin: 8px 0 12px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(217, 119, 6, 0.08);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+    color: var(--color-neutral-800);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+  }
+  .composer-url-warn[hidden] { display: none; }
+  .composer-url-warn code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.95em;
+  }
+
+  /* Hard-overflow variant — same chrome, stronger red palette so it
+     reads as "action required" rather than the amber soft-warn. The
+     button is sized to match the soft banner's flow (no full-width
+     primary). */
+  .composer-url-overflow {
+    margin: 8px 0 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(220, 38, 38, 0.06);
+    border: 1px solid rgba(220, 38, 38, 0.35);
+    color: var(--color-neutral-800);
+    font-size: var(--text-sm);
+    line-height: 1.45;
+  }
+  .composer-url-overflow[hidden] { display: none; }
+  .composer-url-overflow strong { color: rgb(153, 27, 27); }
+  .composer-url-overflow ul {
+    margin: 6px 0 10px;
+    padding-left: 22px;
+  }
+  .composer-url-overflow li { margin: 2px 0; }
+  .composer-url-overflow code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.95em;
+  }
+  .composer-url-overflow .btn-primary { margin-top: 4px; }
+
+  .composer-footer {
+    margin-top: 32px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+  }
+  .composer-footer a {
+    color: var(--color-accent);
+    text-underline-offset: 2px;
+  }
+  .muted { color: var(--color-neutral-500); }
+  .small { font-size: var(--text-sm); }
