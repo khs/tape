@@ -1201,56 +1201,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     stateNameFor,
   } from "../lib/congressional-districts";
 
-  type LibraryChart = {
-    id: string;
-    title: string;
-    tags: string[];
-    sources: string[];
-    defaultDelta?: DeltaWindow;
-    // Fields needed by the promote-library-to-inline path so library
-    // charts can be opened in the custom-chart modal for full editing.
-    // Optional because the schema marks them all optional too — older
-    // library.json snapshots may not carry them.
-    normalize?: "raw" | "rebase" | "dual-axis";
-    scale?: "linear" | "log";
-    rightAxisSources?: string[];
-    op?: "divide" | "sum" | "diff";
-    blurb?: string;
-    searchText?: string;
-  };
-  type LibrarySource = {
-    id: string;
-    name: string;
-    shortName?: string;
-    description?: string;
-    kind?: string;
-    supportedDeltas?: DeltaWindow[];
-    unit?: string;
-    // Editorial annotations seeded onto a chart created from this source
-    // (e.g. FEC per-district redistricting notes). Carried in library.json.
-    defaultAnnotations?: Annotation[];
-  };
-  type MetroEntry = { shortName: string; name: string };
-  type CountryEntry = { name: string };
-  type LibraryPayload = {
-    charts: LibraryChart[];
-    sources: Record<string, LibrarySource>;
-    // Metros that appear in at least one source on disk. Empty/absent
-    // when the metro pipelines haven't run yet — the chip stays hidden.
-    metros?: Record<string, MetroEntry>;
-    // The synthetic tag prefix the server attaches to metro sources.
-    // Kept in the payload so the composer doesn't have to hardcode it
-    // separately from the library lib.
-    metroTag?: string;
-    // Country / region codes (ISO3 for countries, WB region codes for
-    // aggregates) present in at least one source. Empty/absent when
-    // the country pipelines haven't produced any non-US country data.
-    countries?: Record<string, CountryEntry>;
-    // Synthetic tag prefix for country / region sources. Used for the
-    // umbrella tag (`country-specific`) and per-country tags
-    // (`country-specific:JPN`, etc.) the server attaches.
-    countryTag?: string;
-  };
+  import {
+    loadLibrary,
+    type LibraryChart,
+    type LibrarySource,
+    type LibraryPayload,
+  } from "../lib/composer/library";
+  import {
+    INLINE_PREFIX,
+    INLINEMAP_PREFIX,
+    DERIVED_PREFIX,
+    isDerivedId,
+    isInlineId,
+    isInlineMapId,
+  } from "../lib/composer/ids";
 
   const _shellMaybe = document.querySelector<HTMLElement>(".composer-shell");
   if (!_shellMaybe) throw new Error("composer shell missing");
@@ -1284,26 +1248,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // / store.activeSectionIdx) are read & written as store.x.
   const store = createComposerStore();
   const state = store.state;
-
-  const INLINE_PREFIX = "inline:";
-  const INLINEMAP_PREFIX = "inlinemap:";
-  const DERIVED_PREFIX = "derived:";
-  function isDerivedId(id: string): boolean {
-    return id.startsWith(DERIVED_PREFIX);
-  }
-  function isInlineId(id: string): boolean {
-    return id.startsWith(INLINE_PREFIX);
-  }
-  function isInlineMapId(id: string): boolean {
-    return id.startsWith(INLINEMAP_PREFIX);
-  }
-
-  // ---- Load library ----
-  async function loadLibrary(): Promise<LibraryPayload> {
-    const r = await fetch(`${baseUrl}/library.json`);
-    if (!r.ok) throw new Error(`Library fetch failed: ${r.status}`);
-    return r.json();
-  }
 
   // ---- URL state hydration on load ----
   function hydrateFromUrl(): void {
@@ -8869,7 +8813,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   writeUrl(); // sync preview link
   void applyCopyModeTitleBump();
 
-  loadLibrary()
+  loadLibrary(baseUrl)
     .then((lib) => {
       library = lib;
       // Render both tabs' filter strips eagerly so the counts are
