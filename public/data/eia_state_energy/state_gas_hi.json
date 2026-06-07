@@ -3,7 +3,7 @@
   "name": "state_gas_hi",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-05-28T12:13:44Z",
+  "lastUpdated": "2026-06-07T08:50:49Z",
   "points": [
     {
       "t": "2001-12-31",

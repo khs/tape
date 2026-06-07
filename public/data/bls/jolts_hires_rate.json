@@ -3,7 +3,7 @@
   "name": "JOLTS: hires rate (total nonfarm)",
   "kind": "timeseries",
   "unit": "% of employment",
-  "lastUpdated": "2026-05-24T08:20:26Z",
+  "lastUpdated": "2026-06-07T08:46:45Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -448,6 +448,10 @@
     {
       "t": "2026-03-15",
       "v": 3.5
+    },
+    {
+      "t": "2026-04-15",
+      "v": 3.2
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "state_solar_wv",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-05-28T12:14:43Z",
+  "lastUpdated": "2026-06-07T08:51:09Z",
   "points": [
     {
       "t": "2024-12-31",
