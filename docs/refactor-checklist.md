@@ -17,7 +17,67 @@
 
 ---
 
-## ⮕ RESUME HERE — state at end of 2026-06-04 session
+## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
+
+**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE on prod; 2d is NEXT.**
+`compose.astro`: **11,007 → 8,895 lines**. `origin/main = f1983d0b68`. Working
+tree clean, nothing running.
+- **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
+- **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
+  (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
+  the CD "pick a state" gate preserved; 14-case parity test `geo-filter.test.ts`).
+- **2c** (`f1983d0b68`) — `ComposerStore` → `src/lib/composer/state.ts`
+  (`createComposerStore()`). compose **aliases** the never-reassigned slices
+  (`const state = store.state`, `libGeo`, `ccModal`, `dsModal` — zero churn on
+  ~700 refs); the 4 reassigned scalars (`sourcesSearchQuery` / `sourcesCdState` /
+  `sourcesCdDistrict` / `activeSectionIdx`) are `store.x`; **`library` stays a
+  local `let`** (its `LibraryPayload` type lives in compose; 2d folds it in).
+  All three verified astro check 0/0/0 + vitest 720 + CI + post-deploy green.
+- **⚠️ OUTSTANDING runtime check:** the composer's interactive flows are NOT yet
+  click-tested live (laptop can't build/dev — see below). No bug reported, but a
+  **live-composer walkthrough** is the real 2b/2c gate: add source → cc-modal
+  chart → ds-modal derived (A÷B) → Maps tab → Sources search + a geo chip (metro/
+  CD) → save & share-URL round-trip. Do this on prod (`legible-markets.vercel.app
+  /compose/`) when convenient.
+
+**2d (NEXT) — split compose's `<script>` into `src/lib/composer/{library-load,
+sources-tab,cc-modal,ds-modal,maps,generators,share}.ts`; page `<script>` becomes
+a thin bootstrap importing the store.** Hard reality: the script is ~7,700 lines /
+**131 functions**, heavily coupled — **209 `shell`(DOM-root) refs, 119 `library`,
+51 `store`**, functions calling each other across sections. Unlike 2a/2b/2c, 2d's
+risk is **DOM/event wiring, which `astro check` does NOT catch** — only a live
+walkthrough does. Recommended approach: design a shared context ({shell, store,
+getLibrary, + cross-cutting render callbacks}) threaded into each module's init;
+extract ONE module at a time (most-isolated first, e.g. `share.ts` or
+`library-load.ts`), push, walkthrough-verify, repeat. Current section line-nums:
+Load-library 1301 · URL-write 1360 · Render 1597 · Geo-chip 1906 · Maps 2885 ·
+Generators 3582 · Drag&drop 4637 · Tile-previews 5085 · Wire-controls 6101 ·
+cc-modal 6519 · cc-preview 7275 · ds-modal 7736.
+
+**Dev server — STILL UNUSABLE (don't re-burn time on the easy fix):** `astro dev`
+has TWO blockers. (1) **Content-sync timeout** — globbing the ~35k-file `sources`
+collection (acs_cd ~20k, acs_metro ~6k) exceeds Vite's 60s transport limit.
+FIXED-IN-TESTING by a DEV-only subset glob in `src/content/config.ts`
+(`pattern: import.meta.env.DEV ? ["{fred,yahoo_marketcap,worldbank_extended,
+acs_labor,acs_state,bea,oecd,eia_prices,fbi_crime,naep,cdc_health}/**/*.yaml"] :
+"**/*.yaml"`) → sync dropped to ~8s. (2) **BUT `/compose/` rendering still hangs**
+— Vite-8 dev SSR module-runner transport chokes on the 8,895-line compose.astro
+graph (boot ~59s, page never responds). #2 is the real unsolved blocker; the
+subset alone does NOT make dev usable, so it was **reverted**. Possible angle:
+2d's split might shrink compose.astro enough to fix #2 (chicken/egg — worth
+probing once a few modules are out).
+
+**⚠️ MACHINE — 7.4GB RAM. The laptop CRASHED once (2026-06-06):** a leaked
+`astro dev` node grew to 2.5GB and a build OOM'd the rest. RULES: never run a full
+`npm run build` on the laptop (CI is the build gate); never run `astro dev` and a
+build together; `TaskStop` does NOT kill the dev's child node — kill explicitly
+via `Get-NetTCPConnection -LocalPort 4321` → `Stop-Process -Id <owner> -Force`,
+then verify no `node.exe` remains. `npm`/`node` aren't always on the terminal
+PATH: `$env:Path = "$env:LOCALAPPDATA\nodejs;$env:Path"` first.
+
+---
+
+### Earlier this session (all LIVE on prod) — detail below
 
 **Live on prod (pushed, CI-green):** Plans **8, 6, 5, 4** + the **va-08**
 dangling-ref fix + the **welcome-popout sizing fix** (`f72853e2f4`: expanded
@@ -75,9 +135,10 @@ by this name. (Revisit if Keller wants the pipelines renamed too.)
 and `fix/va08-bg-map-refs` are fully merged into `main` (and live on prod). Work
 on `main`.
 
-**Remaining refactor plans (this file):** Plan **1+2** (compose.astro decompose
-+ source-filters migration — the big one), Plan **3** (SourcePicker adoption),
-Plan **7** (inline-YAML standardization).
+**Remaining refactor plans (this file):** Plan **1+2** — 2a/2b/2c DONE+LIVE;
+**only 2d remains** (the 7-module feature split — see "RESUME HERE" above for the
+plan + the blind-execution caveat). Plan **3** (SourcePicker adoption — also fixes
+the deferred ds-modal search bug), Plan **7** (inline-YAML standardization).
 
 **Env / tooling (laptop):** Node 22 + Python 3.13 installed; `npm install` done;
 **`NODE_OPTIONS=--max-old-space-size=4096`** user env var (build OOMs without it;
@@ -202,7 +263,7 @@ Incremental, each step its own commit + build:
       `library` into metro/country calls; move per-query memo to call-site
       WeakMap; preserve ds-modal's current skip of `passesCountyFilter` unless
       asked. Benchmark Sources-tab filter on full library before/after.
-- [ ] **2c.** Introduce `src/lib/composer/state.ts` — one `ComposerStore` object
+- [x] **2c.** (DONE + LIVE `f1983d0b68`) Introduce `src/lib/composer/state.ts` — one `ComposerStore` object
       replacing script-scope vars (1630–1679, 6876 ccModal, 8146 dsModal).
       Functions import the store instead of closing over locals.
       **SCOPED 2026-06-06, ready to execute (← NEXT):**
