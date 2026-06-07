@@ -1138,6 +1138,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   } from "../lib/composer-state";
   import { createComposerGeoFilters } from "../lib/composer/geo-filter";
   import {
+    createComposerStore,
+    defaultSections,
+    newGeoState,
+    type UIState,
+    type UISection,
+    type ChartOverride,
+    type GeoState,
+    type CustomChartMode,
+    type ChartCombineOp,
+    type DerivedModalState,
+  } from "../lib/composer/state";
+  import {
     DELTA_WINDOWS,
     DELTA_LABELS_SHORT,
     type DeltaWindow,
@@ -1264,58 +1276,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   let copyMode = false;
 
   // ---- State ----
-  type ChartOverride = {
-    title?: string;
-    defaultDelta?: DeltaWindow;
-    blurb?: string;
-  };
-  // Section in the composer carries optional per-section window
-  // overrides. defaultDelta is a relative window (1y, 10y, …);
-  // fixedRange pins to a specific [start, end] pair and beats
-  // defaultDelta when both set. When neither is set, the section
-  // inherits the dashboard-level window.
-  interface UISection {
-    title: string;
-    description: string;
-    charts: string[];
-    // Optional safe-subset markdown body. When charts is empty AND
-    // markdown is set, the section renders as a pure-markdown
-    // narrative block on the dashboard (see /u/[slug].astro etc.).
-    markdown?: string;
-    defaultDelta?: DeltaWindow;
-    fixedRange?: { start: string; end: string };
-  }
-  interface UIState {
-    title: string;
-    description: string;
-    defaultDelta: DeltaWindow | "";
-    // When set, takes precedence over defaultDelta; pinned [start, end].
-    fixedRange?: { start: string; end: string };
-    sections: UISection[];
-    inlineCharts: Record<string, InlineChart>;
-    inlineSources: Record<string, InlineSource>;
-    // Ad-hoc maps built in the Maps tab. Parallel to
-    // inlineCharts but for the map render path. Keyed by
-    // `inlinemap:<id>`; referenced from sections.charts with the
-    // same prefix, dispatched server-side in resolve-dashboard.ts.
-    inlineMaps: Record<string, InlineMap>;
-    chartOverrides: Record<string, ChartOverride>;
-  }
 
-  const defaultSections = () => [
-    { title: "Overview", description: "", charts: [] as string[] },
-  ];
-
-  let state: UIState = {
-    title: "",
-    description: "",
-    defaultDelta: "",
-    sections: defaultSections(),
-    inlineCharts: {},
-    inlineSources: {},
-    inlineMaps: {},
-    chartOverrides: {},
-  };
+  // Single mutable store (Plan 2c) — see src/lib/composer/state.ts. The
+  // never-reassigned slices (state, libGeo, ccModal, dsModal) are aliased so
+  // the hundreds of existing references keep working unchanged; only the
+  // reassigned scalars (store.sourcesSearchQuery / store.sourcesCdState / store.sourcesCdDistrict
+  // / store.activeSectionIdx) are read & written as store.x.
+  const store = createComposerStore();
+  const state = store.state;
 
   const INLINE_PREFIX = "inline:";
   const INLINEMAP_PREFIX = "inlinemap:";
@@ -1386,7 +1354,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       ...((s.chartOverrides as Record<string, ChartOverride>) ?? {}),
     };
     // Preserve existing "adds go to the last section" default when a fork is loaded.
-    activeSectionIdx = state.sections.length - 1;
+    store.activeSectionIdx = state.sections.length - 1;
   }
 
   // ---- URL state writing ----
@@ -1638,37 +1606,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   const chartsSelectedTags: Set<string> = new Set<string>();
   const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
-  let sourcesSearchQuery: string = "";
   // Geo-chip state. Same shape on three picker surfaces — the Sources
   // tab (libGeo), the cc-modal (ccModal.geo), and the ds-modal
   // (dsModal.geo) — so the same render/select/clear/popover code can
   // serve all three. The DOM-element selectors differ per surface;
   // the shared functions resolve them via GEO_SURFACES below.
-  interface GeoState {
-    selectedMetroCbsa: string | null;
-    selectedCountryCode: string | null;
-    metroPopoverOpen: boolean;
-    countryPopoverOpen: boolean;
-    metroSearchQuery: string;
-    countrySearchQuery: string;
-  }
-  const newGeoState = (): GeoState => ({
-    selectedMetroCbsa: null,
-    selectedCountryCode: null,
-    metroPopoverOpen: false,
-    countryPopoverOpen: false,
-    metroSearchQuery: "",
-    countrySearchQuery: "",
-  });
-  const libGeo: GeoState = newGeoState();
+  const libGeo = store.libGeo;
 
   // Per-surface state for the Congressional district drill-down. The
   // Sources tab keeps its picks across tab switches so a user browsing
   // TX-12 series doesn't lose their place when they hop to the chart
   // library tab. Parallel state lives on ccModal / dsModal for those
   // pickers; resets each modal-open.
-  let sourcesCdState: string | null = null;
-  let sourcesCdDistrict: string | null = null;
 
   // Memoize the state→districts map (built from library source IDs)
   // because we look it up every time a dropdown re-renders, and rebuilding
@@ -1745,18 +1694,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   } = createComposerGeoFilters(() => library);
 
   // Index of the currently-focused section. Library clicks append here.
-  let activeSectionIdx: number = 0;
 
   function setActiveSection(idx: number): void {
     if (idx < 0 || idx >= state.sections.length) return;
-    if (activeSectionIdx === idx) return;
-    activeSectionIdx = idx;
+    if (store.activeSectionIdx === idx) return;
+    store.activeSectionIdx = idx;
     renderComposition();
   }
 
   function clampActiveSection(): void {
-    if (activeSectionIdx >= state.sections.length) {
-      activeSectionIdx = Math.max(0, state.sections.length - 1);
+    if (store.activeSectionIdx >= state.sections.length) {
+      store.activeSectionIdx = Math.max(0, state.sections.length - 1);
     }
   }
 
@@ -1817,7 +1765,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     searchText: string;
   })[] {
     if (!library) return [];
-    const q = sourcesSearchQuery.trim().toLowerCase();
+    const q = store.sourcesSearchQuery.trim().toLowerCase();
     // CD_TAG in the selected set is the master "States & districts" chip
     // toggle, not a literal tag a source must carry — passesCdFilter
     // already enforces the geo gate. State-level sources have STATE_TAG
@@ -1843,8 +1791,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           id,
           tags,
           sourcesSelectedTags,
-          sourcesCdState,
-          sourcesCdDistrict,
+          store.sourcesCdState,
+          store.sourcesCdDistrict,
           q,
         )
       ) {
@@ -2004,10 +1952,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         },
         track: (e, p) => track(e, { ...p, surface: "compose-sources" }),
         cdSelectedTags: () => sourcesSelectedTags,
-        getCdState: () => sourcesCdState,
-        setCdState: (v) => { sourcesCdState = v; },
-        getCdDistrict: () => sourcesCdDistrict,
-        setCdDistrict: (v) => { sourcesCdDistrict = v; },
+        getCdState: () => store.sourcesCdState,
+        setCdState: (v) => { store.sourcesCdState = v; },
+        getCdDistrict: () => store.sourcesCdDistrict,
+        setCdDistrict: (v) => { store.sourcesCdDistrict = v; },
         refreshTags: () => renderTagFiltersSources(),
       };
     }
@@ -2419,7 +2367,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // tags each beats 50 tags × 20k sources × 3 unlock-cost-per-source
     // by ~3 orders of magnitude — the previous shape froze the UI
     // around the 4-char unlock boundary.
-    const q = sourcesSearchQuery.trim().toLowerCase();
+    const q = store.sourcesSearchQuery.trim().toLowerCase();
     const tagsRequired = [...sourcesSelectedTags].filter((t) => t !== CD_TAG);
     const libSources = library.sources;
     let allCount = 0;
@@ -2430,7 +2378,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         searchText?: string;
       };
       const sTags = src.tags ?? [];
-      if (!passesCdFilter(id, sTags, sourcesSelectedTags, sourcesCdState, sourcesCdDistrict, q)) continue;
+      if (!passesCdFilter(id, sTags, sourcesSelectedTags, store.sourcesCdState, store.sourcesCdDistrict, q)) continue;
       if (!passesMetroFilter(sTags, libGeo.selectedMetroCbsa, q)) continue;
       if (!passesCountryFilter(sTags, libGeo.selectedCountryCode, q)) continue;
       if (!passesCountyFilter(id, sTags, q)) continue;
@@ -2462,8 +2410,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       b.addEventListener("click", () => {
         if (tag === "") {
           sourcesSelectedTags.clear();
-          sourcesCdState = null;
-          sourcesCdDistrict = null;
+          store.sourcesCdState = null;
+          store.sourcesCdDistrict = null;
         } else if (sourcesSelectedTags.has(tag)) {
           sourcesSelectedTags.delete(tag);
         } else {
@@ -2657,7 +2605,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // Tailored empty-state copy for the CD drill-down: an unfiltered
       // empty list almost certainly means the user activated the CD
       // chip and hasn't picked a state yet, not that we have no data.
-      if (sourcesSelectedTags.has(CD_TAG) && !sourcesCdState) {
+      if (sourcesSelectedTags.has(CD_TAG) && !store.sourcesCdState) {
         host.innerHTML =
           '<p class="muted small">Pick a state above to see its statewide and congressional-district series.</p>';
       } else {
@@ -2757,7 +2705,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // visible (the search filter would otherwise still apply).
       if (searchInput) {
         searchInput.value = "";
-        sourcesSearchQuery = "";
+        store.sourcesSearchQuery = "";
       }
       renderTagFiltersSources();
       renderSourcesList();
@@ -2770,7 +2718,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       trigger?.click();
       if (searchInput) {
         searchInput.value = "";
-        sourcesSearchQuery = "";
+        store.sourcesSearchQuery = "";
       }
       renderTagFiltersSources();
       renderSourcesList();
@@ -2783,7 +2731,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       sourcesSelectedTags.add(CD_TAG);
       if (searchInput) {
         searchInput.value = "";
-        sourcesSearchQuery = "";
+        store.sourcesSearchQuery = "";
       }
       renderTagFiltersSources();
       renderSourcesList();
@@ -2900,7 +2848,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // and from the derived-source modal (computed ratios / sums / diffs).
   async function addSourceAsChart(sourceId: string): Promise<void> {
     clampActiveSection();
-    const target = state.sections[activeSectionIdx];
+    const target = state.sections[store.activeSectionIdx];
     if (!target) return;
     const allowed = await checkComposeAction("add_source_as_chart");
     if (!allowed) {
@@ -3563,7 +3511,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   async function addMapToDashboard(): Promise<void> {
     clampActiveSection();
-    const target = state.sections[activeSectionIdx];
+    const target = state.sections[store.activeSectionIdx];
     if (!target) return;
     const allowed = await checkComposeAction("add_map_to_dashboard");
     if (!allowed) {
@@ -4435,10 +4383,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         charts: [],
       };
       state.sections.push(target);
-      activeSectionIdx = state.sections.length - 1;
+      store.activeSectionIdx = state.sections.length - 1;
     } else {
       clampActiveSection();
-      target = state.sections[activeSectionIdx];
+      target = state.sections[store.activeSectionIdx];
       if (!target) return;
     }
 
@@ -4566,7 +4514,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       charts: [],
     };
     state.sections.push(target);
-    activeSectionIdx = state.sections.length - 1;
+    store.activeSectionIdx = state.sections.length - 1;
 
     let added = 0;
     for (const { templateLabel, sourceId } of tiles) {
@@ -4976,7 +4924,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     toArr.splice(toIdx, 0, chartId);
     // Cross-section move: refocus on the destination so subsequent library
     // clicks land where the user was just operating.
-    if (fromSec !== toSec) activeSectionIdx = toSec;
+    if (fromSec !== toSec) store.activeSectionIdx = toSec;
     writeUrl();
     renderComposition();
   }
@@ -4997,18 +4945,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (fromSec < toIdx) actualIdx--;
     state.sections.splice(actualIdx, 0, moved);
     // Keep the active section pointer pointing at the same logical section.
-    if (activeSectionIdx === fromSec) {
-      activeSectionIdx = actualIdx;
+    if (store.activeSectionIdx === fromSec) {
+      store.activeSectionIdx = actualIdx;
     } else if (
-      fromSec < activeSectionIdx &&
-      actualIdx >= activeSectionIdx
+      fromSec < store.activeSectionIdx &&
+      actualIdx >= store.activeSectionIdx
     ) {
-      activeSectionIdx--;
+      store.activeSectionIdx--;
     } else if (
-      fromSec > activeSectionIdx &&
-      actualIdx <= activeSectionIdx
+      fromSec > store.activeSectionIdx &&
+      actualIdx <= store.activeSectionIdx
     ) {
-      activeSectionIdx++;
+      store.activeSectionIdx++;
     }
     writeUrl();
     renderComposition();
@@ -5479,7 +5427,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     state.sections.forEach((sec, secIdx) => {
       const secEl = document.createElement("section");
       secEl.className =
-        "comp-section" + (secIdx === activeSectionIdx ? " comp-section-active" : "");
+        "comp-section" + (secIdx === store.activeSectionIdx ? " comp-section-active" : "");
       // Clicking anywhere on the section focuses it (except when the user is
       // interacting with an input/textarea/button inside it — those stop
       // propagation or handle their own logic).
@@ -5570,7 +5518,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
       title.addEventListener("focus", () => setActiveSection(secIdx));
       header.appendChild(title);
-      if (secIdx === activeSectionIdx) {
+      if (secIdx === store.activeSectionIdx) {
         const hint = document.createElement("span");
         hint.className = "comp-section-active-hint";
         hint.textContent = "\u2190 adds go here";
@@ -6125,7 +6073,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // ---- Mutations ----
   async function addChart(chartId: string): Promise<void> {
     clampActiveSection();
-    const target = state.sections[activeSectionIdx];
+    const target = state.sections[store.activeSectionIdx];
     if (!target) return;
     if (target.charts.includes(chartId)) return; // don't duplicate (no budget cost)
     // Anon rate-limit gate. Authed users always pass; anon users above
@@ -6230,7 +6178,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     );
     if (searchInputSources) {
       searchInputSources.addEventListener("input", () => {
-        sourcesSearchQuery = searchInputSources.value;
+        store.sourcesSearchQuery = searchInputSources.value;
         // Refresh both — tag-pill counts depend on the current query
         // because the query narrows the universe each pill could match.
         renderTagFiltersSources();
@@ -6274,7 +6222,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           description: "",
           charts: [],
         });
-        activeSectionIdx = state.sections.length - 1;
+        store.activeSectionIdx = state.sections.length - 1;
         writeUrl();
         renderComposition();
       });
@@ -6297,7 +6245,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             "Markdown block. **Bold**, *italic*, [links](https://example.com), " +
             "and lists work. Replace this with your narrative.",
         } as (typeof state.sections)[number]);
-        activeSectionIdx = state.sections.length - 1;
+        store.activeSectionIdx = state.sections.length - 1;
         writeUrl();
         renderComposition();
       });
@@ -6570,121 +6518,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // ---- Custom-chart modal ----
   // Modal state (ephemeral — does not live in composed state until Save is clicked).
-  type CustomChartMode = "raw" | "rebase" | "dual-axis";
-  type ChartCombineOp = "divide" | "sum" | "diff" | "multiply";
-  interface CustomChartModalState {
-    editingId: string | null; // inline id being edited, or null for create
-    title: string;
-    // True when the title was derived from the source set (the
-    // "auto-title" default) rather than typed by the user. Lets us
-    // refresh the title whenever sources/op change without clobbering
-    // an intentionally-typed name. Flips to false on the first user
-    // keystroke in the title input; flips back to true if the user
-    // clears the field entirely (an empty title is treated as "give
-    // me the default back"). Reset in openCustomChartModal based on
-    // whether the existing title matches what we'd auto-derive.
-    titleAuto: boolean;
-    selected: Set<string>;
-    // Order in which sources were picked; this is the "A, B" order for op
-    // computations and preserves the user's intent across re-renders. Items
-    // get pushed when checked, removed when unchecked, swapped on Swap.
-    selectedOrder: string[];
-    search: string;
-    mode: CustomChartMode;
-    // Tracks whether the user has explicitly picked a mode. If false, the
-    // mode is auto-determined from source-scale heuristics on each change.
-    modeIsExplicit: boolean;
-    // Source IDs assigned to the right axis when mode === "dual-axis".
-    // Sources not in this set plot on the left. Edited only when mode is
-    // dual-axis; preserved in spec on save.
-    rightAxisSources: Set<string>;
-    // Optional arithmetic combine op. When set with exactly 2 sources,
-    // collapses the chart into a single derived series.
-    op: ChartCombineOp | null;
-    // Log-scale toggle. Independent of `mode`: log is an axis concern,
-    // mode is a value-transformation concern. Forbidden in combination
-    // with dual-axis (one-log-one-linear is misleading); the UI clears
-    // this flag whenever dual-axis becomes active.
-    logScale: boolean;
-    // Optional curator-style commentary shown when the chart's expanded
-    // dialog is open. Plain text, no markdown. Empty → no blurb saved.
-    blurb: string;
-    // Tag-chip filter set for the source picker. AND across selected
-    // tags. Cleared each time the modal is opened.
-    pickerTags: Set<string>;
-    // Congressional-district drill-down state for the cc-modal picker.
-    // Same semantics as the Sources tab: cdState is the picked 2-letter
-    // state code (or null = not yet picked), cdDistrict is the picked
-    // district code within that state (or null = "all districts of the
-    // state"). Only meaningful when pickerTags includes CD_TAG; reset
-    // alongside pickerTags each modal open.
-    cdState: string | null;
-    cdDistrict: string | null;
-    // Metro + country drill-down state. Mirrors libGeo so the cc-modal
-    // picker behaves identically to the Sources tab.
-    geo: GeoState;
-    // For divides that auto-render as percent (same-class divide):
-    //   "percent" (or undefined) → "104%"
-    //   "decimal"                → "1.04"
-    //   "ratio"                  → "1.04:1"
-    // Only meaningful when op === "divide" with 2 sources; ignored
-    // otherwise. Saved to inlineChart.percentDisplay on submit.
-    percentDisplay: "percent" | "decimal" | "ratio" | undefined;
-    // Default y-axis transform (level / yoy_pct / index_100). Saved
-    // on the inline chart so a dashboard author can pin "open this
-    // in YoY% mode by default"; pill clicks in the dialog override
-    // per-session without re-saving.
-    transform: "level" | "yoy_pct" | "index_100";
-    // Editorial annotations textarea body. Stored as raw text in the
-    // composer state and parsed via parseAnnotationLines() on save
-    // so format issues (typos in the date, missing colon, etc.)
-    // surface in the textarea rather than silently lost.
-    annotationsText: string;
-    // Background-shading layers (recessions, president_party, etc.).
-    // Each key references a preset in src/lib/shading-presets.ts.
-    // Stacks via alpha compositing in the renderer. Persisted on the
-    // inline chart's `shading` field; empty array = no shading.
-    shading: string[];
-    // Set when the modal was opened via hover-merge (or the touch
-    // Combine-with menu). On Create, the new chart replaces the BASE
-    // chart in its section slot and the DRAGGED chart is removed from
-    // its own section. On Cancel, both originals stay where they are.
-    // The base's defaultDelta is captured here at launch so the merged
-    // chart inherits it; title + blurb get pre-filled on the modal
-    // inputs directly so the user can still edit them before Create.
-    pendingMerge: {
-      baseChartId: string;
-      baseSecIdx: number;
-      baseChartIdx: number;
-      baseDefaultDelta: DeltaWindow | undefined;
-      draggedChartId: string;
-      draggedSecIdx: number;
-      draggedChartIdx: number;
-    } | null;
-  }
-  const ccModal: CustomChartModalState = {
-    editingId: null,
-    title: "",
-    titleAuto: true,
-    selected: new Set<string>(),
-    selectedOrder: [],
-    search: "",
-    mode: "raw",
-    modeIsExplicit: false,
-    rightAxisSources: new Set<string>(),
-    op: null,
-    blurb: "",
-    logScale: false,
-    pickerTags: new Set<string>(),
-    cdState: null,
-    cdDistrict: null,
-    geo: newGeoState(),
-    percentDisplay: undefined,
-    transform: "level",
-    annotationsText: "",
-    shading: [],
-    pendingMerge: null,
-  };
+  const ccModal = store.ccModal;
 
   // True when every selected source shares the same formatting style + unit
   // (e.g. all percent / all USD-per-barrel) — they can be plotted on one axis
@@ -7905,46 +7739,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // keyed by `derived:<nanoid>`. Once created it appears in the source
   // picker for + Custom chart and as an A/B option for further derivation.
 
-  interface DerivedModalState {
-    name: string;
-    op: "divide" | "sum" | "diff" | "multiply";
-    a: string;
-    b: string;
-    aSearch: string;
-    bSearch: string;
-    // When true (default), creating the derived source also creates a
-    // single-source inline chart in the current section. The "I want
-    // X / Y as a tile right now" path is the dominant use case for
-    // derived sources, so default on; user can opt out per-creation
-    // when they're stockpiling sources for a multi-derive composition.
-    addAsChart: boolean;
-    // Shared tag-chip filter for both the A and B operand pickers.
-    // Picking from related topics is the dominant case (Canada GDP ÷
-    // US GDP — both "world", "macro"), so one shared filter strip
-    // beats two separate ones. AND across selected tags. Cleared on
-    // each open.
-    pickerTags: Set<string>;
-    // Congressional-district drill-down state shared by both pickers
-    // (parallel to pickerTags). See CustomChartModalState for the
-    // semantics; reset on each open.
-    cdState: string | null;
-    cdDistrict: string | null;
-    // Metro + country drill-down state, mirroring libGeo / ccModal.geo.
-    geo: GeoState;
-  }
-  const dsModal: DerivedModalState = {
-    name: "",
-    op: "divide",
-    a: "",
-    b: "",
-    aSearch: "",
-    bSearch: "",
-    addAsChart: true,
-    pickerTags: new Set<string>(),
-    cdState: null,
-    cdDistrict: null,
-    geo: newGeoState(),
-  };
+  const dsModal = store.dsModal;
 
   // Universe of pickable source IDs: every real source from library.json
   // plus every derived source already in state. Sorted: derived first
@@ -8561,7 +8356,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       let autoChartCreated = false;
       if (dsModal.addAsChart) {
         clampActiveSection();
-        const target = state.sections[activeSectionIdx];
+        const target = state.sections[store.activeSectionIdx];
         if (target) {
           const chartId = INLINE_PREFIX + nanoid(8);
           state.inlineCharts[chartId] = {
@@ -8957,7 +8752,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             baseSec.charts.splice(baseIdx, 1, id);
             // Park the active-section focus on where the merged chart
             // landed so subsequent library adds land near it.
-            activeSectionIdx = pm.baseSecIdx;
+            store.activeSectionIdx = pm.baseSecIdx;
           } else if (baseSec) {
             // Defensive: indices stale (section reordered while modal open?).
             // Push to the end of the base section so the chart isn't lost.
@@ -8965,7 +8760,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }
         } else {
           clampActiveSection();
-          const target = state.sections[activeSectionIdx];
+          const target = state.sections[store.activeSectionIdx];
           if (target) target.charts.push(id);
         }
       }
