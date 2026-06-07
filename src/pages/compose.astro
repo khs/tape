@@ -1129,14 +1129,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 <script>
   import {
-    encodeComposedState,
     decodeComposedState,
-    type ComposedState,
     type InlineChart,
     type InlineMap,
-    type InlineSource,
   } from "../lib/composer-state";
   import { createComposerGeoFilters } from "../lib/composer/geo-filter";
+  import { createShareUrl } from "../lib/composer/share";
   import {
     createComposerStore,
     defaultSections,
@@ -1302,241 +1300,26 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   }
 
   // ---- URL state writing ----
-  // Collect only the inline-chart IDs that are actually referenced by some
-  // section, so removing a chart also prunes its orphaned inline spec.
-  function referencedInlineCharts(): Record<string, InlineChart> | undefined {
-    const refs: Record<string, InlineChart> = {};
-    for (const sec of state.sections) {
-      for (const cid of sec.charts) {
-        if (isInlineId(cid) && state.inlineCharts[cid]) {
-          refs[cid] = state.inlineCharts[cid];
-        }
-      }
-    }
-    return Object.keys(refs).length > 0 ? refs : undefined;
-  }
+  // The composed-state serializers + the share-URL writer live in
+  // src/lib/composer/share.ts (Plan 2d). referencedInlineCharts /
+  // referencedInlineSources / referencedChartOverrides are returned because
+  // the Save-to-account path below serializes the same referenced defs.
+  // editingSlug is read live (hydrateFromUrl above may set it after this runs).
+  const {
+    writeUrl,
+    singleChartPreviewUrl,
+    referencedInlineCharts,
+    referencedInlineSources,
+    referencedChartOverrides,
+  } = createShareUrl({
+    shell,
+    baseUrl,
+    state,
+    getEditingSlug: () => editingSlug,
+  });
 
-  // Parallel to referencedInlineCharts but for inline maps. Drops any
-  // map spec whose ID isn't referenced by a section's chart list.
-  function referencedInlineMaps(): Record<string, InlineMap> | undefined {
-    const refs: Record<string, InlineMap> = {};
-    for (const sec of state.sections) {
-      for (const cid of sec.charts) {
-        if (isInlineMapId(cid) && state.inlineMaps[cid]) {
-          refs[cid] = state.inlineMaps[cid];
-        }
-      }
-    }
-    return Object.keys(refs).length > 0 ? refs : undefined;
-  }
-
-  // Walk the dashboard for transitive references to inline (derived)
-  // sources — any source ID with the derived: prefix used either by an
-  // inline chart's sources list or by another derived source's a/b.
-  // Drops entries that aren't reachable so renaming/removing a chart
-  // doesn't leave orphans in the saved state.
-  function referencedInlineSources(): Record<string, InlineSource> | undefined {
-    if (Object.keys(state.inlineSources).length === 0) return undefined;
-    const reachable = new Set<string>();
-    function visit(id: string): void {
-      if (!isDerivedId(id)) return;
-      if (reachable.has(id)) return;
-      const spec = state.inlineSources[id];
-      if (!spec) return;
-      reachable.add(id);
-      visit(spec.a);
-      visit(spec.b);
-    }
-    // Seed from all inline-chart sources currently in use.
-    for (const sec of state.sections) {
-      for (const cid of sec.charts) {
-        if (!isInlineId(cid)) continue;
-        const ic = state.inlineCharts[cid];
-        if (!ic) continue;
-        for (const sid of ic.sources) visit(sid);
-      }
-    }
-    if (reachable.size === 0) return undefined;
-    const out: Record<string, InlineSource> = {};
-    for (const id of reachable) out[id] = state.inlineSources[id];
-    return out;
-  }
-
-  // Strip empty values from chart overrides, drop overrides for charts no
-  // longer referenced, and return undefined when nothing's left.
-  function referencedChartOverrides(): Record<string, ChartOverride> | undefined {
-    const referenced = new Set<string>();
-    for (const sec of state.sections) for (const cid of sec.charts) referenced.add(cid);
-    const refs: Record<string, ChartOverride> = {};
-    for (const [cid, ov] of Object.entries(state.chartOverrides)) {
-      if (!referenced.has(cid)) continue;
-      const trimmed: ChartOverride = {};
-      if (ov.title && ov.title.trim()) trimmed.title = ov.title.trim();
-      if (ov.defaultDelta) trimmed.defaultDelta = ov.defaultDelta;
-      if (ov.blurb && ov.blurb.trim()) trimmed.blurb = ov.blurb.trim();
-      if (Object.keys(trimmed).length > 0) refs[cid] = trimmed;
-    }
-    return Object.keys(refs).length > 0 ? refs : undefined;
-  }
-
-  // URL-length thresholds (chars of the FULL share URL, including
-  // /custom/?d= prefix). Vercel + most CDNs start returning 414 at
-  // ~14-16 KB; we leave headroom because the preview link adds the
-  // /custom/?d= scaffolding on top of the encoded state.
-  //   < SOFT          → no banner
-  //   SOFT  .. HARD   → soft "getting long" banner; URL still written
-  //   >= HARD         → hard overflow banner; URL NOT written (the
-  //                     last small-enough URL stays in the bar, so a
-  //                     refresh won't 414). The in-memory state still
-  //                     has the new tiles, so the user sees them; the
-  //                     banner explains that saving to account is the
-  //                     way to persist past a refresh.
-  const SHARE_URL_WARN_AT = 7000;
-  const SHARE_URL_HARD_LIMIT = 12000;
-
-  // Build a /custom/ preview URL scoped to a SINGLE tile: the same encoded
-  // state the full Preview uses, but with `sections` collapsed to just this
-  // one chart. Carries the full referenced inline defs so the chart's
-  // sources/derived-sources/overrides all resolve; it's strictly smaller
-  // than the full-dashboard preview (one section vs many, same defs), so it
-  // can't overflow the share-URL limit when the main Preview didn't. Opened
-  // in a new tab so the composer session is preserved.
-  function singleChartPreviewUrl(chartId: string): string {
-    // Carry the time window the user is viewing so the preview opens at
-    // the same timeframe — not the chart's own defaultDelta. Effective
-    // window = the chart's section setting if any, else the dashboard
-    // default; a pinned fixedRange (which overrides defaultDelta) is
-    // carried the same way. Without this, the single-tile preview lost
-    // the dashboard timeframe and silently fell back to each chart's
-    // own default — the reported mismatch.
-    const owningSection = state.sections.find((s) =>
-      s.charts.includes(chartId),
-    );
-    const effectiveDelta = ((owningSection?.defaultDelta as
-      | DeltaWindow
-      | undefined) || (state.defaultDelta || undefined)) as
-      | DeltaWindow
-      | undefined;
-    const effectiveFixedRange = owningSection?.fixedRange ?? state.fixedRange;
-    const clean: Omit<ComposedState, "v"> = {
-      defaultDelta: effectiveDelta,
-      fixedRange: effectiveFixedRange,
-      sections: [
-        {
-          title: "",
-          description: undefined,
-          charts: [chartId],
-          markdown: undefined,
-          defaultDelta: undefined,
-          fixedRange: undefined,
-        },
-      ],
-      inlineCharts: referencedInlineCharts(),
-      inlineSources: referencedInlineSources(),
-      inlineMaps: referencedInlineMaps(),
-      chartOverrides: referencedChartOverrides(),
-    };
-    if (!clean.defaultDelta) delete clean.defaultDelta;
-    if (!clean.fixedRange) delete clean.fixedRange;
-    if (!clean.inlineCharts) delete clean.inlineCharts;
-    if (!clean.inlineSources) delete clean.inlineSources;
-    if (!clean.inlineMaps) delete clean.inlineMaps;
-    if (!clean.chartOverrides) delete clean.chartOverrides;
-    return `${baseUrl}/custom/?d=${encodeComposedState(clean)}`;
-  }
-
-  function writeUrl(): void {
-    const clean: Omit<ComposedState, "v"> = {
-      title: state.title || undefined,
-      description: state.description || undefined,
-      defaultDelta: (state.defaultDelta || undefined) as DeltaWindow | undefined,
-      fixedRange: state.fixedRange,
-      sections: state.sections
-        // Keep a section if it has charts OR a non-empty markdown
-        // body (markdown-only narrative sections).
-        .filter(
-          (s) =>
-            s.charts.length > 0 ||
-            (s.markdown && s.markdown.trim().length > 0),
-        )
-        .map((s) => ({
-          title: s.title,
-          description: s.description || undefined,
-          charts: [...s.charts],
-          markdown:
-            s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
-          defaultDelta: s.defaultDelta,
-          fixedRange: s.fixedRange,
-        })),
-      inlineCharts: referencedInlineCharts(),
-      inlineSources: referencedInlineSources(),
-      inlineMaps: referencedInlineMaps(),
-      chartOverrides: referencedChartOverrides(),
-    };
-    if (!clean.sections || clean.sections.length === 0) delete clean.sections;
-    if (!clean.inlineCharts) delete clean.inlineCharts;
-    if (!clean.inlineSources) delete clean.inlineSources;
-    if (!clean.inlineMaps) delete clean.inlineMaps;
-    if (!clean.chartOverrides) delete clean.chartOverrides;
-    const encoded = encodeComposedState(clean);
-    const url = new URL(window.location.href);
-    if (Object.keys(clean).length === 0) {
-      url.searchParams.delete("d");
-    } else {
-      url.searchParams.set("d", encoded);
-    }
-    const shareUrlLen = url.toString().length;
-
-    const warnBanner = shell.querySelector<HTMLElement>("[data-role='url-warn']");
-    const warnLen = shell.querySelector<HTMLElement>("[data-role='url-warn-len']");
-    const overflowBanner = shell.querySelector<HTMLElement>("[data-role='url-overflow']");
-    const overflowLen = shell.querySelector<HTMLElement>("[data-role='url-overflow-len']");
-    const overflowCount = shell.querySelector<HTMLElement>("[data-role='url-overflow-count']");
-    const preview = shell.querySelector<HTMLAnchorElement>("[data-role='preview-link']");
-
-    if (shareUrlLen >= SHARE_URL_HARD_LIMIT) {
-      // Don't replaceState — keeps the last short-enough URL in the
-      // bar so a refresh still loads SOMETHING (just an older
-      // checkpoint). Don't update the preview link either, for the
-      // same reason.
-      if (warnBanner) warnBanner.hidden = true;
-      if (overflowBanner) {
-        overflowBanner.hidden = false;
-        if (overflowLen) overflowLen.textContent = String(shareUrlLen);
-        if (overflowCount) {
-          const tiles = state.sections.reduce(
-            (acc, s) => acc + s.charts.length, 0,
-          );
-          overflowCount.textContent = String(tiles);
-        }
-      }
-      return;
-    }
-
-    window.history.replaceState(null, "", url.toString());
-    if (preview) {
-      // When editing an existing saved dashboard, carry the edit slug
-      // through to /custom/. Without this hand-off, Preview lands on
-      // a fresh /custom/ that thinks it's a brand-new composition and
-      // its Save button would insert a new row instead of updating
-      // the original — bug the user reported as "Preview treats it
-      // as a whole new dashboard."
-      const editQuery = editingSlug
-        ? `&edit=${encodeURIComponent(editingSlug)}`
-        : "";
-      preview.href = `${baseUrl}/custom/?d=${encoded}${editQuery}`;
-    }
-
-    if (overflowBanner) overflowBanner.hidden = true;
-    if (warnBanner) {
-      if (shareUrlLen >= SHARE_URL_WARN_AT) {
-        warnBanner.hidden = false;
-        if (warnLen) warnLen.textContent = String(shareUrlLen);
-      } else {
-        warnBanner.hidden = true;
-      }
-    }
-  }
+  // (singleChartPreviewUrl + writeUrl now live in share.ts — see the factory
+  //  destructure above.)
 
   // ---- Render ----
   let library: LibraryPayload | null = null;
