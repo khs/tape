@@ -33,12 +33,16 @@ tree clean, nothing running.
   `sourcesCdDistrict` / `activeSectionIdx`) are `store.x`; **`library` stays a
   local `let`** (its `LibraryPayload` type lives in compose; 2d folds it in).
   All three verified astro check 0/0/0 + vitest 720 + CI + post-deploy green.
-- **⚠️ OUTSTANDING runtime check:** the composer's interactive flows are NOT yet
-  click-tested live (laptop can't build/dev — see below). No bug reported, but a
-  **live-composer walkthrough** is the real 2b/2c gate: add source → cc-modal
-  chart → ds-modal derived (A÷B) → Maps tab → Sources search + a geo chip (metro/
-  CD) → save & share-URL round-trip. Do this on prod (`legible-markets.vercel.app
-  /compose/`) when convenient.
+- **✅ RUNTIME-VERIFIED LIVE (2026-06-07)** via a browser walkthrough on prod
+  `/compose/`: source search + tag-facet recount, add-source→tile (the VIX line
+  chart rendered client-side), share-URL serialize (`?d=` round-trips the store
+  state), state persistence across filter changes, the **2b CD geo-filter** (the
+  "pick a state" gate → `all (0)`, then picking California unlocks its statewide +
+  congressional-district series + the district drill-down), and **both modals open
+  fully wired** (cc-modal `ccModal`, ds-modal `dsModal`). **Zero console errors**
+  throughout. NOT exercised (low residual risk): metro/country geo chips (the CD
+  path — the trickiest — passed), the Maps tab, and "Save to my account"
+  (server-persist — left alone deliberately). **2b/2c confirmed good on prod.**
 
 **2d (NEXT) — split compose's `<script>` into `src/lib/composer/{library-load,
 sources-tab,cc-modal,ds-modal,maps,generators,share}.ts`; page `<script>` becomes
