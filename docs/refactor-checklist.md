@@ -91,6 +91,33 @@ The shared `ctx` grows render callbacks as those come out.
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
 
+**⚠️ cc-modal/cc-preview attempt (2026-06-08) — REVERTED (caught pre-push by
+astro check, 35 errors). The remaining 4 are an ENTANGLED CLUSTER; here's the map
++ the plan:**
+- **cc-preview's data layer is SHARED with tile-previews.** `fetchSourceSeries`,
+  the `FetchedSeries` type, and `CC_COLORS` (in the cc-preview block) are also used
+  by compose's `renderTileSparkline`. Moving cc-preview broke tile-previews. →
+  extract these to a SHARED module FIRST (e.g. `src/lib/composer/series.ts`),
+  imported by both. `fetchSourceSeries` itself needs library/baseUrl/
+  `state.inlineSources` (resolves derived sources) → its own small ctx.
+- cc-modal pulls ~10 compose-local helpers as ctx: the 2b geo-filter consts
+  (`passesCdFilter`/`passesMetroFilter`/`passesCountryFilter`/`passesCountyFilter`),
+  `updateCcAnnotationsWarning`, `chartEffectiveSpec`, `baseTitleIsDefault`,
+  `dismissHoverMergeTip`, `isHoverMergeTipDismissed`; + imports `packSourceIds`,
+  `COUNTRY_TAG`, `METRO_TAG`. Also: `renderModalTagChips` (shared w/ ds, depends on
+  `allPickableSourceTags`) + `wireCustomChartModal` are stranded in the ds region.
+- **LESSON: do NOT blanket `\blibrary\b`→`getLibrary()`** — it breaks
+  guard-narrowing (`if(!library)return; library.sources`). Instead add
+  `const library = getLibrary();` at each fn top, OR type `getLibrary():
+  LibraryPayload` non-null + pass `() => library!` (cc fns run post-load → safe).
+- **Recommended sequence (focused session):** (1) shared `series.ts`
+  (`fetchSourceSeries`/`FetchedSeries`/`CC_COLORS`), verify tiles render; (2)
+  cc-modal+cc-preview; (3) ds-modal; (4) geo-chips (interleaved w/ sources-tab:
+  move 1695–2103 + `appendCdDrillDown` ~2212; keep `geoSurfaceConfig` in compose);
+  (5) sources-tab; (6) Render core last. geo-chip ↔ modal refs are circular but
+  resolve via the factory pattern (modals take geo-chip fns via ctx;
+  `geoSurfaceConfig` uses the modal factories' returned render fns).
+
 **Dev server — STILL UNUSABLE (don't re-burn time on the easy fix):** `astro dev`
 has TWO blockers. (1) **Content-sync timeout** — globbing the ~35k-file `sources`
 collection (acs_cd ~20k, acs_metro ~6k) exceeds Vite's 60s transport limit.
