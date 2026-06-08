@@ -178,6 +178,30 @@ cluster -- 2 sub-extractions + a cc/ds ctx rewire). Decomposition:**
   lib branch refs renderSourcesList / renderTagFiltersSources (sources-tab
   exports) -> sources-tab factory built before geoSurfaceConfig runs at runtime.
 - Then Render core LAST (renderComposition + tile rendering -- the heart).
+
+**STATUS 2026-06-08 (autonomous run):**
+- geo-chips.ts EXTRACTED + gates-green (astro 0/0/0, vitest 720), committed
+  LOCALLY (e98f2e5d52) but NOT pushed -- the auto-mode classifier blocks
+  direct-to-main pushes pending explicit OK or a git-push permission rule.
+  origin/main is still b8474940c0 (cc-modal); local HEAD is ahead 3 (geo-chips
+  + 2 doc commits), ALL pending push + live walkthrough.
+- TO RESUME: unblock pushes (add a `git push origin main` permission rule, or
+  OK each push), push the 3 local commits, walkthrough the geo chips on prod
+  (lib Sources-tab strip + re-confirm cc/ds still render -- same renderers now
+  sourced from geo-chips.ts), then do sources-tab.ts, then Render core.
+- sources-tab.ts SCOUTED (3 fragments; geoSurfaceConfig + appendCdDrillDown stay
+  interspersed): R1 allChartTags/allSourceTags/filteredCharts/filteredSources/
+  categoryLabel/renderTagFiltersCharts (~1554-1765); R2a renderTagFiltersSources
+  (~1829-1936); R2b renderChartsList/renderSourcesList/engageHintChip/
+  setActiveLibTab (~2027-2286). EXPORTS (called by geoSurfaceConfig / wire /
+  load): renderTagFiltersSources, renderSourcesList, renderChartsList,
+  renderTagFiltersCharts, setActiveLibTab. SUBTLETY: sourcesSelectedTags STAYS
+  in compose (geoSurfaceConfig lib branch reads it) -> via ctx; the tag-state
+  Sets + search scalars are shared, pass via ctx. Big ctx (geo renderers from
+  geo-chips, passes*, escapeHtml, addChart/addSourceAsChart, chartEffectiveSpec,
+  renderComposition/writeUrl, track, CD helpers, LibTab type). Circular ref:
+  geoSurfaceConfig refs renderSourcesList/renderTagFiltersSources (sources-tab
+  exports) -> sources-tab factory built before geoSurfaceConfig runs (runtime).
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
 
