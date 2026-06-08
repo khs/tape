@@ -19,9 +19,9 @@
 
 ## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
 
-**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation live,
-share.ts live+verified).** `compose.astro`: **11,007 → 8,339 lines** and falling.
-`origin/main = a0b53a0438`.
+**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation +
+share.ts verified; maps + generators verified).**
+`compose.astro`: **11,007 → 6,754 lines** and falling. `origin/main = e463c32f18`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -50,7 +50,7 @@ a `create<Feature>(ctx)` factory (like 2b's `createComposerGeoFilters`) closing
 over a context, so compose destructures the functions it needs and the existing
 call sites stay unchanged. 2d's risk is **DOM/event wiring, which `astro check`
 does NOT catch** — only a live walkthrough does (so pure modules can skip it,
-DOM-coupled ones can't). Done so far (compose 8,603 → 8,339):
+DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
 - **ids.ts + library.ts** (`662eb69d44`, LIVE + CI/post-deploy green) — the PURE
   pieces: the `inline:/inlinemap:/derived:` prefixes + `isInlineId/isInlineMapId/
   isDerivedId`; the `LibraryPayload` type cluster + `loadLibrary(baseUrl)`. Pure →
@@ -65,10 +65,29 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 8,339):
   Walkthrough-verified on prod (2026-06-08): `writeUrl` `?d=` round-trip +
   matching Preview href, `singleChartPreviewUrl` single-section collapse, the
   `/custom/?d=` URL renders, zero console errors.
+- **maps.ts** (`2fdff1a0f2`, LIVE + walkthrough-verified) — `createMapsTab(ctx)`
+  owns the Maps tab (indicator/vintage/geo/state pickers, the d3 bbox-brush
+  preview, `addMapToDashboard`). `renderMapBuilder` is the only entry point. ctx
+  adds `mapBboxTopoCache` (the topojson cache stays in compose — the tile-preview
+  thumbnails share it) + escapeHtml + render/writeUrl/gate/clamp callbacks. No
+  `library` coupling (static lookup tables). compose dropped its now Maps-only
+  `d3-selection` / `d3-brush` imports.
+- **generators.ts** (`e463c32f18`, LIVE + walkthrough-verified) —
+  `createGeneratorsTab(ctx)` owns the mass-generate builder (template + entity
+  pickers, indicator-vs-profile layouts, `generateMassDashboard` /
+  `generateEntityProfile`). `renderGeneratorsBuilder` is the only entry. No
+  `library` coupling (a separate `/generators-index.json` fetch). Same ctx shape
+  (+ `baseUrl` for the index fetch).
+
+  Both **walkthrough-verified on prod (2026-06-08)**: Maps built + added a county
+  poverty choropleth (tile rendered, "20 regions no data" note shown); Generators
+  "By indicator × Metro × Top-12" generated 12 metro charts into the section (all
+  line charts rendered); `?d=` serialized both the inline map + the 12 charts;
+  **zero console errors** throughout.
 
 Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
-cc-modal, ds-modal, maps, generators**, and finally the **Render core** (most
-coupled — do last). The shared `ctx` grows render callbacks as those come out.
+cc-modal, ds-modal**, and finally the **Render core** (most coupled — do last).
+The shared `ctx` grows render callbacks as those come out.
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
 
