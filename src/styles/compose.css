@@ -1257,6 +1257,12 @@
     gap: 14px;
     overflow-y: auto;
   }
+  /* ds-modal A/B operand pickers: cap each picker's results so two stacked
+     SourcePickers + the rest of the modal stay a sane height (the modal body
+     scrolls). Mirrors the alerts derived-builder cap. */
+  .ds-operand-picker .source-picker-results {
+    max-height: 220px;
+  }
   /* Split layout: form left, live preview right; stacks below 720px. */
   .cc-modal-split {
     display: grid;

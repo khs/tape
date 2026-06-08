@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SourcePicker from "../components/SourcePicker.astro";
 import "../styles/compose.css";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -765,46 +766,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             </select>
           </label>
           <div class="cc-field">
-            <span class="eyebrow">Filter operands by tag (optional)</span>
-            <!--
-              Geo-chip strip — same three-chip layout as the Sources
-              tab + cc-modal. Above the topical tag pills.
-            -->
-            <div class="lib-geo-chips" data-role="ds-geo-chips" hidden>
-              <div class="lib-geo-chip-wrap">
-                <button type="button" class="lib-geo-chip" data-role="ds-metro-chip" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="lib-geo-chip-label" data-role="ds-metro-label">US metro areas &#9662;</span>
-                  <span class="lib-geo-chip-clear" data-role="ds-metro-clear" hidden aria-label="Clear metro filter">&times;</span>
-                </button>
-                <div class="lib-geo-popover" data-role="ds-metro-popover" role="listbox" hidden>
-                  <input type="search" class="lib-geo-search" data-role="ds-metro-search" placeholder="Search metros…" aria-label="Search metros" />
-                  <div class="lib-geo-list" data-role="ds-metro-list"></div>
-                </div>
-              </div>
-              <div class="lib-geo-cd-host" data-role="ds-cd-chip-host"></div>
-              <div class="lib-geo-chip-wrap">
-                <button type="button" class="lib-geo-chip" data-role="ds-country-chip" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="lib-geo-chip-label" data-role="ds-country-label">Regions and countries &#9662;</span>
-                  <span class="lib-geo-chip-clear" data-role="ds-country-clear" hidden aria-label="Clear country filter">&times;</span>
-                </button>
-                <div class="lib-geo-popover" data-role="ds-country-popover" role="listbox" hidden>
-                  <input type="search" class="lib-geo-search" data-role="ds-country-search" placeholder="Search regions + countries…" aria-label="Search regions + countries" />
-                  <div class="lib-geo-list" data-role="ds-country-list"></div>
-                </div>
-              </div>
-            </div>
-            <div class="cc-source-tags lib-tag-filters" data-role="ds-source-tags"></div>
-          </div>
-          <div class="cc-field">
             <span class="eyebrow">A (first operand)</span>
-            <input
-              type="search"
-              class="cc-source-search"
-              data-role="ds-a-search"
-              placeholder="Search sources…"
-            />
-            <div class="cc-source-list ds-source-list" data-role="ds-a-list"></div>
             <p class="muted small ds-current" data-role="ds-a-current">No source picked yet.</p>
+            <SourcePicker
+              instanceId="ds-a"
+              rootClass="ds-operand-picker"
+              searchPlaceholder="Search series for A…"
+            />
           </div>
           <!--
             Rebuild-total suggestion. Appears when A is a share/rate that
@@ -829,14 +797,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           </div>
           <div class="cc-field">
             <span class="eyebrow">B (second operand)</span>
-            <input
-              type="search"
-              class="cc-source-search"
-              data-role="ds-b-search"
-              placeholder="Search sources…"
-            />
-            <div class="cc-source-list ds-source-list" data-role="ds-b-list"></div>
             <p class="muted small ds-current" data-role="ds-b-current">No source picked yet.</p>
+            <SourcePicker
+              instanceId="ds-b"
+              rootClass="ds-operand-picker"
+              searchPlaceholder="Search series for B…"
+            />
           </div>
           <p class="cc-op-hint muted small" data-role="ds-hint">&nbsp;</p>
           <label class="ds-add-as-chart">
@@ -1498,27 +1464,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   });
 
   // Derived-source modal (Plan 2d) -- the "+ Derived source" builder lives in
-  // src/lib/composer/ds-modal.ts. createDerivedSourceModal(ctx) returns the
-  // entry points; renderDsPicker / renderDsModalTagChips are also used by
-  // geoSurfaceConfig (the shared geo-chip wiring) for the "ds" surface.
+  // src/lib/composer/ds-modal.ts. createDerivedSourceModal(ctx) returns the two
+  // entry points; the A/B operands are now two <SourcePicker> islands (ds-a /
+  // ds-b) so the modal no longer needs the geo-chip / tag-chip / picker ctx.
   const {
     openDerivedSourceModal,
     wireDerivedSourceModal,
-    renderDsPicker,
-    renderDsModalTagChips,
   } = createDerivedSourceModal({
     shell,
     store,
     state,
     getLibrary: () => library,
-    passesCdFilter,
-    passesMetroFilter,
-    passesCountryFilter,
-    renderModalTagChips,
-    renderMetroChip,
-    renderCdChip,
-    renderCountryChip,
-    wireGeoChips,
     checkComposeAction,
     showSigninPrompt,
     clampActiveSection,
@@ -1623,36 +1579,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         refreshTags: () => renderTagFiltersSources(),
       };
     }
-    if (surface === "cc") {
-      return {
-        prefix: "cc",
-        state: () => ccModal.geo,
-        onChange: () => renderCustomChartSources(),
-        track: (e, p) => track(e, { ...p, surface: "cc-modal" }),
-        cdSelectedTags: () => ccModal.pickerTags,
-        getCdState: () => ccModal.cdState,
-        setCdState: (v) => { ccModal.cdState = v; },
-        getCdDistrict: () => ccModal.cdDistrict,
-        setCdDistrict: (v) => { ccModal.cdDistrict = v; },
-        refreshTags: () => renderCcModalTagChips(),
-      };
-    }
+    // The "ds" geo surface was retired when the derived-source modal adopted
+    // SourcePicker (its own geo chips); "cc" is the only geo-chip surface
+    // besides "lib" now.
     return {
-      prefix: "ds",
-      state: () => dsModal.geo,
-      // ds-modal has TWO source lists (A operand + B operand) — both
-      // need to re-render on filter change.
-      onChange: () => {
-        renderDsPicker("a");
-        renderDsPicker("b");
-      },
-      track: (e, p) => track(e, { ...p, surface: "ds-modal" }),
-      cdSelectedTags: () => dsModal.pickerTags,
-      getCdState: () => dsModal.cdState,
-      setCdState: (v) => { dsModal.cdState = v; },
-      getCdDistrict: () => dsModal.cdDistrict,
-      setCdDistrict: (v) => { dsModal.cdDistrict = v; },
-      refreshTags: () => renderDsModalTagChips(),
+      prefix: "cc",
+      state: () => ccModal.geo,
+      onChange: () => renderCustomChartSources(),
+      track: (e, p) => track(e, { ...p, surface: "cc-modal" }),
+      cdSelectedTags: () => ccModal.pickerTags,
+      getCdState: () => ccModal.cdState,
+      setCdState: (v) => { ccModal.cdState = v; },
+      getCdDistrict: () => ccModal.cdDistrict,
+      setCdDistrict: (v) => { ccModal.cdDistrict = v; },
+      refreshTags: () => renderCcModalTagChips(),
     };
   }
   // The geo-chip subsystem (metro/country/CD chips for lib/cc/ds) moved to
@@ -3503,12 +3443,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // keyed by `derived:<nanoid>`. Once created it appears in the source
   // picker for + Custom chart and as an A/B option for further derivation.
 
-  const dsModal = store.dsModal;
-
   // The derived-source builder (A/B pickers, suggestion chips, create flow)
   // moved to src/lib/composer/ds-modal.ts (Plan 2d). createDerivedSourceModal
-  // is destructured near the other 2d factories above; dsModal stays here so
-  // geoSurfaceConfig (the shared geo-chip wiring) can read its geo / cd state.
+  // is destructured near the other 2d factories above. The A/B operand
+  // pickers are now <SourcePicker> islands (ds-a / ds-b), so the modal owns
+  // its own geo/tag filtering -- compose no longer keeps dsModal state here.
 
   function wireSigninPrompt(): void {
     const backdrop = shell.querySelector<HTMLElement>(

@@ -7,23 +7,19 @@
  * suggestion chips, and the create flow (optionally auto-adding the result as a
  * chart in the active section).
  *
- * Extracted from compose.astro via the create<Feature>(ctx) factory. The shared
- * tag-chip strip (renderModalTagChips) comes from modal-tags.ts via ctx; the geo
- * filter predicates (passes*) from geo-filter.ts via ctx; the per-surface geo
- * chips (renderMetroChip/renderCdChip/renderCountryChip/wireGeoChips for "ds")
- * stay in compose with geoSurfaceConfig and arrive via ctx. The geo-chip <->
- * modal references are circular but resolve through the factory: compose
- * destructures renderDsPicker / renderDsModalTagChips and geoSurfaceConfig calls
- * them at runtime. library is read via getLibrary() per fn (guard narrowing
- * preserved). renderCustomChartSources is a cc-modal fn (still in compose),
- * refreshed after a create so an open cc-modal picks up the new source.
+ * Extracted from compose.astro via the create<Feature>(ctx) factory. The A/B
+ * operands are picked via two shared <SourcePicker> islands (instanceId ds-a /
+ * ds-b, mounted in compose); this module feeds them the user's derived sources
+ * (set-extra-sources) + cross-disables each against the other side's pick
+ * (set-disabled-ids), and listens for the source-picker:pick event. library is
+ * read via getLibrary() per fn (guard narrowing preserved).
+ * renderCustomChartSources is a cc-modal fn (still in compose), refreshed after
+ * a create so an open cc-modal picks up the new source.
  */
 import { nanoid } from "nanoid";
 import { track } from "../track";
 import { packSourceIds } from "../analytics-helpers";
-import { CD_TAG } from "../congressional-districts";
 import { DERIVED_PREFIX, INLINE_PREFIX, isDerivedId } from "./ids";
-import { newGeoState } from "./state";
 import type {
   UIState,
   ComposerStore,
@@ -31,33 +27,12 @@ import type {
   ChartCombineOp,
 } from "./state";
 import type { LibraryPayload, LibrarySource } from "./library";
-import type { ComposerGeoFilters } from "./geo-filter";
-
-type GeoSurface = "lib" | "cc" | "ds";
 
 export interface DerivedSourceModalContext {
   shell: HTMLElement;
   store: ComposerStore;
   state: UIState;
   getLibrary: () => LibraryPayload | null;
-  passesCdFilter: ComposerGeoFilters["passesCdFilter"];
-  passesMetroFilter: ComposerGeoFilters["passesMetroFilter"];
-  passesCountryFilter: ComposerGeoFilters["passesCountryFilter"];
-  renderModalTagChips: (
-    hostSelector: string,
-    selected: Set<string>,
-    onToggle: () => void,
-    cdGetters: {
-      getState: () => string | null;
-      setState: (v: string | null) => void;
-      getDistrict: () => string | null;
-      setDistrict: (v: string | null) => void;
-    },
-  ) => void;
-  renderMetroChip: (surface: GeoSurface) => void;
-  renderCdChip: (surface: GeoSurface) => void;
-  renderCountryChip: (surface: GeoSurface) => void;
-  wireGeoChips: (surface: GeoSurface) => void;
   checkComposeAction: (action: string) => Promise<boolean>;
   showSigninPrompt: (reason: string) => void;
   clampActiveSection: () => void;
@@ -72,14 +47,6 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
     store,
     state,
     getLibrary,
-    passesCdFilter,
-    passesMetroFilter,
-    passesCountryFilter,
-    renderModalTagChips,
-    renderMetroChip,
-    renderCdChip,
-    renderCountryChip,
-    wireGeoChips,
     checkComposeAction,
     showSigninPrompt,
     clampActiveSection,
@@ -88,117 +55,21 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
     renderCustomChartSources,
   } = ctx;
   const dsModal = store.dsModal;
-  // Universe of pickable source IDs: every real source from library.json
-  // plus every derived source already in state. Sorted: derived first
-  // (so the user sees the ones they've created at the top), then real,
-  // each block sorted by display name.
-  function pickableSourceOptions(): { id: string; label: string; isDerived: boolean }[] {
-    const library = getLibrary();
-    const derived = Object.entries(state.inlineSources).map(([id, spec]) => ({
+  // Derived sources (the ones the user has already created) exposed to BOTH
+  // operand SourcePickers as extraSources so they are pickable + recursive
+  // derivation works. Real sources come from library.json inside SourcePicker
+  // itself; only the derived ones need injecting. The " (derived)" suffix
+  // distinguishes them in the picker results.
+  function derivedExtraSources(): {
+    id: string;
+    name: string;
+    tags: string[];
+  }[] {
+    return Object.entries(state.inlineSources).map(([id, spec]) => ({
       id,
-      label: `${spec.name} (derived)`,
-      isDerived: true,
+      name: `${spec.name} (derived)`,
+      tags: spec.tags ?? [],
     }));
-    derived.sort((x, y) => x.label.localeCompare(y.label));
-    const real = library
-      ? Object.values(library.sources).map((s) => ({
-          id: s.id,
-          label: (s.shortName ?? s.name) + (s.shortName && s.shortName !== s.name ? ` — ${s.name}` : ""),
-          isDerived: false,
-        }))
-      : [];
-    real.sort((x, y) => x.label.localeCompare(y.label));
-    return [...derived, ...real];
-  }
-
-  // Render one of the two source-picker lists (A or B) filtered by its
-  // own search box. Clicking a row selects it. The currently-picked
-  // source is highlighted; the other side's pick is marked dimly so the
-  // user doesn't accidentally pick the same source twice.
-  function renderDsPicker(side: "a" | "b"): void {
-    const list = shell.querySelector<HTMLElement>(
-      `[data-role='ds-${side}-list']`,
-    );
-    const current = shell.querySelector<HTMLElement>(
-      `[data-role='ds-${side}-current']`,
-    );
-    if (!list) return;
-    const search = (side === "a" ? dsModal.aSearch : dsModal.bSearch)
-      .trim()
-      .toLowerCase();
-    // Same CD_TAG exclusion as the other two filter sites: it's a chip
-    // toggle gated by passesCdFilter, not a literal tag-AND requirement.
-    const tagsRequired = [...dsModal.pickerTags].filter((t) => t !== CD_TAG);
-    const opts = pickableSourceOptions().filter((o) => {
-      const oTags = sourceTagsFor(o.id);
-      // CD-visibility gate runs first; derived sources lack CD_TAG so
-      // they always pass through (consistent with cc-modal behavior).
-      if (
-        !passesCdFilter(
-          o.id,
-          oTags,
-          dsModal.pickerTags,
-          dsModal.cdState,
-          dsModal.cdDistrict,
-          search,
-        )
-      ) {
-        return false;
-      }
-      // Same hint-skip as filteredModalSources: the derived-source
-      // ds-modal never wants the discoverability cards either.
-      if ((o as { kind?: string }).kind === "hint") return false;
-      // Metro / country / CD chip drill-downs (mirrors cc-modal +
-      // Sources tab via shared filter helpers). All three include the
-      // 4-char name-unlock.
-      if (!passesMetroFilter(oTags, dsModal.geo.selectedMetroCbsa, search)) return false;
-      if (!passesCountryFilter(oTags, dsModal.geo.selectedCountryCode, search)) return false;
-      if (tagsRequired.length > 0) {
-        for (const t of tagsRequired) {
-          if (!oTags.includes(t)) return false;
-        }
-      }
-      if (!search) return true;
-      return (
-        o.label.toLowerCase().includes(search) ||
-        o.id.toLowerCase().includes(search) ||
-        oTags.join(" ").toLowerCase().includes(search)
-      );
-    });
-    list.innerHTML = "";
-    if (opts.length === 0) {
-      list.innerHTML = '<p class="muted small">No sources match.</p>';
-    } else {
-      const selectedId = side === "a" ? dsModal.a : dsModal.b;
-      const otherId = side === "a" ? dsModal.b : dsModal.a;
-      for (const o of opts) {
-        const row = document.createElement("button");
-        row.type = "button";
-        row.className =
-          "ds-source-row" +
-          (o.id === selectedId ? " ds-source-row-selected" : "") +
-          (o.id === otherId ? " ds-source-row-disabled" : "") +
-          (o.isDerived ? " ds-source-row-derived" : "");
-        row.textContent = o.label;
-        if (o.id === otherId) {
-          row.title = "Already picked on the other side";
-          row.disabled = true;
-        }
-        row.addEventListener("click", () => {
-          if (side === "a") dsModal.a = o.id;
-          else dsModal.b = o.id;
-          // Re-render both so the cross-disable state stays in sync.
-          renderDsPicker("a");
-          renderDsPicker("b");
-          syncDerivedHint();
-        });
-        list.appendChild(row);
-      }
-    }
-    if (current) {
-      const id = side === "a" ? dsModal.a : dsModal.b;
-      current.textContent = id ? `Picked: ${dsSourceLabel(id)}` : "No source picked yet.";
-    }
   }
 
   function dsSourceLabel(id: string): string {
@@ -386,33 +257,66 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
       : `${sym} ${partnerLabel} → ${cand.resultLabel}.`;
   }
 
+  // ---- SourcePicker plumbing -------------------------------------------
+  // The A and B operands are picked via two shared <SourcePicker> islands
+  // (instanceId ds-a / ds-b). We dispatch inbound events to feed them the
+  // derived sources + cross-disable, and listen for the pick event.
+  function dispatchToPicker(
+    instanceId: string,
+    type: string,
+    detail: unknown,
+  ): void {
+    const root = shell.querySelector<HTMLElement>(
+      `[data-spicker-instance='${instanceId}']`,
+    );
+    root?.dispatchEvent(new CustomEvent(type, { detail }));
+  }
+
+  function focusPickerSearch(instanceId: string): void {
+    shell
+      .querySelector<HTMLInputElement>(
+        `[data-spicker-instance='${instanceId}'] [data-spicker-search]`,
+      )
+      ?.focus();
+  }
+
+  // Reflect the current A/B picks: update the picked-source labels and
+  // cross-disable each picker against the other side's choice (you cannot
+  // divide a source by itself). Replaces the old renderDsPicker re-render.
+  function updateDsOperandUI(): void {
+    const aCur = shell.querySelector<HTMLElement>("[data-role='ds-a-current']");
+    const bCur = shell.querySelector<HTMLElement>("[data-role='ds-b-current']");
+    if (aCur) {
+      aCur.textContent = dsModal.a
+        ? `Picked: ${dsSourceLabel(dsModal.a)}`
+        : "No source picked yet.";
+    }
+    if (bCur) {
+      bCur.textContent = dsModal.b
+        ? `Picked: ${dsSourceLabel(dsModal.b)}`
+        : "No source picked yet.";
+    }
+    dispatchToPicker("ds-a", "source-picker:set-disabled-ids", {
+      ids: dsModal.b ? [dsModal.b] : [],
+    });
+    dispatchToPicker("ds-b", "source-picker:set-disabled-ids", {
+      ids: dsModal.a ? [dsModal.a] : [],
+    });
+  }
+
   function openDerivedSourceModal(): void {
     dsModal.name = "";
     dsModal.op = "divide";
     dsModal.a = "";
     dsModal.b = "";
-    dsModal.aSearch = "";
-    dsModal.bSearch = "";
     dsModal.addAsChart = true;
-    dsModal.pickerTags = new Set<string>();
-    dsModal.cdState = null;
-    dsModal.cdDistrict = null;
-    dsModal.geo = newGeoState();
     const backdrop = shell.querySelector<HTMLElement>("[data-role='ds-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;
     const nameInput = shell.querySelector<HTMLInputElement>("[data-role='ds-name']");
-    if (nameInput) {
-      nameInput.value = "";
-      // No initial focus on the name field — A/B picking is now the
-      // primary action and the name fills in by itself.
-    }
+    if (nameInput) nameInput.value = "";
     const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
     if (opSelect) opSelect.value = "divide";
-    const aSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-a-search']");
-    const bSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-b-search']");
-    if (aSearch) aSearch.value = "";
-    if (bSearch) bSearch.value = "";
     const addAsChartChk = shell.querySelector<HTMLInputElement>(
       "[data-role='ds-add-as-chart']",
     );
@@ -421,36 +325,13 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
     shell
       .querySelectorAll<HTMLButtonElement>("[data-role='ds-quick']")
       .forEach((c) => c.classList.remove("ds-quick-chip-active"));
-    renderDsModalTagChips();
-    renderMetroChip("ds");
-    renderCdChip("ds");
-    renderCountryChip("ds");
-    wireGeoChips("ds");
-    renderDsPicker("a");
-    renderDsPicker("b");
+    // Feed both pickers the user's derived sources (pickable as operands)
+    // and clear any cross-disable left over from a prior open.
+    const extras = derivedExtraSources();
+    dispatchToPicker("ds-a", "source-picker:set-extra-sources", { sources: extras });
+    dispatchToPicker("ds-b", "source-picker:set-extra-sources", { sources: extras });
+    updateDsOperandUI();
     syncDerivedHint();
-  }
-
-  function renderDsModalTagChips(): void {
-    renderModalTagChips(
-      "[data-role='ds-source-tags']",
-      dsModal.pickerTags,
-      () => {
-        renderDsModalTagChips();
-        renderDsPicker("a");
-        renderDsPicker("b");
-      },
-      {
-        getState: () => dsModal.cdState,
-        setState: (v) => {
-          dsModal.cdState = v;
-        },
-        getDistrict: () => dsModal.cdDistrict,
-        setDistrict: (v) => {
-          dsModal.cdDistrict = v;
-        },
-      },
-    );
   }
 
   function closeDerivedSourceModal(): void {
@@ -465,8 +346,6 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
     const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='ds-create']");
     const nameInput = shell.querySelector<HTMLInputElement>("[data-role='ds-name']");
     const opSelect = shell.querySelector<HTMLSelectElement>("[data-role='ds-op']");
-    const aSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-a-search']");
-    const bSearch = shell.querySelector<HTMLInputElement>("[data-role='ds-b-search']");
 
     closeBtn?.addEventListener("click", closeDerivedSourceModal);
     cancelBtn?.addEventListener("click", closeDerivedSourceModal);
@@ -485,6 +364,32 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
       dsModal.op = opSelect.value as DerivedModalState["op"];
       syncDerivedHint();
     });
+    // Operand picks come from the two shared SourcePicker islands. Each
+    // pick sets its side; the disabled-card render (set-disabled-ids)
+    // already blocks picking the other side's source, but we guard too.
+    const aPicker = shell.querySelector<HTMLElement>(
+      "[data-spicker-instance='ds-a']",
+    );
+    const bPicker = shell.querySelector<HTMLElement>(
+      "[data-spicker-instance='ds-b']",
+    );
+    aPicker?.addEventListener("source-picker:pick", (e) => {
+      const detail = (e as CustomEvent).detail as { sourceId?: string };
+      const id = detail?.sourceId;
+      if (!id || id === dsModal.b) return;
+      dsModal.a = id;
+      updateDsOperandUI();
+      syncDerivedHint();
+    });
+    bPicker?.addEventListener("source-picker:pick", (e) => {
+      const detail = (e as CustomEvent).detail as { sourceId?: string };
+      const id = detail?.sourceId;
+      if (!id || id === dsModal.a) return;
+      dsModal.b = id;
+      updateDsOperandUI();
+      syncDerivedHint();
+    });
+
     // Rebuild-total chip: one click turns a picked share/rate (A) into its
     // underlying count by setting op=Multiply and B=<derivedFrom.denominator>.
     // Reads the candidate fresh on click so it always tracks the current A.
@@ -497,8 +402,7 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
       dsModal.op = "multiply";
       if (opSelect) opSelect.value = "multiply";
       dsModal.b = cand.denominator;
-      renderDsPicker("a");
-      renderDsPicker("b");
+      updateDsOperandUI();
       syncDerivedHint();
       track("compose_rebuild_total", {
         rate: dsModal.a,
@@ -520,22 +424,13 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
         dsModal.name = cand.resultLabel;
         if (nameInput) nameInput.value = cand.resultLabel;
       }
-      renderDsPicker("a");
-      renderDsPicker("b");
+      updateDsOperandUI();
       syncDerivedHint();
       track("compose_combine_hint", {
         a: dsModal.a,
         partner: cand.partner,
         op: cand.op,
       });
-    });
-    aSearch?.addEventListener("input", () => {
-      dsModal.aSearch = aSearch.value;
-      renderDsPicker("a");
-    });
-    bSearch?.addEventListener("input", () => {
-      dsModal.bSearch = bSearch.value;
-      renderDsPicker("b");
     });
     const addAsChartChk = shell.querySelector<HTMLInputElement>(
       "[data-role='ds-add-as-chart']",
@@ -569,13 +464,12 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
         // the chip itself is what they just touched).
         quickChips.forEach((c) => c.classList.remove("ds-quick-chip-active"));
         chip.classList.add("ds-quick-chip-active");
-        renderDsPicker("a");
-        renderDsPicker("b");
+        updateDsOperandUI();
         syncDerivedHint();
         // Funnel telemetry: which quick divisor wins? Useful for
         // deciding whether to add more (CPI, hours worked, etc.).
         track("compose_quick_divisor_picked", { divisor: id });
-        if (aSearch) aSearch.focus();
+        focusPickerSearch("ds-a");
       });
     });
     createBtn?.addEventListener("click", async () => {
@@ -664,7 +558,5 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
   return {
     openDerivedSourceModal,
     wireDerivedSourceModal,
-    renderDsPicker,
-    renderDsModalTagChips,
   };
 }
