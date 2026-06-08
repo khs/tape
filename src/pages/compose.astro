@@ -1148,6 +1148,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { createMapsTab } from "../lib/composer/maps";
   import { createGeneratorsTab } from "../lib/composer/generators";
   import { createSeriesFetcher, CC_COLORS, type FetchedSeries } from "../lib/composer/series";
+  import { createModalTagChips } from "../lib/composer/modal-tags";
   import {
     DELTA_WINDOWS,
     DELTA_LABELS_SHORT,
@@ -1453,6 +1454,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   const { fetchSourceSeries } = createSeriesFetcher({
     getLibrary: () => library,
     baseUrl,
+    state,
+  });
+
+  // Shared modal tag-chip strip (Plan 2d) -- the topical-tag pills rendered by
+  // BOTH the cc-modal and ds-modal source pickers. Geo chips render separately,
+  // in the geo-chips strip above each modal tag row.
+  const { renderModalTagChips } = createModalTagChips({
+    shell,
+    getLibrary: () => library,
     state,
   });
 
@@ -5878,88 +5888,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const s = new Set<string>([...sourceTagsFor(aId), ...sourceTagsFor(bId)]);
     s.add("custom");
     return [...s].sort();
-  }
-
-  // Union of every tag across the universe of pickable sources (library
-  // + derived). The "custom" tag is implicitly only present when at
-  // least one derived source exists (since that's where it comes from),
-  // so we get the right "hide custom chip when there are no custom
-  // sources" behavior for free.
-  function allPickableSourceTags(): string[] {
-    const s = new Set<string>();
-    const addTag = (t: string) => {
-      // Synthetic per-entity tags (metro:35620, country-specific:JPN, …)
-      // never appear as standalone pills — they're surfaced through the
-      // master chips' drilldowns instead. Strip them here so the chip
-      // strip stays readable; the master METRO_TAG / COUNTRY_TAG values
-      // themselves stay so renderModalTagChips can show a "Metros" /
-      // "Countries" chip.
-      if (t.startsWith(`${METRO_TAG}:`)) return;
-      if (t.startsWith(`${COUNTRY_TAG}:`)) return;
-      s.add(t);
-    };
-    if (library) {
-      for (const id of Object.keys(library.sources)) {
-        const src = library.sources[id] as LibrarySource & { tags?: string[] };
-        for (const t of src.tags ?? []) addTag(t);
-      }
-    }
-    for (const spec of Object.values(state.inlineSources)) {
-      for (const t of spec.tags ?? []) addTag(t);
-    }
-    return [...s].sort();
-  }
-
-  // Generic chip-strip builder shared between the cc-modal source picker
-  // and the ds-modal operand pickers. Caller supplies the active-tag
-  // set + the re-render callback (different functions per modal). The
-  // `congressional-district` tag is rendered specially as a drill-down
-  // chip at the end of the strip (via appendCdDrillDown). Each modal
-  // owns its own cdState / cdDistrict slot — the cdGetters bundle bridges
-  // those state slots into this generic helper.
-  function renderModalTagChips(
-    hostSelector: string,
-    selected: Set<string>,
-    onToggle: () => void,
-    _cdGetters: {
-      getState: () => string | null;
-      setState: (v: string | null) => void;
-      getDistrict: () => string | null;
-      setDistrict: (v: string | null) => void;
-    },
-  ): void {
-    const host = shell.querySelector<HTMLElement>(hostSelector);
-    if (!host) return;
-    const tags = allPickableSourceTags();
-    host.innerHTML = "";
-    if (tags.length === 0) return;
-    const makeChip = (tag: string, label: string, active: boolean) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "tag-pill" + (active ? " tag-pill-active" : "");
-      b.textContent = label;
-      b.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (tag === "") {
-          selected.clear();
-        } else if (selected.has(tag)) {
-          selected.delete(tag);
-        } else {
-          selected.add(tag);
-        }
-        onToggle();
-      });
-      return b;
-    };
-    host.appendChild(makeChip("", "all", selected.size === 0));
-    // CD / METRO / COUNTRY chips live in the geo-chips strip ABOVE this
-    // row; topical tags only here. (See renderCdChip / renderMetroChip
-    // / renderCountryChip + wireGeoChips for the geo strip wiring.)
-    for (const t of tags) {
-      if (t === CD_TAG || t === STATE_TAG) continue;
-      if (t === METRO_TAG || t === COUNTRY_TAG) continue;
-      host.appendChild(makeChip(t, t, selected.has(t)));
-    }
   }
 
   // Equation-form name auto-derived from picked A, op, B. Used as both
