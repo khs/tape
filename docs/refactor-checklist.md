@@ -19,9 +19,9 @@
 
 ## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
 
-**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation +
-share.ts verified; maps + generators verified).**
-`compose.astro`: **11,007 → 6,754 lines** and falling. `origin/main = e463c32f18`.
+**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
+maps + generators + series.ts verified).**
+`compose.astro`: **11,007 → 6,677 lines** and falling. `origin/main = bfb781bed3`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -84,6 +84,16 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
   "By indicator × Metro × Top-12" generated 12 metro charts into the section (all
   line charts rendered); `?d=` serialized both the inline map + the 12 charts;
   **zero console errors** throughout.
+- **series.ts** (`bfb781bed3`, LIVE + walkthrough-verified) — shared
+  source-series fetcher. `createSeriesFetcher(ctx)` owns `fetchSourceSeries`
+  (fetch + cache + derived A-op-B resolution); `SeriesPoint` / `FetchedSeries` /
+  `CC_COLORS` are static exports. Used by BOTH the tile-preview thumbnails AND the
+  cc-preview (one shared cache). ctx = `{getLibrary, baseUrl, state}`; one
+  captured-local `const lib = getLibrary()` (narrowing preserved — NOT a blanket
+  rewrite). This is **step (1) of the cc-modal sequence below** — unblocks
+  cc-modal+cc-preview. Clean (astro check 0/0/0 first try). Walkthrough-verified
+  on prod (2026-06-08): VIX tile sparkline + the 10Y cc-modal preview both
+  rendered (shared fetcher confirmed in both consumers).
 
 Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
 cc-modal, ds-modal**, and finally the **Render core** (most coupled — do last).
