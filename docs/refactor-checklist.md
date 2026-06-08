@@ -19,9 +19,9 @@
 
 ## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
 
-**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE on prod; 2d is NEXT.**
-`compose.astro`: **11,007 → 8,895 lines**. `origin/main = f1983d0b68`. Working
-tree clean, nothing running.
+**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation live,
+share.ts pushed).** `compose.astro`: **11,007 → 8,339 lines** and falling.
+`origin/main = a0b53a0438`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -44,19 +44,31 @@ tree clean, nothing running.
   path — the trickiest — passed), the Maps tab, and "Save to my account"
   (server-persist — left alone deliberately). **2b/2c confirmed good on prod.**
 
-**2d (NEXT) — split compose's `<script>` into `src/lib/composer/{library-load,
-sources-tab,cc-modal,ds-modal,maps,generators,share}.ts`; page `<script>` becomes
-a thin bootstrap importing the store.** Hard reality: the script is ~7,700 lines /
-**131 functions**, heavily coupled — **209 `shell`(DOM-root) refs, 119 `library`,
-51 `store`**, functions calling each other across sections. Unlike 2a/2b/2c, 2d's
-risk is **DOM/event wiring, which `astro check` does NOT catch** — only a live
-walkthrough does. Recommended approach: design a shared context ({shell, store,
-getLibrary, + cross-cutting render callbacks}) threaded into each module's init;
-extract ONE module at a time (most-isolated first, e.g. `share.ts` or
-`library-load.ts`), push, walkthrough-verify, repeat. Current section line-nums:
-Load-library 1301 · URL-write 1360 · Render 1597 · Geo-chip 1906 · Maps 2885 ·
-Generators 3582 · Drag&drop 4637 · Tile-previews 5085 · Wire-controls 6101 ·
-cc-modal 6519 · cc-preview 7275 · ds-modal 7736.
+**2d — IN PROGRESS. Splitting compose's `<script>` into `src/lib/composer/*`
+feature modules, most-isolated first, ONE push + walkthrough per unit.** Pattern:
+a `create<Feature>(ctx)` factory (like 2b's `createComposerGeoFilters`) closing
+over a context, so compose destructures the functions it needs and the existing
+call sites stay unchanged. 2d's risk is **DOM/event wiring, which `astro check`
+does NOT catch** — only a live walkthrough does (so pure modules can skip it,
+DOM-coupled ones can't). Done so far (compose 8,603 → 8,339):
+- **ids.ts + library.ts** (`662eb69d44`, LIVE + CI/post-deploy green) — the PURE
+  pieces: the `inline:/inlinemap:/derived:` prefixes + `isInlineId/isInlineMapId/
+  isDerivedId`; the `LibraryPayload` type cluster + `loadLibrary(baseUrl)`. Pure →
+  astro check fully validated it; no walkthrough needed.
+- **share.ts** (`a0b53a0438`, PUSHED — walkthrough pending) — `createShareUrl(ctx)`
+  owns `referencedInline{Charts,Maps,Sources}` + `referencedChartOverrides` +
+  `singleChartPreviewUrl` + `writeUrl` (the `?d=` share URL, the Preview link, and
+  single-tile preview). ctx = `{shell, baseUrl, state, getEditingSlug}`; edit-slug
+  read via getter because `hydrateFromUrl` sets it after the factory is built.
+  `hydrateFromUrl` STAYS in compose for now — it WRITES the mutable `editingSlug`/
+  `copyMode` lets (shared with the save flow); fold those into the store later.
+  DOM-coupled → needs a prod walkthrough.
+
+Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
+cc-modal, ds-modal, maps, generators**, and finally the **Render core** (most
+coupled — do last). The shared `ctx` grows render callbacks as those come out.
+**Re-grep section anchors before each extraction — line numbers shift as modules
+leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
 
 **Dev server — STILL UNUSABLE (don't re-burn time on the easy fix):** `astro dev`
 has TWO blockers. (1) **Content-sync timeout** — globbing the ~35k-file `sources`
