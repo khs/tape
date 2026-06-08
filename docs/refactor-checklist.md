@@ -20,8 +20,8 @@
 ## ⮕ RESUME HERE — updated 2026-06-08 (modal cluster extracted; banked)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
-maps + generators + series + modal-tags + ds-modal + cc-modal verified).**
-`compose.astro`: **11,007 → ~4,686 lines** and falling. `origin/main = b8474940c0`.
+maps + generators + series + modal-tags + ds-modal + cc-modal + geo-chips + sources-tab + tiles verified).**
+`compose.astro`: **11,007 → ~3,675 lines** and falling. `origin/main = 160d6354a9`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -143,65 +143,47 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
   (1 series, raw, legend); created the chart -> custom tile rendered a real
   line + ?d= serialized + modal closed; zero app console errors.
 
-Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab**, and finally the **Render core** (most coupled — do last).
-The shared `ctx` grows render callbacks as those come out.
+Remaining: the **Render core** (renderComposition + drag/drop + wire + load/save)
+is the page core orchestrator -- see the ASSESSMENT below.
 
-**NEXT: sources-tab + geo-chips (scouted 2026-06-08; the MOST entangled
-cluster -- 2 sub-extractions + a cc/ds ctx rewire). Decomposition:**
-- Geo-chip subsystem (geoQS + metro/country chip+list+popover+select+clear +
-  renderCdChip + wireGeoChips) is at compose ~1824-2178. SHARED across the
-  lib / cc / ds surfaces. cc-modal.ts + ds-modal.ts ALREADY receive
-  renderMetroChip / renderCdChip / renderCountryChip / wireGeoChips via ctx
-  (from compose hoisted fns today).
-- geoSurfaceConfig (~1771-1823) + the GeoSurface / GeoSurfaceConfig types
-  (~1753-1770) STAY in compose -- the hub maps each surface to onChange /
-  refreshTags / state: lib -> renderTagFiltersSources + renderSourcesList;
-  cc -> renderCustomChartSources / renderCcModalTagChips; ds -> renderDsPicker
-  / renderDsModalTagChips (cc/ds are already-destructured module exports).
-- The geo renderers CALL geoSurfaceConfig(surface) to get cfg.
-- STEP 1 -- geo-chips.ts (shared layer FIRST, like modal-tags):
-  createGeoChips(ctx) returns the renderers (each takes a surface arg). In the
-  extracted block, replace geoSurfaceConfig(surface) -> getSurfaceConfig(surface).
-  ctx = { shell, getLibrary, getSurfaceConfig (=geoSurfaceConfig, stays),
-  appendCdDrillDown (stays in compose, via ctx), escapeHtml }. imports:
-  isRegionCode (../countries), METRO_TAG (../geographic-regions), COUNTRY_TAG
-  (../countries) + any CD helpers renderCdChip uses. 4 getLibrary inserts
-  (renderMetroChip / renderMetroList / renderCountryChip / renderCountryList --
-  they read library?.metros / library?.countries). geoQS is internal.
-  REWIRE: compose builds the geo-chips factory BEFORE the cc/ds factories,
-  destructures the renderers, passes them into cc/ds ctx (SAME field names =>
-  NO change to cc-modal.ts / ds-modal.ts). wire() + the lib surface use them.
-- STEP 2 -- sources-tab.ts: renderSourcesList / renderChartsList /
-  renderTagFiltersSources / renderTagFiltersCharts / filteredSources /
-  filteredCharts / allSourceTags / allChartTags / categoryLabel / engageHintChip
-  / setActiveLibTab / appendCdDrillDown (~1541-1736 + 2180-2637). geoSurfaceConfig
-  lib branch refs renderSourcesList / renderTagFiltersSources (sources-tab
-  exports) -> sources-tab factory built before geoSurfaceConfig runs at runtime.
-- Then Render core LAST (renderComposition + tile rendering -- the heart).
+**STATUS 2026-06-08 (autonomous run -- 3 more modules extracted + verified live):**
+- geo-chips.ts (`e98f2e5d52`), sources-tab.ts (`27208fb82d`), tiles.ts
+  (`160d6354a9`) all EXTRACTED + astro 0/0/0 + vitest 720 + pushed + CI/post-
+  deploy green + walkthrough-verified on prod. (modal-tags / ds-modal / cc-modal
+  verified earlier this session.) origin/main = 160d6354a9. compose.astro ~3,675
+  lines (was 11,007 -- 67% smaller). Tree clean.
+  - geo-chips.ts: createGeoChips(ctx) -- metro/country/CD chips for lib/cc/ds;
+    getSurfaceConfig=geoSurfaceConfig (STAYS in compose); cc/ds modules unchanged
+    (now source the renderers from here). WT: lib geo strip renders + CD chip
+    toggles the pick-a-state gate (the geoSurfaceConfig circular ref).
+  - sources-tab.ts: createSourcesTab(ctx) -- Sources/Charts lib tab (tag filters,
+    filtered lists, result renderers, hint chips, setActiveLibTab).
+    chartsSelectedTags owned here; chartsSearchQuery via getter; sourcesSelectedTags
+    stays in compose (geoSurfaceConfig reads it) via ctx. WT: 752 sources + 27 tag
+    chips; agriculture filter 752->21; Charts tab 90 cards; click -> addSourceAsChart
+    -> tile + ?d=.
+  - tiles.ts: createTiles(ctx) -- renderTilePreview (sparklines + mini-map
+    silhouettes). Pulled d3-geo / topojson / Plot out of compose. renderComposition
+    (stays) calls renderTilePreview per tile.
+    WT: source tile -> sparkline SVG; county map tile -> 3231-path choropleth
+    silhouette; zero app console errors.
 
-**STATUS 2026-06-08 (autonomous run):**
-- geo-chips.ts EXTRACTED + gates-green (astro 0/0/0, vitest 720), committed
-  LOCALLY (e98f2e5d52) but NOT pushed -- the auto-mode classifier blocks
-  direct-to-main pushes pending explicit OK or a git-push permission rule.
-  origin/main is still b8474940c0 (cc-modal); local HEAD is ahead 3 (geo-chips
-  + 2 doc commits), ALL pending push + live walkthrough.
-- TO RESUME: unblock pushes (add a `git push origin main` permission rule, or
-  OK each push), push the 3 local commits, walkthrough the geo chips on prod
-  (lib Sources-tab strip + re-confirm cc/ds still render -- same renderers now
-  sourced from geo-chips.ts), then do sources-tab.ts, then Render core.
-- sources-tab.ts SCOUTED (3 fragments; geoSurfaceConfig + appendCdDrillDown stay
-  interspersed): R1 allChartTags/allSourceTags/filteredCharts/filteredSources/
-  categoryLabel/renderTagFiltersCharts (~1554-1765); R2a renderTagFiltersSources
-  (~1829-1936); R2b renderChartsList/renderSourcesList/engageHintChip/
-  setActiveLibTab (~2027-2286). EXPORTS (called by geoSurfaceConfig / wire /
-  load): renderTagFiltersSources, renderSourcesList, renderChartsList,
-  renderTagFiltersCharts, setActiveLibTab. SUBTLETY: sourcesSelectedTags STAYS
-  in compose (geoSurfaceConfig lib branch reads it) -> via ctx; the tag-state
-  Sets + search scalars are shared, pass via ctx. Big ctx (geo renderers from
-  geo-chips, passes*, escapeHtml, addChart/addSourceAsChart, chartEffectiveSpec,
-  renderComposition/writeUrl, track, CD helpers, LibTab type). Circular ref:
-  geoSurfaceConfig refs renderSourcesList/renderTagFiltersSources (sources-tab
-  exports) -> sources-tab factory built before geoSurfaceConfig runs (runtime).
+**ASSESSMENT -- Render core (renderComposition): RECOMMEND LEAVE IN COMPOSE.**
+renderComposition (~615 lines) is the page core render method, deeply coupled to
+the drag/drop + hover-merge system, wireGridDropTarget, the chart helpers
+(chartEffectiveSpec / coverageWarningFor / baseTitleIsDefault / the hover-tip +
+cc-annotations helpers), state, and renderTilePreview (tiles.ts, via ctx).
+Extracting it would need a ~20-callback ctx (most of compose helpers) for ~615
+fewer lines -- net negative (more plumbing than it removes) + highest-risk surgery
+on the heart of the page. The remaining ~3,675-line compose is now a reasonable
+CORE ORCHESTRATOR: imports + the create<Feature>(ctx) factory wiring + geoSurfaceConfig
++ appendCdDrillDown + the chart-add helpers + the drag/drop/hover-merge system +
+renderComposition + the shared helpers (chartEffectiveSpec/escapeHtml/...) +
+checkComposeAction/showSigninPrompt + wire() + the blurb modal + load/hydrate/save/
+copy. The 2d feature-module split is DONE. Further core extraction is optional
+polish, NOT recommended (it would force the shared helpers out of compose -> a
+cc/ds/sources-tab ctx rewire for little gain).
+
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
 
