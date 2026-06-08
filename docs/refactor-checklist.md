@@ -20,7 +20,7 @@
 ## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation live,
-share.ts pushed).** `compose.astro`: **11,007 → 8,339 lines** and falling.
+share.ts live+verified).** `compose.astro`: **11,007 → 8,339 lines** and falling.
 `origin/main = a0b53a0438`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
@@ -55,14 +55,16 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 8,339):
   pieces: the `inline:/inlinemap:/derived:` prefixes + `isInlineId/isInlineMapId/
   isDerivedId`; the `LibraryPayload` type cluster + `loadLibrary(baseUrl)`. Pure →
   astro check fully validated it; no walkthrough needed.
-- **share.ts** (`a0b53a0438`, PUSHED — walkthrough pending) — `createShareUrl(ctx)`
+- **share.ts** (`a0b53a0438`, LIVE + CI/post-deploy green + walkthrough-verified) — `createShareUrl(ctx)`
   owns `referencedInline{Charts,Maps,Sources}` + `referencedChartOverrides` +
   `singleChartPreviewUrl` + `writeUrl` (the `?d=` share URL, the Preview link, and
   single-tile preview). ctx = `{shell, baseUrl, state, getEditingSlug}`; edit-slug
   read via getter because `hydrateFromUrl` sets it after the factory is built.
   `hydrateFromUrl` STAYS in compose for now — it WRITES the mutable `editingSlug`/
   `copyMode` lets (shared with the save flow); fold those into the store later.
-  DOM-coupled → needs a prod walkthrough.
+  Walkthrough-verified on prod (2026-06-08): `writeUrl` `?d=` round-trip +
+  matching Preview href, `singleChartPreviewUrl` single-section collapse, the
+  `/custom/?d=` URL renders, zero console errors.
 
 Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
 cc-modal, ds-modal, maps, generators**, and finally the **Render core** (most
