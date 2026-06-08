@@ -17,11 +17,11 @@
 
 ---
 
-## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
+## ⮕ RESUME HERE — updated 2026-06-08 (modal cluster extracted; banked)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
-maps + generators + series + modal-tags + ds-modal verified).**
-`compose.astro`: **11,007 → ~6,289 lines** and falling. `origin/main = 9751163d82`.
+maps + generators + series + modal-tags + ds-modal + cc-modal verified).**
+`compose.astro`: **11,007 → ~4,686 lines** and falling. `origin/main = b8474940c0`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -123,9 +123,27 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
   CD geo chip (circular ref works); picked 10Y / 10Y real -> hint shows the
   equation + create enabled; created it (add-as-chart) -> the derived tile
   rendered a real divided line + ?d= serialized the chart; zero app errors.
+- **cc-modal.ts** (`b8474940c0`, LIVE + walkthrough-verified) -- the
+  custom-chart modal + live preview, the LARGEST 2d unit (~1,473 lines out).
+  createCustomChartModal(ctx) owns the source picker (filteredModalSources /
+  renderCustomChartSources), the mode/shading/annotation/op controls, the merge
+  flow (openMergeModal + drag-two-tiles), and the live Plot preview
+  (renderCustomChartPreview). TWO ranges (cc core + wireCustomChartModal,
+  stranded after the old ds region) + the cc-only helpers fold in; the 5 fns
+  compose / geoSurfaceConfig / ds-modal call are exported. Resolved the cc <->
+  ds cross-dep: renderCustomChartSources now lives here + is passed into
+  ds-modal via ctx, so the cc factory is built BEFORE ds. Shared deps via ctx:
+  fetchSourceSeries (series), renderModalTagChips (modal-tags), passes* +
+  per-surface geo chips, chartEffectiveSpec / baseTitleIsDefault /
+  updateCcAnnotationsWarning / hover-tip (all stay in compose). library via
+  getLibrary() per fn (7 inserts). Built from real extracted text; ctx
+  converged via astro check. astro check 0/0/0; vitest 720. Walkthrough-
+  verified on prod (2026-06-08): modal renders 752 source rows + 36 tag chips +
+  3 cc geo chips (circular ref); picked 10Y real -> live Plot preview rendered
+  (1 series, raw, legend); created the chart -> custom tile rendered a real
+  line + ?d= serialized + modal closed; zero app console errors.
 
-Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
-cc-modal**, and finally the **Render core** (most coupled — do last).
+Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab**, and finally the **Render core** (most coupled — do last).
 The shared `ctx` grows render callbacks as those come out.
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
