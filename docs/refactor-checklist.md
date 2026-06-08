@@ -20,8 +20,8 @@
 ## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
-maps + generators + series.ts verified).**
-`compose.astro`: **11,007 → 6,677 lines** and falling. `origin/main = bfb781bed3`.
+maps + generators + series + modal-tags verified).**
+`compose.astro`: **11,007 → ~6,820 lines** and falling. `origin/main = 63480466c0`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -94,6 +94,18 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
   cc-modal+cc-preview. Clean (astro check 0/0/0 first try). Walkthrough-verified
   on prod (2026-06-08): VIX tile sparkline + the 10Y cc-modal preview both
   rendered (shared fetcher confirmed in both consumers).
+- **modal-tags.ts** (`63480466c0`, LIVE + walkthrough-verified) -- the shared
+  modal tag-chip strip. `createModalTagChips(ctx)` owns `renderModalTagChips`
+  (+ its private `allPickableSourceTags`): the topical-tag pills rendered by
+  BOTH the cc-modal AND ds-modal source pickers. ctx = `{shell, getLibrary,
+  state}` + the tag consts. SCOUT FINDING: renderModalTagChips is the ONLY
+  genuinely-shared modal fn -- the ds-only helpers (`pickableSourceOptions`,
+  `sourceTagsFor`, `dsSourceLabel`, `inheritedTagsForDerived`) STAY in compose
+  and move with ds-modal. This fully decouples cc-modal from the ds region.
+  Walkthrough-verified on prod (2026-06-08): both modals render the identical
+  36-chip topical strip ([data-role=cc-source-tags] / [data-role=ds-source-tags]);
+  the `labor` chip toggles active in each (onToggle fires, `all` deactivates);
+  zero app console errors (only the known Zotero-extension noise).
 
 Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
 cc-modal, ds-modal**, and finally the **Render core** (most coupled — do last).
