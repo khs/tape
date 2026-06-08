@@ -20,8 +20,8 @@
 ## ⮕ RESUME HERE — updated 2026-06-06 (end of a long session; banked)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
-maps + generators + series + modal-tags verified).**
-`compose.astro`: **11,007 → ~6,820 lines** and falling. `origin/main = 63480466c0`.
+maps + generators + series + modal-tags + ds-modal verified).**
+`compose.astro`: **11,007 → ~6,289 lines** and falling. `origin/main = 9751163d82`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -106,9 +106,26 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
   36-chip topical strip ([data-role=cc-source-tags] / [data-role=ds-source-tags]);
   the `labor` chip toggles active in each (onToggle fires, `all` deactivates);
   zero app console errors (only the known Zotero-extension noise).
+- **ds-modal.ts** (`9751163d82`, LIVE + walkthrough-verified) -- the
+  derived-source modal. createDerivedSourceModal(ctx) owns the A/B operand
+  pickers (renderDsPicker), the auto-name + rebuild-total / combine-hint
+  suggestion chips, and the create flow (optional add-as-chart). ONE contiguous
+  ~565-line block; the ds-only helpers (pickableSourceOptions, sourceTagsFor,
+  dsSourceLabel, inheritedTagsForDerived) moved with it. The geo-chip <-> modal
+  circular ref resolved via the factory: ds-modal EXPORTS renderDsPicker /
+  renderDsModalTagChips, which compose geoSurfaceConfig calls for the "ds"
+  surface; the per-surface geo-chip renderers + renderModalTagChips (modal-tags)
+  + geo passes* (geo-filter) arrive via ctx. dsModal stays in compose for
+  geoSurfaceConfig. library via getLibrary() per fn. Built from the real
+  extracted text (PowerShell substring) + 5 library-const inserts -- no
+  hand-transcription. astro check 0/0/0; vitest 720. Walkthrough-verified on
+  prod (2026-06-08): modal renders A/B pickers (795 rows) + 36 tag chips + the
+  CD geo chip (circular ref works); picked 10Y / 10Y real -> hint shows the
+  equation + create enabled; created it (add-as-chart) -> the derived tile
+  rendered a real divided line + ?d= serialized the chart; zero app errors.
 
 Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab,
-cc-modal, ds-modal**, and finally the **Render core** (most coupled — do last).
+cc-modal**, and finally the **Render core** (most coupled — do last).
 The shared `ctx` grows render callbacks as those come out.
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
