@@ -145,6 +145,39 @@ DOM-coupled ones can't). Done so far (compose 8,603 → 6,754):
 
 Remaining modules (all DOM/event-coupled → push + walkthrough each): **sources-tab**, and finally the **Render core** (most coupled — do last).
 The shared `ctx` grows render callbacks as those come out.
+
+**NEXT: sources-tab + geo-chips (scouted 2026-06-08; the MOST entangled
+cluster -- 2 sub-extractions + a cc/ds ctx rewire). Decomposition:**
+- Geo-chip subsystem (geoQS + metro/country chip+list+popover+select+clear +
+  renderCdChip + wireGeoChips) is at compose ~1824-2178. SHARED across the
+  lib / cc / ds surfaces. cc-modal.ts + ds-modal.ts ALREADY receive
+  renderMetroChip / renderCdChip / renderCountryChip / wireGeoChips via ctx
+  (from compose hoisted fns today).
+- geoSurfaceConfig (~1771-1823) + the GeoSurface / GeoSurfaceConfig types
+  (~1753-1770) STAY in compose -- the hub maps each surface to onChange /
+  refreshTags / state: lib -> renderTagFiltersSources + renderSourcesList;
+  cc -> renderCustomChartSources / renderCcModalTagChips; ds -> renderDsPicker
+  / renderDsModalTagChips (cc/ds are already-destructured module exports).
+- The geo renderers CALL geoSurfaceConfig(surface) to get cfg.
+- STEP 1 -- geo-chips.ts (shared layer FIRST, like modal-tags):
+  createGeoChips(ctx) returns the renderers (each takes a surface arg). In the
+  extracted block, replace geoSurfaceConfig(surface) -> getSurfaceConfig(surface).
+  ctx = { shell, getLibrary, getSurfaceConfig (=geoSurfaceConfig, stays),
+  appendCdDrillDown (stays in compose, via ctx), escapeHtml }. imports:
+  isRegionCode (../countries), METRO_TAG (../geographic-regions), COUNTRY_TAG
+  (../countries) + any CD helpers renderCdChip uses. 4 getLibrary inserts
+  (renderMetroChip / renderMetroList / renderCountryChip / renderCountryList --
+  they read library?.metros / library?.countries). geoQS is internal.
+  REWIRE: compose builds the geo-chips factory BEFORE the cc/ds factories,
+  destructures the renderers, passes them into cc/ds ctx (SAME field names =>
+  NO change to cc-modal.ts / ds-modal.ts). wire() + the lib surface use them.
+- STEP 2 -- sources-tab.ts: renderSourcesList / renderChartsList /
+  renderTagFiltersSources / renderTagFiltersCharts / filteredSources /
+  filteredCharts / allSourceTags / allChartTags / categoryLabel / engageHintChip
+  / setActiveLibTab / appendCdDrillDown (~1541-1736 + 2180-2637). geoSurfaceConfig
+  lib branch refs renderSourcesList / renderTagFiltersSources (sources-tab
+  exports) -> sources-tab factory built before geoSurfaceConfig runs at runtime.
+- Then Render core LAST (renderComposition + tile rendering -- the heart).
 **Re-grep section anchors before each extraction — line numbers shift as modules
 leave.** Both gates per unit: **astro check 0/0/0 + vitest 720**.
 
