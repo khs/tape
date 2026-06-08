@@ -458,6 +458,42 @@ Incremental, each step its own commit + build:
       3a/3b land.
 - [ ] Verify: per-modal parity vs current; alerts flow as reference.
 
+## Plan 3a EXECUTION (started 2026-06-08)
+- DONE: SourcePicker.astro gained `disabledIds` (optional prop +
+  source-picker:set-disabled-ids inbound event + greyed disabled-card render).
+  astro 0/0/0. Committed locally, UNUSED until the ds-modal adopts it (push
+  it together WITH the ds-modal change).
+- NEXT (the ds-modal rewire): only HOW dsModal.a/b get SET changes -- the op /
+  quick-divisor / suggestions (rebuild/pxq) / auto-name (syncDerivedHint) /
+  create logic all read dsModal.a/b and STAY.
+  - compose.astro frontmatter: import SourcePicker from ../components/SourcePicker.astro
+  - compose.astro template (~767-840): replace the ds geo-chip strip + ds-source-tags
+    + ds-a-search/ds-a-list + ds-b-search/ds-b-list with TWO <SourcePicker
+    instanceId=ds-a / ds-b> mounts (mirror alerts.astro @196-234). KEEP the A/B name
+    labels (ds-a-current/ds-b-current), quick-divisors, name, op, ds-rebuild/ds-pxq,
+    ds-hint, add-as-chart, footer.
+  - ds-modal.ts: DELETE renderDsPicker, pickableSourceOptions, sourceTagsFor,
+    renderDsModalTagChips. openDerivedSourceModal: drop the geo/tag/picker calls; ADD
+    dispatch set-extra-sources (derived sources from state.inlineSources) +
+    set-disabled-ids (clear) to both picker roots; reset the A/B labels.
+    wireDerivedSourceModal: drop ds-a-search/ds-b-search wiring; replace the ~5
+    renderDsPicker("a");renderDsPicker("b") sites with an updateDsOperandUI() helper
+    (sets A/B name labels + dispatches cross-side set-disabled-ids) + syncDerivedHint();
+    ADD source-picker:pick listeners on the ds-a/ds-b roots (set dsModal.a/b ->
+    updateDsOperandUI + syncDerivedHint). ctx: DROP passesCdFilter/Metro/Country,
+    renderMetroChip/Cd/Country, wireGeoChips, renderModalTagChips; KEEP shell/store/
+    state/getLibrary/checkComposeAction/showSigninPrompt/clampActiveSection/writeUrl/
+    renderComposition/renderCustomChartSources. return: drop renderDsPicker +
+    renderDsModalTagChips (export openDerivedSourceModal + wireDerivedSourceModal only).
+  - compose.astro: remove the geoSurfaceConfig "ds" branch + update the ds factory
+    ctx/destructure. Confirm the geo-chips / modal-tags "ds" usages are fully gone.
+  - Derived operands: pass state.inlineSources as SourcePicker extraSources
+    (id/name/tags) so derived sources are pickable + recursive derivation works.
+  - VERIFY (walkthrough): search "United States GDP" in an operand now resolves
+    (THE bug); A/B pick via SourcePicker; cross-disable; derived operand;
+    quick-divisor + rebuild/pxq still set B/A; create. Then 3b (cc-modal).
+
+
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
 
 ## Plan 7 — Standardize source-YAML on the inline pattern
