@@ -1138,7 +1138,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     defaultSections,
     type UIState,
     type ChartOverride,
-    type GeoState,
     type CustomChartMode,
     type ChartCombineOp,
   } from "../lib/composer/state";
@@ -1148,6 +1147,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { createModalTagChips } from "../lib/composer/modal-tags";
   import { createDerivedSourceModal } from "../lib/composer/ds-modal";
   import { createCustomChartModal } from "../lib/composer/cc-modal";
+  import { createGeoChips, type GeoSurface, type GeoSurfaceConfig } from "../lib/composer/geo-chips";
   import {
     DELTA_WINDOWS,
     DELTA_LABELS_SHORT,
@@ -1174,7 +1174,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     annotationsOutOfRangeSummary,
   } from "../lib/annotations";
   import { METRO_TAG } from "../lib/geographic-regions";
-  import { COUNTRY_TAG, isRegionCode } from "../lib/countries";
+  import { COUNTRY_TAG } from "../lib/countries";
   import {
     CD_TAG,
     STATE_TAG,
@@ -1455,6 +1455,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     getLibrary: () => library,
     state,
   });
+
+  // Shared geo-chip subsystem (Plan 2d) -- metro/country/CD chips for lib/cc/ds
+  // live in src/lib/composer/geo-chips.ts. Built BEFORE the cc/ds factories
+  // (they take these renderers via ctx). getSurfaceConfig = geoSurfaceConfig
+  // (stays in compose, wires each surface); appendCdDrillDown stays in compose.
+  const { renderMetroChip, renderCdChip, renderCountryChip, wireGeoChips } =
+    createGeoChips({
+      shell,
+      getLibrary: () => library,
+      getSurfaceConfig: geoSurfaceConfig,
+      appendCdDrillDown,
+      escapeHtml,
+    });
 
   // Custom-chart modal + cc-preview (Plan 2d) -- the "+ Custom chart" builder
   // lives in src/lib/composer/cc-modal.ts. createCustomChartModal(ctx) returns
@@ -1750,24 +1763,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // selectors + the right "redraw source list" callback, and act on
   // them. Adding a fourth surface later means adding an entry to
   // GEO_SURFACES, not duplicating ~200 lines.
-  type GeoSurface = "lib" | "cc" | "ds";
-  interface GeoSurfaceConfig {
-    prefix: string; // role-attribute prefix, e.g. "lib", "cc", "ds"
-    state: () => GeoState;
-    onChange: () => void;
-    track: (event: string, props: Record<string, unknown>) => void;
-    // CD chip lives in the geo strip alongside metro + country. The
-    // selectedTags set tracks whether CD_TAG is the "active" chip;
-    // cdState + cdDistrict are the picked state + district codes.
-    // refreshTags re-renders the topical tag pills row so the
-    // "(N)" counts reflect the new CD-vs-not gate.
-    cdSelectedTags: () => Set<string>;
-    getCdState: () => string | null;
-    setCdState: (v: string | null) => void;
-    getCdDistrict: () => string | null;
-    setCdDistrict: (v: string | null) => void;
-    refreshTags: () => void;
-  }
   function geoSurfaceConfig(surface: GeoSurface): GeoSurfaceConfig {
     if (surface === "lib") {
       return {
@@ -1821,356 +1816,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       refreshTags: () => renderDsModalTagChips(),
     };
   }
-  function geoQS<T extends HTMLElement>(prefix: string, suffix: string): T | null {
-    return shell.querySelector<T>(`[data-role='${prefix}-${suffix}']`);
-  }
-
-  function renderMetroChip(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const wrap = geoQS<HTMLElement>(cfg.prefix, "geo-chips");
-    const chip = geoQS<HTMLButtonElement>(cfg.prefix, "metro-chip");
-    const label = geoQS<HTMLElement>(cfg.prefix, "metro-label");
-    const clear = geoQS<HTMLElement>(cfg.prefix, "metro-clear");
-    if (!wrap || !chip || !label || !clear) return;
-    const metros = library?.metros ?? {};
-    const hasMetros = Object.keys(metros).length > 0;
-    const hasCountries = Object.keys(library?.countries ?? {}).length > 0;
-    wrap.hidden = !hasMetros && !hasCountries;
-    chip.hidden = !hasMetros;
-    if (!hasMetros) return;
-    const state = cfg.state();
-    if (state.selectedMetroCbsa) {
-      const entry = metros[state.selectedMetroCbsa];
-      const short = entry?.shortName ?? state.selectedMetroCbsa;
-      label.textContent = short;
-      chip.classList.add("lib-geo-chip-active");
-      clear.hidden = false;
-    } else {
-      label.textContent = "US metro areas ▾";
-      chip.classList.remove("lib-geo-chip-active");
-      clear.hidden = true;
-    }
-    chip.setAttribute("aria-expanded", state.metroPopoverOpen ? "true" : "false");
-  }
-
-  function renderMetroList(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const list = geoQS<HTMLElement>(cfg.prefix, "metro-list");
-    if (!list) return;
-    const metros = library?.metros ?? {};
-    const codes = Object.keys(metros);
-    const state = cfg.state();
-    const q = state.metroSearchQuery.trim().toLowerCase();
-    list.innerHTML = "";
-    let shown = 0;
-    for (const code of codes) {
-      const entry = metros[code];
-      const hay = (entry.shortName + " " + entry.name + " " + code).toLowerCase();
-      if (q && !hay.includes(q)) continue;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "lib-geo-list-item" +
-        (state.selectedMetroCbsa === code ? " lib-geo-list-item-active" : "");
-      btn.setAttribute("role", "option");
-      btn.setAttribute("aria-selected", state.selectedMetroCbsa === code ? "true" : "false");
-      btn.innerHTML =
-        `<span class="lib-geo-list-item-name">${escapeHtml(entry.shortName)}</span>` +
-        `<span class="lib-geo-list-item-code muted small">${escapeHtml(code)}</span>`;
-      btn.addEventListener("click", () => selectMetro(code, surface));
-      list.appendChild(btn);
-      shown += 1;
-    }
-    if (shown === 0) {
-      const empty = document.createElement("p");
-      empty.className = "muted small";
-      empty.textContent = q ? "No metros match." : "No metros loaded.";
-      list.appendChild(empty);
-    }
-  }
-
-  function openMetroPopover(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const pop = geoQS<HTMLElement>(cfg.prefix, "metro-popover");
-    if (!pop) return;
-    cfg.state().metroPopoverOpen = true;
-    pop.hidden = false;
-    renderMetroList(surface);
-    renderMetroChip(surface);
-    queueMicrotask(() => {
-      const search = geoQS<HTMLInputElement>(cfg.prefix, "metro-search");
-      search?.focus();
-    });
-  }
-
-  function closeMetroPopover(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const pop = geoQS<HTMLElement>(cfg.prefix, "metro-popover");
-    if (!pop) return;
-    cfg.state().metroPopoverOpen = false;
-    pop.hidden = true;
-    renderMetroChip(surface);
-  }
-
-  function selectMetro(cbsa: string, surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    cfg.state().selectedMetroCbsa = cbsa;
-    closeMetroPopover(surface);
-    renderMetroChip(surface);
-    cfg.onChange();
-    cfg.track("compose_metro_filter_set", { cbsa });
-  }
-
-  function clearMetroFilter(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const state = cfg.state();
-    if (!state.selectedMetroCbsa) return;
-    state.selectedMetroCbsa = null;
-    renderMetroChip(surface);
-    cfg.onChange();
-    cfg.track("compose_metro_filter_cleared", {});
-  }
-
-  function renderCountryChip(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const wrap = geoQS<HTMLElement>(cfg.prefix, "geo-chips");
-    const chip = geoQS<HTMLButtonElement>(cfg.prefix, "country-chip");
-    const label = geoQS<HTMLElement>(cfg.prefix, "country-label");
-    const clear = geoQS<HTMLElement>(cfg.prefix, "country-clear");
-    if (!wrap || !chip || !label || !clear) return;
-    const countries = library?.countries ?? {};
-    const hasCountries = Object.keys(countries).length > 0;
-    const hasMetros = Object.keys(library?.metros ?? {}).length > 0;
-    wrap.hidden = !hasMetros && !hasCountries;
-    chip.hidden = !hasCountries;
-    if (!hasCountries) return;
-    const state = cfg.state();
-    if (state.selectedCountryCode) {
-      const entry = countries[state.selectedCountryCode];
-      const name = entry?.name ?? state.selectedCountryCode;
-      label.textContent = name;
-      chip.classList.add("lib-geo-chip-active");
-      clear.hidden = false;
-    } else {
-      label.textContent = "Regions and countries ▾";
-      chip.classList.remove("lib-geo-chip-active");
-      clear.hidden = true;
-    }
-    chip.setAttribute("aria-expanded", state.countryPopoverOpen ? "true" : "false");
-  }
-
-  function renderCountryList(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const list = geoQS<HTMLElement>(cfg.prefix, "country-list");
-    if (!list) return;
-    const countries = library?.countries ?? {};
-    const codes = Object.keys(countries);
-    const state = cfg.state();
-    const q = state.countrySearchQuery.trim().toLowerCase();
-    list.innerHTML = "";
-    // Two-section layout: regional aggregates (Sub-Saharan Africa, EU,
-    // …) first because users coming to this chip are usually looking at
-    // the big picture; then individual countries A–Z. Section headers
-    // labeled so the visual hierarchy is obvious. Empty sections are
-    // hidden so we don't show a "Regions" heading with nothing under it.
-    const regions = codes.filter((c) => isRegionCode(c));
-    const singles = codes.filter((c) => !isRegionCode(c));
-    const renderItem = (code: string) => {
-      const entry = countries[code];
-      const hay = (entry.name + " " + code).toLowerCase();
-      if (q && !hay.includes(q)) return null;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "lib-geo-list-item" +
-        (state.selectedCountryCode === code ? " lib-geo-list-item-active" : "");
-      btn.setAttribute("role", "option");
-      btn.setAttribute("aria-selected", state.selectedCountryCode === code ? "true" : "false");
-      btn.innerHTML =
-        `<span class="lib-geo-list-item-name">${escapeHtml(entry.name)}</span>` +
-        `<span class="lib-geo-list-item-code muted small">${escapeHtml(code)}</span>`;
-      btn.addEventListener("click", () => selectCountry(code, surface));
-      return btn;
-    };
-    const renderSection = (header: string, codeList: string[]) => {
-      const items = codeList.map(renderItem).filter((b): b is HTMLButtonElement => !!b);
-      if (items.length === 0) return 0;
-      const h = document.createElement("p");
-      h.className = "lib-geo-list-header";
-      h.textContent = header;
-      list.appendChild(h);
-      for (const b of items) list.appendChild(b);
-      return items.length;
-    };
-    const shown = renderSection("Regions", regions) + renderSection("Countries", singles);
-    if (shown === 0) {
-      const empty = document.createElement("p");
-      empty.className = "muted small";
-      empty.textContent = q ? "No countries or regions match." : "No countries loaded.";
-      list.appendChild(empty);
-    }
-  }
-
-  function openCountryPopover(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const pop = geoQS<HTMLElement>(cfg.prefix, "country-popover");
-    if (!pop) return;
-    cfg.state().countryPopoverOpen = true;
-    pop.hidden = false;
-    renderCountryList(surface);
-    renderCountryChip(surface);
-    queueMicrotask(() => {
-      const search = geoQS<HTMLInputElement>(cfg.prefix, "country-search");
-      search?.focus();
-    });
-  }
-
-  function closeCountryPopover(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const pop = geoQS<HTMLElement>(cfg.prefix, "country-popover");
-    if (!pop) return;
-    cfg.state().countryPopoverOpen = false;
-    pop.hidden = true;
-    renderCountryChip(surface);
-  }
-
-  function selectCountry(code: string, surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    cfg.state().selectedCountryCode = code;
-    closeCountryPopover(surface);
-    renderCountryChip(surface);
-    cfg.onChange();
-    cfg.track("compose_country_filter_set", { code });
-  }
-
-  function clearCountryFilter(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const state = cfg.state();
-    if (!state.selectedCountryCode) return;
-    state.selectedCountryCode = null;
-    renderCountryChip(surface);
-    cfg.onChange();
-    cfg.track("compose_country_filter_cleared", {});
-  }
-
-  // States & districts chip rendering. Sits in the geo strip alongside
-  // the metro + country chips. Implemented as a clear-and-rebuild via
-  // the existing appendCdDrillDown helper so the chip + state dropdown
-  // + district dropdown all live as siblings inside the host element.
-  // The onToggle callback re-renders the chip itself (to reflect the
-  // new pickerTags state), the topical-tag row (counts reflect the new
-  // CD-vs-not gate), and the source list (gate now affects which
-  // sources show).
-  function renderCdChip(surface: GeoSurface = "lib"): void {
-    const cfg = geoSurfaceConfig(surface);
-    const host = geoQS<HTMLElement>(cfg.prefix, "cd-chip-host");
-    if (!host) return;
-    host.innerHTML = "";
-    appendCdDrillDown(
-      host,
-      cfg.cdSelectedTags(),
-      cfg.getCdState,
-      cfg.setCdState,
-      cfg.getCdDistrict,
-      cfg.setCdDistrict,
-      () => {
-        renderCdChip(surface);
-        cfg.refreshTags();
-        cfg.onChange();
-      },
-    );
-  }
-
-  // Shared wiring helper. Hooks click + clear + popover-search + outside-
-  // click + ESC for one surface. Reused by hydrate() for the Sources tab
-  // and by openCustomChartModal / openDerivedSourceModal for the modals.
-  function wireGeoChips(surface: GeoSurface): void {
-    const cfg = geoSurfaceConfig(surface);
-    const wrap = geoQS<HTMLElement>(cfg.prefix, "geo-chips");
-    const metroChip = geoQS<HTMLButtonElement>(cfg.prefix, "metro-chip");
-    const metroClear = geoQS<HTMLElement>(cfg.prefix, "metro-clear");
-    const metroSearch = geoQS<HTMLInputElement>(cfg.prefix, "metro-search");
-    const countryChip = geoQS<HTMLButtonElement>(cfg.prefix, "country-chip");
-    const countryClear = geoQS<HTMLElement>(cfg.prefix, "country-clear");
-    const countrySearch = geoQS<HTMLInputElement>(cfg.prefix, "country-search");
-    if (metroChip && !metroChip.dataset.wired) {
-      metroChip.dataset.wired = "1";
-      metroChip.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement | null;
-        if (target && target.closest(`[data-role='${cfg.prefix}-metro-clear']`)) {
-          e.stopPropagation();
-          clearMetroFilter(surface);
-          return;
-        }
-        const s = cfg.state();
-        if (s.countryPopoverOpen) closeCountryPopover(surface);
-        if (s.metroPopoverOpen) closeMetroPopover(surface);
-        else openMetroPopover(surface);
-      });
-    }
-    if (metroClear && !metroClear.dataset.wired) {
-      metroClear.dataset.wired = "1";
-      metroClear.addEventListener("click", (e) => {
-        e.stopPropagation();
-        clearMetroFilter(surface);
-      });
-    }
-    if (metroSearch && !metroSearch.dataset.wired) {
-      metroSearch.dataset.wired = "1";
-      metroSearch.addEventListener("input", () => {
-        cfg.state().metroSearchQuery = metroSearch.value;
-        renderMetroList(surface);
-      });
-    }
-    if (countryChip && !countryChip.dataset.wired) {
-      countryChip.dataset.wired = "1";
-      countryChip.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement | null;
-        if (target && target.closest(`[data-role='${cfg.prefix}-country-clear']`)) {
-          e.stopPropagation();
-          clearCountryFilter(surface);
-          return;
-        }
-        const s = cfg.state();
-        if (s.metroPopoverOpen) closeMetroPopover(surface);
-        if (s.countryPopoverOpen) closeCountryPopover(surface);
-        else openCountryPopover(surface);
-      });
-    }
-    if (countryClear && !countryClear.dataset.wired) {
-      countryClear.dataset.wired = "1";
-      countryClear.addEventListener("click", (e) => {
-        e.stopPropagation();
-        clearCountryFilter(surface);
-      });
-    }
-    if (countrySearch && !countrySearch.dataset.wired) {
-      countrySearch.dataset.wired = "1";
-      countrySearch.addEventListener("input", () => {
-        cfg.state().countrySearchQuery = countrySearch.value;
-        renderCountryList(surface);
-      });
-    }
-    if (wrap && !wrap.dataset.wired) {
-      wrap.dataset.wired = "1";
-      // Click-outside dismisses both popovers — but only for THIS
-      // surface's wrap. Document-level listeners with surface-scoped
-      // logic close on any outside click.
-      document.addEventListener("click", (e) => {
-        const s = cfg.state();
-        if (!s.metroPopoverOpen && !s.countryPopoverOpen) return;
-        const target = e.target as HTMLElement | null;
-        if (!target) return;
-        if (target.closest(`[data-role='${cfg.prefix}-geo-chips']`)) return;
-        if (s.metroPopoverOpen) closeMetroPopover(surface);
-        if (s.countryPopoverOpen) closeCountryPopover(surface);
-      });
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Escape") return;
-        const s = cfg.state();
-        if (s.metroPopoverOpen) closeMetroPopover(surface);
-        if (s.countryPopoverOpen) closeCountryPopover(surface);
-      });
-    }
-  }
+  // The geo-chip subsystem (metro/country/CD chips for lib/cc/ds) moved to
+  // src/lib/composer/geo-chips.ts (Plan 2d). createGeoChips is destructured
+  // above (before the cc/ds factories); geoSurfaceConfig + appendCdDrillDown
+  // stay here. The 4 entry renderers flow into the lib surface + cc/ds ctx.
 
   // Parallel tag-filter strip for the Sources tab. Same UX pattern;
   // counts run against the source universe instead of charts. The
