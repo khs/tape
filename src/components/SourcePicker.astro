@@ -68,6 +68,11 @@ interface Props {
     description?: string;
     tags?: string[];
   }>;
+  /** Source IDs to render DISABLED (greyed, non-clickable) -- e.g. the
+   *  ds-modal disables the source picked on the other A/B side. Update
+   *  client-side via a `source-picker:set-disabled-ids` event with
+   *  detail: { ids: string[] } on the picker root. */
+  disabledIds?: ReadonlyArray<string>;
 }
 const {
   instanceId,
@@ -75,6 +80,7 @@ const {
   rootClass = "",
   hideSearch = false,
   extraSources = [],
+  disabledIds = [],
 } = Astro.props;
 // Serialize extraSources into a JSON-encoded data attribute so the
 // client-side script can read them at boot. Updates after first
@@ -88,6 +94,7 @@ const extraSourcesJson = extraSources.length > 0
   class={`source-picker ${rootClass}`}
   data-spicker-instance={instanceId}
   data-spicker-extra-sources={extraSourcesJson}
+  data-spicker-disabled-ids={disabledIds.length > 0 ? JSON.stringify(disabledIds) : ""}
 >
   {!hideSearch && (
     <input
@@ -271,6 +278,9 @@ const extraSourcesJson = extraSources.length > 0
      *  marked card still emits source-picker:pick — the host
      *  interprets that as toggle-off. */
     markedIds: Set<string>;
+    /** Source IDs rendered disabled (non-clickable) -- the ds-modal sets
+     *  these to the source picked on the other A/B side. */
+    disabledIds: Set<string>;
     /** Sources passed in via the `extraSources` prop OR set
      *  client-side via the `source-picker:set-extra-sources` event.
      *  Rendered at the top of the results, above library sources. */
@@ -729,6 +739,18 @@ const extraSourcesJson = extraSources.length > 0
           ? `<div class="source-picker-card-desc">${escapeHtml(s.description)}</div>`
           : "";
         const id = `<div class="source-picker-card-id muted small">${escapeHtml(s.id)}</div>`;
+        if (state.disabledIds.has(s.id)) {
+          // Disabled card (e.g. picked on the other A/B side in the ds-modal):
+          // no data-spicker-source-id, so no pick handler binds.
+          parts.push(
+            `<div class="source-picker-card source-picker-card-disabled" aria-disabled="true">` +
+              `<div class="source-picker-card-title">${escapeHtml(s.name)} <span class="source-picker-card-disabled-note">already picked</span></div>` +
+              desc +
+              id +
+              `</div>`,
+          );
+          continue;
+        }
         const marked = state.markedIds.has(s.id);
         const extraCls = s.kind === "extra" ? " source-picker-card-extra" : "";
         const markedCls = marked ? " source-picker-card-marked" : "";
@@ -826,6 +848,15 @@ const extraSourcesJson = extraSources.length > 0
     // also update this client-side via the source-picker:set-extra-
     // sources event (e.g. cc-modal's derived-source list changes
     // when the user creates a new derived source).
+    let disabledIdsInit: string[] = [];
+    const disabledJson = root.dataset.spickerDisabledIds;
+    if (disabledJson) {
+      try {
+        disabledIdsInit = JSON.parse(disabledJson) as string[];
+      } catch (e) {
+        console.warn("[source-picker] bad disabled-ids JSON:", e);
+      }
+    }
     let extraSources: LibrarySource[] = [];
     const extraJson = root.dataset.spickerExtraSources;
     if (extraJson) {
@@ -846,6 +877,7 @@ const extraSourcesJson = extraSources.length > 0
       cdDistrict: null,
       hasInteracted: false,
       markedIds: new Set(),
+      disabledIds: new Set(disabledIdsInit),
       extraSources,
       pendingScheduleId: null,
     };
@@ -869,6 +901,14 @@ const extraSourcesJson = extraSources.length > 0
         sources?: LibrarySource[];
       };
       state.extraSources = detail?.sources ?? [];
+      loadLibrary().then((lib) => renderResults(state, lib));
+    }) as EventListener);
+
+    root.addEventListener("source-picker:set-disabled-ids", ((
+      e: Event,
+    ) => {
+      const detail = (e as CustomEvent).detail as { ids?: string[] };
+      state.disabledIds = new Set(detail?.ids ?? []);
       loadLibrary().then((lib) => renderResults(state, lib));
     }) as EventListener);
 
@@ -1548,5 +1588,18 @@ const extraSourcesJson = extraSources.length > 0
   .source-picker-geo-cd-select:focus {
     outline: none;
     background: var(--color-white, #fff);
+  }
+  /* Disabled card -- e.g. the source picked on the other A/B side in the
+     ds-modal. Greyed + non-interactive (rendered without a click target). */
+  .source-picker-card-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: var(--color-neutral-50, #fafafa);
+  }
+  .source-picker-card-disabled-note {
+    margin-left: 6px;
+    font-size: 11px;
+    font-style: italic;
+    color: var(--color-neutral-500, #888);
   }
 </style>
