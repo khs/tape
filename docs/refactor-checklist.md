@@ -17,11 +17,11 @@
 
 ---
 
-## ⮕ RESUME HERE — updated 2026-06-08 (modal cluster extracted; banked)
+## ⮕ RESUME HERE — updated 2026-06-08 (Plan 3a DONE + prod-verified: ds-modal A/B on SourcePicker)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
 maps + generators + series + modal-tags + ds-modal + cc-modal + geo-chips + sources-tab + tiles verified).**
-`compose.astro`: **11,007 → ~3,675 lines** and falling. `origin/main = 160d6354a9`.
+`compose.astro`: **11,007 → ~3,609 lines** and falling. `origin/main = e26274ab7a (Plan 3a) + focusPickerSearch follow-up`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -492,6 +492,48 @@ Incremental, each step its own commit + build:
   - VERIFY (walkthrough): search "United States GDP" in an operand now resolves
     (THE bug); A/B pick via SourcePicker; cross-disable; derived operand;
     quick-divisor + rebuild/pxq still set B/A; create. Then 3b (cc-modal).
+
+
+### 3a RESULT (2026-06-08) -- DONE + PROD-VERIFIED (e26274ab7a + focus fix)
+- Shipped: SourcePicker.disabledIds (babd0c3c22) + ds-modal adoption (e26274ab7a,
+  +141/-304). astro 0/0/0, vitest 720. CI + post-deploy smoke/diagnostic green.
+- PROD WALKTHROUGH (Chrome MCP, /compose; ZERO app console errors -- only Zotero
+  extension noise):
+  - Both ds-a/ds-b SourcePickers render (752 cards each + own geo + tag chips +
+    search). Old ds-a-list/ds-b-list + the ds geo/tag strips are gone.
+  - Search is token-AND on searchText now: "us gdp"->1, "real gdp"->16, "us real
+    gdp"->3 (the old list searched the display LABEL only -> these failed before).
+  - Pick A -> "Picked: US real GDP" label; that source then renders DISABLED +
+    non-pickable in B (disabledIds cross-disable). Pick B -> reverse disable +
+    Create enables. Op change -> auto-name hint updates. Quick-divisor (US
+    population) -> op=divide + B set + active chip + hint. Create -> modal closes,
+    auto-chart created, TILE RENDERS (2 svgs). Reopen -> clean reset.
+  - derived-operand wiring verified: dispatching set-extra-sources renders
+    .source-picker-card-extra cards that are pickable (sets the operand).
+- TWO NOTES (neither a regression introduced by 3a):
+  1. "United States GDP" -> 0 results. Pre-existing GLOBAL data-vocabulary gap:
+     US-specific FRED sources carry "US"/"U.S." in searchText, not "united
+     states", so this query fails in EVERY picker (Sources tab, cc-modal, alerts
+     too). Fix = add "united states" synonyms to those sources searchText in the
+     data pipeline -- separate task, app-wide, out of 3a scope.
+  2. focusPickerSearch had a wrong selector ([data-spicker-search] vs the real
+     [data-spicker-role=search]) -> the post-quick-divisor auto-focus silently
+     no-opped. FIXED (one line); pushed as a follow-up.
+- Created derived sources are pruned from the ?d= URL when only "add as chart" is
+  used (the auto-chart cites the two PARENT ids [a,b] + op, not the derived id, so
+  the derived source is unreferenced). Pre-existing create/state behavior,
+  UNCHANGED by 3a; the extras wiring is correct regardless.
+
+### 3b (cc-modal -> SourcePicker) SCOUTED -- MATERIALLY HEAVIER than 3a:
+- cc-modal is MULTI-select with ORDER (ccModal.selected Set + selectedOrder) and
+  renders PER-SOURCE inline L|R axis pills (dual-axis mode) INSIDE each source row
+  -- a control SourcePicker cards cannot host. cc-modal.ts renderCustomChartSources
+  (~770) builds checkbox rows + axis pills + drives mode/op/preview on every
+  toggle. A faithful 3b therefore needs SourcePicker for BROWSING (pick -> toggle
+  selected + set-marked-ids for the check) PLUS a SEPARATE "selected sources"
+  panel hosting the order/axis/remove controls. That is a 2-component redesign,
+  not a swap. DECIDE WITH KELLER before executing (full redesign vs partial
+  browse-only adoption vs leave cc-modal bespoke given the axis-pill coupling).
 
 
 ## Plan 3 (note) — depends on Plan 1's state store existing first.

@@ -275,7 +275,7 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
   function focusPickerSearch(instanceId: string): void {
     shell
       .querySelector<HTMLInputElement>(
-        `[data-spicker-instance='${instanceId}'] [data-spicker-search]`,
+        `[data-spicker-instance='${instanceId}'] [data-spicker-role='search']`,
       )
       ?.focus();
   }
