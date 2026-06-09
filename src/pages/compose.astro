@@ -838,37 +838,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                 <span class="eyebrow">Sources</span>
                 <span class="cc-sources-count" data-role="cc-count">0 selected</span>
               </div>
-              <input type="search" class="cc-source-search" data-role="cc-source-search" placeholder="Search sources by name, ticker, or tag…" />
-              <!--
-                Geo-chip strip — same three-chip layout as the Sources
-                tab, in the same order. Lives ABOVE the topical tag
-                pills so geo picks are the first thing users see.
-              -->
-              <div class="lib-geo-chips" data-role="cc-geo-chips" hidden>
-                <div class="lib-geo-chip-wrap">
-                  <button type="button" class="lib-geo-chip" data-role="cc-metro-chip" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="lib-geo-chip-label" data-role="cc-metro-label">US metro areas &#9662;</span>
-                    <span class="lib-geo-chip-clear" data-role="cc-metro-clear" hidden aria-label="Clear metro filter">&times;</span>
-                  </button>
-                  <div class="lib-geo-popover" data-role="cc-metro-popover" role="listbox" hidden>
-                    <input type="search" class="lib-geo-search" data-role="cc-metro-search" placeholder="Search metros…" aria-label="Search metros" />
-                    <div class="lib-geo-list" data-role="cc-metro-list"></div>
-                  </div>
-                </div>
-                <div class="lib-geo-cd-host" data-role="cc-cd-chip-host"></div>
-                <div class="lib-geo-chip-wrap">
-                  <button type="button" class="lib-geo-chip" data-role="cc-country-chip" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="lib-geo-chip-label" data-role="cc-country-label">Regions and countries &#9662;</span>
-                    <span class="lib-geo-chip-clear" data-role="cc-country-clear" hidden aria-label="Clear country filter">&times;</span>
-                  </button>
-                  <div class="lib-geo-popover" data-role="cc-country-popover" role="listbox" hidden>
-                    <input type="search" class="lib-geo-search" data-role="cc-country-search" placeholder="Search regions + countries…" aria-label="Search regions + countries" />
-                    <div class="lib-geo-list" data-role="cc-country-list"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="cc-source-tags lib-tag-filters" data-role="cc-source-tags"></div>
-              <div class="cc-source-list" data-role="cc-source-list"></div>
+              <!-- Selected sources: ordered, with (dual-axis) L|R pills + remove. -->
+              <div class="cc-selected-list" data-role="cc-selected-list"></div>
+              <!-- Browse + pick via the shared SourcePicker (check mark = selected). -->
+              <SourcePicker
+                instanceId="cc"
+                rootClass="cc-source-picker"
+                searchPlaceholder="Search sources by name, ticker, or tag…"
+              />
             </div>
             <fieldset class="cc-mode" data-role="cc-mode">
               <legend class="eyebrow">Scale</legend>
@@ -1110,7 +1087,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { createMapsTab } from "../lib/composer/maps";
   import { createGeneratorsTab } from "../lib/composer/generators";
   import { createSeriesFetcher } from "../lib/composer/series";
-  import { createModalTagChips } from "../lib/composer/modal-tags";
   import { createDerivedSourceModal } from "../lib/composer/ds-modal";
   import { createCustomChartModal } from "../lib/composer/cc-modal";
   import { createGeoChips, type GeoSurface, type GeoSurfaceConfig } from "../lib/composer/geo-chips";
@@ -1404,14 +1380,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     state,
   });
 
-  // Shared modal tag-chip strip (Plan 2d) -- the topical-tag pills rendered by
-  // BOTH the cc-modal and ds-modal source pickers. Geo chips render separately,
-  // in the geo-chips strip above each modal tag row.
-  const { renderModalTagChips } = createModalTagChips({
-    shell,
-    getLibrary: () => library,
-    state,
-  });
 
   // Shared geo-chip subsystem (Plan 2d) -- metro/country/CD chips for lib/cc/ds
   // live in src/lib/composer/geo-chips.ts. Built BEFORE the cc/ds factories
@@ -1428,15 +1396,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // Custom-chart modal + cc-preview (Plan 2d) -- the "+ Custom chart" builder
   // lives in src/lib/composer/cc-modal.ts. createCustomChartModal(ctx) returns
-  // the entry points; renderCustomChartSources + renderCcModalTagChips are also
-  // used by geoSurfaceConfig (cc surface), and renderCustomChartSources by
-  // ds-modal (passed into its ctx) -- so this factory is built BEFORE ds-modal.
+  // the entry points; browsing + multi-select picking are now a <SourcePicker>
+  // island (instanceId cc), so the modal no longer needs the geo/tag/picker ctx.
   const {
     openCustomChartModal,
     wireCustomChartModal,
     openMergeModal,
-    renderCustomChartSources,
-    renderCcModalTagChips,
   } = createCustomChartModal({
     shell,
     store,
@@ -1447,15 +1412,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     renderComposition,
     writeUrl,
     clampActiveSection,
-    passesCdFilter,
-    passesMetroFilter,
-    passesCountryFilter,
-    passesCountyFilter,
-    renderModalTagChips,
-    renderMetroChip,
-    renderCdChip,
-    renderCountryChip,
-    wireGeoChips,
     chartEffectiveSpec,
     baseTitleIsDefault,
     updateCcAnnotationsWarning,
@@ -1480,7 +1436,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     clampActiveSection,
     writeUrl,
     renderComposition,
-    renderCustomChartSources,
   });
 
   // Sources / Charts library tab (Plan 2d) -- the left-rail browsing UI lives
@@ -1558,41 +1513,26 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // selectors + the right "redraw source list" callback, and act on
   // them. Adding a fourth surface later means adding an entry to
   // GEO_SURFACES, not duplicating ~200 lines.
-  function geoSurfaceConfig(surface: GeoSurface): GeoSurfaceConfig {
-    if (surface === "lib") {
-      return {
-        prefix: "lib",
-        state: () => libGeo,
-        // Refresh the tag-pill counts too: a geo-chip pick changes the
-        // visible universe, so each topical tag's count must update or
-        // the user sees stale "(N)" pills.
-        onChange: () => {
-          renderTagFiltersSources();
-          renderSourcesList();
-        },
-        track: (e, p) => track(e, { ...p, surface: "compose-sources" }),
-        cdSelectedTags: () => sourcesSelectedTags,
-        getCdState: () => store.sourcesCdState,
-        setCdState: (v) => { store.sourcesCdState = v; },
-        getCdDistrict: () => store.sourcesCdDistrict,
-        setCdDistrict: (v) => { store.sourcesCdDistrict = v; },
-        refreshTags: () => renderTagFiltersSources(),
-      };
-    }
-    // The "ds" geo surface was retired when the derived-source modal adopted
-    // SourcePicker (its own geo chips); "cc" is the only geo-chip surface
-    // besides "lib" now.
+  function geoSurfaceConfig(_surface: GeoSurface): GeoSurfaceConfig {
+    // "lib" (the Sources tab) is the ONLY geo-chip surface now -- the cc + ds
+    // modals both adopted SourcePicker, which owns its own geo chips.
     return {
-      prefix: "cc",
-      state: () => ccModal.geo,
-      onChange: () => renderCustomChartSources(),
-      track: (e, p) => track(e, { ...p, surface: "cc-modal" }),
-      cdSelectedTags: () => ccModal.pickerTags,
-      getCdState: () => ccModal.cdState,
-      setCdState: (v) => { ccModal.cdState = v; },
-      getCdDistrict: () => ccModal.cdDistrict,
-      setCdDistrict: (v) => { ccModal.cdDistrict = v; },
-      refreshTags: () => renderCcModalTagChips(),
+      prefix: "lib",
+      state: () => libGeo,
+      // Refresh the tag-pill counts too: a geo-chip pick changes the
+      // visible universe, so each topical tag count must update or the
+      // user sees stale "(N)" pills.
+      onChange: () => {
+        renderTagFiltersSources();
+        renderSourcesList();
+      },
+      track: (e, p) => track(e, { ...p, surface: "compose-sources" }),
+      cdSelectedTags: () => sourcesSelectedTags,
+      getCdState: () => store.sourcesCdState,
+      setCdState: (v) => { store.sourcesCdState = v; },
+      getCdDistrict: () => store.sourcesCdDistrict,
+      setCdDistrict: (v) => { store.sourcesCdDistrict = v; },
+      refreshTags: () => renderTagFiltersSources(),
     };
   }
   // The geo-chip subsystem (metro/country/CD chips for lib/cc/ds) moved to

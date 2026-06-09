@@ -13,8 +13,8 @@
  * (set-extra-sources) + cross-disables each against the other side's pick
  * (set-disabled-ids), and listens for the source-picker:pick event. library is
  * read via getLibrary() per fn (guard narrowing preserved).
- * renderCustomChartSources is a cc-modal fn (still in compose), refreshed after
- * a create so an open cc-modal picks up the new source.
+ * After a derived-source create the cc-modal is not refreshed here -- it
+ * re-reads its derived-source extras (set-extra-sources) on its own next open.
  */
 import { nanoid } from "nanoid";
 import { track } from "../track";
@@ -38,7 +38,6 @@ export interface DerivedSourceModalContext {
   clampActiveSection: () => void;
   writeUrl: () => void;
   renderComposition: () => void;
-  renderCustomChartSources: () => void;
 }
 
 export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
@@ -52,7 +51,6 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
     clampActiveSection,
     writeUrl,
     renderComposition,
-    renderCustomChartSources,
   } = ctx;
   const dsModal = store.dsModal;
   // Derived sources (the ones the user has already created) exposed to BOTH
@@ -538,8 +536,7 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
       // Re-render the dashboard composition if we just appended a chart;
       // otherwise only the source-pickers need refreshing.
       if (autoChartCreated) renderComposition();
-      // Refresh anything that lists sources (custom-chart modal, if open).
-      renderCustomChartSources();
+
       // Funnel telemetry: derived sources are a power-user feature; tracking
       // op distribution tells us whether divide-ratios dominate (the case we
       // designed for) or sum/diff get real use. Including the operand source

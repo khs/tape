@@ -1,22 +1,20 @@
 /**
  * Custom-chart modal + live preview (Plan 2d) -- the "+ Custom chart" builder.
  *
- * Owns the modal that combines several sources onto one chart: the source
- * picker (filteredModalSources / renderCustomChartSources), the A/B operand +
- * op controls, the mode toggles (raw / rebase / dual-axis / log), background
- * shading, annotations, the merge flow (openMergeModal, drag-two-tiles), and
- * the live Plot preview (renderCustomChartPreview). renderCustomChartSources is
- * also consumed by ds-modal (after a derived-source create) + by geoSurfaceConfig
- * for the "cc" surface -- so it is EXPORTED and compose passes it into ds-modal.
+ * Owns the modal that combines several sources onto one chart. Browsing +
+ * picking is delegated to a shared <SourcePicker instanceId="cc"> island
+ * (multi-select via markedIds); this module owns the SELECTED-sources panel
+ * (renderSelectedSources -- the L|R dual-axis pills + remove), the op controls,
+ * the mode toggles (raw / rebase / dual-axis / log), background shading,
+ * annotations, the merge flow (openMergeModal, drag-two-tiles), and the live
+ * Plot preview (renderCustomChartPreview).
  *
- * Extracted from compose.astro via the create<Feature>(ctx) factory. The shared
- * tag-chip strip (renderModalTagChips, modal-tags), the source-series fetcher
- * (fetchSourceSeries, series.ts), the geo filter predicates (passes*, geo-filter)
- * and per-surface geo-chip renderers (render*Chip / wireGeoChips for "cc", which
- * stay in compose with geoSurfaceConfig) all come in via ctx. The cc-only
- * helpers that live elsewhere in compose (chartEffectiveSpec, baseTitleIsDefault,
- * updateCcAnnotationsWarning, dismissHoverMergeTip, isHoverMergeTipDismissed)
- * arrive via ctx too. library is read via getLibrary() per fn (narrowing kept).
+ * Extracted from compose.astro via the create<Feature>(ctx) factory. The
+ * source-series fetcher (fetchSourceSeries, series.ts) + the cc-only helpers in
+ * compose (chartEffectiveSpec, baseTitleIsDefault, updateCcAnnotationsWarning,
+ * dismissHoverMergeTip, isHoverMergeTipDismissed) arrive via ctx. The cc
+ * SourcePicker handles its own search / geo / tag filtering, so the geo-chip +
+ * tag-chip ctx is gone. library is read via getLibrary() per fn (narrowing kept).
  */
 import { nanoid } from "nanoid";
 import { track } from "../track";
@@ -43,11 +41,9 @@ import type {
   CustomChartMode,
   ChartCombineOp,
 } from "./state";
-import type { LibraryPayload, LibrarySource } from "./library";
-import type { ComposerGeoFilters } from "./geo-filter";
+import type { LibraryPayload } from "./library";
 import type { InlineChart } from "../composer-state";
 
-type GeoSurface = "lib" | "cc" | "ds";
 
 export interface CustomChartModalContext {
   shell: HTMLElement;
@@ -59,25 +55,6 @@ export interface CustomChartModalContext {
   renderComposition: () => void;
   writeUrl: () => void;
   clampActiveSection: () => void;
-  passesCdFilter: ComposerGeoFilters["passesCdFilter"];
-  passesMetroFilter: ComposerGeoFilters["passesMetroFilter"];
-  passesCountryFilter: ComposerGeoFilters["passesCountryFilter"];
-  passesCountyFilter: ComposerGeoFilters["passesCountyFilter"];
-  renderModalTagChips: (
-    hostSelector: string,
-    selected: Set<string>,
-    onToggle: () => void,
-    cdGetters: {
-      getState: () => string | null;
-      setState: (v: string | null) => void;
-      getDistrict: () => string | null;
-      setDistrict: (v: string | null) => void;
-    },
-  ) => void;
-  renderMetroChip: (surface: GeoSurface) => void;
-  renderCdChip: (surface: GeoSurface) => void;
-  renderCountryChip: (surface: GeoSurface) => void;
-  wireGeoChips: (surface: GeoSurface) => void;
   chartEffectiveSpec: (chartId: string) => {
     title: string;
     blurb?: string;
@@ -101,15 +78,6 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     renderComposition,
     writeUrl,
     clampActiveSection,
-    passesCdFilter,
-    passesMetroFilter,
-    passesCountryFilter,
-    passesCountyFilter,
-    renderModalTagChips,
-    renderMetroChip,
-    renderCdChip,
-    renderCountryChip,
-    wireGeoChips,
     chartEffectiveSpec,
     baseTitleIsDefault,
     updateCcAnnotationsWarning,
@@ -324,8 +292,7 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
       titleInput.value = ccModal.title;
       titleInput.focus();
     }
-    const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
-    if (searchInput) searchInput.value = "";
+
     const blurbInput = shell.querySelector<HTMLTextAreaElement>(
       "[data-role='cc-blurb']",
     );
@@ -336,43 +303,14 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     syncShadingUI();
     syncTransformUI();
     syncAnnotationsUI();
-    renderCcModalTagChips();
-    // Geo-chip strip: render all three chips reflecting modal state,
-    // wire event handlers idempotently (wireGeoChips guards via
-    // dataset.wired).
-    renderMetroChip("cc");
-    renderCdChip("cc");
-    renderCountryChip("cc");
-    wireGeoChips("cc");
-    renderCustomChartSources();
+    // Feed the cc SourcePicker the derived sources + mirror the current
+    // selection as marked cards, then paint the selected-sources panel.
+    ccRefreshPicker();
+    renderSelectedSources();
     updateCustomChartCreateState();
     renderCustomChartPreview();
   }
 
-  function renderCcModalTagChips(): void {
-    renderModalTagChips(
-      "[data-role='cc-source-tags']",
-      ccModal.pickerTags,
-      () => {
-        renderCcModalTagChips();
-        renderCustomChartSources();
-      },
-      {
-        getState: () => ccModal.cdState,
-        setState: (v) => {
-          ccModal.cdState = v;
-        },
-        getDistrict: () => ccModal.cdDistrict,
-        setDistrict: (v) => {
-          ccModal.cdDistrict = v;
-        },
-      },
-    );
-  }
-
-  // Reflect ccModal.logScale + mode onto the log-scale checkbox: log is
-  // exclusive with dual-axis, so the checkbox is forced unchecked + disabled
-  // whenever dual-axis is the active mode.
   function syncLogUI(): void {
     const cb = shell.querySelector<HTMLInputElement>("[data-role='cc-log']");
     const wrap = shell.querySelector<HTMLElement>("[data-role='cc-log-wrap']");
@@ -642,8 +580,8 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     syncShadingUI();
     syncTransformUI();
     syncAnnotationsUI();
-    renderCcModalTagChips();
-    renderCustomChartSources();
+    ccRefreshPicker();
+    renderSelectedSources();
     updateCustomChartCreateState();
     renderCustomChartPreview();
     track("compose_hover_merge_launched", {
@@ -684,163 +622,104 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     }
   }
 
-  function filteredModalSources(): (LibrarySource & { tags?: string[] })[] {
-    const library = getLibrary();
-    if (!library) return [];
-    const q = ccModal.search.trim().toLowerCase();
-    // Same exclusion as filteredSources: CD_TAG is the chip's master flag
-    // (gated by passesCdFilter), not a literal source tag.
-    const tagsRequired = [...ccModal.pickerTags].filter((t) => t !== CD_TAG);
-    // Inject derived sources at the top of the universe so the user sees
-    // their own creations before the firehose of library sources. Each
-    // derived source carries its inherited+custom tag set so the
-    // picker-tags filter works uniformly.
-    const derivedAsLib: (LibrarySource & { tags?: string[] })[] = Object.entries(
-      state.inlineSources,
-    ).map(
-      ([id, spec]) => ({
-        id,
-        name: spec.name,
-        shortName: spec.name,
-        description: `Derived: ${describeDerivedExpr(id)}`,
-        tags: spec.tags ?? [],
-      } as LibrarySource & { tags?: string[] }),
-    );
-    const all: (LibrarySource & { tags?: string[]; searchText?: string })[] = [
-      ...derivedAsLib,
-      ...Object.values(library.sources),
-    ];
-    return all.filter((s) => {
-      // Synthetic geo-discovery hints are emitted only for the main
-      // Sources tab — they make no sense inside the cc-modal where
-      // the user is mid-chart-creation and has already picked the
-      // scope. Drop them here unconditionally.
-      if (s.kind === "hint") return false;
-      const sTags = s.tags ?? [];
-      // CD-visibility gate, mirroring filteredSources(). Derived sources
-      // never have the CD_TAG (we don't synthesize it onto inline-source
-      // tag sets), so they're always exempt from this filter regardless
-      // of cc-modal CD state — derived sources stay visible.
-      if (
-        !passesCdFilter(
-          s.id,
-          sTags,
-          ccModal.pickerTags,
-          ccModal.cdState,
-          ccModal.cdDistrict,
-          q,
-        )
-      ) {
-        return false;
-      }
-      // Metro / country / CD chip drill-downs, mirroring the Sources
-      // tab via the shared filter helpers. All three include the
-      // 4-char name-unlock so typing "Abilene" / "Australia" /
-      // "Texas" surfaces the matching geo sources without first
-      // engaging the chip.
-      if (!passesMetroFilter(sTags, ccModal.geo.selectedMetroCbsa, q)) return false;
-      if (!passesCountryFilter(sTags, ccModal.geo.selectedCountryCode, q)) return false;
-      if (!passesCountyFilter(s.id, sTags, q)) return false;
-      for (const t of tagsRequired) {
-        if (!sTags.includes(t)) return false;
-      }
-      if (q) {
-        const hay =
-          s.searchText ??
-          `${s.name} ${s.shortName ?? ""} ${s.description ?? ""} ${s.id} ${sTags.join(" ")}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
+  // ---- cc SourcePicker plumbing -----------------------------------------
+  // Browsing + picking is the shared <SourcePicker instanceId="cc"> island.
+  // We feed it the user's derived sources (set-extra-sources) and mirror the
+  // current selection as marked cards (set-marked-ids); each pick TOGGLES.
+  function ccDispatch(type: string, detail: unknown): void {
+    shell
+      .querySelector<HTMLElement>("[data-spicker-instance='cc']")
+      ?.dispatchEvent(new CustomEvent(type, { detail }));
   }
 
-  // Render a chain of derived combinations as a string, recursively.
-  function describeDerivedExpr(id: string): string {
-    const library = getLibrary();
-    if (!isDerivedId(id)) {
-      const s = library?.sources[id];
-      return s?.shortName ?? s?.name ?? id;
+  function ccExtraSources(): { id: string; name: string; tags: string[] }[] {
+    return Object.entries(state.inlineSources).map(([id, spec]) => ({
+      id,
+      name: `${spec.name} (derived)`,
+      tags: spec.tags ?? [],
+    }));
+  }
+
+  function ccSyncMarked(): void {
+    ccDispatch("source-picker:set-marked-ids", { ids: [...ccModal.selected] });
+  }
+
+  function ccRefreshPicker(): void {
+    ccDispatch("source-picker:set-extra-sources", { sources: ccExtraSources() });
+    ccSyncMarked();
+  }
+
+  // Display label for a selected source: derived sources resolve from
+  // state.inlineSources (they are not in library.json); real ones from library.
+  function ccSourceLabel(id: string): string {
+    if (isDerivedId(id)) return state.inlineSources[id]?.name ?? id;
+    const s = getLibrary()?.sources[id] as
+      | { name?: string; shortName?: string }
+      | undefined;
+    return s?.shortName ?? s?.name ?? id;
+  }
+
+  // Toggle a source in/out of the selection (a SourcePicker pick OR the remove
+  // button in the selected panel). Mirrors the old checkbox-change cascade:
+  // mode auto-default, op/axis cleanup, sync the controls + preview + the
+  // selected panel + the picker check marks.
+  function ccPickToggle(id: string): void {
+    if (ccModal.selected.has(id)) {
+      ccModal.selected.delete(id);
+      ccModal.selectedOrder = ccModal.selectedOrder.filter((x) => x !== id);
+      // Strip any right-axis assignment for a source that just left.
+      ccModal.rightAxisSources.delete(id);
+    } else {
+      ccModal.selected.add(id);
+      if (!ccModal.selectedOrder.includes(id)) ccModal.selectedOrder.push(id);
     }
-    const spec = state.inlineSources[id];
-    if (!spec) return id;
-    const symbol = spec.op === "divide" ? "÷" : spec.op === "sum" ? "+" : spec.op === "multiply" ? "×" : "−";
-    return `${describeDerivedExpr(spec.a)} ${symbol} ${describeDerivedExpr(spec.b)}`;
+    // If the user has not explicitly picked a mode, re-default from scale
+    // heuristics; if they have, flip rebase/dual-axis off once under 2 sources.
+    if (!ccModal.modeIsExplicit) {
+      ccModal.mode = ccDefaultMode();
+    } else if (
+      (ccModal.mode === "dual-axis" || ccModal.mode === "rebase") &&
+      ccModal.selected.size < 2
+    ) {
+      ccModal.mode = "raw";
+      ccModal.modeIsExplicit = false;
+    }
+    // Op requires exactly 2 sources; clear if no longer applicable.
+    if (ccModal.op && ccModal.selected.size !== 2) ccModal.op = null;
+    syncModeRadioFromState();
+    syncLogUI();
+    syncOpUI();
+    updateCustomChartCreateState();
+    renderSelectedSources();
+    renderCustomChartPreview();
+    updateCcAnnotationsWarning();
+    maybeRefreshCcAutoTitle();
+    ccSyncMarked();
   }
 
-  function renderCustomChartSources(): void {
-    const host = shell.querySelector<HTMLElement>("[data-role='cc-source-list']");
+  // The selected-sources panel: the ordered current selection, each row with
+  // (dual-axis) L|R axis pills + a remove button. Replaces the old in-list
+  // checkboxes -- browsing is now the SourcePicker, selection lives here.
+  function renderSelectedSources(): void {
+    const host = shell.querySelector<HTMLElement>("[data-role='cc-selected-list']");
     if (!host) return;
-    const sources = filteredModalSources();
     host.innerHTML = "";
-    if (sources.length === 0) {
-      host.innerHTML = '<p class="muted small">No sources match.</p>';
+    if (ccModal.selectedOrder.length === 0) {
+      host.innerHTML =
+        '<p class="muted small cc-selected-empty">No sources selected yet - pick from the list below.</p>';
       return;
     }
-    // Sort alphabetically by display name so the list stays predictable under search.
-    sources.sort((a, b) => (a.shortName ?? a.name).localeCompare(b.shortName ?? b.name));
-    for (const s of sources) {
-      const row = document.createElement("label");
-      row.className = "cc-source-row";
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = ccModal.selected.has(s.id);
-      cb.addEventListener("change", () => {
-        if (cb.checked) {
-          ccModal.selected.add(s.id);
-          if (!ccModal.selectedOrder.includes(s.id))
-            ccModal.selectedOrder.push(s.id);
-        } else {
-          ccModal.selected.delete(s.id);
-          ccModal.selectedOrder = ccModal.selectedOrder.filter((id) => id !== s.id);
-        }
-        // If user hasn't explicitly picked a mode, auto-default from scale
-        // heuristics whenever the source set changes. If they have, keep
-        // their pick — but flip rebase or dual-axis off when no longer 2+
-        // sources, since neither concept is meaningful with a single series.
-        if (!ccModal.modeIsExplicit) {
-          ccModal.mode = ccDefaultMode();
-        } else if (
-          (ccModal.mode === "dual-axis" || ccModal.mode === "rebase") &&
-          ccModal.selected.size < 2
-        ) {
-          ccModal.mode = "raw";
-          ccModal.modeIsExplicit = false;
-        }
-        // Strip rightAxis assignment for sources that just got unchecked.
-        if (!cb.checked) ccModal.rightAxisSources.delete(s.id);
-        // Op requires exactly 2 sources; clear if no longer applicable.
-        if (ccModal.op && ccModal.selected.size !== 2) {
-          ccModal.op = null;
-        }
-        syncModeRadioFromState();
-        syncLogUI();
-        syncOpUI();
-        updateCustomChartCreateState();
-        renderCustomChartSources();
-        renderCustomChartPreview();
-        // Source set changed — re-check whether any typed annotation
-        // dates fall outside the new union date range. Cheap; runs off
-        // library.json data already in memory.
-        updateCcAnnotationsWarning();
-        // If the title was tracking the auto-derived default, swap it
-        // to match the new source set. No-op when the user has typed
-        // something custom (the flag stays false until they clear the
-        // field).
-        maybeRefreshCcAutoTitle();
-      });
-      row.appendChild(cb);
+    for (const id of ccModal.selectedOrder) {
+      const row = document.createElement("div");
+      row.className = "cc-selected-row";
       const text = document.createElement("span");
-      text.className = "cc-source-row-text";
-      const primary = s.shortName ?? s.name;
-      const secondary = s.shortName && s.shortName !== s.name ? s.name : "";
-      text.innerHTML =
-        `<span class="cc-source-primary">${escapeHtml(primary)}</span>` +
-        (secondary ? `<span class="cc-source-secondary">${escapeHtml(secondary)}</span>` : "");
+      text.className = "cc-selected-row-text";
+      text.textContent = ccSourceLabel(id);
       row.appendChild(text);
-      // Per-source L|R axis pill, only when dual-axis mode + this source is picked.
-      if (ccModal.mode === "dual-axis" && ccModal.selected.has(s.id)) {
+      // Per-source L|R axis pill, only in dual-axis mode.
+      if (ccModal.mode === "dual-axis") {
         const effRight = effectiveRightAxisSources();
-        const isRight = effRight.has(s.id);
+        const isRight = effRight.has(id);
         const axisWrap = document.createElement("span");
         axisWrap.className = "cc-source-axis";
         const lBtn = document.createElement("button");
@@ -856,14 +735,12 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         const setSide = (right: boolean, e: Event) => {
           e.preventDefault();
           e.stopPropagation();
-          // Materialize the effective default into the explicit set the
-          // first time the user touches an axis pill.
           if (ccModal.rightAxisSources.size === 0) {
             ccModal.rightAxisSources = new Set(effectiveRightAxisSources());
           }
-          if (right) ccModal.rightAxisSources.add(s.id);
-          else ccModal.rightAxisSources.delete(s.id);
-          renderCustomChartSources();
+          if (right) ccModal.rightAxisSources.add(id);
+          else ccModal.rightAxisSources.delete(id);
+          renderSelectedSources();
           renderCustomChartPreview();
         };
         lBtn.addEventListener("click", (e) => setSide(false, e));
@@ -872,6 +749,13 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         axisWrap.appendChild(rBtn);
         row.appendChild(axisWrap);
       }
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "cc-selected-remove";
+      removeBtn.innerHTML = "&times;";
+      removeBtn.title = "Remove from this chart";
+      removeBtn.addEventListener("click", () => ccPickToggle(id));
+      row.appendChild(removeBtn);
       host.appendChild(row);
     }
   }
@@ -1256,7 +1140,6 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     const cancelBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-cancel']");
     const createBtn = shell.querySelector<HTMLButtonElement>("[data-role='cc-create']");
     const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cc-title']");
-    const searchInput = shell.querySelector<HTMLInputElement>("[data-role='cc-source-search']");
     const modeRadios = shell.querySelectorAll<HTMLInputElement>(
       "input[name='cc-mode']",
     );
@@ -1360,10 +1243,17 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         });
       },
     );
-    searchInput?.addEventListener("input", () => {
-      ccModal.search = searchInput.value;
-      renderCustomChartSources();
-    });
+
+    // Browsing + multi-select picking is delegated to the shared cc
+    // SourcePicker; each pick TOGGLES the source in/out of the selection.
+    shell
+      .querySelector<HTMLElement>("[data-spicker-instance='cc']")
+      ?.addEventListener("source-picker:pick", (e) => {
+        const detail = (e as CustomEvent).detail as { sourceId?: string };
+        const id = detail?.sourceId;
+        if (id) ccPickToggle(id);
+      });
+
     modeRadios.forEach((r) => {
       r.addEventListener("change", () => {
         if (!r.checked) return;
@@ -1371,7 +1261,7 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         ccModal.modeIsExplicit = true;
         // Re-render the source list so the L|R pills appear/disappear as the
         // mode toggles into/out of dual-axis.
-        renderCustomChartSources();
+        renderSelectedSources();
         // Log scale is incompatible with dual-axis; keep the checkbox state
         // honest as the user flips modes.
         syncLogUI();
@@ -1603,7 +1493,5 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     openCustomChartModal,
     wireCustomChartModal,
     openMergeModal,
-    renderCustomChartSources,
-    renderCcModalTagChips,
   };
 }
