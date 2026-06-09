@@ -159,13 +159,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               type="hidden"
               data-role="alerts-source-input"
             />
-            {/* Stores the JSON-serialized derived_spec when the user
-                has built a custom combination. Empty otherwise — the
-                form submits this as null. */}
-            <input
-              type="hidden"
-              data-role="alerts-derived-spec"
-            />
             {/* Library-picker mode (default). The container itself
                 holds a `data-mode` attribute the script flips to
                 "custom" to hide this picker + reveal the derived
@@ -181,69 +174,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
                   rootClass="alerts-source-picker"
                   searchPlaceholder="Search series — try 'cpi', '10y', 'unemployment'…"
                 />
-                <button
-                  type="button"
-                  class="alerts-derived-toggle"
-                  data-role="alerts-derived-open"
-                >+ Use a custom indicator (A &divide; B, A + B, A &minus; B)</button>
-              </div>
-              {/* Custom-indicator builder pane. Hidden until the user
-                  clicks "+ Use a custom indicator". Contains two
-                  SourcePicker instances + an op selector + Save/
-                  Cancel buttons. Each sub-picker emits its own
-                  source-picker:pick event; the script tracks A/B
-                  separately and finalizes on Save. */}
-              <div
-                class="alerts-derived-builder"
-                data-role="alerts-derived-builder"
-                hidden
-              >
-                <div class="alerts-derived-builder-header">
-                  <strong>Custom indicator: A <span data-role="alerts-derived-op-symbol">&divide;</span> B</strong>
-                  <select
-                    class="alerts-input alerts-derived-op-select"
-                    data-role="alerts-derived-op"
-                  >
-                    <option value="divide" selected>divide (A &divide; B)</option>
-                    <option value="diff">subtract (A &minus; B)</option>
-                    <option value="sum">add (A + B)</option>
-                  </select>
-                </div>
-                <div class="alerts-derived-sub">
-                  <div class="alerts-derived-sub-label">
-                    <span class="eyebrow">A —</span>
-                    <span data-role="alerts-derived-a-name" class="muted small">(pick a source)</span>
-                  </div>
-                  <SourcePicker
-                    instanceId="alerts-derived-a"
-                    rootClass="alerts-derived-picker"
-                    searchPlaceholder="Search series for A…"
-                  />
-                </div>
-                <div class="alerts-derived-sub">
-                  <div class="alerts-derived-sub-label">
-                    <span class="eyebrow">B —</span>
-                    <span data-role="alerts-derived-b-name" class="muted small">(pick a source)</span>
-                  </div>
-                  <SourcePicker
-                    instanceId="alerts-derived-b"
-                    rootClass="alerts-derived-picker"
-                    searchPlaceholder="Search series for B…"
-                  />
-                </div>
-                <div class="alerts-derived-builder-actions">
-                  <button
-                    type="button"
-                    class="btn-primary"
-                    data-role="alerts-derived-save"
-                    disabled
-                  >Use this indicator</button>
-                  <button
-                    type="button"
-                    class="btn-secondary"
-                    data-role="alerts-derived-cancel"
-                  >Cancel</button>
-                </div>
               </div>
             </div>
           </div>
@@ -866,47 +796,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       "[data-role='alerts-source-clear']",
     );
 
-    /** Single source of truth for source-field visibility.
-     *
-     *  Alerts are single-source-per-rule (no multi-source dashboards
-     *  here, just one indicator per alert), so once the user has
-     *  picked a source there's no point keeping the picker visible
-     *  alongside the selected chip — it just eats vertical space and
-     *  invites accidental re-picks. Once a source is selected, the
-     *  picker + the "+ Use a custom indicator" toggle + the builder
-     *  all collapse, leaving only the selected chip + its clear-X.
-     *  Clicking X brings the picker back.
-     *
-     *  Called from setSelectedSource (after the user picks) and from
-     *  the derived-builder Cancel button (which needs to re-sync
-     *  visibility to whatever was selected BEFORE the builder was
-     *  opened). Doesn't touch the input or readout — those live in
-     *  setSelectedSource. */
+    /** Single-source alerts: once a source is picked, collapse the picker so
+     *  only the selected chip + its clear-X remain; clicking X brings it back.
+     *  Called from setSelectedSource (pick) + clearSelectedSource (X). */
     function applyPickerVisibility(hasSelection: boolean): void {
       const libPicker = document.querySelector<HTMLElement>(
         "[data-spicker-instance='alerts-source']",
       );
-      const openBtn = document.querySelector<HTMLButtonElement>(
-        "[data-role='alerts-derived-open']",
-      );
-      const builder = document.querySelector<HTMLElement>(
-        "[data-role='alerts-derived-builder']",
-      );
-      const modeWrap = document.querySelector<HTMLElement>(
-        "[data-role='alerts-source-mode']",
-      );
       if (libPicker) libPicker.hidden = hasSelection;
-      if (openBtn) openBtn.hidden = hasSelection;
-      // Always close the builder when syncing visibility — both the
-      // "I just picked" and "I just cancelled" paths want the
-      // half-built state torn down. The builder body itself is
-      // separately reset via resetDerivedBuilderState in the Cancel
-      // handler; here we only flip its visibility.
-      if (builder) builder.hidden = true;
-      // Keep the mode flag consistent with what's rendered. Even
-      // after a derived save we return to library-mode visually —
-      // the selected chip is mode-agnostic.
-      if (modeWrap) modeWrap.dataset.mode = "library";
     }
 
     function setSelectedSource(id: string, label: string): void {
@@ -936,14 +833,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
 
     function clearSelectedSource(): void {
-      // Reset derived-spec input first so a future submit can't
-      // accidentally include a stale spec from the previous pick.
-      // setSelectedSource then handles the visibility flip (picker
-      // back, selected chip hidden) and the current-value readout.
-      const dSpec = document.querySelector<HTMLInputElement>(
-        "[data-role='alerts-derived-spec']",
-      );
-      if (dSpec) dSpec.value = "";
       setSelectedSource("", "");
       if (currentValueWrap) currentValueWrap.hidden = true;
     }
@@ -972,163 +861,20 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       clearSelectedSource();
     });
 
-    // ---------- Custom-indicator builder ----------
-    // Lets the user define A op B as the source for an alert.
-    // Posts to alert_rules.derived_spec; check_alerts.py loads both
-    // sub-sources at evaluation time and computes the operation.
-    // See migration 0007.
-
-    const derivedSpecInput = document.querySelector<HTMLInputElement>(
-      "[data-role='alerts-derived-spec']",
-    );
-    const sourceModeWrap = document.querySelector<HTMLElement>(
-      "[data-role='alerts-source-mode']",
-    );
-    const derivedBuilder = document.querySelector<HTMLElement>(
-      "[data-role='alerts-derived-builder']",
-    );
-    const derivedOpenBtn = document.querySelector<HTMLButtonElement>(
-      "[data-role='alerts-derived-open']",
-    );
-    const derivedSaveBtn = document.querySelector<HTMLButtonElement>(
-      "[data-role='alerts-derived-save']",
-    );
-    const derivedCancelBtn = document.querySelector<HTMLButtonElement>(
-      "[data-role='alerts-derived-cancel']",
-    );
-    const derivedOpSelect = document.querySelector<HTMLSelectElement>(
-      "[data-role='alerts-derived-op']",
-    );
-    const derivedOpSymbolEl = document.querySelector<HTMLElement>(
-      "[data-role='alerts-derived-op-symbol']",
-    );
-    const derivedANameEl = document.querySelector<HTMLElement>(
-      "[data-role='alerts-derived-a-name']",
-    );
-    const derivedBNameEl = document.querySelector<HTMLElement>(
-      "[data-role='alerts-derived-b-name']",
-    );
-    const derivedAPicker = document.querySelector<HTMLElement>(
-      "[data-spicker-instance='alerts-derived-a']",
-    );
-    const derivedBPicker = document.querySelector<HTMLElement>(
-      "[data-spicker-instance='alerts-derived-b']",
-    );
-
-    // In-progress build state. Cleared on Cancel + when the user
-    // clears the locked-in selection. Once Save is clicked, this is
-    // copied into the hidden derivedSpecInput as JSON.
-    let derivedA: { id: string; name: string } | null = null;
-    let derivedB: { id: string; name: string } | null = null;
-    function currentDerivedOp(): "divide" | "diff" | "sum" {
-      const v = derivedOpSelect?.value ?? "divide";
-      return v === "diff" || v === "sum" ? v : "divide";
-    }
-
-    function opSymbol(op: "divide" | "diff" | "sum"): string {
-      return op === "divide" ? "÷" : op === "diff" ? "−" : "+";
-    }
-
-    function refreshDerivedSaveState(): void {
-      if (!derivedSaveBtn) return;
-      derivedSaveBtn.disabled = !(derivedA && derivedB);
-    }
-
-    function openDerivedBuilder(): void {
-      if (sourceModeWrap) sourceModeWrap.dataset.mode = "custom";
-      if (derivedBuilder) derivedBuilder.hidden = false;
-      // Hide the library-mode picker + its toggle so the builder
-      // owns the source field's visual real estate.
-      const libPane = document.querySelector<HTMLElement>(
-        "[data-role='alerts-source-library-pane']",
-      );
-      if (libPane) {
-        const lib = libPane.querySelector<HTMLElement>(
-          "[data-spicker-instance='alerts-source']",
-        );
-        if (lib) lib.hidden = true;
-        if (derivedOpenBtn) derivedOpenBtn.hidden = true;
-      }
-    }
-
-    function resetDerivedBuilderState(): void {
-      derivedA = null;
-      derivedB = null;
-      if (derivedANameEl) derivedANameEl.textContent = "(pick a source)";
-      if (derivedBNameEl) derivedBNameEl.textContent = "(pick a source)";
-      if (derivedOpSelect) derivedOpSelect.value = "divide";
-      if (derivedOpSymbolEl) derivedOpSymbolEl.innerHTML = "&divide;";
-      refreshDerivedSaveState();
-    }
-
-    derivedOpenBtn?.addEventListener("click", openDerivedBuilder);
-    derivedCancelBtn?.addEventListener("click", () => {
-      resetDerivedBuilderState();
-      // Re-sync visibility from current selection state. If a
-      // source was already picked before the builder was opened,
-      // the picker stays hidden + the selected chip stays visible.
-      // If nothing was selected, the picker comes back into view.
-      applyPickerVisibility(!!sourceInput?.value);
-    });
-    derivedOpSelect?.addEventListener("change", () => {
-      if (derivedOpSymbolEl) {
-        derivedOpSymbolEl.textContent = opSymbol(currentDerivedOp());
-      }
-    });
-
-    // Listen for picks from each sub-picker. A pick assigns to A or
-    // B (whichever picker fired the event). Clicking a card a second
-    // time on the same picker just updates that slot.
-    derivedAPicker?.addEventListener("source-picker:pick", (e) => {
-      const detail = (e as CustomEvent).detail as {
-        sourceId?: string;
-        source?: { name?: string };
-      };
-      const id = detail?.sourceId;
-      if (!id) return;
-      derivedA = { id, name: detail.source?.name ?? id };
-      if (derivedANameEl) derivedANameEl.textContent = derivedA.name;
-      refreshDerivedSaveState();
-    });
-    derivedBPicker?.addEventListener("source-picker:pick", (e) => {
-      const detail = (e as CustomEvent).detail as {
-        sourceId?: string;
-        source?: { name?: string };
-      };
-      const id = detail?.sourceId;
-      if (!id) return;
-      derivedB = { id, name: detail.source?.name ?? id };
-      if (derivedBNameEl) derivedBNameEl.textContent = derivedB.name;
-      refreshDerivedSaveState();
-    });
-
-    // Save = lock in the combination. Sets the hidden source input
-    // to the "derived:adhoc" sentinel + the hidden derived-spec
-    // input to the JSON spec. Updates the visible "selected"
-    // display to the composed label.
-    derivedSaveBtn?.addEventListener("click", () => {
-      if (!derivedA || !derivedB) return;
-      const op = currentDerivedOp();
-      const label = `${derivedA.name} ${opSymbol(op)} ${derivedB.name}`;
-      const spec = { a: derivedA.id, op, b: derivedB.id };
-      if (derivedSpecInput) derivedSpecInput.value = JSON.stringify(spec);
-      // setSelectedSource hides both the library picker AND the
-      // builder via applyPickerVisibility(true), so no explicit
-      // closeDerivedBuilder is needed. The selected chip + clear-X
-      // is now the only visible source-field UI until the user
-      // clicks the X.
-      setSelectedSource("derived:adhoc", label);
-      // Current-value readout: derived rules don't resolve through
-      // library.json (no dataFile for "derived:adhoc"). Hide the
-      // readout — the evaluator computes the derived value server-
-      // side at alert-fire time.
-      if (currentValueWrap) currentValueWrap.hidden = true;
-    });
-
-    // (clearSelectedSource itself handles the derived-state reset
-    // via direct DOM queries — see its definition further up.
-    // resetDerivedBuilderState() also runs on Cancel to keep the
-    // visible "(pick a source)" placeholders fresh.)
+    // ---------- Custom-indicator (A op B) builder: REMOVED 2026-06-08 ----------
+    // Composite / derived-source alerts (alert on A op B) were pulled to
+    // prioritize single-source reliability -- the feature also needed migration
+    // 0007 (the derived_spec column), which was never applied to prod.
+    //
+    // TO RE-ADD PROPERLY LATER (Keller wants this back):
+    //   1. Apply supabase/migrations/0007_alert_derived_spec.sql to prod.
+    //   2. Re-add the A/B builder UI -- ideally matching the compose ds-modal
+    //      two-picker + cross-disable UX (SourcePicker disabledIds exists now).
+    //   3. Re-add the derived_spec read + the derived_spec POST field in the
+    //      submit handler, and set source_id = "derived:adhoc".
+    // Still in place (so re-add = UI + save-path + migration only): the rule
+    // type derived_spec field, the "derived:adhoc" guards in the current-value
+    // / sparkline code, and the check_alerts.py evaluator.
 
     // ---------- Current-value readout ----------
     // Whenever a valid source is selected, fetch its .summary.json sibling
@@ -1508,28 +1254,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           sourceInput.dataset.label ??
           allSources.find((s) => s.id === sourceId)?.name ??
           sourceId;
-        // Pull the derived_spec out of its hidden input. Populated
-        // by the custom-indicator builder when the user clicks "Use
-        // this indicator"; empty for regular library-source alerts.
-        // Migration 0007 added the column; the server-side CHECK
-        // constraint rejects malformed shapes, so worst case here is
-        // a 400.
-        const derivedSpecRaw =
-          document
-            .querySelector<HTMLInputElement>(
-              "[data-role='alerts-derived-spec']",
-            )
-            ?.value.trim() ?? "";
-        let derivedSpec: unknown = null;
-        if (derivedSpecRaw) {
-          try {
-            derivedSpec = JSON.parse(derivedSpecRaw);
-          } catch {
-            addMsg.textContent =
-              "Custom indicator state corrupted — please rebuild.";
-            return;
-          }
-        }
         addMsg.textContent = "Saving…";
         const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_rules`, {
           method: "POST",
@@ -1546,9 +1270,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             condition: conditionSelect.value,
             threshold,
             label: labelInput.value.trim() || null,
-            // Omit derived_spec entirely when null so legacy
-            // installs (pre-migration 0007) keep working.
-            ...(derivedSpec ? { derived_spec: derivedSpec } : {}),
+
           }),
         });
         if (res.ok) {
@@ -1572,16 +1294,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }, 2000);
           await loadRules(stored);
         } else {
-          // Surface the PostgREST error so the cause is diagnosable. The
-          // common 400 here is the derived_spec column missing because
-          // migration 0007 was never applied to this database.
+          // Surface the PostgREST error body so a save failure is diagnosable.
           const detail = await res.text().catch(() => "");
           console.warn("[alerts] rule save failed:", res.status, detail);
-          const needsMigration =
-            res.status === 400 && /derived_spec|PGRST204|column/i.test(detail);
-          addMsg.textContent = needsMigration
-            ? "Could not save: composite-source alerts need DB migration 0007 (derived_spec) applied."
-            : `Failed to save: HTTP ${res.status}`;
+          addMsg.textContent = `Failed to save: HTTP ${res.status}`;
         }
       });
     }
@@ -2041,68 +1757,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
      compact layout — cap height so the form stays usable. */
   .alerts-source-picker .source-picker-results {
     max-height: 360px;
-  }
-  /* Custom-indicator toggle: small affordance below the library
-     picker. Looks like a link, not a button, so it doesn't compete
-     with the main "Add rule" CTA. */
-  .alerts-derived-toggle {
-    margin-top: 10px;
-    background: transparent;
-    border: 0;
-    padding: 4px 0;
-    color: var(--color-accent, #0F766E);
-    font-size: 12px;
-    cursor: pointer;
-    text-align: left;
-  }
-  .alerts-derived-toggle:hover {
-    text-decoration: underline;
-  }
-  /* Custom-indicator builder. Shows when the user clicks the toggle;
-     swaps out the main library picker. Contains two sub-pickers +
-     an op selector + Save/Cancel. */
-  .alerts-derived-builder {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 12px;
-    border: 1px solid rgba(15, 118, 110, 0.32);
-    border-radius: 4px;
-    background: rgba(15, 118, 110, 0.04);
-  }
-  .alerts-derived-builder-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .alerts-derived-op-select {
-    min-width: 180px;
-  }
-  .alerts-derived-sub {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .alerts-derived-sub-label {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-  .alerts-derived-sub-label .eyebrow {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6f6c66;
-  }
-  /* Cap each sub-picker's results so the page doesn't scroll forever.
-     Smaller cap than the main picker since two are stacked. */
-  .alerts-derived-picker .source-picker-results {
-    max-height: 220px;
-  }
-  .alerts-derived-builder-actions {
-    display: flex;
-    gap: 8px;
   }
   /* Custom-rule indicator in the rules list. Looks like the
      library-source link but without the underline + with a small

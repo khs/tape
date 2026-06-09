@@ -670,6 +670,18 @@ RISKS: geo-filter.ts may back the Maps tab (county choropleth) -- verify before
 deleting; the maps-tab hint switch; any Charts-sub-tab shared helper.
 
 
+## Deferred TODOs (product)
+- **Composite / derived-source alerts** REMOVED 2026-06-08 to prioritize
+  single-source reliability + because the feature needed migration 0007 (the
+  derived_spec column), which was never applied to prod (root cause of composite
+  rule saves 400ing). Keller wants it back PROPERLY later. Re-add = apply
+  supabase/migrations/0007_alert_derived_spec.sql + re-add the A/B builder UI
+  (ideally matching the ds-modal 2-picker + cross-disable) + the derived_spec
+  save path. The rule type field, the "derived:adhoc" guards, and the
+  check_alerts.py evaluator all remain. See the REMOVED-marker comment in
+  src/pages/alerts.astro.
+
+
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
 
 ## Plan 7 — Standardize source-YAML on the inline pattern
