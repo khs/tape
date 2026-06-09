@@ -73,6 +73,10 @@ interface Props {
    *  client-side via a `source-picker:set-disabled-ids` event with
    *  detail: { ids: string[] } on the picker root. */
   disabledIds?: ReadonlyArray<string>;
+  /** Rich cards: geo badges (CD/state) + tags line + shortName. For the
+   *  Sources-tab browser, where ~435 same-named district cards must be
+   *  distinguishable. Default off -> the simple modal-picker card. */
+  richCards?: boolean;
 }
 const {
   instanceId,
@@ -81,6 +85,7 @@ const {
   hideSearch = false,
   extraSources = [],
   disabledIds = [],
+  richCards = false,
 } = Astro.props;
 // Serialize extraSources into a JSON-encoded data attribute so the
 // client-side script can read them at boot. Updates after first
@@ -95,6 +100,7 @@ const extraSourcesJson = extraSources.length > 0
   data-spicker-instance={instanceId}
   data-spicker-extra-sources={extraSourcesJson}
   data-spicker-disabled-ids={disabledIds.length > 0 ? JSON.stringify(disabledIds) : ""}
+  data-spicker-rich={richCards ? "1" : ""}
 >
   {!hideSearch && (
     <input
@@ -204,6 +210,7 @@ const extraSourcesJson = extraSources.length > 0
     STATEWIDE_DISTRICT_CODE,
     US_STATES,
     parseCdSourceId,
+    parseStateSourceId,
     stateNameFor,
     formatCdShortLabel,
   } from "../lib/congressional-districts";
@@ -281,6 +288,7 @@ const extraSourcesJson = extraSources.length > 0
     /** Source IDs rendered disabled (non-clickable) -- the ds-modal sets
      *  these to the source picked on the other A/B side. */
     disabledIds: Set<string>;
+    rich: boolean;
     /** Sources passed in via the `extraSources` prop OR set
      *  client-side via the `source-picker:set-extra-sources` event.
      *  Rendered at the top of the results, above library sources. */
@@ -704,6 +712,30 @@ const extraSourcesJson = extraSources.length > 0
     }, MOBILE_RENDER_DEBOUNCE_MS);
   }
 
+  // Rich card extras (geo badges + tags + shortName) for the Sources-tab
+  // browser. CD/state sources get a "TX-12" / "TX statewide" badge -- without
+  // it the ~435 same-named district cards would be visually identical.
+  function richCardExtras(
+    s: { id: string; name: string; shortName?: string; tags?: string[] },
+  ): { badges: string; tags: string } {
+    const cd = parseCdSourceId(s.id);
+    const st = parseStateSourceId(s.id);
+    let badges = "";
+    if (cd) {
+      badges = `<span class="source-picker-card-short source-picker-card-cd-badge">${escapeHtml(formatCdShortLabel(cd.state, cd.district))}</span>`;
+    } else if (st) {
+      badges = `<span class="source-picker-card-short source-picker-card-cd-badge">${escapeHtml(st.state.toUpperCase() + " statewide")}</span>`;
+    } else if (s.shortName && s.shortName !== s.name) {
+      badges = `<span class="source-picker-card-short">${escapeHtml(s.shortName)}</span>`;
+    }
+    const tagList = s.tags ?? [];
+    const tags =
+      tagList.length > 0
+        ? `<div class="source-picker-card-tags">${tagList.map(escapeHtml).join(" · ")}</div>`
+        : "";
+    return { badges, tags };
+  }
+
   function renderResults(state: InstanceState, lib: LibraryPayload): void {
     const host = state.root.querySelector<HTMLElement>(
       "[data-spicker-role='results']",
@@ -760,10 +792,14 @@ const extraSourcesJson = extraSources.length > 0
         const markBadge = marked
           ? `<span class="source-picker-card-mark" aria-label="Already selected">✓</span>`
           : "";
+        const richEx = state.rich
+          ? richCardExtras(s)
+          : { badges: "", tags: "" };
         parts.push(
           `<button type="button" class="source-picker-card${extraCls}${markedCls}" data-spicker-source-id="${escapeHtml(s.id)}"${marked ? ' data-spicker-marked="1"' : ""}>` +
-            `<div class="source-picker-card-title">${escapeHtml(s.name)}${markBadge}</div>` +
+            `<div class="source-picker-card-title">${escapeHtml(s.name)}${richEx.badges}${markBadge}</div>` +
             desc +
+            richEx.tags +
             id +
             `</button>`,
         );
@@ -878,6 +914,7 @@ const extraSourcesJson = extraSources.length > 0
       hasInteracted: false,
       markedIds: new Set(),
       disabledIds: new Set(disabledIdsInit),
+      rich: root.dataset.spickerRich === "1",
       extraSources,
       pendingScheduleId: null,
     };
@@ -1600,6 +1637,26 @@ const extraSourcesJson = extraSources.length > 0
     margin-left: 6px;
     font-size: 11px;
     font-style: italic;
+    color: var(--color-neutral-500, #888);
+  }
+  .source-picker-card-short {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--color-neutral-100, #eee);
+    color: var(--color-neutral-600, #666);
+    vertical-align: middle;
+  }
+  .source-picker-card-cd-badge {
+    background: var(--color-accent-soft, #e8f0fe);
+    color: var(--color-accent, #1a56db);
+  }
+  .source-picker-card-tags {
+    margin-top: 3px;
+    font-size: 11px;
     color: var(--color-neutral-500, #888);
   }
 </style>
