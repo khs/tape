@@ -27,12 +27,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     </nav>
 
     <header class="alerts-header">
-      <h1 class="alerts-title">Indicator alerts</h1>
+      <h1 class="alerts-title">Alerts</h1>
       <p class="alerts-subtitle">
-        Get notified when a series crosses a threshold. Rules check
-        after every weekly market-data refresh and monthly demographics
-        refresh — typically you'll see fires within a day of the source
-        actually changing.
+        Get emailed whenever unemployment breaches 5%, or agricultural
+        exports are below $150 billion in a given month. Not suitable for
+        market reactions, as we will only email you at most once a week.
       </p>
     </header>
 
@@ -1573,7 +1572,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           }, 2000);
           await loadRules(stored);
         } else {
-          addMsg.textContent = `Failed to save: HTTP ${res.status}`;
+          // Surface the PostgREST error so the cause is diagnosable. The
+          // common 400 here is the derived_spec column missing because
+          // migration 0007 was never applied to this database.
+          const detail = await res.text().catch(() => "");
+          console.warn("[alerts] rule save failed:", res.status, detail);
+          const needsMigration =
+            res.status === 400 && /derived_spec|PGRST204|column/i.test(detail);
+          addMsg.textContent = needsMigration
+            ? "Could not save: composite-source alerts need DB migration 0007 (derived_spec) applied."
+            : `Failed to save: HTTP ${res.status}`;
         }
       });
     }
