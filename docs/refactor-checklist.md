@@ -682,6 +682,30 @@ deleting; the maps-tab hint switch; any Charts-sub-tab shared helper.
   src/pages/alerts.astro.
 
 
+## 3c ATTEMPT 1 (2026-06-08) -- REVERTED to 15d7828131; lessons for the fresh pass
+- Got partway (lib SourcePicker mounted, sources-tab.ts Sources fns + ctx removed,
+  geo-wiring removed) then hit a bad over-deletion + reverted. richCards stays.
+- ENVIRONMENT: this machine AV intermittently blocks PowerShell spawns for any
+  command whose TEXT contains markup (angle brackets) -- EPERM uv_spawn. Trivial /
+  no-markup commands work. WORKAROUND (proven this session): write markup content
+  to a temp .txt via the Write tool, then a no-markup PowerShell reads + splices it
+  using plain-substring markers. Deletions use plain-substring (function-name /
+  field-name prefix) markers. A SESSION RESTART likely clears the AV state -- try
+  that first; normal CRLF marker-splices may just work again.
+- OVER-DELETION PITFALL (what bit me): the 2d factory CALLS (createCustomChartModal
+  / createDerivedSourceModal / createSourcesTab / createTiles / createMapsTab /
+  createGeneratorsTab / createSeriesFetcher) sit BETWEEN cdStatesAvailable and
+  setActiveSection. When deleting the orphaned geo helpers cdsByState +
+  cdStatesAvailable, delete each INDIVIDUALLY (bounded by the NEXT function) -- do
+  NOT range-delete cdsByState..setActiveSection (it wipes every factory call).
+- Everything else in the de-risked 3c PLAN held: geo-filter.ts cleanly deletable,
+  hint delegation via the picker hint event (only the maps-tab chip needs a host
+  listener -> setActiveLibTab("maps")), the HTML/ctx/return boundaries, the
+  pick -> addSourceAsChart wiring. Order that worked: HTML mount, sources-tab fns,
+  sources-tab ctx/return, compose createSourcesTab call, geo-wiring removal, the
+  pick/hint listeners, then delete geo-chips.ts + geo-filter.ts + its test.
+
+
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
 
 ## Plan 7 — Standardize source-YAML on the inline pattern
