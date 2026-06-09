@@ -17,11 +17,11 @@
 
 ---
 
-## ⮕ RESUME HERE — updated 2026-06-08 (Plan 3a+3b DONE + prod-verified: ds + cc modals on SourcePicker)
+## ⮕ RESUME HERE — updated 2026-06-08 (Plan 3a+3b DONE; 3c foundation done (richCards), adoption banked)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
 maps + generators + series + modal-tags + ds-modal + cc-modal + geo-chips + sources-tab + tiles verified).**
-`compose.astro`: **11,007 → ~3,609 lines** and falling. `origin/main = b7439768e9 (Plan 3a + 3b) + modal-tags cleanup` (compose ~3547 lines).
+`compose.astro`: **11,007 → ~3,609 lines** and falling. `origin/main = 0251af492b (3a + 3b + 3c richCards foundation)` (compose ~3547 lines).
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -626,6 +626,48 @@ Create -> tile. Zero app console errors.
 - Plan 3 SourcePicker adoption is COMPLETE for both modals. Remaining: 3c
   (reassess the Sources tab -- the last bespoke source browser; likely a clean
   target: single-click add, no axis pills -- OR already fine as-is).
+
+
+### 3c PLAN (Sources tab -> SourcePicker) -- foundation DONE; adoption banked
+DECISION (Keller): enrich SourcePicker, then adopt (no regression to the rich
+browser). KEY FINDING: the Sources tab cards are RICHER than the modal pickers --
+CD/state geo badges ("TX-12" / "TX statewide"), tags line, shortName. The geo
+badge is ESSENTIAL: ~435 congressional-district sources share the same name, only
+the badge distinguishes them. SourcePicker already had parseCdSourceId +
+formatCdShortLabel + hint-card handling + the same empty-state copy.
+
+DONE (0251af492b): SourcePicker gained an opt-in `richCards` prop -> geo badges +
+tags line + shortName (richCardExtras). Default off; the ds/cc pickers keep the
+simple card. astro 0/0/0. Unused until the Sources tab adopts it.
+
+NEXT (the adoption -- a fresh focused pass; big + retires shared code):
+- PRE-SCOUT: read the Sources-tab HTML in compose (lib-tab switcher + the Sources
+  sub-tab: lib-sources-search / lib-geo-chips / lib-source-tags / lib-results-
+  sources + the Charts sub-tab); sources-tab.ts ctx + filteredSources +
+  engageHintChip + setActiveLibTab; and GREP geo-filter.ts consumers (the Maps
+  tab / map-builder may use passesCountyFilter -> do NOT delete geo-filter.ts if so).
+- HTML: replace the Sources sub-tab [search + lib-geo-chips + lib-source-tags +
+  lib-results-sources] with <SourcePicker instanceId="lib" richCards
+  rootClass="lib-source-picker" />. KEEP the lib-tab switcher + the Charts sub-tab.
+- sources-tab.ts: DELETE filteredSources, renderSourcesList, renderTagFiltersSources,
+  engageHintChip, allSourceTags. KEEP the Charts sub-tab (filteredCharts,
+  renderChartsList, renderTagFiltersCharts, allChartTags, setActiveLibTab). ctx:
+  drop the geo/tag/passes* fields. Wire the lib SourcePicker source-picker:pick ->
+  addSourceAsChart(detail.sourceId). VERIFY SourcePicker hint-card handling covers
+  the Sources-tab hints (geo-chip engage + the "maps-tab" tab-switch hints).
+- compose: mount the lib SourcePicker; RETIRE geoSurfaceConfig (now empty -> delete)
+  + createGeoChips destructure + the renderMetroChip/Cd/Country/wireGeoChips("lib")
+  calls + appendCdDrillDown + the lib-geo-chips HTML.
+- RETIREMENT CASCADE (astro flags unused): DELETE geo-chips.ts (no surfaces left).
+  geo-filter.ts (createComposerGeoFilters): DELETE only if truly orphaned -- the
+  modals use source-filters.ts not this, but CHECK the Maps tab/map-builder first.
+  Remove now-unused compose geo imports (CD_TAG/METRO_TAG/COUNTRY_TAG/parse*/GeoSurface).
+- VERIFY: astro 0/0/0 + vitest 720; prod walkthrough -- Sources tab rich cards
+  (GEO BADGES render so districts are distinguishable!) + click->addSourceAsChart
+  ->tile + CD gate + hints; Charts sub-tab; confirm the ds/cc modals still pick
+  (unaffected by the geo retirement). Zero app console errors.
+RISKS: geo-filter.ts may back the Maps tab (county choropleth) -- verify before
+deleting; the maps-tab hint switch; any Charts-sub-tab shared helper.
 
 
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
