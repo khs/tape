@@ -536,6 +536,69 @@ Incremental, each step its own commit + build:
   browse-only adoption vs leave cc-modal bespoke given the axis-pill coupling).
 
 
+### 3b EXECUTION PLAN (cc-modal -> SourcePicker) -- turn-key, scouted 2026-06-08
+Safety: tree clean at d1fb160e7c first (git checkout = undo). Only push when
+astro 0/0/0 + vitest 720. MONOLITHIC: HTML + cc-modal.ts + compose land together.
+
+HTML (compose.astro, the Sources cc-field ~@836-872):
+- KEEP the header (Sources eyebrow + cc-count "0 selected").
+- REMOVE cc-source-search, cc-geo-chips (metro/cd/country), cc-source-tags,
+  cc-source-list.
+- ADD in order: <div class="cc-selected-list" data-role="cc-selected-list"></div>
+  then <SourcePicker instanceId="cc" rootClass="cc-source-picker"
+  searchPlaceholder="Search sources by name, ticker, or tag..." />.
+
+cc-modal.ts:
+- ctx: DROP passesCdFilter/Metro/Country/County, renderModalTagChips,
+  renderMetroChip/Cd/Country, wireGeoChips. KEEP all else.
+- DELETE filteredModalSources (~@687-757) + renderCcModalTagChips (~@352-375).
+- renderCustomChartSources (~@770-877) -> REWRITE as renderSelectedSources():
+  render ccModal.selectedOrder into [data-role=cc-selected-list]; each row = name
+  (ccSourceLookup) + (dual-axis mode) the L|R axis pills (EXACT @840-873 logic) +
+  a remove (x) button -> ccPickToggle(id). Empty -> "No sources selected yet."
+- ADD ccPickToggle(id): the @787-830 checkbox-change body parameterized by id
+  (add if !selected else remove; keep selectedOrder; mode/op/rightAxis cascade;
+  syncModeRadioFromState/syncLogUI/syncOpUI; updateCustomChartCreateState;
+  renderSelectedSources; renderCustomChartPreview; updateCcAnnotationsWarning;
+  maybeRefreshCcAutoTitle; update cc-count; then ccSyncMarked()).
+- ADD ccDispatch(type,detail) ([data-spicker-instance=cc].dispatchEvent),
+  ccSyncMarked() (set-marked-ids {ids:[...ccModal.selected]}), ccExtraSources()
+  (derived from state.inlineSources -> {id,name:name+" (derived)",tags}).
+- openCustomChartModal (~@196-350): REMOVE the browse render + renderMetroChip
+  ("cc")/Cd/Country + wireGeoChips("cc") + renderCcModalTagChips. ADD ccDispatch
+  set-extra-sources(ccExtraSources()) + ccSyncMarked() + renderSelectedSources().
+  KEEP title/mode/op + the editing-existing-chart path (sets ccModal.selected
+  from the chart -> ccSyncMarked reflects the check marks).
+- wireCustomChartModal (~@1253+): REMOVE cc-source-search + geo + tag wiring. ADD
+  a source-picker:pick listener on [data-spicker-instance=cc] -> ccPickToggle
+  (detail.sourceId). KEEP mode/op/log/blurb/percent/create wiring.
+- return: drop renderCustomChartSources + renderCcModalTagChips (picker internal).
+
+compose.astro:
+- import SourcePicker already present (3a). Mount the cc SourcePicker (HTML above).
+- geoSurfaceConfig: REMOVE the "cc" fallback -> "lib" is the ONLY surface now (ds
+  + cc both retired). Return the lib config; createGeoChips serves only the
+  Sources tab.
+- cc factory ctx/destructure: drop passesCdFilter/Metro/Country/County,
+  renderModalTagChips, renderMetroChip/Cd/Country, wireGeoChips + the
+  renderCustomChartSources/renderCcModalTagChips exports.
+- CROSS-DEP: ds-modal.ts ctx has renderCustomChartSources (post-derived-create
+  refresh of an open cc picker). After 3b that fn is gone -> drop it from the ds
+  ctx + its post-create call (the cc-modal re-dispatches extras on its next open;
+  the two modals are never open at once).
+
+compose.css: .cc-selected-list (rows + remove x), .cc-source-picker
+.source-picker-results { max-height ~40vh } (shares the modal w/ selected + preview).
+
+VERIFY (prod walkthrough): open cc-modal -> SourcePicker browse (search/geo/tag);
+pick 2+ -> each enters cc-selected-list + gets a check in the picker + cc-count
+updates + live preview renders; remove from the panel -> check clears + preview
+updates; dual-axis -> L|R pills in the panel -> preview splits axes; raw/rebase
+auto-mode; op (2 same-class) + percent-display; log; derived source as an extra
+(create one first); EDIT an existing custom chart (selection + marks restored);
+Create -> tile. Zero app console errors.
+
+
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
 
 ## Plan 7 — Standardize source-YAML on the inline pattern
