@@ -17,11 +17,11 @@
 
 ---
 
-## ⮕ RESUME HERE — updated 2026-06-08 (Plan 3a DONE + prod-verified: ds-modal A/B on SourcePicker)
+## ⮕ RESUME HERE — updated 2026-06-08 (Plan 3a+3b DONE + prod-verified: ds + cc modals on SourcePicker)
 
 **Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
 maps + generators + series + modal-tags + ds-modal + cc-modal + geo-chips + sources-tab + tiles verified).**
-`compose.astro`: **11,007 → ~3,609 lines** and falling. `origin/main = e26274ab7a (Plan 3a) + focusPickerSearch follow-up`.
+`compose.astro`: **11,007 → ~3,609 lines** and falling. `origin/main = b7439768e9 (Plan 3a + 3b) + modal-tags cleanup` (compose ~3547 lines).
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -597,6 +597,35 @@ updates; dual-axis -> L|R pills in the panel -> preview splits axes; raw/rebase
 auto-mode; op (2 same-class) + percent-display; log; derived source as an extra
 (create one first); EDIT an existing custom chart (selection + marks restored);
 Create -> tile. Zero app console errors.
+
+
+### 3b RESULT (2026-06-08) -- DONE + PROD-VERIFIED (b7439768e9 + modal-tags cleanup)
+- Shipped: cc-modal adoption (b7439768e9, +202/-336). astro 0/0/0, vitest 720.
+  CI + post-deploy smoke green. Then modal-tags.ts DELETED (orphaned -- no modal
+  uses the bespoke tag strip after 3a+3b; astro 0/0/0, now 144 files).
+- PROD WALKTHROUGH (Chrome MCP, /compose; ZERO app console errors -- Zotero only):
+  - cc-modal opens: <SourcePicker instanceId=cc> browse (752 cards + own search +
+    geo chips) + the new cc-selected-list panel (empty) + "0 selected" + preview
+    prompt. Old cc-source-search/cc-geo-chips/cc-source-tags/cc-source-list gone.
+  - Multi-select: pick -> selected-panel row (correct label) + a check in the
+    picker (set-marked-ids) + count + auto-mode (rebase for mixed scales) + live
+    preview (1 svg). 2nd pick -> 2 rows + 2 checks + "2 selected".
+  - Dual-axis: L|R pills render in the selected rows w/ the correct default split;
+    preview -> "2 series dual-axis".
+  - Remove via the panel x: drops the source + clears its check + decrements count
+    + the mode cascade flips dual->raw when under 2 sources.
+  - Create: 2-source chart created (both sources, raw) + modal closes + TILE
+    renders (2 svgs).
+  - Edit existing chart (pencil): "Edit chart" + "Save changes" + title +
+    selection restored in the panel; marks correct in state (only filtered from
+    the BROWSE view by a stale persistent search -- clearing it shows both checks).
+- NOTE (minor, shared with ds-modal): SourcePicker keeps its search across modal
+  opens, so an edit can open with a stale browse filter. The always-visible
+  selected panel mitigates. A SourcePicker "reset search on open" event would
+  polish both modals -- out of 3b scope.
+- Plan 3 SourcePicker adoption is COMPLETE for both modals. Remaining: 3c
+  (reassess the Sources tab -- the last bespoke source browser; likely a clean
+  target: single-click add, no axis pills -- OR already fine as-is).
 
 
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
