@@ -738,8 +738,42 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       }
     }
 
+    function showInitError(): void {
+      const host = document.querySelector<HTMLElement>(
+        "[data-role='alerts-body']",
+      );
+      if (!host || host.querySelector("[data-role='alerts-init-error']")) return;
+      const el = document.createElement("p");
+      el.dataset.role = "alerts-init-error";
+      el.setAttribute("role", "alert");
+      el.className = "small";
+      el.style.cssText =
+        "color:#b91c1c;border:1px solid #fecaca;background:#fef2f2;border-radius:6px;padding:8px 12px;margin-bottom:12px;";
+      el.textContent =
+        "Some alert data couldn't load (network or service issue). The form still works — refresh to retry.";
+      host.prepend(el);
+    }
+
     async function initAuthed(stored: NonNullable<ReturnType<typeof readStoredSession>>): Promise<void> {
-      await Promise.all([loadRules(stored), loadTriggers(stored), loadSourceCatalog()]);
+      // A10: a failed data load (network drop, Supabase outage, malformed
+      // 200) must NOT leave the form rendered-but-dead. allSettled lets the
+      // wiring proceed regardless; we surface a banner + log on any
+      // rejection so the failure is visible, not silent.
+      const results = await Promise.allSettled([
+        loadRules(stored),
+        loadTriggers(stored),
+        loadSourceCatalog(),
+      ]);
+      const failed = results.filter((r) => r.status === "rejected");
+      if (failed.length > 0) {
+        for (const r of failed) {
+          console.error(
+            "alerts: initial data load failed:",
+            (r as PromiseRejectedResult).reason,
+          );
+        }
+        showInitError();
+      }
       wireForm(stored);
       wireQuickStart();
       markAllRead?.addEventListener("click", () => {

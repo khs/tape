@@ -61,6 +61,9 @@ export const POST: APIRoute = async ({ request }) => {
     ? authHeader.slice("Bearer ".length).trim()
     : null;
   if (!token) {
+    // A09: log auth failures server-side (captured in Vercel function
+    // logs) so the app's one privileged endpoint isn't a blind spot.
+    console.warn("[diagnostic] auth failure: missing bearer token");
     return jsonResponse(
       { error: "Missing Authorization: Bearer <token> header" },
       401,
@@ -81,6 +84,9 @@ export const POST: APIRoute = async ({ request }) => {
   });
   const { data: userResult, error: authErr } = await sb.auth.getUser(token);
   if (authErr || !userResult?.user) {
+    console.warn(
+      `[diagnostic] auth failure: invalid token (${authErr?.message ?? "no user"})`,
+    );
     return jsonResponse(
       { error: `Invalid token: ${authErr?.message ?? "no user"}` },
       401,
@@ -88,9 +94,16 @@ export const POST: APIRoute = async ({ request }) => {
   }
   const user = userResult.user;
   if (!isAdmin(user.email)) {
-    // Don't leak the admin email or the rule; just refuse.
+    // Don't leak the admin email or the rule in the RESPONSE; just refuse.
+    // Do record the rejected identity server-side for the admin's audit.
+    console.warn(
+      `[diagnostic] authz failure: non-admin user ${user.email ?? "unknown"}`,
+    );
     return jsonResponse({ error: "Not authorized" }, 403);
   }
+  // Audit trail for the privileged action itself (the real replay-risk
+  // path): a successful, authorized admin report post is recorded.
+  console.log(`[diagnostic] authorized admin report by ${user.email}`);
 
   // 3. Validate request body.
   let body: { report?: unknown; runId?: unknown };

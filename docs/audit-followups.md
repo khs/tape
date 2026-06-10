@@ -65,3 +65,39 @@ no `astro build`, no `astro dev`; Chrome MCP currently disconnected).
   fabricated line citations. Treat raw finder output as a lead, not a fact.
 - The BLS "orphan" finding was **intentional** behavior, not a bug — always
   read for an explicit design rationale before acting on an audit finding.
+
+## OWASP Top 10:2025 check (2026-06-10)
+
+Mapped the codebase against https://owasp.org/Top10/2025/ (adversarially
+verified, 10 categories). Result: **7 pass, 3 concern, 0 fail** — highest
+confirmed severity *low*; 12 findings refuted.
+
+| Category | Posture |
+|---|---|
+| A01 Broken Access Control | pass (RLS enforces ownership everywhere) |
+| A02 Security Misconfiguration | concern (CORS-wildcard + localStorage-token findings were **refuted**; full CSP still deferred) |
+| A03 Software Supply Chain | pass |
+| A04 Cryptographic Failures | pass |
+| A05 Injection | pass (XSS classes fixed; email-CRLF finding refuted) |
+| A06 Insecure Design | pass (RLS + rate limits + owner-bound alerts) |
+| A07 Authentication Failures | pass |
+| A08 Software/Data Integrity | pass |
+| A09 Logging & Alerting | concern → **partly fixed** |
+| A10 Exceptional Conditions | concern → **partly fixed** |
+
+**Key insight:** security rests almost entirely on Supabase RLS as the one
+load-bearing control — sound, but with no compensating *visibility*. If RLS
+or the single admin account were compromised, nothing would surface it.
+
+**Shipped from this check:**
+- A09 — `/api/diagnostic` now logs all auth/authz refusals + the authorized
+  admin action server-side (Vercel function logs), closing the audit blind
+  spot on the app's one privileged endpoint.
+- A10 — `alerts.astro` init now uses `Promise.allSettled` + an error banner
+  so a failed data load can't leave the form rendered-but-dead.
+
+**Remaining OWASP-adjacent (folded into the deferred list above):** full
+`script-src` CSP (the A02 defense-in-depth gap; needs a preview deploy).
+Optional hardening, not confirmed findings: tighten any non-wildcard CORS if
+introduced later; sanitize `source_label` newlines before email interpolation
+(belt-and-suspenders over Resend/Postmark's own validation).
