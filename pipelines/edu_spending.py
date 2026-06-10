@@ -25,12 +25,21 @@ billions convention used for aggregate-currency totals. unit "USD",
 unitClass "currency". National = sum(state spending)/sum(state
 enrollment) per year, computed here.
 
+Source YAMLs are emitted INLINE (one per written series, right after the
+data file) into src/content/sources/edu_spending/ — overwrite-always; the
+dir is pipeline-owned. This replaced the one-shot _scaffold_edu_spending.py
+(Plan 7). Attribution (per the provider ToS sweep): the underlying data is
+NCES Common Core of Data (F-33), public domain, delivered via the Urban
+Institute Education Data Portal under ODC-BY 1.0 — which requires citing
+both Urban and the dataset. We credit both.
+
 Run: `python pipelines/edu_spending.py` (no key; Urban API is open).
 """
 from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 import _env  # noqa: F401
 
@@ -64,6 +73,73 @@ STATES: dict[int, tuple[str, str]] = {
 }
 
 
+# --- Source-YAML emission (inline; Plan 7) --------------------------------
+# One YAML per written series, emitted right after its data file, so
+# YAML<->data parity holds by construction. Overwrite-always: the dir is
+# pipeline-owned — name/description fixes belong in these templates.
+# Per-state IDs (`state_perpupil_<st>`) are gated behind the composer's
+# state chip; `us_perpupil` stays default-visible.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
+
+STATE_NAME_LC = {abbr.lower(): name for abbr, name in STATES.values()}
+URBAN_URL = "https://educationdata.urban.org/"
+# ODC-BY requires citing Urban + the dataset; this is the license string
+# users see on each source page.
+LICENSE = ("ODC-BY 1.0 — NCES Common Core of Data (public domain) via "
+           "Urban Institute Education Data Portal; cite both")
+
+
+def _q(s: str) -> str:
+    return "'" + s.replace("'", "''") + "'"
+
+
+def write_yaml(sid: str, geo_key: str) -> None:
+    if geo_key == "us":
+        name = "K-12 spending per pupil (US)"
+        short = "US per-pupil K-12"
+        where = "the US"
+        tags = ["education", "fiscal", "us"]
+    else:
+        where = STATE_NAME_LC[geo_key]
+        name = f"{where} K-12 spending per pupil"
+        short = f"{geo_key.upper()} per-pupil K-12"
+        tags = ["education", "fiscal", "us-state", "us"]
+    desc = (
+        f"Current spending per pupil on K-12 public education in {where} — "
+        f"total current expenditure divided by fall enrollment. NCES Common "
+        f"Core of Data (F-33 school-system finance), via the Urban Institute "
+        f"Education Data Portal."
+    )
+    lines = [
+        f"name: {_q(name)}",
+        f"shortName: {_q(short)}",
+        f"description: {_q(desc)}",
+        "kind: timeseries",
+        f"pipeline: {PIPELINE}",
+        f"dataFile: data/{PIPELINE}/{sid}.json",
+        'supportedDeltas: ["1y", "5y", "10y"]',
+        'unit: "USD"',
+        "emphasis: level",
+        "formatting:",
+        "  style: currency",
+        "  currency: USD",
+        "  decimals: 0",
+        "provenance:",
+        "  provider: NCES Common Core of Data, via Urban Institute Education Data Portal",
+        "  series: CCD F-33 current spending per pupil (exp_current_elsec_total / enrollment)",
+        f"  url: {URBAN_URL}",
+        f"  license: {_q(LICENSE)}",
+        "tags:",
+    ]
+    for t in tags:
+        lines.append(f"  - {t}")
+    lines.append("unitClass: currency")
+    (YAML_DIR / f"{sid}.yaml").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8",
+    )
+
+
 def fetch_by_year(var: str, fips: int) -> dict[int, float]:
     params = {"var": var, "stat": "sum", "by": "year", "fips": str(fips)}
     body = cached_get(BASE, ttl_seconds=7 * 24 * 3600, params=params).strip()
@@ -89,6 +165,7 @@ def run() -> int:
     written = 0
     nat_spend: dict[int, float] = {}
     nat_enroll: dict[int, float] = {}
+    YAML_DIR.mkdir(parents=True, exist_ok=True)
 
     for fips, (abbr, _name) in STATES.items():
         spend = fetch_by_year(SPEND_VAR, fips)
@@ -102,8 +179,9 @@ def run() -> int:
             nat_spend[year] = nat_spend.get(year, 0.0) + s
             nat_enroll[year] = nat_enroll.get(year, 0.0) + e
         if len(pts) >= 2:
-            write_timeseries(PIPELINE, f"state_perpupil_{abbr.lower()}",
-                             f"state_perpupil_{abbr.lower()}", pts, unit="USD")
+            sid = f"state_perpupil_{abbr.lower()}"
+            write_timeseries(PIPELINE, sid, sid, pts, unit="USD")
+            write_yaml(sid, abbr.lower())
             written += 1
 
     nat_pts = [
@@ -112,6 +190,7 @@ def run() -> int:
     ]
     if len(nat_pts) >= 2:
         write_timeseries(PIPELINE, "us_perpupil", "us_perpupil", nat_pts, unit="USD")
+        write_yaml("us_perpupil", "us")
         written += 1
 
     print(f"edu_spending: wrote {written} per-pupil series.")

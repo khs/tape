@@ -278,7 +278,7 @@ jobs:
             tmp=$(mktemp -d)
             mkdir -p "$tmp/public" "$tmp/src/content/sources"
             cp -r public/data "$tmp/public/" 2>/dev/null || true
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending; do
               if [ -d "src/content/sources/$dir" ]; then
                 cp -r "src/content/sources/$dir" "$tmp/src/content/sources/" 2>/dev/null || true
               fi
@@ -295,7 +295,7 @@ jobs:
             # These source-YAML dirs are owned solely by this workflow's
             # pipelines (generators + inline emitters), so replacing them
             # wholesale is safe (no other job adds to them).
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending; do
               if [ -d "$tmp/src/content/sources/$dir" ]; then
                 rm -rf "src/content/sources/$dir"
                 cp -r "$tmp/src/content/sources/$dir" "src/content/sources/"
@@ -307,7 +307,7 @@ jobs:
             python pipelines/build_summaries.py
             python pipelines/_generate_generators_index.py
             git add public/data/ public/generators-index.json
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending; do
               git add "src/content/sources/$dir/" 2>/dev/null || true
             done
             if git diff --cached --quiet; then
