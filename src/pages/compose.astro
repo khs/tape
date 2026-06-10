@@ -11,6 +11,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   description="Build your own Tape dashboard from the chart library."
 >
   <div class="composer-shell" data-base-url={baseUrl}>
+    {/*
+      Small-screen note. The composer is a dense desktop tool (a fixed
+      360px library rail + multi-control modals); rather than degrade
+      silently below 640px, acknowledge it. Revealed + dismissed
+      client-side (remembered per browser) so it never ships to desktop.
+    */}
+    <div
+      class="composer-mobile-note"
+      data-role="composer-mobile-note"
+      role="note"
+      hidden
+    >
+      <span
+        >Compose works best on a bigger screen — you can browse here, but
+        building a dashboard is easier on a laptop or desktop.</span
+      >
+      <button
+        type="button"
+        class="composer-mobile-note-x"
+        data-role="composer-mobile-note-dismiss"
+        aria-label="Dismiss"
+      >&times;</button>
+    </div>
     <div class="composer-topbar">
       <div class="composer-title-wrap">
         <input
@@ -542,6 +565,33 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
       <main class="composer-composition">
         <div class="comp-empty" data-role="comp-empty">
+          {/*
+            Guided quick-start for anonymous (likely first-time) visitors:
+            one click on a popular indicator drops a real chart in, for an
+            instant "oh, I get it" moment instead of a blank canvas. Revealed
+            client-side only when there's no stored session; signed-in (likely
+            returning) users keep the lean hint below. Source IDs are verified
+            to exist in the library.
+          */}
+          <div
+            class="comp-empty-quickstart"
+            data-role="comp-empty-quickstart"
+            hidden
+          >
+            <p class="comp-empty-lead">Start with a popular indicator</p>
+            <p class="muted small">
+              Click one to drop it in — then keep adding, or build your own
+              from 35,000+ sources on the left.
+            </p>
+            <div class="comp-quickstart-chips">
+              <button type="button" class="comp-quickstart-chip" data-qs-source="fred/us_unemployment">Unemployment rate</button>
+              <button type="button" class="comp-quickstart-chip" data-qs-source="fred/us_cpi">Inflation (CPI)</button>
+              <button type="button" class="comp-quickstart-chip" data-qs-source="fred/fed_funds">Fed funds rate</button>
+              <button type="button" class="comp-quickstart-chip" data-qs-source="fred/payrolls">Nonfarm payrolls</button>
+              <button type="button" class="comp-quickstart-chip" data-qs-source="fred/us_10y">10-year Treasury</button>
+              <button type="button" class="comp-quickstart-chip" data-qs-source="yahoo/wti_crude">Oil (WTI)</button>
+            </div>
+          </div>
           <p class="muted">Pick charts on the left to start composing. They'll appear here organized into sections.</p>
           <p class="muted small comp-empty-hint">
             Two ways in: click a source (or a Pregenerated chart) and it
@@ -2764,6 +2814,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     wireDerivedSourceModal();
     wireSigninPrompt();
     wireModalFocusTraps();
+    wireFirstRunHelpers();
     const copyShare = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
     if (copyShare) {
       copyShare.addEventListener("click", async () => {
@@ -3111,6 +3162,56 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         first.focus();
       }
     });
+  }
+
+  // First-run scaffolding: (1) a guided quick-start (popular indicators that
+  // add a real chart on click) for anonymous — likely first-time — visitors,
+  // and (2) a dismissible "best on desktop" note on small screens. Both are
+  // revealed client-side so neither ships to the wrong audience.
+  function wireFirstRunHelpers(): void {
+    const quickstart = shell.querySelector<HTMLElement>(
+      "[data-role='comp-empty-quickstart']",
+    );
+    if (quickstart && !readStoredSession()) {
+      quickstart.hidden = false;
+      quickstart
+        .querySelectorAll<HTMLButtonElement>("[data-qs-source]")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.qsSource;
+            if (id) void addSourceAsChart(id);
+          });
+        });
+    }
+
+    const mobileNote = shell.querySelector<HTMLElement>(
+      "[data-role='composer-mobile-note']",
+    );
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem("tape-compose-mobile-note") === "dismissed";
+    } catch {
+      /* localStorage unavailable (private mode etc.) — just show the note */
+    }
+    if (
+      mobileNote &&
+      !dismissed &&
+      window.matchMedia("(max-width: 640px)").matches
+    ) {
+      mobileNote.hidden = false;
+      mobileNote
+        .querySelector<HTMLButtonElement>(
+          "[data-role='composer-mobile-note-dismiss']",
+        )
+        ?.addEventListener("click", () => {
+          mobileNote.hidden = true;
+          try {
+            localStorage.setItem("tape-compose-mobile-note", "dismissed");
+          } catch {
+            /* ignore */
+          }
+        });
+    }
   }
 
   function wireSigninPrompt(): void {
