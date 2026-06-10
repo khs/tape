@@ -17,11 +17,12 @@
 
 ---
 
-## ⮕ RESUME HERE — updated 2026-06-08 (Plan 3a+3b DONE; 3c foundation done (richCards), adoption banked)
+## ⮕ RESUME HERE — updated 2026-06-09 (Plan 3 COMPLETE: 3a+3b+3c live — SourcePicker is THE picker everywhere)
 
-**Plan 1+2 — IN PROGRESS. 2a/2b/2c DONE + LIVE; 2d STARTED (foundation + share +
-maps + generators + series + modal-tags + ds-modal + cc-modal + geo-chips + sources-tab + tiles verified).**
-`compose.astro`: **11,007 → ~3,609 lines** and falling. `origin/main = 0251af492b (3a + 3b + 3c richCards foundation)` (compose ~3547 lines).
+**Plan 1+2 — 2a/2b/2c DONE + LIVE; 2d feature-module split DONE (render core
+deliberately stays in compose, see ASSESSMENT).**
+`compose.astro`: **11,007 → 3,073 lines** (-72%). `origin/main = bebae542e6
+(3c: Sources tab -> SourcePicker; geo-chips.ts + geo-filter.ts retired)`.
 - **2a** (`f193eac42a`) — `<style is:global>` → `src/styles/compose.css`.
 - **2b** (`e9bfb00370`) — geo/tag filters → `src/lib/composer/geo-filter.ts`
   (`createComposerGeoFilters` over `source-filters.ts`; per-query unlock memo +
@@ -295,10 +296,10 @@ by this name. (Revisit if Keller wants the pipelines renamed too.)
 and `fix/va08-bg-map-refs` are fully merged into `main` (and live on prod). Work
 on `main`.
 
-**Remaining refactor plans (this file):** Plan **1+2** — 2a/2b/2c DONE+LIVE;
-**only 2d remains** (the 7-module feature split — see "RESUME HERE" above for the
-plan + the blind-execution caveat). Plan **3** (SourcePicker adoption — also fixes
-the deferred ds-modal search bug), Plan **7** (inline-YAML standardization).
+**Remaining refactor plans (this file):** Plan **7** (inline-YAML
+standardization) is the LAST open plan. Plans 1+2 (2a-2d) and Plan 3
+(SourcePicker adoption, incl. the ds-modal search bug) are DONE + LIVE;
+further compose-core extraction was assessed and NOT recommended.
 
 **Env / tooling (laptop):** Node 22 + Python 3.13 installed; `npm install` done;
 **`NODE_OPTIONS=--max-old-space-size=4096`** user env var (build OOMs without it;
@@ -328,9 +329,9 @@ transport timeout under the 35k-file collection — own effort). Autonomous
 2. [x] **Plan 6 — cache consolidation** (pipelines, isolated) — DONE + VERIFIED
 3. [x] **Plan 5 — chartOverride schema unification** (option A + parity tests) — DONE + VERIFIED
 4. [x] **Plan 4 — dashboard renderer dedup** — DONE + VERIFIED + LIVE
-5. [ ] **Plan 1 + 2 — compose.astro decompose + source-filters migration** ← NEXT
-6. [ ] **Plan 3 — adopt SourcePicker.astro in composer**
-7. [ ] **Plan 7 — inline-YAML standardization** (lowest urgency, splittable)
+5. [x] **Plan 1 + 2 — compose.astro decompose + source-filters migration** — DONE + LIVE (2a-2d; render core stays by design)
+6. [x] **Plan 3 — adopt SourcePicker.astro in composer** — DONE + LIVE (3a ds-modal, 3b cc-modal, 3c Sources tab)
+7. [ ] **Plan 7 — inline-YAML standardization** (lowest urgency, splittable) ← LAST OPEN PLAN
 
 ---
 
@@ -705,6 +706,43 @@ deleting; the maps-tab hint switch; any Charts-sub-tab shared helper.
   sources-tab ctx/return, compose createSourcesTab call, geo-wiring removal, the
   pick/hint listeners, then delete geo-chips.ts + geo-filter.ts + its test.
 
+
+### 3c RESULT (2026-06-09) -- DONE + LIVE (bebae542e6); CI + post-deploy diagnostic green
+- Shipped from clean 15d7828131+docs using Read/Edit tools (NO PowerShell
+  splices -> the AV spawn-blocker was bypassed entirely; the over-deletion
+  pitfall avoided by individually-bounded deletions). One pass, astro 0/0/0 +
+  vitest 706 on the FIRST try. 9 files, +167/-1807.
+- Sources tab = <SourcePicker instanceId="lib" richCards> island; pick ->
+  addSourceAsChart + "maps-tab" hint -> setActiveLibTab("maps") wired in
+  wire(). sources-tab.ts is Charts-tab + tab-switcher only (635 -> 216 lines).
+  compose.astro 3,547 -> 3,073. DELETED: geo-chips.ts, geo-filter.ts + its
+  parity test (vitest 720 -> 706 by design). state.ts dropped the dead
+  libGeo/sourcesSearchQuery/sourcesCdState/sourcesCdDistrict store fields.
+  compose.css dead .lib-geo-*/.cd-*/.source-card-* blocks removed.
+- TWO REAL BUGS found + fixed beyond the banked plan:
+  1. SourcePicker's hint-card handler was DEAD CODE on every surface: hints
+     carry BARE chips ("metro"/"country"/"cd"/"county"/"maps-tab" -- see
+     source-hints.ts LEVEL_CHIP) but the handler only engaged prefixed forms
+     ("metro:10180") that nothing emits. Fixed in SourcePicker: bare chip ->
+     clear search + open the matching geo popover, DEFERRED one tick (the
+     hint click is still bubbling; the document-level outside-click closer
+     would instantly re-close the popover otherwise). This also un-breaks
+     hint cards on /alerts.
+  2. diagnostics/iframe-tests.ts composer-sources-tab probe targeted the OLD
+     DOM (lib-results-sources .source-card) -> retargeted to
+     [data-spicker-instance='lib'] .source-picker-card. Without this the
+     post-deploy diagnostic would have gone red on this very deploy.
+- VERIFIED: CI + post-deploy smoke + post-deploy diagnostic ALL green -- the
+  diagnostic's iframe probe exercised prod's compose in-browser (>100 picker
+  cards rendered + a card click mutated the DOM + console-error watch).
+  Prod HTML curl: lib mount + richCards present; lib-search-sources /
+  lib-geo-chips / tag-filters-sources / lib-results-sources all gone;
+  Charts tab + cc/ds pickers intact.
+- RESIDUAL (browser-interactive only; Chrome MCP was disconnected): visually
+  confirm the rich-card geo badges + the NEW bare-chip hint->popover flow on
+  prod (type "unemployment" -> click the metro/states hint -> popover opens,
+  search clears; tract hint -> Maps tab). Core pick->tile already proven by
+  the diagnostic. Do this next time a browser is connected.
 
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
 
