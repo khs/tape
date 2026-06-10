@@ -58,14 +58,44 @@ neighbors) would have been caught at step 8.
 
 ## Source YAMLs
 
-7. **Auto-generate where possible.** If you have N series × M
-   geographies, write a generator (mirroring
-   `pipelines/_generate_acs_sources.py`) rather than hand-typing.
-   Each YAML drifts independently from the pipeline's intent
-   otherwise.
+7. **Emit the YAML inline from the pipeline** (the standard since
+   Plan 7, 2026-06). The ingest pipeline writes one source YAML per
+   series right where it writes the data file — a local
+   `write_yaml(...)` called next to `common.write_timeseries(...)`.
+   Pattern exemplars: `pipelines/usgs_water.py`, `usda_nass.py`,
+   `census_acs_metro.py`, `bls_metro.py`. Conventions:
 
-   Hand-typed YAMLs are fine for ~150 or fewer series; beyond
-   that the audit-and-fix overhead beats the time-to-write.
+   - **Overwrite-always.** The YAML dir is owned by the pipeline; a
+     refresh regenerates every file. Never hand-edit a YAML in an
+     inline-owned dir — the next refresh clobbers it. Fixes belong
+     in the emitter (names/descriptions) or in shared post-passes
+     (`fix_source_descriptions.py` normalizes copy on every refresh).
+   - **Emit only for data that landed.** Call the emitter after the
+     data file is written (min-points checks, suppressed cells
+     skipped), so YAML ↔ data parity holds by construction — no
+     separate dir-scan needed.
+   - **Stage the dir in the refresh workflows.** Inline YAML reaches
+     main only if `src/content/sources/<provider>` is in the commit
+     step's YAML-dir list — which appears in THREE places per
+     workflow (snapshot loop, restore loop, `git add` loop) in
+     `refresh-demographics.yml`, plus the equivalent block in
+     `refresh-data.yml` for weekly-cadence providers. Update every
+     occurrence; a dir missing from the list means its refreshed
+     YAML silently never commits.
+
+   **Legacy patterns — do NOT use for new providers:** one-shot
+   `_scaffold_<provider>.py` scripts (duplicate the pipeline's
+   series inventory in a second file — the old ones carried literal
+   "keep in lockstep" comments — and need a manual re-run whenever
+   coverage changes) and standalone `_generate_*.py` source
+   generators (`_generate_acs_sources.py` /
+   `_generate_acs_national_sources.py` remain for the ACS family:
+   they're workflow-integrated and serve ~18k files across several
+   pipelines, so folding them is riskier than it's worth today).
+
+   Hand-typed YAMLs remain fine for small fixed catalogs (~150 or
+   fewer series, e.g. `fred/`, `cms_nhe`); beyond that — or whenever
+   the pipeline already iterates a catalog — inline emission wins.
 
 ## Audit (the bit that prevents May 2026 recurrences)
 
