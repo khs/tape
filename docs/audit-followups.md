@@ -32,18 +32,46 @@ no `astro build`, no `astro dev`; Chrome MCP currently disconnected).
    `frame-ancestors` shipped. A real CSP must allow the app's inline scripts
    + the data islands + PostHog + Vercel Analytics + Observable Plot, so it
    needs a **preview deploy** to validate without white-screening prod.
-   Approach: add per-route CSP in `vercel.json` (or Astro's experimental CSP),
-   start in `Content-Security-Policy-Report-Only`, watch reports, then enforce.
+   Approach: enable Astro's experimental CSP (auto-hashes hoisted +
+   `is:inline` scripts) — needed because there ARE executable inline scripts
+   (`chart/[...id].astro:76,206`; `index.astro:232` `define:vars`;
+   `me/index.astro:46`; `me/diagnostics.astro:24`) that a bare `'self'` would
+   block. Start in `Content-Security-Policy-Report-Only`, watch reports on a
+   preview, then enforce. The JSON islands (`type="application/json"` /
+   `ld+json`) are NOT script-src concerns (not executed).
+   **Candidate policy to deploy-test (origins already inventoried):**
+   ```
+   default-src 'self';
+   script-src 'self' https://us.i.posthog.com 'unsafe-inline';   # replace 'unsafe-inline' with Astro-generated hashes before enforce
+   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://us.i.posthog.com;
+   style-src 'self' 'unsafe-inline';   # dynamic inline style attributes (banners, ChartMap, Plot)
+   img-src 'self' data:;
+   font-src 'self';   # @fontsource is bundled
+   object-src 'none'; base-uri 'self';
+   ```
+   (Vercel Analytics serves its script same-origin at `/_vercel/insights/`, so
+   `'self'` covers it.)
 2. **Focus trap + focus restoration in the composer modals** (medium, a11y).
    cc-modal / ds-modal / signin-prompt in `compose.astro` are `.hidden`-
    toggled `<div role="dialog">` with no Tab-trap and no return-focus on
    close. Pattern to copy: `welcome.astro`'s `popoutLastFocus` save/restore.
    Additive JS, but only truly verifiable with a **keyboard walkthrough** —
    do it when a browser is connected.
-3. **`library.json` payload size** (low-med, perf). Live probe reported
-   >10 MB; it's a built endpoint, so the **compressed** (brotli) over-the-wire
-   size needs measuring first. If still large: drop fields the picker doesn't
-   need, or split/paginate. Measure before changing.
+3. **`library.json` payload size** (low, perf) — **MEASURED + partly
+   addressed 2026-06-10.** Reality: **38.9 MB uncompressed but only ~1.6 MB
+   gzip / ~1.1 MB brotli over the wire** — the audit's ">10 MB" was the
+   uncompressed figure; real-browser transfer is modest. It's `prerender=true`
+   (static), so Vercel ignored the endpoint's own `max-age=300` and served
+   `max-age=0, must-revalidate` (revalidated every visit). **Shipped:** a
+   `vercel.json` rule edge-caches `/library.json` (`s-maxage=86400` +
+   `stale-while-revalidate`); deploys purge it and it's immutable between data
+   refreshes, so this is safe and cuts cross-user/repeat origin hits.
+   **Residual (not worth the risk):** the real cost is the client `JSON.parse`
+   of 38.9 MB. `searchText` duplicates name/description but is ENRICHED
+   (hint-level series names, linked-chart source names), so dropping it would
+   degrade search — NOT a safe blind trim. A real reduction would mean a
+   leaner picker-only manifest (id/name/shortName/tags) with descriptions
+   fetched on demand — a bigger redesign, deferred.
 4. **Lazy-load Plot/d3** (low, perf). `ChartController`/`ChartMap` import
    `@observablehq/plot` + `d3` (umbrella) at top-of-script on chart-bearing
    pages. Defer via dynamic `import()` on dialog-open; narrow
