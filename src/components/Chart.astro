@@ -1026,7 +1026,7 @@ const mostRecentUpdate = payload.sources
     cursor: pointer;
     font: inherit;
     color: inherit;
-    transition: border-color 0.15s, transform 0.08s;
+    transition: border-color 0.15s, transform 0.08s, box-shadow 0.15s;
     /* Establish a stacking context so the hovered state below can lift
        this tile above siblings (and above the dashboard's window-pill
        row, the next section header, neighboring tiles, etc.). Without
@@ -1036,6 +1036,11 @@ const mostRecentUpdate = payload.sources
   }
   .chart-tile:hover {
     border-color: rgba(55, 53, 47, 0.18);
+    /* Stronger "this is clickable" affordance: a gentle lift + shadow on
+       top of the border highlight. The prior hover was a near-invisible
+       border-alpha change only, which left tiles reading as static cards. */
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
     /* Float the hovered tile above everything else on the page (modals
        and the chart dialog itself live in the dialog top-layer, so they
        still trump this). Important because the Plot.tip tooltip extends

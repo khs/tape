@@ -743,11 +743,44 @@ const extraSourcesJson = extraSources.length > 0
     if (!host) return;
     const matches = filteredSources(state, lib);
     if (matches.length === 0) {
-      // Empty-state copy matches the composer's. The mailto fallback
-      // is the documented escape hatch for "we don't have this source
-      // yet" — same address pattern as compose.astro's empty state.
+      const q = state.searchQuery.trim();
+      const hasFilters =
+        q.length > 0 ||
+        state.selectedTags.size > 0 ||
+        !!state.selectedMetroCbsa ||
+        !!state.selectedCountryCode ||
+        !!state.cdState;
+      // Recovery ladder, not a dead end: name what was searched, offer a
+      // one-click reset (a zero-result on a ~35k-source library is almost
+      // always a typo or an over-narrow filter), THEN the request mailto.
       host.innerHTML =
-        '<p class="muted small">No sources match. Feel free to request one at <a href="mailto:keller.scholl@gmail.com">keller.scholl@gmail.com</a>.</p>';
+        `<div class="source-picker-empty">` +
+        `<p class="muted small">No sources match${q ? ` “${escapeHtml(q)}”` : ""}.</p>` +
+        (hasFilters
+          ? `<button type="button" class="source-picker-clear-btn" data-spicker-role="clear-filters">Clear search &amp; filters</button>`
+          : "") +
+        `<p class="muted small">Still missing something? <a href="mailto:keller.scholl@gmail.com">Request a source</a>.</p>` +
+        `</div>`;
+      const clearBtn = host.querySelector<HTMLButtonElement>(
+        "[data-spicker-role='clear-filters']",
+      );
+      clearBtn?.addEventListener("click", () => {
+        state.searchQuery = "";
+        state.selectedTags.clear();
+        state.selectedMetroCbsa = null;
+        state.selectedCountryCode = null;
+        state.cdState = null;
+        state.cdDistrict = null;
+        const searchInput = state.root.querySelector<HTMLInputElement>(
+          "[data-spicker-role='search']",
+        );
+        if (searchInput) searchInput.value = "";
+        updateChipLabel(state, "metro", "US metro areas", false);
+        updateChipLabel(state, "country", "Regions and countries", false);
+        renderCdChip(state, lib);
+        renderTagChips(state, lib);
+        renderResults(state, lib);
+      });
       return;
     }
     const parts: string[] = [];
@@ -1708,5 +1741,29 @@ const extraSourcesJson = extraSources.length > 0
     margin-top: 3px;
     font-size: 11px;
     color: var(--color-neutral-500, #888);
+  }
+  /* Empty / zero-result state — a recovery ladder (reset filters) rather
+     than a mailto dead end. */
+  .source-picker-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 2px;
+  }
+  .source-picker-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border: 1px solid var(--color-accent, #0F766E);
+    border-radius: var(--radius-sm, 6px);
+    background: var(--color-white, #fff);
+    color: var(--color-accent, #0F766E);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .source-picker-clear-btn:hover {
+    background: var(--color-accent-soft, #e8f0fe);
   }
 </style>

@@ -29,6 +29,14 @@ const siteOrigin = canonicalOrigin(Astro);
 const resolvedOgPath = ogImage ?? `/og.png?title=${encodeURIComponent(SITE_BRAND_NAME)}`;
 const absoluteOgUrl = siteOrigin + resolvedOgPath;
 const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
+
+// Wayfinding: mark the current top-nav section (aria-current + visual
+// active state) and give the primary action ("Compose") accent emphasis
+// so it doesn't read as just another meta-link.
+const navPath = Astro.url.pathname;
+const navActive = (prefix: string): boolean =>
+  navPath === `${baseUrl}${prefix}` ||
+  navPath.startsWith(`${baseUrl}${prefix}/`);
 ---
 
 <!doctype html>
@@ -101,30 +109,35 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
         <nav class="flex items-center gap-5 text-sm">
           <a
             href={`${baseUrl}/compose/`}
-            class="text-neutral-600 no-underline hover:text-neutral-900"
+            class="no-underline font-medium hover:underline"
+            style="color: var(--color-accent)"
+            aria-current={navActive("/compose") ? "page" : undefined}
           >
             Compose
           </a>
           <a
             href={`${baseUrl}/about/`}
-            class="text-neutral-600 no-underline hover:text-neutral-900"
+            class={`no-underline ${navActive("/about") ? "text-neutral-900 font-medium" : "text-neutral-600 hover:text-neutral-900"}`}
+            aria-current={navActive("/about") ? "page" : undefined}
           >
             About
           </a>
           <a
             href={`${baseUrl}/me/`}
-            class="text-neutral-600 no-underline hover:text-neutral-900"
+            class={`no-underline ${navActive("/me") ? "text-neutral-900 font-medium" : "text-neutral-600 hover:text-neutral-900"}`}
             data-role="auth-me-link"
             style="display: none"
+            aria-current={navActive("/me") ? "page" : undefined}
           >
             My dashboards
           </a>
           <a
             href={`${baseUrl}/alerts/`}
-            class="text-neutral-600 no-underline hover:text-neutral-900"
+            class={`no-underline ${navActive("/alerts") ? "text-neutral-900 font-medium" : "text-neutral-600 hover:text-neutral-900"}`}
             data-role="auth-alerts-link"
             style="display: none"
             title="Indicator alert rules — get notified when a series crosses a threshold"
+            aria-current={navActive("/alerts") ? "page" : undefined}
           >
             Alerts
           </a>
