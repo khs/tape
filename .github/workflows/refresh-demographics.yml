@@ -278,7 +278,7 @@ jobs:
             tmp=$(mktemp -d)
             mkdir -p "$tmp/public" "$tmp/src/content/sources"
             cp -r public/data "$tmp/public/" 2>/dev/null || true
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep; do
               if [ -d "src/content/sources/$dir" ]; then
                 cp -r "src/content/sources/$dir" "$tmp/src/content/sources/" 2>/dev/null || true
               fi
@@ -292,9 +292,10 @@ jobs:
             # all 4 providers. Overlay updates what we regenerated and leaves
             # every other provider's data intact.
             cp -r "$tmp/public/data/." public/data/
-            # The acs* source-YAML dirs are owned solely by this workflow, so
-            # replacing them wholesale is safe (no other job adds to them).
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
+            # These source-YAML dirs are owned solely by this workflow's
+            # pipelines (generators + inline emitters), so replacing them
+            # wholesale is safe (no other job adds to them).
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep; do
               if [ -d "$tmp/src/content/sources/$dir" ]; then
                 rm -rf "src/content/sources/$dir"
                 cp -r "$tmp/src/content/sources/$dir" "src/content/sources/"
@@ -306,7 +307,7 @@ jobs:
             python pipelines/build_summaries.py
             python pipelines/_generate_generators_index.py
             git add public/data/ public/generators-index.json
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep; do
               git add "src/content/sources/$dir/" 2>/dev/null || true
             done
             if git diff --cached --quiet; then

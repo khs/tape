@@ -208,8 +208,8 @@ stored in **billions USD**, counts **raw**; see §8.
   (`data.cdc.gov`, no key). Life expectancy, age-adjusted death rates,
   leading-cause death rates. Public-use aggregates only — never restricted
   micro-data.
-- **`naep_scores.py`** (`public/data/naep/`) — NCES NAEP `GetAdhocData` (no
-  key). Grade-4/8 math+reading scale scores. YAML via `_scaffold_naep.py`.
+- **`naep_scores.py`** (`public/data/naep/` + YAML) — NCES NAEP `GetAdhocData`
+  (no key). Grade-4/8 math+reading scale scores. YAML emitted inline (Plan 7).
 - **`edu_spending.py`** (`public/data/edu_spending/`) — Urban Institute
   Education Data Portal (NCES CCD F-33, no key). Per-pupil current spending =
   spending / enrollment. YAML via `_scaffold_edu_spending.py`.
@@ -272,12 +272,12 @@ after every refresh.
 - **`_generate_acs_sources.py` / `_generate_acs_national_sources.py`** — scan
   `acs_cd` / `acs_national` data → write `src/content/sources/acs_cd|acs_national/`.
 - **`_generate_zillow_sources.py`** — scan `zillow` data → zillow source YAMLs.
-- **`_scaffold_*.py`** (acs_labor, census_govfin, edu_spending, naep,
+- **`_scaffold_*.py`** (acs_labor, census_govfin, edu_spending,
   state_govemp, persona_sources) — iterate their pipeline's data files, emit
   one source YAML each. Per-state IDs are gated behind the composer's "state
   chip" (`parseStateSourceId`); national IDs are default-visible. Being
   folded into their pipelines one provider at a time (Plan 7 —
-  eia_state_energy done); new providers emit YAML inline instead.
+  eia_state_energy + naep done); new providers emit YAML inline instead.
 - **`_generate_content.py`** — one-off source+chart YAML generator for a
   library expansion (with a cadence→`supportedDeltas` helper).
 - **`_generate_state_tract_charts.py` / `_generate_state_bg_charts.py`** —

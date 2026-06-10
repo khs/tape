@@ -29,16 +29,21 @@ Notes:
   - Scores stored verbatim (e.g. 269.8); unit "scale score",
     unitClass "index" (a scaled score, not an additive quantity).
 
+Source YAMLs are emitted INLINE (one per written series, right after the
+data file) into src/content/sources/naep/ — overwrite-always; the dir is
+pipeline-owned. This replaced the one-shot _scaffold_naep.py (Plan 7).
+
 Run: `python pipelines/naep_scores.py` (no key needed).
 """
 from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 import _env  # noqa: F401 — harmless; NAEP needs no key
 
-from common import cached_get
+from common import cached_get, write_timeseries
 
 PIPELINE = "naep"
 BASE = "https://www.nationsreportcard.gov/DataService/GetAdhocData.aspx"
@@ -74,6 +79,81 @@ STATES = [
 ]
 GEOS = [("us", "NP")] + [(abbr.lower(), abbr) for abbr, _name in STATES]
 
+# --- Source-YAML emission (inline; Plan 7) --------------------------------
+# One YAML per written series, emitted right after its data file, so
+# YAML<->data parity holds by construction. Overwrite-always: the dir is
+# pipeline-owned — name/description fixes belong in these templates.
+# Per-state IDs (`state_<metric>_<st>`) are recognized by parseStateSourceId
+# and gated behind the composer's state chip; national `us_<metric>` series
+# stay default-visible and carry the education tag.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
+
+METRIC_LABEL = {suffix: label for _subj, _sub, _g, suffix, label in METRICS}
+# subject + grade per suffix, for the provenance series string + audit.
+METRIC_META = {suffix: (subj, g) for subj, _sub, g, suffix, _label in METRICS}
+STATE_NAME_LC = {abbr.lower(): name for abbr, name in STATES}
+SHORT_METRIC = {
+    "mathg4": "g4 math", "mathg8": "g8 math",
+    "readg4": "g4 reading", "readg8": "g8 reading",
+}
+NAEP_URL = "https://www.nationsreportcard.gov/"
+
+
+def _q(s: str) -> str:
+    return "'" + s.replace("'", "''") + "'"
+
+
+def write_yaml(sid: str, suffix: str, geo_key: str) -> None:
+    if geo_key == "us":
+        where = "the US"
+        name = f"NAEP {METRIC_LABEL[suffix]} score (US)"
+        short = f"NAEP {SHORT_METRIC[suffix]} (US)"
+        tags = ["education", "us"]
+    else:
+        where = STATE_NAME_LC[geo_key]
+        name = f"{where} NAEP {METRIC_LABEL[suffix]} score"
+        short = f"{geo_key.upper()} NAEP {SHORT_METRIC[suffix]}"
+        tags = ["education", "us-state", "us"]
+    subj, grade = METRIC_META[suffix]
+    # House-style copy (the 92792e9d0d acronym-scrub pass rewrote the old
+    # scaffold text; this template matches the committed YAML verbatim).
+    # Emitted as a PLAIN (unquoted) scalar, exactly as committed.
+    desc = (
+        f"Average scale score, {METRIC_LABEL[suffix]}, for {where}, from "
+        f"the National Assessment of Educational Progress (NAEP) — \"the "
+        f"Nation's Report Card\" (NCES). Administered identically in every "
+        f"state, so scores are directly comparable across states — unlike "
+        f"each state's own proficiency tests. Public-domain US government "
+        f"data."
+    )
+    lines = [
+        f"name: {_q(name)}",
+        f"shortName: {_q(short)}",
+        f"description: {desc}",
+        "kind: timeseries",
+        f"pipeline: {PIPELINE}",
+        f"dataFile: data/{PIPELINE}/{sid}.json",
+        'supportedDeltas: ["5y", "10y"]',
+        'unit: "scale score"',
+        "emphasis: level",
+        "formatting:",
+        "  style: number",
+        "  decimals: 0",
+        "provenance:",
+        "  provider: U.S. Dept. of Education, NCES — NAEP (Nation's Report Card)",
+        f"  series: NAEP {subj} grade {grade} mean scale score",
+        f"  url: {NAEP_URL}",
+        "  license: Public domain (US government data)",
+        "tags:",
+    ]
+    for t in tags:
+        lines.append(f"  - {t}")
+    lines.append("unitClass: index")
+    (YAML_DIR / f"{sid}.yaml").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8",
+    )
+
 
 def fetch(subject: str, subscale: str, grade: int, juris: str) -> list[dict]:
     params = {
@@ -93,6 +173,7 @@ def fetch(subject: str, subscale: str, grade: int, juris: str) -> list[dict]:
 def run() -> int:
     written = 0
     empties: list[str] = []
+    YAML_DIR.mkdir(parents=True, exist_ok=True)
     for subject, subscale, grade, suffix, _label in METRICS:
         for geo_key, juris in GEOS:
             rows = fetch(subject, subscale, grade, juris)
@@ -116,8 +197,8 @@ def run() -> int:
             if len(pts) < 2:
                 empties.append(sid)
                 continue
-            from common import write_timeseries
             write_timeseries(PIPELINE, sid, sid, pts, unit="scale score")
+            write_yaml(sid, suffix, geo_key)
             written += 1
     print(f"naep: wrote {written} series.")
     if empties:
