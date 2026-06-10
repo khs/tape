@@ -2763,6 +2763,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     wireChartBlurbModal();
     wireDerivedSourceModal();
     wireSigninPrompt();
+    wireModalFocusTraps();
     const copyShare = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
     if (copyShare) {
       copyShare.addEventListener("click", async () => {
@@ -3037,6 +3038,80 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // is destructured near the other 2d factories above. The A/B operand
   // pickers are now <SourcePicker> islands (ds-a / ds-b), so the modal owns
   // its own geo/tag filtering -- compose no longer keeps dsModal state here.
+
+  // Accessibility (WCAG 2.4.3): trap Tab focus inside whichever modal
+  // dialog is open and restore focus to the trigger on close. STATELESS
+  // with respect to the modals' own open/close logic — it only observes
+  // each `.cc-modal-backdrop`'s `hidden` toggle and intercepts Tab, so it
+  // cannot break the existing show/hide. (The alerts page uses a native
+  // <dialog>, which the browser traps for free; this covers compose's
+  // hand-rolled cb/cc/ds/signin modals.)
+  function wireModalFocusTraps(): void {
+    const FOCUSABLE =
+      'a[href], button:not([disabled]), input:not([disabled]), ' +
+      'select:not([disabled]), textarea:not([disabled]), ' +
+      '[tabindex]:not([tabindex="-1"])';
+    const backdrops = [
+      ...shell.querySelectorAll<HTMLElement>(".cc-modal-backdrop"),
+    ];
+    if (backdrops.length === 0) return;
+    const returnTo = new WeakMap<HTMLElement, HTMLElement>();
+
+    // getClientRects() (not offsetParent) so position:fixed modals'
+    // controls still count as visible; display:none sub-sections (e.g. a
+    // hidden op selector) correctly drop out.
+    const focusablesIn = (modal: HTMLElement): HTMLElement[] =>
+      [...modal.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+        (el) => el.getClientRects().length > 0,
+      );
+
+    for (const backdrop of backdrops) {
+      const obs = new MutationObserver(() => {
+        const open = !backdrop.hidden;
+        const wasOpen = backdrop.dataset.ftOpen === "1";
+        if (open && !wasOpen) {
+          backdrop.dataset.ftOpen = "1";
+          const active = document.activeElement;
+          if (active instanceof HTMLElement) returnTo.set(backdrop, active);
+          // Only pull focus in if a modal control didn't already claim it
+          // (the cc/cb modals focus their title input on open themselves).
+          if (!backdrop.contains(document.activeElement)) {
+            focusablesIn(backdrop)[0]?.focus();
+          }
+        } else if (!open && wasOpen) {
+          backdrop.dataset.ftOpen = "0";
+          const prev = returnTo.get(backdrop);
+          returnTo.delete(backdrop);
+          if (prev && prev.isConnected) prev.focus();
+        }
+      });
+      obs.observe(backdrop, { attributes: true, attributeFilter: ["hidden"] });
+    }
+
+    // One document-level Tab handler keeps focus inside the topmost open
+    // modal. It only acts at the focus-ring boundaries (first/last), so
+    // normal Tab movement within the modal is the browser's default.
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const openBackdrops = backdrops.filter((b) => !b.hidden);
+      if (openBackdrops.length === 0) return;
+      const modal = openBackdrops[openBackdrops.length - 1];
+      const f = focusablesIn(modal);
+      if (f.length === 0) return;
+      const first = f[0];
+      const last = f[f.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || !modal.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !modal.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
 
   function wireSigninPrompt(): void {
     const backdrop = shell.querySelector<HTMLElement>(
