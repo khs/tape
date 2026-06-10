@@ -817,9 +817,19 @@ const extraSourcesJson = extraSources.length > 0
           if (hintChip != null) {
             // Hint-card click: engage the relevant filter chip + also
             // dispatch a `source-picker:hint` event so hosts can hook
-            // analytics. The chip-engagement logic mirrors
-            // compose.astro's hint-card behavior — the hint's `chip`
-            // field tells us which chip to activate. Format examples:
+            // analytics (or handle host-level chips like "maps-tab").
+            // The chip-engagement logic mirrors compose.astro's old
+            // hint-card behavior — the hint's `chip` field tells us
+            // which chip to activate. Formats:
+            //   BARE (what src/lib/source-hints.ts emits today):
+            //   "metro" | "country" | "cd" → open that chip's popover
+            //                                so the user picks an entity
+            //   "county"                   → no-op (the hint copy says
+            //                                to type the county name)
+            //   "maps-tab"                 → host-level (the composer
+            //                                switches to its Maps tab)
+            //   PREFIXED (entity-specific, for hosts that synthesize
+            //   their own hint sources):
             //   "metro:10180"           → metro chip, CBSA Abilene
             //   "country:AUS"           → country chip, Australia
             //   "cd:VA:8"               → CD chip, VA-08
@@ -831,6 +841,46 @@ const extraSourcesJson = extraSources.length > 0
                 bubbles: true,
               }),
             );
+            if (
+              hintChip === "metro" ||
+              hintChip === "country" ||
+              hintChip === "cd"
+            ) {
+              // Bare level chip: clear the search (so the post-pick
+              // list isn't still narrowed by the hint's query — same
+              // behavior as the composer's old engageHintChip), then
+              // open the chip's popover. The open is DEFERRED a tick:
+              // this click is still bubbling, and the document-level
+              // outside-click closer would otherwise immediately close
+              // the popover we just opened (the hint card isn't inside
+              // a chip/popover, so the closer's guard doesn't exempt
+              // it). For "cd" with a state already picked there is no
+              // cd-chip button (the active chip renders a district
+              // dropdown instead) — the deferred click no-ops, which
+              // is right: that state's sources are already surfaced.
+              state.searchQuery = "";
+              const searchEl = state.root.querySelector<HTMLInputElement>(
+                "[data-spicker-role='search']",
+              );
+              if (searchEl) searchEl.value = "";
+              renderTagChips(state, lib);
+              renderResults(state, lib);
+              window.setTimeout(() => {
+                state.root
+                  .querySelector<HTMLButtonElement>(
+                    `[data-spicker-role='${hintChip}-chip']`,
+                  )
+                  ?.click();
+              }, 0);
+              return;
+            }
+            if (hintChip === "county" || hintChip === "maps-tab") {
+              // county: leave the typed search intact — the hint copy
+              // instructs the user to type the county name. maps-tab:
+              // nothing to engage in the picker; the host handles it
+              // via the source-picker:hint event dispatched above.
+              return;
+            }
             if (hintChip.startsWith("metro:")) {
               const code = hintChip.slice("metro:".length);
               state.selectedMetroCbsa = code;

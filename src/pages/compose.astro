@@ -138,113 +138,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         </div>
 
         <div class="lib-panel" data-role="lib-panel-sources">
-          <div class="lib-controls">
-            <input
-              type="search"
-              class="lib-search"
-              data-role="lib-search-sources"
-              placeholder="Search sources by name, ticker, or tag..."
-            />
-            <!--
-              Geo-chip strip — three chips, equal billing, above the
-              topical tag pills:
-                • US metro areas      (popover-with-searchable-list)
-                • States & districts  (state + district inline dropdowns)
-                • Regions & countries (popover-with-searchable-list)
-              Order matches user-facing label order. Auto-hides only if
-              none of the three has data (in practice always shown on
-              the Sources tab).
-            -->
-            <div class="lib-geo-chips" data-role="lib-geo-chips" hidden>
-              <div class="lib-geo-chip-wrap">
-                <button
-                  type="button"
-                  class="lib-geo-chip"
-                  data-role="lib-metro-chip"
-                  aria-haspopup="listbox"
-                  aria-expanded="false"
-                >
-                  <span class="lib-geo-chip-label" data-role="lib-metro-label"
-                    >US metro areas &#9662;</span>
-                  <span
-                    class="lib-geo-chip-clear"
-                    data-role="lib-metro-clear"
-                    hidden
-                    aria-label="Clear metro filter">&times;</span>
-                </button>
-                <div
-                  class="lib-geo-popover"
-                  data-role="lib-metro-popover"
-                  role="listbox"
-                  hidden
-                >
-                  <input
-                    type="search"
-                    class="lib-geo-search"
-                    data-role="lib-metro-search"
-                    placeholder="Search metros…"
-                    aria-label="Search metros"
-                  />
-                  <div
-                    class="lib-geo-list"
-                    data-role="lib-metro-list"
-                  ></div>
-                </div>
-              </div>
-              <!--
-                CD chip + drilldown rendered by renderCdChip(surface)
-                into this host element. The chip + (when active) state
-                + district dropdowns all live inline next to the metro
-                + country chips. The host gets innerHTML-cleared and
-                re-rendered each time CD state changes, which is OK
-                because nothing else lives inside it.
-              -->
-              <div class="lib-geo-cd-host" data-role="lib-cd-chip-host"></div>
-              <div class="lib-geo-chip-wrap">
-                <button
-                  type="button"
-                  class="lib-geo-chip"
-                  data-role="lib-country-chip"
-                  aria-haspopup="listbox"
-                  aria-expanded="false"
-                >
-                  <span class="lib-geo-chip-label" data-role="lib-country-label"
-                    >Regions and countries &#9662;</span>
-                  <span
-                    class="lib-geo-chip-clear"
-                    data-role="lib-country-clear"
-                    hidden
-                    aria-label="Clear country filter">&times;</span>
-                </button>
-                <div
-                  class="lib-geo-popover"
-                  data-role="lib-country-popover"
-                  role="listbox"
-                  hidden
-                >
-                  <input
-                    type="search"
-                    class="lib-geo-search"
-                    data-role="lib-country-search"
-                    placeholder="Search regions + countries…"
-                    aria-label="Search regions + countries"
-                  />
-                  <div
-                    class="lib-geo-list"
-                    data-role="lib-country-list"
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <!--
-              Tag-filter strip — "all" + topical tags only. Geo chips
-              (CD + metro + country) live in the geo strip above.
-            -->
-            <div class="lib-tag-filters" data-role="tag-filters-sources"></div>
-          </div>
-          <div class="lib-results" data-role="lib-results-sources">
-            <p class="muted small">Loading sources...</p>
-          </div>
+          <!--
+            The Sources browser is the shared SourcePicker island (same
+            component as the cc/ds modals + the alerts page). It owns its
+            own search, geo chips (metro / states+CDs / country), topical
+            tag chips, hint cards, and result list. richCards turns on the
+            geo badges ("TX-12" / "TX statewide"), tags line + shortName —
+            essential here because ~435 district sources share a name.
+            Picks surface via source-picker:pick (wired in wire() to
+            addSourceAsChart); "maps-tab" hint clicks via source-picker:hint.
+          -->
+          <SourcePicker
+            instanceId="lib"
+            richCards
+            rootClass="lib-source-picker"
+            searchPlaceholder="Search sources by name, ticker, or tag..."
+          />
         </div>
 
         <div class="lib-panel" data-role="lib-panel-charts" hidden>
@@ -1074,7 +983,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import {
     decodeComposedState,
   } from "../lib/composer-state";
-  import { createComposerGeoFilters } from "../lib/composer/geo-filter";
   import { createShareUrl } from "../lib/composer/share";
   import {
     createComposerStore,
@@ -1089,7 +997,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { createSeriesFetcher } from "../lib/composer/series";
   import { createDerivedSourceModal } from "../lib/composer/ds-modal";
   import { createCustomChartModal } from "../lib/composer/cc-modal";
-  import { createGeoChips, type GeoSurface, type GeoSurfaceConfig } from "../lib/composer/geo-chips";
   import { createSourcesTab } from "../lib/composer/sources-tab";
   import { createTiles } from "../lib/composer/tiles";
   import {
@@ -1111,16 +1018,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     parseAnnotationLines,
     annotationsOutOfRangeSummary,
   } from "../lib/annotations";
-  import {
-    CD_TAG,
-    STATE_TAG,
-    STATEWIDE_DISTRICT_CODE,
-    parseCdSourceId,
-    parseStateSourceId,
-    formatDistrictLabel,
-    stateNameFor,
-  } from "../lib/congressional-districts";
-
   import {
     loadLibrary,
     type LibrarySource,
@@ -1159,10 +1056,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // ---- State ----
 
   // Single mutable store (Plan 2c) — see src/lib/composer/state.ts. The
-  // never-reassigned slices (state, libGeo, ccModal, dsModal) are aliased so
-  // the hundreds of existing references keep working unchanged; only the
-  // reassigned scalars (store.sourcesSearchQuery / store.sourcesCdState / store.sourcesCdDistrict
-  // / store.activeSectionIdx) are read & written as store.x.
+  // never-reassigned `state` slice is aliased so the hundreds of existing
+  // references keep working unchanged (the modal slices are aliased inside
+  // their 2d modules via ctx); the one reassigned scalar
+  // (store.activeSectionIdx) is read & written as store.x.
   const store = createComposerStore();
   const state = store.state;
 
@@ -1242,101 +1139,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // ---- Render ----
   let library: LibraryPayload | null = null;
-  // Library panel has two tabs — Sources (primary) and Pregenerated
-  // charts. Each tab keeps its own search query + selected-tag set so
-  // switching tabs doesn't lose the user's current filter. The active
-  // tab itself isn't kept in a module-scope variable — the DOM's
-  // [aria-selected] + .lib-tab-active class on the tab buttons is
-  // the source of truth, read on demand by setActiveLibTab callers.
+  // Library panel tabs. The Charts tab keeps its own search query +
+  // selected-tag set (in sources-tab.ts) so switching tabs doesn't lose
+  // the user's filter; the Sources tab is a <SourcePicker> island that
+  // owns its own search / tag / geo state. The active tab itself isn't
+  // kept in a module-scope variable — the DOM's [aria-selected] +
+  // .lib-tab-active class on the tab buttons is the source of truth,
+  // read on demand by setActiveLibTab callers.
   type LibTab = "sources" | "charts" | "maps" | "generators";
-  const sourcesSelectedTags: Set<string> = new Set<string>();
   let chartsSearchQuery: string = "";
-  // Geo-chip state. Same shape on three picker surfaces — the Sources
-  // tab (libGeo), the cc-modal (ccModal.geo), and the ds-modal
-  // (dsModal.geo) — so the same render/select/clear/popover code can
-  // serve all three. The DOM-element selectors differ per surface;
-  // the shared functions resolve them via GEO_SURFACES below.
-  const libGeo = store.libGeo;
-
-  // Per-surface state for the Congressional district drill-down. The
-  // Sources tab keeps its picks across tab switches so a user browsing
-  // TX-12 series doesn't lose their place when they hop to the chart
-  // library tab. Parallel state lives on ccModal / dsModal for those
-  // pickers; resets each modal-open.
-
-  // Memoize the state→districts map (built from library source IDs)
-  // because we look it up every time a dropdown re-renders, and rebuilding
-  // it from ~2,200 source IDs on every keystroke would be wasteful.
-  // Districts include the synthetic STATEWIDE_DISTRICT_CODE for any state
-  // that has at least one state-level source — that's how the "Statewide"
-  // dropdown option gets surfaced without special-casing the renderer.
-  let cdsByStateCache: Map<string, string[]> | null = null;
-  function cdsByState(state: string): string[] {
-    if (!cdsByStateCache && library) {
-      const m = new Map<string, Set<string>>();
-      for (const id of Object.keys(library.sources)) {
-        const parsedCd = parseCdSourceId(id);
-        if (parsedCd) {
-          if (!m.has(parsedCd.state)) m.set(parsedCd.state, new Set<string>());
-          m.get(parsedCd.state)!.add(parsedCd.district);
-        }
-        const parsedState = parseStateSourceId(id);
-        if (parsedState) {
-          if (!m.has(parsedState.state))
-            m.set(parsedState.state, new Set<string>());
-          m.get(parsedState.state)!.add(STATEWIDE_DISTRICT_CODE);
-        }
-      }
-      cdsByStateCache = new Map(
-        [...m.entries()].map(([k, v]) => {
-          // Sort districts with Statewide first (so it leads the dropdown),
-          // then numeric/at-large/etc. in their natural string order.
-          const list = [...v];
-          list.sort((a, b) => {
-            if (a === STATEWIDE_DISTRICT_CODE) return -1;
-            if (b === STATEWIDE_DISTRICT_CODE) return 1;
-            return a.localeCompare(b);
-          });
-          return [k, list];
-        }),
-      );
-    }
-    return cdsByStateCache?.get(state) ?? [];
-  }
-
-  // Distinct states represented in the library's CD or state-level
-  // sources, ordered by display name. Computed once the library loads.
-  function cdStatesAvailable(): string[] {
-    if (!library) return [];
-    const codes = new Set<string>();
-    for (const id of Object.keys(library.sources)) {
-      const parsedCd = parseCdSourceId(id);
-      if (parsedCd) codes.add(parsedCd.state);
-      const parsedState = parseStateSourceId(id);
-      if (parsedState) codes.add(parsedState.state);
-    }
-    return [...codes].sort((a, b) =>
-      stateNameFor(a).localeCompare(stateNameFor(b)),
-    );
-  }
-
-  // Geo-region-visibility rules for one source ID + its tag list, shared by all
-  // three picker surfaces (Sources tab, cc-modal, ds-modal). The matching logic
-  // now lives in src/lib/source-filters.ts (pure + unit-tested, shared with
-  // SourcePicker + the alerts page); createComposerGeoFilters binds it to the
-  // composer's `library` and restores the per-query unlock memo + the CD chip's
-  // "pick a state" gate. See src/lib/composer/geo-filter.ts (+ its parity test).
-  //
-  //   - Chip OFF: hide everything tagged CD_TAG / STATE_TAG (non-geo passes; a
-  //     >=4-char state-name query unlocks that state's geo sources).
-  //   - Chip ON, no state: hide all geo sources (the state pick is the gate).
-  //   - Chip ON + state[, district]: keep that state's series per the district.
-  const {
-    passesCdFilter,
-    passesMetroFilter,
-    passesCountryFilter,
-    passesCountyFilter,
-  } = createComposerGeoFilters(() => library);
 
   // Maps tab — its form / d3 bbox preview / add-map logic lives in
   // src/lib/composer/maps.ts (Plan 2d). renderMapBuilder is the only entry
@@ -1380,19 +1191,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     state,
   });
 
-
-  // Shared geo-chip subsystem (Plan 2d) -- metro/country/CD chips for lib/cc/ds
-  // live in src/lib/composer/geo-chips.ts. Built BEFORE the cc/ds factories
-  // (they take these renderers via ctx). getSurfaceConfig = geoSurfaceConfig
-  // (stays in compose, wires each surface); appendCdDrillDown stays in compose.
-  const { renderMetroChip, renderCdChip, renderCountryChip, wireGeoChips } =
-    createGeoChips({
-      shell,
-      getLibrary: () => library,
-      getSurfaceConfig: geoSurfaceConfig,
-      appendCdDrillDown,
-      escapeHtml,
-    });
 
   // Custom-chart modal + cc-preview (Plan 2d) -- the "+ Custom chart" builder
   // lives in src/lib/composer/cc-modal.ts. createCustomChartModal(ctx) returns
@@ -1438,30 +1236,21 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     renderComposition,
   });
 
-  // Sources / Charts library tab (Plan 2d) -- the left-rail browsing UI lives
-  // in src/lib/composer/sources-tab.ts. Built LAST (needs renderMapBuilder /
-  // renderGeneratorsBuilder + addChart / addSourceAsChart). geoSurfaceConfig
-  // (lib surface) + wire() + the load handler call its exported entry points.
+  // Charts library tab + lib-tab switcher (Plan 2d, Sources side retired by
+  // Plan 3c) -- lives in src/lib/composer/sources-tab.ts. Built LAST (needs
+  // renderMapBuilder / renderGeneratorsBuilder + addChart). wire() + the load
+  // handler call its exported entry points; the Sources tab itself is the lib
+  // <SourcePicker> island (its picks are wired in wire() to addSourceAsChart).
   const {
-    renderTagFiltersSources,
-    renderSourcesList,
     renderChartsList,
     renderTagFiltersCharts,
     setActiveLibTab,
   } = createSourcesTab({
     shell,
-    store,
     getLibrary: () => library,
     getChartsSearchQuery: () => chartsSearchQuery,
-    sourcesSelectedTags,
-    libGeo,
-    passesCdFilter,
-    passesMetroFilter,
-    passesCountryFilter,
-    passesCountyFilter,
     escapeHtml,
     addChart,
-    addSourceAsChart,
     renderMapBuilder,
     renderGeneratorsBuilder,
   });
@@ -1493,156 +1282,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
   }
 
-  // The Sources/Charts library tab (tag filters, filtered universes, result
-  // renderers, hint chips, tab switcher) moved to src/lib/composer/sources-tab.ts
-  // (Plan 2d). createSourcesTab is destructured near the other 2d factories; its
-  // 5 entry points are called by geoSurfaceConfig (lib) / wire() / the load handler.  // ---- Geo-chip system (Metro + Countries & regions) ----
-  //
-  // Three picker surfaces share the same chip behavior so the user has
-  // identical UX for finding sources:
-  //   • "lib"  — the Sources tab on the compose page (data-role
-  //               prefix: lib-metro-* / lib-country-*).
-  //   • "cc"   — the New custom chart (edit chart) modal (cc-metro-*,
-  //               cc-country-*).
-  //   • "ds"   — the New derived source modal (ds-metro-*,
-  //               ds-country-*; two source lists rerender on change).
-  //
-  // Per-surface state lives in libGeo / ccModal.geo / dsModal.geo
-  // (same GeoState shape). The render/open/close/select/clear
-  // functions take a surface key, look up the state + the DOM
-  // selectors + the right "redraw source list" callback, and act on
-  // them. Adding a fourth surface later means adding an entry to
-  // GEO_SURFACES, not duplicating ~200 lines.
-  function geoSurfaceConfig(_surface: GeoSurface): GeoSurfaceConfig {
-    // "lib" (the Sources tab) is the ONLY geo-chip surface now -- the cc + ds
-    // modals both adopted SourcePicker, which owns its own geo chips.
-    return {
-      prefix: "lib",
-      state: () => libGeo,
-      // Refresh the tag-pill counts too: a geo-chip pick changes the
-      // visible universe, so each topical tag count must update or the
-      // user sees stale "(N)" pills.
-      onChange: () => {
-        renderTagFiltersSources();
-        renderSourcesList();
-      },
-      track: (e, p) => track(e, { ...p, surface: "compose-sources" }),
-      cdSelectedTags: () => sourcesSelectedTags,
-      getCdState: () => store.sourcesCdState,
-      setCdState: (v) => { store.sourcesCdState = v; },
-      getCdDistrict: () => store.sourcesCdDistrict,
-      setCdDistrict: (v) => { store.sourcesCdDistrict = v; },
-      refreshTags: () => renderTagFiltersSources(),
-    };
-  }
-  // The geo-chip subsystem (metro/country/CD chips for lib/cc/ds) moved to
-  // src/lib/composer/geo-chips.ts (Plan 2d). createGeoChips is destructured
-  // above (before the cc/ds factories); geoSurfaceConfig + appendCdDrillDown
-  // stay here. The 4 entry renderers flow into the lib surface + cc/ds ctx.
+  // The Sources/Charts library tab moved to src/lib/composer/sources-tab.ts
+  // (Plan 2d); the Sources browser itself is now the lib <SourcePicker>
+  // island (Plan 3c), which owns the search + geo chips + tag chips + hint
+  // cards that used to live here. The old per-surface geo-chip system
+  // (geoSurfaceConfig / appendCdDrillDown / the geo-chips + geo-filter
+  // modules) is fully retired -- SourcePicker carries its own geo filters
+  // via src/lib/source-filters.ts.
 
-  // Parallel tag-filter strip for the Sources tab. Same UX pattern;
-  // counts run against the source universe instead of charts. The
-  // `congressional-district` tag is rendered specially as a drill-down
-  // chip (state → district) at the end of the strip; see
-  // appendCdDrillDown below.
-  // renderTagFiltersSources moved to src/lib/composer/sources-tab.ts (Plan 2d).  // Shared CD drill-down renderer used by all three picker surfaces. Adds
-  // the "Congressional district" toggle chip; when active, appends a
-  // State dropdown and (once state is picked) a District dropdown. The
-  // getter / setter pairs keep this function neutral with respect to
-  // which surface owns the state — each caller threads its own (state,
-  // district, rerender) trio in.
-  function appendCdDrillDown(
-    host: HTMLElement,
-    selectedTags: Set<string>,
-    getState: () => string | null,
-    setState: (v: string | null) => void,
-    getDistrict: () => string | null,
-    setDistrict: (v: string | null) => void,
-    rerender: () => void,
-  ): void {
-    if (!library) return;
-    // Total geo source count (CD + state-level series, across all states
-    // + districts) shown on the chip so the user has a sense of what
-    // they're toggling on.
-    let geoCount = 0;
-    for (const id of Object.keys(library.sources)) {
-      const src = library.sources[id] as LibrarySource & { tags?: string[] };
-      const tags = src.tags ?? [];
-      if (tags.includes(CD_TAG) || tags.includes(STATE_TAG)) geoCount += 1;
-    }
-    const active = selectedTags.has(CD_TAG);
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "tag-pill cd-tag-pill" + (active ? " tag-pill-active" : "");
-    chip.textContent = `States & districts (${geoCount})`;
-    chip.addEventListener("click", () => {
-      if (selectedTags.has(CD_TAG)) {
-        selectedTags.delete(CD_TAG);
-        setState(null);
-        setDistrict(null);
-      } else {
-        selectedTags.add(CD_TAG);
-      }
-      rerender();
-    });
-    host.appendChild(chip);
-    if (!active) return;
-
-    // State dropdown. Only states with at least one CD source appear,
-    // ordered by display name so it reads alphabetically.
-    const stateSel = document.createElement("select");
-    stateSel.className = "cd-drilldown-select";
-    stateSel.setAttribute("aria-label", "Congressional district — state");
-    const promptOpt = document.createElement("option");
-    promptOpt.value = "";
-    promptOpt.textContent = "Pick a state…";
-    stateSel.appendChild(promptOpt);
-    const currentState = getState();
-    for (const code of cdStatesAvailable()) {
-      const o = document.createElement("option");
-      o.value = code;
-      o.textContent = stateNameFor(code);
-      if (code === currentState) o.selected = true;
-      stateSel.appendChild(o);
-    }
-    stateSel.addEventListener("change", () => {
-      setState(stateSel.value || null);
-      // Clearing the district whenever state changes avoids the awkward
-      // "state=TX district=07 set; user picks CA → district stays as 07"
-      // edge case where the old district might not exist in the new state.
-      setDistrict(null);
-      rerender();
-    });
-    host.appendChild(stateSel);
-
-    // District dropdown only appears once a state is picked. "All districts"
-    // is the no-narrowing option so a user can browse all of a state's CDs
-    // before zeroing in on one.
-    if (!currentState) return;
-    const distSel = document.createElement("select");
-    distSel.className = "cd-drilldown-select";
-    distSel.setAttribute("aria-label", "Congressional district — district");
-    const allOpt = document.createElement("option");
-    allOpt.value = "";
-    allOpt.textContent = "All districts";
-    distSel.appendChild(allOpt);
-    const currentDistrict = getDistrict();
-    for (const dCode of cdsByState(currentState)) {
-      const o = document.createElement("option");
-      o.value = dCode;
-      o.textContent = formatDistrictLabel(currentState, dCode);
-      if (dCode === currentDistrict) o.selected = true;
-      distSel.appendChild(o);
-    }
-    distSel.addEventListener("change", () => {
-      setDistrict(distSel.value || null);
-      rerender();
-    });
-    host.appendChild(distSel);
-  }
-
-  // renderChartsList / renderSourcesList / engageHintChip / setActiveLibTab
-  // moved to src/lib/composer/sources-tab.ts (Plan 2d).  // Promote a library chart in-place to an inline chart so the user
+  // Promote a library chart in-place to an inline chart so the user
   // can fully edit it (sources, scale, mode, log, blurb, etc.) via
   // the cc-modal. Copies every editable field from the library chart's
   // spec into a fresh state.inlineCharts entry, then swaps the section's
@@ -3025,22 +2673,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     fixedStart?.addEventListener("change", onFixedInput);
     fixedEnd?.addEventListener("change", onFixedInput);
-    const searchInputSources = shell.querySelector<HTMLInputElement>(
-      "[data-role='lib-search-sources']",
+    // ---- Sources tab (lib SourcePicker) ----
+    // The picker island owns its own search / geo chips / tag chips /
+    // hint cards. A pick adds the source as a chart in the active
+    // section; a hint-card click with the "maps-tab" chip switches to
+    // the Maps tab (the picker engages its own geo chips for the
+    // metro / country / cd hints internally).
+    const libPicker = shell.querySelector<HTMLElement>(
+      "[data-spicker-instance='lib']",
     );
-    if (searchInputSources) {
-      searchInputSources.addEventListener("input", () => {
-        store.sourcesSearchQuery = searchInputSources.value;
-        // Refresh both — tag-pill counts depend on the current query
-        // because the query narrows the universe each pill could match.
-        renderTagFiltersSources();
-        renderSourcesList();
-      });
-    }
-    // ---- Geo-chip wiring (Sources tab) ----
-    // wireGeoChips is reused by the cc-modal + ds-modal; here we wire
-    // the Sources tab's geo strip the same way.
-    wireGeoChips("lib");
+    libPicker?.addEventListener("source-picker:pick", (e) => {
+      const id = (e as CustomEvent).detail?.sourceId as string | undefined;
+      if (id) void addSourceAsChart(id);
+    });
+    libPicker?.addEventListener("source-picker:hint", (e) => {
+      const chip = (e as CustomEvent).detail?.chip as string | undefined;
+      if (chip === "maps-tab") setActiveLibTab("maps");
+    });
     const searchInputCharts = shell.querySelector<HTMLInputElement>(
       "[data-role='lib-search-charts']",
     );
@@ -3525,23 +3174,24 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   loadLibrary(baseUrl)
     .then((lib) => {
       library = lib;
-      // Render both tabs' filter strips eagerly so the counts are
-      // accurate the first time the user opens either tab. Result
-      // lists render lazily per tab on first activation, plus
-      // immediately for the default tab (sources).
-      renderTagFiltersSources();
+      // Render the Charts tab's filter strip eagerly so the counts are
+      // accurate the first time the user opens it (its result list
+      // renders lazily on first activation). The Sources tab needs no
+      // kick here — its SourcePicker island fetches + renders itself.
       renderTagFiltersCharts();
-      renderMetroChip();
-      renderCdChip();
-      renderCountryChip();
-      renderSourcesList();
       renderComposition();
     })
     .catch((e) => {
-      const host = shell.querySelector<HTMLElement>(
-        "[data-role='lib-results-sources']",
-      );
-      if (host) host.innerHTML = `<p class="muted small">Failed to load library: ${escapeHtml(String(e))}</p>`;
+      // The lib SourcePicker has its own load/error handling for the
+      // Sources browser; this failure affects compose's OWN library
+      // consumers (Charts tab, tile previews, modals). Surface it
+      // above the picker rather than clobbering the island.
+      shell
+        .querySelector<HTMLElement>("[data-role='lib-panel-sources']")
+        ?.insertAdjacentHTML(
+          "afterbegin",
+          `<p class="muted small">Failed to load library: ${escapeHtml(String(e))}</p>`,
+        );
     });
 </script>
 

@@ -465,11 +465,12 @@ export const iframeTests: DiagnosticTest[] = [
         "/compose/",
         4000, // composer hydration + library.json fetch
         async (_win, doc, errors) => {
-          // The Sources tab is the default; library.json populates
-          // it post-hydration. Source rows render as
-          // <button class="source-card">.
+          // The Sources tab is the default; it's the shared
+          // <SourcePicker instanceId="lib"> island (Plan 3c), which
+          // fetches library.json itself post-hydration. Source rows
+          // render as <button class="source-picker-card">.
           const cards = doc.querySelectorAll<HTMLElement>(
-            "[data-role='lib-results-sources'] .source-card",
+            "[data-spicker-instance='lib'] .source-picker-card",
           );
           if (cards.length < 100) {
             return fail(
@@ -478,11 +479,11 @@ export const iframeTests: DiagnosticTest[] = [
             );
           }
           // Pick the first non-hint card (hint cards have a different
-          // class + handler). Click it; verify a new tile appeared in
-          // the compose area.
+          // class + handler; they only render with a query anyway).
+          // Click it; verify a new tile appeared in the compose area.
           let target: HTMLElement | null = null;
           for (const card of Array.from(cards)) {
-            if (!card.classList.contains("source-card-hint")) {
+            if (!card.classList.contains("source-picker-card-hint")) {
               target = card;
               break;
             }

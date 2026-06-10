@@ -11,14 +11,14 @@
  *
  *   const store = createComposerStore();
  *   const state    = store.state;     // never reassigned → alias is safe
- *   const libGeo   = store.libGeo;    // (mutated in place; same object)
- *   const ccModal  = store.ccModal;
+ *   const ccModal  = store.ccModal;   // (the 2d modules alias via ctx)
  *   const dsModal  = store.dsModal;
  *
- * The reassigned scalars (`sourcesSearchQuery`, `sourcesCdState`,
- * `sourcesCdDistrict`, `activeSectionIdx`) are read/written as `store.x`
- * directly — they can't be aliased because reassigning a local wouldn't
- * propagate to the store (and vice-versa).
+ * The reassigned scalar (`activeSectionIdx`) is read/written as `store.x`
+ * directly — it can't be aliased because reassigning a local wouldn't
+ * propagate to the store (and vice-versa). (The old Sources-tab filter
+ * scalars + libGeo left with Plan 3c — the lib SourcePicker island owns
+ * its own search / tag / geo state.)
  *
  * `library` is intentionally NOT in the store yet: it stays a local `let` in
  * compose.astro (its `LibraryPayload` type lives there). 2d folds it in when a
@@ -58,9 +58,9 @@ export interface UIState {
   chartOverrides: Record<string, ChartOverride>;
 }
 
-/** Per-surface metro + country drill-down state (Sources tab / cc-modal /
- *  ds-modal each get their own GeoState; the shared geo-chip functions resolve
- *  the right DOM nodes per surface). */
+/** Per-surface metro + country drill-down state. Only the modal states
+ *  (ccModal.geo / dsModal.geo) carry one now — the Sources tab's copy left
+ *  with Plan 3c (its SourcePicker island owns its own geo state). */
 export interface GeoState {
   selectedMetroCbsa: string | null;
   selectedCountryCode: string | null;
@@ -137,12 +137,8 @@ export const newGeoState = (): GeoState => ({
  *  alias-trick wiring in compose.astro. */
 export interface ComposerStore {
   state: UIState;
-  libGeo: GeoState;
   ccModal: CustomChartModalState;
   dsModal: DerivedModalState;
-  sourcesSearchQuery: string;
-  sourcesCdState: string | null;
-  sourcesCdDistrict: string | null;
   activeSectionIdx: number;
 }
 
@@ -158,7 +154,6 @@ export function createComposerStore(): ComposerStore {
       inlineMaps: {},
       chartOverrides: {},
     },
-    libGeo: newGeoState(),
     ccModal: {
       editingId: null,
       title: "",
@@ -195,9 +190,6 @@ export function createComposerStore(): ComposerStore {
       cdDistrict: null,
       geo: newGeoState(),
     },
-    sourcesSearchQuery: "",
-    sourcesCdState: null,
-    sourcesCdDistrict: null,
     activeSectionIdx: 0,
   };
 }
