@@ -247,8 +247,8 @@ stored in **billions USD**, counts **raw**; see §8.
 - **`census_acs_national.py`** (`public/data/acs_national/`) — same indicators
   at `us:1`.
 - **`census_acs_metro.py`** — same indicators at CBSA geography; data + YAML.
-- **`census_acs_labor.py`** (`public/data/acs_labor/`) — ACS1 S2301
-  unemployment by race / Hispanic origin. YAML via `_scaffold_acs_labor.py`.
+- **`census_acs_labor.py`** (`public/data/acs_labor/` + YAML) — ACS1 S2301
+  unemployment by race / Hispanic origin. YAML emitted inline (Plan 7).
 - **`census_acs_choropleth.py`** — **cross-sectional snapshots** (not
   timeseries) for maps: per (indicator, vintage, geo) a `{values:{GEOID:v}}`
   file → `public/data/acs_{state,county,tract,block_group}/`.
@@ -272,13 +272,13 @@ after every refresh.
 - **`_generate_acs_sources.py` / `_generate_acs_national_sources.py`** — scan
   `acs_cd` / `acs_national` data → write `src/content/sources/acs_cd|acs_national/`.
 - **`_generate_zillow_sources.py`** — scan `zillow` data → zillow source YAMLs.
-- **`_scaffold_*.py`** (acs_labor,
-  state_govemp, persona_sources) — iterate their pipeline's data files, emit
-  one source YAML each. Per-state IDs are gated behind the composer's "state
-  chip" (`parseStateSourceId`); national IDs are default-visible. Being
-  folded into their pipelines one provider at a time (Plan 7 —
-  eia_state_energy + naep + edu_spending + census_govfin done); new
-  providers emit YAML inline instead.
+- **`_scaffold_*.py`** (state_govemp, persona_sources — both emit into the
+  hand-curated `fred/` dir) — iterate their pipeline's data files, emit one
+  source YAML each. The five per-provider scaffolds (eia_state_energy, naep,
+  edu_spending, census_govfin, acs_labor) were folded into their pipelines
+  (Plan 7, 2026-06): those now emit YAML inline, overwrite-always, with the
+  dirs staged by the refresh workflows. New providers emit YAML inline; see
+  docs/new-data-source-checklist.md step 7.
 - **`_generate_content.py`** — one-off source+chart YAML generator for a
   library expansion (with a cadence→`supportedDeltas` helper).
 - **`_generate_state_tract_charts.py` / `_generate_state_bg_charts.py`** —

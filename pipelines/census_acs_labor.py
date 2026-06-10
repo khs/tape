@@ -30,6 +30,12 @@ API notes (cost real time if forgotten):
 Units: the rate is already a percentage number (5.5 means 5.5%); unit
 "%", stored verbatim (format style "percent" appends % without scaling).
 
+Source YAMLs are emitted INLINE (one per written series, right after the
+data file) into src/content/sources/acs_labor/ — overwrite-always; the dir
+is pipeline-owned. This replaced the one-shot _scaffold_acs_labor.py
+(Plan 7). Suppression is handled for free: a (state, race) cell the API
+suppresses never produces points, so it never gets a data file OR a YAML.
+
 Run: `python pipelines/census_acs_labor.py` (needs CENSUS_API_KEY).
 """
 from __future__ import annotations
@@ -37,6 +43,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from pathlib import Path
 
 import _env  # noqa: F401 — loads .env so CENSUS_API_KEY is available locally
 
@@ -83,6 +90,88 @@ RACES: list[tuple[str, str, str]] = [
     ("hispanic",  "S2301_C04_019E", "Hispanic or Latino origin (of any race)"),
 ]
 CODES = [code for _suffix, code, _label in RACES]
+
+# --- Source-YAML emission (inline; Plan 7) --------------------------------
+# One YAML per written series, emitted right after its data file, so
+# YAML<->data parity holds by construction (suppressed (state, race) cells
+# never get either). Overwrite-always: the dir is pipeline-owned —
+# name/description fixes belong in these templates. Per-state IDs
+# (`state_<race>_<st>`) are recognized by parseStateSourceId and gated
+# behind the composer's state chip; the national `us_<race>` series stay
+# default-visible and carry the labor/macro tags.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
+
+RACE_LABEL = {suffix: label for suffix, _code, label in RACES}
+RACE_CODE = {suffix: code for suffix, code, _label in RACES}
+STATE_NAME_LC = {abbr.lower(): name for abbr, name in STATES.values()}
+
+# Short race tag for the chip/card shortName.
+SHORT_RACE = {
+    "total": "all", "white": "White", "black": "Black", "aian": "AIAN",
+    "asian": "Asian", "nhpi": "NHPI", "otherrace": "other race",
+    "multi": "2+ races", "hispanic": "Hispanic",
+}
+TABLE_URL = "https://data.census.gov/table/ACSST1Y2023.S2301"
+
+
+def _q(s: str) -> str:
+    return "'" + s.replace("'", "''") + "'"
+
+
+def write_yaml(sid: str, suffix: str, geo: str) -> None:
+    label = RACE_LABEL[suffix]
+    if geo == "us":
+        if suffix == "total":
+            name = "Unemployment rate — all workers (US)"
+            desc_scope = "all workers (ages 16+) nationally"
+        else:
+            name = f"Unemployment rate — {label} (US)"
+            desc_scope = f"{label} workers (ages 16+) nationally"
+        short = f"{SHORT_RACE[suffix]} unemployment (US)"
+        tags = ["labor", "macro", "us"]
+    else:
+        sname = STATE_NAME_LC[geo]
+        if suffix == "total":
+            name = f"{sname} unemployment rate — all workers"
+            desc_scope = f"all workers (ages 16+) in {sname}"
+        else:
+            name = f"{sname} unemployment rate — {label}"
+            desc_scope = f"{label} workers (ages 16+) in {sname}"
+        short = f"{geo.upper()} {SHORT_RACE[suffix]} unemp"
+        tags = ["labor", "macro", "us-state", "us"]
+    desc = (
+        f"Unemployment rate among {desc_scope}, Census American Community "
+        f"Survey 1-year estimates (Subject Table S2301). ACS is a rolling "
+        f"annual survey, so this differs from the monthly BLS state "
+        f"unemployment rate."
+    )
+    lines = [
+        f"name: {_q(name)}",
+        f"shortName: {_q(short)}",
+        f"description: {_q(desc)}",
+        "kind: timeseries",
+        f"pipeline: {PIPELINE}",
+        f"dataFile: data/{PIPELINE}/{sid}.json",
+        'supportedDeltas: ["1y", "5y"]',
+        'unit: "%"',
+        "emphasis: level",
+        "formatting:",
+        "  style: percent",
+        "  decimals: 1",
+        "provenance:",
+        "  provider: U.S. Census Bureau, American Community Survey (ACS 1-year)",
+        f"  series: {RACE_CODE[suffix]} (ACS 1-year Subject Table S2301)",
+        f"  url: {TABLE_URL}",
+        "  license: Public domain (US government data)",
+        "tags:",
+    ]
+    for t in tags:
+        lines.append(f"  - {t}")
+    lines.append("unitClass: rate")
+    (YAML_DIR / f"{sid}.yaml").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8",
+    )
 
 
 def fetch_year(year: int, for_clause: str, api_key: str) -> list[list[str]]:
@@ -149,12 +238,14 @@ def run() -> int:
         absorb(fetch_year(year, "state:*", api_key), year, geo_of_state)
 
     written = 0
+    YAML_DIR.mkdir(parents=True, exist_ok=True)
     for (geo, suffix), pts in series.items():
         pts.sort(key=lambda p: p["t"])
         sid = f"us_{suffix}" if geo == "us" else f"state_{suffix}_{geo}"
-        # name set by the scaffolder's YAML; the data file `name` is a
+        # display name lives in the inline YAML; the data file `name` is a
         # fallback only.
         write_timeseries(PIPELINE, sid, sid, pts, unit="%")
+        write_yaml(sid, suffix, geo)
         written += 1
 
     print(f"acs_labor: wrote {written} series "
