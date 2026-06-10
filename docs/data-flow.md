@@ -202,8 +202,8 @@ stored in **billions USD**, counts **raw**; see §8.
 ### US states — energy, health, education, crime, climate, agriculture, water
 - **`eia_prices.py`** (`public/data/eia_prices/`) — EIA API v2 (`EIA_API_KEY`).
   State electricity ¢/kWh + residential nat-gas $/MCF.
-- **`eia_state_energy.py`** (`public/data/eia_state_energy/`) — EIA v2 net
-  generation by fuel, thousand-MWh→TWh. YAML via `_scaffold_eia_state_energy.py`.
+- **`eia_state_energy.py`** (`public/data/eia_state_energy/` + YAML) — EIA v2
+  net generation by fuel, thousand-MWh→TWh. YAML emitted inline (Plan 7).
 - **`cdc_health.py`** (`public/data/cdc_health/` + YAML) — CDC Socrata
   (`data.cdc.gov`, no key). Life expectancy, age-adjusted death rates,
   leading-cause death rates. Public-use aggregates only — never restricted
@@ -272,11 +272,12 @@ after every refresh.
 - **`_generate_acs_sources.py` / `_generate_acs_national_sources.py`** — scan
   `acs_cd` / `acs_national` data → write `src/content/sources/acs_cd|acs_national/`.
 - **`_generate_zillow_sources.py`** — scan `zillow` data → zillow source YAMLs.
-- **`_scaffold_*.py`** (acs_labor, census_govfin, edu_spending,
-  eia_state_energy, naep, state_govemp, persona_sources) — iterate their
-  pipeline's data files, emit one source YAML each. Per-state IDs are gated
-  behind the composer's "state chip" (`parseStateSourceId`); national IDs are
-  default-visible.
+- **`_scaffold_*.py`** (acs_labor, census_govfin, edu_spending, naep,
+  state_govemp, persona_sources) — iterate their pipeline's data files, emit
+  one source YAML each. Per-state IDs are gated behind the composer's "state
+  chip" (`parseStateSourceId`); national IDs are default-visible. Being
+  folded into their pipelines one provider at a time (Plan 7 —
+  eia_state_energy done); new providers emit YAML inline instead.
 - **`_generate_content.py`** — one-off source+chart YAML generator for a
   library expansion (with a cadence→`supportedDeltas` helper).
 - **`_generate_state_tract_charts.py` / `_generate_state_bg_charts.py`** —

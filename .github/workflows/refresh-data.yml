@@ -183,11 +183,12 @@ jobs:
           # Race-safe commit pattern. The pipelines just wrote fresh
           # data to the working tree; other commits may have landed on
           # origin during the long pipeline run. Strategy:
-          #   1. Snapshot the data dirs we own to a tmp location.
+          #   1. Snapshot the data + inline source-YAML dirs we own to a
+          #      tmp location.
           #   2. reset --hard to origin/main — discards stale src/
           #      from the workflow's initial checkout.
-          #   3. Replay the data snapshot into place.
-          #   4. Stage + commit ONLY the data paths we explicitly add.
+          #   3. Replay the snapshot into place.
+          #   4. Stage + commit ONLY the paths we explicitly add.
           #
           # The earlier `reset --soft` pattern silently kept stale
           # src/ in the working tree; if the index ever drifted, a
@@ -200,6 +201,14 @@ jobs:
             git fetch origin main
             tmp=$(mktemp -d)
             cp -r public/data "$tmp/" 2>/dev/null || true
+            # Inline-emitted source YAMLs (Plan 7): snapshot the dirs whose
+            # pipelines this workflow runs, same treatment as the data dirs.
+            mkdir -p "$tmp/src/content/sources"
+            for dir in eia_state_energy; do
+              if [ -d "src/content/sources/$dir" ]; then
+                cp -r "src/content/sources/$dir" "$tmp/src/content/sources/" 2>/dev/null || true
+              fi
+            done
             git reset --hard origin/main
             # NON-DESTRUCTIVE overlay — do NOT `rm -rf public/data`. Another
             # job (or a manual push) may have ADDED a provider's data to main
@@ -209,6 +218,15 @@ jobs:
             # clobbered all 4 providers. Overlay updates the files we
             # regenerated and leaves every other provider's data intact.
             cp -r "$tmp/data/." public/data/
+            # The source-YAML dirs are owned solely by this workflow's
+            # pipelines (inline emission, overwrite-always), so replacing
+            # them wholesale is safe — no other job adds files to them.
+            for dir in eia_state_energy; do
+              if [ -d "$tmp/src/content/sources/$dir" ]; then
+                rm -rf "src/content/sources/$dir"
+                cp -r "$tmp/src/content/sources/$dir" "src/content/sources/"
+              fi
+            done
             rm -rf "$tmp"
             # source_index.json + generators-index.json are cross-provider
             # aggregates — rebuild from the merged tree so a provider added by
@@ -217,6 +235,9 @@ jobs:
             python pipelines/build_summaries.py
             python pipelines/_generate_generators_index.py
             git add public/data/ public/generators-index.json
+            for dir in eia_state_energy; do
+              git add "src/content/sources/$dir/" 2>/dev/null || true
+            done
             if git diff --cached --quiet; then
               echo "No data changes to commit (attempt $attempt)."
               exit 0

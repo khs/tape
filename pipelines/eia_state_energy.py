@@ -25,12 +25,18 @@ API notes:
   - Some (state, fuel) cells are absent (no solar in early years, no
     hydro in flat states); those are simply skipped.
 
+Source YAMLs are emitted INLINE (one per written series, right after the
+data file) into src/content/sources/eia_state_energy/ — overwrite-always;
+the dir is pipeline-owned. This replaced the one-shot
+_scaffold_eia_state_energy.py (Plan 7, 2026-06).
+
 Run: `python pipelines/eia_state_energy.py` (needs EIA_API_KEY).
 """
 from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 import _env  # noqa: F401 — loads .env so EIA_API_KEY is available locally
 
@@ -68,7 +74,6 @@ STATE_NAME = {
 }
 
 # (suffix, EIA fueltypeid, friendly label). ALL = total net generation.
-# Keep in lockstep with pipelines/_scaffold_eia_state_energy.py.
 FUELS = [
     ("all",     "ALL", "total net generation"),
     ("gas",     "NG",  "natural gas"),
@@ -80,6 +85,86 @@ FUELS = [
 ]
 WANTED = {code for _suffix, code, _label in FUELS}
 CODE_SUFFIX = {code: suffix for suffix, code, _label in FUELS}
+FUEL_CODE = {suffix: code for suffix, code, _label in FUELS}
+
+# --- Source-YAML emission (inline; Plan 7) --------------------------------
+# One YAML per written series, emitted right after its data file, so
+# YAML<->data parity holds by construction (a (state, fuel) cell with <2
+# points never gets a YAML). Overwrite-always: the dir is pipeline-owned —
+# name/description fixes belong in these templates, not in the YAML files.
+# Per-state IDs (`state_<fuel>_<st>`) are recognized by parseStateSourceId
+# and gated behind the composer's state chip; the national `us_<fuel>`
+# series stay default-visible and carry the energy tag.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
+
+# IDs use lowercase postal codes; STATE_NAME is keyed uppercase.
+STATE_NAME_LC = {abbr.lower(): name for abbr, name in STATE_NAME.items()}
+# Mid-sentence name fragment per fuel ("all" is phrased specially).
+FUEL_FRAG = {
+    "all": "", "gas": "natural-gas", "coal": "coal", "nuclear": "nuclear",
+    "wind": "wind", "solar": "solar", "hydro": "hydroelectric",
+}
+SHORT_FUEL = {
+    "all": "generation", "gas": "gas gen", "coal": "coal gen",
+    "nuclear": "nuclear gen", "wind": "wind gen", "solar": "solar gen",
+    "hydro": "hydro gen",
+}
+BROWSER_URL = "https://www.eia.gov/electricity/data/browser/"
+
+
+def _q(s: str) -> str:
+    return "'" + s.replace("'", "''") + "'"
+
+
+def write_yaml(sid: str, suffix: str, geo_key: str) -> None:
+    if geo_key == "us":
+        scope, sname = "us", "the US"
+        tags = ["energy", "us"]
+    else:
+        scope, sname = "state", STATE_NAME_LC[geo_key]
+        tags = ["energy", "us-state", "us"]
+    frag = FUEL_FRAG[suffix].replace("-", " ")
+    if suffix == "all":
+        name = ("US electricity net generation" if scope == "us"
+                else f"{sname} electricity net generation")
+        desc = (f"Total net electricity generation in {sname}, all fuels and "
+                f"sectors, U.S. Energy Information Administration. Annual.")
+    else:
+        name = (f"US {frag} electricity generation" if scope == "us"
+                else f"{sname} {frag} electricity generation")
+        desc = (f"Net electricity generation from {frag} in {sname}, all "
+                f"sectors, U.S. Energy Information Administration. Annual.")
+    short = (f"US {SHORT_FUEL[suffix]}" if scope == "us"
+             else f"{geo_key.upper()} {SHORT_FUEL[suffix]}")
+    loc = "US" if scope == "us" else geo_key.upper()
+    lines = [
+        f"name: {_q(name)}",
+        f"shortName: {_q(short)}",
+        f"description: {_q(desc)}",
+        "kind: timeseries",
+        f"pipeline: {PIPELINE}",
+        f"dataFile: data/{PIPELINE}/{sid}.json",
+        'supportedDeltas: ["1y", "5y", "10y"]',
+        'unit: "TWh"',
+        "emphasis: level",
+        "formatting:",
+        "  style: number",
+        "  decimals: 1",
+        "  suffix: ' TWh'",
+        "provenance:",
+        "  provider: U.S. Energy Information Administration (EIA)",
+        f"  series: EIA electricity generation; fueltypeid={FUEL_CODE[suffix]}; location={loc}",
+        f"  url: {BROWSER_URL}",
+        "  license: Public domain (US government data)",
+        "tags:",
+    ]
+    for t in tags:
+        lines.append(f"  - {t}")
+    lines.append("unitClass: count")
+    (YAML_DIR / f"{sid}.yaml").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8",
+    )
 
 
 def fetch_geo(location: str, api_key: str) -> list[dict]:
@@ -133,6 +218,7 @@ def run() -> int:
 
     written = 0
     empties: list[str] = []
+    YAML_DIR.mkdir(parents=True, exist_ok=True)
 
     def emit(geo_key: str, rows: list[dict]):
         nonlocal written
@@ -144,6 +230,7 @@ def run() -> int:
                 empties.append(sid)
                 continue
             write_timeseries(PIPELINE, sid, sid, pts, unit="TWh")
+            write_yaml(sid, suffix, geo_key)
             written += 1
 
     emit("us", fetch_geo("US", api_key))
