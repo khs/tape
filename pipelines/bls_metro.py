@@ -45,6 +45,7 @@ from common import write_timeseries
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CROSSWALK_DIR = REPO_ROOT / "pipelines" / "_crosswalks"
 SOURCES_DIR = REPO_ROOT / "src" / "content" / "sources" / "bls"
+DATA_DIR = REPO_ROOT / "public" / "data" / "bls"
 
 BLS_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 
@@ -258,14 +259,9 @@ def main() -> int:
         if m:
             spec_metro[spec.out_id] = m
 
-    # Write source YAMLs up front so the composer surfaces every metro
-    # even if data fetches partially fail.
-    yaml_written = 0
-    for spec in specs:
-        m = spec_metro.get(spec.out_id)
-        if m and write_source_yaml(spec, m):
-            yaml_written += 1
-    print(f"Wrote {yaml_written} new source YAMLs", flush=True)
+    # Source YAMLs are emitted AFTER the data fetch, gated on the data
+    # file existing (see the emission loop at the end of main) — Plan-7
+    # parity, so the composer never surfaces a metro that renders blank.
 
     # Batch up to 25 series per request.
     batches = [specs[i:i + 25] for i in range(0, len(specs), 25)]
@@ -313,6 +309,25 @@ def main() -> int:
         )
         json_written += 1
     print(f"Wrote {json_written} metro × series JSON files", flush=True)
+
+    # Emit one source YAML per metro series, gated on the data file
+    # existing on disk (Plan-7 parity). A metro BLS doesn't cover (no data
+    # file, ever) gets NO YAML, so the composer never surfaces a source
+    # that renders blank when clicked. Resilience to a flaky single fetch
+    # is preserved: write_timeseries merges onto the committed data file,
+    # so a metro that already has history keeps its data file — and thus
+    # its YAML — even if THIS run's fetch returned nothing. write_source_yaml
+    # is skip-if-exists, so the existing YAMLs stay byte-identical.
+    yaml_written = 0
+    for spec in specs:
+        m = spec_metro.get(spec.out_id)
+        if not m:
+            continue
+        if not (DATA_DIR / f"{spec.out_id}.json").exists():
+            continue
+        if write_source_yaml(spec, m):
+            yaml_written += 1
+    print(f"Wrote {yaml_written} new source YAMLs", flush=True)
     return 0
 
 

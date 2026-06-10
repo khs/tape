@@ -181,7 +181,10 @@ stored in **billions USD**, counts **raw**; see §8.
   components, JOLTS, all-state LAUS unemployment + CES payrolls, DC-metro
   county unemployment. Thousands→raw.
 - **`bls_metro.py`** — per-CBSA unemployment + payrolls, driven by
-  `_crosswalks/cbsa_metro.csv`; writes data + YAML.
+  `_crosswalks/cbsa_metro.csv`; writes data + YAML inline. YAML emission is
+  parity-gated: a metro gets a source YAML only if its data file exists on
+  disk, so BLS-uncovered metros (no CES/LAUS series) aren't surfaced as
+  blank-rendering sources in the composer.
 - **`cbo.py`** (`public/data/cbo/`) — **operator-driven, no fetch** (CBO is
   behind DataDome). Parses operator-supplied XLSX in `pipelines/cbo_data/`
   (gitignored): Budget Outlook projections + Historical actuals, 4 %-of-GDP
