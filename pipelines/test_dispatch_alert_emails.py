@@ -147,6 +147,26 @@ class BuildBatchMessageTests(unittest.TestCase):
         subject, _text, _html = dae.build_batch_message([t])
         self.assertEqual(subject, "[Tape] CPI YoY ≥ 4.0")
 
+    def test_one_line_flattens_control_chars(self) -> None:
+        # The _one_line helper underpins the header-injection guard.
+        self.assertEqual(dae._one_line("a\r\nb"), "a b")
+        self.assertEqual(dae._one_line("a\tb\x00c"), "a b c")
+        self.assertEqual(dae._one_line("  plain  text  "), "plain text")
+
+    def test_source_label_crlf_cannot_inject_header_or_body(self) -> None:
+        # Defense in depth (OWASP A05): a CR/LF in a label must never
+        # reach the Subject header or split a body line. Labels are
+        # catalog-derived today, but neutralize a newline regardless.
+        t = self._trigger(source_label="CPI\r\nBcc: evil@example.com")
+        subject, text, html = dae.build_batch_message([t])
+        self.assertNotIn("\r", subject)
+        self.assertNotIn("\n", subject)
+        self.assertIn("CPI Bcc: evil@example.com", subject)
+        # Bodies: the label is flattened (the raw CRLF sequence is gone).
+        self.assertNotIn("CPI\r\nBcc", text)
+        self.assertNotIn("CPI\r\nBcc", html)
+        self.assertIn("CPI Bcc: evil@example.com", text)
+
     def test_single_trigger_text_body(self) -> None:
         t = self._trigger()
         _subject, text, _html = dae.build_batch_message([t])

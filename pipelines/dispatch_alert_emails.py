@@ -199,7 +199,9 @@ def build_batch_message(
     # Newest-last reading order — the dispatcher sorts pending by
     # triggered_at ASC, so this preserves it.
     n = len(triggers)
-    first_label = triggers[0].get("source_label", triggers[0].get("source_id", "Unknown"))
+    first_label = _one_line(
+        str(triggers[0].get("source_label", triggers[0].get("source_id", "Unknown")))
+    )
     first_phrase = condition_phrase(
         triggers[0]["condition"], float(triggers[0]["threshold"])
     )
@@ -217,7 +219,7 @@ def build_batch_message(
     )
     text_lines.append("")
     for t in triggers:
-        label = t.get("source_label", t.get("source_id", "Unknown"))
+        label = _one_line(str(t.get("source_label", t.get("source_id", "Unknown"))))
         phrase = condition_phrase(t["condition"], float(t["threshold"]))
         obs = t["observed_value"]
         obs_t = t["observed_t"]
@@ -233,7 +235,7 @@ def build_batch_message(
     items_html = "".join(
         (
             f'<li style="margin: 0 0 6px;">'
-            f'<strong>{escape_html(t.get("source_label", t.get("source_id", "Unknown")))}</strong> '
+            f'<strong>{escape_html(_one_line(str(t.get("source_label", t.get("source_id", "Unknown")))))}</strong> '
             f'{escape_html(condition_phrase(t["condition"], float(t["threshold"])))} '
             f'on {escape_html(t["observed_t"])} &mdash; '
             f'observed <strong>{escape_html(str(t["observed_value"]))}</strong>.'
@@ -266,6 +268,18 @@ def escape_html(s: str) -> str:
         .replace('"', "&quot;")
         .replace("'", "&#39;")
     )
+
+
+def _one_line(s: str) -> str:
+    """Flatten a label to a single line: replace CR/LF and any other
+    control char with a space, then collapse whitespace. Defense in depth
+    (OWASP A05) — a source label must never inject an email header (the
+    Subject) or break the plain-text body. Labels come from the source
+    catalog today, not free user input, but sanitize anyway so a future
+    free-text field can't smuggle a newline into a header.
+    """
+    flattened = "".join(" " if (ch < " " or ch == "\x7f") else ch for ch in s)
+    return " ".join(flattened.split())
 
 
 # --------------------------------------------------------------------
