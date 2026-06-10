@@ -35,6 +35,7 @@ import { encodeComposedState } from "../../lib/composer-state";
 import { isVisibleChart } from "../../lib/resolve-dashboard";
 import type { CitationInput } from "../../lib/citation";
 import { canonicalOrigin } from "../../lib/site";
+import { jsonForScript } from "../../lib/json-island";
 import { getMethodology } from "../../lib/methodology";
 
 // Server-rendered per request rather than statically generated. We
@@ -214,7 +215,7 @@ const methodology = source ? getMethodology(source.data.pipeline) : null;
       <script
         is:inline
         type="application/ld+json"
-        set:html={JSON.stringify(datasetSchema)}
+        set:html={jsonForScript(datasetSchema)}
       />
     )
   }

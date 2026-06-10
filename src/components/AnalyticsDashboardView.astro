@@ -11,6 +11,7 @@
  * would be either duplication or — if changed — a refactor nightmare.
  */
 import { packSourceIds } from "../lib/analytics-helpers";
+import { jsonForScript } from "../lib/json-island";
 
 interface Props {
   sources: string[];
@@ -30,7 +31,7 @@ const packed = packSourceIds(sources);
   is:inline
   type="application/json"
   data-role="analytics-view-payload"
-  set:html={JSON.stringify({ packed, surface, chartCount, slug: slug ?? null })}
+  set:html={jsonForScript({ packed, surface, chartCount, slug: slug ?? null })}
 ></script>
 <script>
   import { track } from "../lib/track";

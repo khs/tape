@@ -23,6 +23,8 @@
  * source's latest observation predates that anchor.
  */
 import { formatValue, type Formatting } from "../lib/format";
+import { renderMarkdown } from "../lib/markdown";
+import { jsonForScript } from "../lib/json-island";
 
 interface SourceLike {
   id: string;
@@ -183,7 +185,7 @@ const payload = {
         : `Snapshot — each source uses its latest observation. Date range across series: ${dateSpread}.`}
     </p>
     {chart.blurb && (
-      <p class="dialog-blurb" set:html={chart.blurb} />
+      <div class="dialog-blurb" set:html={renderMarkdown(chart.blurb)} />
     )}
     <div class="dialog-bar-plot" data-role="dialog-bar-plot"></div>
     <ul class="dialog-bar-list">
@@ -219,7 +221,7 @@ const payload = {
     is:inline
     type="application/json"
     data-chart-bar-payload
-    set:html={JSON.stringify(payload)}
+    set:html={jsonForScript(payload)}
   />
 </dialog>
 

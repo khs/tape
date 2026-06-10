@@ -7,6 +7,7 @@ import {
   type DashboardForRender,
 } from "../lib/resolve-dashboard-for-render";
 import { decodeComposedState } from "../lib/composer-state";
+import { jsonForScript } from "../lib/json-island";
 import AnalyticsDashboardView from "../components/AnalyticsDashboardView.astro";
 
 // Server-rendered so `Astro.url.searchParams.get("d")` reads the request URL,
@@ -148,19 +149,19 @@ if (!decoded.ok) {
                 is:inline
                 type="application/json"
                 data-role="custom-state"
-                set:html={JSON.stringify(decoded.ok ? decoded.state : null)}
+                set:html={jsonForScript(decoded.ok ? decoded.state : null)}
               />
               <script
                 is:inline
                 type="application/json"
                 data-role="custom-base-url"
-                set:html={JSON.stringify(baseUrl)}
+                set:html={jsonForScript(baseUrl)}
               />
               <script
                 is:inline
                 type="application/json"
                 data-role="custom-editing-slug"
-                set:html={JSON.stringify(editingSlug ?? null)}
+                set:html={jsonForScript(editingSlug ?? null)}
               />
             </div>
             {description && (

@@ -4,6 +4,7 @@ import "../styles/global.css";
 import EmailSignup from "../components/EmailSignup.astro";
 import { SITE_BRAND_NAME } from "../lib/brand";
 import { canonicalOrigin } from "../lib/site";
+import { jsonForScript } from "../lib/json-island";
 
 interface Props {
   title: string;
@@ -52,7 +53,7 @@ const absolutePageUrl = siteOrigin + Astro.url.pathname + Astro.url.search;
     <script
       is:inline
       type="application/ld+json"
-      set:html={JSON.stringify({
+      set:html={jsonForScript({
         "@context": "https://schema.org",
         "@graph": [
           {

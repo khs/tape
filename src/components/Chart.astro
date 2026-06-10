@@ -7,6 +7,8 @@ import {
   findPriorPoint,
   type TileSummary,
 } from "../lib/load-data";
+import { renderMarkdown } from "../lib/markdown";
+import { jsonForScript } from "../lib/json-island";
 import {
   formatValue,
   formatDeltaDisplay,
@@ -907,7 +909,7 @@ const mostRecentUpdate = payload.sources
 
     {blurb && (
       <div class="dialog-blurb">
-        <Fragment set:html={blurb} />
+        <Fragment set:html={renderMarkdown(blurb)} />
       </div>
     )}
 
@@ -997,7 +999,7 @@ const mostRecentUpdate = payload.sources
         is:inline
         type="application/json"
         data-chart-payload
-        set:html={JSON.stringify(payload)}
+        set:html={jsonForScript(payload)}
       />
     )
   }
