@@ -28,35 +28,38 @@ This file tracks what shipped and what's deliberately deferred.
 Ordered by value. The blocker is real in every case (this is a 7.4GB laptop:
 no `astro build`, no `astro dev`; Chrome MCP currently disconnected).
 
-1. **Full `script-src` Content-Security-Policy** (medium). Only
-   `frame-ancestors` shipped. A real CSP must allow the app's inline scripts
-   + the data islands + PostHog + Vercel Analytics + Observable Plot, so it
-   needs a **preview deploy** to validate without white-screening prod.
-   Approach: enable Astro's experimental CSP (auto-hashes hoisted +
-   `is:inline` scripts) — needed because there ARE executable inline scripts
-   (`chart/[...id].astro:76,206`; `index.astro:232` `define:vars`;
-   `me/index.astro:46`; `me/diagnostics.astro:24`) that a bare `'self'` would
-   block. Start in `Content-Security-Policy-Report-Only`, watch reports on a
-   preview, then enforce. The JSON islands (`type="application/json"` /
-   `ld+json`) are NOT script-src concerns (not executed).
-   **Candidate policy to deploy-test (origins already inventoried):**
+1. **Full `script-src` Content-Security-Policy** (medium) — **REPORT-ONLY
+   SHIPPED + live 2026-06-10; enforce pending.** A `Content-Security-Policy-
+   Report-Only` header is live globally in `vercel.json` (commit 86f5a6e04b):
    ```
-   default-src 'self';
-   script-src 'self' https://us.i.posthog.com 'unsafe-inline';   # replace 'unsafe-inline' with Astro-generated hashes before enforce
-   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://us.i.posthog.com;
-   style-src 'self' 'unsafe-inline';   # dynamic inline style attributes (banners, ChartMap, Plot)
-   img-src 'self' data:;
-   font-src 'self';   # @fontsource is bundled
-   object-src 'none'; base-uri 'self';
+   default-src 'self'; script-src 'self' https://us.i.posthog.com;
+   style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self';
+   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://us.i.posthog.com https://us-assets.i.posthog.com;
+   object-src 'none'; base-uri 'self'
    ```
-   (Vercel Analytics serves its script same-origin at `/_vercel/insights/`, so
-   `'self'` covers it.)
-2. **Focus trap + focus restoration in the composer modals** (medium, a11y).
-   cc-modal / ds-modal / signin-prompt in `compose.astro` are `.hidden`-
-   toggled `<div role="dialog">` with no Tab-trap and no return-focus on
-   close. Pattern to copy: `welcome.astro`'s `popoutLastFocus` save/restore.
-   Additive JS, but only truly verifiable with a **keyboard walkthrough** —
-   do it when a browser is connected.
+   Report-Only NEVER blocks (safe on prod); it surfaces violations in the
+   browser console. **To enforce:** read the live console violations across the
+   key pages (home / compose / custom / alerts / a dashboard / source / me) —
+   they reveal which `is:inline` scripts need hashing (`chart/[...id].astro:76,
+   206`; `index.astro:232` `define:vars`; `me/index.astro:46`;
+   `me/diagnostics.astro:24`) and any origin beyond the inventoried PostHog/
+   Supabase. Then either enable Astro's experimental CSP (auto-hashes inline
+   scripts — the clean path) or enforce with `script-src … 'unsafe-inline'`
+   (pragmatic, weaker — defense-in-depth only, the XSS sinks are already fixed),
+   flip the header name to `Content-Security-Policy`, and remove the RO one.
+   (The browser console read was blocked this session by an unstable Chrome
+   extension freezing on the heavy /compose page — retry when it's stable.)
+2. **Focus trap + focus restoration in the composer modals** (medium, a11y) —
+   **SHIPPED 2026-06-10 (commit 1ef08b2011); keyboard re-verify pending.**
+   `wireModalFocusTraps()` in `compose.astro`: a stateless installer that
+   observes each `.cc-modal-backdrop`'s `hidden` toggle (save/restore trigger
+   focus) + one document Tab handler that wraps focus at the modal's
+   first/last focusable. astro check 0/0/0; the post-deploy diagnostic (which
+   boots the composer) passed, so it runs without error — but the keyboard
+   BEHAVIOR (Tab-wrap + focus-restore) wasn't runtime-verified because the
+   Chrome extension froze on /compose this session. Re-verify with a keyboard
+   walkthrough (or the synthetic-Tab eval in the transcript) when the browser
+   is stable. Design is additive/can't-break-modals, so it's low-risk shipped.
 3. **`library.json` payload size** (low, perf) — **MEASURED + partly
    addressed 2026-06-10.** Reality: **38.9 MB uncompressed but only ~1.6 MB
    gzip / ~1.1 MB brotli over the wire** — the audit's ">10 MB" was the
@@ -72,11 +75,17 @@ no `astro build`, no `astro dev`; Chrome MCP currently disconnected).
    degrade search — NOT a safe blind trim. A real reduction would mean a
    leaner picker-only manifest (id/name/shortName/tags) with descriptions
    fetched on demand — a bigger redesign, deferred.
-4. **Lazy-load Plot/d3** (low, perf). `ChartController`/`ChartMap` import
-   `@observablehq/plot` + `d3` (umbrella) at top-of-script on chart-bearing
-   pages. Defer via dynamic `import()` on dialog-open; narrow
-   `import * as d3 from "d3"` to the 3 symbols used. Needs a **build** to
-   confirm no render regression.
+4. **Lazy-load Plot/d3** (low, perf) — **DISSOLVED on inspection 2026-06-10
+   (no change made).** The finding's premise didn't survive the code: (a)
+   `ChartMap` already uses *named* d3 imports (`import { select, zoom,
+   zoomIdentity } from "d3"`) which Vite/Rollup tree-shake — there is no
+   `import * as d3` umbrella to narrow (the lone `d3.geoAlbers` is in a code
+   comment); (b) `@observablehq/plot` is needed AT LOAD for the tile
+   sparklines (not just dialog-open), so deferring it via dynamic `import()`
+   would break the tiles — the naive fix is a regression; (c) Astro already
+   ships each component's `<script>` only on pages that render it, so map-free
+   pages don't pay the topojson/d3 cost. Net: already handled; nothing safe to
+   change. (Same lesson as the BLS finding — read for the real shape first.)
 
 ## Skipped by choice (info-tier)
 - Pipeline `fetch_*` helpers swallow malformed-JSON/empty-200 without a stderr
@@ -124,8 +133,13 @@ or the single admin account were compromised, nothing would surface it.
 - A10 — `alerts.astro` init now uses `Promise.allSettled` + an error banner
   so a failed data load can't leave the form rendered-but-dead.
 
-**Remaining OWASP-adjacent (folded into the deferred list above):** full
-`script-src` CSP (the A02 defense-in-depth gap; needs a preview deploy).
-Optional hardening, not confirmed findings: tighten any non-wildcard CORS if
-introduced later; sanitize `source_label` newlines before email interpolation
-(belt-and-suspenders over Resend/Postmark's own validation).
+**Shipped from this follow-up (2026-06-10):**
+- A05 email-header hardening — `dispatch_alert_emails.py` `_one_line()` strips
+  CR/LF + control chars from `source_label` before the Subject/bodies (commit
+  86f5a6e04b; +2 tests). Belt-and-suspenders over Resend/Postmark validation.
+- A02 CSP Report-Only probe — see deferred item 1 (now Report-Only-live;
+  enforce pending a stable browser read).
+
+**Still optional / not confirmed findings:** tighten any non-wildcard CORS if
+one is ever introduced. The CSP *enforce* step is the only remaining
+OWASP-adjacent item of substance.
