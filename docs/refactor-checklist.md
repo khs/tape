@@ -17,7 +17,7 @@
 
 ---
 
-## ⮕ RESUME HERE — updated 2026-06-09 (Plan 3 COMPLETE: 3a+3b+3c live — SourcePicker is THE picker everywhere)
+## ⮕ RESUME HERE — updated 2026-06-10 (ALL 8 REFACTOR PLANS COMPLETE; Plan 7 closed the set)
 
 **Plan 1+2 — 2a/2b/2c DONE + LIVE; 2d feature-module split DONE (render core
 deliberately stays in compose, see ASSESSMENT).**
@@ -296,10 +296,11 @@ by this name. (Revisit if Keller wants the pipelines renamed too.)
 and `fix/va08-bg-map-refs` are fully merged into `main` (and live on prod). Work
 on `main`.
 
-**Remaining refactor plans (this file):** Plan **7** (inline-YAML
-standardization) is the LAST open plan. Plans 1+2 (2a-2d) and Plan 3
-(SourcePicker adoption, incl. the ds-modal search bug) are DONE + LIVE;
-further compose-core extraction was assessed and NOT recommended.
+**Remaining refactor plans (this file): NONE — all eight plans are DONE.**
+Plans 8/6/5/4 (2026-06-03/04), 1+2 (2a-2d), 3 (SourcePicker everywhere),
+and 7 (inline source-YAML emission, 2026-06-10) are complete; further
+compose-core extraction was assessed and NOT recommended. Open items live
+under "Deferred TODOs (product)" only.
 
 **Env / tooling (laptop):** Node 22 + Python 3.13 installed; `npm install` done;
 **`NODE_OPTIONS=--max-old-space-size=4096`** user env var (build OOMs without it;
@@ -331,7 +332,7 @@ transport timeout under the 35k-file collection — own effort). Autonomous
 4. [x] **Plan 4 — dashboard renderer dedup** — DONE + VERIFIED + LIVE
 5. [x] **Plan 1 + 2 — compose.astro decompose + source-filters migration** — DONE + LIVE (2a-2d; render core stays by design)
 6. [x] **Plan 3 — adopt SourcePicker.astro in composer** — DONE + LIVE (3a ds-modal, 3b cc-modal, 3c Sources tab)
-7. [ ] **Plan 7 — inline-YAML standardization** (lowest urgency, splittable) ← LAST OPEN PLAN
+7. [x] **Plan 7 — inline-YAML standardization** — DONE (5 scaffold folds + workflow staging + docs; see the Plan 7 section)
 
 ---
 
@@ -746,18 +747,34 @@ deleting; the maps-tab hint switch; any Charts-sub-tab shared helper.
 
 ## Plan 3 (note) — depends on Plan 1's state store existing first.
 
-## Plan 7 — Standardize source-YAML on the inline pattern
-- [ ] Document the convention in `docs/new-data-source-checklist.md` (new
-      providers write YAML inline at ingest; `_generate_*`/`_scaffold_*` legacy).
-- [ ] Fold simple `_scaffold_*` emitters into their pipelines, ONE provider at a
-      time (eia_state_energy, naep, edu_spending, census_govfin, acs_labor). Leave
-      derived ACS-CD/national generators if risky.
-- [ ] After each provider goes inline, drop it from the refresh workflows'
-      hardcoded YAML-dir list (the `acs_cd acs_state … worldbank_extended` lists
-      in both `refresh-*.yml` commit steps). ⚠️ This is the June-2026 data-loss
-      area — one provider at a time, `git diff --stat` before commit.
-- [ ] Verify per provider: run pipeline locally, YAML+data both land, idempotent
-      on re-run, `audit_all_sources.py --strict` passes.
+## Plan 7 — Standardize source-YAML on the inline pattern ⟶ DONE (2026-06-10)
+- [x] Documented the convention in `docs/new-data-source-checklist.md` step 7
+      (b8644ef3d0): inline emission (local write_yaml next to write_timeseries,
+      overwrite-always, emit-only-when-written) is the standard; `_scaffold_*` /
+      standalone source generators are legacy.
+- [x] Folded ALL FIVE `_scaffold_*` emitters into their pipelines, one commit
+      each: eia_state_energy (d4ea924fc3), naep (65e20eac4e), edu_spending
+      (96c289ed54), census_govfin (ea2ae09a83), acs_labor (fa83e196f5).
+      LEFT deliberately: `_scaffold_state_govemp.py` + `_scaffold_persona_sources.py`
+      (emit into the hand-curated `fred/` dir — different ownership model) and
+      the ACS-family `_generate_*` scripts (workflow-integrated, ~18k files).
+- [x] Workflows: the plan's "drop from the YAML-dir list" was BACKWARDS — the
+      list is how refreshed YAML gets committed. Instead each inline provider's
+      dir was ADDED: refresh-demographics.yml's 3-occurrence list gained
+      naep/edu_spending/census_govfin/acs_labor; refresh-data.yml gained a
+      parallel snapshot/restore/add block for eia_state_energy (it staged no
+      source YAML before). June-incident safety properties preserved
+      (snapshot-before-reset, non-destructive data overlay, wholesale-replace
+      only for workflow-owned YAML dirs).
+- [x] Verified per provider: local pipeline run; emitted YAML BYTE-IDENTICAL to
+      committed (git diff 0 — eia 330, naep 208, edu 52, govfin 255, acs_labor
+      413 series); per-provider audits all 0 mismatches; pytest 192; both
+      workflow YAMLs parse. naep DRIFT caught: the 92792e9d0d copy-scrub had
+      rewritten the YAML but not the scaffold — the inline emitter now carries
+      the committed house-style text (the drift class Plan 7 kills).
+- [x] Pre-push adversarial review (5-agent workflow: commit-step safety,
+      emitter future-inputs, runtime, docs): 1 confirmed finding (stale
+      audit-script docstrings referencing deleted scaffolds) — fixed.
 
 ---
 
