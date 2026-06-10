@@ -31,6 +31,12 @@ follow the repo's canonical-currency invariant and store BILLIONS
 (divide by 1e6), matching usaspending / worldbank / marketcap. unit
 string "billions USD".
 
+Source YAMLs are emitted INLINE (one per written series, right after the
+data file) into src/content/sources/census_govfin/ — overwrite-always;
+the dir is pipeline-owned. This replaced the one-shot
+_scaffold_census_govfin.py (Plan 7), whose cartesian emit couldn't skip
+empty (state, aggregate) cells the way only-when-written emission does.
+
 Run: ``python pipelines/census_govfin.py``  (needs CENSUS_API_KEY in
 .env, though the dataset also serves anonymously at a lower rate).
 """
@@ -39,6 +45,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from pathlib import Path
 
 import _env  # noqa: F401 — loads .env so CENSUS_API_KEY is available locally
 
@@ -118,6 +125,88 @@ AGGREGATES: list[tuple[str, str, str, str]] = [
 WANTED_CODES = {agg[1] for agg in AGGREGATES}
 CODE_TO_SUFFIX = {agg[1]: agg[0] for agg in AGGREGATES}
 
+# --- Source-YAML emission (inline; Plan 7) --------------------------------
+# One YAML per written series, emitted right after its data file, so
+# YAML<->data parity holds by construction. Overwrite-always: the dir is
+# pipeline-owned — name/description fixes belong in these templates.
+# Per-state IDs (`state_<suffix>_<st>`) are recognized by
+# parseStateSourceId -> hidden behind the composer's state chip; the
+# national `us_<suffix>` sources stay default-visible and double as the
+# default-visible carriers for the `fiscal` / `government` topical pills
+# (which the build-time zero-count guard requires).
+REPO_ROOT = Path(__file__).resolve().parent.parent
+YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
+
+# Short noun for the chip/card shortName (the long `noun` from
+# AGGREGATES is for the full name + prose).
+SHORT_NOUN = {
+    "totrev": "revenue",
+    "totexp": "total exp",
+    "genexp": "general exp",
+    "welfexp": "welfare",
+    "hwyexp": "highways",
+}
+
+PROGRAM_URL = "https://www.census.gov/programs-surveys/state.html"
+# Shared closing sentence — states the scope honestly (this is the
+# state-government layer, not state+local). Data semantics, not an
+# internal-implementation leak, so it belongs in the description.
+SCOPE = (
+    "Census Annual Survey of State Government Finances; the "
+    "state-government layer only, excluding local and federal "
+    "spending. Public-domain US government data."
+)
+
+
+def _q(s: str) -> str:
+    """Single-quote a YAML scalar, escaping embedded single quotes."""
+    return "'" + s.replace("'", "''") + "'"
+
+
+def write_yaml(scope_kind: str, abbr: str, name: str, agg: tuple) -> None:
+    suffix, code, noun, blurb = agg
+    if scope_kind == "us":
+        sid = f"us_{suffix}"
+        full_name = f"State governments' {noun} (US total)"
+        short = f"State govt {SHORT_NOUN[suffix]} (US)"
+        desc = f"{blurb}, summed across all 50 state governments. {SCOPE}"
+        tags = ["fiscal", "government", "us"]
+    else:  # "state"
+        sid = f"state_{suffix}_{abbr.lower()}"
+        full_name = f"{name} state government {noun}"
+        short = f"{abbr} state {SHORT_NOUN[suffix]}"
+        desc = f"{blurb}, for {name}'s state government. {SCOPE}"
+        tags = ["fiscal", "government", "us-state", "us"]
+
+    lines = [
+        f"name: {_q(full_name)}",
+        f"shortName: {_q(short)}",
+        f"description: {_q(desc)}",
+        "kind: timeseries",
+        f"pipeline: {PIPELINE}",
+        f"dataFile: data/{PIPELINE}/{sid}.json",
+        'supportedDeltas: ["1y", "5y", "10y"]',
+        'unit: "billions USD"',
+        "emphasis: change",
+        "formatting:",
+        "  style: currency",
+        "  currency: USD",
+        "  decimals: 1",
+        "  suffix: ' B'",
+        "provenance:",
+        "  provider: U.S. Census Bureau, Annual Survey of State Government Finances",
+        f"  series: govsstatefin {code}",
+        f"  url: {PROGRAM_URL}",
+        "  license: Public domain (US government data)",
+        "tags:",
+    ]
+    for t in tags:
+        lines.append(f"  - {t}")
+    lines.append("unitClass: currency")
+    (YAML_DIR / f"{sid}.yaml").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8",
+    )
+
 
 def fetch_geo(for_clause: str, api_key: str | None) -> list[list[str]]:
     """Fetch every line code / year for one geography. Returns the raw
@@ -181,10 +270,12 @@ def run() -> int:
 
     written = 0
     empties: list[str] = []
+    YAML_DIR.mkdir(parents=True, exist_ok=True)
 
     # National (US total = sum across state governments).
     nat = points_by_code(fetch_geo("us:1", api_key))
-    for suffix, _code, noun, _blurb in AGGREGATES:
+    for agg in AGGREGATES:
+        suffix, _code, noun, _blurb = agg
         pts = nat.get(suffix, [])
         if not pts:
             empties.append(f"us_{suffix}")
@@ -196,12 +287,14 @@ def run() -> int:
             pts,
             unit="billions USD",
         )
+        write_yaml("us", "", "", agg)
         written += 1
 
     # Per state.
     for abbr, fips, name in STATES:
         by_code = points_by_code(fetch_geo(f"state:{fips}", api_key))
-        for suffix, _code, noun, _blurb in AGGREGATES:
+        for agg in AGGREGATES:
+            suffix, _code, noun, _blurb = agg
             pts = by_code.get(suffix, [])
             sid = f"state_{suffix}_{abbr.lower()}"
             if not pts:
@@ -214,6 +307,7 @@ def run() -> int:
                 pts,
                 unit="billions USD",
             )
+            write_yaml("state", abbr, name, agg)
             written += 1
 
     print(f"census_govfin: wrote {written} series.")

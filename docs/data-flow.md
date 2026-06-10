@@ -256,10 +256,10 @@ stored in **billions USD**, counts **raw**; see §8.
   snapshots from on-disk `acs_state` timeseries (no API key).
 - **`derive_acs_state_from_cd.py`** — aggregates per-CD ACS into per-state
   timeseries (counts sum; medians population-weighted).
-- **`census_govfin.py`** (`public/data/census_govfin/`) — Census
+- **`census_govfin.py`** (`public/data/census_govfin/` + YAML) — Census
   `timeseries/govsstatefin`. State revenue/expenditure aggregates, $1,000s→
-  billions (DC excluded — not a state government). YAML via
-  `_scaffold_census_govfin.py`.
+  billions (DC excluded — not a state government). YAML emitted inline
+  (Plan 7).
 
 ---
 
@@ -272,13 +272,13 @@ after every refresh.
 - **`_generate_acs_sources.py` / `_generate_acs_national_sources.py`** — scan
   `acs_cd` / `acs_national` data → write `src/content/sources/acs_cd|acs_national/`.
 - **`_generate_zillow_sources.py`** — scan `zillow` data → zillow source YAMLs.
-- **`_scaffold_*.py`** (acs_labor, census_govfin,
+- **`_scaffold_*.py`** (acs_labor,
   state_govemp, persona_sources) — iterate their pipeline's data files, emit
   one source YAML each. Per-state IDs are gated behind the composer's "state
   chip" (`parseStateSourceId`); national IDs are default-visible. Being
   folded into their pipelines one provider at a time (Plan 7 —
-  eia_state_energy + naep + edu_spending done); new providers emit YAML
-  inline instead.
+  eia_state_energy + naep + edu_spending + census_govfin done); new
+  providers emit YAML inline instead.
 - **`_generate_content.py`** — one-off source+chart YAML generator for a
   library expansion (with a cadence→`supportedDeltas` helper).
 - **`_generate_state_tract_charts.py` / `_generate_state_bg_charts.py`** —
