@@ -61,7 +61,7 @@ Drop screenshots here when ready. Suggested:
 | [CBO](https://www.cbo.gov/data/budget-economic-data) | Budget & Economic Outlook baseline + Historical Budget Data: federal debt / deficit / outlays / revenues as % of GDP, with multi-vintage projection map | `pipelines/cbo.py` |
 | [USAspending.gov](https://www.usaspending.gov/) | Federal contracts/grants/loans/direct payments by recipient state, CBSA, CD, fiscal year | `pipelines/usaspending.py`, `usaspending_metro.py` |
 | [Census Bureau](https://www.census.gov/) | American Community Survey 5-year at CD / metro / state / county / tract / block-group granularity, plus the Annual Survey of State Government Finances | `pipelines/census_acs_cd.py`, `census_acs_metro.py`, `census_acs_state.py`, `census_acs_choropleth.py`, `census_acs_labor.py`, `census_govfin.py` |
-| [NCES + NAEP](https://nces.ed.gov/) | K-12 per-pupil spending (NCES CCD F-33 via Urban Institute Education Data Portal) + NAEP grade-4 math scale scores, per-state | `pipelines/edu_spending.py`, `pipelines/naep.py` |
+| [NCES + NAEP](https://nces.ed.gov/) | K-12 per-pupil spending (NCES CCD F-33 via Urban Institute Education Data Portal) + NAEP grade-4 math scale scores, per-state | `pipelines/edu_spending.py`, `pipelines/naep_scores.py` |
 | [SSA](https://www.ssa.gov/oact/TR/) | OASDI Trustees Report — cost / GDP, income / GDP, worker-per-beneficiary ratio, with Alternative-II long-range projection | `pipelines/ssa.py` |
 | [EIA](https://www.eia.gov/electricity/data/browser/) | State-level electricity net generation by fuel | `pipelines/eia_state_energy.py` |
 | [OECD](https://stats.oecd.org/) | Harmonized cross-country macro comparisons | `pipelines/oecd.py` |
