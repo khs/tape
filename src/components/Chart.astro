@@ -669,7 +669,11 @@ const mostRecentUpdate = payload.sources
     )
   }
 
-  <div class="tile-spark" data-role="tile-spark" />
+  <!-- Decorative: the sparkline SVG (injected client-side) duplicates the
+       tile-value / tile-delta readouts above, which ARE announced. Hide the
+       unlabeled SVG node from assistive tech rather than leak path/tspan
+       noise (WCAG 1.1.1 — redundant visual marked decorative). -->
+  <div class="tile-spark" data-role="tile-spark" aria-hidden="true" />
   <div
     class="tile-window muted"
     data-window-mismatch={windowMismatch ? "1" : undefined}
@@ -891,7 +895,10 @@ const mostRecentUpdate = payload.sources
               Values rebased to 100 at window start.
             </p>
           )}
-          <div class="dialog-plot" data-role="plot" />
+          <!-- Decorative: the dialog plot SVG is described by the adjacent
+               .descriptor sentence (value + trend + window), which screen
+               readers announce. Hide the unlabeled SVG itself. -->
+          <div class="dialog-plot" data-role="plot" aria-hidden="true" />
           {/* "X annotations outside this window" hint. Filled and
               toggled by ChartController.renderFullPlot whenever the
               chart has annotations and at least one of them falls

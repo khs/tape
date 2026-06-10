@@ -46,6 +46,11 @@ let fixedRange: { start: string; end: string } | undefined;
 
 if (!decoded.ok) {
   errorMessage = decoded.message;
+  // Don't soft-404: a missing/invalid composition is not a 200 OK page.
+  // "empty" (no ?d= at all) reads as not-found to a crawler; a malformed
+  // or wrong-version payload is a bad request. Either way the page still
+  // renders its helpful error panel + a link to /compose.
+  Astro.response.status = decoded.reason === "empty" ? 404 : 400;
 } else {
   const st = decoded.state;
   title = st.title ?? "Composed dashboard";

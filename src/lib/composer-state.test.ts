@@ -50,6 +50,83 @@ describe("encode → decode round-trip", () => {
     }
   });
 
+  it("round-trips inline derived sources (inlineSources) including tags", () => {
+    const enc = encodeComposedState({
+      title: "Derived",
+      sections: [{ title: "S", charts: ["derived:d1"] }],
+      inlineSources: {
+        "derived:d1": {
+          op: "divide",
+          a: "fred/gdp",
+          b: "fred/pop",
+          name: "GDP per capita",
+          tags: ["custom", "macro"],
+        },
+      },
+    });
+    const dec = decodeComposedState(enc);
+    expect(dec.ok).toBe(true);
+    if (dec.ok) {
+      expect(dec.state.inlineSources?.["derived:d1"]).toEqual({
+        op: "divide",
+        a: "fred/gdp",
+        b: "fred/pop",
+        name: "GDP per capita",
+        tags: ["custom", "macro"],
+      });
+    }
+  });
+
+  it("round-trips inline maps (inlineMaps) with bbox + colour options", () => {
+    const enc = encodeComposedState({
+      title: "Maps",
+      sections: [{ title: "S", charts: ["inlinemap:m1"] }],
+      inlineMaps: {
+        "inlinemap:m1": {
+          title: "Poverty by county",
+          geo: "county",
+          indicator: "poverty_rate",
+          vintage: "2022",
+          bbox: [-125, 24, -66, 50],
+          colorScheme: "reds",
+          colorScale: "log",
+          blurb: "Share below the poverty line.",
+        },
+      },
+    });
+    const dec = decodeComposedState(enc);
+    expect(dec.ok).toBe(true);
+    if (dec.ok) {
+      const m = dec.state.inlineMaps?.["inlinemap:m1"];
+      expect(m?.bbox).toEqual([-125, 24, -66, 50]);
+      expect(m?.colorScheme).toBe("reds");
+      expect(m?.colorScale).toBe("log");
+      expect(m?.geo).toBe("county");
+      expect(m?.vintage).toBe("2022");
+    }
+  });
+
+  it("preserves a section fixedRange (pinned start/end window)", () => {
+    const enc = encodeComposedState({
+      title: "Pinned",
+      sections: [
+        {
+          title: "S",
+          charts: ["a"],
+          fixedRange: { start: "2008-01-01", end: "2012-12-31" },
+        },
+      ],
+    });
+    const dec = decodeComposedState(enc);
+    expect(dec.ok).toBe(true);
+    if (dec.ok) {
+      expect(dec.state.sections?.[0]?.fixedRange).toEqual({
+        start: "2008-01-01",
+        end: "2012-12-31",
+      });
+    }
+  });
+
   it("strips undefined fields so encoding stays compact", () => {
     const enc1 = encodeComposedState({ title: "x", charts: ["a"] });
     const enc2 = encodeComposedState({
