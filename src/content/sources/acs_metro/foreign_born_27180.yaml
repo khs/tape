@@ -1,5 +1,5 @@
-name: Foreign-born population — Jackson
-shortName: Jackson foreign-born
+name: Foreign-born population — Jackson, TN
+shortName: Jackson, TN foreign-born
 description: Foreign-born population for the Jackson metropolitan statistical area (CBSA 27180). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

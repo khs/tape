@@ -1,5 +1,5 @@
-name: Total population — Anchorage
-shortName: Anchorage population
+name: Total population — Anchorage, AK
+shortName: Anchorage, AK population
 description: Total population for the Anchorage metropolitan statistical area (CBSA 11260). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

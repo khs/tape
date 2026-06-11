@@ -1,5 +1,5 @@
-name: Population under 18 — Chambersburg
-shortName: Chambersburg pop. under 18
+name: Population under 18 — Chambersburg, PA
+shortName: Chambersburg, PA pop. under 18
 description: Population under 18 for the Chambersburg metropolitan statistical area (CBSA 16540). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

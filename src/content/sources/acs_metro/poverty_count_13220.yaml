@@ -1,5 +1,5 @@
-name: People in poverty — Beckley
-shortName: Beckley poverty count
+name: People in poverty — Beckley, WV
+shortName: Beckley, WV poverty count
 description: People in poverty for the Beckley metropolitan statistical area (CBSA 13220). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

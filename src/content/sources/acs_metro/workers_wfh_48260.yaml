@@ -1,5 +1,5 @@
-name: Workers who work from home — Weirton-Steubenville
-shortName: Weirton-Steubenville WFH workers
+name: Workers who work from home — Weirton-Steubenville, WV-OH
+shortName: Weirton-Steubenville, WV-OH WFH workers
 description: Workers who work from home for the Weirton-Steubenville metropolitan statistical area (CBSA 48260). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

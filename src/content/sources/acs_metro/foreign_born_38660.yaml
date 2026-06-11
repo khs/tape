@@ -1,5 +1,5 @@
-name: Foreign-born population — Ponce
-shortName: Ponce foreign-born
+name: Foreign-born population — Ponce, PR
+shortName: Ponce, PR foreign-born
 description: Foreign-born population for the Ponce metropolitan statistical area (CBSA 38660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

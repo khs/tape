@@ -1,5 +1,5 @@
-name: Total population — Manhattan
-shortName: Manhattan population
+name: Total population — Manhattan, KS
+shortName: Manhattan, KS population
 description: Total population for the Manhattan metropolitan statistical area (CBSA 31740). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

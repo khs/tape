@@ -1,5 +1,5 @@
-name: Total population — Iowa City
-shortName: Iowa City population
+name: Total population — Iowa City, IA
+shortName: Iowa City, IA population
 description: Total population for the Iowa City metropolitan statistical area (CBSA 26980). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

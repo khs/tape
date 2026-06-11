@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Anniston-Oxford
-shortName: Anniston-Oxford HHs no vehicle
+name: Households with no vehicle available — Anniston-Oxford, AL
+shortName: Anniston-Oxford, AL HHs no vehicle
 description: Households with no vehicle available for the Anniston-Oxford metropolitan statistical area (CBSA 11500). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

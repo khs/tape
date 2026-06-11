@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Sioux Falls
-shortName: Sioux Falls HHs no vehicle
+name: Households with no vehicle available — Sioux Falls, SD-MN
+shortName: Sioux Falls, SD-MN HHs no vehicle
 description: Households with no vehicle available for the Sioux Falls metropolitan statistical area (CBSA 43620). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

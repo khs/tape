@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Eagle Pass
-shortName: Eagle Pass HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Eagle Pass, TX
+shortName: Eagle Pass, TX HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Eagle Pass metropolitan statistical area (CBSA 20580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Kennewick-Richland
-shortName: Kennewick-Richland born same state
+name: Population born in current state of residence — Kennewick-Richland, WA
+shortName: Kennewick-Richland, WA born same state
 description: Population born in current state of residence for the Kennewick-Richland metropolitan statistical area (CBSA 28420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

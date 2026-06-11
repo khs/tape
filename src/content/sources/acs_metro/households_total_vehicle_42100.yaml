@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Santa Cruz-Watsonville
-shortName: Santa Cruz-Watsonville HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Santa Cruz-Watsonville, CA
+shortName: Santa Cruz-Watsonville, CA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Santa Cruz-Watsonville metropolitan statistical area (CBSA 42100). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

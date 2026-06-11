@@ -1,5 +1,5 @@
-name: Population 65 and older — Hattiesburg
-shortName: Hattiesburg pop. 65+
+name: Population 65 and older — Hattiesburg, MS
+shortName: Hattiesburg, MS pop. 65+
 description: Population 65 and older for the Hattiesburg metropolitan statistical area (CBSA 25620). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

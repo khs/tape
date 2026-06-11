@@ -1,5 +1,5 @@
-name: Median age — Oshkosh-Neenah
-shortName: Oshkosh-Neenah median age
+name: Median age — Oshkosh-Neenah, WI
+shortName: Oshkosh-Neenah, WI median age
 description: Median age for the Oshkosh-Neenah metropolitan statistical area (CBSA 36780). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

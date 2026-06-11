@@ -1,5 +1,5 @@
-name: Total population — Ponce
-shortName: Ponce population
+name: Total population — Ponce, PR
+shortName: Ponce, PR population
 description: Total population for the Ponce metropolitan statistical area (CBSA 38660). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

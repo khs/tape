@@ -1,5 +1,5 @@
-name: People in poverty — Atlantic City-Hammonton
-shortName: Atlantic City-Hammonton poverty count
+name: People in poverty — Atlantic City-Hammonton, NJ
+shortName: Atlantic City-Hammonton, NJ poverty count
 description: People in poverty for the Atlantic City-Hammonton metropolitan statistical area (CBSA 12100). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

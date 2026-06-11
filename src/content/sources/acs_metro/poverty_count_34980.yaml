@@ -1,5 +1,5 @@
-name: People in poverty — Nashville-Davidson--Murfreesboro--Franklin
-shortName: Nashville-Davidson--Murfreesboro--Franklin poverty count
+name: People in poverty — Nashville-Davidson--Murfreesboro--Franklin, TN
+shortName: Nashville-Davidson--Murfreesboro--Franklin, TN poverty count
 description: People in poverty for the Nashville-Davidson--Murfreesboro--Franklin metropolitan statistical area (CBSA 34980). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

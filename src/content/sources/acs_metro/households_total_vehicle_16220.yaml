@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Casper
-shortName: Casper HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Casper, WY
+shortName: Casper, WY HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Casper metropolitan statistical area (CBSA 16220). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

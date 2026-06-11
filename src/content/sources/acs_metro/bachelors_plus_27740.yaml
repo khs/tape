@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Johnson City
-shortName: Johnson City bachelors plus
+name: Adults 25+ with bachelor's degree — Johnson City, TN
+shortName: Johnson City, TN bachelors plus
 description: Adults 25+ with bachelor's degree for the Johnson City metropolitan statistical area (CBSA 27740). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

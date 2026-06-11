@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Ann Arbor
-shortName: Ann Arbor HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Ann Arbor, MI
+shortName: Ann Arbor, MI HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Ann Arbor metropolitan statistical area (CBSA 11460). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

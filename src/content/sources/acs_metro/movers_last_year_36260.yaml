@@ -1,5 +1,5 @@
-name: People who moved in the last year — Ogden
-shortName: Ogden movers (last yr)
+name: People who moved in the last year — Ogden, UT
+shortName: Ogden, UT movers (last yr)
 description: People who moved in the last year for the Ogden metropolitan statistical area (CBSA 36260). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Carson City
-shortName: Carson City median age
+name: Median age — Carson City, NV
+shortName: Carson City, NV median age
 description: Median age for the Carson City metropolitan statistical area (CBSA 16180). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

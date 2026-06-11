@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Hammond
-shortName: Hammond HHs no vehicle
+name: Households with no vehicle available — Hammond, LA
+shortName: Hammond, LA HHs no vehicle
 description: Households with no vehicle available for the Hammond metropolitan statistical area (CBSA 25220). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Wausau
-shortName: Wausau pop. 65+
+name: Population 65 and older — Wausau, WI
+shortName: Wausau, WI pop. 65+
 description: Population 65 and older for the Wausau metropolitan statistical area (CBSA 48140). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

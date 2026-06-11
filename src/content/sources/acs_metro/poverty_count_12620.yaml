@@ -1,5 +1,5 @@
-name: People in poverty — Bangor
-shortName: Bangor poverty count
+name: People in poverty — Bangor, ME
+shortName: Bangor, ME poverty count
 description: People in poverty for the Bangor metropolitan statistical area (CBSA 12620). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

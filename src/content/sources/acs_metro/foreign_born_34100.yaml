@@ -1,5 +1,5 @@
-name: Foreign-born population — Morristown
-shortName: Morristown foreign-born
+name: Foreign-born population — Morristown, TN
+shortName: Morristown, TN foreign-born
 description: Foreign-born population for the Morristown metropolitan statistical area (CBSA 34100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Lawton
-shortName: Lawton born same state
+name: Population born in current state of residence — Lawton, OK
+shortName: Lawton, OK born same state
 description: Population born in current state of residence for the Lawton metropolitan statistical area (CBSA 30020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

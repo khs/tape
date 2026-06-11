@@ -1,5 +1,5 @@
-name: Total population — College Station-Bryan
-shortName: College Station-Bryan population
+name: Total population — College Station-Bryan, TX
+shortName: College Station-Bryan, TX population
 description: Total population for the College Station-Bryan metropolitan statistical area (CBSA 17780). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

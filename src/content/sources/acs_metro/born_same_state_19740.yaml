@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Denver-Aurora-Centennial
-shortName: Denver-Aurora-Centennial born same state
+name: Population born in current state of residence — Denver-Aurora-Centennial, CO
+shortName: Denver-Aurora-Centennial, CO born same state
 description: Population born in current state of residence for the Denver-Aurora-Centennial metropolitan statistical area (CBSA 19740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

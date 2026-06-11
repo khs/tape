@@ -1,5 +1,5 @@
-name: Richmond — unemployment rate
-shortName: Richmond unemployment
+name: Richmond, VA — unemployment rate
+shortName: Richmond, VA unemployment
 description: Headline unemployment rate for the Richmond metropolitan statistical
   area (CBSA 40060). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

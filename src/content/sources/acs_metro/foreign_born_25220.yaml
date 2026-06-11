@@ -1,5 +1,5 @@
-name: Foreign-born population — Hammond
-shortName: Hammond foreign-born
+name: Foreign-born population — Hammond, LA
+shortName: Hammond, LA foreign-born
 description: Foreign-born population for the Hammond metropolitan statistical area (CBSA 25220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

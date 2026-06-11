@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Peoria
-shortName: Peoria HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Peoria, IL
+shortName: Peoria, IL HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Peoria metropolitan statistical area (CBSA 37900). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

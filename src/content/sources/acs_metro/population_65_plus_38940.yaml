@@ -1,5 +1,5 @@
-name: Population 65 and older — Port St. Lucie
-shortName: Port St. Lucie pop. 65+
+name: Population 65 and older — Port St. Lucie, FL
+shortName: Port St. Lucie, FL pop. 65+
 description: Population 65 and older for the Port St. Lucie metropolitan statistical area (CBSA 38940). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

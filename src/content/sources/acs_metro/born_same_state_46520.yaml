@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Urban Honolulu
-shortName: Urban Honolulu born same state
+name: Population born in current state of residence — Urban Honolulu, HI
+shortName: Urban Honolulu, HI born same state
 description: Population born in current state of residence for the Urban Honolulu metropolitan statistical area (CBSA 46520). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

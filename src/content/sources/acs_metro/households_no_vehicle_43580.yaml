@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Sioux City
-shortName: Sioux City HHs no vehicle
+name: Households with no vehicle available — Sioux City, IA-NE-SD
+shortName: Sioux City, IA-NE-SD HHs no vehicle
 description: Households with no vehicle available for the Sioux City metropolitan statistical area (CBSA 43580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

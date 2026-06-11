@@ -1,5 +1,5 @@
-name: Total population — Minneapolis-St. Paul-Bloomington
-shortName: Minneapolis-St. Paul-Bloomington population
+name: Total population — Minneapolis-St. Paul-Bloomington, MN-WI
+shortName: Minneapolis-St. Paul-Bloomington, MN-WI population
 description: Total population for the Minneapolis-St. Paul-Bloomington metropolitan statistical area (CBSA 33460). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

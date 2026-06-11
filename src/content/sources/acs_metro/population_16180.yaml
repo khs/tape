@@ -1,5 +1,5 @@
-name: Total population — Carson City
-shortName: Carson City population
+name: Total population — Carson City, NV
+shortName: Carson City, NV population
 description: Total population for the Carson City metropolitan statistical area (CBSA 16180). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Mount Vernon-Anacortes
-shortName: Mount Vernon-Anacortes pop. under 18
+name: Population under 18 — Mount Vernon-Anacortes, WA
+shortName: Mount Vernon-Anacortes, WA pop. under 18
 description: Population under 18 for the Mount Vernon-Anacortes metropolitan statistical area (CBSA 34580). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

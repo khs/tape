@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Macon-Bibb County
-shortName: Macon-Bibb County born same state
+name: Population born in current state of residence — Macon-Bibb County, GA
+shortName: Macon-Bibb County, GA born same state
 description: Population born in current state of residence for the Macon-Bibb County metropolitan statistical area (CBSA 31420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

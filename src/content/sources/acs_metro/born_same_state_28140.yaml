@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Kansas City
-shortName: Kansas City born same state
+name: Population born in current state of residence — Kansas City, MO-KS
+shortName: Kansas City, MO-KS born same state
 description: Population born in current state of residence for the Kansas City metropolitan statistical area (CBSA 28140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

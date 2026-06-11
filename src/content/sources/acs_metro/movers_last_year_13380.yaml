@@ -1,5 +1,5 @@
-name: People who moved in the last year — Bellingham
-shortName: Bellingham movers (last yr)
+name: People who moved in the last year — Bellingham, WA
+shortName: Bellingham, WA movers (last yr)
 description: People who moved in the last year for the Bellingham metropolitan statistical area (CBSA 13380). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

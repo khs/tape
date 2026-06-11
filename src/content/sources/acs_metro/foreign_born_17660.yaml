@@ -1,5 +1,5 @@
-name: Foreign-born population — Coeur d'Alene
-shortName: Coeur d'Alene foreign-born
+name: Foreign-born population — Coeur d'Alene, ID
+shortName: Coeur d'Alene, ID foreign-born
 description: Foreign-born population for the Coeur d'Alene metropolitan statistical area (CBSA 17660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

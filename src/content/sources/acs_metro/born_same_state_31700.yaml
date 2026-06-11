@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Manchester-Nashua
-shortName: Manchester-Nashua born same state
+name: Population born in current state of residence — Manchester-Nashua, NH
+shortName: Manchester-Nashua, NH born same state
 description: Population born in current state of residence for the Manchester-Nashua metropolitan statistical area (CBSA 31700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

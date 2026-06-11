@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Ponce
-shortName: Ponce born same state
+name: Population born in current state of residence — Ponce, PR
+shortName: Ponce, PR born same state
 description: Population born in current state of residence for the Ponce metropolitan statistical area (CBSA 38660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

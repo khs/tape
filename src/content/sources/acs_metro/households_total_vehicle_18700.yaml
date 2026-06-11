@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Corvallis
-shortName: Corvallis HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Corvallis, OR
+shortName: Corvallis, OR HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Corvallis metropolitan statistical area (CBSA 18700). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

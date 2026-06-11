@@ -1,5 +1,5 @@
-name: Median age — Bowling Green
-shortName: Bowling Green median age
+name: Median age — Bowling Green, KY
+shortName: Bowling Green, KY median age
 description: Median age for the Bowling Green metropolitan statistical area (CBSA 14540). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

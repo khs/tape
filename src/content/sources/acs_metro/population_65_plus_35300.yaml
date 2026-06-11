@@ -1,5 +1,5 @@
-name: Population 65 and older — New Haven
-shortName: New Haven pop. 65+
+name: Population 65 and older — New Haven, CT
+shortName: New Haven, CT pop. 65+
 description: Population 65 and older for the New Haven metropolitan statistical area (CBSA 35300). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

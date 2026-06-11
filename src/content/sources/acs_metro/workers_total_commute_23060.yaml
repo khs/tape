@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Fort Wayne
-shortName: Fort Wayne workers total (commute)
+name: Total workers (commute-table denominator) — Fort Wayne, IN
+shortName: Fort Wayne, IN workers total (commute)
 description: Total workers (commute-table denominator) for the Fort Wayne metropolitan statistical area (CBSA 23060). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

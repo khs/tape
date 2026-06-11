@@ -1,5 +1,5 @@
-name: Median travel time to work — Pocatello
-shortName: Pocatello median commute
+name: Median travel time to work — Pocatello, ID
+shortName: Pocatello, ID median commute
 description: Median travel time to work for the Pocatello metropolitan statistical area (CBSA 38540). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

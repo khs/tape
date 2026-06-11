@@ -1,5 +1,5 @@
-name: Households with no vehicle available — McAllen-Edinburg-Mission
-shortName: McAllen-Edinburg-Mission HHs no vehicle
+name: Households with no vehicle available — McAllen-Edinburg-Mission, TX
+shortName: McAllen-Edinburg-Mission, TX HHs no vehicle
 description: Households with no vehicle available for the McAllen-Edinburg-Mission metropolitan statistical area (CBSA 32580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

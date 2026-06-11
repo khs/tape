@@ -1,5 +1,5 @@
-name: Foreign-born population — Fort Wayne
-shortName: Fort Wayne foreign-born
+name: Foreign-born population — Fort Wayne, IN
+shortName: Fort Wayne, IN foreign-born
 description: Foreign-born population for the Fort Wayne metropolitan statistical area (CBSA 23060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Richmond
-shortName: Richmond born same state
+name: Population born in current state of residence — Richmond, VA
+shortName: Richmond, VA born same state
 description: Population born in current state of residence for the Richmond metropolitan statistical area (CBSA 40060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Cape Girardeau
-shortName: Cape Girardeau workers total (commute)
+name: Total workers (commute-table denominator) — Cape Girardeau, MO-IL
+shortName: Cape Girardeau, MO-IL workers total (commute)
 description: Total workers (commute-table denominator) for the Cape Girardeau metropolitan statistical area (CBSA 16020). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

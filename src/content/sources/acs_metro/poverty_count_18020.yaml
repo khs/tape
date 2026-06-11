@@ -1,5 +1,5 @@
-name: People in poverty — Columbus
-shortName: Columbus poverty count
+name: People in poverty — Columbus, IN
+shortName: Columbus, IN poverty count
 description: People in poverty for the Columbus metropolitan statistical area (CBSA 18020). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

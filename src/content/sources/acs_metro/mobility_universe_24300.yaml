@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Grand Junction
-shortName: Grand Junction pop. total (mobility)
+name: Total population (mobility-table denominator) — Grand Junction, CO
+shortName: Grand Junction, CO pop. total (mobility)
 description: Total population (mobility-table denominator) for the Grand Junction metropolitan statistical area (CBSA 24300). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Orlando-Kissimmee-Sanford
-shortName: Orlando-Kissimmee-Sanford born same state
+name: Population born in current state of residence — Orlando-Kissimmee-Sanford, FL
+shortName: Orlando-Kissimmee-Sanford, FL born same state
 description: Population born in current state of residence for the Orlando-Kissimmee-Sanford metropolitan statistical area (CBSA 36740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

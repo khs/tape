@@ -1,5 +1,5 @@
-name: Population 65 and older — Chambersburg
-shortName: Chambersburg pop. 65+
+name: Population 65 and older — Chambersburg, PA
+shortName: Chambersburg, PA pop. 65+
 description: Population 65 and older for the Chambersburg metropolitan statistical area (CBSA 16540). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Workers who work from home — Fayetteville-Springdale-Rogers
-shortName: Fayetteville-Springdale-Rogers WFH workers
+name: Workers who work from home — Fayetteville-Springdale-Rogers, AR
+shortName: Fayetteville-Springdale-Rogers, AR WFH workers
 description: Workers who work from home for the Fayetteville-Springdale-Rogers metropolitan statistical area (CBSA 22220). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Sherman-Denison
-shortName: Sherman-Denison HHs no vehicle
+name: Households with no vehicle available — Sherman-Denison, TX
+shortName: Sherman-Denison, TX HHs no vehicle
 description: Households with no vehicle available for the Sherman-Denison metropolitan statistical area (CBSA 43300). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

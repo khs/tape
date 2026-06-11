@@ -1,5 +1,5 @@
-name: Total population — Roanoke
-shortName: Roanoke population
+name: Total population — Roanoke, VA
+shortName: Roanoke, VA population
 description: Total population for the Roanoke metropolitan statistical area (CBSA 40220). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

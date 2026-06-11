@@ -1,5 +1,5 @@
-name: People in poverty — York-Hanover
-shortName: York-Hanover poverty count
+name: People in poverty — York-Hanover, PA
+shortName: York-Hanover, PA poverty count
 description: People in poverty for the York-Hanover metropolitan statistical area (CBSA 49620). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

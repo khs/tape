@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Minot
-shortName: Minot HHs no vehicle
+name: Households with no vehicle available — Minot, ND
+shortName: Minot, ND HHs no vehicle
 description: Households with no vehicle available for the Minot metropolitan statistical area (CBSA 33500). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

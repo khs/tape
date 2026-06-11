@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Longview-Kelso
-shortName: Longview-Kelso workers total (commute)
+name: Total workers (commute-table denominator) — Longview-Kelso, WA
+shortName: Longview-Kelso, WA workers total (commute)
 description: Total workers (commute-table denominator) for the Longview-Kelso metropolitan statistical area (CBSA 31020). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

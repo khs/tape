@@ -1,5 +1,5 @@
-name: Population 65 and older — Pueblo
-shortName: Pueblo pop. 65+
+name: Population 65 and older — Pueblo, CO
+shortName: Pueblo, CO pop. 65+
 description: Population 65 and older for the Pueblo metropolitan statistical area (CBSA 39380). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

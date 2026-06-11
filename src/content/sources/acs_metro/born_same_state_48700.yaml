@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Williamsport
-shortName: Williamsport born same state
+name: Population born in current state of residence — Williamsport, PA
+shortName: Williamsport, PA born same state
 description: Population born in current state of residence for the Williamsport metropolitan statistical area (CBSA 48700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

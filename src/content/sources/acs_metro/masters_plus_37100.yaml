@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Oxnard-Thousand Oaks-Ventura
-shortName: Oxnard-Thousand Oaks-Ventura masters plus
+name: Adults 25+ with master's degree — Oxnard-Thousand Oaks-Ventura, CA
+shortName: Oxnard-Thousand Oaks-Ventura, CA masters plus
 description: Adults 25+ with master's degree for the Oxnard-Thousand Oaks-Ventura metropolitan statistical area (CBSA 37100). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

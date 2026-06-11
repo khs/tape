@@ -1,5 +1,5 @@
-name: Median age — Elkhart-Goshen
-shortName: Elkhart-Goshen median age
+name: Median age — Elkhart-Goshen, IN
+shortName: Elkhart-Goshen, IN median age
 description: Median age for the Elkhart-Goshen metropolitan statistical area (CBSA 21140). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

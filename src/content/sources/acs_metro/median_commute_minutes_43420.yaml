@@ -1,5 +1,5 @@
-name: Median travel time to work — Sierra Vista-Douglas
-shortName: Sierra Vista-Douglas median commute
+name: Median travel time to work — Sierra Vista-Douglas, AZ
+shortName: Sierra Vista-Douglas, AZ median commute
 description: Median travel time to work for the Sierra Vista-Douglas metropolitan statistical area (CBSA 43420). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

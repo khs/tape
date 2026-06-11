@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Durham-Chapel Hill
-shortName: Durham-Chapel Hill HHs no vehicle
+name: Households with no vehicle available — Durham-Chapel Hill, NC
+shortName: Durham-Chapel Hill, NC HHs no vehicle
 description: Households with no vehicle available for the Durham-Chapel Hill metropolitan statistical area (CBSA 20500). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

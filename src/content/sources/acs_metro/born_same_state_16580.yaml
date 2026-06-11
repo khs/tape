@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Champaign-Urbana
-shortName: Champaign-Urbana born same state
+name: Population born in current state of residence — Champaign-Urbana, IL
+shortName: Champaign-Urbana, IL born same state
 description: Population born in current state of residence for the Champaign-Urbana metropolitan statistical area (CBSA 16580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

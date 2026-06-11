@@ -1,5 +1,5 @@
-name: Foreign-born population — Lewiston-Auburn
-shortName: Lewiston-Auburn foreign-born
+name: Foreign-born population — Lewiston-Auburn, ME
+shortName: Lewiston-Auburn, ME foreign-born
 description: Foreign-born population for the Lewiston-Auburn metropolitan statistical area (CBSA 30340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

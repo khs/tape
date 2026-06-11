@@ -1,5 +1,5 @@
-name: Population 65 and older — Charlotte-Concord-Gastonia
-shortName: Charlotte-Concord-Gastonia pop. 65+
+name: Population 65 and older — Charlotte-Concord-Gastonia, NC-SC
+shortName: Charlotte-Concord-Gastonia, NC-SC pop. 65+
 description: Population 65 and older for the Charlotte-Concord-Gastonia metropolitan statistical area (CBSA 16740). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

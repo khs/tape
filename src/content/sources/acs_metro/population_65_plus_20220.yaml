@@ -1,5 +1,5 @@
-name: Population 65 and older — Dubuque
-shortName: Dubuque pop. 65+
+name: Population 65 and older — Dubuque, IA
+shortName: Dubuque, IA pop. 65+
 description: Population 65 and older for the Dubuque metropolitan statistical area (CBSA 20220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Tyler
-shortName: Tyler pop. total (mobility)
+name: Total population (mobility-table denominator) — Tyler, TX
+shortName: Tyler, TX pop. total (mobility)
 description: Total population (mobility-table denominator) for the Tyler metropolitan statistical area (CBSA 46340). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

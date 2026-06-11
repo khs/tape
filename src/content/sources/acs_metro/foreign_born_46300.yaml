@@ -1,5 +1,5 @@
-name: Foreign-born population — Twin Falls
-shortName: Twin Falls foreign-born
+name: Foreign-born population — Twin Falls, ID
+shortName: Twin Falls, ID foreign-born
 description: Foreign-born population for the Twin Falls metropolitan statistical area (CBSA 46300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

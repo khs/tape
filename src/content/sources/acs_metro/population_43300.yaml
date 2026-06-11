@@ -1,5 +1,5 @@
-name: Total population — Sherman-Denison
-shortName: Sherman-Denison population
+name: Total population — Sherman-Denison, TX
+shortName: Sherman-Denison, TX population
 description: Total population for the Sherman-Denison metropolitan statistical area (CBSA 43300). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

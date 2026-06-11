@@ -1,5 +1,5 @@
-name: Median travel time to work — Ocala
-shortName: Ocala median commute
+name: Median travel time to work — Ocala, FL
+shortName: Ocala, FL median commute
 description: Median travel time to work for the Ocala metropolitan statistical area (CBSA 36100). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Amarillo
-shortName: Amarillo foreign-born
+name: Foreign-born population — Amarillo, TX
+shortName: Amarillo, TX foreign-born
 description: Foreign-born population for the Amarillo metropolitan statistical area (CBSA 11100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

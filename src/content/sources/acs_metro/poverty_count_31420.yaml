@@ -1,5 +1,5 @@
-name: People in poverty — Macon-Bibb County
-shortName: Macon-Bibb County poverty count
+name: People in poverty — Macon-Bibb County, GA
+shortName: Macon-Bibb County, GA poverty count
 description: People in poverty for the Macon-Bibb County metropolitan statistical area (CBSA 31420). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Fort Smith
-shortName: Fort Smith median age
+name: Median age — Fort Smith, AR-OK
+shortName: Fort Smith, AR-OK median age
 description: Median age for the Fort Smith metropolitan statistical area (CBSA 22900). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

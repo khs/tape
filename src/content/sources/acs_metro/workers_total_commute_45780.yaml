@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Toledo
-shortName: Toledo workers total (commute)
+name: Total workers (commute-table denominator) — Toledo, OH
+shortName: Toledo, OH workers total (commute)
 description: Total workers (commute-table denominator) for the Toledo metropolitan statistical area (CBSA 45780). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

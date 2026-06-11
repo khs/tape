@@ -1,5 +1,5 @@
-name: Fresno — unemployment rate
-shortName: Fresno unemployment
+name: Fresno, CA — unemployment rate
+shortName: Fresno, CA unemployment
 description: Headline unemployment rate for the Fresno metropolitan statistical area
   (CBSA 23420). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

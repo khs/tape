@@ -1,5 +1,5 @@
-name: Median travel time to work — Grand Forks
-shortName: Grand Forks median commute
+name: Median travel time to work — Grand Forks, ND-MN
+shortName: Grand Forks, ND-MN median commute
 description: Median travel time to work for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

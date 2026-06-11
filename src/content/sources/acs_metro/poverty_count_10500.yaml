@@ -1,5 +1,5 @@
-name: People in poverty — Albany
-shortName: Albany poverty count
+name: People in poverty — Albany, GA
+shortName: Albany, GA poverty count
 description: People in poverty for the Albany metropolitan statistical area (CBSA 10500). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — El Paso
-shortName: El Paso poverty count
+name: People in poverty — El Paso, TX
+shortName: El Paso, TX poverty count
 description: People in poverty for the El Paso metropolitan statistical area (CBSA 21340). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

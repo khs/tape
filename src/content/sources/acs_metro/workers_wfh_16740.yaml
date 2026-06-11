@@ -1,5 +1,5 @@
-name: Workers who work from home — Charlotte-Concord-Gastonia
-shortName: Charlotte-Concord-Gastonia WFH workers
+name: Workers who work from home — Charlotte-Concord-Gastonia, NC-SC
+shortName: Charlotte-Concord-Gastonia, NC-SC WFH workers
 description: Workers who work from home for the Charlotte-Concord-Gastonia metropolitan statistical area (CBSA 16740). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

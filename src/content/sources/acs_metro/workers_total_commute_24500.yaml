@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Great Falls
-shortName: Great Falls workers total (commute)
+name: Total workers (commute-table denominator) — Great Falls, MT
+shortName: Great Falls, MT workers total (commute)
 description: Total workers (commute-table denominator) for the Great Falls metropolitan statistical area (CBSA 24500). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

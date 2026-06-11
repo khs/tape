@@ -1,5 +1,5 @@
-name: Population under 18 — Dayton-Kettering-Beavercreek
-shortName: Dayton-Kettering-Beavercreek pop. under 18
+name: Population under 18 — Dayton-Kettering-Beavercreek, OH
+shortName: Dayton-Kettering-Beavercreek, OH pop. under 18
 description: Population under 18 for the Dayton-Kettering-Beavercreek metropolitan statistical area (CBSA 19430). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

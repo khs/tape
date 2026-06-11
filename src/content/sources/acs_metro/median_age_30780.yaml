@@ -1,5 +1,5 @@
-name: Median age — Little Rock-North Little Rock-Conway
-shortName: Little Rock-North Little Rock-Conway median age
+name: Median age — Little Rock-North Little Rock-Conway, AR
+shortName: Little Rock-North Little Rock-Conway, AR median age
 description: Median age for the Little Rock-North Little Rock-Conway metropolitan statistical area (CBSA 30780). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

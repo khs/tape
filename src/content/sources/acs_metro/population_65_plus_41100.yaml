@@ -1,5 +1,5 @@
-name: Population 65 and older — St. George
-shortName: St. George pop. 65+
+name: Population 65 and older — St. George, UT
+shortName: St. George, UT pop. 65+
 description: Population 65 and older for the St. George metropolitan statistical area (CBSA 41100). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

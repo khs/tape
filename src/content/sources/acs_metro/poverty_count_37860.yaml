@@ -1,5 +1,5 @@
-name: People in poverty — Pensacola-Ferry Pass-Brent
-shortName: Pensacola-Ferry Pass-Brent poverty count
+name: People in poverty — Pensacola-Ferry Pass-Brent, FL
+shortName: Pensacola-Ferry Pass-Brent, FL poverty count
 description: People in poverty for the Pensacola-Ferry Pass-Brent metropolitan statistical area (CBSA 37860). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

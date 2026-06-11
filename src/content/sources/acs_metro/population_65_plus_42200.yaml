@@ -1,5 +1,5 @@
-name: Population 65 and older — Santa Maria-Santa Barbara
-shortName: Santa Maria-Santa Barbara pop. 65+
+name: Population 65 and older — Santa Maria-Santa Barbara, CA
+shortName: Santa Maria-Santa Barbara, CA pop. 65+
 description: Population 65 and older for the Santa Maria-Santa Barbara metropolitan statistical area (CBSA 42200). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

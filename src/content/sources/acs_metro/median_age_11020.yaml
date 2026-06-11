@@ -1,5 +1,5 @@
-name: Median age — Altoona
-shortName: Altoona median age
+name: Median age — Altoona, PA
+shortName: Altoona, PA median age
 description: Median age for the Altoona metropolitan statistical area (CBSA 11020). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

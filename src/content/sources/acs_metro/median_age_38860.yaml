@@ -1,5 +1,5 @@
-name: Median age — Portland-South Portland
-shortName: Portland-South Portland median age
+name: Median age — Portland-South Portland, ME
+shortName: Portland-South Portland, ME median age
 description: Median age for the Portland-South Portland metropolitan statistical area (CBSA 38860). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

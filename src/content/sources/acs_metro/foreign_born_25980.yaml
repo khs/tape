@@ -1,5 +1,5 @@
-name: Foreign-born population — Hinesville
-shortName: Hinesville foreign-born
+name: Foreign-born population — Hinesville, GA
+shortName: Hinesville, GA foreign-born
 description: Foreign-born population for the Hinesville metropolitan statistical area (CBSA 25980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

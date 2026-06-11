@@ -1,5 +1,5 @@
-name: Median age — Providence-Warwick
-shortName: Providence-Warwick median age
+name: Median age — Providence-Warwick, RI-MA
+shortName: Providence-Warwick, RI-MA median age
 description: Median age for the Providence-Warwick metropolitan statistical area (CBSA 39300). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

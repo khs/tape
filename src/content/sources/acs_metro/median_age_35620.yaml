@@ -1,5 +1,5 @@
-name: Median age — New York-Newark-Jersey City
-shortName: New York-Newark-Jersey City median age
+name: Median age — New York-Newark-Jersey City, NY-NJ
+shortName: New York-Newark-Jersey City, NY-NJ median age
 description: Median age for the New York-Newark-Jersey City metropolitan statistical area (CBSA 35620). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

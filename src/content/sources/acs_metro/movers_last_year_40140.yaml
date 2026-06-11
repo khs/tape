@@ -1,5 +1,5 @@
-name: People who moved in the last year — Riverside-San Bernardino-Ontario
-shortName: Riverside-San Bernardino-Ontario movers (last yr)
+name: People who moved in the last year — Riverside-San Bernardino-Ontario, CA
+shortName: Riverside-San Bernardino-Ontario, CA movers (last yr)
 description: People who moved in the last year for the Riverside-San Bernardino-Ontario metropolitan statistical area (CBSA 40140). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

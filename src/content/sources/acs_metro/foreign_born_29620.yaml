@@ -1,5 +1,5 @@
-name: Foreign-born population — Lansing-East Lansing
-shortName: Lansing-East Lansing foreign-born
+name: Foreign-born population — Lansing-East Lansing, MI
+shortName: Lansing-East Lansing, MI foreign-born
 description: Foreign-born population for the Lansing-East Lansing metropolitan statistical area (CBSA 29620). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

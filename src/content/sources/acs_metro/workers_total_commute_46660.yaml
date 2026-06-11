@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Valdosta
-shortName: Valdosta workers total (commute)
+name: Total workers (commute-table denominator) — Valdosta, GA
+shortName: Valdosta, GA workers total (commute)
 description: Total workers (commute-table denominator) for the Valdosta metropolitan statistical area (CBSA 46660). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

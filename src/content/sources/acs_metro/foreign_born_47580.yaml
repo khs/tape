@@ -1,5 +1,5 @@
-name: Foreign-born population — Warner Robins
-shortName: Warner Robins foreign-born
+name: Foreign-born population — Warner Robins, GA
+shortName: Warner Robins, GA foreign-born
 description: Foreign-born population for the Warner Robins metropolitan statistical area (CBSA 47580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

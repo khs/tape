@@ -1,5 +1,5 @@
-name: Total population — Seattle-Tacoma-Bellevue
-shortName: Seattle-Tacoma-Bellevue population
+name: Total population — Seattle-Tacoma-Bellevue, WA
+shortName: Seattle-Tacoma-Bellevue, WA population
 description: Total population for the Seattle-Tacoma-Bellevue metropolitan statistical area (CBSA 42660). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

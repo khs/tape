@@ -1,5 +1,5 @@
-name: Foreign-born population — Gettysburg
-shortName: Gettysburg foreign-born
+name: Foreign-born population — Gettysburg, PA
+shortName: Gettysburg, PA foreign-born
 description: Foreign-born population for the Gettysburg metropolitan statistical area (CBSA 23900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

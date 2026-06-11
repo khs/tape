@@ -1,5 +1,5 @@
-name: Total population — Rochester
-shortName: Rochester population
+name: Total population — Rochester, NY
+shortName: Rochester, NY population
 description: Total population for the Rochester metropolitan statistical area (CBSA 40380). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

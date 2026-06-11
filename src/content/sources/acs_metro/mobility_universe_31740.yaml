@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Manhattan
-shortName: Manhattan pop. total (mobility)
+name: Total population (mobility-table denominator) — Manhattan, KS
+shortName: Manhattan, KS pop. total (mobility)
 description: Total population (mobility-table denominator) for the Manhattan metropolitan statistical area (CBSA 31740). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

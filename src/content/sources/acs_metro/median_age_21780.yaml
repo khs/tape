@@ -1,5 +1,5 @@
-name: Median age — Evansville
-shortName: Evansville median age
+name: Median age — Evansville, IN
+shortName: Evansville, IN median age
 description: Median age for the Evansville metropolitan statistical area (CBSA 21780). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — New Haven
-shortName: New Haven bachelors plus
+name: Adults 25+ with bachelor's degree — New Haven, CT
+shortName: New Haven, CT bachelors plus
 description: Adults 25+ with bachelor's degree for the New Haven metropolitan statistical area (CBSA 35300). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

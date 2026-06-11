@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Las Cruces
-shortName: Las Cruces born same state
+name: Population born in current state of residence — Las Cruces, NM
+shortName: Las Cruces, NM born same state
 description: Population born in current state of residence for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

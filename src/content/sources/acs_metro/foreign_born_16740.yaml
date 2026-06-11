@@ -1,5 +1,5 @@
-name: Foreign-born population — Charlotte-Concord-Gastonia
-shortName: Charlotte-Concord-Gastonia foreign-born
+name: Foreign-born population — Charlotte-Concord-Gastonia, NC-SC
+shortName: Charlotte-Concord-Gastonia, NC-SC foreign-born
 description: Foreign-born population for the Charlotte-Concord-Gastonia metropolitan statistical area (CBSA 16740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

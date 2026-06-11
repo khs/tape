@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Louisville/Jefferson County
-shortName: Louisville/Jefferson County workers total (commute)
+name: Total workers (commute-table denominator) — Louisville/Jefferson County, KY-IN
+shortName: Louisville/Jefferson County, KY-IN workers total (commute)
 description: Total workers (commute-table denominator) for the Louisville/Jefferson County metropolitan statistical area (CBSA 31140). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

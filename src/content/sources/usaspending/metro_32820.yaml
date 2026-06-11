@@ -1,5 +1,5 @@
-name: Federal spending — Memphis
-shortName: Memphis
+name: Federal spending — Memphis, TN-MS-AR
+shortName: Memphis, TN-MS-AR
 description: Total federal outlays where the recipient location is in the Memphis
   metropolitan statistical area (CBSA 32820, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

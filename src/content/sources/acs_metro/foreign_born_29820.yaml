@@ -1,5 +1,5 @@
-name: Foreign-born population — Las Vegas-Henderson-North Las Vegas
-shortName: Las Vegas-Henderson-North Las Vegas foreign-born
+name: Foreign-born population — Las Vegas-Henderson-North Las Vegas, NV
+shortName: Las Vegas-Henderson-North Las Vegas, NV foreign-born
 description: Foreign-born population for the Las Vegas-Henderson-North Las Vegas metropolitan statistical area (CBSA 29820). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People who moved in the last year — Sacramento-Roseville-Folsom
-shortName: Sacramento-Roseville-Folsom movers (last yr)
+name: People who moved in the last year — Sacramento-Roseville-Folsom, CA
+shortName: Sacramento-Roseville-Folsom, CA movers (last yr)
 description: People who moved in the last year for the Sacramento-Roseville-Folsom metropolitan statistical area (CBSA 40900). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

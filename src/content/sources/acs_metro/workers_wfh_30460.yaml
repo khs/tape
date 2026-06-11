@@ -1,5 +1,5 @@
-name: Workers who work from home — Lexington-Fayette
-shortName: Lexington-Fayette WFH workers
+name: Workers who work from home — Lexington-Fayette, KY
+shortName: Lexington-Fayette, KY WFH workers
 description: Workers who work from home for the Lexington-Fayette metropolitan statistical area (CBSA 30460). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

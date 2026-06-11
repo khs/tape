@@ -1,5 +1,5 @@
-name: People who moved in the last year — Champaign-Urbana
-shortName: Champaign-Urbana movers (last yr)
+name: People who moved in the last year — Champaign-Urbana, IL
+shortName: Champaign-Urbana, IL movers (last yr)
 description: People who moved in the last year for the Champaign-Urbana metropolitan statistical area (CBSA 16580). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

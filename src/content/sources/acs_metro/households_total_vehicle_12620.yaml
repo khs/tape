@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Bangor
-shortName: Bangor HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Bangor, ME
+shortName: Bangor, ME HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Bangor metropolitan statistical area (CBSA 12620). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

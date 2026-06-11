@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Fort Smith
-shortName: Fort Smith HHs no vehicle
+name: Households with no vehicle available — Fort Smith, AR-OK
+shortName: Fort Smith, AR-OK HHs no vehicle
 description: Households with no vehicle available for the Fort Smith metropolitan statistical area (CBSA 22900). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

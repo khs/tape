@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Hartford-West Hartford-East Hartford
-shortName: Hartford-West Hartford-East Hartford born same state
+name: Population born in current state of residence — Hartford-West Hartford-East Hartford, CT
+shortName: Hartford-West Hartford-East Hartford, CT born same state
 description: Population born in current state of residence for the Hartford-West Hartford-East Hartford metropolitan statistical area (CBSA 25540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

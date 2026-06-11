@@ -1,5 +1,5 @@
-name: Median age — Pittsburgh
-shortName: Pittsburgh median age
+name: Median age — Pittsburgh, PA
+shortName: Pittsburgh, PA median age
 description: Median age for the Pittsburgh metropolitan statistical area (CBSA 38300). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Monroe — unemployment rate
-shortName: Monroe unemployment
+name: Monroe, MI — unemployment rate
+shortName: Monroe, MI unemployment
 description: Headline unemployment rate for the Monroe metropolitan statistical area
   (CBSA 33780). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

@@ -1,5 +1,5 @@
-name: Population under 18 — Ocala
-shortName: Ocala pop. under 18
+name: Population under 18 — Ocala, FL
+shortName: Ocala, FL pop. under 18
 description: Population under 18 for the Ocala metropolitan statistical area (CBSA 36100). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

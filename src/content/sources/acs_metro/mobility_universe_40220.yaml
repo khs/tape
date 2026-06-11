@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Roanoke
-shortName: Roanoke pop. total (mobility)
+name: Total population (mobility-table denominator) — Roanoke, VA
+shortName: Roanoke, VA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Roanoke metropolitan statistical area (CBSA 40220). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

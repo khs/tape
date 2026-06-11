@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Lafayette-West Lafayette
-shortName: Lafayette-West Lafayette born same state
+name: Population born in current state of residence — Lafayette-West Lafayette, IN
+shortName: Lafayette-West Lafayette, IN born same state
 description: Population born in current state of residence for the Lafayette-West Lafayette metropolitan statistical area (CBSA 29200). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

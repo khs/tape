@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Houma-Bayou Cane-Thibodaux
-shortName: Houma-Bayou Cane-Thibodaux pop. total (mobility)
+name: Total population (mobility-table denominator) — Houma-Bayou Cane-Thibodaux, LA
+shortName: Houma-Bayou Cane-Thibodaux, LA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Houma-Bayou Cane-Thibodaux metropolitan statistical area (CBSA 26380). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

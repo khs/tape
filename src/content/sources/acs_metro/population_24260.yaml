@@ -1,5 +1,5 @@
-name: Total population — Grand Island
-shortName: Grand Island population
+name: Total population — Grand Island, NE
+shortName: Grand Island, NE population
 description: Total population for the Grand Island metropolitan statistical area (CBSA 24260). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

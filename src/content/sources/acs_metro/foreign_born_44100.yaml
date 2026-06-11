@@ -1,5 +1,5 @@
-name: Foreign-born population — Springfield
-shortName: Springfield foreign-born
+name: Foreign-born population — Springfield, IL
+shortName: Springfield, IL foreign-born
 description: Foreign-born population for the Springfield metropolitan statistical area (CBSA 44100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

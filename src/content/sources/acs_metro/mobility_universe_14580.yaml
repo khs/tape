@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Bozeman
-shortName: Bozeman pop. total (mobility)
+name: Total population (mobility-table denominator) — Bozeman, MT
+shortName: Bozeman, MT pop. total (mobility)
 description: Total population (mobility-table denominator) for the Bozeman metropolitan statistical area (CBSA 14580). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

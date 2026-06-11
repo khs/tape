@@ -1,5 +1,5 @@
-name: Workers who work from home — New York-Newark-Jersey City
-shortName: New York-Newark-Jersey City WFH workers
+name: Workers who work from home — New York-Newark-Jersey City, NY-NJ
+shortName: New York-Newark-Jersey City, NY-NJ WFH workers
 description: Workers who work from home for the New York-Newark-Jersey City metropolitan statistical area (CBSA 35620). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

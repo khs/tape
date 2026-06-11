@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Bozeman
-shortName: Bozeman HHs no vehicle
+name: Households with no vehicle available — Bozeman, MT
+shortName: Bozeman, MT HHs no vehicle
 description: Households with no vehicle available for the Bozeman metropolitan statistical area (CBSA 14580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

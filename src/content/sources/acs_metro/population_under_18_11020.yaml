@@ -1,5 +1,5 @@
-name: Population under 18 — Altoona
-shortName: Altoona pop. under 18
+name: Population under 18 — Altoona, PA
+shortName: Altoona, PA pop. under 18
 description: Population under 18 for the Altoona metropolitan statistical area (CBSA 11020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

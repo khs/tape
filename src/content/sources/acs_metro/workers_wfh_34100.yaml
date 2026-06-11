@@ -1,5 +1,5 @@
-name: Workers who work from home — Morristown
-shortName: Morristown WFH workers
+name: Workers who work from home — Morristown, TN
+shortName: Morristown, TN WFH workers
 description: Workers who work from home for the Morristown metropolitan statistical area (CBSA 34100). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

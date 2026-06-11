@@ -1,5 +1,5 @@
-name: Bangor — unemployment rate
-shortName: Bangor unemployment
+name: Bangor, ME — unemployment rate
+shortName: Bangor, ME unemployment
 description: Headline unemployment rate for the Bangor metropolitan statistical area
   (CBSA 12620). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

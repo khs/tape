@@ -1,5 +1,5 @@
-name: Median age — Midland
-shortName: Midland median age
+name: Median age — Midland, MI
+shortName: Midland, MI median age
 description: Median age for the Midland metropolitan statistical area (CBSA 33220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

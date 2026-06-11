@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Baltimore-Columbia-Towson
-shortName: Baltimore-Columbia-Towson born same state
+name: Population born in current state of residence — Baltimore-Columbia-Towson, MD
+shortName: Baltimore-Columbia-Towson, MD born same state
 description: Population born in current state of residence for the Baltimore-Columbia-Towson metropolitan statistical area (CBSA 12580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

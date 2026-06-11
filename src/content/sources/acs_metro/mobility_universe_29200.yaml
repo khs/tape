@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Lafayette-West Lafayette
-shortName: Lafayette-West Lafayette pop. total (mobility)
+name: Total population (mobility-table denominator) — Lafayette-West Lafayette, IN
+shortName: Lafayette-West Lafayette, IN pop. total (mobility)
 description: Total population (mobility-table denominator) for the Lafayette-West Lafayette metropolitan statistical area (CBSA 29200). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

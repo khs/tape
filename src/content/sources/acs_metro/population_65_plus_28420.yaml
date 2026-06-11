@@ -1,5 +1,5 @@
-name: Population 65 and older — Kennewick-Richland
-shortName: Kennewick-Richland pop. 65+
+name: Population 65 and older — Kennewick-Richland, WA
+shortName: Kennewick-Richland, WA pop. 65+
 description: Population 65 and older for the Kennewick-Richland metropolitan statistical area (CBSA 28420). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

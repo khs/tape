@@ -1,5 +1,5 @@
-name: Median age — Champaign-Urbana
-shortName: Champaign-Urbana median age
+name: Median age — Champaign-Urbana, IL
+shortName: Champaign-Urbana, IL median age
 description: Median age for the Champaign-Urbana metropolitan statistical area (CBSA 16580). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

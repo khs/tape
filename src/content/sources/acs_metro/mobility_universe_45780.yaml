@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Toledo
-shortName: Toledo pop. total (mobility)
+name: Total population (mobility-table denominator) — Toledo, OH
+shortName: Toledo, OH pop. total (mobility)
 description: Total population (mobility-table denominator) for the Toledo metropolitan statistical area (CBSA 45780). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

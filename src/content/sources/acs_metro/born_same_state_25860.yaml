@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Hickory-Lenoir-Morganton
-shortName: Hickory-Lenoir-Morganton born same state
+name: Population born in current state of residence — Hickory-Lenoir-Morganton, NC
+shortName: Hickory-Lenoir-Morganton, NC born same state
 description: Population born in current state of residence for the Hickory-Lenoir-Morganton metropolitan statistical area (CBSA 25860). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

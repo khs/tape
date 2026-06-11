@@ -1,5 +1,5 @@
-name: People in poverty — Blacksburg-Christiansburg-Radford
-shortName: Blacksburg-Christiansburg-Radford poverty count
+name: People in poverty — Blacksburg-Christiansburg-Radford, VA
+shortName: Blacksburg-Christiansburg-Radford, VA poverty count
 description: People in poverty for the Blacksburg-Christiansburg-Radford metropolitan statistical area (CBSA 13980). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

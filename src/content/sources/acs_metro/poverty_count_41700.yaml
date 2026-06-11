@@ -1,5 +1,5 @@
-name: People in poverty — San Antonio-New Braunfels
-shortName: San Antonio-New Braunfels poverty count
+name: People in poverty — San Antonio-New Braunfels, TX
+shortName: San Antonio-New Braunfels, TX poverty count
 description: People in poverty for the San Antonio-New Braunfels metropolitan statistical area (CBSA 41700). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

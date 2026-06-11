@@ -1,5 +1,5 @@
-name: People who moved in the last year — Brunswick-St. Simons
-shortName: Brunswick-St. Simons movers (last yr)
+name: People who moved in the last year — Brunswick-St. Simons, GA
+shortName: Brunswick-St. Simons, GA movers (last yr)
 description: People who moved in the last year for the Brunswick-St. Simons metropolitan statistical area (CBSA 15260). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

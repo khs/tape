@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Elkhart-Goshen
-shortName: Elkhart-Goshen bachelors plus
+name: Adults 25+ with bachelor's degree — Elkhart-Goshen, IN
+shortName: Elkhart-Goshen, IN bachelors plus
 description: Adults 25+ with bachelor's degree for the Elkhart-Goshen metropolitan statistical area (CBSA 21140). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Spartanburg
-shortName: Spartanburg pop. 65+
+name: Population 65 and older — Spartanburg, SC
+shortName: Spartanburg, SC pop. 65+
 description: Population 65 and older for the Spartanburg metropolitan statistical area (CBSA 43900). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

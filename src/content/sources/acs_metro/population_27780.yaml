@@ -1,5 +1,5 @@
-name: Total population — Johnstown
-shortName: Johnstown population
+name: Total population — Johnstown, PA
+shortName: Johnstown, PA population
 description: Total population for the Johnstown metropolitan statistical area (CBSA 27780). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Bellingham
-shortName: Bellingham median age
+name: Median age — Bellingham, WA
+shortName: Bellingham, WA median age
 description: Median age for the Bellingham metropolitan statistical area (CBSA 13380). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Vineland
-shortName: Vineland pop. under 18
+name: Population under 18 — Vineland, NJ
+shortName: Vineland, NJ pop. under 18
 description: Population under 18 for the Vineland metropolitan statistical area (CBSA 47220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

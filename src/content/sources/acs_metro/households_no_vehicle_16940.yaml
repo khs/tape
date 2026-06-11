@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Cheyenne
-shortName: Cheyenne HHs no vehicle
+name: Households with no vehicle available — Cheyenne, WY
+shortName: Cheyenne, WY HHs no vehicle
 description: Households with no vehicle available for the Cheyenne metropolitan statistical area (CBSA 16940). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

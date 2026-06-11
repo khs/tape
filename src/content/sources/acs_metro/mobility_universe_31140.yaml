@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Louisville/Jefferson County
-shortName: Louisville/Jefferson County pop. total (mobility)
+name: Total population (mobility-table denominator) — Louisville/Jefferson County, KY-IN
+shortName: Louisville/Jefferson County, KY-IN pop. total (mobility)
 description: Total population (mobility-table denominator) for the Louisville/Jefferson County metropolitan statistical area (CBSA 31140). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

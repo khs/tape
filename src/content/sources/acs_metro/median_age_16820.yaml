@@ -1,5 +1,5 @@
-name: Median age — Charlottesville
-shortName: Charlottesville median age
+name: Median age — Charlottesville, VA
+shortName: Charlottesville, VA median age
 description: Median age for the Charlottesville metropolitan statistical area (CBSA 16820). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

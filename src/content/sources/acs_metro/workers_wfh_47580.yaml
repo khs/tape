@@ -1,5 +1,5 @@
-name: Workers who work from home — Warner Robins
-shortName: Warner Robins WFH workers
+name: Workers who work from home — Warner Robins, GA
+shortName: Warner Robins, GA WFH workers
 description: Workers who work from home for the Warner Robins metropolitan statistical area (CBSA 47580). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

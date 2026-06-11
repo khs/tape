@@ -1,5 +1,5 @@
-name: Total population — Gulfport-Biloxi
-shortName: Gulfport-Biloxi population
+name: Total population — Gulfport-Biloxi, MS
+shortName: Gulfport-Biloxi, MS population
 description: Total population for the Gulfport-Biloxi metropolitan statistical area (CBSA 25060). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

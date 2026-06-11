@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Muskegon-Norton Shores
-shortName: Muskegon-Norton Shores born same state
+name: Population born in current state of residence — Muskegon-Norton Shores, MI
+shortName: Muskegon-Norton Shores, MI born same state
 description: Population born in current state of residence for the Muskegon-Norton Shores metropolitan statistical area (CBSA 34740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

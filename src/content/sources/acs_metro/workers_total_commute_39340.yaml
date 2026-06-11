@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Provo-Orem-Lehi
-shortName: Provo-Orem-Lehi workers total (commute)
+name: Total workers (commute-table denominator) — Provo-Orem-Lehi, UT
+shortName: Provo-Orem-Lehi, UT workers total (commute)
 description: Total workers (commute-table denominator) for the Provo-Orem-Lehi metropolitan statistical area (CBSA 39340). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

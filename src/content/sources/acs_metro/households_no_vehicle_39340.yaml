@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Provo-Orem-Lehi
-shortName: Provo-Orem-Lehi HHs no vehicle
+name: Households with no vehicle available — Provo-Orem-Lehi, UT
+shortName: Provo-Orem-Lehi, UT HHs no vehicle
 description: Households with no vehicle available for the Provo-Orem-Lehi metropolitan statistical area (CBSA 39340). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Prescott Valley-Prescott
-shortName: Prescott Valley-Prescott foreign-born
+name: Foreign-born population — Prescott Valley-Prescott, AZ
+shortName: Prescott Valley-Prescott, AZ foreign-born
 description: Foreign-born population for the Prescott Valley-Prescott metropolitan statistical area (CBSA 39150). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

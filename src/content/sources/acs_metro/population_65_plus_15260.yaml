@@ -1,5 +1,5 @@
-name: Population 65 and older — Brunswick-St. Simons
-shortName: Brunswick-St. Simons pop. 65+
+name: Population 65 and older — Brunswick-St. Simons, GA
+shortName: Brunswick-St. Simons, GA pop. 65+
 description: Population 65 and older for the Brunswick-St. Simons metropolitan statistical area (CBSA 15260). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

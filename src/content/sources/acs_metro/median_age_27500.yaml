@@ -1,5 +1,5 @@
-name: Median age — Janesville-Beloit
-shortName: Janesville-Beloit median age
+name: Median age — Janesville-Beloit, WI
+shortName: Janesville-Beloit, WI median age
 description: Median age for the Janesville-Beloit metropolitan statistical area (CBSA 27500). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

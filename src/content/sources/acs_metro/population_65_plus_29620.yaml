@@ -1,5 +1,5 @@
-name: Population 65 and older — Lansing-East Lansing
-shortName: Lansing-East Lansing pop. 65+
+name: Population 65 and older — Lansing-East Lansing, MI
+shortName: Lansing-East Lansing, MI pop. 65+
 description: Population 65 and older for the Lansing-East Lansing metropolitan statistical area (CBSA 29620). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Punta Gorda
-shortName: Punta Gorda pop. total (mobility)
+name: Total population (mobility-table denominator) — Punta Gorda, FL
+shortName: Punta Gorda, FL pop. total (mobility)
 description: Total population (mobility-table denominator) for the Punta Gorda metropolitan statistical area (CBSA 39460). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

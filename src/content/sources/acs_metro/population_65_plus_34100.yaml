@@ -1,5 +1,5 @@
-name: Population 65 and older — Morristown
-shortName: Morristown pop. 65+
+name: Population 65 and older — Morristown, TN
+shortName: Morristown, TN pop. 65+
 description: Population 65 and older for the Morristown metropolitan statistical area (CBSA 34100). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

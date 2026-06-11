@@ -1,5 +1,5 @@
-name: Population 65 and older — Fort Smith
-shortName: Fort Smith pop. 65+
+name: Population 65 and older — Fort Smith, AR-OK
+shortName: Fort Smith, AR-OK pop. 65+
 description: Population 65 and older for the Fort Smith metropolitan statistical area (CBSA 22900). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

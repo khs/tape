@@ -1,5 +1,5 @@
-name: People who moved in the last year — Mount Vernon-Anacortes
-shortName: Mount Vernon-Anacortes movers (last yr)
+name: People who moved in the last year — Mount Vernon-Anacortes, WA
+shortName: Mount Vernon-Anacortes, WA movers (last yr)
 description: People who moved in the last year for the Mount Vernon-Anacortes metropolitan statistical area (CBSA 34580). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

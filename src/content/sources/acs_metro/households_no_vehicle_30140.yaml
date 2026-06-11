@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Lebanon
-shortName: Lebanon HHs no vehicle
+name: Households with no vehicle available — Lebanon, PA
+shortName: Lebanon, PA HHs no vehicle
 description: Households with no vehicle available for the Lebanon metropolitan statistical area (CBSA 30140). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

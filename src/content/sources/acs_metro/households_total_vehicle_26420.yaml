@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Houston-Pasadena-The Woodlands
-shortName: Houston-Pasadena-The Woodlands HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Houston-Pasadena-The Woodlands, TX
+shortName: Houston-Pasadena-The Woodlands, TX HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Houston-Pasadena-The Woodlands metropolitan statistical area (CBSA 26420). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

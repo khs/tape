@@ -1,5 +1,5 @@
-name: Median travel time to work — Hattiesburg
-shortName: Hattiesburg median commute
+name: Median travel time to work — Hattiesburg, MS
+shortName: Hattiesburg, MS median commute
 description: Median travel time to work for the Hattiesburg metropolitan statistical area (CBSA 25620). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

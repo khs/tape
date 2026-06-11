@@ -1,5 +1,5 @@
-name: Total population — Houma-Bayou Cane-Thibodaux
-shortName: Houma-Bayou Cane-Thibodaux population
+name: Total population — Houma-Bayou Cane-Thibodaux, LA
+shortName: Houma-Bayou Cane-Thibodaux, LA population
 description: Total population for the Houma-Bayou Cane-Thibodaux metropolitan statistical area (CBSA 26380). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

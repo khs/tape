@@ -1,5 +1,5 @@
-name: Foreign-born population — El Paso
-shortName: El Paso foreign-born
+name: Foreign-born population — El Paso, TX
+shortName: El Paso, TX foreign-born
 description: Foreign-born population for the El Paso metropolitan statistical area (CBSA 21340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

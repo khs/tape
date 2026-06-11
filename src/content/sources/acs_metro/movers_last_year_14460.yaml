@@ -1,5 +1,5 @@
-name: People who moved in the last year — Boston-Cambridge-Newton
-shortName: Boston-Cambridge-Newton movers (last yr)
+name: People who moved in the last year — Boston-Cambridge-Newton, MA-NH
+shortName: Boston-Cambridge-Newton, MA-NH movers (last yr)
 description: People who moved in the last year for the Boston-Cambridge-Newton metropolitan statistical area (CBSA 14460). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

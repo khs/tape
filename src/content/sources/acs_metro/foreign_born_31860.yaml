@@ -1,5 +1,5 @@
-name: Foreign-born population — Mankato
-shortName: Mankato foreign-born
+name: Foreign-born population — Mankato, MN
+shortName: Mankato, MN foreign-born
 description: Foreign-born population for the Mankato metropolitan statistical area (CBSA 31860). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

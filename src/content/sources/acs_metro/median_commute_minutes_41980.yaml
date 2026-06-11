@@ -1,5 +1,5 @@
-name: Median travel time to work — San Juan-Bayamón-Caguas
-shortName: San Juan-Bayamón-Caguas median commute
+name: Median travel time to work — San Juan-Bayamón-Caguas, PR
+shortName: San Juan-Bayamón-Caguas, PR median commute
 description: Median travel time to work for the San Juan-Bayamón-Caguas metropolitan statistical area (CBSA 41980). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

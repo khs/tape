@@ -1,5 +1,5 @@
-name: Foreign-born population — Wausau
-shortName: Wausau foreign-born
+name: Foreign-born population — Wausau, WI
+shortName: Wausau, WI foreign-born
 description: Foreign-born population for the Wausau metropolitan statistical area (CBSA 48140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

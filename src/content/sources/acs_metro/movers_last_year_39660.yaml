@@ -1,5 +1,5 @@
-name: People who moved in the last year — Rapid City
-shortName: Rapid City movers (last yr)
+name: People who moved in the last year — Rapid City, SD
+shortName: Rapid City, SD movers (last yr)
 description: People who moved in the last year for the Rapid City metropolitan statistical area (CBSA 39660). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

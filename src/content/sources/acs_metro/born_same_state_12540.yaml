@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Bakersfield-Delano
-shortName: Bakersfield-Delano born same state
+name: Population born in current state of residence — Bakersfield-Delano, CA
+shortName: Bakersfield-Delano, CA born same state
 description: Population born in current state of residence for the Bakersfield-Delano metropolitan statistical area (CBSA 12540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

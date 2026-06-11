@@ -1,5 +1,5 @@
-name: People in poverty — Anniston-Oxford
-shortName: Anniston-Oxford poverty count
+name: People in poverty — Anniston-Oxford, AL
+shortName: Anniston-Oxford, AL poverty count
 description: People in poverty for the Anniston-Oxford metropolitan statistical area (CBSA 11500). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

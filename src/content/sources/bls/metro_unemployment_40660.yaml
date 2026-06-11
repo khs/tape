@@ -1,5 +1,5 @@
-name: Rome — unemployment rate
-shortName: Rome unemployment
+name: Rome, GA — unemployment rate
+shortName: Rome, GA unemployment
 description: Headline unemployment rate for the Rome metropolitan statistical area
   (CBSA 40660). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

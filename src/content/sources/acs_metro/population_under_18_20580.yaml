@@ -1,5 +1,5 @@
-name: Population under 18 — Eagle Pass
-shortName: Eagle Pass pop. under 18
+name: Population under 18 — Eagle Pass, TX
+shortName: Eagle Pass, TX pop. under 18
 description: Population under 18 for the Eagle Pass metropolitan statistical area (CBSA 20580). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

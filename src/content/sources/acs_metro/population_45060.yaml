@@ -1,5 +1,5 @@
-name: Total population — Syracuse
-shortName: Syracuse population
+name: Total population — Syracuse, NY
+shortName: Syracuse, NY population
 description: Total population for the Syracuse metropolitan statistical area (CBSA 45060). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Las Cruces
-shortName: Las Cruces foreign-born
+name: Foreign-born population — Las Cruces, NM
+shortName: Las Cruces, NM foreign-born
 description: Foreign-born population for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

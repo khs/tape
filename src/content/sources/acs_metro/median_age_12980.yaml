@@ -1,5 +1,5 @@
-name: Median age — Battle Creek
-shortName: Battle Creek median age
+name: Median age — Battle Creek, MI
+shortName: Battle Creek, MI median age
 description: Median age for the Battle Creek metropolitan statistical area (CBSA 12980). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

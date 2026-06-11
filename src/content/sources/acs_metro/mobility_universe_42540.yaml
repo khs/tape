@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Scranton--Wilkes-Barre
-shortName: Scranton--Wilkes-Barre pop. total (mobility)
+name: Total population (mobility-table denominator) — Scranton--Wilkes-Barre, PA
+shortName: Scranton--Wilkes-Barre, PA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Scranton--Wilkes-Barre metropolitan statistical area (CBSA 42540). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

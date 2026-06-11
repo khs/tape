@@ -1,5 +1,5 @@
-name: Total population — Pittsburgh
-shortName: Pittsburgh population
+name: Total population — Pittsburgh, PA
+shortName: Pittsburgh, PA population
 description: Total population for the Pittsburgh metropolitan statistical area (CBSA 38300). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

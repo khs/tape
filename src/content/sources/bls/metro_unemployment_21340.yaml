@@ -1,5 +1,5 @@
-name: El Paso — unemployment rate
-shortName: El Paso unemployment
+name: El Paso, TX — unemployment rate
+shortName: El Paso, TX unemployment
 description: Headline unemployment rate for the El Paso metropolitan statistical area
   (CBSA 21340). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

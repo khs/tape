@@ -1,5 +1,5 @@
-name: Foreign-born population — Morgantown
-shortName: Morgantown foreign-born
+name: Foreign-born population — Morgantown, WV
+shortName: Morgantown, WV foreign-born
 description: Foreign-born population for the Morgantown metropolitan statistical area (CBSA 34060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

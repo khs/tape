@@ -1,5 +1,5 @@
-name: Total population — Washington-Arlington-Alexandria
-shortName: Washington-Arlington-Alexandria population
+name: Total population — Washington-Arlington-Alexandria, DC-VA-MD-WV
+shortName: Washington-Arlington-Alexandria, DC-VA-MD-WV population
 description: Total population for the Washington-Arlington-Alexandria metropolitan statistical area (CBSA 47900). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Port St. Lucie
-shortName: Port St. Lucie poverty count
+name: People in poverty — Port St. Lucie, FL
+shortName: Port St. Lucie, FL poverty count
 description: People in poverty for the Port St. Lucie metropolitan statistical area (CBSA 38940). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

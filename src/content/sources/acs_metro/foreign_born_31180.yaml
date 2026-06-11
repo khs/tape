@@ -1,5 +1,5 @@
-name: Foreign-born population — Lubbock
-shortName: Lubbock foreign-born
+name: Foreign-born population — Lubbock, TX
+shortName: Lubbock, TX foreign-born
 description: Foreign-born population for the Lubbock metropolitan statistical area (CBSA 31180). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

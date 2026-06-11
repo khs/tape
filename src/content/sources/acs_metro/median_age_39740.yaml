@@ -1,5 +1,5 @@
-name: Median age — Reading
-shortName: Reading median age
+name: Median age — Reading, PA
+shortName: Reading, PA median age
 description: Median age for the Reading metropolitan statistical area (CBSA 39740). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

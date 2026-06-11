@@ -1,5 +1,5 @@
-name: People who moved in the last year — Bloomington
-shortName: Bloomington movers (last yr)
+name: People who moved in the last year — Bloomington, IN
+shortName: Bloomington, IN movers (last yr)
 description: People who moved in the last year for the Bloomington metropolitan statistical area (CBSA 14020). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

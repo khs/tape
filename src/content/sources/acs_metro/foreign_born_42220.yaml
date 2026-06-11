@@ -1,5 +1,5 @@
-name: Foreign-born population — Santa Rosa-Petaluma
-shortName: Santa Rosa-Petaluma foreign-born
+name: Foreign-born population — Santa Rosa-Petaluma, CA
+shortName: Santa Rosa-Petaluma, CA foreign-born
 description: Foreign-born population for the Santa Rosa-Petaluma metropolitan statistical area (CBSA 42220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

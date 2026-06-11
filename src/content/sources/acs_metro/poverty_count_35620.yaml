@@ -1,5 +1,5 @@
-name: People in poverty — New York-Newark-Jersey City
-shortName: New York-Newark-Jersey City poverty count
+name: People in poverty — New York-Newark-Jersey City, NY-NJ
+shortName: New York-Newark-Jersey City, NY-NJ poverty count
 description: People in poverty for the New York-Newark-Jersey City metropolitan statistical area (CBSA 35620). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Fort Wayne
-shortName: Fort Wayne pop. 65+
+name: Population 65 and older — Fort Wayne, IN
+shortName: Fort Wayne, IN pop. 65+
 description: Population 65 and older for the Fort Wayne metropolitan statistical area (CBSA 23060). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

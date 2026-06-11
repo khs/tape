@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Lynchburg
-shortName: Lynchburg born same state
+name: Population born in current state of residence — Lynchburg, VA
+shortName: Lynchburg, VA born same state
 description: Population born in current state of residence for the Lynchburg metropolitan statistical area (CBSA 31340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

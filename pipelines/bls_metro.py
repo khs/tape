@@ -94,17 +94,35 @@ def load_metros(path: Path) -> list[CbsaMetro]:
     return out
 
 
+def metro_display_name(short_name: str, full_name: str) -> str:
+    """
+    Display label for a metro: short name + the official CBSA title's
+    state suffix, e.g. ("Columbus", "Columbus, GA-AL") -> "Columbus, GA-AL"
+    and ("Akron", "Akron, OH") -> "Akron, OH".
+
+    State codes are kept BY DEFAULT (not just on collisions): many short
+    names repeat across states ("Columbus", "Springfield", ...), so a
+    bare city name is ambiguous in the source picker.
+    """
+    if "," in full_name:
+        tail = full_name.split(",", 1)[1].strip()
+        if tail:
+            return f"{short_name}, {tail}"
+    return short_name
+
+
 def metro_specs(metros: list[CbsaMetro]) -> list[MetroSeriesSpec]:
     """One unemployment + one payrolls series per metro."""
     out: list[MetroSeriesSpec] = []
     for m in metros:
+        display = metro_display_name(m.short_name, m.name)
         # LAUMT format: 5-char prefix + 2 FIPS + 5 CBSA + 5 zeros + 3 measure = 20
         laus_id = f"LAUMT{m.primary_state_fips}{m.code}00000003"
         out.append(MetroSeriesSpec(
             series_id=laus_id,
             out_id=f"metro_unemployment_{m.code}",
-            label=f"{m.short_name} — unemployment rate",
-            short_name=f"{m.short_name} unemployment",
+            label=f"{display} — unemployment rate",
+            short_name=f"{display} unemployment",
             unit="%",
             unit_class="rate",
             fmt_style="percent",
@@ -116,8 +134,8 @@ def metro_specs(metros: list[CbsaMetro]) -> list[MetroSeriesSpec]:
         out.append(MetroSeriesSpec(
             series_id=ces_id,
             out_id=f"metro_payrolls_{m.code}",
-            label=f"{m.short_name} — nonfarm payroll employment",
-            short_name=f"{m.short_name} payrolls",
+            label=f"{display} — nonfarm payroll employment",
+            short_name=f"{display} payrolls",
             unit="thousands of persons",
             unit_class="count",
             fmt_style="number",

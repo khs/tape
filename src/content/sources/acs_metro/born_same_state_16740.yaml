@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Charlotte-Concord-Gastonia
-shortName: Charlotte-Concord-Gastonia born same state
+name: Population born in current state of residence — Charlotte-Concord-Gastonia, NC-SC
+shortName: Charlotte-Concord-Gastonia, NC-SC born same state
 description: Population born in current state of residence for the Charlotte-Concord-Gastonia metropolitan statistical area (CBSA 16740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

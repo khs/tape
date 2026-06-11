@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Fargo
-shortName: Fargo HHs no vehicle
+name: Households with no vehicle available — Fargo, ND-MN
+shortName: Fargo, ND-MN HHs no vehicle
 description: Households with no vehicle available for the Fargo metropolitan statistical area (CBSA 22020). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

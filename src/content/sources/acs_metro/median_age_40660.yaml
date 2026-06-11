@@ -1,5 +1,5 @@
-name: Median age — Rome
-shortName: Rome median age
+name: Median age — Rome, GA
+shortName: Rome, GA median age
 description: Median age for the Rome metropolitan statistical area (CBSA 40660). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Arecibo
-shortName: Arecibo foreign-born
+name: Foreign-born population — Arecibo, PR
+shortName: Arecibo, PR foreign-born
 description: Foreign-born population for the Arecibo metropolitan statistical area (CBSA 11640). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

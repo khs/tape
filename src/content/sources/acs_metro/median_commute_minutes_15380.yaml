@@ -1,5 +1,5 @@
-name: Median travel time to work — Buffalo-Cheektowaga
-shortName: Buffalo-Cheektowaga median commute
+name: Median travel time to work — Buffalo-Cheektowaga, NY
+shortName: Buffalo-Cheektowaga, NY median commute
 description: Median travel time to work for the Buffalo-Cheektowaga metropolitan statistical area (CBSA 15380). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Miami-Fort Lauderdale-West Palm Beach
-shortName: Miami-Fort Lauderdale-West Palm Beach born same state
+name: Population born in current state of residence — Miami-Fort Lauderdale-West Palm Beach, FL
+shortName: Miami-Fort Lauderdale-West Palm Beach, FL born same state
 description: Population born in current state of residence for the Miami-Fort Lauderdale-West Palm Beach metropolitan statistical area (CBSA 33100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Dalton
-shortName: Dalton poverty count
+name: People in poverty — Dalton, GA
+shortName: Dalton, GA poverty count
 description: People in poverty for the Dalton metropolitan statistical area (CBSA 19140). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

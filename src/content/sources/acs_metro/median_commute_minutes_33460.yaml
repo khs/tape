@@ -1,5 +1,5 @@
-name: Median travel time to work — Minneapolis-St. Paul-Bloomington
-shortName: Minneapolis-St. Paul-Bloomington median commute
+name: Median travel time to work — Minneapolis-St. Paul-Bloomington, MN-WI
+shortName: Minneapolis-St. Paul-Bloomington, MN-WI median commute
 description: Median travel time to work for the Minneapolis-St. Paul-Bloomington metropolitan statistical area (CBSA 33460). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

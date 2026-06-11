@@ -1,5 +1,5 @@
-name: Foreign-born population — Sandusky
-shortName: Sandusky foreign-born
+name: Foreign-born population — Sandusky, OH
+shortName: Sandusky, OH foreign-born
 description: Foreign-born population for the Sandusky metropolitan statistical area (CBSA 41780). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

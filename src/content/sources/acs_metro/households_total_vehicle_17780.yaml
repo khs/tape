@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — College Station-Bryan
-shortName: College Station-Bryan HHs total (vehicle)
+name: Total households (vehicle-table denominator) — College Station-Bryan, TX
+shortName: College Station-Bryan, TX HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the College Station-Bryan metropolitan statistical area (CBSA 17780). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

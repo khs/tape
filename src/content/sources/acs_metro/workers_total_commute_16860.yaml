@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Chattanooga
-shortName: Chattanooga workers total (commute)
+name: Total workers (commute-table denominator) — Chattanooga, TN-GA
+shortName: Chattanooga, TN-GA workers total (commute)
 description: Total workers (commute-table denominator) for the Chattanooga metropolitan statistical area (CBSA 16860). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

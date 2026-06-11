@@ -1,5 +1,5 @@
-name: Rochester — unemployment rate
-shortName: Rochester unemployment
+name: Rochester, MN — unemployment rate
+shortName: Rochester, MN unemployment
 description: Headline unemployment rate for the Rochester metropolitan statistical
   area (CBSA 40340). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

@@ -1,5 +1,5 @@
-name: Median age — Santa Maria-Santa Barbara
-shortName: Santa Maria-Santa Barbara median age
+name: Median age — Santa Maria-Santa Barbara, CA
+shortName: Santa Maria-Santa Barbara, CA median age
 description: Median age for the Santa Maria-Santa Barbara metropolitan statistical area (CBSA 42200). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

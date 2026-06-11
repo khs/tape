@@ -1,5 +1,5 @@
-name: Population under 18 — Sioux City
-shortName: Sioux City pop. under 18
+name: Population under 18 — Sioux City, IA-NE-SD
+shortName: Sioux City, IA-NE-SD pop. under 18
 description: Population under 18 for the Sioux City metropolitan statistical area (CBSA 43580). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

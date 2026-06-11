@@ -1,5 +1,5 @@
-name: Workers who work from home — Wausau
-shortName: Wausau WFH workers
+name: Workers who work from home — Wausau, WI
+shortName: Wausau, WI WFH workers
 description: Workers who work from home for the Wausau metropolitan statistical area (CBSA 48140). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

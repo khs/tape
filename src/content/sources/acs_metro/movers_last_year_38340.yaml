@@ -1,5 +1,5 @@
-name: People who moved in the last year — Pittsfield
-shortName: Pittsfield movers (last yr)
+name: People who moved in the last year — Pittsfield, MA
+shortName: Pittsfield, MA movers (last yr)
 description: People who moved in the last year for the Pittsfield metropolitan statistical area (CBSA 38340). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

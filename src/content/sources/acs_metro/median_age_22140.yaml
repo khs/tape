@@ -1,5 +1,5 @@
-name: Median age — Farmington
-shortName: Farmington median age
+name: Median age — Farmington, NM
+shortName: Farmington, NM median age
 description: Median age for the Farmington metropolitan statistical area (CBSA 22140). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Lawton
-shortName: Lawton foreign-born
+name: Foreign-born population — Lawton, OK
+shortName: Lawton, OK foreign-born
 description: Foreign-born population for the Lawton metropolitan statistical area (CBSA 30020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

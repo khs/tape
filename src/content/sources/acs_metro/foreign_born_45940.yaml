@@ -1,5 +1,5 @@
-name: Foreign-born population — Trenton-Princeton
-shortName: Trenton-Princeton foreign-born
+name: Foreign-born population — Trenton-Princeton, NJ
+shortName: Trenton-Princeton, NJ foreign-born
 description: Foreign-born population for the Trenton-Princeton metropolitan statistical area (CBSA 45940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

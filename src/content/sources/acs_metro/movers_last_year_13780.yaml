@@ -1,5 +1,5 @@
-name: People who moved in the last year — Binghamton
-shortName: Binghamton movers (last yr)
+name: People who moved in the last year — Binghamton, NY
+shortName: Binghamton, NY movers (last yr)
 description: People who moved in the last year for the Binghamton metropolitan statistical area (CBSA 13780). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

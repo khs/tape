@@ -1,5 +1,5 @@
-name: Foreign-born population — Gainesville
-shortName: Gainesville foreign-born
+name: Foreign-born population — Gainesville, GA
+shortName: Gainesville, GA foreign-born
 description: Foreign-born population for the Gainesville metropolitan statistical area (CBSA 23580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

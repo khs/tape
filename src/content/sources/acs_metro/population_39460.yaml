@@ -1,5 +1,5 @@
-name: Total population — Punta Gorda
-shortName: Punta Gorda population
+name: Total population — Punta Gorda, FL
+shortName: Punta Gorda, FL population
 description: Total population for the Punta Gorda metropolitan statistical area (CBSA 39460). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

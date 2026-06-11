@@ -1,5 +1,5 @@
-name: Total population — York-Hanover
-shortName: York-Hanover population
+name: Total population — York-Hanover, PA
+shortName: York-Hanover, PA population
 description: Total population for the York-Hanover metropolitan statistical area (CBSA 49620). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Dover — unemployment rate
-shortName: Dover unemployment
+name: Dover, DE — unemployment rate
+shortName: Dover, DE unemployment
 description: Headline unemployment rate for the Dover metropolitan statistical area
   (CBSA 20100). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

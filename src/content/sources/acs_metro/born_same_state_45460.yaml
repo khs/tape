@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Terre Haute
-shortName: Terre Haute born same state
+name: Population born in current state of residence — Terre Haute, IN
+shortName: Terre Haute, IN born same state
 description: Population born in current state of residence for the Terre Haute metropolitan statistical area (CBSA 45460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

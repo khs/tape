@@ -1,5 +1,5 @@
-name: Median age — Cleveland
-shortName: Cleveland median age
+name: Median age — Cleveland, TN
+shortName: Cleveland, TN median age
 description: Median age for the Cleveland metropolitan statistical area (CBSA 17420). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

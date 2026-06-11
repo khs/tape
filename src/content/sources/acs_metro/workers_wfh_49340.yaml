@@ -1,5 +1,5 @@
-name: Workers who work from home — Worcester
-shortName: Worcester WFH workers
+name: Workers who work from home — Worcester, MA
+shortName: Worcester, MA WFH workers
 description: Workers who work from home for the Worcester metropolitan statistical area (CBSA 49340). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

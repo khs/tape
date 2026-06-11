@@ -1,5 +1,5 @@
-name: People in poverty — Rockford
-shortName: Rockford poverty count
+name: People in poverty — Rockford, IL
+shortName: Rockford, IL poverty count
 description: People in poverty for the Rockford metropolitan statistical area (CBSA 40420). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Spokane-Spokane Valley
-shortName: Spokane-Spokane Valley pop. total (mobility)
+name: Total population (mobility-table denominator) — Spokane-Spokane Valley, WA
+shortName: Spokane-Spokane Valley, WA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Spokane-Spokane Valley metropolitan statistical area (CBSA 44060). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

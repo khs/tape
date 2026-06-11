@@ -1,5 +1,5 @@
-name: People in poverty — Greeley
-shortName: Greeley poverty count
+name: People in poverty — Greeley, CO
+shortName: Greeley, CO poverty count
 description: People in poverty for the Greeley metropolitan statistical area (CBSA 24540). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

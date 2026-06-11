@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — San Diego-Chula Vista-Carlsbad
-shortName: San Diego-Chula Vista-Carlsbad HHs total (vehicle)
+name: Total households (vehicle-table denominator) — San Diego-Chula Vista-Carlsbad, CA
+shortName: San Diego-Chula Vista-Carlsbad, CA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the San Diego-Chula Vista-Carlsbad metropolitan statistical area (CBSA 41740). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Pueblo
-shortName: Pueblo poverty count
+name: People in poverty — Pueblo, CO
+shortName: Pueblo, CO poverty count
 description: People in poverty for the Pueblo metropolitan statistical area (CBSA 39380). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

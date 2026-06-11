@@ -150,12 +150,30 @@ def yaml_escape(s: str) -> str:
     return s
 
 
+def metro_display_name(short_name: str, full_name: str) -> str:
+    """
+    Display label for a metro: short name + the official CBSA title's
+    state suffix, e.g. ("Columbus", "Columbus, GA-AL") -> "Columbus, GA-AL"
+    and ("Akron", "Akron, OH") -> "Akron, OH".
+
+    State codes are kept BY DEFAULT (not just on collisions): many short
+    names repeat across states ("Columbus", "Springfield", ...), so a
+    bare city name is ambiguous in the source picker.
+    """
+    if "," in full_name:
+        tail = full_name.split(",", 1)[1].strip()
+        if tail:
+            return f"{short_name}, {tail}"
+    return short_name
+
+
 def write_source_yaml(metro: CbsaMetro) -> bool:
     """Idempotent: only writes if the file doesn't exist yet."""
     out = SOURCES_DIR / f"metro_{metro.code}.yaml"
     if out.exists():
         return False
     SOURCES_DIR.mkdir(parents=True, exist_ok=True)
+    display = metro_display_name(metro.short_name, metro.name)
     description = (
         f"Total federal outlays where the recipient location is in the "
         f"{metro.short_name} metropolitan statistical area "
@@ -163,8 +181,8 @@ def write_source_yaml(metro: CbsaMetro) -> bool:
         f"USAspending.gov's county-level results by fiscal year."
     )
     lines = [
-        f"name: {yaml_escape(f'Federal spending — {metro.short_name}')}",
-        f"shortName: {yaml_escape(metro.short_name)}",
+        f"name: {yaml_escape(f'Federal spending — {display}')}",
+        f"shortName: {yaml_escape(display)}",
         f"description: {yaml_escape(description)}",
         "kind: timeseries",
         "pipeline: usaspending",
@@ -254,7 +272,7 @@ def main() -> int:
         write_timeseries(
             pipeline="usaspending",
             series_id=f"metro_{metro.code}",
-            name=f"Federal spending — {metro.short_name}",
+            name=f"Federal spending — {metro_display_name(metro.short_name, metro.name)}",
             points=points,
             unit="USD",
         )

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Palm Bay-Melbourne-Titusville
-shortName: Palm Bay-Melbourne-Titusville workers total (commute)
+name: Total workers (commute-table denominator) — Palm Bay-Melbourne-Titusville, FL
+shortName: Palm Bay-Melbourne-Titusville, FL workers total (commute)
 description: Total workers (commute-table denominator) for the Palm Bay-Melbourne-Titusville metropolitan statistical area (CBSA 37340). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

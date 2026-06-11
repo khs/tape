@@ -1,5 +1,5 @@
-name: Foreign-born population — Anniston-Oxford
-shortName: Anniston-Oxford foreign-born
+name: Foreign-born population — Anniston-Oxford, AL
+shortName: Anniston-Oxford, AL foreign-born
 description: Foreign-born population for the Anniston-Oxford metropolitan statistical area (CBSA 11500). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

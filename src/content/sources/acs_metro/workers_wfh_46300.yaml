@@ -1,5 +1,5 @@
-name: Workers who work from home — Twin Falls
-shortName: Twin Falls WFH workers
+name: Workers who work from home — Twin Falls, ID
+shortName: Twin Falls, ID WFH workers
 description: Workers who work from home for the Twin Falls metropolitan statistical area (CBSA 46300). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

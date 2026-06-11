@@ -1,5 +1,5 @@
-name: Federal spending — Rochester
-shortName: Rochester
+name: Federal spending — Rochester, NY
+shortName: Rochester, NY
 description: Total federal outlays where the recipient location is in the Rochester
   metropolitan statistical area (CBSA 40380, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

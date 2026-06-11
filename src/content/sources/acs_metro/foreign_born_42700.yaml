@@ -1,5 +1,5 @@
-name: Foreign-born population — Sebring
-shortName: Sebring foreign-born
+name: Foreign-born population — Sebring, FL
+shortName: Sebring, FL foreign-born
 description: Foreign-born population for the Sebring metropolitan statistical area (CBSA 42700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

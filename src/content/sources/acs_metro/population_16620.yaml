@@ -1,5 +1,5 @@
-name: Total population — Charleston
-shortName: Charleston population
+name: Total population — Charleston, WV
+shortName: Charleston, WV population
 description: Total population for the Charleston metropolitan statistical area (CBSA 16620). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

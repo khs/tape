@@ -1,5 +1,5 @@
-name: People in poverty — McAllen-Edinburg-Mission
-shortName: McAllen-Edinburg-Mission poverty count
+name: People in poverty — McAllen-Edinburg-Mission, TX
+shortName: McAllen-Edinburg-Mission, TX poverty count
 description: People in poverty for the McAllen-Edinburg-Mission metropolitan statistical area (CBSA 32580). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

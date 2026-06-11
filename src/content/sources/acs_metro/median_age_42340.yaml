@@ -1,5 +1,5 @@
-name: Median age — Savannah
-shortName: Savannah median age
+name: Median age — Savannah, GA
+shortName: Savannah, GA median age
 description: Median age for the Savannah metropolitan statistical area (CBSA 42340). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

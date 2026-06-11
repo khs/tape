@@ -1,5 +1,5 @@
-name: Population under 18 — Urban Honolulu
-shortName: Urban Honolulu pop. under 18
+name: Population under 18 — Urban Honolulu, HI
+shortName: Urban Honolulu, HI pop. under 18
 description: Population under 18 for the Urban Honolulu metropolitan statistical area (CBSA 46520). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

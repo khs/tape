@@ -1,5 +1,5 @@
-name: Total population — Rome
-shortName: Rome population
+name: Total population — Rome, GA
+shortName: Rome, GA population
 description: Total population for the Rome metropolitan statistical area (CBSA 40660). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

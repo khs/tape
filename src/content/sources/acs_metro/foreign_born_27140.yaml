@@ -1,5 +1,5 @@
-name: Foreign-born population — Jackson
-shortName: Jackson foreign-born
+name: Foreign-born population — Jackson, MS
+shortName: Jackson, MS foreign-born
 description: Foreign-born population for the Jackson metropolitan statistical area (CBSA 27140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

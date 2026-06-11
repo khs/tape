@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Lubbock
-shortName: Lubbock HHs no vehicle
+name: Households with no vehicle available — Lubbock, TX
+shortName: Lubbock, TX HHs no vehicle
 description: Households with no vehicle available for the Lubbock metropolitan statistical area (CBSA 31180). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

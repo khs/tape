@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Twin Falls
-shortName: Twin Falls masters plus
+name: Adults 25+ with master's degree — Twin Falls, ID
+shortName: Twin Falls, ID masters plus
 description: Adults 25+ with master's degree for the Twin Falls metropolitan statistical area (CBSA 46300). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

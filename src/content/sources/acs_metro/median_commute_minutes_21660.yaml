@@ -1,5 +1,5 @@
-name: Median travel time to work — Eugene-Springfield
-shortName: Eugene-Springfield median commute
+name: Median travel time to work — Eugene-Springfield, OR
+shortName: Eugene-Springfield, OR median commute
 description: Median travel time to work for the Eugene-Springfield metropolitan statistical area (CBSA 21660). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

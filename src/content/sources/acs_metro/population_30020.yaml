@@ -1,5 +1,5 @@
-name: Total population — Lawton
-shortName: Lawton population
+name: Total population — Lawton, OK
+shortName: Lawton, OK population
 description: Total population for the Lawton metropolitan statistical area (CBSA 30020). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

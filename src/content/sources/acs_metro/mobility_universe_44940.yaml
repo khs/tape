@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Sumter
-shortName: Sumter pop. total (mobility)
+name: Total population (mobility-table denominator) — Sumter, SC
+shortName: Sumter, SC pop. total (mobility)
 description: Total population (mobility-table denominator) for the Sumter metropolitan statistical area (CBSA 44940). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Albany-Schenectady-Troy
-shortName: Albany-Schenectady-Troy HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Albany-Schenectady-Troy, NY
+shortName: Albany-Schenectady-Troy, NY HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Albany-Schenectady-Troy metropolitan statistical area (CBSA 10580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

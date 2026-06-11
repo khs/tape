@@ -1,5 +1,5 @@
-name: Federal spending — Dover
-shortName: Dover
+name: Federal spending — Dover, DE
+shortName: Dover, DE
 description: Total federal outlays where the recipient location is in the Dover metropolitan
   statistical area (CBSA 20100, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

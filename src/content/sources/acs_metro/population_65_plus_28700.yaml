@@ -1,5 +1,5 @@
-name: Population 65 and older — Kingsport-Bristol
-shortName: Kingsport-Bristol pop. 65+
+name: Population 65 and older — Kingsport-Bristol, TN-VA
+shortName: Kingsport-Bristol, TN-VA pop. 65+
 description: Population 65 and older for the Kingsport-Bristol metropolitan statistical area (CBSA 28700). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

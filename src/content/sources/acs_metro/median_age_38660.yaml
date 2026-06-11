@@ -1,5 +1,5 @@
-name: Median age — Ponce
-shortName: Ponce median age
+name: Median age — Ponce, PR
+shortName: Ponce, PR median age
 description: Median age for the Ponce metropolitan statistical area (CBSA 38660). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

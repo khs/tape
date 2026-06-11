@@ -1,5 +1,5 @@
-name: Median travel time to work — Punta Gorda
-shortName: Punta Gorda median commute
+name: Median travel time to work — Punta Gorda, FL
+shortName: Punta Gorda, FL median commute
 description: Median travel time to work for the Punta Gorda metropolitan statistical area (CBSA 39460). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

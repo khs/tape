@@ -1,5 +1,5 @@
-name: Total population — Pocatello
-shortName: Pocatello population
+name: Total population — Pocatello, ID
+shortName: Pocatello, ID population
 description: Total population for the Pocatello metropolitan statistical area (CBSA 38540). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Birmingham
-shortName: Birmingham foreign-born
+name: Foreign-born population — Birmingham, AL
+shortName: Birmingham, AL foreign-born
 description: Foreign-born population for the Birmingham metropolitan statistical area (CBSA 13820). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Manhattan
-shortName: Manhattan median age
+name: Median age — Manhattan, KS
+shortName: Manhattan, KS median age
 description: Median age for the Manhattan metropolitan statistical area (CBSA 31740). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

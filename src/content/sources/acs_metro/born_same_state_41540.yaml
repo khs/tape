@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Salisbury
-shortName: Salisbury born same state
+name: Population born in current state of residence — Salisbury, MD
+shortName: Salisbury, MD born same state
 description: Population born in current state of residence for the Salisbury metropolitan statistical area (CBSA 41540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

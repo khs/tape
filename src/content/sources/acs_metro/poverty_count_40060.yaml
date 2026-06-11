@@ -1,5 +1,5 @@
-name: People in poverty — Richmond
-shortName: Richmond poverty count
+name: People in poverty — Richmond, VA
+shortName: Richmond, VA poverty count
 description: People in poverty for the Richmond metropolitan statistical area (CBSA 40060). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

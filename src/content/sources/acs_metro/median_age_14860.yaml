@@ -1,5 +1,5 @@
-name: Median age — Bridgeport-Stamford-Danbury
-shortName: Bridgeport-Stamford-Danbury median age
+name: Median age — Bridgeport-Stamford-Danbury, CT
+shortName: Bridgeport-Stamford-Danbury, CT median age
 description: Median age for the Bridgeport-Stamford-Danbury metropolitan statistical area (CBSA 14860). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

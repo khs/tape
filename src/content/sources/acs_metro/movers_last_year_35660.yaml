@@ -1,5 +1,5 @@
-name: People who moved in the last year — Niles
-shortName: Niles movers (last yr)
+name: People who moved in the last year — Niles, MI
+shortName: Niles, MI movers (last yr)
 description: People who moved in the last year for the Niles metropolitan statistical area (CBSA 35660). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

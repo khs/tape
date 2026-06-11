@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — New Orleans-Metairie
-shortName: New Orleans-Metairie masters plus
+name: Adults 25+ with master's degree — New Orleans-Metairie, LA
+shortName: New Orleans-Metairie, LA masters plus
 description: Adults 25+ with master's degree for the New Orleans-Metairie metropolitan statistical area (CBSA 35380). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Akron
-shortName: Akron poverty count
+name: People in poverty — Akron, OH
+shortName: Akron, OH poverty count
 description: People in poverty for the Akron metropolitan statistical area (CBSA 10420). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

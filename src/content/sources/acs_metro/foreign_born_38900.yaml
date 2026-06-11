@@ -1,5 +1,5 @@
-name: Foreign-born population — Portland-Vancouver-Hillsboro
-shortName: Portland-Vancouver-Hillsboro foreign-born
+name: Foreign-born population — Portland-Vancouver-Hillsboro, OR-WA
+shortName: Portland-Vancouver-Hillsboro, OR-WA foreign-born
 description: Foreign-born population for the Portland-Vancouver-Hillsboro metropolitan statistical area (CBSA 38900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

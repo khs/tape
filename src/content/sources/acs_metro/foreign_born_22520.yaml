@@ -1,5 +1,5 @@
-name: Foreign-born population — Florence-Muscle Shoals
-shortName: Florence-Muscle Shoals foreign-born
+name: Foreign-born population — Florence-Muscle Shoals, AL
+shortName: Florence-Muscle Shoals, AL foreign-born
 description: Foreign-born population for the Florence-Muscle Shoals metropolitan statistical area (CBSA 22520). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

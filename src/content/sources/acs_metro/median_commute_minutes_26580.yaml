@@ -1,5 +1,5 @@
-name: Median travel time to work — Huntington-Ashland
-shortName: Huntington-Ashland median commute
+name: Median travel time to work — Huntington-Ashland, WV-KY-OH
+shortName: Huntington-Ashland, WV-KY-OH median commute
 description: Median travel time to work for the Huntington-Ashland metropolitan statistical area (CBSA 26580). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

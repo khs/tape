@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Lubbock
-shortName: Lubbock pop. total (mobility)
+name: Total population (mobility-table denominator) — Lubbock, TX
+shortName: Lubbock, TX pop. total (mobility)
 description: Total population (mobility-table denominator) for the Lubbock metropolitan statistical area (CBSA 31180). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Rocky Mount
-shortName: Rocky Mount poverty count
+name: People in poverty — Rocky Mount, NC
+shortName: Rocky Mount, NC poverty count
 description: People in poverty for the Rocky Mount metropolitan statistical area (CBSA 40580). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

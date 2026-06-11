@@ -1,5 +1,5 @@
-name: Median age — Punta Gorda
-shortName: Punta Gorda median age
+name: Median age — Punta Gorda, FL
+shortName: Punta Gorda, FL median age
 description: Median age for the Punta Gorda metropolitan statistical area (CBSA 39460). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

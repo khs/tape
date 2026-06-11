@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Spokane-Spokane Valley
-shortName: Spokane-Spokane Valley born same state
+name: Population born in current state of residence — Spokane-Spokane Valley, WA
+shortName: Spokane-Spokane Valley, WA born same state
 description: Population born in current state of residence for the Spokane-Spokane Valley metropolitan statistical area (CBSA 44060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Lubbock
-shortName: Lubbock pop. 65+
+name: Population 65 and older — Lubbock, TX
+shortName: Lubbock, TX pop. 65+
 description: Population 65 and older for the Lubbock metropolitan statistical area (CBSA 31180). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

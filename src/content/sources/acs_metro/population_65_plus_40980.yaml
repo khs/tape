@@ -1,5 +1,5 @@
-name: Population 65 and older — Saginaw
-shortName: Saginaw pop. 65+
+name: Population 65 and older — Saginaw, MI
+shortName: Saginaw, MI pop. 65+
 description: Population 65 and older for the Saginaw metropolitan statistical area (CBSA 40980). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

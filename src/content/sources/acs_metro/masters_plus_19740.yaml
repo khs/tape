@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Denver-Aurora-Centennial
-shortName: Denver-Aurora-Centennial masters plus
+name: Adults 25+ with master's degree — Denver-Aurora-Centennial, CO
+shortName: Denver-Aurora-Centennial, CO masters plus
 description: Adults 25+ with master's degree for the Denver-Aurora-Centennial metropolitan statistical area (CBSA 19740). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

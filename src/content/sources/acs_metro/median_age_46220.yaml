@@ -1,5 +1,5 @@
-name: Median age — Tuscaloosa
-shortName: Tuscaloosa median age
+name: Median age — Tuscaloosa, AL
+shortName: Tuscaloosa, AL median age
 description: Median age for the Tuscaloosa metropolitan statistical area (CBSA 46220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

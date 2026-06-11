@@ -1,5 +1,5 @@
-name: Median age — Kokomo
-shortName: Kokomo median age
+name: Median age — Kokomo, IN
+shortName: Kokomo, IN median age
 description: Median age for the Kokomo metropolitan statistical area (CBSA 29020). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

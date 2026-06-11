@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Norwich-New London-Willimantic
-shortName: Norwich-New London-Willimantic HHs no vehicle
+name: Households with no vehicle available — Norwich-New London-Willimantic, CT
+shortName: Norwich-New London-Willimantic, CT HHs no vehicle
 description: Households with no vehicle available for the Norwich-New London-Willimantic metropolitan statistical area (CBSA 35980). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

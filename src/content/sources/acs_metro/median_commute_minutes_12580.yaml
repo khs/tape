@@ -1,5 +1,5 @@
-name: Median travel time to work — Baltimore-Columbia-Towson
-shortName: Baltimore-Columbia-Towson median commute
+name: Median travel time to work — Baltimore-Columbia-Towson, MD
+shortName: Baltimore-Columbia-Towson, MD median commute
 description: Median travel time to work for the Baltimore-Columbia-Towson metropolitan statistical area (CBSA 12580). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

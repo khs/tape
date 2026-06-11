@@ -1,5 +1,5 @@
-name: People in poverty — Tucson
-shortName: Tucson poverty count
+name: People in poverty — Tucson, AZ
+shortName: Tucson, AZ poverty count
 description: People in poverty for the Tucson metropolitan statistical area (CBSA 46060). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

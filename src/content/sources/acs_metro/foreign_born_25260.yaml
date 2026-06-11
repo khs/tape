@@ -1,5 +1,5 @@
-name: Foreign-born population — Hanford-Corcoran
-shortName: Hanford-Corcoran foreign-born
+name: Foreign-born population — Hanford-Corcoran, CA
+shortName: Hanford-Corcoran, CA foreign-born
 description: Foreign-born population for the Hanford-Corcoran metropolitan statistical area (CBSA 25260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

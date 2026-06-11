@@ -1,5 +1,5 @@
-name: People in poverty — Anchorage
-shortName: Anchorage poverty count
+name: People in poverty — Anchorage, AK
+shortName: Anchorage, AK poverty count
 description: People in poverty for the Anchorage metropolitan statistical area (CBSA 11260). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Chattanooga
-shortName: Chattanooga HHs no vehicle
+name: Households with no vehicle available — Chattanooga, TN-GA
+shortName: Chattanooga, TN-GA HHs no vehicle
 description: Households with no vehicle available for the Chattanooga metropolitan statistical area (CBSA 16860). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Augusta-Richmond County
-shortName: Augusta-Richmond County born same state
+name: Population born in current state of residence — Augusta-Richmond County, GA-SC
+shortName: Augusta-Richmond County, GA-SC born same state
 description: Population born in current state of residence for the Augusta-Richmond County metropolitan statistical area (CBSA 12260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

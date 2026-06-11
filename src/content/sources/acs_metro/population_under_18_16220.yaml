@@ -1,5 +1,5 @@
-name: Population under 18 — Casper
-shortName: Casper pop. under 18
+name: Population under 18 — Casper, WY
+shortName: Casper, WY pop. under 18
 description: Population under 18 for the Casper metropolitan statistical area (CBSA 16220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

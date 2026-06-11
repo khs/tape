@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell HHs no vehicle
+name: Households with no vehicle available — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA HHs no vehicle
 description: Households with no vehicle available for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

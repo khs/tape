@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Bridgeport-Stamford-Danbury
-shortName: Bridgeport-Stamford-Danbury pop. total (mobility)
+name: Total population (mobility-table denominator) — Bridgeport-Stamford-Danbury, CT
+shortName: Bridgeport-Stamford-Danbury, CT pop. total (mobility)
 description: Total population (mobility-table denominator) for the Bridgeport-Stamford-Danbury metropolitan statistical area (CBSA 14860). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

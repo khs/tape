@@ -1,5 +1,5 @@
-name: Total population — Lebanon
-shortName: Lebanon population
+name: Total population — Lebanon, PA
+shortName: Lebanon, PA population
 description: Total population for the Lebanon metropolitan statistical area (CBSA 30140). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

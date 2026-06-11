@@ -1,5 +1,5 @@
-name: People who moved in the last year — Lima
-shortName: Lima movers (last yr)
+name: People who moved in the last year — Lima, OH
+shortName: Lima, OH movers (last yr)
 description: People who moved in the last year for the Lima metropolitan statistical area (CBSA 30620). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

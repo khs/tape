@@ -1,5 +1,5 @@
-name: People who moved in the last year — Lake Charles
-shortName: Lake Charles movers (last yr)
+name: People who moved in the last year — Lake Charles, LA
+shortName: Lake Charles, LA movers (last yr)
 description: People who moved in the last year for the Lake Charles metropolitan statistical area (CBSA 29340). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People who moved in the last year — Napa
-shortName: Napa movers (last yr)
+name: People who moved in the last year — Napa, CA
+shortName: Napa, CA movers (last yr)
 description: People who moved in the last year for the Napa metropolitan statistical area (CBSA 34900). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

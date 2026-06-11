@@ -1,5 +1,5 @@
-name: Total population — Corvallis
-shortName: Corvallis population
+name: Total population — Corvallis, OR
+shortName: Corvallis, OR population
 description: Total population for the Corvallis metropolitan statistical area (CBSA 18700). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

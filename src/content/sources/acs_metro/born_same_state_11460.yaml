@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Ann Arbor
-shortName: Ann Arbor born same state
+name: Population born in current state of residence — Ann Arbor, MI
+shortName: Ann Arbor, MI born same state
 description: Population born in current state of residence for the Ann Arbor metropolitan statistical area (CBSA 11460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

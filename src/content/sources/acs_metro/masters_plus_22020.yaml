@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Fargo
-shortName: Fargo masters plus
+name: Adults 25+ with master's degree — Fargo, ND-MN
+shortName: Fargo, ND-MN masters plus
 description: Adults 25+ with master's degree for the Fargo metropolitan statistical area (CBSA 22020). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

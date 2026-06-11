@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Sioux Falls
-shortName: Sioux Falls HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Sioux Falls, SD-MN
+shortName: Sioux Falls, SD-MN HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Sioux Falls metropolitan statistical area (CBSA 43620). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

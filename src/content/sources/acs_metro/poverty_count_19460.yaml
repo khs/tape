@@ -1,5 +1,5 @@
-name: People in poverty — Decatur
-shortName: Decatur poverty count
+name: People in poverty — Decatur, AL
+shortName: Decatur, AL poverty count
 description: People in poverty for the Decatur metropolitan statistical area (CBSA 19460). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

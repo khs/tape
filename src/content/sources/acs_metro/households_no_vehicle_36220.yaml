@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Odessa
-shortName: Odessa HHs no vehicle
+name: Households with no vehicle available — Odessa, TX
+shortName: Odessa, TX HHs no vehicle
 description: Households with no vehicle available for the Odessa metropolitan statistical area (CBSA 36220). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

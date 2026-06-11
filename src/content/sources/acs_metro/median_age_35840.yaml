@@ -1,5 +1,5 @@
-name: Median age — North Port-Bradenton-Sarasota
-shortName: North Port-Bradenton-Sarasota median age
+name: Median age — North Port-Bradenton-Sarasota, FL
+shortName: North Port-Bradenton-Sarasota, FL median age
 description: Median age for the North Port-Bradenton-Sarasota metropolitan statistical area (CBSA 35840). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — El Paso
-shortName: El Paso median age
+name: Median age — El Paso, TX
+shortName: El Paso, TX median age
 description: Median age for the El Paso metropolitan statistical area (CBSA 21340). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

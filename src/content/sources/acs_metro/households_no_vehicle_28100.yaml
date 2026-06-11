@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Kankakee
-shortName: Kankakee HHs no vehicle
+name: Households with no vehicle available — Kankakee, IL
+shortName: Kankakee, IL HHs no vehicle
 description: Households with no vehicle available for the Kankakee metropolitan statistical area (CBSA 28100). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

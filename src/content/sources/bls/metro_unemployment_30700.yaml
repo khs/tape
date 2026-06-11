@@ -1,5 +1,5 @@
-name: Lincoln — unemployment rate
-shortName: Lincoln unemployment
+name: Lincoln, NE — unemployment rate
+shortName: Lincoln, NE unemployment
 description: Headline unemployment rate for the Lincoln metropolitan statistical area
   (CBSA 30700). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

@@ -1,5 +1,5 @@
-name: Population 65 and older — Billings
-shortName: Billings pop. 65+
+name: Population 65 and older — Billings, MT
+shortName: Billings, MT pop. 65+
 description: Population 65 and older for the Billings metropolitan statistical area (CBSA 13740). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

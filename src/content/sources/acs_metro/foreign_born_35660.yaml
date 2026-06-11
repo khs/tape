@@ -1,5 +1,5 @@
-name: Foreign-born population — Niles
-shortName: Niles foreign-born
+name: Foreign-born population — Niles, MI
+shortName: Niles, MI foreign-born
 description: Foreign-born population for the Niles metropolitan statistical area (CBSA 35660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

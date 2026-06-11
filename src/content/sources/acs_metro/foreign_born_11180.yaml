@@ -1,5 +1,5 @@
-name: Foreign-born population — Ames
-shortName: Ames foreign-born
+name: Foreign-born population — Ames, IA
+shortName: Ames, IA foreign-born
 description: Foreign-born population for the Ames metropolitan statistical area (CBSA 11180). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

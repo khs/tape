@@ -1,5 +1,5 @@
-name: Population 65 and older — Hot Springs
-shortName: Hot Springs pop. 65+
+name: Population 65 and older — Hot Springs, AR
+shortName: Hot Springs, AR pop. 65+
 description: Population 65 and older for the Hot Springs metropolitan statistical area (CBSA 26300). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

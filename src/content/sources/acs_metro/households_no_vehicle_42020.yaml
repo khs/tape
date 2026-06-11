@@ -1,5 +1,5 @@
-name: Households with no vehicle available — San Luis Obispo-Paso Robles
-shortName: San Luis Obispo-Paso Robles HHs no vehicle
+name: Households with no vehicle available — San Luis Obispo-Paso Robles, CA
+shortName: San Luis Obispo-Paso Robles, CA HHs no vehicle
 description: Households with no vehicle available for the San Luis Obispo-Paso Robles metropolitan statistical area (CBSA 42020). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

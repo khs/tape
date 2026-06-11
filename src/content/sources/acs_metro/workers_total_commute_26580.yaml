@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Huntington-Ashland
-shortName: Huntington-Ashland workers total (commute)
+name: Total workers (commute-table denominator) — Huntington-Ashland, WV-KY-OH
+shortName: Huntington-Ashland, WV-KY-OH workers total (commute)
 description: Total workers (commute-table denominator) for the Huntington-Ashland metropolitan statistical area (CBSA 26580). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

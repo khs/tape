@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Hilton Head Island-Bluffton-Port Royal
-shortName: Hilton Head Island-Bluffton-Port Royal born same state
+name: Population born in current state of residence — Hilton Head Island-Bluffton-Port Royal, SC
+shortName: Hilton Head Island-Bluffton-Port Royal, SC born same state
 description: Population born in current state of residence for the Hilton Head Island-Bluffton-Port Royal metropolitan statistical area (CBSA 25940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

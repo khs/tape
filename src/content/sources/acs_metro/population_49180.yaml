@@ -1,5 +1,5 @@
-name: Total population — Winston-Salem
-shortName: Winston-Salem population
+name: Total population — Winston-Salem, NC
+shortName: Winston-Salem, NC population
 description: Total population for the Winston-Salem metropolitan statistical area (CBSA 49180). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

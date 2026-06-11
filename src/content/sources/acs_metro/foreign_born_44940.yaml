@@ -1,5 +1,5 @@
-name: Foreign-born population — Sumter
-shortName: Sumter foreign-born
+name: Foreign-born population — Sumter, SC
+shortName: Sumter, SC foreign-born
 description: Foreign-born population for the Sumter metropolitan statistical area (CBSA 44940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

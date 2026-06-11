@@ -1,5 +1,5 @@
-name: People in poverty — Helena
-shortName: Helena poverty count
+name: People in poverty — Helena, MT
+shortName: Helena, MT poverty count
 description: People in poverty for the Helena metropolitan statistical area (CBSA 25740). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

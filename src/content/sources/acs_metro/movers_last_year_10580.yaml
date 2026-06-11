@@ -1,5 +1,5 @@
-name: People who moved in the last year — Albany-Schenectady-Troy
-shortName: Albany-Schenectady-Troy movers (last yr)
+name: People who moved in the last year — Albany-Schenectady-Troy, NY
+shortName: Albany-Schenectady-Troy, NY movers (last yr)
 description: People who moved in the last year for the Albany-Schenectady-Troy metropolitan statistical area (CBSA 10580). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

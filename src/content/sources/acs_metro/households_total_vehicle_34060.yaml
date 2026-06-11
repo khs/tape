@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Morgantown
-shortName: Morgantown HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Morgantown, WV
+shortName: Morgantown, WV HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Morgantown metropolitan statistical area (CBSA 34060). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

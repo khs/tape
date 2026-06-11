@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Columbus
-shortName: Columbus pop. total (mobility)
+name: Total population (mobility-table denominator) — Columbus, GA-AL
+shortName: Columbus, GA-AL pop. total (mobility)
 description: Total population (mobility-table denominator) for the Columbus metropolitan statistical area (CBSA 17980). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

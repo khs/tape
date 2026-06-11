@@ -1,5 +1,5 @@
-name: People in poverty — Las Cruces
-shortName: Las Cruces poverty count
+name: People in poverty — Las Cruces, NM
+shortName: Las Cruces, NM poverty count
 description: People in poverty for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

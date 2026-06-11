@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Owensboro
-shortName: Owensboro HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Owensboro, KY
+shortName: Owensboro, KY HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Owensboro metropolitan statistical area (CBSA 36980). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

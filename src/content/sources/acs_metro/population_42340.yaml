@@ -1,5 +1,5 @@
-name: Total population — Savannah
-shortName: Savannah population
+name: Total population — Savannah, GA
+shortName: Savannah, GA population
 description: Total population for the Savannah metropolitan statistical area (CBSA 42340). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

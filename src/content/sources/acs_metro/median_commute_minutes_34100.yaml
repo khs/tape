@@ -1,5 +1,5 @@
-name: Median travel time to work — Morristown
-shortName: Morristown median commute
+name: Median travel time to work — Morristown, TN
+shortName: Morristown, TN median commute
 description: Median travel time to work for the Morristown metropolitan statistical area (CBSA 34100). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

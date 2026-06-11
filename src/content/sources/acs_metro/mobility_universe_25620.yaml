@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Hattiesburg
-shortName: Hattiesburg pop. total (mobility)
+name: Total population (mobility-table denominator) — Hattiesburg, MS
+shortName: Hattiesburg, MS pop. total (mobility)
 description: Total population (mobility-table denominator) for the Hattiesburg metropolitan statistical area (CBSA 25620). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

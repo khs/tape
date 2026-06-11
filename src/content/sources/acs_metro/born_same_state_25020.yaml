@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Guayama
-shortName: Guayama born same state
+name: Population born in current state of residence — Guayama, PR
+shortName: Guayama, PR born same state
 description: Population born in current state of residence for the Guayama metropolitan statistical area (CBSA 25020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

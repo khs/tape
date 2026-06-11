@@ -1,5 +1,5 @@
-name: Foreign-born population — Lexington-Fayette
-shortName: Lexington-Fayette foreign-born
+name: Foreign-born population — Lexington-Fayette, KY
+shortName: Lexington-Fayette, KY foreign-born
 description: Foreign-born population for the Lexington-Fayette metropolitan statistical area (CBSA 30460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Chambersburg
-shortName: Chambersburg population
+name: Total population — Chambersburg, PA
+shortName: Chambersburg, PA population
 description: Total population for the Chambersburg metropolitan statistical area (CBSA 16540). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

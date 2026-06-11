@@ -1,5 +1,5 @@
-name: Elmira — unemployment rate
-shortName: Elmira unemployment
+name: Elmira, NY — unemployment rate
+shortName: Elmira, NY unemployment
 description: Headline unemployment rate for the Elmira metropolitan statistical area
   (CBSA 21300). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

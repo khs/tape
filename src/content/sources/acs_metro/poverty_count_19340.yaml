@@ -1,5 +1,5 @@
-name: People in poverty — Davenport-Moline-Rock Island
-shortName: Davenport-Moline-Rock Island poverty count
+name: People in poverty — Davenport-Moline-Rock Island, IA-IL
+shortName: Davenport-Moline-Rock Island, IA-IL poverty count
 description: People in poverty for the Davenport-Moline-Rock Island metropolitan statistical area (CBSA 19340). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

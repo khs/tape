@@ -1,5 +1,5 @@
-name: People in poverty — Bismarck
-shortName: Bismarck poverty count
+name: People in poverty — Bismarck, ND
+shortName: Bismarck, ND poverty count
 description: People in poverty for the Bismarck metropolitan statistical area (CBSA 13900). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Des Moines-West Des Moines
-shortName: Des Moines-West Des Moines workers total (commute)
+name: Total workers (commute-table denominator) — Des Moines-West Des Moines, IA
+shortName: Des Moines-West Des Moines, IA workers total (commute)
 description: Total workers (commute-table denominator) for the Des Moines-West Des Moines metropolitan statistical area (CBSA 19780). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

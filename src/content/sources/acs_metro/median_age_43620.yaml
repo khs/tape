@@ -1,5 +1,5 @@
-name: Median age — Sioux Falls
-shortName: Sioux Falls median age
+name: Median age — Sioux Falls, SD-MN
+shortName: Sioux Falls, SD-MN median age
 description: Median age for the Sioux Falls metropolitan statistical area (CBSA 43620). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

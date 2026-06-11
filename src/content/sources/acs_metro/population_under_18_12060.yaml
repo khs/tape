@@ -1,5 +1,5 @@
-name: Population under 18 — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell pop. under 18
+name: Population under 18 — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA pop. under 18
 description: Population under 18 for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

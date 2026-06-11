@@ -1,5 +1,5 @@
-name: Federal spending — Coeur d'Alene
-shortName: Coeur d'Alene
+name: Federal spending — Coeur d'Alene, ID
+shortName: Coeur d'Alene, ID
 description: Total federal outlays where the recipient location is in the Coeur d'Alene
   metropolitan statistical area (CBSA 17660, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

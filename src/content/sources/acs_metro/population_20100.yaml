@@ -1,5 +1,5 @@
-name: Total population — Dover
-shortName: Dover population
+name: Total population — Dover, DE
+shortName: Dover, DE population
 description: Total population for the Dover metropolitan statistical area (CBSA 20100). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

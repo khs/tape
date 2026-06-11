@@ -1,5 +1,5 @@
-name: Foreign-born population — Youngstown-Warren
-shortName: Youngstown-Warren foreign-born
+name: Foreign-born population — Youngstown-Warren, OH
+shortName: Youngstown-Warren, OH foreign-born
 description: Foreign-born population for the Youngstown-Warren metropolitan statistical area (CBSA 49660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

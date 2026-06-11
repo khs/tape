@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Homosassa Springs
-shortName: Homosassa Springs born same state
+name: Population born in current state of residence — Homosassa Springs, FL
+shortName: Homosassa Springs, FL born same state
 description: Population born in current state of residence for the Homosassa Springs metropolitan statistical area (CBSA 26140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

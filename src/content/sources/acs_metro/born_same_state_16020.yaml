@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Cape Girardeau
-shortName: Cape Girardeau born same state
+name: Population born in current state of residence — Cape Girardeau, MO-IL
+shortName: Cape Girardeau, MO-IL born same state
 description: Population born in current state of residence for the Cape Girardeau metropolitan statistical area (CBSA 16020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

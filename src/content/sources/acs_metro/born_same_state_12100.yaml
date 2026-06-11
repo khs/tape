@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Atlantic City-Hammonton
-shortName: Atlantic City-Hammonton born same state
+name: Population born in current state of residence — Atlantic City-Hammonton, NJ
+shortName: Atlantic City-Hammonton, NJ born same state
 description: Population born in current state of residence for the Atlantic City-Hammonton metropolitan statistical area (CBSA 12100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

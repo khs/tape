@@ -1,5 +1,5 @@
-name: Foreign-born population — Battle Creek
-shortName: Battle Creek foreign-born
+name: Foreign-born population — Battle Creek, MI
+shortName: Battle Creek, MI foreign-born
 description: Foreign-born population for the Battle Creek metropolitan statistical area (CBSA 12980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

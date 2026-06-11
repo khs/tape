@@ -1,5 +1,5 @@
-name: People in poverty — Casper
-shortName: Casper poverty count
+name: People in poverty — Casper, WY
+shortName: Casper, WY poverty count
 description: People in poverty for the Casper metropolitan statistical area (CBSA 16220). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

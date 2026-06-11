@@ -1,5 +1,5 @@
-name: People who moved in the last year — Jacksonville
-shortName: Jacksonville movers (last yr)
+name: People who moved in the last year — Jacksonville, FL
+shortName: Jacksonville, FL movers (last yr)
 description: People who moved in the last year for the Jacksonville metropolitan statistical area (CBSA 27260). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

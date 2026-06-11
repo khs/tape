@@ -1,5 +1,5 @@
-name: Total population — Hot Springs
-shortName: Hot Springs population
+name: Total population — Hot Springs, AR
+shortName: Hot Springs, AR population
 description: Total population for the Hot Springs metropolitan statistical area (CBSA 26300). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

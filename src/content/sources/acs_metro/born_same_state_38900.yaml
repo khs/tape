@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Portland-Vancouver-Hillsboro
-shortName: Portland-Vancouver-Hillsboro born same state
+name: Population born in current state of residence — Portland-Vancouver-Hillsboro, OR-WA
+shortName: Portland-Vancouver-Hillsboro, OR-WA born same state
 description: Population born in current state of residence for the Portland-Vancouver-Hillsboro metropolitan statistical area (CBSA 38900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

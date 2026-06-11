@@ -1,5 +1,5 @@
-name: Foreign-born population — Rockford
-shortName: Rockford foreign-born
+name: Foreign-born population — Rockford, IL
+shortName: Rockford, IL foreign-born
 description: Foreign-born population for the Rockford metropolitan statistical area (CBSA 40420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

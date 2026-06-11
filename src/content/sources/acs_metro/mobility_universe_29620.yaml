@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Lansing-East Lansing
-shortName: Lansing-East Lansing pop. total (mobility)
+name: Total population (mobility-table denominator) — Lansing-East Lansing, MI
+shortName: Lansing-East Lansing, MI pop. total (mobility)
 description: Total population (mobility-table denominator) for the Lansing-East Lansing metropolitan statistical area (CBSA 29620). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Rome
-shortName: Rome pop. under 18
+name: Population under 18 — Rome, GA
+shortName: Rome, GA pop. under 18
 description: Population under 18 for the Rome metropolitan statistical area (CBSA 40660). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

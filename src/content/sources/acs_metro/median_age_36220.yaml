@@ -1,5 +1,5 @@
-name: Median age — Odessa
-shortName: Odessa median age
+name: Median age — Odessa, TX
+shortName: Odessa, TX median age
 description: Median age for the Odessa metropolitan statistical area (CBSA 36220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

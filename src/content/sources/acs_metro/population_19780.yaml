@@ -1,5 +1,5 @@
-name: Total population — Des Moines-West Des Moines
-shortName: Des Moines-West Des Moines population
+name: Total population — Des Moines-West Des Moines, IA
+shortName: Des Moines-West Des Moines, IA population
 description: Total population for the Des Moines-West Des Moines metropolitan statistical area (CBSA 19780). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

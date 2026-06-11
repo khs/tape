@@ -1,5 +1,5 @@
-name: Median travel time to work — Urban Honolulu
-shortName: Urban Honolulu median commute
+name: Median travel time to work — Urban Honolulu, HI
+shortName: Urban Honolulu, HI median commute
 description: Median travel time to work for the Urban Honolulu metropolitan statistical area (CBSA 46520). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

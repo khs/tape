@@ -1,5 +1,5 @@
-name: Population under 18 — Lake Havasu City-Kingman
-shortName: Lake Havasu City-Kingman pop. under 18
+name: Population under 18 — Lake Havasu City-Kingman, AZ
+shortName: Lake Havasu City-Kingman, AZ pop. under 18
 description: Population under 18 for the Lake Havasu City-Kingman metropolitan statistical area (CBSA 29420). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

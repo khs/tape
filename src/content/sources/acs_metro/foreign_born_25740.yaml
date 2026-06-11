@@ -1,5 +1,5 @@
-name: Foreign-born population — Helena
-shortName: Helena foreign-born
+name: Foreign-born population — Helena, MT
+shortName: Helena, MT foreign-born
 description: Foreign-born population for the Helena metropolitan statistical area (CBSA 25740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

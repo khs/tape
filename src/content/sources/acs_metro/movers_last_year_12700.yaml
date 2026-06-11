@@ -1,5 +1,5 @@
-name: People who moved in the last year — Barnstable Town
-shortName: Barnstable Town movers (last yr)
+name: People who moved in the last year — Barnstable Town, MA
+shortName: Barnstable Town, MA movers (last yr)
 description: People who moved in the last year for the Barnstable Town metropolitan statistical area (CBSA 12700). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

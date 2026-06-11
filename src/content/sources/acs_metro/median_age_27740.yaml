@@ -1,5 +1,5 @@
-name: Median age — Johnson City
-shortName: Johnson City median age
+name: Median age — Johnson City, TN
+shortName: Johnson City, TN median age
 description: Median age for the Johnson City metropolitan statistical area (CBSA 27740). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

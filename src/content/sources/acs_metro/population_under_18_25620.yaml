@@ -1,5 +1,5 @@
-name: Population under 18 — Hattiesburg
-shortName: Hattiesburg pop. under 18
+name: Population under 18 — Hattiesburg, MS
+shortName: Hattiesburg, MS pop. under 18
 description: Population under 18 for the Hattiesburg metropolitan statistical area (CBSA 25620). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

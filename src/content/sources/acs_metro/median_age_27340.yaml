@@ -1,5 +1,5 @@
-name: Median age — Jacksonville
-shortName: Jacksonville median age
+name: Median age — Jacksonville, NC
+shortName: Jacksonville, NC median age
 description: Median age for the Jacksonville metropolitan statistical area (CBSA 27340). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

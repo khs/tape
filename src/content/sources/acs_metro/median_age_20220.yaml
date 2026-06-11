@@ -1,5 +1,5 @@
-name: Median age — Dubuque
-shortName: Dubuque median age
+name: Median age — Dubuque, IA
+shortName: Dubuque, IA median age
 description: Median age for the Dubuque metropolitan statistical area (CBSA 20220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Tucson
-shortName: Tucson workers total (commute)
+name: Total workers (commute-table denominator) — Tucson, AZ
+shortName: Tucson, AZ workers total (commute)
 description: Total workers (commute-table denominator) for the Tucson metropolitan statistical area (CBSA 46060). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

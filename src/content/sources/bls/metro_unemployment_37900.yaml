@@ -1,5 +1,5 @@
-name: Peoria — unemployment rate
-shortName: Peoria unemployment
+name: Peoria, IL — unemployment rate
+shortName: Peoria, IL unemployment
 description: Headline unemployment rate for the Peoria metropolitan statistical area
   (CBSA 37900). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

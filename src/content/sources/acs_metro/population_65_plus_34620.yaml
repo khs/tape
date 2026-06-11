@@ -1,5 +1,5 @@
-name: Population 65 and older — Muncie
-shortName: Muncie pop. 65+
+name: Population 65 and older — Muncie, IN
+shortName: Muncie, IN pop. 65+
 description: Population 65 and older for the Muncie metropolitan statistical area (CBSA 34620). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

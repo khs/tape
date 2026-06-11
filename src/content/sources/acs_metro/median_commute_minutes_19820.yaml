@@ -1,5 +1,5 @@
-name: Median travel time to work — Detroit-Warren-Dearborn
-shortName: Detroit-Warren-Dearborn median commute
+name: Median travel time to work — Detroit-Warren-Dearborn, MI
+shortName: Detroit-Warren-Dearborn, MI median commute
 description: Median travel time to work for the Detroit-Warren-Dearborn metropolitan statistical area (CBSA 19820). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

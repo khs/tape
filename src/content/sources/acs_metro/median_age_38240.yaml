@@ -1,5 +1,5 @@
-name: Median age — Pinehurst-Southern Pines
-shortName: Pinehurst-Southern Pines median age
+name: Median age — Pinehurst-Southern Pines, NC
+shortName: Pinehurst-Southern Pines, NC median age
 description: Median age for the Pinehurst-Southern Pines metropolitan statistical area (CBSA 38240). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

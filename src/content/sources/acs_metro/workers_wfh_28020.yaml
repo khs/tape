@@ -1,5 +1,5 @@
-name: Workers who work from home — Kalamazoo-Portage
-shortName: Kalamazoo-Portage WFH workers
+name: Workers who work from home — Kalamazoo-Portage, MI
+shortName: Kalamazoo-Portage, MI WFH workers
 description: Workers who work from home for the Kalamazoo-Portage metropolitan statistical area (CBSA 28020). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

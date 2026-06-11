@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Deltona-Daytona Beach-Ormond Beach
-shortName: Deltona-Daytona Beach-Ormond Beach HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Deltona-Daytona Beach-Ormond Beach, FL
+shortName: Deltona-Daytona Beach-Ormond Beach, FL HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Deltona-Daytona Beach-Ormond Beach metropolitan statistical area (CBSA 19660). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

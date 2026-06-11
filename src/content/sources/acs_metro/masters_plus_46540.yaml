@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Utica-Rome
-shortName: Utica-Rome masters plus
+name: Adults 25+ with master's degree — Utica-Rome, NY
+shortName: Utica-Rome, NY masters plus
 description: Adults 25+ with master's degree for the Utica-Rome metropolitan statistical area (CBSA 46540). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

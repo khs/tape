@@ -1,5 +1,5 @@
-name: Median travel time to work — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell median commute
+name: Median travel time to work — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA median commute
 description: Median travel time to work for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

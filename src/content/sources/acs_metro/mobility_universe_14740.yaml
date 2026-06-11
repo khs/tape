@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Bremerton-Silverdale-Port Orchard
-shortName: Bremerton-Silverdale-Port Orchard pop. total (mobility)
+name: Total population (mobility-table denominator) — Bremerton-Silverdale-Port Orchard, WA
+shortName: Bremerton-Silverdale-Port Orchard, WA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Bremerton-Silverdale-Port Orchard metropolitan statistical area (CBSA 14740). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Flint — unemployment rate
-shortName: Flint unemployment
+name: Flint, MI — unemployment rate
+shortName: Flint, MI unemployment
 description: Headline unemployment rate for the Flint metropolitan statistical area
   (CBSA 22420). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Killeen-Temple
-shortName: Killeen-Temple bachelors plus
+name: Adults 25+ with bachelor's degree — Killeen-Temple, TX
+shortName: Killeen-Temple, TX bachelors plus
 description: Adults 25+ with bachelor's degree for the Killeen-Temple metropolitan statistical area (CBSA 28660). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

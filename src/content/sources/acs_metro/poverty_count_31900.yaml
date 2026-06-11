@@ -1,5 +1,5 @@
-name: People in poverty — Mansfield
-shortName: Mansfield poverty count
+name: People in poverty — Mansfield, OH
+shortName: Mansfield, OH poverty count
 description: People in poverty for the Mansfield metropolitan statistical area (CBSA 31900). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

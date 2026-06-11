@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Grand Forks
-shortName: Grand Forks workers total (commute)
+name: Total workers (commute-table denominator) — Grand Forks, ND-MN
+shortName: Grand Forks, ND-MN workers total (commute)
 description: Total workers (commute-table denominator) for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

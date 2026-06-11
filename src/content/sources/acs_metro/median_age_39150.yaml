@@ -1,5 +1,5 @@
-name: Median age — Prescott Valley-Prescott
-shortName: Prescott Valley-Prescott median age
+name: Median age — Prescott Valley-Prescott, AZ
+shortName: Prescott Valley-Prescott, AZ median age
 description: Median age for the Prescott Valley-Prescott metropolitan statistical area (CBSA 39150). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

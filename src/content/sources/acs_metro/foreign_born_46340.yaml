@@ -1,5 +1,5 @@
-name: Foreign-born population — Tyler
-shortName: Tyler foreign-born
+name: Foreign-born population — Tyler, TX
+shortName: Tyler, TX foreign-born
 description: Foreign-born population for the Tyler metropolitan statistical area (CBSA 46340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

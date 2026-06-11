@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Athens-Clarke County
-shortName: Athens-Clarke County born same state
+name: Population born in current state of residence — Athens-Clarke County, GA
+shortName: Athens-Clarke County, GA born same state
 description: Population born in current state of residence for the Athens-Clarke County metropolitan statistical area (CBSA 12020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

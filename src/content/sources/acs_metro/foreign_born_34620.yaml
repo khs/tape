@@ -1,5 +1,5 @@
-name: Foreign-born population — Muncie
-shortName: Muncie foreign-born
+name: Foreign-born population — Muncie, IN
+shortName: Muncie, IN foreign-born
 description: Foreign-born population for the Muncie metropolitan statistical area (CBSA 34620). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

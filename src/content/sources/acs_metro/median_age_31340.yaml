@@ -1,5 +1,5 @@
-name: Median age — Lynchburg
-shortName: Lynchburg median age
+name: Median age — Lynchburg, VA
+shortName: Lynchburg, VA median age
 description: Median age for the Lynchburg metropolitan statistical area (CBSA 31340). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

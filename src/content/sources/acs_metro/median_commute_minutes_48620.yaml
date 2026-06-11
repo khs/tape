@@ -1,5 +1,5 @@
-name: Median travel time to work — Wichita
-shortName: Wichita median commute
+name: Median travel time to work — Wichita, KS
+shortName: Wichita, KS median commute
 description: Median travel time to work for the Wichita metropolitan statistical area (CBSA 48620). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

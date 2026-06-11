@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Memphis
-shortName: Memphis masters plus
+name: Adults 25+ with master's degree — Memphis, TN-MS-AR
+shortName: Memphis, TN-MS-AR masters plus
 description: Adults 25+ with master's degree for the Memphis metropolitan statistical area (CBSA 32820). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

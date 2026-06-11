@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Manhattan
-shortName: Manhattan born same state
+name: Population born in current state of residence — Manhattan, KS
+shortName: Manhattan, KS born same state
 description: Population born in current state of residence for the Manhattan metropolitan statistical area (CBSA 31740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

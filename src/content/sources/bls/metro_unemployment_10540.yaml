@@ -1,5 +1,5 @@
-name: Albany — unemployment rate
-shortName: Albany unemployment
+name: Albany, OR — unemployment rate
+shortName: Albany, OR unemployment
 description: Headline unemployment rate for the Albany metropolitan statistical area
   (CBSA 10540). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

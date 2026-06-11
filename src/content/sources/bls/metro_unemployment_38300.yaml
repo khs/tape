@@ -1,5 +1,5 @@
-name: Pittsburgh — unemployment rate
-shortName: Pittsburgh unemployment
+name: Pittsburgh, PA — unemployment rate
+shortName: Pittsburgh, PA unemployment
 description: Headline unemployment rate for the Pittsburgh metropolitan statistical
   area (CBSA 38300). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

@@ -1,5 +1,5 @@
-name: Foreign-born population — Stockton-Lodi
-shortName: Stockton-Lodi foreign-born
+name: Foreign-born population — Stockton-Lodi, CA
+shortName: Stockton-Lodi, CA foreign-born
 description: Foreign-born population for the Stockton-Lodi metropolitan statistical area (CBSA 44700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

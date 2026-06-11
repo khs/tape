@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Provo-Orem-Lehi
-shortName: Provo-Orem-Lehi pop. total (mobility)
+name: Total population (mobility-table denominator) — Provo-Orem-Lehi, UT
+shortName: Provo-Orem-Lehi, UT pop. total (mobility)
 description: Total population (mobility-table denominator) for the Provo-Orem-Lehi metropolitan statistical area (CBSA 39340). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

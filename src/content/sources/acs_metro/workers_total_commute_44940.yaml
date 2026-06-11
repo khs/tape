@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Sumter
-shortName: Sumter workers total (commute)
+name: Total workers (commute-table denominator) — Sumter, SC
+shortName: Sumter, SC workers total (commute)
 description: Total workers (commute-table denominator) for the Sumter metropolitan statistical area (CBSA 44940). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

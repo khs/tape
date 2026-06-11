@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Killeen-Temple
-shortName: Killeen-Temple born same state
+name: Population born in current state of residence — Killeen-Temple, TX
+shortName: Killeen-Temple, TX born same state
 description: Population born in current state of residence for the Killeen-Temple metropolitan statistical area (CBSA 28660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

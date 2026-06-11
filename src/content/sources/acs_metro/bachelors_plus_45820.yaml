@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Topeka
-shortName: Topeka bachelors plus
+name: Adults 25+ with bachelor's degree — Topeka, KS
+shortName: Topeka, KS bachelors plus
 description: Adults 25+ with bachelor's degree for the Topeka metropolitan statistical area (CBSA 45820). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

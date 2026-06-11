@@ -1,5 +1,5 @@
-name: People in poverty — San Diego-Chula Vista-Carlsbad
-shortName: San Diego-Chula Vista-Carlsbad poverty count
+name: People in poverty — San Diego-Chula Vista-Carlsbad, CA
+shortName: San Diego-Chula Vista-Carlsbad, CA poverty count
 description: People in poverty for the San Diego-Chula Vista-Carlsbad metropolitan statistical area (CBSA 41740). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

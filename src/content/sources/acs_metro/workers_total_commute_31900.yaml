@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Mansfield
-shortName: Mansfield workers total (commute)
+name: Total workers (commute-table denominator) — Mansfield, OH
+shortName: Mansfield, OH workers total (commute)
 description: Total workers (commute-table denominator) for the Mansfield metropolitan statistical area (CBSA 31900). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

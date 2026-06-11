@@ -1,5 +1,5 @@
-name: Total population — Dubuque
-shortName: Dubuque population
+name: Total population — Dubuque, IA
+shortName: Dubuque, IA population
 description: Total population for the Dubuque metropolitan statistical area (CBSA 20220). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

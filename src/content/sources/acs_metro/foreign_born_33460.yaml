@@ -1,5 +1,5 @@
-name: Foreign-born population — Minneapolis-St. Paul-Bloomington
-shortName: Minneapolis-St. Paul-Bloomington foreign-born
+name: Foreign-born population — Minneapolis-St. Paul-Bloomington, MN-WI
+shortName: Minneapolis-St. Paul-Bloomington, MN-WI foreign-born
 description: Foreign-born population for the Minneapolis-St. Paul-Bloomington metropolitan statistical area (CBSA 33460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

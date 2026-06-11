@@ -1,5 +1,5 @@
-name: Population 65 and older — Grand Forks
-shortName: Grand Forks pop. 65+
+name: Population 65 and older — Grand Forks, ND-MN
+shortName: Grand Forks, ND-MN pop. 65+
 description: Population 65 and older for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Pinehurst-Southern Pines
-shortName: Pinehurst-Southern Pines pop. total (mobility)
+name: Total population (mobility-table denominator) — Pinehurst-Southern Pines, NC
+shortName: Pinehurst-Southern Pines, NC pop. total (mobility)
 description: Total population (mobility-table denominator) for the Pinehurst-Southern Pines metropolitan statistical area (CBSA 38240). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

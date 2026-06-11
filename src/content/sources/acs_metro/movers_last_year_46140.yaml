@@ -1,5 +1,5 @@
-name: People who moved in the last year — Tulsa
-shortName: Tulsa movers (last yr)
+name: People who moved in the last year — Tulsa, OK
+shortName: Tulsa, OK movers (last yr)
 description: People who moved in the last year for the Tulsa metropolitan statistical area (CBSA 46140). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

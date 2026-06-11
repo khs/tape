@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Traverse City
-shortName: Traverse City HHs no vehicle
+name: Households with no vehicle available — Traverse City, MI
+shortName: Traverse City, MI HHs no vehicle
 description: Households with no vehicle available for the Traverse City metropolitan statistical area (CBSA 45900). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

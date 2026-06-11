@@ -1,5 +1,5 @@
-name: Foreign-born population — Fargo
-shortName: Fargo foreign-born
+name: Foreign-born population — Fargo, ND-MN
+shortName: Fargo, ND-MN foreign-born
 description: Foreign-born population for the Fargo metropolitan statistical area (CBSA 22020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

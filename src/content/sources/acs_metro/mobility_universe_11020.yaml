@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Altoona
-shortName: Altoona pop. total (mobility)
+name: Total population (mobility-table denominator) — Altoona, PA
+shortName: Altoona, PA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Altoona metropolitan statistical area (CBSA 11020). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

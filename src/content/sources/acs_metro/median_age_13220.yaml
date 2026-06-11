@@ -1,5 +1,5 @@
-name: Median age — Beckley
-shortName: Beckley median age
+name: Median age — Beckley, WV
+shortName: Beckley, WV median age
 description: Median age for the Beckley metropolitan statistical area (CBSA 13220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Rochester
-shortName: Rochester born same state
+name: Population born in current state of residence — Rochester, MN
+shortName: Rochester, MN born same state
 description: Population born in current state of residence for the Rochester metropolitan statistical area (CBSA 40340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

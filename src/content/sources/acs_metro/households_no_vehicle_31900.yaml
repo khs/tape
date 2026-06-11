@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Mansfield
-shortName: Mansfield HHs no vehicle
+name: Households with no vehicle available — Mansfield, OH
+shortName: Mansfield, OH HHs no vehicle
 description: Households with no vehicle available for the Mansfield metropolitan statistical area (CBSA 31900). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Bridgeport-Stamford-Danbury
-shortName: Bridgeport-Stamford-Danbury population
+name: Total population — Bridgeport-Stamford-Danbury, CT
+shortName: Bridgeport-Stamford-Danbury, CT population
 description: Total population for the Bridgeport-Stamford-Danbury metropolitan statistical area (CBSA 14860). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

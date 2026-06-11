@@ -1,5 +1,5 @@
-name: Foreign-born population — Appleton
-shortName: Appleton foreign-born
+name: Foreign-born population — Appleton, WI
+shortName: Appleton, WI foreign-born
 description: Foreign-born population for the Appleton metropolitan statistical area (CBSA 11540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

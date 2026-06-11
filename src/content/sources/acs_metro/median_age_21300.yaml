@@ -1,5 +1,5 @@
-name: Median age — Elmira
-shortName: Elmira median age
+name: Median age — Elmira, NY
+shortName: Elmira, NY median age
 description: Median age for the Elmira metropolitan statistical area (CBSA 21300). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

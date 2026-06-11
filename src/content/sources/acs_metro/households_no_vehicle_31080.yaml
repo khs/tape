@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Los Angeles-Long Beach-Anaheim
-shortName: Los Angeles-Long Beach-Anaheim HHs no vehicle
+name: Households with no vehicle available — Los Angeles-Long Beach-Anaheim, CA
+shortName: Los Angeles-Long Beach-Anaheim, CA HHs no vehicle
 description: Households with no vehicle available for the Los Angeles-Long Beach-Anaheim metropolitan statistical area (CBSA 31080). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

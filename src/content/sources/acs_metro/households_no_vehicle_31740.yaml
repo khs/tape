@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Manhattan
-shortName: Manhattan HHs no vehicle
+name: Households with no vehicle available — Manhattan, KS
+shortName: Manhattan, KS HHs no vehicle
 description: Households with no vehicle available for the Manhattan metropolitan statistical area (CBSA 31740). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

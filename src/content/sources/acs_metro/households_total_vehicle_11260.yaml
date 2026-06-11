@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Anchorage
-shortName: Anchorage HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Anchorage, AK
+shortName: Anchorage, AK HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Anchorage metropolitan statistical area (CBSA 11260). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

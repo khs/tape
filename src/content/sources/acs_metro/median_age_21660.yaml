@@ -1,5 +1,5 @@
-name: Median age — Eugene-Springfield
-shortName: Eugene-Springfield median age
+name: Median age — Eugene-Springfield, OR
+shortName: Eugene-Springfield, OR median age
 description: Median age for the Eugene-Springfield metropolitan statistical area (CBSA 21660). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

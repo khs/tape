@@ -1,5 +1,5 @@
-name: Foreign-born population — Alexandria
-shortName: Alexandria foreign-born
+name: Foreign-born population — Alexandria, LA
+shortName: Alexandria, LA foreign-born
 description: Foreign-born population for the Alexandria metropolitan statistical area (CBSA 10780). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Twin Falls
-shortName: Twin Falls median age
+name: Median age — Twin Falls, ID
+shortName: Twin Falls, ID median age
 description: Median age for the Twin Falls metropolitan statistical area (CBSA 46300). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

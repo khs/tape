@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Hilton Head Island-Bluffton-Port Royal
-shortName: Hilton Head Island-Bluffton-Port Royal pop. total (mobility)
+name: Total population (mobility-table denominator) — Hilton Head Island-Bluffton-Port Royal, SC
+shortName: Hilton Head Island-Bluffton-Port Royal, SC pop. total (mobility)
 description: Total population (mobility-table denominator) for the Hilton Head Island-Bluffton-Port Royal metropolitan statistical area (CBSA 25940). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

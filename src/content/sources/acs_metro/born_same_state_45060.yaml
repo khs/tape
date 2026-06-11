@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Syracuse
-shortName: Syracuse born same state
+name: Population born in current state of residence — Syracuse, NY
+shortName: Syracuse, NY born same state
 description: Population born in current state of residence for the Syracuse metropolitan statistical area (CBSA 45060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

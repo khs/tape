@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Pueblo
-shortName: Pueblo pop. total (mobility)
+name: Total population (mobility-table denominator) — Pueblo, CO
+shortName: Pueblo, CO pop. total (mobility)
 description: Total population (mobility-table denominator) for the Pueblo metropolitan statistical area (CBSA 39380). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

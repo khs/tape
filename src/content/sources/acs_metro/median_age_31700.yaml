@@ -1,5 +1,5 @@
-name: Median age — Manchester-Nashua
-shortName: Manchester-Nashua median age
+name: Median age — Manchester-Nashua, NH
+shortName: Manchester-Nashua, NH median age
 description: Median age for the Manchester-Nashua metropolitan statistical area (CBSA 31700). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

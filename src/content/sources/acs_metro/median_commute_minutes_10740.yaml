@@ -1,5 +1,5 @@
-name: Median travel time to work — Albuquerque
-shortName: Albuquerque median commute
+name: Median travel time to work — Albuquerque, NM
+shortName: Albuquerque, NM median commute
 description: Median travel time to work for the Albuquerque metropolitan statistical area (CBSA 10740). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

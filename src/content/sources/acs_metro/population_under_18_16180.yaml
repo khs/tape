@@ -1,5 +1,5 @@
-name: Population under 18 — Carson City
-shortName: Carson City pop. under 18
+name: Population under 18 — Carson City, NV
+shortName: Carson City, NV pop. under 18
 description: Population under 18 for the Carson City metropolitan statistical area (CBSA 16180). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

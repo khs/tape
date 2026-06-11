@@ -1,5 +1,5 @@
-name: Foreign-born population — State College
-shortName: State College foreign-born
+name: Foreign-born population — State College, PA
+shortName: State College, PA foreign-born
 description: Foreign-born population for the State College metropolitan statistical area (CBSA 44300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Staunton-Stuarts Draft
-shortName: Staunton-Stuarts Draft HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Staunton-Stuarts Draft, VA
+shortName: Staunton-Stuarts Draft, VA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Staunton-Stuarts Draft metropolitan statistical area (CBSA 44420). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

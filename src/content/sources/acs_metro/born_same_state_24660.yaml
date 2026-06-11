@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Greensboro-High Point
-shortName: Greensboro-High Point born same state
+name: Population born in current state of residence — Greensboro-High Point, NC
+shortName: Greensboro-High Point, NC born same state
 description: Population born in current state of residence for the Greensboro-High Point metropolitan statistical area (CBSA 24660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

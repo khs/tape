@@ -1,5 +1,5 @@
-name: Median age — Albuquerque
-shortName: Albuquerque median age
+name: Median age — Albuquerque, NM
+shortName: Albuquerque, NM median age
 description: Median age for the Albuquerque metropolitan statistical area (CBSA 10740). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

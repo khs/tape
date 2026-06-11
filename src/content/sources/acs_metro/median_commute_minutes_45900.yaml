@@ -1,5 +1,5 @@
-name: Median travel time to work — Traverse City
-shortName: Traverse City median commute
+name: Median travel time to work — Traverse City, MI
+shortName: Traverse City, MI median commute
 description: Median travel time to work for the Traverse City metropolitan statistical area (CBSA 45900). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

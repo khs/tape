@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Harrisburg-Carlisle
-shortName: Harrisburg-Carlisle pop. total (mobility)
+name: Total population (mobility-table denominator) — Harrisburg-Carlisle, PA
+shortName: Harrisburg-Carlisle, PA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Harrisburg-Carlisle metropolitan statistical area (CBSA 25420). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

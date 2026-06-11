@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Twin Falls
-shortName: Twin Falls HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Twin Falls, ID
+shortName: Twin Falls, ID HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Twin Falls metropolitan statistical area (CBSA 46300). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

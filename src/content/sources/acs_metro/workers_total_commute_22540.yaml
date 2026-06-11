@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Fond du Lac
-shortName: Fond du Lac workers total (commute)
+name: Total workers (commute-table denominator) — Fond du Lac, WI
+shortName: Fond du Lac, WI workers total (commute)
 description: Total workers (commute-table denominator) for the Fond du Lac metropolitan statistical area (CBSA 22540). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

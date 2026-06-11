@@ -1,5 +1,5 @@
-name: Population under 18 — Daphne-Fairhope-Foley
-shortName: Daphne-Fairhope-Foley pop. under 18
+name: Population under 18 — Daphne-Fairhope-Foley, AL
+shortName: Daphne-Fairhope-Foley, AL pop. under 18
 description: Population under 18 for the Daphne-Fairhope-Foley metropolitan statistical area (CBSA 19300). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

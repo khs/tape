@@ -1,5 +1,5 @@
-name: Foreign-born population — Oklahoma City
-shortName: Oklahoma City foreign-born
+name: Foreign-born population — Oklahoma City, OK
+shortName: Oklahoma City, OK foreign-born
 description: Foreign-born population for the Oklahoma City metropolitan statistical area (CBSA 36420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

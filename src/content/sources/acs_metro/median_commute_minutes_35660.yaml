@@ -1,5 +1,5 @@
-name: Median travel time to work — Niles
-shortName: Niles median commute
+name: Median travel time to work — Niles, MI
+shortName: Niles, MI median commute
 description: Median travel time to work for the Niles metropolitan statistical area (CBSA 35660). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

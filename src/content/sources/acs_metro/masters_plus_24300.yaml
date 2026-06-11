@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Grand Junction
-shortName: Grand Junction masters plus
+name: Adults 25+ with master's degree — Grand Junction, CO
+shortName: Grand Junction, CO masters plus
 description: Adults 25+ with master's degree for the Grand Junction metropolitan statistical area (CBSA 24300). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Sacramento-Roseville-Folsom
-shortName: Sacramento-Roseville-Folsom born same state
+name: Population born in current state of residence — Sacramento-Roseville-Folsom, CA
+shortName: Sacramento-Roseville-Folsom, CA born same state
 description: Population born in current state of residence for the Sacramento-Roseville-Folsom metropolitan statistical area (CBSA 40900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

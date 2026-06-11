@@ -1,5 +1,5 @@
-name: Median age — Elizabethtown
-shortName: Elizabethtown median age
+name: Median age — Elizabethtown, KY
+shortName: Elizabethtown, KY median age
 description: Median age for the Elizabethtown metropolitan statistical area (CBSA 21060). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Bridgeport-Stamford-Danbury
-shortName: Bridgeport-Stamford-Danbury foreign-born
+name: Foreign-born population — Bridgeport-Stamford-Danbury, CT
+shortName: Bridgeport-Stamford-Danbury, CT foreign-born
 description: Foreign-born population for the Bridgeport-Stamford-Danbury metropolitan statistical area (CBSA 14860). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

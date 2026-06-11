@@ -1,5 +1,5 @@
-name: Median travel time to work — Glens Falls
-shortName: Glens Falls median commute
+name: Median travel time to work — Glens Falls, NY
+shortName: Glens Falls, NY median commute
 description: Median travel time to work for the Glens Falls metropolitan statistical area (CBSA 24020). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Lincoln
-shortName: Lincoln pop. under 18
+name: Population under 18 — Lincoln, NE
+shortName: Lincoln, NE pop. under 18
 description: Population under 18 for the Lincoln metropolitan statistical area (CBSA 30700). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

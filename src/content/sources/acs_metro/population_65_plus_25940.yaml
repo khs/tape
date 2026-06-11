@@ -1,5 +1,5 @@
-name: Population 65 and older — Hilton Head Island-Bluffton-Port Royal
-shortName: Hilton Head Island-Bluffton-Port Royal pop. 65+
+name: Population 65 and older — Hilton Head Island-Bluffton-Port Royal, SC
+shortName: Hilton Head Island-Bluffton-Port Royal, SC pop. 65+
 description: Population 65 and older for the Hilton Head Island-Bluffton-Port Royal metropolitan statistical area (CBSA 25940). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

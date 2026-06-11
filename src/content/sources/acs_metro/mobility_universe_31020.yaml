@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Longview-Kelso
-shortName: Longview-Kelso pop. total (mobility)
+name: Total population (mobility-table denominator) — Longview-Kelso, WA
+shortName: Longview-Kelso, WA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Longview-Kelso metropolitan statistical area (CBSA 31020). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Rochester — unemployment rate
-shortName: Rochester unemployment
+name: Rochester, NY — unemployment rate
+shortName: Rochester, NY unemployment
 description: Headline unemployment rate for the Rochester metropolitan statistical
   area (CBSA 40380). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

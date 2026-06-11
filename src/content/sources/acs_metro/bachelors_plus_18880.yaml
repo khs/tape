@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Crestview-Fort Walton Beach-Destin
-shortName: Crestview-Fort Walton Beach-Destin bachelors plus
+name: Adults 25+ with bachelor's degree — Crestview-Fort Walton Beach-Destin, FL
+shortName: Crestview-Fort Walton Beach-Destin, FL bachelors plus
 description: Adults 25+ with bachelor's degree for the Crestview-Fort Walton Beach-Destin metropolitan statistical area (CBSA 18880). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

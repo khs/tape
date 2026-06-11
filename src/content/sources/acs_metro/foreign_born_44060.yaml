@@ -1,5 +1,5 @@
-name: Foreign-born population — Spokane-Spokane Valley
-shortName: Spokane-Spokane Valley foreign-born
+name: Foreign-born population — Spokane-Spokane Valley, WA
+shortName: Spokane-Spokane Valley, WA foreign-born
 description: Foreign-born population for the Spokane-Spokane Valley metropolitan statistical area (CBSA 44060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

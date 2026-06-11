@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Myrtle Beach-Conway-North Myrtle Beach
-shortName: Myrtle Beach-Conway-North Myrtle Beach masters plus
+name: Adults 25+ with master's degree — Myrtle Beach-Conway-North Myrtle Beach, SC
+shortName: Myrtle Beach-Conway-North Myrtle Beach, SC masters plus
 description: Adults 25+ with master's degree for the Myrtle Beach-Conway-North Myrtle Beach metropolitan statistical area (CBSA 34820). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

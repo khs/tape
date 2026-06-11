@@ -1,5 +1,5 @@
-name: Median age — Lafayette
-shortName: Lafayette median age
+name: Median age — Lafayette, LA
+shortName: Lafayette, LA median age
 description: Median age for the Lafayette metropolitan statistical area (CBSA 29180). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

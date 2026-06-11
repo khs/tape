@@ -1,5 +1,5 @@
-name: Population 65 and older — Bismarck
-shortName: Bismarck pop. 65+
+name: Population 65 and older — Bismarck, ND
+shortName: Bismarck, ND pop. 65+
 description: Population 65 and older for the Bismarck metropolitan statistical area (CBSA 13900). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

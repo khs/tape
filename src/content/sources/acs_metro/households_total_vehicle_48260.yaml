@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Weirton-Steubenville
-shortName: Weirton-Steubenville HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Weirton-Steubenville, WV-OH
+shortName: Weirton-Steubenville, WV-OH HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Weirton-Steubenville metropolitan statistical area (CBSA 48260). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

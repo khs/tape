@@ -1,5 +1,5 @@
-name: People in poverty — Palm Bay-Melbourne-Titusville
-shortName: Palm Bay-Melbourne-Titusville poverty count
+name: People in poverty — Palm Bay-Melbourne-Titusville, FL
+shortName: Palm Bay-Melbourne-Titusville, FL poverty count
 description: People in poverty for the Palm Bay-Melbourne-Titusville metropolitan statistical area (CBSA 37340). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

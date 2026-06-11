@@ -1,5 +1,5 @@
-name: Population under 18 — Grand Forks
-shortName: Grand Forks pop. under 18
+name: Population under 18 — Grand Forks, ND-MN
+shortName: Grand Forks, ND-MN pop. under 18
 description: Population under 18 for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

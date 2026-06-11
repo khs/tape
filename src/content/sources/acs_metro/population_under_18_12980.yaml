@@ -1,5 +1,5 @@
-name: Population under 18 — Battle Creek
-shortName: Battle Creek pop. under 18
+name: Population under 18 — Battle Creek, MI
+shortName: Battle Creek, MI pop. under 18
 description: Population under 18 for the Battle Creek metropolitan statistical area (CBSA 12980). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

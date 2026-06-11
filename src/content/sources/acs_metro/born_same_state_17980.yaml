@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Columbus
-shortName: Columbus born same state
+name: Population born in current state of residence — Columbus, GA-AL
+shortName: Columbus, GA-AL born same state
 description: Population born in current state of residence for the Columbus metropolitan statistical area (CBSA 17980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

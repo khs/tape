@@ -1,5 +1,5 @@
-name: Total population — Little Rock-North Little Rock-Conway
-shortName: Little Rock-North Little Rock-Conway population
+name: Total population — Little Rock-North Little Rock-Conway, AR
+shortName: Little Rock-North Little Rock-Conway, AR population
 description: Total population for the Little Rock-North Little Rock-Conway metropolitan statistical area (CBSA 30780). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

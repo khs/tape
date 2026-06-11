@@ -1,5 +1,5 @@
-name: People who moved in the last year — Bozeman
-shortName: Bozeman movers (last yr)
+name: People who moved in the last year — Bozeman, MT
+shortName: Bozeman, MT movers (last yr)
 description: People who moved in the last year for the Bozeman metropolitan statistical area (CBSA 14580). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

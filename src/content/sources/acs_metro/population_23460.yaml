@@ -1,5 +1,5 @@
-name: Total population — Gadsden
-shortName: Gadsden population
+name: Total population — Gadsden, AL
+shortName: Gadsden, AL population
 description: Total population for the Gadsden metropolitan statistical area (CBSA 23460). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

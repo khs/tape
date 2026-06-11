@@ -1,5 +1,5 @@
-name: Population 65 and older — Lafayette-West Lafayette
-shortName: Lafayette-West Lafayette pop. 65+
+name: Population 65 and older — Lafayette-West Lafayette, IN
+shortName: Lafayette-West Lafayette, IN pop. 65+
 description: Population 65 and older for the Lafayette-West Lafayette metropolitan statistical area (CBSA 29200). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

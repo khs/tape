@@ -1,5 +1,5 @@
-name: Median travel time to work — Indianapolis-Carmel-Greenwood
-shortName: Indianapolis-Carmel-Greenwood median commute
+name: Median travel time to work — Indianapolis-Carmel-Greenwood, IN
+shortName: Indianapolis-Carmel-Greenwood, IN median commute
 description: Median travel time to work for the Indianapolis-Carmel-Greenwood metropolitan statistical area (CBSA 26900). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

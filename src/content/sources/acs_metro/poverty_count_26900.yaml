@@ -1,5 +1,5 @@
-name: People in poverty — Indianapolis-Carmel-Greenwood
-shortName: Indianapolis-Carmel-Greenwood poverty count
+name: People in poverty — Indianapolis-Carmel-Greenwood, IN
+shortName: Indianapolis-Carmel-Greenwood, IN poverty count
 description: People in poverty for the Indianapolis-Carmel-Greenwood metropolitan statistical area (CBSA 26900). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

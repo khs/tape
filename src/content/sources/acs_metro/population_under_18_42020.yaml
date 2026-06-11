@@ -1,5 +1,5 @@
-name: Population under 18 — San Luis Obispo-Paso Robles
-shortName: San Luis Obispo-Paso Robles pop. under 18
+name: Population under 18 — San Luis Obispo-Paso Robles, CA
+shortName: San Luis Obispo-Paso Robles, CA pop. under 18
 description: Population under 18 for the San Luis Obispo-Paso Robles metropolitan statistical area (CBSA 42020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

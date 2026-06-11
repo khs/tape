@@ -1,5 +1,5 @@
-name: Population 65 and older — Deltona-Daytona Beach-Ormond Beach
-shortName: Deltona-Daytona Beach-Ormond Beach pop. 65+
+name: Population 65 and older — Deltona-Daytona Beach-Ormond Beach, FL
+shortName: Deltona-Daytona Beach-Ormond Beach, FL pop. 65+
 description: Population 65 and older for the Deltona-Daytona Beach-Ormond Beach metropolitan statistical area (CBSA 19660). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Victoria
-shortName: Victoria population
+name: Total population — Victoria, TX
+shortName: Victoria, TX population
 description: Total population for the Victoria metropolitan statistical area (CBSA 47020). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

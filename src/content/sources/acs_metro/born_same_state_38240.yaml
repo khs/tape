@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Pinehurst-Southern Pines
-shortName: Pinehurst-Southern Pines born same state
+name: Population born in current state of residence — Pinehurst-Southern Pines, NC
+shortName: Pinehurst-Southern Pines, NC born same state
 description: Population born in current state of residence for the Pinehurst-Southern Pines metropolitan statistical area (CBSA 38240). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Corvallis
-shortName: Corvallis poverty count
+name: People in poverty — Corvallis, OR
+shortName: Corvallis, OR poverty count
 description: People in poverty for the Corvallis metropolitan statistical area (CBSA 18700). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

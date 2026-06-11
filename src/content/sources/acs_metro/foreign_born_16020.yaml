@@ -1,5 +1,5 @@
-name: Foreign-born population — Cape Girardeau
-shortName: Cape Girardeau foreign-born
+name: Foreign-born population — Cape Girardeau, MO-IL
+shortName: Cape Girardeau, MO-IL foreign-born
 description: Foreign-born population for the Cape Girardeau metropolitan statistical area (CBSA 16020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

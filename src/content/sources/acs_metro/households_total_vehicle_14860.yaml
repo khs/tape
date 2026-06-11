@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Bridgeport-Stamford-Danbury
-shortName: Bridgeport-Stamford-Danbury HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Bridgeport-Stamford-Danbury, CT
+shortName: Bridgeport-Stamford-Danbury, CT HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Bridgeport-Stamford-Danbury metropolitan statistical area (CBSA 14860). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

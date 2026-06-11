@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Eugene-Springfield
-shortName: Eugene-Springfield born same state
+name: Population born in current state of residence — Eugene-Springfield, OR
+shortName: Eugene-Springfield, OR born same state
 description: Population born in current state of residence for the Eugene-Springfield metropolitan statistical area (CBSA 21660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

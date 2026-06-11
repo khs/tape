@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Bay City
-shortName: Bay City born same state
+name: Population born in current state of residence — Bay City, MI
+shortName: Bay City, MI born same state
 description: Population born in current state of residence for the Bay City metropolitan statistical area (CBSA 13020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

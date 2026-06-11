@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Riverside-San Bernardino-Ontario
-shortName: Riverside-San Bernardino-Ontario pop. total (mobility)
+name: Total population (mobility-table denominator) — Riverside-San Bernardino-Ontario, CA
+shortName: Riverside-San Bernardino-Ontario, CA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Riverside-San Bernardino-Ontario metropolitan statistical area (CBSA 40140). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

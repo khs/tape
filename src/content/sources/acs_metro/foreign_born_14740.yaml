@@ -1,5 +1,5 @@
-name: Foreign-born population — Bremerton-Silverdale-Port Orchard
-shortName: Bremerton-Silverdale-Port Orchard foreign-born
+name: Foreign-born population — Bremerton-Silverdale-Port Orchard, WA
+shortName: Bremerton-Silverdale-Port Orchard, WA foreign-born
 description: Foreign-born population for the Bremerton-Silverdale-Port Orchard metropolitan statistical area (CBSA 14740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

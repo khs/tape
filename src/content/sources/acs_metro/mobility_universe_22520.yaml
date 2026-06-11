@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Florence-Muscle Shoals
-shortName: Florence-Muscle Shoals pop. total (mobility)
+name: Total population (mobility-table denominator) — Florence-Muscle Shoals, AL
+shortName: Florence-Muscle Shoals, AL pop. total (mobility)
 description: Total population (mobility-table denominator) for the Florence-Muscle Shoals metropolitan statistical area (CBSA 22520). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

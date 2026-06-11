@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Milwaukee-Waukesha
-shortName: Milwaukee-Waukesha born same state
+name: Population born in current state of residence — Milwaukee-Waukesha, WI
+shortName: Milwaukee-Waukesha, WI born same state
 description: Population born in current state of residence for the Milwaukee-Waukesha metropolitan statistical area (CBSA 33340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

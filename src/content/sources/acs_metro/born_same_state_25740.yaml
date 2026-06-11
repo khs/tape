@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Helena
-shortName: Helena born same state
+name: Population born in current state of residence — Helena, MT
+shortName: Helena, MT born same state
 description: Population born in current state of residence for the Helena metropolitan statistical area (CBSA 25740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Rochester
-shortName: Rochester pop. under 18
+name: Population under 18 — Rochester, NY
+shortName: Rochester, NY pop. under 18
 description: Population under 18 for the Rochester metropolitan statistical area (CBSA 40380). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

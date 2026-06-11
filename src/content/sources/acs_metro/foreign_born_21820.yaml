@@ -1,5 +1,5 @@
-name: Foreign-born population — Fairbanks-College
-shortName: Fairbanks-College foreign-born
+name: Foreign-born population — Fairbanks-College, AK
+shortName: Fairbanks-College, AK foreign-born
 description: Foreign-born population for the Fairbanks-College metropolitan statistical area (CBSA 21820). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

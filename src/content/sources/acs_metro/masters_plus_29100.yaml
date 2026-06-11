@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — La Crosse-Onalaska
-shortName: La Crosse-Onalaska masters plus
+name: Adults 25+ with master's degree — La Crosse-Onalaska, WI-MN
+shortName: La Crosse-Onalaska, WI-MN masters plus
 description: Adults 25+ with master's degree for the La Crosse-Onalaska metropolitan statistical area (CBSA 29100). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

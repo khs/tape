@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Auburn-Opelika
-shortName: Auburn-Opelika born same state
+name: Population born in current state of residence — Auburn-Opelika, AL
+shortName: Auburn-Opelika, AL born same state
 description: Population born in current state of residence for the Auburn-Opelika metropolitan statistical area (CBSA 12220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

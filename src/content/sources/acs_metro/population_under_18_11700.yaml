@@ -1,5 +1,5 @@
-name: Population under 18 — Asheville
-shortName: Asheville pop. under 18
+name: Population under 18 — Asheville, NC
+shortName: Asheville, NC pop. under 18
 description: Population under 18 for the Asheville metropolitan statistical area (CBSA 11700). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median travel time to work — Cheyenne
-shortName: Cheyenne median commute
+name: Median travel time to work — Cheyenne, WY
+shortName: Cheyenne, WY median commute
 description: Median travel time to work for the Cheyenne metropolitan statistical area (CBSA 16940). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

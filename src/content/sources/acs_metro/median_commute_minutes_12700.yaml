@@ -1,5 +1,5 @@
-name: Median travel time to work — Barnstable Town
-shortName: Barnstable Town median commute
+name: Median travel time to work — Barnstable Town, MA
+shortName: Barnstable Town, MA median commute
 description: Median travel time to work for the Barnstable Town metropolitan statistical area (CBSA 12700). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

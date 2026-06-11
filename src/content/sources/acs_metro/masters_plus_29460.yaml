@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Lakeland-Winter Haven
-shortName: Lakeland-Winter Haven masters plus
+name: Adults 25+ with master's degree — Lakeland-Winter Haven, FL
+shortName: Lakeland-Winter Haven, FL masters plus
 description: Adults 25+ with master's degree for the Lakeland-Winter Haven metropolitan statistical area (CBSA 29460). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

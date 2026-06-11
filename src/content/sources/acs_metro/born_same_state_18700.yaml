@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Corvallis
-shortName: Corvallis born same state
+name: Population born in current state of residence — Corvallis, OR
+shortName: Corvallis, OR born same state
 description: Population born in current state of residence for the Corvallis metropolitan statistical area (CBSA 18700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

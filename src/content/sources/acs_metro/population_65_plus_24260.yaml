@@ -1,5 +1,5 @@
-name: Population 65 and older — Grand Island
-shortName: Grand Island pop. 65+
+name: Population 65 and older — Grand Island, NE
+shortName: Grand Island, NE pop. 65+
 description: Population 65 and older for the Grand Island metropolitan statistical area (CBSA 24260). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

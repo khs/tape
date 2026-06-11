@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Gainesville
-shortName: Gainesville HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Gainesville, GA
+shortName: Gainesville, GA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Gainesville metropolitan statistical area (CBSA 23580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

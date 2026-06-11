@@ -1,5 +1,5 @@
-name: People who moved in the last year — Memphis
-shortName: Memphis movers (last yr)
+name: People who moved in the last year — Memphis, TN-MS-AR
+shortName: Memphis, TN-MS-AR movers (last yr)
 description: People who moved in the last year for the Memphis metropolitan statistical area (CBSA 32820). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

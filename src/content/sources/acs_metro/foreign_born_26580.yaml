@@ -1,5 +1,5 @@
-name: Foreign-born population — Huntington-Ashland
-shortName: Huntington-Ashland foreign-born
+name: Foreign-born population — Huntington-Ashland, WV-KY-OH
+shortName: Huntington-Ashland, WV-KY-OH foreign-born
 description: Foreign-born population for the Huntington-Ashland metropolitan statistical area (CBSA 26580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

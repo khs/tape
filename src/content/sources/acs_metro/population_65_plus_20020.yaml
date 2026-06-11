@@ -1,5 +1,5 @@
-name: Population 65 and older — Dothan
-shortName: Dothan pop. 65+
+name: Population 65 and older — Dothan, AL
+shortName: Dothan, AL pop. 65+
 description: Population 65 and older for the Dothan metropolitan statistical area (CBSA 20020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

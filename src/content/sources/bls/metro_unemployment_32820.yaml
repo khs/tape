@@ -1,5 +1,5 @@
-name: Memphis — unemployment rate
-shortName: Memphis unemployment
+name: Memphis, TN-MS-AR — unemployment rate
+shortName: Memphis, TN-MS-AR unemployment
 description: Headline unemployment rate for the Memphis metropolitan statistical area
   (CBSA 32820). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

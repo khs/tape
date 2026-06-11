@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Virginia Beach-Chesapeake-Norfolk
-shortName: Virginia Beach-Chesapeake-Norfolk HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Virginia Beach-Chesapeake-Norfolk, VA-NC
+shortName: Virginia Beach-Chesapeake-Norfolk, VA-NC HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Virginia Beach-Chesapeake-Norfolk metropolitan statistical area (CBSA 47260). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

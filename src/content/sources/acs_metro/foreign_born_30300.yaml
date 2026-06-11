@@ -1,5 +1,5 @@
-name: Foreign-born population — Lewiston
-shortName: Lewiston foreign-born
+name: Foreign-born population — Lewiston, ID-WA
+shortName: Lewiston, ID-WA foreign-born
 description: Foreign-born population for the Lewiston metropolitan statistical area (CBSA 30300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

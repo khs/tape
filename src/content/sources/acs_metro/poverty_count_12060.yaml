@@ -1,5 +1,5 @@
-name: People in poverty — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell poverty count
+name: People in poverty — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA poverty count
 description: People in poverty for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

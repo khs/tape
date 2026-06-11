@@ -1,5 +1,5 @@
-name: Total population — Spokane-Spokane Valley
-shortName: Spokane-Spokane Valley population
+name: Total population — Spokane-Spokane Valley, WA
+shortName: Spokane-Spokane Valley, WA population
 description: Total population for the Spokane-Spokane Valley metropolitan statistical area (CBSA 44060). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

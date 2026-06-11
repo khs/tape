@@ -1,5 +1,5 @@
-name: Total population — Tuscaloosa
-shortName: Tuscaloosa population
+name: Total population — Tuscaloosa, AL
+shortName: Tuscaloosa, AL population
 description: Total population for the Tuscaloosa metropolitan statistical area (CBSA 46220). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

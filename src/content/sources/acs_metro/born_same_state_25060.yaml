@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Gulfport-Biloxi
-shortName: Gulfport-Biloxi born same state
+name: Population born in current state of residence — Gulfport-Biloxi, MS
+shortName: Gulfport-Biloxi, MS born same state
 description: Population born in current state of residence for the Gulfport-Biloxi metropolitan statistical area (CBSA 25060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

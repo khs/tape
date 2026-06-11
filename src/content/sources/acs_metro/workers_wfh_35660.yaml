@@ -1,5 +1,5 @@
-name: Workers who work from home — Niles
-shortName: Niles WFH workers
+name: Workers who work from home — Niles, MI
+shortName: Niles, MI WFH workers
 description: Workers who work from home for the Niles metropolitan statistical area (CBSA 35660). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

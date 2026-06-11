@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Altoona
-shortName: Altoona HHs no vehicle
+name: Households with no vehicle available — Altoona, PA
+shortName: Altoona, PA HHs no vehicle
 description: Households with no vehicle available for the Altoona metropolitan statistical area (CBSA 11020). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Wilmington
-shortName: Wilmington median age
+name: Median age — Wilmington, NC
+shortName: Wilmington, NC median age
 description: Median age for the Wilmington metropolitan statistical area (CBSA 48900). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

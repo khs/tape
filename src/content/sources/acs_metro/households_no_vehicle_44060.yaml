@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Spokane-Spokane Valley
-shortName: Spokane-Spokane Valley HHs no vehicle
+name: Households with no vehicle available — Spokane-Spokane Valley, WA
+shortName: Spokane-Spokane Valley, WA HHs no vehicle
 description: Households with no vehicle available for the Spokane-Spokane Valley metropolitan statistical area (CBSA 44060). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Clarksville
-shortName: Clarksville median age
+name: Median age — Clarksville, TN-KY
+shortName: Clarksville, TN-KY median age
 description: Median age for the Clarksville metropolitan statistical area (CBSA 17300). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

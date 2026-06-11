@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Naples-Marco Island
-shortName: Naples-Marco Island workers total (commute)
+name: Total workers (commute-table denominator) — Naples-Marco Island, FL
+shortName: Naples-Marco Island, FL workers total (commute)
 description: Total workers (commute-table denominator) for the Naples-Marco Island metropolitan statistical area (CBSA 34940). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

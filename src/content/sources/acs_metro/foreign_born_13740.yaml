@@ -1,5 +1,5 @@
-name: Foreign-born population — Billings
-shortName: Billings foreign-born
+name: Foreign-born population — Billings, MT
+shortName: Billings, MT foreign-born
 description: Foreign-born population for the Billings metropolitan statistical area (CBSA 13740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

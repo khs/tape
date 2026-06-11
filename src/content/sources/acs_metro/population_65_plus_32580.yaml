@@ -1,5 +1,5 @@
-name: Population 65 and older — McAllen-Edinburg-Mission
-shortName: McAllen-Edinburg-Mission pop. 65+
+name: Population 65 and older — McAllen-Edinburg-Mission, TX
+shortName: McAllen-Edinburg-Mission, TX pop. 65+
 description: Population 65 and older for the McAllen-Edinburg-Mission metropolitan statistical area (CBSA 32580). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

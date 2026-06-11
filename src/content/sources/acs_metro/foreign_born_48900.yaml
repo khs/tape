@@ -1,5 +1,5 @@
-name: Foreign-born population — Wilmington
-shortName: Wilmington foreign-born
+name: Foreign-born population — Wilmington, NC
+shortName: Wilmington, NC foreign-born
 description: Foreign-born population for the Wilmington metropolitan statistical area (CBSA 48900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

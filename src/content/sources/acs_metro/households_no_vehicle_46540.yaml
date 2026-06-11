@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Utica-Rome
-shortName: Utica-Rome HHs no vehicle
+name: Households with no vehicle available — Utica-Rome, NY
+shortName: Utica-Rome, NY HHs no vehicle
 description: Households with no vehicle available for the Utica-Rome metropolitan statistical area (CBSA 46540). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Palm Bay-Melbourne-Titusville
-shortName: Palm Bay-Melbourne-Titusville foreign-born
+name: Foreign-born population — Palm Bay-Melbourne-Titusville, FL
+shortName: Palm Bay-Melbourne-Titusville, FL foreign-born
 description: Foreign-born population for the Palm Bay-Melbourne-Titusville metropolitan statistical area (CBSA 37340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

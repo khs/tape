@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Visalia
-shortName: Visalia HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Visalia, CA
+shortName: Visalia, CA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Visalia metropolitan statistical area (CBSA 47300). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Kennewick-Richland
-shortName: Kennewick-Richland median age
+name: Median age — Kennewick-Richland, WA
+shortName: Kennewick-Richland, WA median age
 description: Median age for the Kennewick-Richland metropolitan statistical area (CBSA 28420). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

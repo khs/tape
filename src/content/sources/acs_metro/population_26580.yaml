@@ -1,5 +1,5 @@
-name: Total population — Huntington-Ashland
-shortName: Huntington-Ashland population
+name: Total population — Huntington-Ashland, WV-KY-OH
+shortName: Huntington-Ashland, WV-KY-OH population
 description: Total population for the Huntington-Ashland metropolitan statistical area (CBSA 26580). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

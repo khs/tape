@@ -1,5 +1,5 @@
-name: Total population — Port St. Lucie
-shortName: Port St. Lucie population
+name: Total population — Port St. Lucie, FL
+shortName: Port St. Lucie, FL population
 description: Total population for the Port St. Lucie metropolitan statistical area (CBSA 38940). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

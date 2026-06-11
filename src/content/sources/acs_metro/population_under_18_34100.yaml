@@ -1,5 +1,5 @@
-name: Population under 18 — Morristown
-shortName: Morristown pop. under 18
+name: Population under 18 — Morristown, TN
+shortName: Morristown, TN pop. under 18
 description: Population under 18 for the Morristown metropolitan statistical area (CBSA 34100). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Asheville
-shortName: Asheville population
+name: Total population — Asheville, NC
+shortName: Asheville, NC population
 description: Total population for the Asheville metropolitan statistical area (CBSA 11700). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

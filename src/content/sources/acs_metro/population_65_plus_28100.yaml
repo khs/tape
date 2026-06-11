@@ -1,5 +1,5 @@
-name: Population 65 and older — Kankakee
-shortName: Kankakee pop. 65+
+name: Population 65 and older — Kankakee, IL
+shortName: Kankakee, IL pop. 65+
 description: Population 65 and older for the Kankakee metropolitan statistical area (CBSA 28100). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

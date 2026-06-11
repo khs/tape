@@ -1,5 +1,5 @@
-name: Population under 18 — Little Rock-North Little Rock-Conway
-shortName: Little Rock-North Little Rock-Conway pop. under 18
+name: Population under 18 — Little Rock-North Little Rock-Conway, AR
+shortName: Little Rock-North Little Rock-Conway, AR pop. under 18
 description: Population under 18 for the Little Rock-North Little Rock-Conway metropolitan statistical area (CBSA 30780). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

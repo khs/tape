@@ -1,5 +1,5 @@
-name: Total population — Portland-Vancouver-Hillsboro
-shortName: Portland-Vancouver-Hillsboro population
+name: Total population — Portland-Vancouver-Hillsboro, OR-WA
+shortName: Portland-Vancouver-Hillsboro, OR-WA population
 description: Total population for the Portland-Vancouver-Hillsboro metropolitan statistical area (CBSA 38900). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

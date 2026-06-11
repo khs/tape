@@ -1,5 +1,5 @@
-name: Median travel time to work — Fairbanks-College
-shortName: Fairbanks-College median commute
+name: Median travel time to work — Fairbanks-College, AK
+shortName: Fairbanks-College, AK median commute
 description: Median travel time to work for the Fairbanks-College metropolitan statistical area (CBSA 21820). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

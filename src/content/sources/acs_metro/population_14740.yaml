@@ -1,5 +1,5 @@
-name: Total population — Bremerton-Silverdale-Port Orchard
-shortName: Bremerton-Silverdale-Port Orchard population
+name: Total population — Bremerton-Silverdale-Port Orchard, WA
+shortName: Bremerton-Silverdale-Port Orchard, WA population
 description: Total population for the Bremerton-Silverdale-Port Orchard metropolitan statistical area (CBSA 14740). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

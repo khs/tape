@@ -1,5 +1,5 @@
-name: Median travel time to work — Missoula
-shortName: Missoula median commute
+name: Median travel time to work — Missoula, MT
+shortName: Missoula, MT median commute
 description: Median travel time to work for the Missoula metropolitan statistical area (CBSA 33540). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Albuquerque
-shortName: Albuquerque poverty count
+name: People in poverty — Albuquerque, NM
+shortName: Albuquerque, NM poverty count
 description: People in poverty for the Albuquerque metropolitan statistical area (CBSA 10740). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

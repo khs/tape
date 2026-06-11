@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Tyler
-shortName: Tyler HHs no vehicle
+name: Households with no vehicle available — Tyler, TX
+shortName: Tyler, TX HHs no vehicle
 description: Households with no vehicle available for the Tyler metropolitan statistical area (CBSA 46340). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

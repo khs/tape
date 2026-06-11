@@ -1,5 +1,5 @@
-name: Foreign-born population — Charleston
-shortName: Charleston foreign-born
+name: Foreign-born population — Charleston, WV
+shortName: Charleston, WV foreign-born
 description: Foreign-born population for the Charleston metropolitan statistical area (CBSA 16620). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

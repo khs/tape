@@ -1,5 +1,5 @@
-name: Population 65 and older — Eagle Pass
-shortName: Eagle Pass pop. 65+
+name: Population 65 and older — Eagle Pass, TX
+shortName: Eagle Pass, TX pop. 65+
 description: Population 65 and older for the Eagle Pass metropolitan statistical area (CBSA 20580). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

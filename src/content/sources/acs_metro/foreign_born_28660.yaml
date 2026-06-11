@@ -1,5 +1,5 @@
-name: Foreign-born population — Killeen-Temple
-shortName: Killeen-Temple foreign-born
+name: Foreign-born population — Killeen-Temple, TX
+shortName: Killeen-Temple, TX foreign-born
 description: Foreign-born population for the Killeen-Temple metropolitan statistical area (CBSA 28660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

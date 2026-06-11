@@ -1,5 +1,5 @@
-name: Population 65 and older — New Orleans-Metairie
-shortName: New Orleans-Metairie pop. 65+
+name: Population 65 and older — New Orleans-Metairie, LA
+shortName: New Orleans-Metairie, LA pop. 65+
 description: Population 65 and older for the New Orleans-Metairie metropolitan statistical area (CBSA 35380). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

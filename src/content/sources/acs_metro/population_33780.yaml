@@ -1,5 +1,5 @@
-name: Total population — Monroe
-shortName: Monroe population
+name: Total population — Monroe, MI
+shortName: Monroe, MI population
 description: Total population for the Monroe metropolitan statistical area (CBSA 33780). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

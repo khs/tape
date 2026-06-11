@@ -1,5 +1,5 @@
-name: Foreign-born population — Tucson
-shortName: Tucson foreign-born
+name: Foreign-born population — Tucson, AZ
+shortName: Tucson, AZ foreign-born
 description: Foreign-born population for the Tucson metropolitan statistical area (CBSA 46060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

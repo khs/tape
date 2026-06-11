@@ -1,5 +1,5 @@
-name: Total population — Farmington
-shortName: Farmington population
+name: Total population — Farmington, NM
+shortName: Farmington, NM population
 description: Total population for the Farmington metropolitan statistical area (CBSA 22140). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

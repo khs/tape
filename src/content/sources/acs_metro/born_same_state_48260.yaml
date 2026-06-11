@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Weirton-Steubenville
-shortName: Weirton-Steubenville born same state
+name: Population born in current state of residence — Weirton-Steubenville, WV-OH
+shortName: Weirton-Steubenville, WV-OH born same state
 description: Population born in current state of residence for the Weirton-Steubenville metropolitan statistical area (CBSA 48260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

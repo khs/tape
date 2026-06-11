@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Paducah
-shortName: Paducah masters plus
+name: Adults 25+ with master's degree — Paducah, KY-IL
+shortName: Paducah, KY-IL masters plus
 description: Adults 25+ with master's degree for the Paducah metropolitan statistical area (CBSA 37140). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

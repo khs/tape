@@ -1,5 +1,5 @@
-name: Total population — Pueblo
-shortName: Pueblo population
+name: Total population — Pueblo, CO
+shortName: Pueblo, CO population
 description: Total population for the Pueblo metropolitan statistical area (CBSA 39380). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Modesto — unemployment rate
-shortName: Modesto unemployment
+name: Modesto, CA — unemployment rate
+shortName: Modesto, CA unemployment
 description: Headline unemployment rate for the Modesto metropolitan statistical area
   (CBSA 33700). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

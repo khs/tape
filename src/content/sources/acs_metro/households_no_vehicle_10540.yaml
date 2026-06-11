@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Albany
-shortName: Albany HHs no vehicle
+name: Households with no vehicle available — Albany, OR
+shortName: Albany, OR HHs no vehicle
 description: Households with no vehicle available for the Albany metropolitan statistical area (CBSA 10540). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

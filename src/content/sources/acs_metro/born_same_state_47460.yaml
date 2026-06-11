@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Walla Walla
-shortName: Walla Walla born same state
+name: Population born in current state of residence — Walla Walla, WA
+shortName: Walla Walla, WA born same state
 description: Population born in current state of residence for the Walla Walla metropolitan statistical area (CBSA 47460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

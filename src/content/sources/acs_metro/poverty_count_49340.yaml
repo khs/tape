@@ -1,5 +1,5 @@
-name: People in poverty — Worcester
-shortName: Worcester poverty count
+name: People in poverty — Worcester, MA
+shortName: Worcester, MA poverty count
 description: People in poverty for the Worcester metropolitan statistical area (CBSA 49340). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

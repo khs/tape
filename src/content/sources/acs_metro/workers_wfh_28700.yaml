@@ -1,5 +1,5 @@
-name: Workers who work from home — Kingsport-Bristol
-shortName: Kingsport-Bristol WFH workers
+name: Workers who work from home — Kingsport-Bristol, TN-VA
+shortName: Kingsport-Bristol, TN-VA WFH workers
 description: Workers who work from home for the Kingsport-Bristol metropolitan statistical area (CBSA 28700). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

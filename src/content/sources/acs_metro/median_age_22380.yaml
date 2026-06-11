@@ -1,5 +1,5 @@
-name: Median age — Flagstaff
-shortName: Flagstaff median age
+name: Median age — Flagstaff, AZ
+shortName: Flagstaff, AZ median age
 description: Median age for the Flagstaff metropolitan statistical area (CBSA 22380). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

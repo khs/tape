@@ -1,5 +1,5 @@
-name: Median age — Dayton-Kettering-Beavercreek
-shortName: Dayton-Kettering-Beavercreek median age
+name: Median age — Dayton-Kettering-Beavercreek, OH
+shortName: Dayton-Kettering-Beavercreek, OH median age
 description: Median age for the Dayton-Kettering-Beavercreek metropolitan statistical area (CBSA 19430). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Bismarck
-shortName: Bismarck population
+name: Total population — Bismarck, ND
+shortName: Bismarck, ND population
 description: Total population for the Bismarck metropolitan statistical area (CBSA 13900). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

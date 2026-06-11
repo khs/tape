@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Fort Collins-Loveland
-shortName: Fort Collins-Loveland born same state
+name: Population born in current state of residence — Fort Collins-Loveland, CO
+shortName: Fort Collins-Loveland, CO born same state
 description: Population born in current state of residence for the Fort Collins-Loveland metropolitan statistical area (CBSA 22660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

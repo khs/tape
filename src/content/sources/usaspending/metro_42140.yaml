@@ -1,5 +1,5 @@
-name: Federal spending — Santa Fe
-shortName: Santa Fe
+name: Federal spending — Santa Fe, NM
+shortName: Santa Fe, NM
 description: Total federal outlays where the recipient location is in the Santa Fe
   metropolitan statistical area (CBSA 42140, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

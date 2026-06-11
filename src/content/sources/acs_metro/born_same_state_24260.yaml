@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Grand Island
-shortName: Grand Island born same state
+name: Population born in current state of residence — Grand Island, NE
+shortName: Grand Island, NE born same state
 description: Population born in current state of residence for the Grand Island metropolitan statistical area (CBSA 24260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

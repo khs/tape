@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Raleigh-Cary
-shortName: Raleigh-Cary HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Raleigh-Cary, NC
+shortName: Raleigh-Cary, NC HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Raleigh-Cary metropolitan statistical area (CBSA 39580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Decatur
-shortName: Decatur pop. total (mobility)
+name: Total population (mobility-table denominator) — Decatur, IL
+shortName: Decatur, IL pop. total (mobility)
 description: Total population (mobility-table denominator) for the Decatur metropolitan statistical area (CBSA 19500). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

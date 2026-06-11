@@ -1,5 +1,5 @@
-name: Foreign-born population — Colorado Springs
-shortName: Colorado Springs foreign-born
+name: Foreign-born population — Colorado Springs, CO
+shortName: Colorado Springs, CO foreign-born
 description: Foreign-born population for the Colorado Springs metropolitan statistical area (CBSA 17820). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

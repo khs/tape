@@ -1,5 +1,5 @@
-name: Median age — Fresno
-shortName: Fresno median age
+name: Median age — Fresno, CA
+shortName: Fresno, CA median age
 description: Median age for the Fresno metropolitan statistical area (CBSA 23420). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

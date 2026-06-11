@@ -1,5 +1,5 @@
-name: Foreign-born population — Manchester-Nashua
-shortName: Manchester-Nashua foreign-born
+name: Foreign-born population — Manchester-Nashua, NH
+shortName: Manchester-Nashua, NH foreign-born
 description: Foreign-born population for the Manchester-Nashua metropolitan statistical area (CBSA 31700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

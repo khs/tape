@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Watertown-Fort Drum
-shortName: Watertown-Fort Drum HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Watertown-Fort Drum, NY
+shortName: Watertown-Fort Drum, NY HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Watertown-Fort Drum metropolitan statistical area (CBSA 48060). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Raleigh-Cary
-shortName: Raleigh-Cary foreign-born
+name: Foreign-born population — Raleigh-Cary, NC
+shortName: Raleigh-Cary, NC foreign-born
 description: Foreign-born population for the Raleigh-Cary metropolitan statistical area (CBSA 39580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

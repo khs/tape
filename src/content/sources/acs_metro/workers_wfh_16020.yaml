@@ -1,5 +1,5 @@
-name: Workers who work from home — Cape Girardeau
-shortName: Cape Girardeau WFH workers
+name: Workers who work from home — Cape Girardeau, MO-IL
+shortName: Cape Girardeau, MO-IL WFH workers
 description: Workers who work from home for the Cape Girardeau metropolitan statistical area (CBSA 16020). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

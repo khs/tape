@@ -1,5 +1,5 @@
-name: Total population — Ithaca
-shortName: Ithaca population
+name: Total population — Ithaca, NY
+shortName: Ithaca, NY population
 description: Total population for the Ithaca metropolitan statistical area (CBSA 27060). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

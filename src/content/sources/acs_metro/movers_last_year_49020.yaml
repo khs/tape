@@ -1,5 +1,5 @@
-name: People who moved in the last year — Winchester
-shortName: Winchester movers (last yr)
+name: People who moved in the last year — Winchester, VA-WV
+shortName: Winchester, VA-WV movers (last yr)
 description: People who moved in the last year for the Winchester metropolitan statistical area (CBSA 49020). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

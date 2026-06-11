@@ -1,5 +1,5 @@
-name: Total population — Grand Forks
-shortName: Grand Forks population
+name: Total population — Grand Forks, ND-MN
+shortName: Grand Forks, ND-MN population
 description: Total population for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Johnson City
-shortName: Johnson City foreign-born
+name: Foreign-born population — Johnson City, TN
+shortName: Johnson City, TN foreign-born
 description: Foreign-born population for the Johnson City metropolitan statistical area (CBSA 27740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

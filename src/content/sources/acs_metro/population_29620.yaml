@@ -1,5 +1,5 @@
-name: Total population — Lansing-East Lansing
-shortName: Lansing-East Lansing population
+name: Total population — Lansing-East Lansing, MI
+shortName: Lansing-East Lansing, MI population
 description: Total population for the Lansing-East Lansing metropolitan statistical area (CBSA 29620). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

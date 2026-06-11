@@ -1,5 +1,5 @@
-name: Median age — Bloomington
-shortName: Bloomington median age
+name: Median age — Bloomington, IN
+shortName: Bloomington, IN median age
 description: Median age for the Bloomington metropolitan statistical area (CBSA 14020). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

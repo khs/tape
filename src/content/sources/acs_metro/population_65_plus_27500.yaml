@@ -1,5 +1,5 @@
-name: Population 65 and older — Janesville-Beloit
-shortName: Janesville-Beloit pop. 65+
+name: Population 65 and older — Janesville-Beloit, WI
+shortName: Janesville-Beloit, WI pop. 65+
 description: Population 65 and older for the Janesville-Beloit metropolitan statistical area (CBSA 27500). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

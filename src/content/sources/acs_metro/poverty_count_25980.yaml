@@ -1,5 +1,5 @@
-name: People in poverty — Hinesville
-shortName: Hinesville poverty count
+name: People in poverty — Hinesville, GA
+shortName: Hinesville, GA poverty count
 description: People in poverty for the Hinesville metropolitan statistical area (CBSA 25980). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

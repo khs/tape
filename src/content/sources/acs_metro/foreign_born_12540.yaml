@@ -1,5 +1,5 @@
-name: Foreign-born population — Bakersfield-Delano
-shortName: Bakersfield-Delano foreign-born
+name: Foreign-born population — Bakersfield-Delano, CA
+shortName: Bakersfield-Delano, CA foreign-born
 description: Foreign-born population for the Bakersfield-Delano metropolitan statistical area (CBSA 12540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

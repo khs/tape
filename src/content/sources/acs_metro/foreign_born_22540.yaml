@@ -1,5 +1,5 @@
-name: Foreign-born population — Fond du Lac
-shortName: Fond du Lac foreign-born
+name: Foreign-born population — Fond du Lac, WI
+shortName: Fond du Lac, WI foreign-born
 description: Foreign-born population for the Fond du Lac metropolitan statistical area (CBSA 22540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

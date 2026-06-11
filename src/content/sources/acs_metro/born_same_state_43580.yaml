@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Sioux City
-shortName: Sioux City born same state
+name: Population born in current state of residence — Sioux City, IA-NE-SD
+shortName: Sioux City, IA-NE-SD born same state
 description: Population born in current state of residence for the Sioux City metropolitan statistical area (CBSA 43580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

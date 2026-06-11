@@ -1,5 +1,5 @@
-name: Foreign-born population — Boise City
-shortName: Boise City foreign-born
+name: Foreign-born population — Boise City, ID
+shortName: Boise City, ID foreign-born
 description: Foreign-born population for the Boise City metropolitan statistical area (CBSA 14260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

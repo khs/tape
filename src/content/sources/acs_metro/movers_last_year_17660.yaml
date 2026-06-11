@@ -1,5 +1,5 @@
-name: People who moved in the last year — Coeur d'Alene
-shortName: Coeur d'Alene movers (last yr)
+name: People who moved in the last year — Coeur d'Alene, ID
+shortName: Coeur d'Alene, ID movers (last yr)
 description: People who moved in the last year for the Coeur d'Alene metropolitan statistical area (CBSA 17660). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

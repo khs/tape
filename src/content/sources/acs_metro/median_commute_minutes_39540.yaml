@@ -1,5 +1,5 @@
-name: Median travel time to work — Racine-Mount Pleasant
-shortName: Racine-Mount Pleasant median commute
+name: Median travel time to work — Racine-Mount Pleasant, WI
+shortName: Racine-Mount Pleasant, WI median commute
 description: Median travel time to work for the Racine-Mount Pleasant metropolitan statistical area (CBSA 39540). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

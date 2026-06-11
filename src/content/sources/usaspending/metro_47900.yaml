@@ -1,5 +1,5 @@
-name: Federal spending — Washington-Arlington-Alexandria
-shortName: Washington-Arlington-Alexandria
+name: Federal spending — Washington-Arlington-Alexandria, DC-VA-MD-WV
+shortName: Washington-Arlington-Alexandria, DC-VA-MD-WV
 description: Total federal outlays where the recipient location is in the Washington-Arlington-Alexandria
   metropolitan statistical area (CBSA 47900, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Detroit-Warren-Dearborn
-shortName: Detroit-Warren-Dearborn HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Detroit-Warren-Dearborn, MI
+shortName: Detroit-Warren-Dearborn, MI HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Detroit-Warren-Dearborn metropolitan statistical area (CBSA 19820). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

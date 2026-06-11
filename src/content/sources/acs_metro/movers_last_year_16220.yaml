@@ -1,5 +1,5 @@
-name: People who moved in the last year — Casper
-shortName: Casper movers (last yr)
+name: People who moved in the last year — Casper, WY
+shortName: Casper, WY movers (last yr)
 description: People who moved in the last year for the Casper metropolitan statistical area (CBSA 16220). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

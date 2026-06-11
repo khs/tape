@@ -1,5 +1,5 @@
-name: Foreign-born population — Omaha
-shortName: Omaha foreign-born
+name: Foreign-born population — Omaha, NE-IA
+shortName: Omaha, NE-IA foreign-born
 description: Foreign-born population for the Omaha metropolitan statistical area (CBSA 36540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

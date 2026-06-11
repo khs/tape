@@ -1,5 +1,5 @@
-name: Median age — Salt Lake City-Murray
-shortName: Salt Lake City-Murray median age
+name: Median age — Salt Lake City-Murray, UT
+shortName: Salt Lake City-Murray, UT median age
 description: Median age for the Salt Lake City-Murray metropolitan statistical area (CBSA 41620). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

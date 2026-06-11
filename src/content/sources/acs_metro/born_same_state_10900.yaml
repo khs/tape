@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Allentown-Bethlehem-Easton
-shortName: Allentown-Bethlehem-Easton born same state
+name: Population born in current state of residence — Allentown-Bethlehem-Easton, PA-NJ
+shortName: Allentown-Bethlehem-Easton, PA-NJ born same state
 description: Population born in current state of residence for the Allentown-Bethlehem-Easton metropolitan statistical area (CBSA 10900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

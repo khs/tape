@@ -1,5 +1,5 @@
-name: Federal spending — St. Louis
-shortName: St. Louis
+name: Federal spending — St. Louis, MO-IL
+shortName: St. Louis, MO-IL
 description: Total federal outlays where the recipient location is in the St. Louis
   metropolitan statistical area (CBSA 41180, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

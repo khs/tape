@@ -1,5 +1,5 @@
-name: Foreign-born population — Kokomo
-shortName: Kokomo foreign-born
+name: Foreign-born population — Kokomo, IN
+shortName: Kokomo, IN foreign-born
 description: Foreign-born population for the Kokomo metropolitan statistical area (CBSA 29020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

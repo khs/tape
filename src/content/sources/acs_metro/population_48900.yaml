@@ -1,5 +1,5 @@
-name: Total population — Wilmington
-shortName: Wilmington population
+name: Total population — Wilmington, NC
+shortName: Wilmington, NC population
 description: Total population for the Wilmington metropolitan statistical area (CBSA 48900). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Vineland
-shortName: Vineland population
+name: Total population — Vineland, NJ
+shortName: Vineland, NJ population
 description: Total population for the Vineland metropolitan statistical area (CBSA 47220). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

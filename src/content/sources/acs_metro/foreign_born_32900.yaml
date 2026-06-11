@@ -1,5 +1,5 @@
-name: Foreign-born population — Merced
-shortName: Merced foreign-born
+name: Foreign-born population — Merced, CA
+shortName: Merced, CA foreign-born
 description: Foreign-born population for the Merced metropolitan statistical area (CBSA 32900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

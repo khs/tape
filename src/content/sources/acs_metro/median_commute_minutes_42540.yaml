@@ -1,5 +1,5 @@
-name: Median travel time to work — Scranton--Wilkes-Barre
-shortName: Scranton--Wilkes-Barre median commute
+name: Median travel time to work — Scranton--Wilkes-Barre, PA
+shortName: Scranton--Wilkes-Barre, PA median commute
 description: Median travel time to work for the Scranton--Wilkes-Barre metropolitan statistical area (CBSA 42540). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

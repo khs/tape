@@ -1,5 +1,5 @@
-name: People who moved in the last year — College Station-Bryan
-shortName: College Station-Bryan movers (last yr)
+name: People who moved in the last year — College Station-Bryan, TX
+shortName: College Station-Bryan, TX movers (last yr)
 description: People who moved in the last year for the College Station-Bryan metropolitan statistical area (CBSA 17780). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

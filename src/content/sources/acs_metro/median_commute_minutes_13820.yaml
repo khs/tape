@@ -1,5 +1,5 @@
-name: Median travel time to work — Birmingham
-shortName: Birmingham median commute
+name: Median travel time to work — Birmingham, AL
+shortName: Birmingham, AL median commute
 description: Median travel time to work for the Birmingham metropolitan statistical area (CBSA 13820). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

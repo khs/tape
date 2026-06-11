@@ -1,5 +1,5 @@
-name: Foreign-born population — Rochester
-shortName: Rochester foreign-born
+name: Foreign-born population — Rochester, MN
+shortName: Rochester, MN foreign-born
 description: Foreign-born population for the Rochester metropolitan statistical area (CBSA 40340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

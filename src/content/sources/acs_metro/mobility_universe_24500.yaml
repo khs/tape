@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Great Falls
-shortName: Great Falls pop. total (mobility)
+name: Total population (mobility-table denominator) — Great Falls, MT
+shortName: Great Falls, MT pop. total (mobility)
 description: Total population (mobility-table denominator) for the Great Falls metropolitan statistical area (CBSA 24500). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

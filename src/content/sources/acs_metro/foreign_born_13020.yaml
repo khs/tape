@@ -1,5 +1,5 @@
-name: Foreign-born population — Bay City
-shortName: Bay City foreign-born
+name: Foreign-born population — Bay City, MI
+shortName: Bay City, MI foreign-born
 description: Foreign-born population for the Bay City metropolitan statistical area (CBSA 13020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

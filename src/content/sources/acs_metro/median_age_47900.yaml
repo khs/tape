@@ -1,5 +1,5 @@
-name: Median age — Washington-Arlington-Alexandria
-shortName: Washington-Arlington-Alexandria median age
+name: Median age — Washington-Arlington-Alexandria, DC-VA-MD-WV
+shortName: Washington-Arlington-Alexandria, DC-VA-MD-WV median age
 description: Median age for the Washington-Arlington-Alexandria metropolitan statistical area (CBSA 47900). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

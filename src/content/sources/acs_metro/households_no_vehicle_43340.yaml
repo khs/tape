@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Shreveport-Bossier City
-shortName: Shreveport-Bossier City HHs no vehicle
+name: Households with no vehicle available — Shreveport-Bossier City, LA
+shortName: Shreveport-Bossier City, LA HHs no vehicle
 description: Households with no vehicle available for the Shreveport-Bossier City metropolitan statistical area (CBSA 43340). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median travel time to work — Riverside-San Bernardino-Ontario
-shortName: Riverside-San Bernardino-Ontario median commute
+name: Median travel time to work — Riverside-San Bernardino-Ontario, CA
+shortName: Riverside-San Bernardino-Ontario, CA median commute
 description: Median travel time to work for the Riverside-San Bernardino-Ontario metropolitan statistical area (CBSA 40140). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

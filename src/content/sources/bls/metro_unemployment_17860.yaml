@@ -1,5 +1,5 @@
-name: Columbia — unemployment rate
-shortName: Columbia unemployment
+name: Columbia, MO — unemployment rate
+shortName: Columbia, MO unemployment
 description: Headline unemployment rate for the Columbia metropolitan statistical
   area (CBSA 17860). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

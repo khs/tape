@@ -1,5 +1,5 @@
-name: People who moved in the last year — Rochester
-shortName: Rochester movers (last yr)
+name: People who moved in the last year — Rochester, MN
+shortName: Rochester, MN movers (last yr)
 description: People who moved in the last year for the Rochester metropolitan statistical area (CBSA 40340). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

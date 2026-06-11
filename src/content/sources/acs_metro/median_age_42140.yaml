@@ -1,5 +1,5 @@
-name: Median age — Santa Fe
-shortName: Santa Fe median age
+name: Median age — Santa Fe, NM
+shortName: Santa Fe, NM median age
 description: Median age for the Santa Fe metropolitan statistical area (CBSA 42140). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

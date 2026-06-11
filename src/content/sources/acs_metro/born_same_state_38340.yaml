@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Pittsfield
-shortName: Pittsfield born same state
+name: Population born in current state of residence — Pittsfield, MA
+shortName: Pittsfield, MA born same state
 description: Population born in current state of residence for the Pittsfield metropolitan statistical area (CBSA 38340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

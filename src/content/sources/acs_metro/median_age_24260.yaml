@@ -1,5 +1,5 @@
-name: Median age — Grand Island
-shortName: Grand Island median age
+name: Median age — Grand Island, NE
+shortName: Grand Island, NE median age
 description: Median age for the Grand Island metropolitan statistical area (CBSA 24260). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

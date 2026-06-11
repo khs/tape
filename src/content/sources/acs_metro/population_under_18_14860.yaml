@@ -1,5 +1,5 @@
-name: Population under 18 — Bridgeport-Stamford-Danbury
-shortName: Bridgeport-Stamford-Danbury pop. under 18
+name: Population under 18 — Bridgeport-Stamford-Danbury, CT
+shortName: Bridgeport-Stamford-Danbury, CT pop. under 18
 description: Population under 18 for the Bridgeport-Stamford-Danbury metropolitan statistical area (CBSA 14860). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Greeley
-shortName: Greeley foreign-born
+name: Foreign-born population — Greeley, CO
+shortName: Greeley, CO foreign-born
 description: Foreign-born population for the Greeley metropolitan statistical area (CBSA 24540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

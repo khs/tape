@@ -1,5 +1,5 @@
-name: Foreign-born population — Kingston
-shortName: Kingston foreign-born
+name: Foreign-born population — Kingston, NY
+shortName: Kingston, NY foreign-born
 description: Foreign-born population for the Kingston metropolitan statistical area (CBSA 28740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

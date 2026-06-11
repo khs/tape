@@ -1,5 +1,5 @@
-name: Median age — Cincinnati
-shortName: Cincinnati median age
+name: Median age — Cincinnati, OH-KY-IN
+shortName: Cincinnati, OH-KY-IN median age
 description: Median age for the Cincinnati metropolitan statistical area (CBSA 17140). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

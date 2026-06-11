@@ -1,5 +1,5 @@
-name: Total population — Longview-Kelso
-shortName: Longview-Kelso population
+name: Total population — Longview-Kelso, WA
+shortName: Longview-Kelso, WA population
 description: Total population for the Longview-Kelso metropolitan statistical area (CBSA 31020). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

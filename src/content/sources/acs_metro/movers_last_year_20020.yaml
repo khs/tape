@@ -1,5 +1,5 @@
-name: People who moved in the last year — Dothan
-shortName: Dothan movers (last yr)
+name: People who moved in the last year — Dothan, AL
+shortName: Dothan, AL movers (last yr)
 description: People who moved in the last year for the Dothan metropolitan statistical area (CBSA 20020). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

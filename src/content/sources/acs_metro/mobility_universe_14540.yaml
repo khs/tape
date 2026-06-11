@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Bowling Green
-shortName: Bowling Green pop. total (mobility)
+name: Total population (mobility-table denominator) — Bowling Green, KY
+shortName: Bowling Green, KY pop. total (mobility)
 description: Total population (mobility-table denominator) for the Bowling Green metropolitan statistical area (CBSA 14540). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

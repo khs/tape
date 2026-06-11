@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Chicago-Naperville-Elgin
-shortName: Chicago-Naperville-Elgin born same state
+name: Population born in current state of residence — Chicago-Naperville-Elgin, IL-IN
+shortName: Chicago-Naperville-Elgin, IL-IN born same state
 description: Population born in current state of residence for the Chicago-Naperville-Elgin metropolitan statistical area (CBSA 16980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

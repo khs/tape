@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Myrtle Beach-Conway-North Myrtle Beach
-shortName: Myrtle Beach-Conway-North Myrtle Beach HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Myrtle Beach-Conway-North Myrtle Beach, SC
+shortName: Myrtle Beach-Conway-North Myrtle Beach, SC HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Myrtle Beach-Conway-North Myrtle Beach metropolitan statistical area (CBSA 34820). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

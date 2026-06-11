@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Mayagüez
-shortName: Mayagüez HHs no vehicle
+name: Households with no vehicle available — Mayagüez, PR
+shortName: Mayagüez, PR HHs no vehicle
 description: Households with no vehicle available for the Mayagüez metropolitan statistical area (CBSA 32420). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

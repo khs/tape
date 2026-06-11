@@ -1,5 +1,5 @@
-name: Foreign-born population — Lincoln
-shortName: Lincoln foreign-born
+name: Foreign-born population — Lincoln, NE
+shortName: Lincoln, NE foreign-born
 description: Foreign-born population for the Lincoln metropolitan statistical area (CBSA 30700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

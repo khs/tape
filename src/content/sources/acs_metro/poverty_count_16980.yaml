@@ -1,5 +1,5 @@
-name: People in poverty — Chicago-Naperville-Elgin
-shortName: Chicago-Naperville-Elgin poverty count
+name: People in poverty — Chicago-Naperville-Elgin, IL-IN
+shortName: Chicago-Naperville-Elgin, IL-IN poverty count
 description: People in poverty for the Chicago-Naperville-Elgin metropolitan statistical area (CBSA 16980). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

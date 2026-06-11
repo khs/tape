@@ -1,5 +1,5 @@
-name: People in poverty — Baton Rouge
-shortName: Baton Rouge poverty count
+name: People in poverty — Baton Rouge, LA
+shortName: Baton Rouge, LA poverty count
 description: People in poverty for the Baton Rouge metropolitan statistical area (CBSA 12940). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

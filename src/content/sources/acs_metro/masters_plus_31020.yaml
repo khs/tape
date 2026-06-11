@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Longview-Kelso
-shortName: Longview-Kelso masters plus
+name: Adults 25+ with master's degree — Longview-Kelso, WA
+shortName: Longview-Kelso, WA masters plus
 description: Adults 25+ with master's degree for the Longview-Kelso metropolitan statistical area (CBSA 31020). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

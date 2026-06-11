@@ -1,5 +1,5 @@
-name: Foreign-born population — Boston-Cambridge-Newton
-shortName: Boston-Cambridge-Newton foreign-born
+name: Foreign-born population — Boston-Cambridge-Newton, MA-NH
+shortName: Boston-Cambridge-Newton, MA-NH foreign-born
 description: Foreign-born population for the Boston-Cambridge-Newton metropolitan statistical area (CBSA 14460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

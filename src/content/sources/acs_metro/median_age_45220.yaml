@@ -1,5 +1,5 @@
-name: Median age — Tallahassee
-shortName: Tallahassee median age
+name: Median age — Tallahassee, FL
+shortName: Tallahassee, FL median age
 description: Median age for the Tallahassee metropolitan statistical area (CBSA 45220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

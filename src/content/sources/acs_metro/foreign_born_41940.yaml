@@ -1,5 +1,5 @@
-name: Foreign-born population — San Jose-Sunnyvale-Santa Clara
-shortName: San Jose-Sunnyvale-Santa Clara foreign-born
+name: Foreign-born population — San Jose-Sunnyvale-Santa Clara, CA
+shortName: San Jose-Sunnyvale-Santa Clara, CA foreign-born
 description: Foreign-born population for the San Jose-Sunnyvale-Santa Clara metropolitan statistical area (CBSA 41940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Erie
-shortName: Erie HHs no vehicle
+name: Households with no vehicle available — Erie, PA
+shortName: Erie, PA HHs no vehicle
 description: Households with no vehicle available for the Erie metropolitan statistical area (CBSA 21500). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

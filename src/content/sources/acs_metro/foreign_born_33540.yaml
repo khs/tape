@@ -1,5 +1,5 @@
-name: Foreign-born population — Missoula
-shortName: Missoula foreign-born
+name: Foreign-born population — Missoula, MT
+shortName: Missoula, MT foreign-born
 description: Foreign-born population for the Missoula metropolitan statistical area (CBSA 33540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Dothan
-shortName: Dothan workers total (commute)
+name: Total workers (commute-table denominator) — Dothan, AL
+shortName: Dothan, AL workers total (commute)
 description: Total workers (commute-table denominator) for the Dothan metropolitan statistical area (CBSA 20020). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

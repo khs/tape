@@ -1,5 +1,5 @@
-name: People in poverty — Hot Springs
-shortName: Hot Springs poverty count
+name: People in poverty — Hot Springs, AR
+shortName: Hot Springs, AR poverty count
 description: People in poverty for the Hot Springs metropolitan statistical area (CBSA 26300). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Baltimore-Columbia-Towson
-shortName: Baltimore-Columbia-Towson HHs no vehicle
+name: Households with no vehicle available — Baltimore-Columbia-Towson, MD
+shortName: Baltimore-Columbia-Towson, MD HHs no vehicle
 description: Households with no vehicle available for the Baltimore-Columbia-Towson metropolitan statistical area (CBSA 12580). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

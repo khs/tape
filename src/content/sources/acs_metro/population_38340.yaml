@@ -1,5 +1,5 @@
-name: Total population — Pittsfield
-shortName: Pittsfield population
+name: Total population — Pittsfield, MA
+shortName: Pittsfield, MA population
 description: Total population for the Pittsfield metropolitan statistical area (CBSA 38340). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Fort Collins-Loveland
-shortName: Fort Collins-Loveland foreign-born
+name: Foreign-born population — Fort Collins-Loveland, CO
+shortName: Fort Collins-Loveland, CO foreign-born
 description: Foreign-born population for the Fort Collins-Loveland metropolitan statistical area (CBSA 22660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

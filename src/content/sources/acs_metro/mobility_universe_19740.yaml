@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Denver-Aurora-Centennial
-shortName: Denver-Aurora-Centennial pop. total (mobility)
+name: Total population (mobility-table denominator) — Denver-Aurora-Centennial, CO
+shortName: Denver-Aurora-Centennial, CO pop. total (mobility)
 description: Total population (mobility-table denominator) for the Denver-Aurora-Centennial metropolitan statistical area (CBSA 19740). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

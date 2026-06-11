@@ -1,5 +1,5 @@
-name: Total population — Evansville
-shortName: Evansville population
+name: Total population — Evansville, IN
+shortName: Evansville, IN population
 description: Total population for the Evansville metropolitan statistical area (CBSA 21780). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

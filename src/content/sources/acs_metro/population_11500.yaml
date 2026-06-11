@@ -1,5 +1,5 @@
-name: Total population — Anniston-Oxford
-shortName: Anniston-Oxford population
+name: Total population — Anniston-Oxford, AL
+shortName: Anniston-Oxford, AL population
 description: Total population for the Anniston-Oxford metropolitan statistical area (CBSA 11500). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

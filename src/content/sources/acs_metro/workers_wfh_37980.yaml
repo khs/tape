@@ -1,5 +1,5 @@
-name: Workers who work from home — Philadelphia-Camden-Wilmington
-shortName: Philadelphia-Camden-Wilmington WFH workers
+name: Workers who work from home — Philadelphia-Camden-Wilmington, PA-NJ-DE-MD
+shortName: Philadelphia-Camden-Wilmington, PA-NJ-DE-MD WFH workers
 description: Workers who work from home for the Philadelphia-Camden-Wilmington metropolitan statistical area (CBSA 37980). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

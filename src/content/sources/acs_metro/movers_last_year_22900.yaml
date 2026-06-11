@@ -1,5 +1,5 @@
-name: People who moved in the last year — Fort Smith
-shortName: Fort Smith movers (last yr)
+name: People who moved in the last year — Fort Smith, AR-OK
+shortName: Fort Smith, AR-OK movers (last yr)
 description: People who moved in the last year for the Fort Smith metropolitan statistical area (CBSA 22900). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

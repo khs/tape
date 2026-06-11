@@ -1,5 +1,5 @@
-name: Total population — Morgantown
-shortName: Morgantown population
+name: Total population — Morgantown, WV
+shortName: Morgantown, WV population
 description: Total population for the Morgantown metropolitan statistical area (CBSA 34060). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

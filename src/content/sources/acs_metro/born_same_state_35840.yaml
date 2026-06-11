@@ -1,5 +1,5 @@
-name: Population born in current state of residence — North Port-Bradenton-Sarasota
-shortName: North Port-Bradenton-Sarasota born same state
+name: Population born in current state of residence — North Port-Bradenton-Sarasota, FL
+shortName: North Port-Bradenton-Sarasota, FL born same state
 description: Population born in current state of residence for the North Port-Bradenton-Sarasota metropolitan statistical area (CBSA 35840). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

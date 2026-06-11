@@ -1,5 +1,5 @@
-name: People who moved in the last year — Hartford-West Hartford-East Hartford
-shortName: Hartford-West Hartford-East Hartford movers (last yr)
+name: People who moved in the last year — Hartford-West Hartford-East Hartford, CT
+shortName: Hartford-West Hartford-East Hartford, CT movers (last yr)
 description: People who moved in the last year for the Hartford-West Hartford-East Hartford metropolitan statistical area (CBSA 25540). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

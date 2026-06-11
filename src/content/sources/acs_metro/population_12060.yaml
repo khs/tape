@@ -1,5 +1,5 @@
-name: Total population — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell population
+name: Total population — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA population
 description: Total population for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

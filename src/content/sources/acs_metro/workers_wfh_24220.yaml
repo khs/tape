@@ -1,5 +1,5 @@
-name: Workers who work from home — Grand Forks
-shortName: Grand Forks WFH workers
+name: Workers who work from home — Grand Forks, ND-MN
+shortName: Grand Forks, ND-MN WFH workers
 description: Workers who work from home for the Grand Forks metropolitan statistical area (CBSA 24220). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

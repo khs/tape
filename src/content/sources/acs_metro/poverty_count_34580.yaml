@@ -1,5 +1,5 @@
-name: People in poverty — Mount Vernon-Anacortes
-shortName: Mount Vernon-Anacortes poverty count
+name: People in poverty — Mount Vernon-Anacortes, WA
+shortName: Mount Vernon-Anacortes, WA poverty count
 description: People in poverty for the Mount Vernon-Anacortes metropolitan statistical area (CBSA 34580). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

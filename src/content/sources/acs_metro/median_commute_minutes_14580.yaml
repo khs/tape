@@ -1,5 +1,5 @@
-name: Median travel time to work — Bozeman
-shortName: Bozeman median commute
+name: Median travel time to work — Bozeman, MT
+shortName: Bozeman, MT median commute
 description: Median travel time to work for the Bozeman metropolitan statistical area (CBSA 14580). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

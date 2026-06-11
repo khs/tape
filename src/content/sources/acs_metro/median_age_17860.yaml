@@ -1,5 +1,5 @@
-name: Median age — Columbia
-shortName: Columbia median age
+name: Median age — Columbia, MO
+shortName: Columbia, MO median age
 description: Median age for the Columbia metropolitan statistical area (CBSA 17860). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Albany — unemployment rate
-shortName: Albany unemployment
+name: Albany, GA — unemployment rate
+shortName: Albany, GA unemployment
 description: Headline unemployment rate for the Albany metropolitan statistical area
   (CBSA 10500). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

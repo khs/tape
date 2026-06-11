@@ -1,5 +1,5 @@
-name: Foreign-born population — Yuba City
-shortName: Yuba City foreign-born
+name: Foreign-born population — Yuba City, CA
+shortName: Yuba City, CA foreign-born
 description: Foreign-born population for the Yuba City metropolitan statistical area (CBSA 49700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

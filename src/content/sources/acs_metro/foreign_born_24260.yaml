@@ -1,5 +1,5 @@
-name: Foreign-born population — Grand Island
-shortName: Grand Island foreign-born
+name: Foreign-born population — Grand Island, NE
+shortName: Grand Island, NE foreign-born
 description: Foreign-born population for the Grand Island metropolitan statistical area (CBSA 24260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

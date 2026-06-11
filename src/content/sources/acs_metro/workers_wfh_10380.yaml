@@ -1,5 +1,5 @@
-name: Workers who work from home — Aguadilla
-shortName: Aguadilla WFH workers
+name: Workers who work from home — Aguadilla, PR
+shortName: Aguadilla, PR WFH workers
 description: Workers who work from home for the Aguadilla metropolitan statistical area (CBSA 10380). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

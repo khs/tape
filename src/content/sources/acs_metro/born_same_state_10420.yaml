@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Akron
-shortName: Akron born same state
+name: Population born in current state of residence — Akron, OH
+shortName: Akron, OH born same state
 description: Population born in current state of residence for the Akron metropolitan statistical area (CBSA 10420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

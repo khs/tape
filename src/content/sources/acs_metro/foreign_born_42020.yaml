@@ -1,5 +1,5 @@
-name: Foreign-born population — San Luis Obispo-Paso Robles
-shortName: San Luis Obispo-Paso Robles foreign-born
+name: Foreign-born population — San Luis Obispo-Paso Robles, CA
+shortName: San Luis Obispo-Paso Robles, CA foreign-born
 description: Foreign-born population for the San Luis Obispo-Paso Robles metropolitan statistical area (CBSA 42020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

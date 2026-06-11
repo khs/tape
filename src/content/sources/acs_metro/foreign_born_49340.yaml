@@ -1,5 +1,5 @@
-name: Foreign-born population — Worcester
-shortName: Worcester foreign-born
+name: Foreign-born population — Worcester, MA
+shortName: Worcester, MA foreign-born
 description: Foreign-born population for the Worcester metropolitan statistical area (CBSA 49340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

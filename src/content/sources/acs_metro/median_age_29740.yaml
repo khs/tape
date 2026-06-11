@@ -1,5 +1,5 @@
-name: Median age — Las Cruces
-shortName: Las Cruces median age
+name: Median age — Las Cruces, NM
+shortName: Las Cruces, NM median age
 description: Median age for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

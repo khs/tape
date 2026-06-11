@@ -1,5 +1,5 @@
-name: People in poverty — Daphne-Fairhope-Foley
-shortName: Daphne-Fairhope-Foley poverty count
+name: People in poverty — Daphne-Fairhope-Foley, AL
+shortName: Daphne-Fairhope-Foley, AL poverty count
 description: People in poverty for the Daphne-Fairhope-Foley metropolitan statistical area (CBSA 19300). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Napa
-shortName: Napa foreign-born
+name: Foreign-born population — Napa, CA
+shortName: Napa, CA foreign-born
 description: Foreign-born population for the Napa metropolitan statistical area (CBSA 34900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

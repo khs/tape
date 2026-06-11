@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Missoula
-shortName: Missoula HHs no vehicle
+name: Households with no vehicle available — Missoula, MT
+shortName: Missoula, MT HHs no vehicle
 description: Households with no vehicle available for the Missoula metropolitan statistical area (CBSA 33540). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

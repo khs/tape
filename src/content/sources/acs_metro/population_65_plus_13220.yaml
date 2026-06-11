@@ -1,5 +1,5 @@
-name: Population 65 and older — Beckley
-shortName: Beckley pop. 65+
+name: Population 65 and older — Beckley, WV
+shortName: Beckley, WV pop. 65+
 description: Population 65 and older for the Beckley metropolitan statistical area (CBSA 13220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

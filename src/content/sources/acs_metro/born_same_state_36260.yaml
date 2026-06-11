@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Ogden
-shortName: Ogden born same state
+name: Population born in current state of residence — Ogden, UT
+shortName: Ogden, UT born same state
 description: Population born in current state of residence for the Ogden metropolitan statistical area (CBSA 36260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

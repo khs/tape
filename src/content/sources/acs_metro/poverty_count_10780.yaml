@@ -1,5 +1,5 @@
-name: People in poverty — Alexandria
-shortName: Alexandria poverty count
+name: People in poverty — Alexandria, LA
+shortName: Alexandria, LA poverty count
 description: People in poverty for the Alexandria metropolitan statistical area (CBSA 10780). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

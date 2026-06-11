@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Kahului-Wailuku
-shortName: Kahului-Wailuku born same state
+name: Population born in current state of residence — Kahului-Wailuku, HI
+shortName: Kahului-Wailuku, HI born same state
 description: Population born in current state of residence for the Kahului-Wailuku metropolitan statistical area (CBSA 27980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

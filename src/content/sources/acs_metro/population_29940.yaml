@@ -1,5 +1,5 @@
-name: Total population — Lawrence
-shortName: Lawrence population
+name: Total population — Lawrence, KS
+shortName: Lawrence, KS population
 description: Total population for the Lawrence metropolitan statistical area (CBSA 29940). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Waterloo-Cedar Falls
-shortName: Waterloo-Cedar Falls foreign-born
+name: Foreign-born population — Waterloo-Cedar Falls, IA
+shortName: Waterloo-Cedar Falls, IA foreign-born
 description: Foreign-born population for the Waterloo-Cedar Falls metropolitan statistical area (CBSA 47940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

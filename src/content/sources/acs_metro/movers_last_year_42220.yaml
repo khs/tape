@@ -1,5 +1,5 @@
-name: People who moved in the last year — Santa Rosa-Petaluma
-shortName: Santa Rosa-Petaluma movers (last yr)
+name: People who moved in the last year — Santa Rosa-Petaluma, CA
+shortName: Santa Rosa-Petaluma, CA movers (last yr)
 description: People who moved in the last year for the Santa Rosa-Petaluma metropolitan statistical area (CBSA 42220). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

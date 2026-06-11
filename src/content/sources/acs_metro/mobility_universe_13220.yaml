@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Beckley
-shortName: Beckley pop. total (mobility)
+name: Total population (mobility-table denominator) — Beckley, WV
+shortName: Beckley, WV pop. total (mobility)
 description: Total population (mobility-table denominator) for the Beckley metropolitan statistical area (CBSA 13220). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Harrisburg-Carlisle
-shortName: Harrisburg-Carlisle population
+name: Total population — Harrisburg-Carlisle, PA
+shortName: Harrisburg-Carlisle, PA population
 description: Total population for the Harrisburg-Carlisle metropolitan statistical area (CBSA 25420). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

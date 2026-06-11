@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Milwaukee-Waukesha
-shortName: Milwaukee-Waukesha workers total (commute)
+name: Total workers (commute-table denominator) — Milwaukee-Waukesha, WI
+shortName: Milwaukee-Waukesha, WI workers total (commute)
 description: Total workers (commute-table denominator) for the Milwaukee-Waukesha metropolitan statistical area (CBSA 33340). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

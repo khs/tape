@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Muncie
-shortName: Muncie HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Muncie, IN
+shortName: Muncie, IN HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Muncie metropolitan statistical area (CBSA 34620). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

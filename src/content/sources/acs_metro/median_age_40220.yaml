@@ -1,5 +1,5 @@
-name: Median age — Roanoke
-shortName: Roanoke median age
+name: Median age — Roanoke, VA
+shortName: Roanoke, VA median age
 description: Median age for the Roanoke metropolitan statistical area (CBSA 40220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

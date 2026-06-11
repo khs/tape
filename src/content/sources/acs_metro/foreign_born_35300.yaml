@@ -1,5 +1,5 @@
-name: Foreign-born population — New Haven
-shortName: New Haven foreign-born
+name: Foreign-born population — New Haven, CT
+shortName: New Haven, CT foreign-born
 description: Foreign-born population for the New Haven metropolitan statistical area (CBSA 35300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

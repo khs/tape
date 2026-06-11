@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Richmond
-shortName: Richmond pop. total (mobility)
+name: Total population (mobility-table denominator) — Richmond, VA
+shortName: Richmond, VA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Richmond metropolitan statistical area (CBSA 40060). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

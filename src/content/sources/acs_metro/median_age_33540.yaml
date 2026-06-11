@@ -1,5 +1,5 @@
-name: Median age — Missoula
-shortName: Missoula median age
+name: Median age — Missoula, MT
+shortName: Missoula, MT median age
 description: Median age for the Missoula metropolitan statistical area (CBSA 33540). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

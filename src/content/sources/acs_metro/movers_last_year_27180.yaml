@@ -1,5 +1,5 @@
-name: People who moved in the last year — Jackson
-shortName: Jackson movers (last yr)
+name: People who moved in the last year — Jackson, TN
+shortName: Jackson, TN movers (last yr)
 description: People who moved in the last year for the Jackson metropolitan statistical area (CBSA 27180). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

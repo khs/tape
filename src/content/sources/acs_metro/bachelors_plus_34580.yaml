@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Mount Vernon-Anacortes
-shortName: Mount Vernon-Anacortes bachelors plus
+name: Adults 25+ with bachelor's degree — Mount Vernon-Anacortes, WA
+shortName: Mount Vernon-Anacortes, WA bachelors plus
 description: Adults 25+ with bachelor's degree for the Mount Vernon-Anacortes metropolitan statistical area (CBSA 34580). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

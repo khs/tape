@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell born same state
+name: Population born in current state of residence — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA born same state
 description: Population born in current state of residence for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

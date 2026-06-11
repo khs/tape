@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Tallahassee
-shortName: Tallahassee HHs no vehicle
+name: Households with no vehicle available — Tallahassee, FL
+shortName: Tallahassee, FL HHs no vehicle
 description: Households with no vehicle available for the Tallahassee metropolitan statistical area (CBSA 45220). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

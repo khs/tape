@@ -1,5 +1,5 @@
-name: Federal spending — Pittsburgh
-shortName: Pittsburgh
+name: Federal spending — Pittsburgh, PA
+shortName: Pittsburgh, PA
 description: Total federal outlays where the recipient location is in the Pittsburgh
   metropolitan statistical area (CBSA 38300, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

@@ -1,5 +1,5 @@
-name: Foreign-born population — San Antonio-New Braunfels
-shortName: San Antonio-New Braunfels foreign-born
+name: Foreign-born population — San Antonio-New Braunfels, TX
+shortName: San Antonio-New Braunfels, TX foreign-born
 description: Foreign-born population for the San Antonio-New Braunfels metropolitan statistical area (CBSA 41700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

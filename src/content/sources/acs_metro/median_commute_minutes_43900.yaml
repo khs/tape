@@ -1,5 +1,5 @@
-name: Median travel time to work — Spartanburg
-shortName: Spartanburg median commute
+name: Median travel time to work — Spartanburg, SC
+shortName: Spartanburg, SC median commute
 description: Median travel time to work for the Spartanburg metropolitan statistical area (CBSA 43900). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

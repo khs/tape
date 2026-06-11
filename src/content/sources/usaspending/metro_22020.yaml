@@ -1,5 +1,5 @@
-name: Federal spending — Fargo
-shortName: Fargo
+name: Federal spending — Fargo, ND-MN
+shortName: Fargo, ND-MN
 description: Total federal outlays where the recipient location is in the Fargo metropolitan
   statistical area (CBSA 22020, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

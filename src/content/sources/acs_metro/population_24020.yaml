@@ -1,5 +1,5 @@
-name: Total population — Glens Falls
-shortName: Glens Falls population
+name: Total population — Glens Falls, NY
+shortName: Glens Falls, NY population
 description: Total population for the Glens Falls metropolitan statistical area (CBSA 24020). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

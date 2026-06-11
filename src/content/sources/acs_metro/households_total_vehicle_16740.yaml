@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Charlotte-Concord-Gastonia
-shortName: Charlotte-Concord-Gastonia HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Charlotte-Concord-Gastonia, NC-SC
+shortName: Charlotte-Concord-Gastonia, NC-SC HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Charlotte-Concord-Gastonia metropolitan statistical area (CBSA 16740). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

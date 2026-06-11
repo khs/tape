@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Chattanooga
-shortName: Chattanooga born same state
+name: Population born in current state of residence — Chattanooga, TN-GA
+shortName: Chattanooga, TN-GA born same state
 description: Population born in current state of residence for the Chattanooga metropolitan statistical area (CBSA 16860). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

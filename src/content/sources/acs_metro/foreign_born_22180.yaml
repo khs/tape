@@ -1,5 +1,5 @@
-name: Foreign-born population — Fayetteville
-shortName: Fayetteville foreign-born
+name: Foreign-born population — Fayetteville, NC
+shortName: Fayetteville, NC foreign-born
 description: Foreign-born population for the Fayetteville metropolitan statistical area (CBSA 22180). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

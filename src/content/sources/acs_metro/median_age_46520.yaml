@@ -1,5 +1,5 @@
-name: Median age — Urban Honolulu
-shortName: Urban Honolulu median age
+name: Median age — Urban Honolulu, HI
+shortName: Urban Honolulu, HI median age
 description: Median age for the Urban Honolulu metropolitan statistical area (CBSA 46520). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

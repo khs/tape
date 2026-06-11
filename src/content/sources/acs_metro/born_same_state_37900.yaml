@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Peoria
-shortName: Peoria born same state
+name: Population born in current state of residence — Peoria, IL
+shortName: Peoria, IL born same state
 description: Population born in current state of residence for the Peoria metropolitan statistical area (CBSA 37900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Weirton-Steubenville
-shortName: Weirton-Steubenville pop. 65+
+name: Population 65 and older — Weirton-Steubenville, WV-OH
+shortName: Weirton-Steubenville, WV-OH pop. 65+
 description: Population 65 and older for the Weirton-Steubenville metropolitan statistical area (CBSA 48260). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

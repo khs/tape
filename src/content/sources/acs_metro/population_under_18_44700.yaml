@@ -1,5 +1,5 @@
-name: Population under 18 — Stockton-Lodi
-shortName: Stockton-Lodi pop. under 18
+name: Population under 18 — Stockton-Lodi, CA
+shortName: Stockton-Lodi, CA pop. under 18
 description: Population under 18 for the Stockton-Lodi metropolitan statistical area (CBSA 44700). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

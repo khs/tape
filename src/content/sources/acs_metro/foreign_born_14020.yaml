@@ -1,5 +1,5 @@
-name: Foreign-born population — Bloomington
-shortName: Bloomington foreign-born
+name: Foreign-born population — Bloomington, IN
+shortName: Bloomington, IN foreign-born
 description: Foreign-born population for the Bloomington metropolitan statistical area (CBSA 14020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

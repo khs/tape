@@ -1,5 +1,5 @@
-name: Foreign-born population — Tuscaloosa
-shortName: Tuscaloosa foreign-born
+name: Foreign-born population — Tuscaloosa, AL
+shortName: Tuscaloosa, AL foreign-born
 description: Foreign-born population for the Tuscaloosa metropolitan statistical area (CBSA 46220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

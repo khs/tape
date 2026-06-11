@@ -1,5 +1,5 @@
-name: Ames — unemployment rate
-shortName: Ames unemployment
+name: Ames, IA — unemployment rate
+shortName: Ames, IA unemployment
 description: Headline unemployment rate for the Ames metropolitan statistical area
   (CBSA 11180). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

@@ -1,5 +1,5 @@
-name: Population 65 and older — Anniston-Oxford
-shortName: Anniston-Oxford pop. 65+
+name: Population 65 and older — Anniston-Oxford, AL
+shortName: Anniston-Oxford, AL pop. 65+
 description: Population 65 and older for the Anniston-Oxford metropolitan statistical area (CBSA 11500). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

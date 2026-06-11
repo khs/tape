@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Daphne-Fairhope-Foley
-shortName: Daphne-Fairhope-Foley born same state
+name: Population born in current state of residence — Daphne-Fairhope-Foley, AL
+shortName: Daphne-Fairhope-Foley, AL born same state
 description: Population born in current state of residence for the Daphne-Fairhope-Foley metropolitan statistical area (CBSA 19300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -126,11 +126,32 @@ def yaml_escape(s: str) -> str:
     return s
 
 
-def write_source_yaml(out_id: str, cbsa: str, short_name: str) -> bool:
+def metro_display_name(short_name: str, full_name: str) -> str:
+    """
+    Display label for a metro: short name + the official CBSA title's
+    state suffix, e.g. ("Columbus", "Columbus, GA-AL") -> "Columbus, GA-AL"
+    and ("Akron", "Akron, OH") -> "Akron, OH".
+
+    State codes are kept BY DEFAULT (not just on collisions): many short
+    names repeat across states ("Columbus", "Springfield", ...), so a
+    bare city name is ambiguous in the source picker.
+    """
+    if "," in full_name:
+        tail = full_name.split(",", 1)[1].strip()
+        if tail:
+            return f"{short_name}, {tail}"
+    return short_name
+
+
+def write_source_yaml(out_id: str, cbsa: str, short_name: str,
+                      display_name: str) -> bool:
     """Generate a source YAML for a metro × indicator combo. Pulls
     formatting metadata from _generate_acs_sources.INDICATORS (keyed by
     out_id) so the per-indicator unit / decimals / notation stays
-    consistent with the CD-level YAMLs."""
+    consistent with the CD-level YAMLs. ``display_name`` (state-qualified,
+    see metro_display_name) feeds the user-facing name/shortName;
+    ``short_name`` (bare city) feeds the prose description, which already
+    disambiguates via the CBSA code."""
     out = SOURCES_DIR / f"{out_id}_{cbsa}.yaml"
     if out.exists():
         return False
@@ -146,8 +167,8 @@ def write_source_yaml(out_id: str, cbsa: str, short_name: str) -> bool:
         f"Survey 5-year estimates (table {meta['table']}). Released "
         f"annually."
     )
-    short_label = f"{short_name} {meta['short_suffix']}"
-    name_full = f"{meta['name_prefix']} — {short_name}"
+    short_label = f"{display_name} {meta['short_suffix']}"
+    name_full = f"{meta['name_prefix']} — {display_name}"
     tags = ["government", "us"] + list(meta.get("extra_tags", []))
     lines = [
         f"name: {yaml_escape(name_full)}",
@@ -202,8 +223,9 @@ def main() -> int:
         # validates. Data lands on the next refresh with a key.
         yaml_written = 0
         for ind in INDICATORS:
-            for cbsa, (short_name, _) in metros.items():
-                if write_source_yaml(ind.out_id, cbsa, short_name):
+            for cbsa, (short_name, full_name) in metros.items():
+                display = metro_display_name(short_name, full_name)
+                if write_source_yaml(ind.out_id, cbsa, short_name, display):
                     yaml_written += 1
         print(f"  wrote {yaml_written} new source YAMLs (data pending)", flush=True)
         return 0
@@ -299,14 +321,15 @@ def main() -> int:
         if not points:
             continue
         points.sort(key=lambda p: p["t"])
-        short_name = metros.get(cbsa, ("", ""))[0]
+        short_name, full_name = metros.get(cbsa, ("", ""))
+        display = metro_display_name(short_name, full_name)
         var = next((v for v in INDICATORS if v.out_id == out_id), None)
         name_prefix = var.name_prefix if var else out_id
         unit = var.unit if var else "value"
         write_timeseries(
             pipeline="acs_metro",
             series_id=f"{out_id}_{cbsa}",
-            name=f"{name_prefix} — {short_name}",
+            name=f"{name_prefix} — {display}",
             points=points,
             unit=unit,
         )
@@ -315,10 +338,11 @@ def main() -> int:
 
     yaml_written = 0
     for ind in INDICATORS:
-        for cbsa, (short_name, _) in metros.items():
+        for cbsa, (short_name, full_name) in metros.items():
             if (ind.out_id, cbsa) not in series_accum:
                 continue
-            if write_source_yaml(ind.out_id, cbsa, short_name):
+            display = metro_display_name(short_name, full_name)
+            if write_source_yaml(ind.out_id, cbsa, short_name, display):
                 yaml_written += 1
     print(f"Wrote {yaml_written} new source YAMLs ({len(INDICATORS)} indicators × {len(metros)} CBSAs)", flush=True)
     return 0

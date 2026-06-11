@@ -1,5 +1,5 @@
-name: Foreign-born population — Duluth
-shortName: Duluth foreign-born
+name: Foreign-born population — Duluth, MN-WI
+shortName: Duluth, MN-WI foreign-born
 description: Foreign-born population for the Duluth metropolitan statistical area (CBSA 20260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

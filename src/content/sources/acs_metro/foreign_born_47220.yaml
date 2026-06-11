@@ -1,5 +1,5 @@
-name: Foreign-born population — Vineland
-shortName: Vineland foreign-born
+name: Foreign-born population — Vineland, NJ
+shortName: Vineland, NJ foreign-born
 description: Foreign-born population for the Vineland metropolitan statistical area (CBSA 47220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

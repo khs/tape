@@ -1,5 +1,5 @@
-name: Erie — unemployment rate
-shortName: Erie unemployment
+name: Erie, PA — unemployment rate
+shortName: Erie, PA unemployment
 description: Headline unemployment rate for the Erie metropolitan statistical area
   (CBSA 21500). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

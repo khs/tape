@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Aguadilla
-shortName: Aguadilla HHs no vehicle
+name: Households with no vehicle available — Aguadilla, PR
+shortName: Aguadilla, PR HHs no vehicle
 description: Households with no vehicle available for the Aguadilla metropolitan statistical area (CBSA 10380). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

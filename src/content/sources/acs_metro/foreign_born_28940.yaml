@@ -1,5 +1,5 @@
-name: Foreign-born population — Knoxville
-shortName: Knoxville foreign-born
+name: Foreign-born population — Knoxville, TN
+shortName: Knoxville, TN foreign-born
 description: Foreign-born population for the Knoxville metropolitan statistical area (CBSA 28940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

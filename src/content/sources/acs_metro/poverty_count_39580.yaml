@@ -1,5 +1,5 @@
-name: People in poverty — Raleigh-Cary
-shortName: Raleigh-Cary poverty count
+name: People in poverty — Raleigh-Cary, NC
+shortName: Raleigh-Cary, NC poverty count
 description: People in poverty for the Raleigh-Cary metropolitan statistical area (CBSA 39580). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People who moved in the last year — Elmira
-shortName: Elmira movers (last yr)
+name: People who moved in the last year — Elmira, NY
+shortName: Elmira, NY movers (last yr)
 description: People who moved in the last year for the Elmira metropolitan statistical area (CBSA 21300). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

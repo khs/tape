@@ -1,5 +1,5 @@
-name: Population 65 and older — Harrisburg-Carlisle
-shortName: Harrisburg-Carlisle pop. 65+
+name: Population 65 and older — Harrisburg-Carlisle, PA
+shortName: Harrisburg-Carlisle, PA pop. 65+
 description: Population 65 and older for the Harrisburg-Carlisle metropolitan statistical area (CBSA 25420). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

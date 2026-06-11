@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Lancaster
-shortName: Lancaster masters plus
+name: Adults 25+ with master's degree — Lancaster, PA
+shortName: Lancaster, PA masters plus
 description: Adults 25+ with master's degree for the Lancaster metropolitan statistical area (CBSA 29540). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

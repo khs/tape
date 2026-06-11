@@ -1,5 +1,5 @@
-name: Median travel time to work — Sebastian-Vero Beach-West Vero Corridor
-shortName: Sebastian-Vero Beach-West Vero Corridor median commute
+name: Median travel time to work — Sebastian-Vero Beach-West Vero Corridor, FL
+shortName: Sebastian-Vero Beach-West Vero Corridor, FL median commute
 description: Median travel time to work for the Sebastian-Vero Beach-West Vero Corridor metropolitan statistical area (CBSA 42680). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

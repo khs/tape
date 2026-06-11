@@ -1,5 +1,5 @@
-name: Median age — Grand Junction
-shortName: Grand Junction median age
+name: Median age — Grand Junction, CO
+shortName: Grand Junction, CO median age
 description: Median age for the Grand Junction metropolitan statistical area (CBSA 24300). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

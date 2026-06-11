@@ -1,5 +1,5 @@
-name: Total population — Duluth
-shortName: Duluth population
+name: Total population — Duluth, MN-WI
+shortName: Duluth, MN-WI population
 description: Total population for the Duluth metropolitan statistical area (CBSA 20260). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

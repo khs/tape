@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Sherman-Denison
-shortName: Sherman-Denison born same state
+name: Population born in current state of residence — Sherman-Denison, TX
+shortName: Sherman-Denison, TX born same state
 description: Population born in current state of residence for the Sherman-Denison metropolitan statistical area (CBSA 43300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

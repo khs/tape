@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Toledo
-shortName: Toledo HHs no vehicle
+name: Households with no vehicle available — Toledo, OH
+shortName: Toledo, OH HHs no vehicle
 description: Households with no vehicle available for the Toledo metropolitan statistical area (CBSA 45780). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Kingsport-Bristol
-shortName: Kingsport-Bristol median age
+name: Median age — Kingsport-Bristol, TN-VA
+shortName: Kingsport-Bristol, TN-VA median age
 description: Median age for the Kingsport-Bristol metropolitan statistical area (CBSA 28700). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

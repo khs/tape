@@ -1,5 +1,5 @@
-name: Median age — Fayetteville
-shortName: Fayetteville median age
+name: Median age — Fayetteville, NC
+shortName: Fayetteville, NC median age
 description: Median age for the Fayetteville metropolitan statistical area (CBSA 22180). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Federal spending — Waterbury-Shelton
-shortName: Waterbury-Shelton
+name: Federal spending — Waterbury-Shelton, CT
+shortName: Waterbury-Shelton, CT
 description: Total federal outlays where the recipient location is in the Waterbury-Shelton metropolitan statistical area (CBSA 47930, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
 kind: timeseries
 pipeline: usaspending

@@ -1,5 +1,5 @@
-name: Population 65 and older — Odessa
-shortName: Odessa pop. 65+
+name: Population 65 and older — Odessa, TX
+shortName: Odessa, TX pop. 65+
 description: Population 65 and older for the Odessa metropolitan statistical area (CBSA 36220). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

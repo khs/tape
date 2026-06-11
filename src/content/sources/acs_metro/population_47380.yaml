@@ -1,5 +1,5 @@
-name: Total population — Waco
-shortName: Waco population
+name: Total population — Waco, TX
+shortName: Waco, TX population
 description: Total population for the Waco metropolitan statistical area (CBSA 47380). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

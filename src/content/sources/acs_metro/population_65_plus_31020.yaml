@@ -1,5 +1,5 @@
-name: Population 65 and older — Longview-Kelso
-shortName: Longview-Kelso pop. 65+
+name: Population 65 and older — Longview-Kelso, WA
+shortName: Longview-Kelso, WA pop. 65+
 description: Population 65 and older for the Longview-Kelso metropolitan statistical area (CBSA 31020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

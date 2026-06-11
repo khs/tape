@@ -1,5 +1,5 @@
-name: Madison — unemployment rate
-shortName: Madison unemployment
+name: Madison, WI — unemployment rate
+shortName: Madison, WI unemployment
 description: Headline unemployment rate for the Madison metropolitan statistical area
   (CBSA 31540). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

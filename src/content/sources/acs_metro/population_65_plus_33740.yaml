@@ -1,5 +1,5 @@
-name: Population 65 and older — Monroe
-shortName: Monroe pop. 65+
+name: Population 65 and older — Monroe, LA
+shortName: Monroe, LA pop. 65+
 description: Population 65 and older for the Monroe metropolitan statistical area (CBSA 33740). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

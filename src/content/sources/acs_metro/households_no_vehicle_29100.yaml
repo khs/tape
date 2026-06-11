@@ -1,5 +1,5 @@
-name: Households with no vehicle available — La Crosse-Onalaska
-shortName: La Crosse-Onalaska HHs no vehicle
+name: Households with no vehicle available — La Crosse-Onalaska, WI-MN
+shortName: La Crosse-Onalaska, WI-MN HHs no vehicle
 description: Households with no vehicle available for the La Crosse-Onalaska metropolitan statistical area (CBSA 29100). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

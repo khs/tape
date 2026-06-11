@@ -1,5 +1,5 @@
-name: People who moved in the last year — Hammond
-shortName: Hammond movers (last yr)
+name: People who moved in the last year — Hammond, LA
+shortName: Hammond, LA movers (last yr)
 description: People who moved in the last year for the Hammond metropolitan statistical area (CBSA 25220). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

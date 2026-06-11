@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Las Vegas-Henderson-North Las Vegas
-shortName: Las Vegas-Henderson-North Las Vegas born same state
+name: Population born in current state of residence — Las Vegas-Henderson-North Las Vegas, NV
+shortName: Las Vegas-Henderson-North Las Vegas, NV born same state
 description: Population born in current state of residence for the Las Vegas-Henderson-North Las Vegas metropolitan statistical area (CBSA 29820). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

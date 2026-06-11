@@ -1,5 +1,5 @@
-name: Population 65 and older — Las Cruces
-shortName: Las Cruces pop. 65+
+name: Population 65 and older — Las Cruces, NM
+shortName: Las Cruces, NM pop. 65+
 description: Population 65 and older for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

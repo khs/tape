@@ -1,5 +1,5 @@
-name: Total population — Johnson City
-shortName: Johnson City population
+name: Total population — Johnson City, TN
+shortName: Johnson City, TN population
 description: Total population for the Johnson City metropolitan statistical area (CBSA 27740). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

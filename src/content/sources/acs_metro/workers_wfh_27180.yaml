@@ -1,5 +1,5 @@
-name: Workers who work from home — Jackson
-shortName: Jackson WFH workers
+name: Workers who work from home — Jackson, TN
+shortName: Jackson, TN WFH workers
 description: Workers who work from home for the Jackson metropolitan statistical area (CBSA 27180). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

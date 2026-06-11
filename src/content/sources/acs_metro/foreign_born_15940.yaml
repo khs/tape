@@ -1,5 +1,5 @@
-name: Foreign-born population — Canton-Massillon
-shortName: Canton-Massillon foreign-born
+name: Foreign-born population — Canton-Massillon, OH
+shortName: Canton-Massillon, OH foreign-born
 description: Foreign-born population for the Canton-Massillon metropolitan statistical area (CBSA 15940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

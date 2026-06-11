@@ -1,5 +1,5 @@
-name: Workers who work from home — Little Rock-North Little Rock-Conway
-shortName: Little Rock-North Little Rock-Conway WFH workers
+name: Workers who work from home — Little Rock-North Little Rock-Conway, AR
+shortName: Little Rock-North Little Rock-Conway, AR WFH workers
 description: Workers who work from home for the Little Rock-North Little Rock-Conway metropolitan statistical area (CBSA 30780). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Chico
-shortName: Chico pop. under 18
+name: Population under 18 — Chico, CA
+shortName: Chico, CA pop. under 18
 description: Population under 18 for the Chico metropolitan statistical area (CBSA 17020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

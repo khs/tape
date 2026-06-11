@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Urban Honolulu
-shortName: Urban Honolulu masters plus
+name: Adults 25+ with master's degree — Urban Honolulu, HI
+shortName: Urban Honolulu, HI masters plus
 description: Adults 25+ with master's degree for the Urban Honolulu metropolitan statistical area (CBSA 46520). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

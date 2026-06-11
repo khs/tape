@@ -1,5 +1,5 @@
-name: Median age — Richmond
-shortName: Richmond median age
+name: Median age — Richmond, VA
+shortName: Richmond, VA median age
 description: Median age for the Richmond metropolitan statistical area (CBSA 40060). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

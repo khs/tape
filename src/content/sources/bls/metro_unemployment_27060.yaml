@@ -1,5 +1,5 @@
-name: Ithaca — unemployment rate
-shortName: Ithaca unemployment
+name: Ithaca, NY — unemployment rate
+shortName: Ithaca, NY unemployment
 description: Headline unemployment rate for the Ithaca metropolitan statistical area
   (CBSA 27060). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

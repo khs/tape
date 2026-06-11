@@ -1,5 +1,5 @@
-name: People in poverty — Hattiesburg
-shortName: Hattiesburg poverty count
+name: People in poverty — Hattiesburg, MS
+shortName: Hattiesburg, MS poverty count
 description: People in poverty for the Hattiesburg metropolitan statistical area (CBSA 25620). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Sebastian-Vero Beach-West Vero Corridor
-shortName: Sebastian-Vero Beach-West Vero Corridor population
+name: Total population — Sebastian-Vero Beach-West Vero Corridor, FL
+shortName: Sebastian-Vero Beach-West Vero Corridor, FL population
 description: Total population for the Sebastian-Vero Beach-West Vero Corridor metropolitan statistical area (CBSA 42680). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

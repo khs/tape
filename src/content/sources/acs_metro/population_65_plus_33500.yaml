@@ -1,5 +1,5 @@
-name: Population 65 and older — Minot
-shortName: Minot pop. 65+
+name: Population 65 and older — Minot, ND
+shortName: Minot, ND pop. 65+
 description: Population 65 and older for the Minot metropolitan statistical area (CBSA 33500). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

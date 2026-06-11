@@ -1,5 +1,5 @@
-name: Median age — Ogden
-shortName: Ogden median age
+name: Median age — Ogden, UT
+shortName: Ogden, UT median age
 description: Median age for the Ogden metropolitan statistical area (CBSA 36260). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

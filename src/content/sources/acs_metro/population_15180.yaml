@@ -1,5 +1,5 @@
-name: Total population — Brownsville-Harlingen
-shortName: Brownsville-Harlingen population
+name: Total population — Brownsville-Harlingen, TX
+shortName: Brownsville-Harlingen, TX population
 description: Total population for the Brownsville-Harlingen metropolitan statistical area (CBSA 15180). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Lincoln
-shortName: Lincoln HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Lincoln, NE
+shortName: Lincoln, NE HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Lincoln metropolitan statistical area (CBSA 30700). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

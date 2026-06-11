@@ -1,5 +1,5 @@
-name: Total population — Manchester-Nashua
-shortName: Manchester-Nashua population
+name: Total population — Manchester-Nashua, NH
+shortName: Manchester-Nashua, NH population
 description: Total population for the Manchester-Nashua metropolitan statistical area (CBSA 31700). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

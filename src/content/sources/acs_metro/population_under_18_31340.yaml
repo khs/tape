@@ -1,5 +1,5 @@
-name: Population under 18 — Lynchburg
-shortName: Lynchburg pop. under 18
+name: Population under 18 — Lynchburg, VA
+shortName: Lynchburg, VA pop. under 18
 description: Population under 18 for the Lynchburg metropolitan statistical area (CBSA 31340). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Davenport-Moline-Rock Island
-shortName: Davenport-Moline-Rock Island foreign-born
+name: Foreign-born population — Davenport-Moline-Rock Island, IA-IL
+shortName: Davenport-Moline-Rock Island, IA-IL foreign-born
 description: Foreign-born population for the Davenport-Moline-Rock Island metropolitan statistical area (CBSA 19340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People who moved in the last year — Knoxville
-shortName: Knoxville movers (last yr)
+name: People who moved in the last year — Knoxville, TN
+shortName: Knoxville, TN movers (last yr)
 description: People who moved in the last year for the Knoxville metropolitan statistical area (CBSA 28940). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

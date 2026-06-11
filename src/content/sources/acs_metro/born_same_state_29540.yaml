@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Lancaster
-shortName: Lancaster born same state
+name: Population born in current state of residence — Lancaster, PA
+shortName: Lancaster, PA born same state
 description: Population born in current state of residence for the Lancaster metropolitan statistical area (CBSA 29540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

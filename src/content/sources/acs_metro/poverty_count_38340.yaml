@@ -1,5 +1,5 @@
-name: People in poverty — Pittsfield
-shortName: Pittsfield poverty count
+name: People in poverty — Pittsfield, MA
+shortName: Pittsfield, MA poverty count
 description: People in poverty for the Pittsfield metropolitan statistical area (CBSA 38340). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

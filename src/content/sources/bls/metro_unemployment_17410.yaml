@@ -1,5 +1,5 @@
-name: Cleveland — unemployment rate
-shortName: Cleveland unemployment
+name: Cleveland, OH — unemployment rate
+shortName: Cleveland, OH unemployment
 description: Headline unemployment rate for the Cleveland metropolitan statistical
   area (CBSA 17410). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

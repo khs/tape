@@ -1,5 +1,5 @@
-name: Population under 18 — Norwich-New London-Willimantic
-shortName: Norwich-New London-Willimantic pop. under 18
+name: Population under 18 — Norwich-New London-Willimantic, CT
+shortName: Norwich-New London-Willimantic, CT pop. under 18
 description: Population under 18 for the Norwich-New London-Willimantic metropolitan statistical area (CBSA 35980). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

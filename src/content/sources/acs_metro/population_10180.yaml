@@ -1,5 +1,5 @@
-name: Total population — Abilene
-shortName: Abilene population
+name: Total population — Abilene, TX
+shortName: Abilene, TX population
 description: Total population for the Abilene metropolitan statistical area (CBSA 10180). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

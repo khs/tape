@@ -1,5 +1,5 @@
-name: Workers who work from home — Spartanburg
-shortName: Spartanburg WFH workers
+name: Workers who work from home — Spartanburg, SC
+shortName: Spartanburg, SC WFH workers
 description: Workers who work from home for the Spartanburg metropolitan statistical area (CBSA 43900). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

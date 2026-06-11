@@ -1,5 +1,5 @@
-name: Total population — Green Bay
-shortName: Green Bay population
+name: Total population — Green Bay, WI
+shortName: Green Bay, WI population
 description: Total population for the Green Bay metropolitan statistical area (CBSA 24580). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

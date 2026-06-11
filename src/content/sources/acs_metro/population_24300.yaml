@@ -1,5 +1,5 @@
-name: Total population — Grand Junction
-shortName: Grand Junction population
+name: Total population — Grand Junction, CO
+shortName: Grand Junction, CO population
 description: Total population for the Grand Junction metropolitan statistical area (CBSA 24300). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

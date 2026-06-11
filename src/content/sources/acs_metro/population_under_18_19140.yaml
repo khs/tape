@@ -1,5 +1,5 @@
-name: Population under 18 — Dalton
-shortName: Dalton pop. under 18
+name: Population under 18 — Dalton, GA
+shortName: Dalton, GA pop. under 18
 description: Population under 18 for the Dalton metropolitan statistical area (CBSA 19140). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

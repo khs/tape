@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Battle Creek
-shortName: Battle Creek pop. total (mobility)
+name: Total population (mobility-table denominator) — Battle Creek, MI
+shortName: Battle Creek, MI pop. total (mobility)
 description: Total population (mobility-table denominator) for the Battle Creek metropolitan statistical area (CBSA 12980). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

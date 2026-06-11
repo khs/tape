@@ -1,5 +1,5 @@
-name: Median age — Knoxville
-shortName: Knoxville median age
+name: Median age — Knoxville, TN
+shortName: Knoxville, TN median age
 description: Median age for the Knoxville metropolitan statistical area (CBSA 28940). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

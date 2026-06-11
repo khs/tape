@@ -1,5 +1,5 @@
-name: Foreign-born population — Ogden
-shortName: Ogden foreign-born
+name: Foreign-born population — Ogden, UT
+shortName: Ogden, UT foreign-born
 description: Foreign-born population for the Ogden metropolitan statistical area (CBSA 36260). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Salem — unemployment rate
-shortName: Salem unemployment
+name: Salem, OR — unemployment rate
+shortName: Salem, OR unemployment
 description: Headline unemployment rate for the Salem metropolitan statistical area
   (CBSA 41420). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

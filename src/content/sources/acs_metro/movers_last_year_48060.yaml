@@ -1,5 +1,5 @@
-name: People who moved in the last year — Watertown-Fort Drum
-shortName: Watertown-Fort Drum movers (last yr)
+name: People who moved in the last year — Watertown-Fort Drum, NY
+shortName: Watertown-Fort Drum, NY movers (last yr)
 description: People who moved in the last year for the Watertown-Fort Drum metropolitan statistical area (CBSA 48060). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

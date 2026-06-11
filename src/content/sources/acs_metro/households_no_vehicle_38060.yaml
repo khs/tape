@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Phoenix-Mesa-Chandler
-shortName: Phoenix-Mesa-Chandler HHs no vehicle
+name: Households with no vehicle available — Phoenix-Mesa-Chandler, AZ
+shortName: Phoenix-Mesa-Chandler, AZ HHs no vehicle
 description: Households with no vehicle available for the Phoenix-Mesa-Chandler metropolitan statistical area (CBSA 38060). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

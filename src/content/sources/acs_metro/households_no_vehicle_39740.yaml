@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Reading
-shortName: Reading HHs no vehicle
+name: Households with no vehicle available — Reading, PA
+shortName: Reading, PA HHs no vehicle
 description: Households with no vehicle available for the Reading metropolitan statistical area (CBSA 39740). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

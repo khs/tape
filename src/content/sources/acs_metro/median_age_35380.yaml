@@ -1,5 +1,5 @@
-name: Median age — New Orleans-Metairie
-shortName: New Orleans-Metairie median age
+name: Median age — New Orleans-Metairie, LA
+shortName: New Orleans-Metairie, LA median age
 description: Median age for the New Orleans-Metairie metropolitan statistical area (CBSA 35380). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Macon-Bibb County
-shortName: Macon-Bibb County foreign-born
+name: Foreign-born population — Macon-Bibb County, GA
+shortName: Macon-Bibb County, GA foreign-born
 description: Foreign-born population for the Macon-Bibb County metropolitan statistical area (CBSA 31420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

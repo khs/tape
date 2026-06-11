@@ -1,5 +1,5 @@
-name: Foreign-born population — Bend
-shortName: Bend foreign-born
+name: Foreign-born population — Bend, OR
+shortName: Bend, OR foreign-born
 description: Foreign-born population for the Bend metropolitan statistical area (CBSA 13460). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

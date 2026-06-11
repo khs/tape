@@ -1,5 +1,5 @@
-name: Total population — Laredo
-shortName: Laredo population
+name: Total population — Laredo, TX
+shortName: Laredo, TX population
 description: Total population for the Laredo metropolitan statistical area (CBSA 29700). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median travel time to work — Durham-Chapel Hill
-shortName: Durham-Chapel Hill median commute
+name: Median travel time to work — Durham-Chapel Hill, NC
+shortName: Durham-Chapel Hill, NC median commute
 description: Median travel time to work for the Durham-Chapel Hill metropolitan statistical area (CBSA 20500). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

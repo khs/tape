@@ -1,5 +1,5 @@
-name: Population under 18 — Binghamton
-shortName: Binghamton pop. under 18
+name: Population under 18 — Binghamton, NY
+shortName: Binghamton, NY pop. under 18
 description: Population under 18 for the Binghamton metropolitan statistical area (CBSA 13780). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

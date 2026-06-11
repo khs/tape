@@ -1,5 +1,5 @@
-name: Foreign-born population — Monroe
-shortName: Monroe foreign-born
+name: Foreign-born population — Monroe, LA
+shortName: Monroe, LA foreign-born
 description: Foreign-born population for the Monroe metropolitan statistical area (CBSA 33740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

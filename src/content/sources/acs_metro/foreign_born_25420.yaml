@@ -1,5 +1,5 @@
-name: Foreign-born population — Harrisburg-Carlisle
-shortName: Harrisburg-Carlisle foreign-born
+name: Foreign-born population — Harrisburg-Carlisle, PA
+shortName: Harrisburg-Carlisle, PA foreign-born
 description: Foreign-born population for the Harrisburg-Carlisle metropolitan statistical area (CBSA 25420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

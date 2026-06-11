@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Oklahoma City
-shortName: Oklahoma City pop. total (mobility)
+name: Total population (mobility-table denominator) — Oklahoma City, OK
+shortName: Oklahoma City, OK pop. total (mobility)
 description: Total population (mobility-table denominator) for the Oklahoma City metropolitan statistical area (CBSA 36420). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

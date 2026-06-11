@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Dayton-Kettering-Beavercreek
-shortName: Dayton-Kettering-Beavercreek pop. total (mobility)
+name: Total population (mobility-table denominator) — Dayton-Kettering-Beavercreek, OH
+shortName: Dayton-Kettering-Beavercreek, OH pop. total (mobility)
 description: Total population (mobility-table denominator) for the Dayton-Kettering-Beavercreek metropolitan statistical area (CBSA 19430). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

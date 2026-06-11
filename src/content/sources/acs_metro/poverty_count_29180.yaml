@@ -1,5 +1,5 @@
-name: People in poverty — Lafayette
-shortName: Lafayette poverty count
+name: People in poverty — Lafayette, LA
+shortName: Lafayette, LA poverty count
 description: People in poverty for the Lafayette metropolitan statistical area (CBSA 29180). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

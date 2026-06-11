@@ -1,5 +1,5 @@
-name: Foreign-born population — Jefferson City
-shortName: Jefferson City foreign-born
+name: Foreign-born population — Jefferson City, MO
+shortName: Jefferson City, MO foreign-born
 description: Foreign-born population for the Jefferson City metropolitan statistical area (CBSA 27620). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

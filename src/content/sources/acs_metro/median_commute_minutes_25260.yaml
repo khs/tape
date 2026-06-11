@@ -1,5 +1,5 @@
-name: Median travel time to work — Hanford-Corcoran
-shortName: Hanford-Corcoran median commute
+name: Median travel time to work — Hanford-Corcoran, CA
+shortName: Hanford-Corcoran, CA median commute
 description: Median travel time to work for the Hanford-Corcoran metropolitan statistical area (CBSA 25260). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Provo-Orem-Lehi
-shortName: Provo-Orem-Lehi population
+name: Total population — Provo-Orem-Lehi, UT
+shortName: Provo-Orem-Lehi, UT population
 description: Total population for the Provo-Orem-Lehi metropolitan statistical area (CBSA 39340). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

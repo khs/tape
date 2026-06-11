@@ -1,5 +1,5 @@
-name: Median age — Sebastian-Vero Beach-West Vero Corridor
-shortName: Sebastian-Vero Beach-West Vero Corridor median age
+name: Median age — Sebastian-Vero Beach-West Vero Corridor, FL
+shortName: Sebastian-Vero Beach-West Vero Corridor, FL median age
 description: Median age for the Sebastian-Vero Beach-West Vero Corridor metropolitan statistical area (CBSA 42680). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

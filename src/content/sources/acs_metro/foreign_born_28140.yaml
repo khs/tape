@@ -1,5 +1,5 @@
-name: Foreign-born population — Kansas City
-shortName: Kansas City foreign-born
+name: Foreign-born population — Kansas City, MO-KS
+shortName: Kansas City, MO-KS foreign-born
 description: Foreign-born population for the Kansas City metropolitan statistical area (CBSA 28140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

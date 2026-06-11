@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Athens-Clarke County
-shortName: Athens-Clarke County workers total (commute)
+name: Total workers (commute-table denominator) — Athens-Clarke County, GA
+shortName: Athens-Clarke County, GA workers total (commute)
 description: Total workers (commute-table denominator) for the Athens-Clarke County metropolitan statistical area (CBSA 12020). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

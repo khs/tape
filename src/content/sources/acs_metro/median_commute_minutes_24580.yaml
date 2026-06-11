@@ -1,5 +1,5 @@
-name: Median travel time to work — Green Bay
-shortName: Green Bay median commute
+name: Median travel time to work — Green Bay, WI
+shortName: Green Bay, WI median commute
 description: Median travel time to work for the Green Bay metropolitan statistical area (CBSA 24580). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

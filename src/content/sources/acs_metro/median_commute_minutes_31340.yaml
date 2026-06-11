@@ -1,5 +1,5 @@
-name: Median travel time to work — Lynchburg
-shortName: Lynchburg median commute
+name: Median travel time to work — Lynchburg, VA
+shortName: Lynchburg, VA median commute
 description: Median travel time to work for the Lynchburg metropolitan statistical area (CBSA 31340). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

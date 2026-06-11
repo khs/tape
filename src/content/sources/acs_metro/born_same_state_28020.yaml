@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Kalamazoo-Portage
-shortName: Kalamazoo-Portage born same state
+name: Population born in current state of residence — Kalamazoo-Portage, MI
+shortName: Kalamazoo-Portage, MI born same state
 description: Population born in current state of residence for the Kalamazoo-Portage metropolitan statistical area (CBSA 28020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Napa
-shortName: Napa workers total (commute)
+name: Total workers (commute-table denominator) — Napa, CA
+shortName: Napa, CA workers total (commute)
 description: Total workers (commute-table denominator) for the Napa metropolitan statistical area (CBSA 34900). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

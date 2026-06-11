@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Waterloo-Cedar Falls
-shortName: Waterloo-Cedar Falls HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Waterloo-Cedar Falls, IA
+shortName: Waterloo-Cedar Falls, IA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Waterloo-Cedar Falls metropolitan statistical area (CBSA 47940). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

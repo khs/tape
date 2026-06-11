@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Longview
-shortName: Longview born same state
+name: Population born in current state of residence — Longview, TX
+shortName: Longview, TX born same state
 description: Population born in current state of residence for the Longview metropolitan statistical area (CBSA 30980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

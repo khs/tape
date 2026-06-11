@@ -1,5 +1,5 @@
-name: People in poverty — Tuscaloosa
-shortName: Tuscaloosa poverty count
+name: People in poverty — Tuscaloosa, AL
+shortName: Tuscaloosa, AL poverty count
 description: People in poverty for the Tuscaloosa metropolitan statistical area (CBSA 46220). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

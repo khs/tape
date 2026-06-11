@@ -1,5 +1,5 @@
-name: People who moved in the last year — Lewiston
-shortName: Lewiston movers (last yr)
+name: People who moved in the last year — Lewiston, ID-WA
+shortName: Lewiston, ID-WA movers (last yr)
 description: People who moved in the last year for the Lewiston metropolitan statistical area (CBSA 30300). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Eugene-Springfield
-shortName: Eugene-Springfield foreign-born
+name: Foreign-born population — Eugene-Springfield, OR
+shortName: Eugene-Springfield, OR foreign-born
 description: Foreign-born population for the Eugene-Springfield metropolitan statistical area (CBSA 21660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

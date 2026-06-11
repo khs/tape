@@ -1,5 +1,5 @@
-name: People who moved in the last year — Johnson City
-shortName: Johnson City movers (last yr)
+name: People who moved in the last year — Johnson City, TN
+shortName: Johnson City, TN movers (last yr)
 description: People who moved in the last year for the Johnson City metropolitan statistical area (CBSA 27740). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

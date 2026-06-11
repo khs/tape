@@ -1,5 +1,5 @@
-name: People who moved in the last year — Eagle Pass
-shortName: Eagle Pass movers (last yr)
+name: People who moved in the last year — Eagle Pass, TX
+shortName: Eagle Pass, TX movers (last yr)
 description: People who moved in the last year for the Eagle Pass metropolitan statistical area (CBSA 20580). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

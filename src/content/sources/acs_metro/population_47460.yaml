@@ -1,5 +1,5 @@
-name: Total population — Walla Walla
-shortName: Walla Walla population
+name: Total population — Walla Walla, WA
+shortName: Walla Walla, WA population
 description: Total population for the Walla Walla metropolitan statistical area (CBSA 47460). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

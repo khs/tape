@@ -1,5 +1,5 @@
-name: People who moved in the last year — Santa Maria-Santa Barbara
-shortName: Santa Maria-Santa Barbara movers (last yr)
+name: People who moved in the last year — Santa Maria-Santa Barbara, CA
+shortName: Santa Maria-Santa Barbara, CA movers (last yr)
 description: People who moved in the last year for the Santa Maria-Santa Barbara metropolitan statistical area (CBSA 42200). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Nashville-Davidson--Murfreesboro--Franklin
-shortName: Nashville-Davidson--Murfreesboro--Franklin foreign-born
+name: Foreign-born population — Nashville-Davidson--Murfreesboro--Franklin, TN
+shortName: Nashville-Davidson--Murfreesboro--Franklin, TN foreign-born
 description: Foreign-born population for the Nashville-Davidson--Murfreesboro--Franklin metropolitan statistical area (CBSA 34980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

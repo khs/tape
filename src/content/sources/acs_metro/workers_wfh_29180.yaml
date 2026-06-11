@@ -1,5 +1,5 @@
-name: Workers who work from home — Lafayette
-shortName: Lafayette WFH workers
+name: Workers who work from home — Lafayette, LA
+shortName: Lafayette, LA WFH workers
 description: Workers who work from home for the Lafayette metropolitan statistical area (CBSA 29180). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

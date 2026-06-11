@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Owensboro
-shortName: Owensboro HHs no vehicle
+name: Households with no vehicle available — Owensboro, KY
+shortName: Owensboro, KY HHs no vehicle
 description: Households with no vehicle available for the Owensboro metropolitan statistical area (CBSA 36980). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

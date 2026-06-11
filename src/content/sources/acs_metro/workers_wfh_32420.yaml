@@ -1,5 +1,5 @@
-name: Workers who work from home — Mayagüez
-shortName: Mayagüez WFH workers
+name: Workers who work from home — Mayagüez, PR
+shortName: Mayagüez, PR WFH workers
 description: Workers who work from home for the Mayagüez metropolitan statistical area (CBSA 32420). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

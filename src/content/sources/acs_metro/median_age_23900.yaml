@@ -1,5 +1,5 @@
-name: Median age — Gettysburg
-shortName: Gettysburg median age
+name: Median age — Gettysburg, PA
+shortName: Gettysburg, PA median age
 description: Median age for the Gettysburg metropolitan statistical area (CBSA 23900). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

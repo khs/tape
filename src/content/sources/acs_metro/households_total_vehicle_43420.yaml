@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Sierra Vista-Douglas
-shortName: Sierra Vista-Douglas HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Sierra Vista-Douglas, AZ
+shortName: Sierra Vista-Douglas, AZ HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Sierra Vista-Douglas metropolitan statistical area (CBSA 43420). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

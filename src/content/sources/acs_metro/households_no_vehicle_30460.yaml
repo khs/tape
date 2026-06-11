@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Lexington-Fayette
-shortName: Lexington-Fayette HHs no vehicle
+name: Households with no vehicle available — Lexington-Fayette, KY
+shortName: Lexington-Fayette, KY HHs no vehicle
 description: Households with no vehicle available for the Lexington-Fayette metropolitan statistical area (CBSA 30460). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

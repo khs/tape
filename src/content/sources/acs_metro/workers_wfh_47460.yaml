@@ -1,5 +1,5 @@
-name: Workers who work from home — Walla Walla
-shortName: Walla Walla WFH workers
+name: Workers who work from home — Walla Walla, WA
+shortName: Walla Walla, WA WFH workers
 description: Workers who work from home for the Walla Walla metropolitan statistical area (CBSA 47460). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

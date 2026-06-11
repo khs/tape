@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Florence-Muscle Shoals
-shortName: Florence-Muscle Shoals born same state
+name: Population born in current state of residence — Florence-Muscle Shoals, AL
+shortName: Florence-Muscle Shoals, AL born same state
 description: Population born in current state of residence for the Florence-Muscle Shoals metropolitan statistical area (CBSA 22520). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

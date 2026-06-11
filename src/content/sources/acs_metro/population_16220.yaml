@@ -1,5 +1,5 @@
-name: Total population — Casper
-shortName: Casper population
+name: Total population — Casper, WY
+shortName: Casper, WY population
 description: Total population for the Casper metropolitan statistical area (CBSA 16220). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

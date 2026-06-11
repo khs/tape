@@ -1,5 +1,5 @@
-name: Population under 18 — Boston-Cambridge-Newton
-shortName: Boston-Cambridge-Newton pop. under 18
+name: Population under 18 — Boston-Cambridge-Newton, MA-NH
+shortName: Boston-Cambridge-Newton, MA-NH pop. under 18
 description: Population under 18 for the Boston-Cambridge-Newton metropolitan statistical area (CBSA 14460). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

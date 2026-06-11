@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Orlando-Kissimmee-Sanford
-shortName: Orlando-Kissimmee-Sanford masters plus
+name: Adults 25+ with master's degree — Orlando-Kissimmee-Sanford, FL
+shortName: Orlando-Kissimmee-Sanford, FL masters plus
 description: Adults 25+ with master's degree for the Orlando-Kissimmee-Sanford metropolitan statistical area (CBSA 36740). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

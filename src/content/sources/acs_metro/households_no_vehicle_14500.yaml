@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Boulder
-shortName: Boulder HHs no vehicle
+name: Households with no vehicle available — Boulder, CO
+shortName: Boulder, CO HHs no vehicle
 description: Households with no vehicle available for the Boulder metropolitan statistical area (CBSA 14500). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

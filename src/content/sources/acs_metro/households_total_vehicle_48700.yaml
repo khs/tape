@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Williamsport
-shortName: Williamsport HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Williamsport, PA
+shortName: Williamsport, PA HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Williamsport metropolitan statistical area (CBSA 48700). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

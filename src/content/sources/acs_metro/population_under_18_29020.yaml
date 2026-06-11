@@ -1,5 +1,5 @@
-name: Population under 18 — Kokomo
-shortName: Kokomo pop. under 18
+name: Population under 18 — Kokomo, IN
+shortName: Kokomo, IN pop. under 18
 description: Population under 18 for the Kokomo metropolitan statistical area (CBSA 29020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

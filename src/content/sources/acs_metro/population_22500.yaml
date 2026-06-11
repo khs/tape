@@ -1,5 +1,5 @@
-name: Total population — Florence
-shortName: Florence population
+name: Total population — Florence, SC
+shortName: Florence, SC population
 description: Total population for the Florence metropolitan statistical area (CBSA 22500). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

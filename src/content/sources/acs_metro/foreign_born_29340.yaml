@@ -1,5 +1,5 @@
-name: Foreign-born population — Lake Charles
-shortName: Lake Charles foreign-born
+name: Foreign-born population — Lake Charles, LA
+shortName: Lake Charles, LA foreign-born
 description: Foreign-born population for the Lake Charles metropolitan statistical area (CBSA 29340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

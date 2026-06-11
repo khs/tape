@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Sioux Falls
-shortName: Sioux Falls pop. total (mobility)
+name: Total population (mobility-table denominator) — Sioux Falls, SD-MN
+shortName: Sioux Falls, SD-MN pop. total (mobility)
 description: Total population (mobility-table denominator) for the Sioux Falls metropolitan statistical area (CBSA 43620). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

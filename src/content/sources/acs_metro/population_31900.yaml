@@ -1,5 +1,5 @@
-name: Total population — Mansfield
-shortName: Mansfield population
+name: Total population — Mansfield, OH
+shortName: Mansfield, OH population
 description: Total population for the Mansfield metropolitan statistical area (CBSA 31900). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

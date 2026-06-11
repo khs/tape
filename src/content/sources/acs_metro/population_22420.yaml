@@ -1,5 +1,5 @@
-name: Total population — Flint
-shortName: Flint population
+name: Total population — Flint, MI
+shortName: Flint, MI population
 description: Total population for the Flint metropolitan statistical area (CBSA 22420). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

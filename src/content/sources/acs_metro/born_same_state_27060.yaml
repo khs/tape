@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Ithaca
-shortName: Ithaca born same state
+name: Population born in current state of residence — Ithaca, NY
+shortName: Ithaca, NY born same state
 description: Population born in current state of residence for the Ithaca metropolitan statistical area (CBSA 27060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

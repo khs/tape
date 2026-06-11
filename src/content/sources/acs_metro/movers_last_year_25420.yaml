@@ -1,5 +1,5 @@
-name: People who moved in the last year — Harrisburg-Carlisle
-shortName: Harrisburg-Carlisle movers (last yr)
+name: People who moved in the last year — Harrisburg-Carlisle, PA
+shortName: Harrisburg-Carlisle, PA movers (last yr)
 description: People who moved in the last year for the Harrisburg-Carlisle metropolitan statistical area (CBSA 25420). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

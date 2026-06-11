@@ -1,5 +1,5 @@
-name: Total population — Aguadilla
-shortName: Aguadilla population
+name: Total population — Aguadilla, PR
+shortName: Aguadilla, PR population
 description: Total population for the Aguadilla metropolitan statistical area (CBSA 10380). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

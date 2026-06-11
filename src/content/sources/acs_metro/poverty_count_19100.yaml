@@ -1,5 +1,5 @@
-name: People in poverty — Dallas-Fort Worth-Arlington
-shortName: Dallas-Fort Worth-Arlington poverty count
+name: People in poverty — Dallas-Fort Worth-Arlington, TX
+shortName: Dallas-Fort Worth-Arlington, TX poverty count
 description: People in poverty for the Dallas-Fort Worth-Arlington metropolitan statistical area (CBSA 19100). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

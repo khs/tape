@@ -1,5 +1,5 @@
-name: Foreign-born population — Boulder
-shortName: Boulder foreign-born
+name: Foreign-born population — Boulder, CO
+shortName: Boulder, CO foreign-born
 description: Foreign-born population for the Boulder metropolitan statistical area (CBSA 14500). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

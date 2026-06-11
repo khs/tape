@@ -1,5 +1,5 @@
-name: Population under 18 — Grand Junction
-shortName: Grand Junction pop. under 18
+name: Population under 18 — Grand Junction, CO
+shortName: Grand Junction, CO pop. under 18
 description: Population under 18 for the Grand Junction metropolitan statistical area (CBSA 24300). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

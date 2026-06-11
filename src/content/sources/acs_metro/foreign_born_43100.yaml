@@ -1,5 +1,5 @@
-name: Foreign-born population — Sheboygan
-shortName: Sheboygan foreign-born
+name: Foreign-born population — Sheboygan, WI
+shortName: Sheboygan, WI foreign-born
 description: Foreign-born population for the Sheboygan metropolitan statistical area (CBSA 43100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

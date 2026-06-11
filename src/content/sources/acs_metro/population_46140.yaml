@@ -1,5 +1,5 @@
-name: Total population — Tulsa
-shortName: Tulsa population
+name: Total population — Tulsa, OK
+shortName: Tulsa, OK population
 description: Total population for the Tulsa metropolitan statistical area (CBSA 46140). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

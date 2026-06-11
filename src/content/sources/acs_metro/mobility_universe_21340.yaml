@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — El Paso
-shortName: El Paso pop. total (mobility)
+name: Total population (mobility-table denominator) — El Paso, TX
+shortName: El Paso, TX pop. total (mobility)
 description: Total population (mobility-table denominator) for the El Paso metropolitan statistical area (CBSA 21340). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

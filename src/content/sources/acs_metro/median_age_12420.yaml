@@ -1,5 +1,5 @@
-name: Median age — Austin-Round Rock-San Marcos
-shortName: Austin-Round Rock-San Marcos median age
+name: Median age — Austin-Round Rock-San Marcos, TX
+shortName: Austin-Round Rock-San Marcos, TX median age
 description: Median age for the Austin-Round Rock-San Marcos metropolitan statistical area (CBSA 12420). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

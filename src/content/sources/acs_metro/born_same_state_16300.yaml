@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Cedar Rapids
-shortName: Cedar Rapids born same state
+name: Population born in current state of residence — Cedar Rapids, IA
+shortName: Cedar Rapids, IA born same state
 description: Population born in current state of residence for the Cedar Rapids metropolitan statistical area (CBSA 16300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

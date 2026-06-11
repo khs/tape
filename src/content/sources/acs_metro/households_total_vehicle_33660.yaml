@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Mobile
-shortName: Mobile HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Mobile, AL
+shortName: Mobile, AL HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Mobile metropolitan statistical area (CBSA 33660). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

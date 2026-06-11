@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Dubuque
-shortName: Dubuque HHs no vehicle
+name: Households with no vehicle available — Dubuque, IA
+shortName: Dubuque, IA HHs no vehicle
 description: Households with no vehicle available for the Dubuque metropolitan statistical area (CBSA 20220). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

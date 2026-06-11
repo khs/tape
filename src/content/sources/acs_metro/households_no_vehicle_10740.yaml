@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Albuquerque
-shortName: Albuquerque HHs no vehicle
+name: Households with no vehicle available — Albuquerque, NM
+shortName: Albuquerque, NM HHs no vehicle
 description: Households with no vehicle available for the Albuquerque metropolitan statistical area (CBSA 10740). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

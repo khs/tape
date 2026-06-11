@@ -1,5 +1,5 @@
-name: Foreign-born population — Sacramento-Roseville-Folsom
-shortName: Sacramento-Roseville-Folsom foreign-born
+name: Foreign-born population — Sacramento-Roseville-Folsom, CA
+shortName: Sacramento-Roseville-Folsom, CA foreign-born
 description: Foreign-born population for the Sacramento-Roseville-Folsom metropolitan statistical area (CBSA 40900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

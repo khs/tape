@@ -1,5 +1,5 @@
-name: Households with no vehicle available — El Paso
-shortName: El Paso HHs no vehicle
+name: Households with no vehicle available — El Paso, TX
+shortName: El Paso, TX HHs no vehicle
 description: Households with no vehicle available for the El Paso metropolitan statistical area (CBSA 21340). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

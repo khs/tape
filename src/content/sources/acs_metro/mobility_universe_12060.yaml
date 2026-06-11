@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell pop. total (mobility)
+name: Total population (mobility-table denominator) — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

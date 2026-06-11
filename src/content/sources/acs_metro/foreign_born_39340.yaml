@@ -1,5 +1,5 @@
-name: Foreign-born population — Provo-Orem-Lehi
-shortName: Provo-Orem-Lehi foreign-born
+name: Foreign-born population — Provo-Orem-Lehi, UT
+shortName: Provo-Orem-Lehi, UT foreign-born
 description: Foreign-born population for the Provo-Orem-Lehi metropolitan statistical area (CBSA 39340). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

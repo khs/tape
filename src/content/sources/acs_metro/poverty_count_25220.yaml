@@ -1,5 +1,5 @@
-name: People in poverty — Hammond
-shortName: Hammond poverty count
+name: People in poverty — Hammond, LA
+shortName: Hammond, LA poverty count
 description: People in poverty for the Hammond metropolitan statistical area (CBSA 25220). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median age — Duluth
-shortName: Duluth median age
+name: Median age — Duluth, MN-WI
+shortName: Duluth, MN-WI median age
 description: Median age for the Duluth metropolitan statistical area (CBSA 20260). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

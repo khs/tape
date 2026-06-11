@@ -1,5 +1,5 @@
-name: Workers who work from home — Salt Lake City-Murray
-shortName: Salt Lake City-Murray WFH workers
+name: Workers who work from home — Salt Lake City-Murray, UT
+shortName: Salt Lake City-Murray, UT WFH workers
 description: Workers who work from home for the Salt Lake City-Murray metropolitan statistical area (CBSA 41620). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

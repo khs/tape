@@ -1,5 +1,5 @@
-name: People in poverty — Missoula
-shortName: Missoula poverty count
+name: People in poverty — Missoula, MT
+shortName: Missoula, MT poverty count
 description: People in poverty for the Missoula metropolitan statistical area (CBSA 33540). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

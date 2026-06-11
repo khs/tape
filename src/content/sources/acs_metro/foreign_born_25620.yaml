@@ -1,5 +1,5 @@
-name: Foreign-born population — Hattiesburg
-shortName: Hattiesburg foreign-born
+name: Foreign-born population — Hattiesburg, MS
+shortName: Hattiesburg, MS foreign-born
 description: Foreign-born population for the Hattiesburg metropolitan statistical area (CBSA 25620). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

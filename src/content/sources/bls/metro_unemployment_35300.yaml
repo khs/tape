@@ -1,5 +1,5 @@
-name: New Haven — unemployment rate
-shortName: New Haven unemployment
+name: New Haven, CT — unemployment rate
+shortName: New Haven, CT unemployment
 description: Headline unemployment rate for the New Haven metropolitan statistical
   area (CBSA 35300). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

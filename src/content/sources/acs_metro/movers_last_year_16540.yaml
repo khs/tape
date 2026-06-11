@@ -1,5 +1,5 @@
-name: People who moved in the last year — Chambersburg
-shortName: Chambersburg movers (last yr)
+name: People who moved in the last year — Chambersburg, PA
+shortName: Chambersburg, PA movers (last yr)
 description: People who moved in the last year for the Chambersburg metropolitan statistical area (CBSA 16540). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

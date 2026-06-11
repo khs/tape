@@ -1,5 +1,5 @@
-name: Total population — Missoula
-shortName: Missoula population
+name: Total population — Missoula, MT
+shortName: Missoula, MT population
 description: Total population for the Missoula metropolitan statistical area (CBSA 33540). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

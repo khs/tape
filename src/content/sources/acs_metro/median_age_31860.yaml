@@ -1,5 +1,5 @@
-name: Median age — Mankato
-shortName: Mankato median age
+name: Median age — Mankato, MN
+shortName: Mankato, MN median age
 description: Median age for the Mankato metropolitan statistical area (CBSA 31860). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

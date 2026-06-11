@@ -1,5 +1,5 @@
-name: Workers who work from home — Fayetteville
-shortName: Fayetteville WFH workers
+name: Workers who work from home — Fayetteville, NC
+shortName: Fayetteville, NC WFH workers
 description: Workers who work from home for the Fayetteville metropolitan statistical area (CBSA 22180). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Albuquerque
-shortName: Albuquerque foreign-born
+name: Foreign-born population — Albuquerque, NM
+shortName: Albuquerque, NM foreign-born
 description: Foreign-born population for the Albuquerque metropolitan statistical area (CBSA 10740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

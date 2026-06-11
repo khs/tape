@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Lake Havasu City-Kingman
-shortName: Lake Havasu City-Kingman born same state
+name: Population born in current state of residence — Lake Havasu City-Kingman, AZ
+shortName: Lake Havasu City-Kingman, AZ born same state
 description: Population born in current state of residence for the Lake Havasu City-Kingman metropolitan statistical area (CBSA 29420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

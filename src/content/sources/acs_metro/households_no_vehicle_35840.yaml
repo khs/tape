@@ -1,5 +1,5 @@
-name: Households with no vehicle available — North Port-Bradenton-Sarasota
-shortName: North Port-Bradenton-Sarasota HHs no vehicle
+name: Households with no vehicle available — North Port-Bradenton-Sarasota, FL
+shortName: North Port-Bradenton-Sarasota, FL HHs no vehicle
 description: Households with no vehicle available for the North Port-Bradenton-Sarasota metropolitan statistical area (CBSA 35840). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

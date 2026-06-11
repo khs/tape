@@ -1,5 +1,5 @@
-name: Median age — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell median age
+name: Median age — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA median age
 description: Median age for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

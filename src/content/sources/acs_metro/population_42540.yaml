@@ -1,5 +1,5 @@
-name: Total population — Scranton--Wilkes-Barre
-shortName: Scranton--Wilkes-Barre population
+name: Total population — Scranton--Wilkes-Barre, PA
+shortName: Scranton--Wilkes-Barre, PA population
 description: Total population for the Scranton--Wilkes-Barre metropolitan statistical area (CBSA 42540). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Sierra Vista-Douglas
-shortName: Sierra Vista-Douglas pop. total (mobility)
+name: Total population (mobility-table denominator) — Sierra Vista-Douglas, AZ
+shortName: Sierra Vista-Douglas, AZ pop. total (mobility)
 description: Total population (mobility-table denominator) for the Sierra Vista-Douglas metropolitan statistical area (CBSA 43420). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

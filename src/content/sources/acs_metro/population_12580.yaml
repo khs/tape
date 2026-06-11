@@ -1,5 +1,5 @@
-name: Total population — Baltimore-Columbia-Towson
-shortName: Baltimore-Columbia-Towson population
+name: Total population — Baltimore-Columbia-Towson, MD
+shortName: Baltimore-Columbia-Towson, MD population
 description: Total population for the Baltimore-Columbia-Towson metropolitan statistical area (CBSA 12580). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

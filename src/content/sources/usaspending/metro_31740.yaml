@@ -1,5 +1,5 @@
-name: Federal spending — Manhattan
-shortName: Manhattan
+name: Federal spending — Manhattan, KS
+shortName: Manhattan, KS
 description: Total federal outlays where the recipient location is in the Manhattan
   metropolitan statistical area (CBSA 31740, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

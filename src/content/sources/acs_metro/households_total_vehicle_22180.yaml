@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Fayetteville
-shortName: Fayetteville HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Fayetteville, NC
+shortName: Fayetteville, NC HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Fayetteville metropolitan statistical area (CBSA 22180). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

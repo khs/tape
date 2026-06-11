@@ -1,5 +1,5 @@
-name: Median age — Kahului-Wailuku
-shortName: Kahului-Wailuku median age
+name: Median age — Kahului-Wailuku, HI
+shortName: Kahului-Wailuku, HI median age
 description: Median age for the Kahului-Wailuku metropolitan statistical area (CBSA 27980). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

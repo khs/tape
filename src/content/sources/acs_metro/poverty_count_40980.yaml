@@ -1,5 +1,5 @@
-name: People in poverty — Saginaw
-shortName: Saginaw poverty count
+name: People in poverty — Saginaw, MI
+shortName: Saginaw, MI poverty count
 description: People in poverty for the Saginaw metropolitan statistical area (CBSA 40980). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

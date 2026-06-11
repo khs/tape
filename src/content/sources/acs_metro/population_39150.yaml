@@ -1,5 +1,5 @@
-name: Total population — Prescott Valley-Prescott
-shortName: Prescott Valley-Prescott population
+name: Total population — Prescott Valley-Prescott, AZ
+shortName: Prescott Valley-Prescott, AZ population
 description: Total population for the Prescott Valley-Prescott metropolitan statistical area (CBSA 39150). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

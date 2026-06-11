@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Morgantown
-shortName: Morgantown born same state
+name: Population born in current state of residence — Morgantown, WV
+shortName: Morgantown, WV born same state
 description: Population born in current state of residence for the Morgantown metropolitan statistical area (CBSA 34060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

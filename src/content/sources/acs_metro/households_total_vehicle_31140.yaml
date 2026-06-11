@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Louisville/Jefferson County
-shortName: Louisville/Jefferson County HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Louisville/Jefferson County, KY-IN
+shortName: Louisville/Jefferson County, KY-IN HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Louisville/Jefferson County metropolitan statistical area (CBSA 31140). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

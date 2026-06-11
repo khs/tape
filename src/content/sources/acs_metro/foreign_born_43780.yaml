@@ -1,5 +1,5 @@
-name: Foreign-born population — South Bend-Mishawaka
-shortName: South Bend-Mishawaka foreign-born
+name: Foreign-born population — South Bend-Mishawaka, IN-MI
+shortName: South Bend-Mishawaka, IN-MI foreign-born
 description: Foreign-born population for the South Bend-Mishawaka metropolitan statistical area (CBSA 43780). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

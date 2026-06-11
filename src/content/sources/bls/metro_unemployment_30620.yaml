@@ -1,5 +1,5 @@
-name: Lima — unemployment rate
-shortName: Lima unemployment
+name: Lima, OH — unemployment rate
+shortName: Lima, OH unemployment
 description: Headline unemployment rate for the Lima metropolitan statistical area
   (CBSA 30620). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

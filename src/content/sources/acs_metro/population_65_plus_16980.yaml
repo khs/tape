@@ -1,5 +1,5 @@
-name: Population 65 and older — Chicago-Naperville-Elgin
-shortName: Chicago-Naperville-Elgin pop. 65+
+name: Population 65 and older — Chicago-Naperville-Elgin, IL-IN
+shortName: Chicago-Naperville-Elgin, IL-IN pop. 65+
 description: Population 65 and older for the Chicago-Naperville-Elgin metropolitan statistical area (CBSA 16980). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Median travel time to work — Las Cruces
-shortName: Las Cruces median commute
+name: Median travel time to work — Las Cruces, NM
+shortName: Las Cruces, NM median commute
 description: Median travel time to work for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

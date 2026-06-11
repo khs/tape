@@ -1,5 +1,5 @@
-name: People who moved in the last year — Beaumont-Port Arthur
-shortName: Beaumont-Port Arthur movers (last yr)
+name: People who moved in the last year — Beaumont-Port Arthur, TX
+shortName: Beaumont-Port Arthur, TX movers (last yr)
 description: People who moved in the last year for the Beaumont-Port Arthur metropolitan statistical area (CBSA 13140). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

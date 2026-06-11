@@ -1,5 +1,5 @@
-name: Total population — Fond du Lac
-shortName: Fond du Lac population
+name: Total population — Fond du Lac, WI
+shortName: Fond du Lac, WI population
 description: Total population for the Fond du Lac metropolitan statistical area (CBSA 22540). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

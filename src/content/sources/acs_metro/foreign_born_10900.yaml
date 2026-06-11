@@ -1,5 +1,5 @@
-name: Foreign-born population — Allentown-Bethlehem-Easton
-shortName: Allentown-Bethlehem-Easton foreign-born
+name: Foreign-born population — Allentown-Bethlehem-Easton, PA-NJ
+shortName: Allentown-Bethlehem-Easton, PA-NJ foreign-born
 description: Foreign-born population for the Allentown-Bethlehem-Easton metropolitan statistical area (CBSA 10900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Rocky Mount
-shortName: Rocky Mount foreign-born
+name: Foreign-born population — Rocky Mount, NC
+shortName: Rocky Mount, NC foreign-born
 description: Foreign-born population for the Rocky Mount metropolitan statistical area (CBSA 40580). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

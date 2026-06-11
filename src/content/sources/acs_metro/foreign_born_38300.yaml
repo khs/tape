@@ -1,5 +1,5 @@
-name: Foreign-born population — Pittsburgh
-shortName: Pittsburgh foreign-born
+name: Foreign-born population — Pittsburgh, PA
+shortName: Pittsburgh, PA foreign-born
 description: Foreign-born population for the Pittsburgh metropolitan statistical area (CBSA 38300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Federal spending — Boston-Cambridge-Newton
-shortName: Boston-Cambridge-Newton
+name: Federal spending — Boston-Cambridge-Newton, MA-NH
+shortName: Boston-Cambridge-Newton, MA-NH
 description: Total federal outlays where the recipient location is in the Boston-Cambridge-Newton
   metropolitan statistical area (CBSA 14460, OMB-defined). Aggregated up from USAspending.gov's
   county-level results by fiscal year.

@@ -1,5 +1,5 @@
-name: People in poverty — Hagerstown-Martinsburg
-shortName: Hagerstown-Martinsburg poverty count
+name: People in poverty — Hagerstown-Martinsburg, MD-WV
+shortName: Hagerstown-Martinsburg, MD-WV poverty count
 description: People in poverty for the Hagerstown-Martinsburg metropolitan statistical area (CBSA 25180). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Columbia
-shortName: Columbia pop. total (mobility)
+name: Total population (mobility-table denominator) — Columbia, SC
+shortName: Columbia, SC pop. total (mobility)
 description: Total population (mobility-table denominator) for the Columbia metropolitan statistical area (CBSA 17900). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

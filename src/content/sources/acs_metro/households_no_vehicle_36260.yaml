@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Ogden
-shortName: Ogden HHs no vehicle
+name: Households with no vehicle available — Ogden, UT
+shortName: Ogden, UT HHs no vehicle
 description: Households with no vehicle available for the Ogden metropolitan statistical area (CBSA 36260). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

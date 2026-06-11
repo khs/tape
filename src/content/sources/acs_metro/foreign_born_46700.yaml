@@ -1,5 +1,5 @@
-name: Foreign-born population — Vallejo
-shortName: Vallejo foreign-born
+name: Foreign-born population — Vallejo, CA
+shortName: Vallejo, CA foreign-born
 description: Foreign-born population for the Vallejo metropolitan statistical area (CBSA 46700). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

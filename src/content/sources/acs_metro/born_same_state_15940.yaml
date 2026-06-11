@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Canton-Massillon
-shortName: Canton-Massillon born same state
+name: Population born in current state of residence — Canton-Massillon, OH
+shortName: Canton-Massillon, OH born same state
 description: Population born in current state of residence for the Canton-Massillon metropolitan statistical area (CBSA 15940). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

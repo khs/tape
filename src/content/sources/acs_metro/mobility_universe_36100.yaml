@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Ocala
-shortName: Ocala pop. total (mobility)
+name: Total population (mobility-table denominator) — Ocala, FL
+shortName: Ocala, FL pop. total (mobility)
 description: Total population (mobility-table denominator) for the Ocala metropolitan statistical area (CBSA 36100). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

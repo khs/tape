@@ -1,5 +1,5 @@
-name: Population 65 and older — Austin-Round Rock-San Marcos
-shortName: Austin-Round Rock-San Marcos pop. 65+
+name: Population 65 and older — Austin-Round Rock-San Marcos, TX
+shortName: Austin-Round Rock-San Marcos, TX pop. 65+
 description: Population 65 and older for the Austin-Round Rock-San Marcos metropolitan statistical area (CBSA 12420). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

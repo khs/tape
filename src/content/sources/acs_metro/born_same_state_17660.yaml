@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Coeur d'Alene
-shortName: Coeur d'Alene born same state
+name: Population born in current state of residence — Coeur d'Alene, ID
+shortName: Coeur d'Alene, ID born same state
 description: Population born in current state of residence for the Coeur d'Alene metropolitan statistical area (CBSA 17660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

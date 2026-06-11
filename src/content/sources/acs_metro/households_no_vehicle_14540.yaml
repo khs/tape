@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Bowling Green
-shortName: Bowling Green HHs no vehicle
+name: Households with no vehicle available — Bowling Green, KY
+shortName: Bowling Green, KY HHs no vehicle
 description: Households with no vehicle available for the Bowling Green metropolitan statistical area (CBSA 14540). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

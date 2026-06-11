@@ -1,5 +1,5 @@
-name: Total population — Kankakee
-shortName: Kankakee population
+name: Total population — Kankakee, IL
+shortName: Kankakee, IL population
 description: Total population for the Kankakee metropolitan statistical area (CBSA 28100). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

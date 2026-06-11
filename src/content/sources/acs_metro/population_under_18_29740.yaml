@@ -1,5 +1,5 @@
-name: Population under 18 — Las Cruces
-shortName: Las Cruces pop. under 18
+name: Population under 18 — Las Cruces, NM
+shortName: Las Cruces, NM pop. under 18
 description: Population under 18 for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

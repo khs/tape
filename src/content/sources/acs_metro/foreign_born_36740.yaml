@@ -1,5 +1,5 @@
-name: Foreign-born population — Orlando-Kissimmee-Sanford
-shortName: Orlando-Kissimmee-Sanford foreign-born
+name: Foreign-born population — Orlando-Kissimmee-Sanford, FL
+shortName: Orlando-Kissimmee-Sanford, FL foreign-born
 description: Foreign-born population for the Orlando-Kissimmee-Sanford metropolitan statistical area (CBSA 36740). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

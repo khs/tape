@@ -1,5 +1,5 @@
-name: Population 65 and older — Goldsboro
-shortName: Goldsboro pop. 65+
+name: Population 65 and older — Goldsboro, NC
+shortName: Goldsboro, NC pop. 65+
 description: Population 65 and older for the Goldsboro metropolitan statistical area (CBSA 24140). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

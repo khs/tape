@@ -1,5 +1,5 @@
-name: Population 65 and older — Atlanta-Sandy Springs-Roswell
-shortName: Atlanta-Sandy Springs-Roswell pop. 65+
+name: Population 65 and older — Atlanta-Sandy Springs-Roswell, GA
+shortName: Atlanta-Sandy Springs-Roswell, GA pop. 65+
 description: Population 65 and older for the Atlanta-Sandy Springs-Roswell metropolitan statistical area (CBSA 12060). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

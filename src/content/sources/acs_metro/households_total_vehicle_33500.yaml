@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Minot
-shortName: Minot HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Minot, ND
+shortName: Minot, ND HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Minot metropolitan statistical area (CBSA 33500). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

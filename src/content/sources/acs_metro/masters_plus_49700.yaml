@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Yuba City
-shortName: Yuba City masters plus
+name: Adults 25+ with master's degree — Yuba City, CA
+shortName: Yuba City, CA masters plus
 description: Adults 25+ with master's degree for the Yuba City metropolitan statistical area (CBSA 49700). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

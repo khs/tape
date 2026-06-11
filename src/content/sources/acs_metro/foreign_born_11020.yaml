@@ -1,5 +1,5 @@
-name: Foreign-born population — Altoona
-shortName: Altoona foreign-born
+name: Foreign-born population — Altoona, PA
+shortName: Altoona, PA foreign-born
 description: Foreign-born population for the Altoona metropolitan statistical area (CBSA 11020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

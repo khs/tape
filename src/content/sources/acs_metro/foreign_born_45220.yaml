@@ -1,5 +1,5 @@
-name: Foreign-born population — Tallahassee
-shortName: Tallahassee foreign-born
+name: Foreign-born population — Tallahassee, FL
+shortName: Tallahassee, FL foreign-born
 description: Foreign-born population for the Tallahassee metropolitan statistical area (CBSA 45220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Boulder
-shortName: Boulder poverty count
+name: People in poverty — Boulder, CO
+shortName: Boulder, CO poverty count
 description: People in poverty for the Boulder metropolitan statistical area (CBSA 14500). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

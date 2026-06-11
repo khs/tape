@@ -1,5 +1,5 @@
-name: Total population — Rocky Mount
-shortName: Rocky Mount population
+name: Total population — Rocky Mount, NC
+shortName: Rocky Mount, NC population
 description: Total population for the Rocky Mount metropolitan statistical area (CBSA 40580). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

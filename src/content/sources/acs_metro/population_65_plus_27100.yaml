@@ -1,5 +1,5 @@
-name: Population 65 and older — Jackson
-shortName: Jackson pop. 65+
+name: Population 65 and older — Jackson, MI
+shortName: Jackson, MI pop. 65+
 description: Population 65 and older for the Jackson metropolitan statistical area (CBSA 27100). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

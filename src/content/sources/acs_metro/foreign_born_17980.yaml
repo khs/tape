@@ -1,5 +1,5 @@
-name: Foreign-born population — Columbus
-shortName: Columbus foreign-born
+name: Foreign-born population — Columbus, GA-AL
+shortName: Columbus, GA-AL foreign-born
 description: Foreign-born population for the Columbus metropolitan statistical area (CBSA 17980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

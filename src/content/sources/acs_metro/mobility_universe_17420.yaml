@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Cleveland
-shortName: Cleveland pop. total (mobility)
+name: Total population (mobility-table denominator) — Cleveland, TN
+shortName: Cleveland, TN pop. total (mobility)
 description: Total population (mobility-table denominator) for the Cleveland metropolitan statistical area (CBSA 17420). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

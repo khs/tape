@@ -1,5 +1,5 @@
-name: Foreign-born population — Roanoke
-shortName: Roanoke foreign-born
+name: Foreign-born population — Roanoke, VA
+shortName: Roanoke, VA foreign-born
 description: Foreign-born population for the Roanoke metropolitan statistical area (CBSA 40220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

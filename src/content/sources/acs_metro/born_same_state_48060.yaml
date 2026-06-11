@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Watertown-Fort Drum
-shortName: Watertown-Fort Drum born same state
+name: Population born in current state of residence — Watertown-Fort Drum, NY
+shortName: Watertown-Fort Drum, NY born same state
 description: Population born in current state of residence for the Watertown-Fort Drum metropolitan statistical area (CBSA 48060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

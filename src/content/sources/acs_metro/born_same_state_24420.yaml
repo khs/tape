@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Grants Pass
-shortName: Grants Pass born same state
+name: Population born in current state of residence — Grants Pass, OR
+shortName: Grants Pass, OR born same state
 description: Population born in current state of residence for the Grants Pass metropolitan statistical area (CBSA 24420). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

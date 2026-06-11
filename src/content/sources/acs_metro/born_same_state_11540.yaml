@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Appleton
-shortName: Appleton born same state
+name: Population born in current state of residence — Appleton, WI
+shortName: Appleton, WI born same state
 description: Population born in current state of residence for the Appleton metropolitan statistical area (CBSA 11540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

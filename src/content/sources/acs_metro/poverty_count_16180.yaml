@@ -1,5 +1,5 @@
-name: People in poverty — Carson City
-shortName: Carson City poverty count
+name: People in poverty — Carson City, NV
+shortName: Carson City, NV poverty count
 description: People in poverty for the Carson City metropolitan statistical area (CBSA 16180). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

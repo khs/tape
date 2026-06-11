@@ -1,5 +1,5 @@
-name: Workers who work from home — Rochester
-shortName: Rochester WFH workers
+name: Workers who work from home — Rochester, MN
+shortName: Rochester, MN WFH workers
 description: Workers who work from home for the Rochester metropolitan statistical area (CBSA 40340). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

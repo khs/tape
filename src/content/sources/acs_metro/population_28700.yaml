@@ -1,5 +1,5 @@
-name: Total population — Kingsport-Bristol
-shortName: Kingsport-Bristol population
+name: Total population — Kingsport-Bristol, TN-VA
+shortName: Kingsport-Bristol, TN-VA population
 description: Total population for the Kingsport-Bristol metropolitan statistical area (CBSA 28700). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Michigan City-La Porte
-shortName: Michigan City-La Porte foreign-born
+name: Foreign-born population — Michigan City-La Porte, IN
+shortName: Michigan City-La Porte, IN foreign-born
 description: Foreign-born population for the Michigan City-La Porte metropolitan statistical area (CBSA 33140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

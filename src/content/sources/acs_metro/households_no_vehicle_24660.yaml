@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Greensboro-High Point
-shortName: Greensboro-High Point HHs no vehicle
+name: Households with no vehicle available — Greensboro-High Point, NC
+shortName: Greensboro-High Point, NC HHs no vehicle
 description: Households with no vehicle available for the Greensboro-High Point metropolitan statistical area (CBSA 24660). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

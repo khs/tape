@@ -1,5 +1,5 @@
-name: Foreign-born population — Clarksville
-shortName: Clarksville foreign-born
+name: Foreign-born population — Clarksville, TN-KY
+shortName: Clarksville, TN-KY foreign-born
 description: Foreign-born population for the Clarksville metropolitan statistical area (CBSA 17300). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Rapid City
-shortName: Rapid City HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Rapid City, SD
+shortName: Rapid City, SD HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Rapid City metropolitan statistical area (CBSA 39660). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

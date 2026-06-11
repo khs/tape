@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Winston-Salem
-shortName: Winston-Salem HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Winston-Salem, NC
+shortName: Winston-Salem, NC HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Winston-Salem metropolitan statistical area (CBSA 49180). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

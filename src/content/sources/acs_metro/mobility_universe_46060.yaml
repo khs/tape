@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Tucson
-shortName: Tucson pop. total (mobility)
+name: Total population (mobility-table denominator) — Tucson, AZ
+shortName: Tucson, AZ pop. total (mobility)
 description: Total population (mobility-table denominator) for the Tucson metropolitan statistical area (CBSA 46060). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

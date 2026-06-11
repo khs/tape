@@ -1,5 +1,5 @@
-name: Median travel time to work — Provo-Orem-Lehi
-shortName: Provo-Orem-Lehi median commute
+name: Median travel time to work — Provo-Orem-Lehi, UT
+shortName: Provo-Orem-Lehi, UT median commute
 description: Median travel time to work for the Provo-Orem-Lehi metropolitan statistical area (CBSA 39340). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

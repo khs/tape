@@ -1,5 +1,5 @@
-name: Total population — Ann Arbor
-shortName: Ann Arbor population
+name: Total population — Ann Arbor, MI
+shortName: Ann Arbor, MI population
 description: Total population for the Ann Arbor metropolitan statistical area (CBSA 11460). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

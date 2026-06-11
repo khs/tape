@@ -1,5 +1,5 @@
-name: Population born in current state of residence — New York-Newark-Jersey City
-shortName: New York-Newark-Jersey City born same state
+name: Population born in current state of residence — New York-Newark-Jersey City, NY-NJ
+shortName: New York-Newark-Jersey City, NY-NJ born same state
 description: Population born in current state of residence for the New York-Newark-Jersey City metropolitan statistical area (CBSA 35620). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

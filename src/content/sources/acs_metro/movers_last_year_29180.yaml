@@ -1,5 +1,5 @@
-name: People who moved in the last year — Lafayette
-shortName: Lafayette movers (last yr)
+name: People who moved in the last year — Lafayette, LA
+shortName: Lafayette, LA movers (last yr)
 description: People who moved in the last year for the Lafayette metropolitan statistical area (CBSA 29180). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Workers who work from home — Appleton
-shortName: Appleton WFH workers
+name: Workers who work from home — Appleton, WI
+shortName: Appleton, WI WFH workers
 description: Workers who work from home for the Appleton metropolitan statistical area (CBSA 11540). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Foreign-born population — Florence
-shortName: Florence foreign-born
+name: Foreign-born population — Florence, SC
+shortName: Florence, SC foreign-born
 description: Foreign-born population for the Florence metropolitan statistical area (CBSA 22500). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

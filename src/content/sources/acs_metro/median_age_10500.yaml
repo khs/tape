@@ -1,5 +1,5 @@
-name: Median age — Albany
-shortName: Albany median age
+name: Median age — Albany, GA
+shortName: Albany, GA median age
 description: Median age for the Albany metropolitan statistical area (CBSA 10500). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

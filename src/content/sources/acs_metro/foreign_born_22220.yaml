@@ -1,5 +1,5 @@
-name: Foreign-born population — Fayetteville-Springdale-Rogers
-shortName: Fayetteville-Springdale-Rogers foreign-born
+name: Foreign-born population — Fayetteville-Springdale-Rogers, AR
+shortName: Fayetteville-Springdale-Rogers, AR foreign-born
 description: Foreign-born population for the Fayetteville-Springdale-Rogers metropolitan statistical area (CBSA 22220). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

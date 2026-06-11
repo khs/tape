@@ -1,5 +1,5 @@
-name: Population 65 and older — Glens Falls
-shortName: Glens Falls pop. 65+
+name: Population 65 and older — Glens Falls, NY
+shortName: Glens Falls, NY pop. 65+
 description: Population 65 and older for the Glens Falls metropolitan statistical area (CBSA 24020). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

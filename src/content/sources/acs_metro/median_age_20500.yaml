@@ -1,5 +1,5 @@
-name: Median age — Durham-Chapel Hill
-shortName: Durham-Chapel Hill median age
+name: Median age — Durham-Chapel Hill, NC
+shortName: Durham-Chapel Hill, NC median age
 description: Median age for the Durham-Chapel Hill metropolitan statistical area (CBSA 20500). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

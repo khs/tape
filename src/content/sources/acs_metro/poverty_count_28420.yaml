@@ -1,5 +1,5 @@
-name: People in poverty — Kennewick-Richland
-shortName: Kennewick-Richland poverty count
+name: People in poverty — Kennewick-Richland, WA
+shortName: Kennewick-Richland, WA poverty count
 description: People in poverty for the Kennewick-Richland metropolitan statistical area (CBSA 28420). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

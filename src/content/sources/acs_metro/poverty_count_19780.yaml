@@ -1,5 +1,5 @@
-name: People in poverty — Des Moines-West Des Moines
-shortName: Des Moines-West Des Moines poverty count
+name: People in poverty — Des Moines-West Des Moines, IA
+shortName: Des Moines-West Des Moines, IA poverty count
 description: People in poverty for the Des Moines-West Des Moines metropolitan statistical area (CBSA 19780). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

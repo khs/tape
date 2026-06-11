@@ -1,5 +1,5 @@
-name: People in poverty — Charlottesville
-shortName: Charlottesville poverty count
+name: People in poverty — Charlottesville, VA
+shortName: Charlottesville, VA poverty count
 description: People in poverty for the Charlottesville metropolitan statistical area (CBSA 16820). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

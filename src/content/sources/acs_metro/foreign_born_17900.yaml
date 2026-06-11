@@ -1,5 +1,5 @@
-name: Foreign-born population — Columbia
-shortName: Columbia foreign-born
+name: Foreign-born population — Columbia, SC
+shortName: Columbia, SC foreign-born
 description: Foreign-born population for the Columbia metropolitan statistical area (CBSA 17900). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

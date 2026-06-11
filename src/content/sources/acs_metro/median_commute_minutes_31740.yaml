@@ -1,5 +1,5 @@
-name: Median travel time to work — Manhattan
-shortName: Manhattan median commute
+name: Median travel time to work — Manhattan, KS
+shortName: Manhattan, KS median commute
 description: Median travel time to work for the Manhattan metropolitan statistical area (CBSA 31740). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

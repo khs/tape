@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Beaumont-Port Arthur
-shortName: Beaumont-Port Arthur born same state
+name: Population born in current state of residence — Beaumont-Port Arthur, TX
+shortName: Beaumont-Port Arthur, TX born same state
 description: Population born in current state of residence for the Beaumont-Port Arthur metropolitan statistical area (CBSA 13140). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Greeley — unemployment rate
-shortName: Greeley unemployment
+name: Greeley, CO — unemployment rate
+shortName: Greeley, CO unemployment
 description: Headline unemployment rate for the Greeley metropolitan statistical area
   (CBSA 24540). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

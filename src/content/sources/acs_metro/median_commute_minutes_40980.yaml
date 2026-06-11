@@ -1,5 +1,5 @@
-name: Median travel time to work — Saginaw
-shortName: Saginaw median commute
+name: Median travel time to work — Saginaw, MI
+shortName: Saginaw, MI median commute
 description: Median travel time to work for the Saginaw metropolitan statistical area (CBSA 40980). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

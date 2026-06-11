@@ -1,5 +1,5 @@
-name: Population under 18 — Pueblo
-shortName: Pueblo pop. under 18
+name: Population under 18 — Pueblo, CO
+shortName: Pueblo, CO pop. under 18
 description: Population under 18 for the Pueblo metropolitan statistical area (CBSA 39380). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

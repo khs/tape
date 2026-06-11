@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Mobile
-shortName: Mobile born same state
+name: Population born in current state of residence — Mobile, AL
+shortName: Mobile, AL born same state
 description: Population born in current state of residence for the Mobile metropolitan statistical area (CBSA 33660). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Bellingham
-shortName: Bellingham pop. 65+
+name: Population 65 and older — Bellingham, WA
+shortName: Bellingham, WA pop. 65+
 description: Population 65 and older for the Bellingham metropolitan statistical area (CBSA 13380). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

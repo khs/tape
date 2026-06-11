@@ -1,5 +1,5 @@
-name: Households with no vehicle available — Trenton-Princeton
-shortName: Trenton-Princeton HHs no vehicle
+name: Households with no vehicle available — Trenton-Princeton, NJ
+shortName: Trenton-Princeton, NJ HHs no vehicle
 description: Households with no vehicle available for the Trenton-Princeton metropolitan statistical area (CBSA 45940). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

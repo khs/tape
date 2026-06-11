@@ -1,5 +1,5 @@
-name: Foreign-born population — Logan
-shortName: Logan foreign-born
+name: Foreign-born population — Logan, UT-ID
+shortName: Logan, UT-ID foreign-born
 description: Foreign-born population for the Logan metropolitan statistical area (CBSA 30860). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

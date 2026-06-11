@@ -1,5 +1,5 @@
-name: Population born in current state of residence — South Bend-Mishawaka
-shortName: South Bend-Mishawaka born same state
+name: Population born in current state of residence — South Bend-Mishawaka, IN-MI
+shortName: South Bend-Mishawaka, IN-MI born same state
 description: Population born in current state of residence for the South Bend-Mishawaka metropolitan statistical area (CBSA 43780). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total population — Weirton-Steubenville
-shortName: Weirton-Steubenville population
+name: Total population — Weirton-Steubenville, WV-OH
+shortName: Weirton-Steubenville, WV-OH population
 description: Total population for the Weirton-Steubenville metropolitan statistical area (CBSA 48260). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

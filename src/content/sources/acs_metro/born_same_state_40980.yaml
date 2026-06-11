@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Saginaw
-shortName: Saginaw born same state
+name: Population born in current state of residence — Saginaw, MI
+shortName: Saginaw, MI born same state
 description: Population born in current state of residence for the Saginaw metropolitan statistical area (CBSA 40980). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

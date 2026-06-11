@@ -1,5 +1,5 @@
-name: Total population (mobility-table denominator) — Harrisonburg
-shortName: Harrisonburg pop. total (mobility)
+name: Total population (mobility-table denominator) — Harrisonburg, VA
+shortName: Harrisonburg, VA pop. total (mobility)
 description: Total population (mobility-table denominator) for the Harrisonburg metropolitan statistical area (CBSA 25500). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

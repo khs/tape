@@ -1,5 +1,5 @@
-name: Workers who work from home — Indianapolis-Carmel-Greenwood
-shortName: Indianapolis-Carmel-Greenwood WFH workers
+name: Workers who work from home — Indianapolis-Carmel-Greenwood, IN
+shortName: Indianapolis-Carmel-Greenwood, IN WFH workers
 description: Workers who work from home for the Indianapolis-Carmel-Greenwood metropolitan statistical area (CBSA 26900). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: People in poverty — Logan
-shortName: Logan poverty count
+name: People in poverty — Logan, UT-ID
+shortName: Logan, UT-ID poverty count
 description: People in poverty for the Logan metropolitan statistical area (CBSA 30860). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

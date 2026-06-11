@@ -1,5 +1,5 @@
-name: People in poverty — Toledo
-shortName: Toledo poverty count
+name: People in poverty — Toledo, OH
+shortName: Toledo, OH poverty count
 description: People in poverty for the Toledo metropolitan statistical area (CBSA 45780). From the American Community Survey 5-year estimates (table B17001). Released annually.
 kind: timeseries
 pipeline: acs_metro

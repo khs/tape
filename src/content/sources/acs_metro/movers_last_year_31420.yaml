@@ -1,5 +1,5 @@
-name: People who moved in the last year — Macon-Bibb County
-shortName: Macon-Bibb County movers (last yr)
+name: People who moved in the last year — Macon-Bibb County, GA
+shortName: Macon-Bibb County, GA movers (last yr)
 description: People who moved in the last year for the Macon-Bibb County metropolitan statistical area (CBSA 31420). From the American Community Survey 5-year estimates (table B07003). Released annually.
 kind: timeseries
 pipeline: acs_metro

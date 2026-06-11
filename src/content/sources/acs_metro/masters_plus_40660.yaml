@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Rome
-shortName: Rome masters plus
+name: Adults 25+ with master's degree — Rome, GA
+shortName: Rome, GA masters plus
 description: Adults 25+ with master's degree for the Rome metropolitan statistical area (CBSA 40660). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

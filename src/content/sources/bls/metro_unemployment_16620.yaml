@@ -1,5 +1,5 @@
-name: Charleston — unemployment rate
-shortName: Charleston unemployment
+name: Charleston, WV — unemployment rate
+shortName: Charleston, WV unemployment
 description: Headline unemployment rate for the Charleston metropolitan statistical
   area (CBSA 16620). Monthly, not seasonally adjusted. From BLS Local Area Unemployment
   Statistics (LAUS).

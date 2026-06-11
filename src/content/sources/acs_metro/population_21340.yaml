@@ -1,5 +1,5 @@
-name: Total population — El Paso
-shortName: El Paso population
+name: Total population — El Paso, TX
+shortName: El Paso, TX population
 description: Total population for the El Paso metropolitan statistical area (CBSA 21340). From the American Community Survey 5-year estimates (table B01003). Released annually.
 kind: timeseries
 pipeline: acs_metro

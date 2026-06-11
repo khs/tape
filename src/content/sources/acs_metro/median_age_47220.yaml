@@ -1,5 +1,5 @@
-name: Median age — Vineland
-shortName: Vineland median age
+name: Median age — Vineland, NJ
+shortName: Vineland, NJ median age
 description: Median age for the Vineland metropolitan statistical area (CBSA 47220). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

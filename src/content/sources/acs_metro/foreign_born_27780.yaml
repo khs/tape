@@ -1,5 +1,5 @@
-name: Foreign-born population — Johnstown
-shortName: Johnstown foreign-born
+name: Foreign-born population — Johnstown, PA
+shortName: Johnstown, PA foreign-born
 description: Foreign-born population for the Johnstown metropolitan statistical area (CBSA 27780). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

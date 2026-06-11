@@ -1,5 +1,5 @@
-name: Total households (vehicle-table denominator) — Albuquerque
-shortName: Albuquerque HHs total (vehicle)
+name: Total households (vehicle-table denominator) — Albuquerque, NM
+shortName: Albuquerque, NM HHs total (vehicle)
 description: Total households (vehicle-table denominator) for the Albuquerque metropolitan statistical area (CBSA 10740). From the American Community Survey 5-year estimates (table B08201). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Los Angeles-Long Beach-Anaheim
-shortName: Los Angeles-Long Beach-Anaheim born same state
+name: Population born in current state of residence — Los Angeles-Long Beach-Anaheim, CA
+shortName: Los Angeles-Long Beach-Anaheim, CA born same state
 description: Population born in current state of residence for the Los Angeles-Long Beach-Anaheim metropolitan statistical area (CBSA 31080). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

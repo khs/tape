@@ -1,5 +1,5 @@
-name: Median age — Wichita
-shortName: Wichita median age
+name: Median age — Wichita, KS
+shortName: Wichita, KS median age
 description: Median age for the Wichita metropolitan statistical area (CBSA 48620). From the American Community Survey 5-year estimates (table B01002). Released annually.
 kind: timeseries
 pipeline: acs_metro

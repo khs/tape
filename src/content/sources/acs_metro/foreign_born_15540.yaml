@@ -1,5 +1,5 @@
-name: Foreign-born population — Burlington-South Burlington
-shortName: Burlington-South Burlington foreign-born
+name: Foreign-born population — Burlington-South Burlington, VT
+shortName: Burlington-South Burlington, VT foreign-born
 description: Foreign-born population for the Burlington-South Burlington metropolitan statistical area (CBSA 15540). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

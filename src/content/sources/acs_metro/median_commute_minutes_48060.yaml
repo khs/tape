@@ -1,5 +1,5 @@
-name: Median travel time to work — Watertown-Fort Drum
-shortName: Watertown-Fort Drum median commute
+name: Median travel time to work — Watertown-Fort Drum, NY
+shortName: Watertown-Fort Drum, NY median commute
 description: Median travel time to work for the Watertown-Fort Drum metropolitan statistical area (CBSA 48060). From the American Community Survey 5-year estimates (table B08303). Released annually.
 kind: timeseries
 pipeline: acs_metro

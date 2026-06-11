@@ -1,5 +1,5 @@
-name: Adults 25+ with bachelor's degree — Fort Collins-Loveland
-shortName: Fort Collins-Loveland bachelors plus
+name: Adults 25+ with bachelor's degree — Fort Collins-Loveland, CO
+shortName: Fort Collins-Loveland, CO bachelors plus
 description: Adults 25+ with bachelor's degree for the Fort Collins-Loveland metropolitan statistical area (CBSA 22660). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population born in current state of residence — Fort Wayne
-shortName: Fort Wayne born same state
+name: Population born in current state of residence — Fort Wayne, IN
+shortName: Fort Wayne, IN born same state
 description: Population born in current state of residence for the Fort Wayne metropolitan statistical area (CBSA 23060). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

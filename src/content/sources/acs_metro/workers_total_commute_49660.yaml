@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Youngstown-Warren
-shortName: Youngstown-Warren workers total (commute)
+name: Total workers (commute-table denominator) — Youngstown-Warren, OH
+shortName: Youngstown-Warren, OH workers total (commute)
 description: Total workers (commute-table denominator) for the Youngstown-Warren metropolitan statistical area (CBSA 49660). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population under 18 — Farmington
-shortName: Farmington pop. under 18
+name: Population under 18 — Farmington, NM
+shortName: Farmington, NM pop. under 18
 description: Population under 18 for the Farmington metropolitan statistical area (CBSA 22140). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

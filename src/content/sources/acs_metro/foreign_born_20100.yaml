@@ -1,5 +1,5 @@
-name: Foreign-born population — Dover
-shortName: Dover foreign-born
+name: Foreign-born population — Dover, DE
+shortName: Dover, DE foreign-born
 description: Foreign-born population for the Dover metropolitan statistical area (CBSA 20100). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Population 65 and older — Sherman-Denison
-shortName: Sherman-Denison pop. 65+
+name: Population 65 and older — Sherman-Denison, TX
+shortName: Sherman-Denison, TX pop. 65+
 description: Population 65 and older for the Sherman-Denison metropolitan statistical area (CBSA 43300). From the American Community Survey 5-year estimates (table B01001). Released annually.
 kind: timeseries
 pipeline: acs_metro

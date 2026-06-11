@@ -1,5 +1,5 @@
-name: Adults 25+ with master's degree — Las Cruces
-shortName: Las Cruces masters plus
+name: Adults 25+ with master's degree — Las Cruces, NM
+shortName: Las Cruces, NM masters plus
 description: Adults 25+ with master's degree for the Las Cruces metropolitan statistical area (CBSA 29740). From the American Community Survey 5-year estimates (table B15003). Released annually.
 kind: timeseries
 pipeline: acs_metro

@@ -1,5 +1,5 @@
-name: Total workers (commute-table denominator) — Jonesboro
-shortName: Jonesboro workers total (commute)
+name: Total workers (commute-table denominator) — Jonesboro, AR
+shortName: Jonesboro, AR workers total (commute)
 description: Total workers (commute-table denominator) for the Jonesboro metropolitan statistical area (CBSA 27860). From the American Community Survey 5-year estimates (table B08301). Released annually.
 kind: timeseries
 pipeline: acs_metro

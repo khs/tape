@@ -1,5 +1,5 @@
-name: Population born in current state of residence — San Luis Obispo-Paso Robles
-shortName: San Luis Obispo-Paso Robles born same state
+name: Population born in current state of residence — San Luis Obispo-Paso Robles, CA
+shortName: San Luis Obispo-Paso Robles, CA born same state
 description: Population born in current state of residence for the San Luis Obispo-Paso Robles metropolitan statistical area (CBSA 42020). From the American Community Survey 5-year estimates (table B05002). Released annually.
 kind: timeseries
 pipeline: acs_metro
