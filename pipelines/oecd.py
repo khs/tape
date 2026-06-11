@@ -318,16 +318,24 @@ def fetch_indicator(spec: OECDSpec) -> dict[str, list[dict]]:
         return {}
 
     reader = csv.DictReader(StringIO(body))
-    by_country: dict[str, list[dict]] = {}
+    # Keyed by date so we can dedup. Some OECD dataflows (CPI, harmonized
+    # unemployment) return BOTH an annual and a monthly observation for the
+    # same year — e.g. TIME_PERIOD "1972" AND "1972-01". Once both normalize
+    # to "1972-01-01" they collide. We keep the MONTHLY one: it's the true
+    # series cadence; the annual figure is a redundant aggregate that was
+    # only ever distinguishable because the bare-year string sorted apart.
+    # Value: (v, is_monthly). Purely-annual dataflows never collide, so
+    # their points pass through unchanged (now dated Jan 1).
+    by_country: dict[str, dict[str, tuple[float, bool]]] = {}
     for r in reader:
         if not spec.filter_fn(r):
             continue
         iso = r.get("REF_AREA", "")
         if iso not in countries:
             continue
-        t = r.get("TIME_PERIOD", "")
+        raw = r.get("TIME_PERIOD", "")
         v = r.get("OBS_VALUE", "")
-        if not t or not v:
+        if not raw or not v:
             continue
         try:
             v_f = float(v)
@@ -340,14 +348,23 @@ def fetch_indicator(spec: OECDSpec) -> dict[str, list[dict]]:
         #                app's dominant provider; also what JS
         #                Date.parse("YYYY") already yields, so no point
         #                moves — it just makes the date explicit).
-        if len(t) == 7 and t[4] == "-":
-            t = t + "-01"
-        elif len(t) == 4 and t.isdigit():
-            t = t + "-01-01"
-        by_country.setdefault(iso, []).append({"t": t, "v": v_f})
-    for pts in by_country.values():
-        pts.sort(key=lambda p: p["t"])
-    return by_country
+        is_monthly = len(raw) == 7 and raw[4] == "-"
+        if is_monthly:
+            t = raw + "-01"
+        elif len(raw) == 4 and raw.isdigit():
+            t = raw + "-01-01"
+        else:
+            t = raw
+        slot = by_country.setdefault(iso, {})
+        existing = slot.get(t)
+        # Insert unless a monthly point already holds this date; a monthly
+        # point always wins over (replaces) an annual one on collision.
+        if existing is None or (is_monthly and not existing[1]):
+            slot[t] = (v_f, is_monthly)
+    return {
+        iso: [{"t": t, "v": v} for t, (v, _) in sorted(slot.items())]
+        for iso, slot in by_country.items()
+    }
 
 
 def main() -> int:
