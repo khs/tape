@@ -216,7 +216,10 @@ SPECS: list[YahooSpec] = [
     YahooSpec("DOT-USD", "DOT_USD", "Polkadot (USD)", "USD"),
     YahooSpec("LINK-USD", "LINK_USD", "Chainlink (USD)", "USD"),
     YahooSpec("AVAX-USD", "AVAX_USD", "Avalanche (USD)", "USD"),
-    YahooSpec("MATIC-USD", "MATIC_USD", "Polygon (USD)", "USD"),
+    # Polygon (MATIC-USD) removed 2026-06-11: the token rebranded to POL
+    # in 2024 and the MATIC ticker went dead on Yahoo 2025-03-24, so the
+    # series silently stopped updating. Add POL-USD here if/when Polygon
+    # coverage is wanted again.
     YahooSpec("TRX-USD", "TRX_USD", "TRON (USD)", "USD"),
     YahooSpec("SHIB-USD", "SHIB_USD", "Shiba Inu (USD)", "USD"),
     # Crypto-adjacent equities + ETFs — TradFi vehicles for crypto exposure
