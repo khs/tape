@@ -672,7 +672,8 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         <div class="cc-modal-body">
           <p class="muted small">
             Combines two existing sources (real or derived) into a new
-            source you can use in any chart.
+            source you can use in any chart — for example Federal debt ÷
+            GDP, or Exports − Imports.
           </p>
           <div class="cc-field ds-quick-divisors">
             <span class="eyebrow">Quick: divide by…</span>
@@ -807,14 +808,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               />
             </div>
             <fieldset class="cc-mode" data-role="cc-mode">
-              <legend class="eyebrow">Scale</legend>
+              <legend class="eyebrow">Combine mode</legend>
               <label class="cc-mode-opt">
                 <input type="radio" name="cc-mode" value="raw" data-role="cc-mode-raw" />
                 <span><strong>Raw</strong> — plot each series at its own value. Best when all picked sources share the same scale (e.g. several inflation rates).</span>
               </label>
               <label class="cc-mode-opt" data-role="cc-mode-rebase-wrap">
                 <input type="radio" name="cc-mode" value="rebase" data-role="cc-mode-rebase" />
-                <span><strong>Rebase</strong> — index every series to 100 at the window start. Best when scales differ wildly (mortgage rates + S&amp;P).</span>
+                <span><strong>Rebase</strong> — index every series to 100 at the window start, so you compare growth, not starting level. Best when scales differ wildly (mortgage rates + S&amp;P).</span>
               </label>
               <label class="cc-mode-opt" data-role="cc-mode-dual-wrap">
                 <input type="radio" name="cc-mode" value="dual-axis" data-role="cc-mode-dual" />
@@ -835,7 +836,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               title="Log-scale the y-axis. Makes exponential growth (market caps, GDP, prices over decades) read as a straight line. Disabled when dual-axis is selected — running log on one axis and linear on the other would be misleading."
             >
               <input type="checkbox" data-role="cc-log" />
-              <span><strong>Log scale</strong> — makes exponential growth read as a straight line. Combine with raw or rebase; off with dual-axis.</span>
+              <span><strong>Log scale</strong> — good for looking at something that grows annually rather than by a fixed amount, or when rebasing would collapse a gap that you care about. Combine with raw or rebase; off with dual-axis.</span>
             </label>
             <!--
               percentDisplay control: only relevant when the chart's

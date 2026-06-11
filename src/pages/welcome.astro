@@ -17,6 +17,7 @@
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import EmailSignup from "../components/EmailSignup.astro";
+import { SOURCE_COUNT_DISPLAY } from "../lib/source-count";
 import {
   WALKTHROUGH_DASHBOARD_SLUG,
   ENTERPRISE_INQUIRY_URL,
@@ -218,7 +219,7 @@ const EDITORIAL_FEATURES: string[] = [
     {/* Hero */}
     <section class="welcome-hero">
       <h1 class="welcome-title">
-        Tape: the best research dashboard for other people's data
+        Research dashboards from {SOURCE_COUNT_DISPLAY} economic and geographic sources.
       </h1>
       <p class="welcome-pitch">
         Free, source-linked charts and maps to describe the world, from
