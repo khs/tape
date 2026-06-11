@@ -150,7 +150,10 @@ for (const spec of SECTION_SPEC) {
   for (const [indicator, label] of spec.indicators) {
     const sourceId = `acs_cd/${indicator}_${state}_${district}`;
     if (!available.has(sourceId)) continue;
-    inlineCharts[indicator] = { title: label, sources: [sourceId] };
+    // NOTE: the inlineCharts map is keyed by the FULL prefixed id —
+    // resolveChart looks up `inlineCharts[id]` with the `inline:`
+    // prefix still attached (matches how the composer builds state).
+    inlineCharts[`inline:${indicator}`] = { title: label, sources: [sourceId] };
     chartIds.push(`inline:${indicator}`);
   }
   if (chartIds.length > 0) sections.push({ title: spec.title, charts: chartIds });
