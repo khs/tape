@@ -2088,6 +2088,19 @@ const statesJoined = stateCodes.join(",");
     color: var(--color-neutral-900);
   }
   .map-eyebrow { margin: 2px 0 0; }
+</style>
+
+<style is:global>
+  /* GLOBAL, not scoped — everything from here down styles nodes the
+     script creates at runtime (the expand <dialog> via createElement/
+     innerHTML, the hover tooltip, the dialog's canvas). Astro scoping
+     compiles each selector to `.x[data-astro-cid-…]`, an attribute
+     JS-created nodes never carry, so in a scoped block ALL of these
+     rules are silently dead: the dialog rendered with UA styles only
+     (pinned top-left under Tailwind's `* { margin: 0 }` preflight)
+     and the Full-screen toggle flipped a class no rule matched.
+     .map-canvas also lives here because it's dual-context: the tile's
+     canvas is template-rendered but the dialog's is JS-created. */
   .map-canvas {
     flex: 1;
     min-height: 240px;
