@@ -333,9 +333,17 @@ def fetch_indicator(spec: OECDSpec) -> dict[str, list[dict]]:
             v_f = float(v)
         except ValueError:
             continue
-        # Normalize "YYYY-MM" to ISO date (first of month).
+        # Normalize to ISO dates so every point sorts/parses uniformly
+        # and aligns with other providers on a combined chart:
+        #   "YYYY-MM" -> first of month
+        #   "YYYY"    -> Jan 1 (matches FRED's annual convention, the
+        #                app's dominant provider; also what JS
+        #                Date.parse("YYYY") already yields, so no point
+        #                moves — it just makes the date explicit).
         if len(t) == 7 and t[4] == "-":
             t = t + "-01"
+        elif len(t) == 4 and t.isdigit():
+            t = t + "-01-01"
         by_country.setdefault(iso, []).append({"t": t, "v": v_f})
     for pts in by_country.values():
         pts.sort(key=lambda p: p["t"])
