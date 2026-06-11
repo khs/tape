@@ -45,6 +45,11 @@ pipelines/_tract_topo_cache/
 
 .tmp_*
 
+# Playwright output (e2e suite runs post-deploy in CI; local runs are
+# ad-hoc against prod). Reports + traces are regenerable artifacts.
+test-results/
+playwright-report/
+
 
 # Session-handoff notes (HANDOFF.md): generated for resuming on another
 # machine, moved manually (not via git). Untracked on purpose.

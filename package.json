@@ -18,6 +18,7 @@
     "typecheck": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage",
     "audit:data": "node scripts/audit-source-data.mjs"
   },
@@ -48,6 +49,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/d3": "^7.4.0",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-specification": "^1.0.5",
