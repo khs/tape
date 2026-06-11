@@ -1,6 +1,6 @@
 title: Quits rate (JOLTS)
 sources:
-  - fred/quits_rate
+  - fred/jolts_quits_rate
 render: line
 defaultDelta: 5y
 tags: [labor, macro, us]

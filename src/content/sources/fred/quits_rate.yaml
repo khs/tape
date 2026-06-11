@@ -1,6 +1,12 @@
 name: Quits rate (JOLTS)
 shortName: Quits rate
 description: 'Number of voluntary quits as a percent of total employment. (JOLTS = Job Openings and Labor Turnover Survey.)'
+# Retired twin (audit #9): duplicate of fred/jolts_quits_rate — same
+# JTSQUR dataFile. The survivor carries the superset of delta windows
+# (adds 1m/ytd) and richer provenance. Hidden from the picker; its one
+# chart (us-macro/quits_rate) was repointed to the survivor. Kept (not
+# deleted) so saved dashboards pinning this id still resolve.
+hidden: true
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSQUR.json
