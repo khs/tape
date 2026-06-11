@@ -92,6 +92,7 @@ jobs:
           python -m unittest pipelines.test_about_page_coverage -v
           python -m unittest pipelines.test_welcome_page_coverage -v
           python -m unittest pipelines.test_audit_source_scales -v
+          python -m unittest pipelines.test_usaspending_annualize -v
 
       - name: Source-data deep audit (--full)
         # Order + summary-drift + point-count checks across EVERY

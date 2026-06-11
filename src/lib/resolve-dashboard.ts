@@ -356,6 +356,19 @@ export async function resolveChart(
     (s): s is CollectionEntry<"sources"> => s !== undefined,
   );
   if (validSources.length === 0) return null;
+  // Inherit a source's defaultAnnotations onto a curated chart that
+  // defines none of its own — so the usaspending partial-FY "annualized"
+  // marker (audit new-#2) appears on dashboard charts too, the same way
+  // compose.astro seeds it for composer-added inline charts. A
+  // chart-authored `annotations` field always wins.
+  if (!chart.data.annotations?.length) {
+    const seed = validSources.find(
+      (s) => s.data.defaultAnnotations?.length,
+    )?.data.defaultAnnotations;
+    if (seed) {
+      chart = { ...chart, data: { ...chart.data, annotations: seed } };
+    }
+  }
   return { chart, sources: validSources };
 }
 

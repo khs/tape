@@ -38,6 +38,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from common import write_timeseries
+from usaspending_annualize import (
+    annualize_open_fy,
+    fetch_coverage,
+    set_yaml_default_annotation,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CROSSWALK_DIR = REPO_ROOT / "pipelines" / "_crosswalks"
@@ -263,15 +268,25 @@ def main() -> int:
             # sane ratios.
             metro_points[cbsa].append({"t": anchor, "v": total / 1e9})
 
+    # Partial-FY annualization (audit new-#2): one global coverage probe.
+    # None on failure → no-op, never blocks the refresh.
+    coverage = fetch_coverage()
+    if coverage:
+        print(f"Annualization: open FY{coverage[0]}, {coverage[1]}/12 months covered", flush=True)
+
     json_written = 0
+    annotations: dict[str, dict | None] = {}
     for metro in metros:
         points = metro_points.get(metro.code, [])
         if not points:
             continue
         points.sort(key=lambda p: p["t"])
+        series_id = f"metro_{metro.code}"
+        if coverage:
+            points, annotations[series_id] = annualize_open_fy(points, *coverage)
         write_timeseries(
             pipeline="usaspending",
-            series_id=f"metro_{metro.code}",
+            series_id=series_id,
             name=f"Federal spending — {metro_display_name(metro.short_name, metro.name)}",
             points=points,
             unit="USD",
@@ -282,6 +297,14 @@ def main() -> int:
     yaml_written = sum(1 for m in metros if write_source_yaml(m))
     print(f"Wrote {yaml_written} new source YAMLs "
           f"({len(metros) - yaml_written} already existed)", flush=True)
+
+    # Stamp/clear the managed annotation AFTER YAML generation so both
+    # freshly-written and pre-existing metro YAMLs get it.
+    ann_set = sum(
+        1 for sid, ann in annotations.items()
+        if set_yaml_default_annotation(SOURCES_DIR / f"{sid}.yaml", ann) and ann
+    )
+    print(f"Annualization annotations set on {ann_set} metro YAMLs", flush=True)
     return 0
 
 

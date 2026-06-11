@@ -25,6 +25,7 @@ import sys
 from datetime import datetime, timezone
 
 from common import write_timeseries
+from usaspending_annualize import annualize_for_write, fetch_coverage
 
 
 USA_URL = "https://api.usaspending.gov/api/v2/search/spending_by_geography/"
@@ -154,16 +155,24 @@ def main() -> int:
             )
             cd_names[slug] = cd.get("display_name", slug)
 
+    # Partial-FY annualization coverage (audit new-#2): one global probe,
+    # reused for every series. None on failure → annualize_for_write
+    # no-ops, so a flaky probe never blocks the refresh.
+    coverage = fetch_coverage()
+    if coverage:
+        print(f"Annualization: open FY{coverage[0]}, {coverage[1]}/12 months covered", flush=True)
+
     state_written = 0
     for code, points in state_points.items():
         points.sort(key=lambda p: p["t"])
         name = state_names.get(code, code)
         # We use lowercase state code as the file slug.
+        series_id = f"state_{code.lower()}"
         write_timeseries(
             pipeline="usaspending",
-            series_id=f"state_{code.lower()}",
+            series_id=series_id,
             name=f"Federal spending in {name}",
-            points=points,
+            points=annualize_for_write(points, series_id, coverage),
             unit="USD",
         )
         state_written += 1
@@ -186,11 +195,12 @@ def main() -> int:
             continue
         points.sort(key=lambda p: p["t"])
         name = cd_names.get(slug, slug)
+        series_id = f"district_{slug}"
         write_timeseries(
             pipeline="usaspending",
-            series_id=f"district_{slug}",
+            series_id=series_id,
             name=f"Federal spending — {name}",
-            points=points,
+            points=annualize_for_write(points, series_id, coverage),
             unit="USD",
         )
         cd_written += 1
