@@ -20,3 +20,4 @@ provenance:
     https://www.usaspending.gov/explorer/budget_function?prime_award_search_district_filter=CA-17
   license: Public domain (US government data)
 unitClass: currency
+defaultAnnotations: [{date: "2026-09-30", label: "FY2026 annualized (7 of 12 mo)", position: above}]

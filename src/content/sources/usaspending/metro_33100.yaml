@@ -27,3 +27,4 @@ tags:
 - government
 - macro
 - us
+defaultAnnotations: [{date: "2026-09-30", label: "FY2026 annualized (7 of 12 mo)", position: above}]
