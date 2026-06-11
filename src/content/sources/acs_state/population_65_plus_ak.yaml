@@ -1,0 +1,22 @@
+name: Population 65 and older — AK
+shortName: AK pop. 65+
+description: Population 65 and older for AK (statewide). From the American Community Survey 5-year estimates (table B01001), released annually. AK has a single congressional district, so this is identical to the district-level series.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/population_65_plus_ak.json
+supportedDeltas: ["5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: population_65_plus_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count

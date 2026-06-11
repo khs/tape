@@ -34,6 +34,16 @@ Per indicator type:
     To replace with API-fetched true state medians, run a follow-up
     pipeline (census_acs_state.py) when CENSUS_API_KEY is available.
 
+Single-CD states (AK, DE, ND, SD, VT, WY) and DC
+------------------------------------------------
+census_acs_cd.py writes their state-level data JSONs directly into
+public/data/acs_state/ (their CD-level YAMLs are retired, so there are
+no acs_cd series to aggregate from and list_cds_per_state() never even
+yields these states). This script therefore never writes DATA for them
+— but it does emit their source YAMLs, one per indicator whose data
+JSON is already on disk, so their catalog parity-matches the multi-CD
+states. See emit_single_cd_state_yamls().
+
 This script is idempotent: re-running it overwrites the JSONs but
 doesn't touch source YAMLs that already exist. To regenerate YAMLs
 after a description-text tweak, delete the relevant src/content/
@@ -331,9 +341,13 @@ ALL_INDICATORS = COUNT_INDICATORS + MEDIAN_INDICATORS
 
 
 # Single-CD states route their CD data directly to acs_state/ via
-# census_acs_cd.py. Skip them here so this script doesn't overwrite
-# census_acs_cd.py's writes with an empty/single-point aggregate
-# (there are no acs_cd JSONs to read for these states).
+# census_acs_cd.py. Skip their DATA writes here so this script doesn't
+# overwrite census_acs_cd.py's writes with an empty/single-point
+# aggregate (there are no acs_cd JSONs to read for these states).
+# Their source YAMLs, however, are emitted by this script — see
+# emit_single_cd_state_yamls(). Nothing else generates them: their
+# CD-level YAMLs are retired, so list_cds_per_state() doesn't yield
+# these states and the main aggregation loop never visits them.
 SINGLE_CD_STATES = frozenset({"ak", "de", "nd", "sd", "vt", "wy", "dc"})
 
 
@@ -501,6 +515,52 @@ def render_yaml(indicator: dict[str, Any], state: str, n_cds: int) -> str:
     return "\n".join(lines) + "\n"
 
 
+def emit_single_cd_state_yamls() -> tuple[int, int, int]:
+    """
+    Emit source YAMLs for the single-CD states (AK, DE, ND, SD, VT, WY)
+    and DC.
+
+    Their data JSONs are written straight into public/data/acs_state/
+    by census_acs_cd.py (the CD-level YAMLs for these states are
+    retired, so the aggregation loop above never visits them), but
+    until this pass nothing emitted their source YAMLs — leaving the
+    data orphaned and the states missing from the catalog for every
+    indicator added after the original 13.
+
+    Emits one YAML per indicator whose data JSON exists on disk with a
+    non-empty points array (n_cds=1 wording: "identical to the
+    district-level series"). Never writes data files, and never
+    overwrites a YAML that already exists.
+
+    Returns (written, skipped_existing, skipped_no_data).
+    """
+    STATE_SOURCES.mkdir(parents=True, exist_ok=True)
+    written = 0
+    skipped_existing = 0
+    skipped_no_data = 0
+    for state in sorted(SINGLE_CD_STATES):
+        for indicator in ALL_INDICATORS:
+            data_path = STATE_DATA / f"{indicator['out_id']}_{state}.json"
+            points = load_points(data_path)
+            if not points:
+                # No data on disk (e.g. workers_class_universe /
+                # workers_government have no data for any state, and a
+                # few legacy AGG_SUM indicators were never fetched for
+                # DC). No data -> no YAML, same as the multi-CD loop.
+                skipped_no_data += 1
+                continue
+            yaml_path = STATE_SOURCES / f"{indicator['out_id']}_{state}.yaml"
+            if yaml_path.exists():
+                skipped_existing += 1
+                continue
+            yaml_path.write_text(
+                render_yaml(indicator, state, 1),
+                encoding="utf-8",
+            )
+            written += 1
+    return written, skipped_existing, skipped_no_data
+
+
 def main() -> int:
     STATE_DATA.mkdir(parents=True, exist_ok=True)
     STATE_SOURCES.mkdir(parents=True, exist_ok=True)
@@ -564,8 +624,13 @@ def main() -> int:
             )
             written_yaml += 1
 
+    single_written, single_existing, single_no_data = emit_single_cd_state_yamls()
+
     print(f"\nWrote {written_json} state-level data JSONs.")
     print(f"Wrote {written_yaml} new source YAMLs ({skipped_yaml} already existed).")
+    print(f"Single-CD states/DC: wrote {single_written} new source YAMLs "
+          f"({single_existing} already existed, "
+          f"{single_no_data} indicators had no data JSON).")
     print(f"\n{'indicator':<25}  {'series':>6}")
     print(f"{'-'*25}  {'-'*6}")
     for ind in ALL_INDICATORS:

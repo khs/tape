@@ -1,0 +1,22 @@
+name: Total households (income-table denominator) — DE
+shortName: DE HHs total (income)
+description: Total households (income-table denominator) for DE (statewide). From the American Community Survey 5-year estimates (table B19001), released annually. DE has a single congressional district, so this is identical to the district-level series.
+kind: timeseries
+pipeline: derive_acs_state_from_cd
+dataFile: data/acs_state/households_total_income_de.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: households_total_income_state
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+unitClass: count
