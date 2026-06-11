@@ -1,0 +1,17 @@
+{
+  "id": "metro_47930",
+  "name": "Federal spending \u2014 Waterbury-Shelton",
+  "kind": "timeseries",
+  "unit": "USD",
+  "lastUpdated": "2026-06-11T15:53:22Z",
+  "points": [
+    {
+      "t": "2025-09-30",
+      "v": 3.14253418546
+    },
+    {
+      "t": "2026-09-30",
+      "v": 1.8557582850899998
+    }
+  ]
+}
