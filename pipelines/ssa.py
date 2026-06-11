@@ -189,14 +189,16 @@ TABLES: list[SsaTableSpec] = [
         out_id="oasdi_income_pct_gdp",
         name="Social Security (OASDI) income as % of GDP",
         unit="% of GDP",
-        url_suffix="VI_G2_OASDHI_GDP.html",
+        # Same page + filename as oasdi_cost_pct_gdp: lr6g4.html carries
+        # income, cost, AND balance as % of GDP (historical + projection).
+        # Must NOT be the in-chapter VI_G2_OASDHI_GDP.html, which is
+        # projections-only and was the original empty-points bug.
+        url_suffix="lr6g4.html",
         # Column header: "Percentage of GDP | OASDI | Income"
         value_header_pattern=re.compile(r"OASDI.*Income", re.I | re.S),
         year_header_pattern=re.compile(r"Calendar year", re.I),
         scale=1.0,
-        # Same page as oasdi_cost_pct_gdp — both series come from the
-        # one GDP percentage table.
-        filename_keywords=["percentage", "gross domestic product"],
+        filename_keywords=["percentage", "gdp"],
     ),
     SsaTableSpec(
         out_id="oasdi_workers_per_beneficiary",
@@ -285,7 +287,7 @@ def fetch_html(
     #
     #   1. Exact-slug filenames matching SSA's URL convention,
     #      optionally prefixed with the report year:
-    #        2025_VI_G2_OASDHI_GDP.html, 2025_lr4b3.html, etc.
+    #        2025_lr6g4.html, 2025_lr4b3.html, etc.
     #   2. Browser-default filenames identified by keyword: any
     #      *.html file in MANUAL_DIR whose lowercase name contains
     #      every keyword in ``filename_keywords``. Lets the operator
