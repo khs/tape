@@ -1,0 +1,28 @@
+name: Federal unemployment insurance benefits
+shortName: UI benefits
+description: Federal government unemployment insurance benefit payments,
+  NIPA basis. Quarterly, annualized rate, billions USD. Spikes mark
+  recessions (extended-benefit programs) — most dramatically the 2020
+  pandemic expansions.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/W825RC1Q027SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: billions USD
+formatting:
+  style: currency
+  currency: USD
+  decimals: 1
+  notation: compact
+  scaleFactor: 1.0e+9
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: W825RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/W825RC1Q027SBEA
+  license: Public domain (US government data)
+tags:
+  - government
+  - macro
+  - us
+unitClass: currency

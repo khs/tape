@@ -220,29 +220,6 @@ NEW_SPECS = [
         "tags": ["government", "macro", "us"],
         "unitClass": "currency",
     },
-    {
-        "fred_id": "W994RC1Q027SBEA",
-        "slug": "federal_subsidies",
-        "name": "Federal subsidies",
-        "shortName": "Federal subsidies",
-        "description": (
-            "Federal government current expenditures on subsidies "
-            "(direct payments to businesses and individuals to support "
-            "specified activities), from BEA NIPA Table 3.2. Quarterly. "
-            "Distinct from the much larger transfer-payment categories "
-            "(Social Security, Medicare, Medicaid) - captures targeted "
-            "industrial policy and temporary support programs (COVID "
-            "PPP, etc.)."
-        ),
-        "supported_deltas": '["1y", "5y", "10y", "30y", "50y"]',
-        "unit": "billions USD",
-        "fmt": {
-            "style": "currency", "currency": "USD",
-            "decimals": 1, "suffix": " B",
-        },
-        "tags": ["government", "macro", "us"],
-        "unitClass": "currency",
-    },
 ]
 
 

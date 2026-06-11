@@ -1,0 +1,25 @@
+name: FHFA purchase-only home price index (SA)
+shortName: FHFA purchase HPI
+description: FHFA purchase-only House Price Index for the United States,
+  seasonally adjusted. Repeat-sales index built from purchase mortgages
+  acquired by Fannie Mae / Freddie Mac (excludes refinance appraisals,
+  so it tracks transacted prices more directly than the all-transactions
+  index). Monthly. (FHFA = Federal Housing Finance Agency.)
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/HPIPONM226S.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index 1991=100"
+formatting:
+  style: number
+  decimals: 1
+provenance:
+  provider: U.S. Federal Housing Finance Agency (FHFA) via FRED
+  series: HPIPONM226S
+  url: https://fred.stlouisfed.org/series/HPIPONM226S
+  license: Public domain (US government data; FHFA publishes the underlying index)
+tags:
+  - macro
+  - real-estate
+  - us
+unitClass: index
