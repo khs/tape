@@ -4,8 +4,12 @@ import {
   STATE_TAG,
   STATEWIDE_DISTRICT_CODE,
   US_STATES,
+  cdLongLabel,
+  cdPageSlug,
+  DEFUNCT_CD_KEYS,
   formatCdShortLabel,
   formatDistrictLabel,
+  ordinal,
   parseCdSourceId,
   parseStateSourceId,
   stateNameFor,
@@ -279,5 +283,79 @@ describe("formatDistrictLabel — statewide", () => {
   it("renders the statewide sentinel as 'Statewide'", () => {
     expect(formatDistrictLabel("tx", STATEWIDE_DISTRICT_CODE)).toBe("Statewide");
     expect(formatDistrictLabel("ca", STATEWIDE_DISTRICT_CODE)).toBe("Statewide");
+  });
+});
+
+/* ---- /cd/ landing-page helpers ---- */
+
+describe("ordinal", () => {
+  it("handles the standard suffixes", () => {
+    expect(ordinal(1)).toBe("1st");
+    expect(ordinal(2)).toBe("2nd");
+    expect(ordinal(3)).toBe("3rd");
+    expect(ordinal(4)).toBe("4th");
+    expect(ordinal(8)).toBe("8th");
+  });
+
+  it("handles the 11/12/13 exceptions", () => {
+    expect(ordinal(11)).toBe("11th");
+    expect(ordinal(12)).toBe("12th");
+    expect(ordinal(13)).toBe("13th");
+  });
+
+  it("handles 21+ correctly", () => {
+    expect(ordinal(21)).toBe("21st");
+    expect(ordinal(22)).toBe("22nd");
+    expect(ordinal(23)).toBe("23rd");
+    expect(ordinal(52)).toBe("52nd");
+  });
+});
+
+describe("cdLongLabel", () => {
+  it("renders numbered districts with the state name and ordinal", () => {
+    expect(cdLongLabel("va", "08")).toBe(
+      "Virginia's 8th congressional district",
+    );
+    expect(cdLongLabel("tx", "12")).toBe(
+      "Texas's 12th congressional district",
+    );
+  });
+
+  it("renders at-large districts", () => {
+    expect(cdLongLabel("wy", "al")).toBe(
+      "Wyoming's at-large congressional district",
+    );
+  });
+
+  it("renders the DC delegate district", () => {
+    expect(cdLongLabel("dc", "98")).toBe(
+      "the District of Columbia's delegate district",
+    );
+  });
+});
+
+describe("cdPageSlug", () => {
+  it("builds slugs consistently with short labels", () => {
+    expect(cdPageSlug("va", "08")).toBe("va-08");
+    expect(cdPageSlug("mt", "al")).toBe("mt-al");
+  });
+});
+
+describe("DEFUNCT_CD_KEYS", () => {
+  it("keys parse back out of real acs_cd source ids", () => {
+    // Every defunct key must correspond to the <st>_<dst> tail that
+    // parseCdSourceId extracts — guards against key-format drift
+    // (e.g. wv_3 vs wv_03) silently disabling an exclusion.
+    for (const key of DEFUNCT_CD_KEYS) {
+      const id = `acs_cd/population_${key}`;
+      const parsed = parseCdSourceId(id);
+      expect(parsed, `defunct key ${key} should parse`).not.toBeNull();
+      expect(`${parsed!.state}_${parsed!.district}`).toBe(key);
+    }
+  });
+
+  it("does not exclude current districts", () => {
+    expect(DEFUNCT_CD_KEYS.has("va_08")).toBe(false);
+    expect(DEFUNCT_CD_KEYS.has("mt_01")).toBe(false);
   });
 });

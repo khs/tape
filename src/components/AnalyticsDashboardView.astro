@@ -15,8 +15,8 @@ import { jsonForScript } from "../lib/json-island";
 
 interface Props {
   sources: string[];
-  /** Which surface the view came from — preset, custom, saved, chart-detail. */
-  surface: "preset" | "custom" | "saved" | "chart";
+  /** Which surface the view came from — preset, custom, saved, chart-detail, CD landing page. */
+  surface: "preset" | "custom" | "saved" | "chart" | "cd";
   /** Number of charts shown on this page (for "depth of dashboard" segmentation). */
   chartCount: number;
   /** Optional preset/saved/chart slug for dedup'd resource identification. */

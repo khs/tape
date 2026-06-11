@@ -1,0 +1,363 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionChart from "../../components/SectionChart.astro";
+import ChartController from "../../components/ChartController.astro";
+import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
+import { resolveBarSnapshots } from "../../lib/resolve-bar-snapshots";
+import { DELTA_LABELS_SHORT } from "../../lib/deltas";
+import {
+  resolveSections,
+  dashboardSupportedDeltas,
+  resolveDashboardDefault,
+  effectiveChart,
+} from "../../lib/resolve-dashboard";
+import { encodeComposedState } from "../../lib/composer-state";
+import type { InlineChart } from "../../lib/composer-state";
+import { renderMarkdown } from "../../lib/markdown";
+import {
+  parseCdSourceId,
+  formatCdShortLabel,
+  stateNameFor,
+  cdLongLabel,
+  cdPageSlug,
+  DEFUNCT_CD_KEYS,
+} from "../../lib/congressional-districts";
+import {
+  CD_BLURB_MULTI_DISTRICT,
+  CD_BLURB_AT_LARGE,
+  fillCdBlurb,
+  cdPageTitle,
+  cdMetaDescription,
+} from "../../lib/cd-page-copy";
+
+// Prerendered: one static landing page per current congressional
+// district (429 today — the acs_cd pipeline doesn't yet emit the six
+// at-large states; when it does, they become pages automatically).
+// Each page is sitemap-indexed with a unique title, description, and
+// OG image — the SEO surface for "economy of <district>" queries.
+export const prerender = true;
+
+/**
+ * Curated indicator subset for the landing page, grouped into sections.
+ * Rates / medians / headline levels only — the raw "universe" counts
+ * (denominators like workers_total_commute) stay composer-only. The
+ * full set remains one click away via the "Open in the composer" CTA.
+ * Order within a section is display order. Indicators missing for a
+ * district (sparse new-boundary districts) are dropped per page.
+ */
+const SECTION_SPEC: { title: string; indicators: [string, string][] }[] = [
+  {
+    title: "People",
+    indicators: [
+      ["population", "Total population"],
+      ["median_age", "Median age"],
+      ["pct_foreign_born", "Foreign-born share"],
+      ["veterans", "Veterans"],
+    ],
+  },
+  {
+    title: "Income",
+    indicators: [
+      ["median_hh_income", "Median household income"],
+      ["pct_households_above_200k", "Households above $200k"],
+      ["pct_households_below_25k", "Households below $25k"],
+      ["gini_index", "Income inequality (Gini index)"],
+    ],
+  },
+  {
+    title: "Housing",
+    indicators: [
+      ["median_home_value", "Median home value"],
+      ["median_gross_rent", "Median gross rent"],
+      ["median_year_built", "Median year built"],
+      ["pct_no_vehicle", "Households without a vehicle"],
+    ],
+  },
+  {
+    title: "Work & education",
+    indicators: [
+      ["pct_bachelors", "Bachelor's degree or higher"],
+      ["pct_workers_wfh", "Working from home"],
+      ["median_commute_minutes", "Median commute"],
+      ["pct_uninsured", "Uninsured share"],
+    ],
+  },
+];
+
+export async function getStaticPaths() {
+  const sources = await getCollection("sources");
+  // All acs_cd source ids, for per-district indicator availability.
+  const acsCdIds = new Set<string>();
+  // One district per anchor indicator (median_hh_income exists for
+  // every district the pipeline has ever emitted).
+  const districts: { state: string; district: string }[] = [];
+  for (const s of sources) {
+    if (!s.id.startsWith("acs_cd/")) continue;
+    acsCdIds.add(s.id);
+    if (!s.id.startsWith("acs_cd/median_hh_income_")) continue;
+    const parsed = parseCdSourceId(s.id);
+    if (!parsed) continue;
+    if (DEFUNCT_CD_KEYS.has(`${parsed.state}_${parsed.district}`)) continue;
+    districts.push(parsed);
+  }
+  // Sibling lists (other districts of the same state) for the footer nav.
+  const byState = new Map<string, { state: string; district: string }[]>();
+  for (const d of districts) {
+    const list = byState.get(d.state) ?? [];
+    list.push(d);
+    byState.set(d.state, list);
+  }
+  for (const list of byState.values()) {
+    list.sort((a, b) => a.district.localeCompare(b.district));
+  }
+  return districts.map((d) => ({
+    params: { district: cdPageSlug(d.state, d.district) },
+    props: {
+      state: d.state,
+      district: d.district,
+      siblings: (byState.get(d.state) ?? []).filter(
+        (s) => s.district !== d.district,
+      ),
+      acsCdIds: Array.from(acsCdIds).filter((id) =>
+        id.endsWith(`_${d.state}_${d.district}`),
+      ),
+    },
+  }));
+}
+
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+const { state, district, siblings, acsCdIds } = Astro.props as {
+  state: string;
+  district: string;
+  siblings: { state: string; district: string }[];
+  acsCdIds: string[];
+};
+
+const short = formatCdShortLabel(state, district);
+const long = cdLongLabel(state, district);
+const slug = cdPageSlug(state, district);
+const available = new Set(acsCdIds);
+
+// Build the dashboard state: sections of inline charts over acs_cd
+// sources, filtered to what this district actually has. Same shape the
+// composer saves, so the OG endpoint and the "Open in the composer"
+// CTA both take the identical encoded payload.
+const inlineCharts: Record<string, InlineChart> = {};
+const sections: { title: string; charts: string[] }[] = [];
+for (const spec of SECTION_SPEC) {
+  const chartIds: string[] = [];
+  for (const [indicator, label] of spec.indicators) {
+    const sourceId = `acs_cd/${indicator}_${state}_${district}`;
+    if (!available.has(sourceId)) continue;
+    inlineCharts[indicator] = { title: label, sources: [sourceId] };
+    chartIds.push(`inline:${indicator}`);
+  }
+  if (chartIds.length > 0) sections.push({ title: spec.title, charts: chartIds });
+}
+
+const title = `${short} — ${long.charAt(0).toUpperCase()}${long.slice(1)}`;
+const state_ = {
+  title,
+  defaultDelta: "10y" as const,
+  sections,
+  inlineCharts,
+};
+
+const resolvedSections = await resolveSections({
+  sections: state_.sections,
+  charts: [],
+  inlineCharts: state_.inlineCharts,
+});
+const supported = dashboardSupportedDeltas(resolvedSections);
+const defaultDelta = resolveDashboardDefault(state_.defaultDelta, supported);
+const barSnapshots = await resolveBarSnapshots(
+  resolvedSections.flatMap((s) => s.charts),
+);
+
+const viewedSourceIds = Array.from(
+  new Set(
+    resolvedSections.flatMap((sec) =>
+      sec.charts.flatMap((c) => c.sources.map((s) => s.id)),
+    ),
+  ),
+);
+const viewedChartCount = resolvedSections.reduce(
+  (acc, sec) => acc + sec.charts.length,
+  0,
+);
+
+// Single encoded payload reused by the OG image AND the composer CTA.
+const encoded = encodeComposedState({
+  title,
+  defaultDelta: state_.defaultDelta,
+  sections: state_.sections,
+  inlineCharts: state_.inlineCharts,
+});
+
+// Keller's hand-written blurb (two constants — multi-district vs
+// at-large). Empty string = block hidden; no generated prose, ever.
+const rawBlurb =
+  district === "al" ? CD_BLURB_AT_LARGE : CD_BLURB_MULTI_DISTRICT;
+const blurbHtml = rawBlurb.trim()
+  ? renderMarkdown(fillCdBlurb(rawBlurb, short, long))
+  : null;
+---
+
+<BaseLayout
+  title={cdPageTitle(short)}
+  description={cdMetaDescription(short, long, Math.max(0, acsCdIds.length - 3))}
+  ogImage={`/og.png?d=${encodeURIComponent(encoded)}`}
+>
+  <div
+    class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
+    data-dashboard-default-window={defaultDelta ?? "10y"}
+    data-slug={`cd-${slug}`}
+  >
+    <nav class="text-xs text-neutral-500 mb-3">
+      <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>
+      <span class="mx-1">·</span>
+      <a href={`${baseUrl}/compose/`} class="no-underline hover:text-neutral-900">Composer</a>
+    </nav>
+
+    <header class="mb-4">
+      <div class="flex items-baseline justify-between flex-wrap gap-3">
+        <h1 class="text-2xl font-semibold">{title}</h1>
+        <a
+          href={`${baseUrl}/compose/?d=${encoded}`}
+          class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
+          title={`Open ${short} in the composer — add more ACS indicators, compare with other districts, and save your own version.`}
+        >
+          Open in the composer &rarr;
+        </a>
+      </div>
+      <p class="mt-2 text-sm text-neutral-600 max-w-[640px]">
+        American Community Survey 5-year estimates on 2023 congressional-district
+        boundaries, updated with each ACS release. Every chart is citable and
+        embeddable.
+      </p>
+      {blurbHtml && (
+        <div class="cd-blurb" set:html={blurbHtml} />
+      )}
+    </header>
+
+    {supported.length > 0 && (
+      <div class="dashboard-window" role="group" aria-label="Default window">
+        <span class="eyebrow">Window</span>
+        <div class="pills" data-dashboard-window-control>
+          {supported.map((w) => (
+            <button
+              type="button"
+              class={"pill" + (w === defaultDelta ? " pill-active" : "")}
+              data-dashboard-window={w}
+              aria-pressed={w === defaultDelta ? "true" : "false"}
+            >
+              {DELTA_LABELS_SHORT[w]}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {resolvedSections.map((section) => (
+      <section class="dash-section">
+        {section.title && <h2 class="section-heading">{section.title}</h2>}
+        <div class="chart-grid">
+          {section.charts.map((c) => (
+            <SectionChart
+              chartId={c.chart.id}
+              chart={effectiveChart(c, undefined)}
+              sources={c.sources}
+              dashboardSlug={`cd-${slug}`}
+              sectionDelta={defaultDelta}
+              sectionFixedRange={undefined}
+              sectionLocked={false}
+              preloaded={c.preloaded}
+              barSnapshot={barSnapshots.get(c.chart.id)}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+
+    {siblings.length > 0 && (
+      <nav class="cd-siblings" aria-label="Other districts in this state">
+        <h2 class="cd-siblings-eyebrow">
+          Other {stateNameFor(state)} districts
+        </h2>
+        <ul class="cd-siblings-list">
+          {siblings.map((s) => (
+            <li>
+              <a href={`${baseUrl}/cd/${cdPageSlug(s.state, s.district)}/`}>
+                {formatCdShortLabel(s.state, s.district)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+  </div>
+
+  <ChartController />
+  {viewedChartCount > 0 && (
+    <AnalyticsDashboardView
+      sources={viewedSourceIds}
+      surface="cd"
+      chartCount={viewedChartCount}
+      slug={`cd-${slug}`}
+    />
+  )}
+</BaseLayout>
+
+<style>
+  /* Mirrors the /u/[slug].astro dashboard styling subset this page uses. */
+  .dashboard-window { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .dashboard-window .pills { display: flex; gap: 4px; font-size: var(--text-xs); font-weight: 500; }
+  .dashboard-window .pill { padding: 4px 10px; border: 1px solid rgba(55, 53, 47, 0.1); border-radius: var(--radius-sm); background: var(--color-white); color: var(--color-neutral-600); cursor: pointer; font: inherit; }
+  .dashboard-window .pill:hover { background: var(--color-neutral-100); }
+  .dashboard-window .pill-active,
+  .dashboard-window .pill-active:hover { background: var(--color-neutral-900); color: var(--color-white); border-color: var(--color-neutral-900); }
+  .dash-section { margin-bottom: 32px; }
+  .section-heading { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 0 0 8px; }
+  .chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  @media (min-width: 768px) { .chart-grid { grid-template-columns: repeat(3, 1fr); } }
+  .cd-blurb {
+    max-width: 720px;
+    margin: 10px 0 0;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--color-neutral-700);
+  }
+  .cd-blurb :global(p) { margin: 0 0 10px; }
+  .cd-blurb :global(a) { color: var(--color-neutral-900); text-decoration: underline; text-underline-offset: 2px; }
+  .cd-siblings {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(55, 53, 47, 0.08);
+  }
+  .cd-siblings-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-neutral-500);
+    margin: 0 0 10px;
+  }
+  .cd-siblings-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: var(--text-sm);
+  }
+  .cd-siblings-list a {
+    color: var(--color-neutral-700);
+    text-decoration: none;
+  }
+  .cd-siblings-list a:hover {
+    color: var(--color-neutral-900);
+    text-decoration: underline;
+  }
+</style>

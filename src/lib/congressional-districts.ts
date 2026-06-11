@@ -239,3 +239,42 @@ export function formatCdShortLabel(state: string, district: string): string {
 export function stateNameFor(code: string): string {
   return US_STATES.find((s) => s.code === code)?.name ?? code.toUpperCase();
 }
+
+/* ------------------------------------------------------------------ */
+/* /cd/ landing-page helpers (src/pages/cd/[district].astro)           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Districts present in the acs_cd catalog but DEFUNCT on 118th-Congress
+ * (2023) boundaries — leftovers from pre-2020-census apportionment (CA
+ * lost a seat, MT split its at-large seat into 2 numbered districts,
+ * etc.). Their data is real history for the OLD boundaries, so the
+ * sources stay, but they must not get landing pages presenting them as
+ * current districts. Entries become harmless no-ops once the pipeline
+ * retires the underlying sources.
+ */
+export const DEFUNCT_CD_KEYS: ReadonlySet<string> = new Set([
+  "ca_53", "ny_27", "pa_18", "il_18", "oh_16", "mi_14", "wv_03", "mt_al",
+]);
+
+/** 1 → "1st", 2 → "2nd", 3 → "3rd", 11 → "11th", 22 → "22nd", … */
+export function ordinal(n: number): string {
+  const rem100 = n % 100;
+  if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+  const suffix =
+    n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th";
+  return `${n}${suffix}`;
+}
+
+/** ("va","08") → "Virginia's 8th congressional district". */
+export function cdLongLabel(state: string, district: string): string {
+  const name = stateNameFor(state);
+  if (district === "al") return `${name}'s at-large congressional district`;
+  if (state === "dc") return "the District of Columbia's delegate district";
+  return `${name}'s ${ordinal(parseInt(district, 10))} congressional district`;
+}
+
+/** URL slug for the landing page: ("va","08") → "va-08". */
+export function cdPageSlug(state: string, district: string): string {
+  return `${state}-${district}`;
+}
