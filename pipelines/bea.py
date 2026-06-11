@@ -130,6 +130,35 @@ def supported_deltas() -> list[str]:
     return ["5y", "10y", "30y", "50y"]
 
 
+def points_from_rows(ind: Indicator, rows: list[dict]) -> list[dict]:
+    """Build the points list for one geo from BEA Data rows: skip
+    (NA)/(D) suppressions, convert units, dedupe by year (later row
+    wins, mirroring common._merge_points_by_t's restatement rule), and
+    ALWAYS return points sorted ascending by t.
+
+    The explicit sort is load-bearing: BEA's API row order is not a
+    contract, and common.write_timeseries only sorts when it merges
+    with an existing on-disk file. A fresh write (new series, or a
+    prior file lost/corrupted — see the refresh-race restore in git
+    history) used to pass API row order straight to disk, which is how
+    personal_income_virginia shipped as 2014→2025 followed by
+    1959→2013 and its tile served a stale 2013 "latest"."""
+    by_t: dict[str, dict] = {}
+    for r in rows:
+        yr = r.get("TimePeriod", "")
+        raw = (r.get("DataValue") or "").replace(",", "")
+        mult = r.get("UNIT_MULT", "0")
+        if not yr or not re.fullmatch(r"-?\d+(\.\d+)?", raw):
+            continue  # skip (NA)/(D) disclosure-suppressed
+        try:
+            dollars = float(raw) * (10 ** int(mult))
+        except (TypeError, ValueError):
+            continue
+        v = dollars / 1e9 if ind.to_billions else dollars
+        by_t[f"{yr}-01-01"] = {"t": f"{yr}-01-01", "v": v}
+    return [by_t[t] for t in sorted(by_t)]
+
+
 def yaml_for(ind: Indicator, geoname: str, slug: str, geofips: str) -> str:
     data_id = f"{ind.slug}_{slug}"
     lines = [
@@ -246,19 +275,7 @@ def main(argv: list[str] | None = None) -> int:
             slug = slugify(geoname)
             if filters and not any(f in ind.slug or f in slug for f in filters):
                 continue
-            points = []
-            for r in grows:
-                yr = r.get("TimePeriod", "")
-                raw = (r.get("DataValue") or "").replace(",", "")
-                mult = r.get("UNIT_MULT", "0")
-                if not yr or not re.fullmatch(r"-?\d+(\.\d+)?", raw):
-                    continue  # skip (NA)/(D) disclosure-suppressed
-                try:
-                    dollars = float(raw) * (10 ** int(mult))
-                except (TypeError, ValueError):
-                    continue
-                v = dollars / 1e9 if ind.to_billions else dollars
-                points.append({"t": f"{yr}-01-01", "v": v})
+            points = points_from_rows(ind, grows)
             if not points:
                 continue
             write_timeseries(
