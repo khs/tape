@@ -1,7 +1,14 @@
 name: DC-metro CPI, all items
 shortName: DC CPI
-description: Consumer price index for the Washington DC-MD-VA metro area, all 
+description: Consumer price index for the Washington DC-MD-VA metro area, all
   items. Annual (released every other January) from BLS.
+# Retired (audit #6): the underlying FRED series CUUSA311SA0 (Washington-
+# Baltimore CMSA) was DISCONTINUED and ends at 2017 — it was serving
+# stale data. The live successor is the Washington-Arlington-Alexandria
+# CBSA series, fetched via BLS as bls/cpi_washington_metro. Hidden from
+# the picker; kept (not deleted) so saved dashboards pinning this id
+# still resolve to the frozen 2017 history rather than 404.
+hidden: true
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUUSA311SA0.json

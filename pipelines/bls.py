@@ -230,6 +230,20 @@ SERIES: list[BlsSpec] = [
         label="JOLTS: hires rate (total nonfarm)",
         unit="% of employment",
     ),
+    # ---- Metro CPI ----
+    # Replacement for the discontinued FRED Washington-Baltimore CMSA
+    # series (CUUSA311SA0, dead since 2017). BLS redefined the area as
+    # the Washington-Arlington-Alexandria CBSA (area code S35A) and
+    # publishes it on the Public Data API but NOT via FRED's CSV
+    # endpoint — hence the move to this pipeline. Semi-annual.
+    BlsSpec(
+        series_id="CUURS35ASA0",
+        out_id="cpi_washington_metro",
+        label="CPI: Washington-Arlington-Alexandria metro (all items)",
+        unit="index 1982-84=100",
+        notes="DC-metro consumer price index; successor to the "
+        "discontinued FRED Washington-Baltimore CMSA series.",
+    ),
     # ---- State-level series follow, generated programmatically. ----
 ] + state_unemployment_specs() + state_payrolls_specs() + dc_metro_county_unemployment_specs()
 

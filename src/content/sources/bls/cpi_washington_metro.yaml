@@ -1,0 +1,21 @@
+name: CPI — Washington-Arlington-Alexandria metro
+shortName: DC-metro CPI
+description: Consumer Price Index for the Washington-Arlington-Alexandria
+  DC-VA-MD-WV metro area, all items. Published bi-monthly by BLS.
+  Successor to the discontinued Washington-Baltimore CMSA series
+  (FRED CUUSA311SA0, dead since 2017).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/cpi_washington_metro.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: index (1982-84=100)
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: CUURS35ASA0
+  url: https://data.bls.gov/timeseries/CUURS35ASA0
+  license: Public domain (US government data)
+unitClass: index

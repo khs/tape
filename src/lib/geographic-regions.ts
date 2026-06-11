@@ -92,7 +92,17 @@ const LEGACY_METRO_IDS: Record<
     cbsa: "47900",
   },
   "fred/dc_cpi": {
+    // Retired (audit #6): hidden source, frozen at 2017. Kept here so
+    // the legacy id still maps to the metro for any saved dashboard.
     pipeline: "fred_series",
+    series: "cpi",
+    cbsa: "47900",
+  },
+  "bls/cpi_washington_metro": {
+    // Live successor to fred/dc_cpi: Washington-Arlington-Alexandria
+    // CBSA CPI via BLS (CUURS35ASA0). Tagged to the same metro so it
+    // surfaces under the DC metro chip.
+    pipeline: "bls",
     series: "cpi",
     cbsa: "47900",
   },
