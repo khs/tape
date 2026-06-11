@@ -55,6 +55,11 @@ if (process.env.SKIP_DATA_AUDIT === "1") {
   process.exit(0);
 }
 
+// --full: deep-scan every source's data file (order, summary drift,
+// point counts) instead of only chart-referenced ones. Costs minutes —
+// runs in CI, not in the Vercel prebuild.
+const FULL_SCAN = process.argv.includes("--full");
+
 /** Recursively list every .yaml file under root. */
 async function listYamls(root) {
   const out = [];
@@ -87,6 +92,51 @@ async function readYaml(path) {
   } catch (e) {
     throw new Error(`YAML parse failed: ${path}\n  ${e.message}`);
   }
+}
+
+/**
+ * Returns a human-readable problem string when a points array is not
+ * strictly ascending by date (duplicates count as a violation too —
+ * the same merge bug that duplicates also misorders), else null.
+ */
+function pointOrderIssue(points) {
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]?.t;
+    const b = points[i]?.t;
+    if (typeof a !== "string" || typeof b !== "string") continue;
+    if (b < a) return `points out of order (… ${a} then ${b})`;
+    if (b === a) return `duplicate point date ${b}`;
+  }
+  return null;
+}
+
+/**
+ * If a sibling .summary.json exists, check its latest.t matches the
+ * data file's final point. Returns a problem string or null. A missing
+ * summary file is fine (not every pipeline writes one).
+ */
+async function summaryLatestDrift(dataFullPath, points) {
+  const summaryPath = dataFullPath.replace(/\.json$/, ".summary.json");
+  let raw;
+  try {
+    raw = await fs.readFile(summaryPath, "utf-8");
+  } catch (e) {
+    if (e.code === "ENOENT") return null;
+    throw e;
+  }
+  let summary;
+  try {
+    summary = JSON.parse(raw);
+  } catch {
+    return `summary file is not valid JSON: ${summaryPath}`;
+  }
+  const latestT = summary?.latest?.t;
+  const lastT = points[points.length - 1]?.t;
+  if (typeof latestT !== "string" || typeof lastT !== "string") return null;
+  if (latestT !== lastT) {
+    return `summary latest (${latestT}) != data file's last point (${lastT})`;
+  }
+  return null;
 }
 
 /** A source ID is its path under src/content/sources/ minus the .yaml,
@@ -243,6 +293,30 @@ async function main() {
         charts: refs,
       });
     }
+    // 3a-order. Point-order + summary-consistency checks (the
+    // bea/personal_income_virginia class: a pipeline merge bug
+    // concatenated two date ranges, so the file's LAST element — and
+    // therefore the .summary.json "latest" — was a decade stale while
+    // newer data sat earlier in the array). Renderers and summaries
+    // both assume ascending t; violating that ships silently-wrong
+    // numbers, which is worse than a missing tile.
+    const orderIssue = pointOrderIssue(parsed.points);
+    if (orderIssue) {
+      failures.push({
+        id: sid,
+        reason: `${orderIssue} in ${src.dataFile} — pipeline merge/append bug; the summary "latest" is untrustworthy`,
+        charts: refs,
+      });
+    } else if (nHist > 0) {
+      const drift = await summaryLatestDrift(fullPath, parsed.points);
+      if (drift) {
+        failures.push({
+          id: sid,
+          reason: `${drift} — regenerate the .summary.json (stale latest serves wrong numbers)`,
+          charts: refs,
+        });
+      }
+    }
   }
 
   // 3b. Topical-tag-pill guard — a fast local mirror of the
@@ -329,6 +403,93 @@ async function main() {
         charts: [],
       });
     }
+  }
+
+  // 3c. Quarantine scan — the usaspending/metro_* class: a source YAML
+  // exists but its data file doesn't, so the picker offers a source
+  // whose tile can never load. Policy (Keller, 2026-06-11): broken
+  // UNREFERENCED sources must not silently degrade — hide them from
+  // the pickers AND flag them loudly until fixed or removed.
+  //
+  // Cheap full-catalog pass: one fs.stat per source (no JSON parsing),
+  // so it runs on every prebuild. The generated quarantine file is
+  // consumed by library.json.ts, which drops the ids from the
+  // manifest; the file is committed so `astro dev` (which skips
+  // prebuild) sees the same state, and any change to it shows up in
+  // git diff — that's the durable, visible flag.
+  /** @type {Record<string, string>} */
+  const quarantine = {};
+  for (const [id, src] of sourceIndex) {
+    if (referencedBy.has(id)) continue; // referenced = hard-fail path above
+    if (!src.dataFile) {
+      quarantine[id] = "source YAML has no dataFile field";
+      continue;
+    }
+    try {
+      await fs.stat(join(PUBLIC_DIR, src.dataFile));
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        quarantine[id] = `data file missing: ${src.dataFile}`;
+        continue;
+      }
+      throw e;
+    }
+  }
+  const quarantineIds = Object.keys(quarantine).sort();
+  if (!FULL_SCAN) {
+    // Fast/prebuild mode is the canonical generator for the
+    // quarantine file (CI --full is report-only so the two modes
+    // can't fight over its contents).
+    const qPath = join(ROOT, "src", "lib", "quarantined-sources.json");
+    const qPayload = {
+      "//": "GENERATED by scripts/audit-source-data.mjs (prebuild) — do not edit. Sources whose data file is missing; library.json.ts hides them from the pickers until the data is fixed or the YAML is removed.",
+      ids: Object.fromEntries(quarantineIds.map((id) => [id, quarantine[id]])),
+    };
+    await fs.writeFile(qPath, JSON.stringify(qPayload, null, 2) + "\n", "utf-8");
+  }
+  for (const id of quarantineIds) {
+    // ::warning:: renders as an annotation in GitHub Actions logs.
+    console.log(`::warning::[data-audit] QUARANTINED (hidden from pickers): ${id} — ${quarantine[id]}`);
+  }
+
+  // 3d. --full deep scan (CI): JSON-parse every unreferenced source's
+  // data file and apply the same order/summary/point-count checks the
+  // referenced loop enforces. Report-only — broken unreferenced
+  // sources warn loudly rather than block, per the hide-and-flag
+  // policy. Costs minutes, which is why it lives in CI, not prebuild.
+  if (FULL_SCAN) {
+    let deepIssues = 0;
+    for (const [id, src] of sourceIndex) {
+      if (referencedBy.has(id)) continue;
+      if (!src.dataFile || quarantine[id]) continue;
+      let parsed;
+      try {
+        parsed = JSON.parse(await fs.readFile(join(PUBLIC_DIR, src.dataFile), "utf-8"));
+      } catch {
+        console.log(`::warning::[data-audit/full] ${id}: data file unreadable or invalid JSON (${src.dataFile})`);
+        deepIssues++;
+        continue;
+      }
+      if (!parsed || !Array.isArray(parsed.points)) {
+        console.log(`::warning::[data-audit/full] ${id}: no points array (${src.dataFile})`);
+        deepIssues++;
+        continue;
+      }
+      const orderIssue = pointOrderIssue(parsed.points);
+      if (orderIssue) {
+        console.log(`::warning::[data-audit/full] ${id}: ${orderIssue} (${src.dataFile})`);
+        deepIssues++;
+        continue;
+      }
+      if (parsed.points.length > 0) {
+        const drift = await summaryLatestDrift(join(PUBLIC_DIR, src.dataFile), parsed.points);
+        if (drift) {
+          console.log(`::warning::[data-audit/full] ${id}: ${drift}`);
+          deepIssues++;
+        }
+      }
+    }
+    console.log(`[data-audit/full] deep scan: ${deepIssues} issue${deepIssues === 1 ? "" : "s"} across unreferenced sources.`);
   }
 
   // 4. Report + fail.
