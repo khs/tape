@@ -3109,6 +3109,22 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     if (backdrops.length === 0) return;
     const returnTo = new WeakMap<HTMLElement, HTMLElement>();
 
+    // Track the last element focused OUTSIDE any modal, so close can
+    // restore focus to it. We can't read document.activeElement when the
+    // open-observer fires: the cc/cb modals focus their own title input
+    // synchronously on open, so by the time the MutationObserver
+    // microtask runs, activeElement is already inside the modal — saving
+    // it would "restore" focus to a now-hidden input instead of the
+    // trigger the user came from. focusin runs eagerly as focus moves, so
+    // it captures the trigger before the modal steals focus.
+    let lastNonModalFocus: HTMLElement | null = null;
+    document.addEventListener("focusin", () => {
+      const a = document.activeElement;
+      if (a instanceof HTMLElement && !backdrops.some((b) => b.contains(a))) {
+        lastNonModalFocus = a;
+      }
+    });
+
     // getClientRects() (not offsetParent) so position:fixed modals'
     // controls still count as visible; display:none sub-sections (e.g. a
     // hidden op selector) correctly drop out.
@@ -3123,8 +3139,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         const wasOpen = backdrop.dataset.ftOpen === "1";
         if (open && !wasOpen) {
           backdrop.dataset.ftOpen = "1";
-          const active = document.activeElement;
-          if (active instanceof HTMLElement) returnTo.set(backdrop, active);
+          // Restore target = the pre-modal focus (the trigger), captured
+          // by the focusin tracker above — NOT document.activeElement,
+          // which the modal may have already moved into itself.
+          if (lastNonModalFocus && lastNonModalFocus.isConnected) {
+            returnTo.set(backdrop, lastNonModalFocus);
+          }
           // Only pull focus in if a modal control didn't already claim it
           // (the cc/cb modals focus their title input on open themselves).
           if (!backdrop.contains(document.activeElement)) {
