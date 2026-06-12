@@ -11,11 +11,20 @@
  * Markdown subset per src/lib/markdown.ts. The tokens {{SHORT}} (e.g.
  * "VA-08") and {{LONG}} (e.g. "Virginia's 8th congressional district")
  * are replaced before rendering, so the constant text can reference the
- * district naturally.
+ * district naturally. {{COMPOSER_URL}} expands to the page's build-time
+ * composer link (/compose/?d=<encoded state>) with this district's
+ * charts pre-entered — base64url payload, so it's safe inside a
+ * markdown [text](url) construct.
  */
 
 /** Blurb for districts in multi-district states (e.g. VA-08). */
-export const CD_BLURB_MULTI_DISTRICT = "";
+export const CD_BLURB_MULTI_DISTRICT =
+  "This is the area that is currently {{LONG}} over time: no sudden " +
+  "jumps because of redistricting. The American Community Survey " +
+  "publishes five-year rolling estimates, so this is better for " +
+  "tracking slow changes than dramatic shifts. To put {{SHORT}} beside " +
+  "other districts, states, or metros, or add indicators this page " +
+  "leaves out, open it in [the composer]({{COMPOSER_URL}}).";
 
 /** Blurb for at-large districts (single-district states, e.g. WY-AL). */
 export const CD_BLURB_AT_LARGE = "";
@@ -25,8 +34,12 @@ export function fillCdBlurb(
   blurb: string,
   short: string,
   long: string,
+  composerUrl: string,
 ): string {
-  return blurb.replaceAll("{{SHORT}}", short).replaceAll("{{LONG}}", long);
+  return blurb
+    .replaceAll("{{SHORT}}", short)
+    .replaceAll("{{LONG}}", long)
+    .replaceAll("{{COMPOSER_URL}}", composerUrl);
 }
 
 /**

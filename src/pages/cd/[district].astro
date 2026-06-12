@@ -197,13 +197,16 @@ const encoded = encodeComposedState({
   sections: state_.sections,
   inlineCharts: state_.inlineCharts,
 });
+// Build-time composer link with this district's charts pre-entered —
+// used by the header CTA and the blurb's {{COMPOSER_URL}} token.
+const composerHref = `${baseUrl}/compose/?d=${encoded}`;
 
 // Keller's hand-written blurb (two constants — multi-district vs
 // at-large). Empty string = block hidden; no generated prose, ever.
 const rawBlurb =
   district === "al" ? CD_BLURB_AT_LARGE : CD_BLURB_MULTI_DISTRICT;
 const blurbHtml = rawBlurb.trim()
-  ? renderMarkdown(fillCdBlurb(rawBlurb, short, long))
+  ? renderMarkdown(fillCdBlurb(rawBlurb, short, long, composerHref))
   : null;
 ---
 
@@ -227,7 +230,7 @@ const blurbHtml = rawBlurb.trim()
       <div class="flex items-baseline justify-between flex-wrap gap-3">
         <h1 class="text-2xl font-semibold">{title}</h1>
         <a
-          href={`${baseUrl}/compose/?d=${encoded}`}
+          href={composerHref}
           class="text-xs text-neutral-600 no-underline hover:text-neutral-900 border hairline rounded-sm px-2 py-1"
           title={`Open ${short} in the composer — add more ACS indicators, compare with other districts, and save your own version.`}
         >
