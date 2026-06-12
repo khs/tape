@@ -28,9 +28,21 @@ This file tracks what shipped and what's deliberately deferred.
 Ordered by value. The blocker is real in every case (this is a 7.4GB laptop:
 no `astro build`, no `astro dev`; Chrome MCP currently disconnected).
 
-1. **Full `script-src` Content-Security-Policy** (medium) — **REPORT-ONLY
-   SHIPPED + live 2026-06-10; enforce pending.** A `Content-Security-Policy-
-   Report-Only` header is live globally in `vercel.json` (commit 86f5a6e04b):
+1. **Full `script-src` Content-Security-Policy** (medium) — **ENFORCED + live
+   (verified 2026-06-11).** `vercel.json` ships an *enforcing*
+   `Content-Security-Policy` header globally (not Report-Only): `default-src
+   'self'; script-src 'self' 'unsafe-inline' https://us.i.posthog.com; …
+   object-src 'none'; base-uri 'self'`. The connect/img/object/base
+   restrictions (exfil containment) are fully enforced. **Remaining upgrade
+   (optional, lower-value):** drop `'unsafe-inline'` from `script-src` by
+   hashing/nonce-ing inline scripts — the only way CSP would actually block
+   inline-script injection. It's defense-in-depth only (the XSS sinks are
+   already fixed), and the clean path is Astro's experimental CSP
+   auto-hashing — but that needs a *verifiable* build (this 7.4GB laptop
+   can't `astro build`), so it's a deliberate, CI-gated follow-up rather than
+   a blind flip. Historical note: a `Content-Security-Policy-Report-Only`
+   header shipped first (commit 86f5a6e04b) and was later promoted to
+   enforcing with `'unsafe-inline'`.
    ```
    default-src 'self'; script-src 'self' https://us.i.posthog.com;
    style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self';

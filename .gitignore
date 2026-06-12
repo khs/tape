@@ -54,3 +54,10 @@ playwright-report/
 # Session-handoff notes (HANDOFF.md): generated for resuming on another
 # machine, moved manually (not via git). Untracked on purpose.
 /HANDOFF.md
+
+# Ad-hoc diagnostic artifacts from the 2026-06 data sweep: a one-off
+# source-audit report + its scanner. The MAINTAINED data audit is
+# scripts/audit-source-data.mjs (wired into prebuild + CI); these two
+# are disposable scratch, kept locally but never committed.
+/docs/source-audit-findings.md
+/scripts/audit-sources.mjs
