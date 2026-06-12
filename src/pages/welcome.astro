@@ -93,7 +93,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Geographic",
-    blurb: "All 435 congressional districts, all 50 states + DC, 393 US metros, plus ~50 countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles, the map-only ones live on the Maps tab in the composer.",
+    blurb: "Congressional districts, all 50 states + DC, 393 US metros, ~50 countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles; the map-only ones live on the Maps tab in the composer.",
     items: [
       { label: "Federal spending by state (top 10)", sourceHref: "/source/usaspending/state_va/", chartId: "government/federal_spending_by_state_top10" },
       { label: "Per-CD spending (VA-08 in context)", sourceHref: "/source/usaspending/district_va_08/", chartId: "government/va_08_federal_spending" },
@@ -114,7 +114,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Stocks",
-    blurb: "Market-cap-adjusted price history (SEC EDGAR + Yahoo) for the names that matter to the macro picture.",
+    blurb: "Market-cap history — Yahoo prices × SEC EDGAR share counts — for the names that matter to the macro picture.",
     items: [
       { label: "Tesla", sourceHref: "/source/yahoo_marketcap/tsla_mc/", chartId: "stocks/tsla" },
       { label: "ExxonMobil vs WTI", sourceHref: "/source/yahoo_marketcap/xom_mc/", chartId: "stocks/xom_vs_wti" },
@@ -140,7 +140,7 @@ const USE_CASES: UseCase[] = [
   {
     eyebrow: "Compose",
     title: "Build your dashboard.",
-    body: "Pick sources that range from macroeconomics to weather, or compose your own to get how many times larger the US economy is than China's. Add custom annotations for key events. Share instantly with friends or colleagues.",
+    body: "Pick sources that range from macroeconomics to climate, or derive your own — like how many times larger the US economy is than China's. Add annotations for key events. Share with a link.",
     cta: { label: "Open the walkthrough", href: "/walkthrough/" },
   },
   {
@@ -175,19 +175,19 @@ interface RenderShowcase {
 const RENDER_SHOWCASE: RenderShowcase[] = [
   {
     label: "Time series",
-    blurb: "Daily / monthly / quarterly. Tile shows level + delta over the picked window; click to expand into the dialog with pills, sources, annotations.",
+    blurb: "Daily / monthly / quarterly. The tile shows the level and the change over the picked window; click to expand for sources, annotations, and the full chart.",
     chartId: "us-macro/cpi",
     chartHref: "/chart/us-macro/cpi/",
   },
   {
     label: "Bar snapshot",
-    blurb: "Same data, at one moment in time. Horizontal or vertical, sorted descending by default. Good for ranking — who's spending the most, what's growing the fastest, where it lands today.",
+    blurb: "The same sources at one moment in time, sorted descending by default. Good for ranking — who's spending the most, what's growing the fastest, where it lands today.",
     chartId: "countries/gdp_snapshot",
     chartHref: "/chart/countries/gdp_snapshot/",
   },
   {
     label: "Map",
-    blurb: "Cross-sectional geographic variation. State, county, tract, or block-group level, with ACS demographic indicators and other geographic series.",
+    blurb: "How a measure varies across the country — state, county, tract, or block-group level, with ACS demographic indicators and other geographic series.",
     chartId: "government/us_bachelors_plus_pct_county_map_2022",
     chartHref: "/chart/government/us_bachelors_plus_pct_county_map_2022/",
   },
@@ -200,12 +200,12 @@ const RENDER_SHOWCASE: RenderShowcase[] = [
  * differentiating, but the combination of them is.
  */
 const EDITORIAL_FEATURES: string[] = [
-  "Editorial annotations",
+  "Annotations",
   "Background shading (recessions, party control, Fed chairs)",
   "Dual-axis multi-source",
   "Derived A÷B / A+B / A−B sources",
   "Y-axis transforms (Level / YoY % / Index=100)",
-  "Window pills 1m → 50y",
+  "Time windows, 1m → 50y",
   "Indicator alerts on threshold-cross",
   "Iframe embeds with live refresh",
 ];
@@ -223,11 +223,11 @@ const EDITORIAL_FEATURES: string[] = [
       </h1>
       <p class="welcome-pitch">
         Free, source-linked charts and maps to describe the world, from
-        comparing OECD currencies to a map of household incomes in your
-        Congressional district. Make a dashboard using our extensive list
-        of sources, or create a new one: maybe you want to track the sum
-        of corn and soybean production in your state. Add your own text,
-        or embed our chart into your Substack post.
+        OECD inflation rates to a map of household incomes in your
+        congressional district. Build a dashboard from our sources, or
+        derive new series — say, the sum of corn and soybean production
+        in your state. Add your own text, or embed any chart into your
+        Substack post.
       </p>
       <p class="welcome-cta-row">
         <a href={`${baseUrl}/compose/`} class="welcome-cta-primary">
@@ -310,10 +310,10 @@ const EDITORIAL_FEATURES: string[] = [
     <section class="welcome-coverage">
       <p class="welcome-section-eyebrow">What's covered</p>
       <h2 class="welcome-section-heading">
-        A few representative series at each level.
+        A few representative series from each area.
       </h2>
       <p class="welcome-section-sub">
-        The full library is ~10,000 sources. Click any chip to preview the chart below;
+        The full library is {SOURCE_COUNT_DISPLAY} sources. Click any chip to preview the chart below;
         click the preview to expand into the full plot, sources, and citations.
       </p>
       <div class="welcome-coverage-grid">
