@@ -213,7 +213,9 @@ SPECS: list[FredSpec] = [
     FredSpec("FYFRGDA188S", "Federal receipts, % of GDP", "%"),
     FredSpec("FYONGDA188S", "Federal outlays, % of GDP", "%"),
     FredSpec("FYOIGDA188S", "Federal net interest outlays, % of GDP", "%"),
-    FredSpec("FDEFX", "Federal defense outlays", "billions USD"),
+    # FDEFX (federal defense) is fetched once in the spending-by-function
+    # block below; the duplicate spec here was removed (audit #9 follow-up
+    # — it double-fetched the same series under a second label).
     # Inflation expectations (TIPS — real yields). Breakeven inflation is
     # the spread between the nominal Treasury yield and the TIPS yield of
     # the same maturity; rendered as chart-level diff ops in
@@ -223,7 +225,8 @@ SPECS: list[FredSpec] = [
     FredSpec("DFII10", "10-year TIPS yield (real)", "%"),
     # Labor depth
     FredSpec("LNS11300060", "Prime-age (25-54) labor force participation", "%"),
-    FredSpec("JTSQUR", "Quits rate (JOLTS)", "%"),
+    # JTSQUR (quits rate) is fetched once above as "JOLTS quits rate";
+    # the duplicate spec here was removed (audit #9 follow-up).
     FredSpec("MANEMP", "Manufacturing employment", "thousands of persons"),
     FredSpec("CES0500000003", "Average hourly earnings, all employees", "USD/hour"),
     # Real estate depth
