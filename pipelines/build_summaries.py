@@ -61,12 +61,30 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = REPO_ROOT / "public" / "data"
+
+
+def write_text_resilient(path: Path, text: str, *, retries: int = 6) -> None:
+    """write_text with a short retry on transient OS errors. On Windows a
+    real-time AV/indexer scan of a just-written file can briefly lock it,
+    surfacing as OSError (EINVAL/EACCES) on the immediate rewrite — which
+    is common here because the ACS pipelines write tens of thousands of
+    JSONs right before this step. Retry with linear backoff; re-raise if
+    it never clears. No-op overhead on Linux/CI (first attempt succeeds)."""
+    for attempt in range(retries):
+        try:
+            path.write_text(text, encoding="utf-8")
+            return
+        except OSError:
+            if attempt == retries - 1:
+                raise
+            time.sleep(0.25 * (attempt + 1))
 
 # Window definitions mirror src/lib/deltas.ts. Days-per-window for the
 # fixed-length windows; "ytd" is computed against Jan 1 of the latest-
@@ -247,13 +265,13 @@ def main() -> int:
             continue
         summary_path = full_path.with_name(full_path.stem + ".summary.json")
         # Compact-write so on-the-wire size stays small even before gzip.
-        summary_path.write_text(
-            json.dumps(summary, separators=(",", ":")),
-            encoding="utf-8",
+        write_text_resilient(
+            summary_path, json.dumps(summary, separators=(",", ":"))
         )
         written += 1
-    (DATA_ROOT / "source_index.json").write_text(
-        json.dumps(index, separators=(",", ":")), encoding="utf-8"
+    write_text_resilient(
+        DATA_ROOT / "source_index.json",
+        json.dumps(index, separators=(",", ":")),
     )
     print(f"build_summaries: {written} written, {skipped} skipped; "
           f"source_index.json {len(index)} entries")

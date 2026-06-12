@@ -1311,11 +1311,32 @@ def main() -> int:
         "vt_al": "vt", "wy_al": "wy", "dc_98": "dc",
     }
 
+    # The district universe is whatever the crosswalks can produce.
+    # CD-level indicators (gini, class-of-worker) fetch `congressional
+    # district:*` per vintage, so the 2010-2011 vintages hand back
+    # 2000s-era districts (ia_05, ny_29, la_07 …) abolished in the 2012
+    # redistricting and present in NEITHER crosswalk. Those are pure
+    # relics — drop any series whose slug the crosswalks never assign,
+    # so CD-level indicators stay on the same district set as the
+    # crosswalk-aggregated ones. (When the crosswalk is rebuilt for the
+    # true 118th, its universe — and thus this filter — updates with it.)
+    known_slugs = {
+        cd_slug(st, cd)
+        for cw in (cw_2010, cw_2020)
+        for assignments in cw.values()
+        for (st, cd, _w) in assignments
+    }
+    known_slugs.discard(None)
+
     # Write per-(indicator, CD) time series JSON files
     written = 0
     redirected = 0
+    skipped_unknown = 0
     for (out_id, slug), points in series_accum.items():
         if not points:
+            continue
+        if slug not in known_slugs:
+            skipped_unknown += 1
             continue
         points.sort(key=lambda p: p["t"])
         # Round counts to integers (crosswalk-weighted sums are
@@ -1387,7 +1408,9 @@ def main() -> int:
 
     print(f"\nacs_cd: wrote {written} stable-geo series across "
           f"{len(ACS_VINTAGES)} vintages "
-          f"(plus {redirected} single-CD-state series redirected to acs_state)",
+          f"(plus {redirected} single-CD-state series redirected to acs_state; "
+          f"skipped {skipped_unknown} series for districts outside the crosswalk "
+          f"universe — pre-2012 relics)",
           flush=True)
     return 0
 
