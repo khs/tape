@@ -16,19 +16,24 @@ Pipeline architecture:
      2020 tract boundaries. We auto-select the right crosswalk.
 
   3. Aggregate by 118th CD using the crosswalk weights:
-        - Counts (population, poverty, foreign-born, etc.) sum cleanly:
+        - Counts (population, poverty, foreign-born, WFH workers,
+          uninsured, movers, etc.) sum cleanly:
           CD_total = sum(tract_value × tract_weight) across tracts.
-        - Median household income is recomputed from the B19001
-          household-income-distribution table (16 income bins per
-          tract): sum bin counts across CD-assigned tracts, then
-          compute the weighted-median income from the aggregated
-          distribution. This gives a true CD-level median on stable
-          geography.
-        - Other medians (age, home value, rent) are taken at the
-          contemporaneous CD level (i.e. vintage-boundary data with
-          the historical caveat) — implementing those via
-          distribution would be straightforward but isn't necessary
-          for the headline use case yet.
+        - Medians (household income, age, home value, gross rent,
+          year built, commute) are recomputed from each table's
+          distribution bins at tract level: sum bin counts across
+          CD-assigned tracts, then interpolate the weighted median
+          from the aggregated distribution. True CD-level medians on
+          stable geography; values are bin-interpolated, so they
+          differ slightly from Census's published (microdata-based)
+          medians. Bin schemas changed across vintages for home
+          value / rent / year built — handled by per-vintage bin
+          schedules.
+        - The ONLY remaining contemporaneous-CD indicators are the
+          ones Census doesn't publish at tract level in any vintage:
+          gini_index (B19083, microdata-only) and the class-of-worker
+          pair (C24080: workers_government + its universe). Those
+          ride vintage boundaries, with the documented caveat.
 
   4. Write per-CD time series JSON files.
 
@@ -116,51 +121,61 @@ ACS_VINTAGES = list(range(2010, 2023))
 # 2020-boundary tract IDs. Earlier vintages use 2010-boundary tracts.
 TRACT2020_FIRST_VINTAGE = 2022
 
-# Census's URL path changed mid-decade:
-#   2010-2014 ACS5: /data/{year}/acs5/     (no /acs/ subfolder)
-#   2015+   ACS5: /data/{year}/acs/acs5/  (current)
-# Both paths still exist on Census's side, but each only serves its own
-# era. Hitting the wrong path returns 404, which our `acs_fetch` treats
-# as empty data — historically that meant pre-2015 vintages silently
-# disappeared. Pick per year.
+# Census's URL path changed mid-decade: 2010-2014 ACS5 originally
+# lived at /data/{year}/acs5/ (no /acs/ subfolder) with 2015+ at
+# /data/{year}/acs/acs5/. Census has since RETIRED the legacy path —
+# verified 2026-06-12: /data/2010..2014/acs5 returns 404 while
+# /data/{year}/acs/acs5 serves every vintage 2010-2022 with 200s for
+# both tract and congressional-district geographies. Permanent caching
+# of old vintages masked the breakage until a variable-list change
+# forced fresh fetches. Single modern path for all years.
 def acs_base(year: int) -> str:
-    if year >= 2015:
-        return f"https://api.census.gov/data/{year}/acs/acs5"
-    return f"https://api.census.gov/data/{year}/acs5"
+    return f"https://api.census.gov/data/{year}/acs/acs5"
 
 
 # ---------------------------------------------------------------------
 # Indicator definitions
 # ---------------------------------------------------------------------
 
-# Aggregation strategy per indicator. "sum" works at the tract level
-# (counts add cleanly across crosswalk-weighted tracts). "cd_level"
-# fetches contemporaneous CD-level data, no aggregation — the boundary
-# changes across redistricting cycles. "median_from_distribution" fetches
-# the income-bin distribution and reassembles the median on aggregated
-# geography (only used for B19013 currently).
-# "cd_level_sum" is like cd_level but sums multiple cells per indicator
-# (e.g., "population under 18" = sum of B01001 cells for each under-18
-# age group, separately for male + female). Used for the v4 expansion
-# indicators that ride contemporaneous CD boundaries.
+# Aggregation strategy per indicator — `agg` describes how the value is
+# obtained AT A PUBLISHED GEOGRAPHY. It is shared with the metro +
+# national pipelines (census_acs_metro.py / census_acs_national.py),
+# which fetch each indicator directly at their own geography:
+#   "sum"                       single count cell
+#   "cd_level"                  single cell (counts OR published medians)
+#   "cd_level_sum"              sum of multiple cells
+#   "median_from_distribution"  single published-median cell (B19013) —
+#                               named for the CD pipeline's historical
+#                               handling; metro/national fetch var_code
+#   "median_from_cd_distribution"  median interpolated from bin cells
+#                               fetched at the pipeline's own geography
+#                               (used where Census publishes no median
+#                               table, e.g. B08303 travel time)
+#   "pct"                       numerator / denominator * 100 over two
+#                               already-computed indicators (same geo
+#                               basis required; numerator may be kept
+#                               internal via emit=False)
+#
+# THE CD PIPELINE OVERRIDES `agg` with the cd_basis field below: any
+# indicator with a cd_basis is rebuilt from TRACT-level data through
+# the 118th-Congress crosswalk (stable geography), regardless of its
+# `agg`. Indicators without a cd_basis fall back to contemporaneous
+# CD-level fetches keyed off `agg` — as of the stable-geo rebuild
+# that's only the tables Census doesn't publish at tract level
+# (B19083 Gini, C24080 class of worker).
 AGG_SUM = "sum"
 AGG_CD_LEVEL = "cd_level"
 AGG_CD_LEVEL_SUM = "cd_level_sum"
 AGG_MEDIAN_DIST = "median_from_distribution"
-# Median computed from a distribution at CD level (no tract crosswalk).
-# Fetches the bin cells via the CD-level API call and interpolates a
-# median from the per-CD distribution directly. Used for indicators
-# where the underlying bin counts are themselves CD-level published
-# values (e.g., B08303 travel time to work). Less stable-geo-accurate
-# than AGG_MEDIAN_DIST but doesn't need tract-level fetches.
 AGG_MEDIAN_CD_DIST = "median_from_cd_distribution"
-# Percentage = numerator / denominator * 100, both already-computed
-# indicators (referenced by out_id via numerator_id / denominator_id).
-# Computed after the base indicators each vintage; the numerator and
-# denominator MUST share a geo basis (both AGG_SUM, or both CD-level) so
-# the ratio is meaningful. The raw numerator can be kept internal
-# (emit=False) so only the percentage + denominator surface to users.
 AGG_PCT = "pct"
+
+# CD-pipeline basis overrides (census_acs_cd.py only):
+#   "tract"        crosswalk-sum var_code (or sum_codes) at tract level
+#   "tract_median" crosswalk-sum the cd_bin_schedule's bin cells at
+#                  tract level, then interpolate the median
+CD_BASIS_TRACT = "tract"
+CD_BASIS_TRACT_MEDIAN = "tract_median"
 
 
 @dataclass
@@ -170,12 +185,14 @@ class AcsVar:
     name_prefix: str
     unit: str
     decimals: int
-    agg: str                # one of AGG_*
-    # For median_from_distribution agg, list of (var_code, lower, upper)
-    # describing each income bin. Lower/upper are dollar bounds; the
-    # top bin's upper is typically open-ended (we use a synthetic 2x
-    # lower bound as an interpolation cap).
-    bins: list[tuple[str, float, float]] = field(default_factory=list)
+    agg: str                # one of AGG_* (metro/national fetch basis)
+    # Bin list for median-from-distribution aggregations: entries are
+    # (cell, lower, upper) where `cell` is a var code OR a tuple of var
+    # codes whose counts merge into one bin (e.g. the male + female
+    # cells of an age bracket). The top bin's upper is typically
+    # open-ended upstream; we use a synthetic cap (~2x lower bound,
+    # Pareto-style convention) for interpolation.
+    bins: list[tuple[object, float, float]] = field(default_factory=list)
     # For cd_level_sum agg, list of Census variable codes whose values
     # get summed at fetch time. var_code is left blank in that case;
     # the sum becomes the indicator's value.
@@ -188,6 +205,20 @@ class AcsVar:
     # facing series — used to keep a raw count internal as a percentage's
     # numerator without surfacing it in the picker.
     emit: bool = True
+    # ----- CD-pipeline stable-geography overrides (this file only) -----
+    # cd_basis: CD_BASIS_TRACT / CD_BASIS_TRACT_MEDIAN / "" (= follow
+    # `agg` at contemporaneous CD level). Metro/national ignore these.
+    cd_basis: str = ""
+    # For CD_BASIS_TRACT_MEDIAN: vintage-keyed bin tables, entries
+    # (first_vintage, bins) ascending — Census re-cut the home-value /
+    # rent / year-built bins over time. resolve_cd_bins() picks the
+    # entry with the largest first_vintage <= year.
+    cd_bin_schedule: list[tuple[int, list]] = field(default_factory=list)
+    # First ACS5 vintage with TRACT-level data for this indicator's
+    # table (0 = all vintages). Pre-gates the fetch so we don't probe
+    # vintages where Census never published the table at tract level
+    # (B27010 insurance: 2013+; B18101 disability: 2012+).
+    first_tract_vintage: int = 0
 
 
 # B19001 = Household Income in the Past 12 Months. Cells 002-017 are
@@ -236,6 +267,184 @@ B08303_BINS = [
     # Top bin "90+ minutes" — interpolation cap at 2x the lower bound
     # (Pareto convention, same as we use for the top income bin).
     ("B08303_013E", 90, 180),
+]
+
+
+def bin_cell_codes(cell) -> tuple[str, ...]:
+    """Normalize a bin entry's cell field: a bare var code or a tuple of
+    var codes (multi-cell bins, e.g. male + female age cells)."""
+    return cell if isinstance(cell, tuple) else (cell,)
+
+
+def resolve_cd_bins(v: "AcsVar", year: int) -> list:
+    """The bin table in effect for `year` from the indicator's
+    vintage-keyed schedule (largest first_vintage <= year), or []."""
+    chosen: list = []
+    for first_year, bins in v.cd_bin_schedule:
+        if year >= first_year:
+            chosen = bins
+    return chosen
+
+
+# B01001 = Sex by Age. 23 age brackets published per sex (male cells
+# 003-025, female 027-049, parallel). Each bin merges the male + female
+# cells for that bracket. Bracket layout verified identical across the
+# 2010 and 2022 vintages. Top bin "85+" capped at 95 for interpolation.
+B01001_AGE_BINS = [
+    (("B01001_003E", "B01001_027E"), 0, 5),
+    (("B01001_004E", "B01001_028E"), 5, 10),
+    (("B01001_005E", "B01001_029E"), 10, 15),
+    (("B01001_006E", "B01001_030E"), 15, 18),
+    (("B01001_007E", "B01001_031E"), 18, 20),
+    (("B01001_008E", "B01001_032E"), 20, 21),
+    (("B01001_009E", "B01001_033E"), 21, 22),
+    (("B01001_010E", "B01001_034E"), 22, 25),
+    (("B01001_011E", "B01001_035E"), 25, 30),
+    (("B01001_012E", "B01001_036E"), 30, 35),
+    (("B01001_013E", "B01001_037E"), 35, 40),
+    (("B01001_014E", "B01001_038E"), 40, 45),
+    (("B01001_015E", "B01001_039E"), 45, 50),
+    (("B01001_016E", "B01001_040E"), 50, 55),
+    (("B01001_017E", "B01001_041E"), 55, 60),
+    (("B01001_018E", "B01001_042E"), 60, 62),
+    (("B01001_019E", "B01001_043E"), 62, 65),
+    (("B01001_020E", "B01001_044E"), 65, 67),
+    (("B01001_021E", "B01001_045E"), 67, 70),
+    (("B01001_022E", "B01001_046E"), 70, 75),
+    (("B01001_023E", "B01001_047E"), 75, 80),
+    (("B01001_024E", "B01001_048E"), 80, 85),
+    (("B01001_025E", "B01001_049E"), 85, 95),
+]
+
+# B25075 = Value (owner-occupied units). Cells 002-024 are identical
+# across all vintages; the top changed in 2015: pre-2015 ends at
+# 025 = "$1,000,000 or more", 2015+ splits it into 025/026/027 with
+# 027 = "$2,000,000 or more". Layouts verified against the Census
+# groups metadata for 2010/2014/2015/2022.
+_B25075_COMMON = [
+    ("B25075_002E",       0,   9_999),
+    ("B25075_003E",  10_000,  14_999),
+    ("B25075_004E",  15_000,  19_999),
+    ("B25075_005E",  20_000,  24_999),
+    ("B25075_006E",  25_000,  29_999),
+    ("B25075_007E",  30_000,  34_999),
+    ("B25075_008E",  35_000,  39_999),
+    ("B25075_009E",  40_000,  49_999),
+    ("B25075_010E",  50_000,  59_999),
+    ("B25075_011E",  60_000,  69_999),
+    ("B25075_012E",  70_000,  79_999),
+    ("B25075_013E",  80_000,  89_999),
+    ("B25075_014E",  90_000,  99_999),
+    ("B25075_015E", 100_000, 124_999),
+    ("B25075_016E", 125_000, 149_999),
+    ("B25075_017E", 150_000, 174_999),
+    ("B25075_018E", 175_000, 199_999),
+    ("B25075_019E", 200_000, 249_999),
+    ("B25075_020E", 250_000, 299_999),
+    ("B25075_021E", 300_000, 399_999),
+    ("B25075_022E", 400_000, 499_999),
+    ("B25075_023E", 500_000, 749_999),
+    ("B25075_024E", 750_000, 999_999),
+]
+B25075_VALUE_BINS_2010 = _B25075_COMMON + [
+    ("B25075_025E", 1_000_000, 2_000_000),  # "$1M or more", capped 2x
+]
+B25075_VALUE_BINS_2015 = _B25075_COMMON + [
+    ("B25075_025E", 1_000_000, 1_499_999),
+    ("B25075_026E", 1_500_000, 1_999_999),
+    ("B25075_027E", 2_000_000, 4_000_000),  # "$2M or more", capped 2x
+]
+
+# B25063 = Gross Rent. Median universe is CASH renters only: bin cells
+# start at 003 ("With cash rent!!..."); 002 is the cash-rent subtotal
+# and the final cell ("No cash rent") is excluded. Cells 003-022 are
+# identical across vintages; 023 MEANS DIFFERENT THINGS by era —
+# "$2,000 or more" pre-2015 vs "$2,000 to $2,499" from 2015, when
+# 024-026 were added (026 = "$3,500 or more").
+_B25063_COMMON = [
+    ("B25063_003E",     0,    99),
+    ("B25063_004E",   100,   149),
+    ("B25063_005E",   150,   199),
+    ("B25063_006E",   200,   249),
+    ("B25063_007E",   250,   299),
+    ("B25063_008E",   300,   349),
+    ("B25063_009E",   350,   399),
+    ("B25063_010E",   400,   449),
+    ("B25063_011E",   450,   499),
+    ("B25063_012E",   500,   549),
+    ("B25063_013E",   550,   599),
+    ("B25063_014E",   600,   649),
+    ("B25063_015E",   650,   699),
+    ("B25063_016E",   700,   749),
+    ("B25063_017E",   750,   799),
+    ("B25063_018E",   800,   899),
+    ("B25063_019E",   900,   999),
+    ("B25063_020E", 1_000, 1_249),
+    ("B25063_021E", 1_250, 1_499),
+    ("B25063_022E", 1_500, 1_999),
+]
+B25063_RENT_BINS_2010 = _B25063_COMMON + [
+    ("B25063_023E", 2_000, 4_000),  # "$2,000 or more", capped 2x
+]
+B25063_RENT_BINS_2015 = _B25063_COMMON + [
+    ("B25063_023E", 2_000, 2_499),
+    ("B25063_024E", 2_500, 2_999),
+    ("B25063_025E", 3_000, 3_499),
+    ("B25063_026E", 3_500, 7_000),  # "$3,500 or more", capped 2x
+]
+
+# B25034 = Year Structure Built. Census re-cuts the NEWEST bin as the
+# decade advances, reusing the same cell codes with different meanings
+# (and adding a cell in 2015) — so the schedule below is per-era, with
+# transition years pinned against the groups metadata for every vintage
+# 2010-2022. Bins listed oldest-first (ascending) for the median walk;
+# "1939 or earlier" floored at 1900; the newest open bin is capped at
+# the last calendar year covered by that era's vintages + 1.
+B25034_YEAR_BINS_2010 = [
+    ("B25034_010E", 1900, 1940),
+    ("B25034_009E", 1940, 1950),
+    ("B25034_008E", 1950, 1960),
+    ("B25034_007E", 1960, 1970),
+    ("B25034_006E", 1970, 1980),
+    ("B25034_005E", 1980, 1990),
+    ("B25034_004E", 1990, 2000),
+    ("B25034_003E", 2000, 2005),
+    ("B25034_002E", 2005, 2012),  # "2005 or later" (eras 2010-2011)
+]
+B25034_YEAR_BINS_2012 = [
+    ("B25034_010E", 1900, 1940),
+    ("B25034_009E", 1940, 1950),
+    ("B25034_008E", 1950, 1960),
+    ("B25034_007E", 1960, 1970),
+    ("B25034_006E", 1970, 1980),
+    ("B25034_005E", 1980, 1990),
+    ("B25034_004E", 1990, 2000),
+    ("B25034_003E", 2000, 2010),
+    ("B25034_002E", 2010, 2015),  # "2010 or later" (eras 2012-2014)
+]
+B25034_YEAR_BINS_2015 = [
+    ("B25034_011E", 1900, 1940),
+    ("B25034_010E", 1940, 1950),
+    ("B25034_009E", 1950, 1960),
+    ("B25034_008E", 1960, 1970),
+    ("B25034_007E", 1970, 1980),
+    ("B25034_006E", 1980, 1990),
+    ("B25034_005E", 1990, 2000),
+    ("B25034_004E", 2000, 2010),
+    ("B25034_003E", 2010, 2014),
+    ("B25034_002E", 2014, 2021),  # "2014 or later" (eras 2015-2020)
+]
+B25034_YEAR_BINS_2021 = [
+    ("B25034_011E", 1900, 1940),
+    ("B25034_010E", 1940, 1950),
+    ("B25034_009E", 1950, 1960),
+    ("B25034_008E", 1960, 1970),
+    ("B25034_007E", 1970, 1980),
+    ("B25034_006E", 1980, 1990),
+    ("B25034_005E", 1990, 2000),
+    ("B25034_004E", 2000, 2010),
+    ("B25034_003E", 2010, 2020),
+    ("B25034_002E", 2020, 2026),  # "2020 or later" (eras 2021+)
 ]
 
 # B01001 age-by-sex cells, used to compute under-18 + 65+ population
@@ -317,48 +526,70 @@ INDICATORS = [
            "Civilian veteran population (18+)", "people", 0, AGG_SUM),
     AcsVar("broadband_households", "B28002_004E",
            "Households with broadband internet", "households", 0, AGG_SUM),
-    # Median from distribution — uses B19001 income bins, recomputed
-    # at CD level on stable geography.
+    # Medians, all recomputed from distribution bins at tract level on
+    # stable geography (see module docstring). var_code stays set to the
+    # published-median cell — the metro/national pipelines fetch THAT
+    # directly at their own geographies; only the CD pipeline uses the
+    # bin schedules.
     AcsVar("median_hh_income", "B19013_001E",
            "Median household income", "USD", 0, AGG_MEDIAN_DIST,
-           bins=B19001_BINS),
-    # Medians on contemporaneous-CD geography. Documented caveat.
+           bins=B19001_BINS,
+           cd_basis=CD_BASIS_TRACT_MEDIAN,
+           cd_bin_schedule=[(2010, B19001_BINS)]),
     AcsVar("median_age", "B01002_001E",
-           "Median age", "years", 1, AGG_CD_LEVEL),
+           "Median age", "years", 1, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT_MEDIAN,
+           cd_bin_schedule=[(2010, B01001_AGE_BINS)]),
     AcsVar("median_home_value", "B25077_001E",
-           "Median home value (owner-occupied)", "USD", 0, AGG_CD_LEVEL),
+           "Median home value (owner-occupied)", "USD", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT_MEDIAN,
+           cd_bin_schedule=[(2010, B25075_VALUE_BINS_2010),
+                            (2015, B25075_VALUE_BINS_2015)]),
     AcsVar("median_gross_rent", "B25064_001E",
-           "Median gross rent", "USD", 0, AGG_CD_LEVEL),
+           "Median gross rent", "USD", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT_MEDIAN,
+           cd_bin_schedule=[(2010, B25063_RENT_BINS_2010),
+                            (2015, B25063_RENT_BINS_2015)]),
     # ----- v4 expansion: ratio components + new medians -----
     # Strategy: store the underlying COUNTS so users can compose any
     # ratio they want via the composer's derived-source modal. Direct
     # values (Gini, median year built, median commute) are stored as
-    # single numbers. All v4 indicators fetched at contemporaneous CD
-    # boundaries (AGG_CD_LEVEL or AGG_CD_LEVEL_SUM) to keep the tract-
-    # level call's variable count under the Census API's 50-var cap.
+    # single numbers. As of the stable-geo rebuild, everything here is
+    # crosswalk-rebuilt from tract data (cd_basis) EXCEPT the two
+    # tables Census doesn't publish at tract level in any vintage:
+    # B19083 (Gini) and C24080 (class of worker). Those keep riding
+    # contemporaneous CD boundaries, with the documented caveat.
     AcsVar("gini_index", "B19083_001E",
            "Income inequality (Gini index)", "ratio", 3, AGG_CD_LEVEL),
     AcsVar("median_year_built", "B25035_001E",
-           "Median year housing structure built", "year", 0, AGG_CD_LEVEL),
+           "Median year housing structure built", "year", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT_MEDIAN,
+           cd_bin_schedule=[(2010, B25034_YEAR_BINS_2010),
+                            (2012, B25034_YEAR_BINS_2012),
+                            (2015, B25034_YEAR_BINS_2015),
+                            (2021, B25034_YEAR_BINS_2021)]),
     AcsVar("households_above_200k", "B19001_017E",
-           "Households with income $200k+", "households", 0, AGG_CD_LEVEL),
+           "Households with income $200k+", "households", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT),
     AcsVar("households_total_income", "B19001_001E",
            "Total households (income-table denominator)", "households",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
     AcsVar("workers_wfh", "B08301_021E",
-           "Workers who work from home", "workers", 0, AGG_CD_LEVEL),
+           "Workers who work from home", "workers", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT),
     AcsVar("workers_total_commute", "B08301_001E",
            "Total workers (commute-table denominator)", "workers",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
     AcsVar("households_no_vehicle", "B08201_002E",
            "Households with no vehicle available", "households",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
     AcsVar("households_total_vehicle", "B08201_001E",
            "Total households (vehicle-table denominator)", "households",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
     AcsVar("insurance_universe", "B27010_001E",
            "Total population (insurance-table denominator)", "people",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT,
+           first_tract_vintage=2013),
     # Movers = everyone who moved in the past year: the sum of the four
     # "Moved ..." totals (within county / different county same state /
     # different state / from abroad). B07003_003E was WRONG — that's the
@@ -366,46 +597,56 @@ INDICATORS = [
     # 2026-05-29 after the share view exposed the constant-~50% giveaway.
     AcsVar("movers_last_year", "",
            "People who moved in the last year", "people", 0, AGG_CD_LEVEL_SUM,
-           sum_codes=["B07003_007E", "B07003_010E", "B07003_013E", "B07003_016E"]),
+           sum_codes=["B07003_007E", "B07003_010E", "B07003_013E", "B07003_016E"],
+           cd_basis=CD_BASIS_TRACT),
     AcsVar("mobility_universe", "B07003_001E",
            "Total population (mobility-table denominator)", "people",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
     AcsVar("born_same_state", "B05002_003E",
            "Population born in current state of residence", "people",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
     AcsVar("workers_manufacturing", "C24070_004E",
-           "Workers in manufacturing", "workers", 0, AGG_CD_LEVEL),
+           "Workers in manufacturing", "workers", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT),
     AcsVar("workers_total_industry", "C24070_001E",
            "Total workers (industry-table denominator)", "workers",
-           0, AGG_CD_LEVEL),
+           0, AGG_CD_LEVEL, cd_basis=CD_BASIS_TRACT),
+    # C24080 has no tract-level publication in any vintage (verified
+    # 2010-2022) — class-of-worker stays contemporaneous-CD.
     AcsVar("workers_class_universe", "C24080_001E",
            "Total workers (class-of-worker-table denominator)", "workers",
            0, AGG_CD_LEVEL),
     AcsVar("households_below_25k", "",
            "Households with income under $25k", "households",
            0, AGG_CD_LEVEL_SUM,
-           sum_codes=["B19001_002E", "B19001_003E", "B19001_004E", "B19001_005E"]),
+           sum_codes=["B19001_002E", "B19001_003E", "B19001_004E", "B19001_005E"],
+           cd_basis=CD_BASIS_TRACT),
     AcsVar("population_under_18", "",
            "Population under 18", "people", 0, AGG_CD_LEVEL_SUM,
-           sum_codes=B01001_UNDER_18),
+           sum_codes=B01001_UNDER_18, cd_basis=CD_BASIS_TRACT),
     AcsVar("population_65_plus", "",
            "Population 65 and older", "people", 0, AGG_CD_LEVEL_SUM,
-           sum_codes=B01001_65_PLUS),
+           sum_codes=B01001_65_PLUS, cd_basis=CD_BASIS_TRACT),
     AcsVar("people_uninsured", "",
            "People without health insurance coverage", "people",
-           0, AGG_CD_LEVEL_SUM, sum_codes=B27010_UNINSURED),
+           0, AGG_CD_LEVEL_SUM, sum_codes=B27010_UNINSURED,
+           cd_basis=CD_BASIS_TRACT, first_tract_vintage=2013),
     AcsVar("people_with_disability", "",
            "People with a disability", "people", 0, AGG_CD_LEVEL_SUM,
-           sum_codes=B18101_WITH_DISABILITY),
+           sum_codes=B18101_WITH_DISABILITY,
+           cd_basis=CD_BASIS_TRACT, first_tract_vintage=2012),
     AcsVar("people_disability_universe", "B18101_001E",
            "Civilian noninstitutionalized population (disability-table denominator)",
-           "people", 0, AGG_CD_LEVEL),
+           "people", 0, AGG_CD_LEVEL,
+           cd_basis=CD_BASIS_TRACT, first_tract_vintage=2012),
     AcsVar("workers_government", "",
            "Workers in government employment (federal + state + local)",
            "workers", 0, AGG_CD_LEVEL_SUM, sum_codes=C24080_GOVERNMENT),
     AcsVar("median_commute_minutes", "",
            "Median travel time to work", "minutes", 1, AGG_MEDIAN_CD_DIST,
-           bins=B08303_BINS),
+           bins=B08303_BINS,
+           cd_basis=CD_BASIS_TRACT_MEDIAN,
+           cd_bin_schedule=[(2010, B08303_BINS)]),
     # ----- Count → share conversions (#102, expanded #112) -----
     # numerator / denominator * 100, both already-computed indicators sharing
     # a geo basis (see AGG_PCT). The numerator count stays in the data (the
@@ -565,21 +806,25 @@ def parse_value(s: str) -> float | None:
 # ---------------------------------------------------------------------
 
 def weighted_median_from_bins(
-    bins: list[tuple[str, float, float]],
+    bins: list[tuple[object, float, float]],
     counts: dict[str, float],
 ) -> float | None:
     """
-    Given bins as (var_code, lower, upper) and a counts dict mapping
-    var_code -> count, return the linearly-interpolated median.
-    Returns None if total count is zero.
+    Given bins as (cell, lower, upper) — where `cell` is a var code or
+    a tuple of var codes whose counts merge into the bin — and a counts
+    dict mapping var_code -> count, return the linearly-interpolated
+    median. Returns None if total count is zero.
     """
-    total = sum(counts.get(code, 0) for code, _, _ in bins)
+    def bin_count(cell) -> float:
+        return sum(counts.get(code, 0) for code in bin_cell_codes(cell))
+
+    total = sum(bin_count(cell) for cell, _, _ in bins)
     if total <= 0:
         return None
     target = total / 2.0
     cum = 0.0
-    for code, lower, upper in bins:
-        c = counts.get(code, 0)
+    for cell, lower, upper in bins:
+        c = bin_count(cell)
         if c <= 0:
             continue
         if cum + c >= target:
@@ -785,6 +1030,48 @@ def fetch_cd_level_robust(
     return merged
 
 
+def fetch_tract_robust(
+    year: int,
+    codes: list[str],
+    state_fips: str,
+    key: str,
+    _fetch=None,
+) -> dict[str, dict[str, float]]:
+    """Tract-level fetch that handles >45 variables and tolerates
+    variables a vintage doesn't publish at tract level.
+
+    Same strategy as fetch_cd_level_robust: chunk into <=45-var calls
+    (the Census API caps ~50 per request and 400s the WHOLE request if
+    any variable is unknown); binary-split any empty chunk to isolate
+    offending variables, dropping only the ones that fail alone. The
+    per-(year, state, vars-hash) disk cache inside fetch_vintage_tract
+    applies to every sub-chunk. `_fetch` is injectable for tests.
+    """
+    fetch = _fetch if _fetch is not None else fetch_vintage_tract
+    merged: dict[str, dict[str, float]] = {}
+
+    def absorb(part: dict[str, dict[str, float]]) -> None:
+        for geoid, per_var in part.items():
+            merged.setdefault(geoid, {}).update(per_var)
+
+    def recurse(sub: list[str]) -> None:
+        if not sub:
+            return
+        data = fetch(year, sub, state_fips, key)
+        if data:
+            absorb(data)
+            return
+        if len(sub) <= 1:
+            return
+        mid = len(sub) // 2
+        recurse(sub[:mid])
+        recurse(sub[mid:])
+
+    for i in range(0, len(codes), 45):
+        recurse(codes[i:i + 45])
+    return merged
+
+
 # ---------------------------------------------------------------------
 # Main aggregation
 # ---------------------------------------------------------------------
@@ -810,19 +1097,38 @@ def main() -> int:
     print(f"Loaded crosswalks: tract2020={len(cw_2020):,} tracts, "
           f"tract2010={len(cw_2010):,} tracts", flush=True)
 
-    # Variable lists for the API calls
-    sum_indicators = [v for v in INDICATORS if v.agg == AGG_SUM]
-    sum_codes = [v.var_code for v in sum_indicators]
-    median_dist_indicators = [v for v in INDICATORS if v.agg == AGG_MEDIAN_DIST]
-    cd_single_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL]
-    cd_sum_indicators = [v for v in INDICATORS if v.agg == AGG_CD_LEVEL_SUM]
-    cd_median_dist_indicators = [v for v in INDICATORS if v.agg == AGG_MEDIAN_CD_DIST]
+    # Indicator classification. TRACT basis (stable geography through
+    # the crosswalk): every AGG_SUM indicator (always was tract-based)
+    # plus everything carrying a cd_basis override. CD-level fallback
+    # (contemporaneous boundaries): the remaining cd_basis-less
+    # indicators — only the tables Census doesn't publish at tract
+    # level (Gini, class of worker).
+    tract_sum_indicators = [
+        v for v in INDICATORS
+        if v.agg == AGG_SUM or v.cd_basis == CD_BASIS_TRACT
+    ]
+    tract_median_indicators = [
+        v for v in INDICATORS if v.cd_basis == CD_BASIS_TRACT_MEDIAN
+    ]
+    cd_single_indicators = [
+        v for v in INDICATORS if v.agg == AGG_CD_LEVEL and not v.cd_basis
+    ]
+    cd_sum_indicators = [
+        v for v in INDICATORS if v.agg == AGG_CD_LEVEL_SUM and not v.cd_basis
+    ]
+    cd_median_dist_indicators = [
+        v for v in INDICATORS if v.agg == AGG_MEDIAN_CD_DIST and not v.cd_basis
+    ]
     pct_indicators = [v for v in INDICATORS if v.agg == AGG_PCT]
     var_by_id = {v.out_id: v for v in INDICATORS}
-    # All CD-level variable codes we need to fetch: the AGG_CD_LEVEL
-    # single-var indicators, plus every cell referenced by AGG_CD_LEVEL_SUM
-    # indicators, plus every bin cell from AGG_MEDIAN_CD_DIST indicators.
-    # Dedupe so we don't send the same code twice in one call.
+
+    def tract_codes_for(v: AcsVar) -> list[str]:
+        """Cells a tract-sum indicator needs: the single var_code or
+        the multi-cell sum_codes list."""
+        return [v.var_code] if v.var_code else list(v.sum_codes)
+
+    # All CD-level variable codes we still need to fetch (the non-tract
+    # leftovers). Dedupe so we don't send the same code twice.
     cd_level_codes_set: set[str] = set()
     for v in cd_single_indicators:
         if v.var_code:
@@ -830,7 +1136,9 @@ def main() -> int:
     for v in cd_sum_indicators:
         cd_level_codes_set.update(v.sum_codes)
     for v in cd_median_dist_indicators:
-        cd_level_codes_set.update(code for code, _, _ in v.bins)
+        cd_level_codes_set.update(
+            code for cell, _, _ in v.bins for code in bin_cell_codes(cell)
+        )
     cd_level_codes = sorted(cd_level_codes_set)
 
     # Accumulator: {(out_id, cd_slug): [{t, v}, ...]}
@@ -849,18 +1157,33 @@ def main() -> int:
         # {cd_slug: {out_id: {bin_code: count_sum}}}
         cd_bins: dict[str, dict[str, dict[str, float]]] = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
 
+        # Resolve what's active THIS vintage: sum indicators whose table
+        # has tract data by now, and each median's era-correct bin
+        # table. Also assemble the deduped tract variable list — well
+        # over the API's ~50-var cap nowadays, so fetch_tract_robust
+        # chunks it.
+        active_sums = [
+            (v, tract_codes_for(v))
+            for v in tract_sum_indicators
+            if year >= v.first_tract_vintage
+        ]
+        active_medians = []
+        for v in tract_median_indicators:
+            if year < v.first_tract_vintage:
+                continue
+            bins = resolve_cd_bins(v, year)
+            if bins:
+                active_medians.append((v, bins))
+        tract_codes_set: set[str] = set()
+        for _, codes in active_sums:
+            tract_codes_set.update(codes)
+        for _, bins in active_medians:
+            for cell, _, _ in bins:
+                tract_codes_set.update(bin_cell_codes(cell))
+        tract_codes = sorted(tract_codes_set)
+
         for fips in STATE_FIPS:
-            # Build the variable list for the tract-level call.
-            tract_codes = list(sum_codes)
-            for v in median_dist_indicators:
-                tract_codes += [code for code, _, _ in v.bins]
-            # Census limits ~50 vars per call. With 9 sum + 16 income
-            # bins = 25 vars, we fit in one call. Add a guard so future
-            # expansion still works.
-            if len(tract_codes) > 48:
-                # Split. (Future: chunk into multiple calls.)
-                tract_codes = tract_codes[:48]
-            tract_data = fetch_vintage_tract(year, tract_codes, fips, key)
+            tract_data = fetch_tract_robust(year, tract_codes, fips, key)
             if not tract_data:
                 continue
 
@@ -872,35 +1195,43 @@ def main() -> int:
                     slug = cd_slug(cd_state, cd)
                     if not slug:
                         continue
-                    # Sum-aggregated indicators: add tract_value * weight
-                    for v in sum_indicators:
-                        val = per_var.get(v.var_code)
-                        if val is None:
+                    # Sum-aggregated indicators: add tract_value * weight.
+                    # Multi-cell indicators sum whichever cells are
+                    # present (same skip-if-none semantics as the CD-
+                    # level path — never store a false zero).
+                    for v, codes in active_sums:
+                        parts = [per_var.get(c) for c in codes]
+                        present = [p for p in parts if p is not None]
+                        if not present:
                             continue
-                        cd_values[slug][v.out_id] = cd_values[slug].get(v.out_id, 0) + val * weight
-                    # Distribution-bin counts: sum each bin
-                    for v in median_dist_indicators:
-                        for code, _, _ in v.bins:
-                            val = per_var.get(code)
-                            if val is None:
-                                continue
-                            cd_bins[slug][v.out_id][code] += val * weight
+                        cd_values[slug][v.out_id] = (
+                            cd_values[slug].get(v.out_id, 0)
+                            + sum(present) * weight
+                        )
+                    # Distribution-bin counts: sum each bin cell.
+                    for v, bins in active_medians:
+                        acc = cd_bins[slug][v.out_id]
+                        for cell, _, _ in bins:
+                            for code in bin_cell_codes(cell):
+                                val = per_var.get(code)
+                                if val is None:
+                                    continue
+                                acc[code] += val * weight
 
         # Compute medians from accumulated distributions
         for slug, by_indicator in cd_bins.items():
-            for v in median_dist_indicators:
+            for v, bins in active_medians:
                 bins_data = by_indicator.get(v.out_id, {})
-                med = weighted_median_from_bins(v.bins, bins_data)
+                med = weighted_median_from_bins(bins, bins_data)
                 if med is not None:
                     cd_values[slug][v.out_id] = med
 
-        # CD-level fetch (no crosswalk; contemporaneous boundaries). Covers
-        # the AGG_CD_LEVEL single-var indicators (median_age, etc.), the
-        # AGG_CD_LEVEL_SUM cell-sum indicators (population_under_18, etc.),
-        # and the AGG_MEDIAN_CD_DIST distribution-median indicators
-        # (median_commute_minutes). Chunked into <=45-var requests to stay
-        # under the Census API's 50-variable-per-call cap; results are
-        # merged back into one per-CD dict.
+        # CD-level fetch (no crosswalk; contemporaneous boundaries) for
+        # the cd_basis-less leftovers — only gini_index plus the
+        # class-of-worker pair (workers_government + universe), whose
+        # tables Census doesn't publish at tract level. Chunked into
+        # <=45-var requests to stay under the Census API's 50-variable-
+        # per-call cap; results are merged back into one per-CD dict.
         if cd_level_codes:
             # Robust fetch: the Census API 400s the WHOLE request if ANY
             # requested variable is unknown for the vintage, which silently
@@ -931,10 +1262,14 @@ def main() -> int:
                 # AGG_MEDIAN_CD_DIST: build a {cell_code: count} dict from
                 # the per-CD fetched values and compute the linearly-
                 # interpolated median across the bin distribution.
+                # (Empty since the stable-geo rebuild moved the last
+                # user — median_commute_minutes — to the tract basis;
+                # kept for any future no-tract-table median.)
                 for v in cd_median_dist_indicators:
                     bins_data = {
                         code: per_var[code]
-                        for code, _, _ in v.bins
+                        for cell, _, _ in v.bins
+                        for code in bin_cell_codes(cell)
                         if code in per_var
                     }
                     med = weighted_median_from_bins(v.bins, bins_data)
@@ -983,10 +1318,12 @@ def main() -> int:
         if not points:
             continue
         points.sort(key=lambda p: p["t"])
-        # Round counts to integers, keep medians + Gini at their declared
-        # decimal precision.
+        # Round counts to integers (crosswalk-weighted sums are
+        # fractional), keep medians + Gini at their declared decimal
+        # precision.
         var = next((v for v in INDICATORS if v.out_id == out_id), None)
-        if var and var.agg in (AGG_SUM, AGG_CD_LEVEL_SUM):
+        if var and (var.agg in (AGG_SUM, AGG_CD_LEVEL_SUM)
+                    or var.cd_basis == CD_BASIS_TRACT):
             for p in points:
                 p["v"] = round(p["v"])
         elif var and var.decimals > 0:
@@ -1008,12 +1345,18 @@ def main() -> int:
             # these because no CD JSON exists to aggregate from.
             st = SINGLE_CD_REDUNDANT[slug]
             series_id = f"{out_id}_{st}"
+            # merge=False: every run recomputes the FULL 2010-2022
+            # history from cache/API, and the stable-geo rebuild
+            # changed the methodology — merging would let stale
+            # contemporaneous-boundary points survive inside
+            # crosswalk-rebuilt series (mixed bases in one line).
             write_timeseries(
                 pipeline="acs_state",
                 series_id=series_id,
                 name=f"{name_prefix} — {st.upper()}",
                 points=points,
                 unit=unit,
+                merge=False,
             )
             redirected += 1
             continue
@@ -1024,6 +1367,7 @@ def main() -> int:
             name=f"{name_prefix} — {slug.upper().replace('_', '-')}",
             points=points,
             unit=unit,
+            merge=False,
         )
         written += 1
     # Cache summary: how much upstream traffic did we save this run?
