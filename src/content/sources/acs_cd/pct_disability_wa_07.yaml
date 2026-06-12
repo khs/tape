@@ -1,6 +1,6 @@
 name: Share of people with a disability — WA-07
 shortName: WA-07 disability share
-description: Share of people with a disability for WA-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share of people with a disability for WA-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_disability_wa_07.json

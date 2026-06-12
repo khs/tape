@@ -1,6 +1,6 @@
 name: Total population (insurance-table denominator) — TX-09
 shortName: TX-09 pop. total (insurance)
-description: Total population (insurance-table denominator) for TX-09. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total population (insurance-table denominator) for TX-09, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/insurance_universe_tx_09.json

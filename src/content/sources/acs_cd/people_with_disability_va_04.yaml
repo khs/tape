@@ -1,6 +1,6 @@
 name: People with a disability — VA-04
 shortName: VA-04 with disability
-description: People with a disability for VA-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: People with a disability for VA-04, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_with_disability_va_04.json

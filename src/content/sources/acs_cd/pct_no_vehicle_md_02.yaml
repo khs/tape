@@ -1,6 +1,6 @@
 name: Share of households with no vehicle — MD-02
 shortName: MD-02 no-vehicle share
-description: Share of households with no vehicle for MD-02. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share of households with no vehicle for MD-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_no_vehicle_md_02.json

@@ -1,6 +1,6 @@
 name: Households with income under $25k — NJ-03
 shortName: NJ-03 HHs under $25k
-description: Households with income under $25k for NJ-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Households with income under $25k for NJ-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_below_25k_nj_03.json

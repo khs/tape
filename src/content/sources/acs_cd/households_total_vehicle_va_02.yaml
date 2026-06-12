@@ -1,6 +1,6 @@
 name: Total households (vehicle-table denominator) — VA-02
 shortName: VA-02 HHs total (vehicle)
-description: Total households (vehicle-table denominator) for VA-02. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total households (vehicle-table denominator) for VA-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_total_vehicle_va_02.json

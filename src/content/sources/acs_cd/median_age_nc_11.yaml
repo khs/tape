@@ -1,6 +1,6 @@
 name: Median age — NC-11
 shortName: NC-11 median age
-description: Median age for NC-11. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median age for NC-11, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_nc_11.json

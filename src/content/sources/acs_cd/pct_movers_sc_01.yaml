@@ -1,6 +1,6 @@
 name: Share who moved in the past year — SC-01
 shortName: SC-01 recent-mover share
-description: Share who moved in the past year for SC-01. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share who moved in the past year for SC-01, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_movers_sc_01.json

@@ -1,6 +1,6 @@
 name: Manufacturing share of workers — NY-12
 shortName: NY-12 manufacturing share
-description: Manufacturing share of workers for NY-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Manufacturing share of workers for NY-12, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_manufacturing_ny_12.json

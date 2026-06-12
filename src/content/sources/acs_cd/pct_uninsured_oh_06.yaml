@@ -1,6 +1,6 @@
 name: Uninsured share of population — OH-06
 shortName: OH-06 uninsured share
-description: Uninsured share of population for OH-06. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Uninsured share of population for OH-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_uninsured_oh_06.json

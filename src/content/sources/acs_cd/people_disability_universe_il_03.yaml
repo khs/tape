@@ -1,6 +1,6 @@
 name: Civilian noninstitutionalized population (disability-table denominator) — IL-03
 shortName: IL-03 pop. total (disability)
-description: Civilian noninstitutionalized population (disability-table denominator) for IL-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Civilian noninstitutionalized population (disability-table denominator) for IL-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_disability_universe_il_03.json

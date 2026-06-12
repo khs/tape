@@ -1,6 +1,6 @@
 name: Median age — MD-08
 shortName: MD-08 median age
-description: Median age for MD-08. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median age for MD-08, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_md_08.json

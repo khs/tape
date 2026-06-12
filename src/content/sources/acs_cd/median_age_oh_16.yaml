@@ -1,6 +1,6 @@
 name: Median age — OH-16
 shortName: OH-16 median age
-description: Median age for OH-16. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median age for OH-16, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_oh_16.json

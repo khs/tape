@@ -1,6 +1,6 @@
 name: Share who moved in the past year — IA-03
 shortName: IA-03 recent-mover share
-description: Share who moved in the past year for IA-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share who moved in the past year for IA-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_movers_ia_03.json

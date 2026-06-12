@@ -1,6 +1,6 @@
 name: Share who moved in the past year — NV-04
 shortName: NV-04 recent-mover share
-description: Share who moved in the past year for NV-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share who moved in the past year for NV-04, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_movers_nv_04.json

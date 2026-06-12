@@ -1,6 +1,6 @@
 name: Median year housing structure built — FL-27
 shortName: FL-27 median year built
-description: Median year housing structure built for FL-27. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median year housing structure built for FL-27, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_year_built_fl_27.json

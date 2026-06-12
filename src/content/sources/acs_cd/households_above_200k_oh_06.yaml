@@ -1,6 +1,6 @@
 name: Households with income $200k+ — OH-06
 shortName: OH-06 HHs $200k+
-description: Households with income $200k+ for OH-06. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Households with income $200k+ for OH-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_above_200k_oh_06.json

@@ -1,6 +1,6 @@
 name: People without health insurance coverage — TX-24
 shortName: TX-24 uninsured
-description: People without health insurance coverage for TX-24. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: People without health insurance coverage for TX-24, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_uninsured_tx_24.json

@@ -1,6 +1,6 @@
 name: Median home value (owner-occupied) — NY-10
 shortName: NY-10 median home value
-description: Median home value (owner-occupied) for NY-10. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median home value (owner-occupied) for NY-10, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_home_value_ny_10.json

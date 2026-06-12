@@ -1,6 +1,6 @@
 name: People with a disability — IL-12
 shortName: IL-12 with disability
-description: People with a disability for IL-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: People with a disability for IL-12, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_with_disability_il_12.json

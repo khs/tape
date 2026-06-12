@@ -1,6 +1,6 @@
 name: Share who moved in the past year — NC-12
 shortName: NC-12 recent-mover share
-description: Share who moved in the past year for NC-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share who moved in the past year for NC-12, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_movers_nc_12.json

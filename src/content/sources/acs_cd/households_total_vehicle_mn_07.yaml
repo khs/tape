@@ -1,6 +1,6 @@
 name: Total households (vehicle-table denominator) — MN-07
 shortName: MN-07 HHs total (vehicle)
-description: Total households (vehicle-table denominator) for MN-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total households (vehicle-table denominator) for MN-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_total_vehicle_mn_07.json

@@ -1,6 +1,6 @@
 name: Total workers (industry-table denominator) — VA-11
 shortName: VA-11 workers total (industry)
-description: Total workers (industry-table denominator) for VA-11. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total workers (industry-table denominator) for VA-11, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_total_industry_va_11.json

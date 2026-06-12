@@ -1,6 +1,6 @@
 name: Workers who work from home — TX-31
 shortName: TX-31 WFH workers
-description: Workers who work from home for TX-31. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Workers who work from home for TX-31, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_wfh_tx_31.json

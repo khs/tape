@@ -1,6 +1,6 @@
 name: Civilian noninstitutionalized population (disability-table denominator) — FL-12
 shortName: FL-12 pop. total (disability)
-description: Civilian noninstitutionalized population (disability-table denominator) for FL-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Civilian noninstitutionalized population (disability-table denominator) for FL-12, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/people_disability_universe_fl_12.json

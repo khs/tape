@@ -1,6 +1,6 @@
 name: Total workers (industry-table denominator) — TX-34
 shortName: TX-34 workers total (industry)
-description: Total workers (industry-table denominator) for TX-34. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total workers (industry-table denominator) for TX-34, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_total_industry_tx_34.json

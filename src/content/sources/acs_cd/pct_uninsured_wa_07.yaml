@@ -1,6 +1,6 @@
 name: Uninsured share of population — WA-07
 shortName: WA-07 uninsured share
-description: Uninsured share of population for WA-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Uninsured share of population for WA-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_uninsured_wa_07.json

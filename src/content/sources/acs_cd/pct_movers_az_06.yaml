@@ -1,6 +1,6 @@
 name: Share who moved in the past year — AZ-06
 shortName: AZ-06 recent-mover share
-description: Share who moved in the past year for AZ-06. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share who moved in the past year for AZ-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_movers_az_06.json

@@ -1,6 +1,6 @@
 name: People who moved in the last year — NC-05
 shortName: NC-05 movers (last yr)
-description: People who moved in the last year for NC-05. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: People who moved in the last year for NC-05, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/movers_last_year_nc_05.json

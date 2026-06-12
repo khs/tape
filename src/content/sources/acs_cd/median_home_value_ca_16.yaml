@@ -1,6 +1,6 @@
 name: Median home value (owner-occupied) — CA-16
 shortName: CA-16 median home value
-description: Median home value (owner-occupied) for CA-16. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median home value (owner-occupied) for CA-16, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_home_value_ca_16.json

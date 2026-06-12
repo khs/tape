@@ -1,6 +1,6 @@
 name: Work-from-home share of workers — MN-03
 shortName: MN-03 work-from-home share
-description: Work-from-home share of workers for MN-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Work-from-home share of workers for MN-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_workers_wfh_mn_03.json

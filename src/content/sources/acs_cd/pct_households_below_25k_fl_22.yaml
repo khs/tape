@@ -1,6 +1,6 @@
 name: Share of households earning under $25k — FL-22
 shortName: FL-22 under-$25k household share
-description: Share of households earning under $25k for FL-22. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share of households earning under $25k for FL-22, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_households_below_25k_fl_22.json

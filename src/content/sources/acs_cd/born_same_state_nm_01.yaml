@@ -1,6 +1,6 @@
 name: Population born in current state of residence — NM-01
 shortName: NM-01 born same state
-description: Population born in current state of residence for NM-01. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Population born in current state of residence for NM-01, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/born_same_state_nm_01.json

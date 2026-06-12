@@ -231,7 +231,7 @@ INDICATORS = [
         # Standard notation reads better for two-digit ages than compact.
         "notation": None,
         "table": "B01002",
-        "agg": "cd_level",
+        "agg": "median_dist",
         "extra_tags": [],
     },
     {
@@ -245,7 +245,7 @@ INDICATORS = [
         "decimals": 0,
         "notation": "compact",
         "table": "B25077",
-        "agg": "cd_level",
+        "agg": "median_dist",
         "extra_tags": ["real-estate"],
     },
     {
@@ -259,13 +259,15 @@ INDICATORS = [
         "decimals": 0,
         "notation": "compact",
         "table": "B25064",
-        "agg": "cd_level",
+        "agg": "median_dist",
         "extra_tags": ["real-estate"],
     },
     # ----- v4 expansion: ratio components + new medians -----
-    # All fetched at contemporaneous-CD boundaries (agg=cd_level or
-    # cd_level_sum) to keep the tract-level API call under Census's
-    # 50-variable cap.
+    # Stable-geo rebuild (2026-06): everything here is crosswalk-
+    # rebuilt from tract data (agg=sum / median_dist) EXCEPT Gini and
+    # the class-of-worker pair — B19083 and C24080 have no tract-level
+    # publication in any vintage, so those stay cd_level with the
+    # boundary caveat.
     {
         "out_id": "gini_index", "name_prefix": "Income inequality (Gini index)",
         "short_suffix": "Gini index", "unit": "ratio",
@@ -277,14 +279,14 @@ INDICATORS = [
         "name_prefix": "Median year housing structure built",
         "short_suffix": "median year built", "unit": "year",
         "unit_class": "ratio", "fmt_style": "number", "decimals": 0,
-        "table": "B25035", "agg": "cd_level", "extra_tags": ["real-estate"],
+        "table": "B25035", "agg": "median_dist", "extra_tags": ["real-estate"],
     },
     {
         "out_id": "households_above_200k",
         "name_prefix": "Households with income $200k+",
         "short_suffix": "HHs $200k+", "unit": "households",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B19001", "agg": "cd_level",
+        "notation": "compact", "table": "B19001", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -292,7 +294,7 @@ INDICATORS = [
         "name_prefix": "Total households (income-table denominator)",
         "short_suffix": "HHs total (income)", "unit": "households",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B19001", "agg": "cd_level",
+        "notation": "compact", "table": "B19001", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -300,7 +302,7 @@ INDICATORS = [
         "name_prefix": "Workers who work from home",
         "short_suffix": "WFH workers", "unit": "workers",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B08301", "agg": "cd_level",
+        "notation": "compact", "table": "B08301", "agg": "sum",
         "extra_tags": ["labor"],
     },
     {
@@ -308,7 +310,7 @@ INDICATORS = [
         "name_prefix": "Total workers (commute-table denominator)",
         "short_suffix": "workers total (commute)", "unit": "workers",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B08301", "agg": "cd_level",
+        "notation": "compact", "table": "B08301", "agg": "sum",
         "extra_tags": ["labor"],
     },
     {
@@ -316,7 +318,7 @@ INDICATORS = [
         "name_prefix": "Households with no vehicle available",
         "short_suffix": "HHs no vehicle", "unit": "households",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B08201", "agg": "cd_level",
+        "notation": "compact", "table": "B08201", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -324,7 +326,7 @@ INDICATORS = [
         "name_prefix": "Total households (vehicle-table denominator)",
         "short_suffix": "HHs total (vehicle)", "unit": "households",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B08201", "agg": "cd_level",
+        "notation": "compact", "table": "B08201", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -332,7 +334,7 @@ INDICATORS = [
         "name_prefix": "Total population (insurance-table denominator)",
         "short_suffix": "pop. total (insurance)", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B27010", "agg": "cd_level",
+        "notation": "compact", "table": "B27010", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -340,7 +342,7 @@ INDICATORS = [
         "name_prefix": "People who moved in the last year",
         "short_suffix": "movers (last yr)", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B07003", "agg": "cd_level",
+        "notation": "compact", "table": "B07003", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -348,7 +350,7 @@ INDICATORS = [
         "name_prefix": "Total population (mobility-table denominator)",
         "short_suffix": "pop. total (mobility)", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B07003", "agg": "cd_level",
+        "notation": "compact", "table": "B07003", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -356,7 +358,7 @@ INDICATORS = [
         "name_prefix": "Population born in current state of residence",
         "short_suffix": "born same state", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B05002", "agg": "cd_level",
+        "notation": "compact", "table": "B05002", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -364,7 +366,7 @@ INDICATORS = [
         "name_prefix": "Workers in manufacturing",
         "short_suffix": "mfg workers", "unit": "workers",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "C24070", "agg": "cd_level",
+        "notation": "compact", "table": "C24070", "agg": "sum",
         "extra_tags": ["labor"],
     },
     {
@@ -372,7 +374,7 @@ INDICATORS = [
         "name_prefix": "Total workers (industry-table denominator)",
         "short_suffix": "workers total (industry)", "unit": "workers",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "C24070", "agg": "cd_level",
+        "notation": "compact", "table": "C24070", "agg": "sum",
         "extra_tags": ["labor"],
     },
     {
@@ -388,7 +390,7 @@ INDICATORS = [
         "name_prefix": "Households with income under $25k",
         "short_suffix": "HHs under $25k", "unit": "households",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B19001", "agg": "cd_level_sum",
+        "notation": "compact", "table": "B19001", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -396,7 +398,7 @@ INDICATORS = [
         "name_prefix": "Population under 18",
         "short_suffix": "pop. under 18", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B01001", "agg": "cd_level_sum",
+        "notation": "compact", "table": "B01001", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -404,7 +406,7 @@ INDICATORS = [
         "name_prefix": "Population 65 and older",
         "short_suffix": "pop. 65+", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B01001", "agg": "cd_level_sum",
+        "notation": "compact", "table": "B01001", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -412,7 +414,7 @@ INDICATORS = [
         "name_prefix": "People without health insurance coverage",
         "short_suffix": "uninsured", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B27010", "agg": "cd_level_sum",
+        "notation": "compact", "table": "B27010", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -420,7 +422,7 @@ INDICATORS = [
         "name_prefix": "People with a disability",
         "short_suffix": "with disability", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B18101", "agg": "cd_level_sum",
+        "notation": "compact", "table": "B18101", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -428,7 +430,7 @@ INDICATORS = [
         "name_prefix": "Civilian noninstitutionalized population (disability-table denominator)",
         "short_suffix": "pop. total (disability)", "unit": "people",
         "unit_class": "count", "fmt_style": "number", "decimals": 0,
-        "notation": "compact", "table": "B18101", "agg": "cd_level",
+        "notation": "compact", "table": "B18101", "agg": "sum",
         "extra_tags": [],
     },
     {
@@ -444,7 +446,7 @@ INDICATORS = [
         "name_prefix": "Median travel time to work",
         "short_suffix": "median commute", "unit": "minutes",
         "unit_class": "ratio", "fmt_style": "number", "decimals": 1,
-        "table": "B08303", "agg": "median_from_cd_distribution",
+        "table": "B08303", "agg": "median_dist",
         "extra_tags": [],
     },
 ]
@@ -462,27 +464,28 @@ INDICATORS = [
 _PCT_CONVERSIONS = [
     # (out_id, numerator, denominator, name_prefix, short_suffix, contemporaneous)
     # Mirrors the AGG_PCT entries in census_acs_cd.py — keep the two lists in
-    # sync. Only the three verified-plausible conversions ship; see that file
-    # for why uninsured/manufacturing/government/$200k+/<$25k (no CD-level
-    # data) and disability/movers (broken underlying counts) are excluded.
+    # sync. Since the stable-geo rebuild every shipped share rides tract-based
+    # numerators AND denominators (contemporaneous=False across the board);
+    # pct_government stays out — C24080 has no tract-level data, so its
+    # would-be numerator still rides contemporaneous boundaries.
     ("pct_foreign_born", "foreign_born", "population",
      "Foreign-born share of population", "foreign-born share", False),
     ("pct_workers_wfh", "workers_wfh", "workers_total_commute",
-     "Work-from-home share of workers", "work-from-home share", True),
+     "Work-from-home share of workers", "work-from-home share", False),
     ("pct_no_vehicle", "households_no_vehicle", "households_total_vehicle",
-     "Share of households with no vehicle", "no-vehicle share", True),
+     "Share of households with no vehicle", "no-vehicle share", False),
     ("pct_movers", "movers_last_year", "mobility_universe",
-     "Share who moved in the past year", "recent-mover share", True),
+     "Share who moved in the past year", "recent-mover share", False),
     ("pct_disability", "people_with_disability", "people_disability_universe",
-     "Share of people with a disability", "disability share", True),
+     "Share of people with a disability", "disability share", False),
     ("pct_uninsured", "people_uninsured", "insurance_universe",
-     "Uninsured share of population", "uninsured share", True),
+     "Uninsured share of population", "uninsured share", False),
     ("pct_manufacturing", "workers_manufacturing", "workers_total_industry",
-     "Manufacturing share of workers", "manufacturing share", True),
+     "Manufacturing share of workers", "manufacturing share", False),
     ("pct_households_above_200k", "households_above_200k", "households_total_income",
-     "Share of households earning $200k+", "$200k+ household share", True),
+     "Share of households earning $200k+", "$200k+ household share", False),
     ("pct_households_below_25k", "households_below_25k", "households_total_income",
-     "Share of households earning under $25k", "under-$25k household share", True),
+     "Share of households earning under $25k", "under-$25k household share", False),
 ]
 _pct_numerators = {num for _, num, _, _, _, _ in _PCT_CONVERSIONS}
 for _oid, _num, _den, _np, _ss, _contemp in _PCT_CONVERSIONS:

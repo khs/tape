@@ -1,6 +1,6 @@
 name: Median gross rent — WI-06
 shortName: WI-06 median gross rent
-description: Median gross rent for WI-06. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median gross rent for WI-06, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_gross_rent_wi_06.json

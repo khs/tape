@@ -1,6 +1,6 @@
 name: Median travel time to work — AZ-03
 shortName: AZ-03 median commute
-description: Median travel time to work for AZ-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median travel time to work for AZ-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_commute_minutes_az_03.json

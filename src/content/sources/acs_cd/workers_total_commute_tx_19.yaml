@@ -1,6 +1,6 @@
 name: Total workers (commute-table denominator) — TX-19
 shortName: TX-19 workers total (commute)
-description: Total workers (commute-table denominator) for TX-19. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total workers (commute-table denominator) for TX-19, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_total_commute_tx_19.json

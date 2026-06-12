@@ -1,6 +1,6 @@
 name: Median gross rent — MT-02
 shortName: MT-02 median gross rent
-description: Median gross rent for MT-02. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median gross rent for MT-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_gross_rent_mt_02.json

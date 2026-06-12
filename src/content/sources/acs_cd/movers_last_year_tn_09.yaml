@@ -1,6 +1,6 @@
 name: People who moved in the last year — TN-09
 shortName: TN-09 movers (last yr)
-description: People who moved in the last year for TN-09. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: People who moved in the last year for TN-09, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/movers_last_year_tn_09.json

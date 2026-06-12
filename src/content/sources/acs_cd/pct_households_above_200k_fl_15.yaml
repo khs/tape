@@ -1,6 +1,6 @@
 name: Share of households earning $200k+ — FL-15
 shortName: FL-15 $200k+ household share
-description: Share of households earning $200k+ for FL-15. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Share of households earning $200k+ for FL-15, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_households_above_200k_fl_15.json

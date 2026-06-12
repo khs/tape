@@ -1,6 +1,6 @@
 name: Households with income under $25k — OH-04
 shortName: OH-04 HHs under $25k
-description: Households with income under $25k for OH-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Households with income under $25k for OH-04, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_below_25k_oh_04.json

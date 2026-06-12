@@ -1,6 +1,6 @@
 name: Workers in manufacturing — SC-07
 shortName: SC-07 mfg workers
-description: Workers in manufacturing for SC-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Workers in manufacturing for SC-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_manufacturing_sc_07.json

@@ -1,6 +1,6 @@
 name: Work-from-home share of workers — AR-04
 shortName: AR-04 work-from-home share
-description: Work-from-home share of workers for AR-04. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Work-from-home share of workers for AR-04, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_workers_wfh_ar_04.json

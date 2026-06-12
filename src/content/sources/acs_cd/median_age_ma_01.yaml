@@ -1,6 +1,6 @@
 name: Median age — MA-01
 shortName: MA-01 median age
-description: Median age for MA-01. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median age for MA-01, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_ma_01.json

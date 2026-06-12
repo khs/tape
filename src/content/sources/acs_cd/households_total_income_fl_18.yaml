@@ -1,6 +1,6 @@
 name: Total households (income-table denominator) — FL-18
 shortName: FL-18 HHs total (income)
-description: Total households (income-table denominator) for FL-18. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Total households (income-table denominator) for FL-18, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/households_total_income_fl_18.json

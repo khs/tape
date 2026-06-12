@@ -1,6 +1,6 @@
 name: Work-from-home share of workers — MA-02
 shortName: MA-02 work-from-home share
-description: Work-from-home share of workers for MA-02. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Work-from-home share of workers for MA-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_workers_wfh_ma_02.json

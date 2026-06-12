@@ -1,6 +1,6 @@
 name: Median travel time to work — IN-07
 shortName: IN-07 median commute
-description: Median travel time to work for IN-07. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median travel time to work for IN-07, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_commute_minutes_in_07.json

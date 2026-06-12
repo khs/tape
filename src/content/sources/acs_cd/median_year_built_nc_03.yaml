@@ -1,6 +1,6 @@
 name: Median year housing structure built — NC-03
 shortName: NC-03 median year built
-description: Median year housing structure built for NC-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median year housing structure built for NC-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_year_built_nc_03.json

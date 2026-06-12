@@ -1,6 +1,6 @@
 name: Manufacturing share of workers — CO-03
 shortName: CO-03 manufacturing share
-description: Manufacturing share of workers for CO-03. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Manufacturing share of workers for CO-03, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/pct_manufacturing_co_03.json

@@ -1,6 +1,6 @@
 name: Workers in manufacturing — NM-02
 shortName: NM-02 mfg workers
-description: Workers in manufacturing for NM-02. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Workers in manufacturing for NM-02, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/workers_manufacturing_nm_02.json

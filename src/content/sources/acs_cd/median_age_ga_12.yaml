@@ -1,6 +1,6 @@
 name: Median age — GA-12
 shortName: GA-12 median age
-description: Median age for GA-12. American Community Survey (ACS) 5-year estimates, released annually. Each year reflects the congressional-district boundaries then in effect.
+description: Median age for GA-12, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
 kind: timeseries
 pipeline: acs_cd
 dataFile: data/acs_cd/median_age_ga_12.json
