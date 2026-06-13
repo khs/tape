@@ -217,14 +217,12 @@ const censusDisclaimer =
           // so the plot re-renders into the wider dialog instead of
           // staying at its ~820px measure-at-open width.
           //
-          // The map dialog (.map-dialog, a separate element) is NOT widened
-          // and we deliberately do NOT auto-toggle its fullscreen here.
-          // Each fullscreen toggle clears + re-hydrates the canvas
-          // (innerHTML="" → rAF → hydrateAll), so open→resize→fullscreen was
-          // three renders at three sizes — the visible "contortions before
-          // it settles." The map renders once, at its normal (large,
-          // centered) dialog size; the user can still hit "Full screen"
-          // themselves if they want edge-to-edge.
+          // The map dialog (.map-dialog, a separate element) needs no
+          // resize nudge: ChartMap's openExpanded() detects this popout
+          // (body.embed-body-expanded) and opens the map ALREADY filling
+          // the iframe (.map-dialog-wide + fullscreen mode) before its
+          // single initial hydrate. That renders once at fill size — no
+          // open→resize→toggle re-hydrate, which was the old "contortion."
           const isMap = !!document.querySelector("#map-expand-dialog[open]");
           if (!isMap) {
             setTimeout(function () {

@@ -2049,6 +2049,21 @@ const statesJoined = stateCodes.join(",");
         })
         .catch(() => {});
     }
+    // In the welcome popout (?expanded=1 → body.embed-body-expanded) the
+    // iframe IS the dialog stage, so open the map already FILLING it
+    // (.map-dialog-wide) rather than at the centered default that leaves a
+    // grey margin. Applying the wide layout + fullscreen canvas mode HERE,
+    // before the initial hydrate, means the map renders ONCE at fill size —
+    // no open-then-toggle re-hydrate, which was the visible "contortion."
+    // (The flex-column figure rule keeps the legend from clipping at this
+    // size.) This lands on the exact same end-state the "Full screen"
+    // button produces; the button still toggles back to centered if wanted.
+    if (document.body.classList.contains("embed-body-expanded")) {
+      dialog.classList.add("map-dialog-wide");
+      expandedCanvas.setAttribute("data-mode", "fullscreen");
+      const fsBtn = dialog.querySelector(".map-dialog-fullscreen");
+      if (fsBtn) fsBtn.textContent = "⤡ Exit full screen";
+    }
     // Open BEFORE hydrating so the dialog's contentBoxes are
     // measurable and Plot can size correctly.
     if (typeof (dialog as HTMLDialogElement).showModal === "function") {
