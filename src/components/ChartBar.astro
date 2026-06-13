@@ -305,8 +305,14 @@ const payload = {
         // if clientWidth is still 0 for any reason (UA quirk, dialog
         // not yet laid out), use the cap so we never feed Plot a
         // non-positive width.
+        // Cap at 1400 (was 720): on the normal page dialog (~820px)
+        // this still resolves to ~772, but in the welcome popout's
+        // filled ~1800px dialog the bars grow to use the space instead
+        // of sitting cramped in the top-left. The plot host is centered
+        // (CSS below) so any leftover width splits evenly rather than
+        // leaving a dead right half.
         const measured = dialog.clientWidth || 720;
-        const width = Math.max(280, Math.min(720, measured - 48));
+        const width = Math.max(280, Math.min(1400, measured - 48));
         const barCount = payload.rows.length;
         const height =
           payload.orientation === "vertical"
@@ -501,6 +507,12 @@ const payload = {
   }
   .chart-bar-dialog .dialog-bar-plot {
     margin: 0 0 18px;
+    /* Center the plot SVG so when the dialog is wider than the capped
+       plot width (the welcome popout's filled ~1800px dialog), the
+       leftover space splits evenly instead of leaving a dead right
+       half. No-op on the normal page dialog where plot ≈ dialog width. */
+    display: flex;
+    justify-content: center;
   }
   .chart-bar-dialog .dialog-bar-list {
     list-style: none;

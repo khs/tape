@@ -1134,6 +1134,12 @@ const statesJoined = stateCodes.join(",");
       }
       svg = ((bestSvg as HTMLElement | null) ?? fig) as HTMLElement;
     }
+    // Tag the geo svg so the fullscreen layout fills ONLY it. Plot also
+    // appends a color-legend svg to the figure; a blanket `svg{width:100%}`
+    // in the wide layout stretched that legend to the full width too,
+    // scaling its tick text up ~7x (the giant "10 20 30 40 50"). The
+    // legend keeps its natural size; only this geo svg fills.
+    svg.classList.add("map-geo-svg");
     // Two cases produce a "no data" tract that would otherwise render
     // as a hole in the map:
     //
@@ -2364,11 +2370,20 @@ const statesJoined = stateCodes.join(",");
     align-items: center;
     justify-content: center;
   }
-  .map-dialog.map-dialog-wide .map-canvas-expanded svg {
+  .map-dialog.map-dialog-wide .map-canvas-expanded svg.map-geo-svg {
     width: 100%;
     height: 100%;
     max-width: 100%;
     max-height: 100%;
+  }
+  /* The Plot color-legend svg (no geo paths) sits above the map; keep it
+     at its natural size so its tick text doesn't scale up with the
+     fullscreen width. Centered to match the map. */
+  .map-dialog.map-dialog-wide .map-canvas-expanded svg:not(.map-geo-svg) {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    flex: 0 0 auto;
   }
   .map-dialog-footer {
     padding: 8px 20px 16px;
