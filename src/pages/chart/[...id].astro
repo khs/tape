@@ -290,8 +290,20 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
      the outer wrapper so the chart fills the iframe instead of
      leaving wide white margins on each side. Tailwind's
      max-w-[880px] uses !important via responsive prefixes by
-     default — match it here. */
-  :global(.chart-detail-host-popout) .chart-detail {
+     default — match it here.
+
+     SPECIFICITY NOTE (why every popout rule below is html-prefixed):
+     this page's <style> is INLINED into the head and loads BEFORE the
+     bundled component stylesheets, so any popout rule that merely TIES
+     a component-scoped rule on specificity loses by source order.
+     That's exactly how the dialog widen silently broke: Chart.astro's
+     `.chart-dialog[data-astro-cid-…] { width:min(92vw,820px) }` is
+     (0,2,0), the old `.chart-detail-host-popout .chart-dialog` was
+     also (0,2,0), and the component CSS loads last → 820px won and
+     the popout dialog floated small in a fullscreen overlay. The
+     leading `html` tag bumps each rule past its component
+     counterpart no matter the bundle order. */
+  :global(html.chart-detail-host-popout) .chart-detail {
     max-width: none !important;
     padding-left: 32px;
     padding-right: 32px;
@@ -299,7 +311,7 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
   /* Inside the wider popout-frame layout, also let the tile grow so
      the chart itself uses the new space rather than staying pinned
      at 360px. */
-  :global(.chart-detail-host-popout) .chart-detail-tile {
+  :global(html.chart-detail-host-popout) .chart-detail-tile {
     max-width: none;
   }
   /* The auto-opened DIALOG is a normal-width modal that leaves wide grey
@@ -309,32 +321,37 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
          min(1100px, 96vw).
      EXCEPT the map dialog's own fullscreen layout (.map-dialog-wide →
      100vw x 100vh), which the auto-expand script enters in the popout. That
-     rule has the SAME specificity as this one, so WITHOUT the :not() this
-     widen wins by source order and clamps the fullscreen dialog back to 96vw
-     — leaving side margins and a second scrollbar (the "doubled frame"). The
-     :not() lets the fullscreen layout govern when it's active.
+     rule would otherwise be clamped back to 96vw by this widen — leaving
+     side margins and a second scrollbar (the "doubled frame"). The :not()
+     lets the fullscreen layout govern when it's active.
+     !important on top of the html-prefix: the width is the entire point
+     of the popout context, and component-side width tweaks (e.g. a
+     compound selector with one more class) must not silently re-shrink
+     the dialog again.
      :global because both dialogs are rendered by their components, not this
      page. */
-  :global(.chart-detail-host-popout .chart-dialog),
-  :global(.chart-detail-host-popout .map-dialog:not(.map-dialog-wide)) {
-    width: min(96vw, 1700px);
-    max-width: min(96vw, 1700px);
+  :global(html.chart-detail-host-popout .chart-dialog),
+  :global(html.chart-detail-host-popout .map-dialog:not(.map-dialog-wide)) {
+    width: min(96vw, 1700px) !important;
+    max-width: min(96vw, 1700px) !important;
   }
   /* In the popout the chart page is only a backdrop for the auto-opened
      dialog. Force the fullscreen map dialog to fill the iframe EXACTLY via
      inset:0 — ChartMap's `.map-dialog-wide { width:100vw }` leaves the dialog
      hugging its ~(vw-40) SVG, exposing a ~40px strip of the scrollable page on
      the right (the "doubled frame"). inset:0 sizes it to the visible viewport
-     with no scrollbar-gutter quirk and no content-hugging; this rule is more
-     specific than ChartMap's `.map-dialog.map-dialog-wide`, so it wins. Then
-     hide overflow on html, body, and the dialog so no scrollbar survives — one
-     clean frame. (The map SVG fits via its viewBox, so clipping the dialog's
-     overflow hides nothing.) */
+     with no scrollbar-gutter quirk and no content-hugging. Then hide overflow
+     on html, body, and the dialog so no scrollbar survives — one clean frame.
+     (The map SVG fits via its viewBox, so clipping the dialog's overflow hides
+     nothing.) NB: ChartMap's scoped `.map-dialog.map-dialog-wide[cid]` is
+     (0,3,0), so this selector needs `.map-dialog` + the html prefix to reach
+     (0,3,1) — the earlier `.chart-detail-host-popout .map-dialog-wide`
+     (0,2,0) always lost and this whole block was silently inert. */
   :global(html.chart-detail-host-popout),
   :global(.chart-detail-host-popout body) {
     overflow: hidden;
   }
-  :global(.chart-detail-host-popout .map-dialog-wide) {
+  :global(html.chart-detail-host-popout .map-dialog.map-dialog-wide) {
     position: fixed;
     inset: 0;
     width: auto;
