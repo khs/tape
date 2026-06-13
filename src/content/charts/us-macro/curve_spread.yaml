@@ -11,7 +11,7 @@ blurb: |
   notes (10Y − 2Y). Negative values ("inversion") have preceded most
   US recessions, though the timing between inversion and recession
   varies widely.
-  <br/><br/>
+
   Computed on the fly from the underlying constant-maturity yields
   rather than relying on a pre-spread series, so the curve stays in
   sync with the components and the source notes link straight to the

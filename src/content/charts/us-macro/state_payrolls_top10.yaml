@@ -13,6 +13,6 @@ blurb: |
   Total nonfarm payroll employment by state, BLS CES, seasonally
   adjusted. Rebased to 100 at window start so state trajectories are
   comparable (raw levels vary by 10× from Wyoming to California).
-  <br/><br/>
+
   All 50 states + DC are available individually in the composer for
   custom subsetting.

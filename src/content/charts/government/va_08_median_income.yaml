@@ -12,7 +12,7 @@ blurb: |
   then weighted-medians the result — a true CD-level median on
   stable geography, not the population-weighted-mean-of-tract-medians
   approximation other CD-aggregation efforts use.
-  <br/><br/>
+
   Available years are limited by what Census's tract-level API
   exposes for older vintages; the line currently runs 2017–2022.
   Up roughly 21% over those five years (nominal — well above

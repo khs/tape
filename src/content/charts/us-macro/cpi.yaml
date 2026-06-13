@@ -18,13 +18,13 @@ annotations:
   - date: "2022-06-01"
     label: Inflation peak 9.1%
 blurb: |
-  <strong>Headline CPI</strong> tracks a typical urban household's basket of
-  goods and services. <strong>Core CPI</strong> strips out food and energy —
+  **Headline CPI** tracks a typical urban household's basket of
+  goods and services. **Core CPI** strips out food and energy —
   they bounce on short-term shocks (weather, OPEC, harvests) and obscure
   underlying inflation pressure.
-  <br/><br/>
-  <strong>PCE</strong> (Personal Consumption Expenditures) is the Fed's
+
+  **PCE** (Personal Consumption Expenditures) is the Fed's
   preferred inflation gauge. Different basket from CPI, and it lets that
   basket shift as consumers substitute toward cheaper goods — so PCE
-  usually runs ~0.3&nbsp;pp below CPI. <strong>Headline vs Core PCE</strong>
+  usually runs ~0.3 pp below CPI. **Headline vs Core PCE**
   follows the same with/without-food-and-energy distinction.

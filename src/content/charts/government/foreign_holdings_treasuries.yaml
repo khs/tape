@@ -16,18 +16,13 @@ rightAxisSources:
 blurb: |
   US Treasury securities held by major foreign holders, end-of-month
   positions in billions USD. Treasury Department's monthly TIC release.
-  <br/><br/>
+
   Three big stories on one chart:
-  <ul>
-    <li><strong>Japan</strong> overtook China as the #1 foreign holder
-    around 2019.</li>
-    <li><strong>China</strong> has steadily reduced its holdings
-    from ~$1.3T peak in 2013 to under $700B today, even as the dollar
-    amount of US debt outstanding tripled.</li>
-    <li><strong>Cayman Islands + Luxembourg + Belgium</strong> are
-    offshore-fund proxies — much of "Cayman" represents US hedge fund
-    positions held through offshore entities, not Caribbean savers.</li>
-  </ul>
+
+  - **Japan** overtook China as the #1 foreign holder around 2019.
+  - **China** has steadily reduced its holdings from ~$1.3T peak in 2013 to under $700B today, even as the dollar amount of US debt outstanding tripled.
+  - **Cayman Islands + Luxembourg + Belgium** are offshore-fund proxies: much of "Cayman" represents US hedge fund positions held through offshore entities, not Caribbean savers.
+
   The grand-total line (right axis) is the broader story: total foreign
   holdings keep rising in dollar terms but at less than the rate of
   outstanding debt growth.

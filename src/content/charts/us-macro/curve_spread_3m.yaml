@@ -13,7 +13,7 @@ blurb: |
   preceded by an inversion (negative reading) of this curve by 6 to
   18 months. Tends to read more cleanly than 10Y − 2Y because the
   3-month is anchored to the current Fed funds rate.
-  <br/><br/>
+
   Computed on the fly as us_10y − us_3mo so the chart stays in sync
   with the components; click through to either constituent for the
   raw yield series.

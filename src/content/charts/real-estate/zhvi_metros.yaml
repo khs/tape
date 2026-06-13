@@ -20,7 +20,7 @@ blurb: |
   Typical home value (ZHVI) across the US national series and the
   twelve largest metro areas. The 35th-65th percentile band by
   Zillow's methodology, smoothed + seasonally adjusted, monthly.
-  <br/><br/>
+
   ZHVI is faster than Case-Shiller (no rolling three-month average)
   + broader (every ZIP) but methodology-different — the two indices
   agree on direction but disagree on level by ~10-20% depending on

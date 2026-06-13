@@ -11,7 +11,7 @@ blurb: |
   next five years. Shorter-horizon counterpart to the 10-year
   breakeven; tends to move more on near-term oil + supply shocks
   while the 10-year averages those out.
-  <br/><br/>
+
   Computed on the fly as the spread between the 5-year nominal
   Treasury yield and the 5-year TIPS (real) yield, equivalent to
   FRED's T5YIE series. Built from the constituents so users can

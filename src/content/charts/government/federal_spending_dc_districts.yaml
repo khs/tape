@@ -15,7 +15,7 @@ blurb: |
   congressional districts that capture most of the federal-contractor
   ecosystem (Arlington VA-08, Loudoun/Fairfax VA-11, Bethesda MD-08,
   Prince George's MD-05).
-  <br/><br/>
+
   Rebased to 100 at window-start so the trajectory comparison is clean
   — DC's nominal volume is in the tens of billions, the Virginia
   districts are in the same range, but raw levels differ enough that

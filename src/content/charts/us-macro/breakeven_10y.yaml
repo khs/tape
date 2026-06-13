@@ -12,7 +12,7 @@ blurb: |
   the fly as the spread between the 10-year nominal Treasury yield
   and the 10-year TIPS (real) yield, so the chart stays in sync with
   the underlying components.
-  <br/><br/>
+
   Equivalent to FRED's T10YIE series, but built from the constituents
   here so users can click through to either the nominal or real
   curve directly.

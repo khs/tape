@@ -12,8 +12,8 @@ blurb: |
   output: about $26K in 1970, $70K+ in the mid-2020s. Doesn't
   account for distribution; useful as a long-run trend benchmark
   for how productive the average American has become.
-  <br/><br/>
-  This is the walkthrough's <strong>division</strong> example —
+
+  This is the walkthrough's **division** example —
   pick any aggregate-by-country / aggregate-by-state / aggregate-
   by-metro plus the matching population series in the composer's
   "+ Custom chart" with op=divide and you'll get the per-capita

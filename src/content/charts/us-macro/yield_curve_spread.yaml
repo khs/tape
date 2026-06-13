@@ -9,15 +9,15 @@ tags: [us, macro, derived, spread, rates, recession]
 blurb: |
   The slope of the front of the yield curve, computed as the
   10-year Treasury yield minus the federal funds effective rate.
-  When this goes <strong>negative</strong> the curve has
+  When this goes **negative** the curve has
   "inverted" — long rates below the policy rate — and a recession
   has historically followed every NBER cycle since 1969 within
   about 12–18 months. False positives are rare: the late-1960s
   inversion was the only pre-2022 one that didn't lead to a
   downturn. The 2022 inversion is the second exception so far —
   un-inverted by mid-2025 without an NBER-dated recession yet.
-  <br/><br/>
-  This is the walkthrough's <strong>subtraction</strong> example
+
+  This is the walkthrough's **subtraction** example
   — same on-the-fly diff machinery as the 5-year breakeven
   inflation chart, applied to two policy-relevant rates instead
   of two parts of the same maturity. Build your own from any pair
