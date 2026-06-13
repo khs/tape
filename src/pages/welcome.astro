@@ -17,7 +17,11 @@
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import EmailSignup from "../components/EmailSignup.astro";
-import { SOURCE_COUNT_DISPLAY } from "../lib/source-count";
+import {
+  SOURCE_COUNT_DISPLAY,
+  METRO_COUNT,
+  COUNTRY_COUNT,
+} from "../lib/source-count";
 import {
   WALKTHROUGH_DASHBOARD_SLUG,
   ENTERPRISE_INQUIRY_URL,
@@ -61,7 +65,7 @@ interface CoverageCategory {
 const COVERAGE: CoverageCategory[] = [
   {
     title: "US macro",
-    blurb: "Inflation, rates, employment, output — the standard headline series, daily/monthly/quarterly as they update.",
+    blurb: "Inflation, rates, employment, output. The standard headline series, daily/monthly/quarterly as they update.",
     items: [
       { label: "CPI year-over-year", sourceHref: "/source/fred/cpi_yoy/", chartId: "us-macro/cpi" },
       { label: "Federal funds rate", sourceHref: "/source/fred/fed_funds/", chartId: "us-macro/fed_funds" },
@@ -83,7 +87,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Markets",
-    blurb: "Volatility, futures curves, commodities — the things the desk has to write about when something breaks.",
+    blurb: "Volatility, futures curves, commodities, the dollar against the majors. The things the desk has to write about when something breaks.",
     items: [
       { label: "WTI crude futures curve", sourceHref: "/source/yahoo_futures/wti_curve/", chartId: "energy/wti_curve" },
       { label: "Brent crude futures curve", sourceHref: "/source/yahoo_futures/brent_curve/", chartId: "energy/brent_curve" },
@@ -93,7 +97,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Geographic",
-    blurb: "Congressional districts, all 50 states + DC, 393 US metros, ~50 countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles; the map-only ones live on the Maps tab in the composer.",
+    blurb: `Congressional districts, all 50 states + DC, ${METRO_COUNT} US metros, ${COUNTRY_COUNT} countries. Some surface as bar snapshots (federal-spending breakdowns), others as line tiles; the map-only ones live on the Maps tab in the composer.`,
     items: [
       { label: "Federal spending by state (top 10)", sourceHref: "/source/usaspending/state_va/", chartId: "government/federal_spending_by_state_top10" },
       { label: "Per-CD spending (VA-08 in context)", sourceHref: "/source/usaspending/district_va_08/", chartId: "government/va_08_federal_spending" },
@@ -103,7 +107,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Health, environment, agriculture",
-    blurb: "Longer-tail series outside the standard markets picture — life expectancy, healthcare cost growth, water withdrawals, crop production. Often the right answer for sourcing a single statistic in a piece.",
+    blurb: "Longer-tail series outside the standard markets picture: life expectancy, healthcare cost growth, water withdrawals, crop production. Often the right answer for sourcing a single statistic in a piece.",
     items: [
       { label: "US life expectancy at birth (CDC)", sourceHref: "/source/cdc_health/life_expectancy_us/", chartId: "us-macro/life_expectancy" },
       { label: "US health spending per capita (CMS)", sourceHref: "/source/cms_nhe/phc_per_capita/", chartId: "us-macro/health_spending_per_capita" },
@@ -114,7 +118,7 @@ const COVERAGE: CoverageCategory[] = [
   },
   {
     title: "Stocks",
-    blurb: "Market-cap history — Yahoo prices × SEC EDGAR share counts — for the names that matter to the macro picture.",
+    blurb: "Market-cap history (Yahoo prices × SEC EDGAR share counts) for the names that matter to the macro picture.",
     items: [
       { label: "Tesla", sourceHref: "/source/yahoo_marketcap/tsla_mc/", chartId: "stocks/tsla" },
       { label: "ExxonMobil vs WTI", sourceHref: "/source/yahoo_marketcap/xom_mc/", chartId: "stocks/xom_vs_wti" },
@@ -140,19 +144,19 @@ const USE_CASES: UseCase[] = [
   {
     eyebrow: "Compose",
     title: "Build your dashboard.",
-    body: "Pick sources that range from macroeconomics to climate, or derive your own — like how many times larger the US economy is than China's. Add annotations for key events. Share with a link.",
+    body: "Pick sources that range from macroeconomics to climate, or derive your own, like how many times larger the US economy is than China's. Add annotations for key events. Share with a link.",
     cta: { label: "Open the walkthrough", href: "/walkthrough/" },
   },
   {
     eyebrow: "Cite",
     title: "Drop a chart into a piece.",
-    body: "Every source carries a citation block — provider, series ID, license, and last-updated date — plus a one-line APA-style citation and a copy-paste iframe embed that updates automatically as the data refreshes.",
+    body: "Every source carries a citation block (provider, series ID, license, last-updated date), plus a one-line APA-style citation and a copy-paste iframe embed that updates automatically as the data refreshes.",
     cta: { label: "See a source page", href: "/source/fred/cpi_yoy/" },
   },
   {
     eyebrow: "Alert",
     title: "Get told when CPI ticks above 4%.",
-    body: "Set thresholds on any indicator we ship — greater-than, crosses-above, crosses-below, absolute change. We evaluate after every data refresh and email you on the cross.",
+    body: "Set thresholds on any indicator we ship: greater-than, crosses-above, crosses-below, absolute change. We evaluate after every data refresh and email you on the cross.",
     cta: { label: "Set up an alert", href: "/alerts/" },
   },
 ];
@@ -181,13 +185,13 @@ const RENDER_SHOWCASE: RenderShowcase[] = [
   },
   {
     label: "Bar snapshot",
-    blurb: "The same sources at one moment in time, sorted descending by default. Good for ranking — who's spending the most, what's growing the fastest, where it lands today.",
+    blurb: "The same sources at one moment in time, sorted descending by default. Good for ranking: who's spending the most, what's growing the fastest, where it lands today.",
     chartId: "countries/gdp_snapshot",
     chartHref: "/chart/countries/gdp_snapshot/",
   },
   {
     label: "Map",
-    blurb: "How a measure varies across the country — state, county, tract, or block-group level, with ACS demographic indicators and other geographic series.",
+    blurb: "How a measure varies across the country. State, county, tract, or block-group level, with ACS demographic indicators and other geographic series.",
     chartId: "government/us_bachelors_plus_pct_county_map_2022",
     chartHref: "/chart/government/us_bachelors_plus_pct_county_map_2022/",
   },
@@ -212,7 +216,7 @@ const EDITORIAL_FEATURES: string[] = [
 ---
 
 <BaseLayout
-  title="Tape — compose and cite dashboards of the world's data"
+  title="Tape: compose and cite dashboards of the world's data"
   description="Free, source-linked charts and maps to describe the world. Build a dashboard from our sources, derive new series, or embed any chart into your Substack."
 >
   <main class="welcome">
@@ -223,11 +227,11 @@ const EDITORIAL_FEATURES: string[] = [
       </h1>
       <p class="welcome-pitch">
         Free, source-linked charts and maps to describe the world, from
-        OECD inflation rates to a map of household incomes in your
-        congressional district. Build a dashboard from our sources, or
-        derive new series — say, the sum of corn and soybean production
-        in your state. Add your own text, or embed any chart into your
-        Substack post.
+        the dollar's path against the euro and yen to a map of household
+        incomes in your congressional district. Build a dashboard from
+        our sources, or derive new series: maybe the sum of corn and
+        soybean production in your state. Add your own text, or embed
+        any chart into your Substack post.
       </p>
       <p class="welcome-cta-row">
         <a href={`${baseUrl}/compose/`} class="welcome-cta-primary">
@@ -238,7 +242,7 @@ const EDITORIAL_FEATURES: string[] = [
         </a>
       </p>
       <p class="welcome-walkthrough-line">
-        New here? <a href={`${baseUrl}/${WALKTHROUGH_DASHBOARD_SLUG}/`}>Take the 5-minute tour</a> — every Tape feature in one annotated dashboard.
+        New here? <a href={`${baseUrl}/${WALKTHROUGH_DASHBOARD_SLUG}/`}>Take the 5-minute tour</a>: every Tape feature in one annotated dashboard.
       </p>
     </section>
 
@@ -723,7 +727,7 @@ const EDITORIAL_FEATURES: string[] = [
         variant="banner"
         source="welcome-page"
         title="Hear when new data sources land."
-        blurb="Monthly-ish updates. New features, new chart sources, the occasional analysis. No spam, easy to unsubscribe."
+        blurb="Monthly updates. New features, new chart sources, the occasional analysis. No spam, easy to unsubscribe."
       />
     </section>
   </main>
