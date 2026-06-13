@@ -1,6 +1,6 @@
 name: 'Federal government current expenditures'
 shortName: 'Fed expend.'
-description: 'Total federal current expenditures (BEA NIPA). Includes consumption, transfers, interest, and subsidies — broader than the cash-basis outlays we get from Treasury via USAspending. Public-domain federal-agency data via FRED.'
+description: 'Total federal current expenditures (BEA NIPA). Includes consumption, transfers, interest, and subsidies, broader than the cash-basis outlays we get from Treasury via USAspending. Public-domain federal-agency data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FGEXPND.json

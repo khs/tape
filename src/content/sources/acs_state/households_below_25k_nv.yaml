@@ -1,6 +1,6 @@
 name: Households with income under $25k — NV
 shortName: NV HHs under $25k
-description: Households with income under $25k for NV (statewide). Aggregated from the 4 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B19001), released annually.
+description: Households with income under $25k for NV (statewide). Aggregated from the 4 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B19001), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/households_below_25k_nv.json

@@ -1,6 +1,6 @@
 name: Vanguard Total World Stock ETF (VT)
 shortName: VT
-description: Vanguard Total World Stock ETF — broad-market global equity exposure (US + developed + emerging markets). Useful as a benchmark when comparing single-country ETFs. (ETF = exchange-traded fund.)
+description: Vanguard Total World Stock ETF, broad-market global equity exposure (US + developed + emerging markets). Useful as a benchmark when comparing single-country ETFs. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/VT.json

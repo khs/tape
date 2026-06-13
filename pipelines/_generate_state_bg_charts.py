@@ -50,7 +50,7 @@ INDICATORS = [
         "median_hh_income",
         "median household income",
         "greens",
-        "median pre-tax money income at block-group resolution — "
+        "median pre-tax money income at block-group resolution, "
         "finer than tract-level. Darker green = higher income.",
     ),
     (

@@ -1,6 +1,6 @@
 name: Revolving consumer credit (credit cards)
 shortName: Revolving credit
-description: Outstanding revolving consumer credit — mostly credit-card balances (seasonally adjusted), monthly from the Federal Reserve G.19. Sums with nonrevolving credit to total consumer credit.
+description: Outstanding revolving consumer credit, mostly credit-card balances (seasonally adjusted), monthly from the Federal Reserve G.19. Sums with nonrevolving credit to total consumer credit.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/REVOLSL.json

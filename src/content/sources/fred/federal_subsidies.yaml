@@ -6,7 +6,7 @@ description: |
   activities), from BEA NIPA Table 3.2 line "Subsidies."
   Quarterly annualized rate, billions USD. Distinct from the
   much larger transfer-payment categories (Social Security,
-  Medicare, Medicaid) — captures targeted industrial policy +
+  Medicare, Medicaid), captures targeted industrial policy +
   temporary support programs (PPP, etc.).
 kind: timeseries
 pipeline: fred_series

@@ -1,6 +1,6 @@
 name: Invesco DB Commodity Index Tracking ETF
 shortName: DBC
-description: ETF tracking the DBIQ Optimum Yield Diversified Commodity Index — front-month futures on 14 heavily-traded commodities (crude, heating oil, RBOB, nat gas, Brent, gold, silver, aluminum, zinc, copper, corn, wheat, soybeans, sugar). Share price reflects index level, not a single underlying. Daily adjusted close. (ETF = exchange-traded fund.)
+description: ETF tracking the DBIQ Optimum Yield Diversified Commodity Index, front-month futures on 14 heavily-traded commodities (crude, heating oil, RBOB, nat gas, Brent, gold, silver, aluminum, zinc, copper, corn, wheat, soybeans, sugar). Share price reflects index level, not a single underlying. Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/DBC.json

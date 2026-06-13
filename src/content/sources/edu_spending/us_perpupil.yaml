@@ -1,6 +1,6 @@
 name: 'K-12 spending per pupil (US)'
 shortName: 'US per-pupil K-12'
-description: 'Current spending per pupil on K-12 public education in the US — total current expenditure divided by fall enrollment. NCES Common Core of Data (F-33 school-system finance), via the Urban Institute Education Data Portal.'
+description: 'Current spending per pupil on K-12 public education in the US, total current expenditure divided by fall enrollment. NCES Common Core of Data (F-33 school-system finance), via the Urban Institute Education Data Portal.'
 kind: timeseries
 pipeline: edu_spending
 dataFile: data/edu_spending/us_perpupil.json

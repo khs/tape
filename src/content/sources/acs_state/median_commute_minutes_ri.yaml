@@ -1,6 +1,6 @@
 name: Median travel time to work — RI
 shortName: RI median commute
-description: Median travel time to work for RI (statewide). Population-weighted average of the 2 congressional-district median travel time to work values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B08303), released annually.
+description: Median travel time to work for RI (statewide). Population-weighted average of the 2 congressional-district median travel time to work values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B08303), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_commute_minutes_ri.json

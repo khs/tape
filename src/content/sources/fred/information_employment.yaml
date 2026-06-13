@@ -1,6 +1,6 @@
 name: 'Information-sector employment'
 shortName: 'Info jobs'
-description: 'All employees in the information sector — software publishing, telecoms, broadcasting, motion pictures, data processing, web search. The tech-employment headline in BLS terms. Public-domain federal-agency data via FRED.'
+description: 'All employees in the information sector, software publishing, telecoms, broadcasting, motion pictures, data processing, web search. The tech-employment headline in BLS terms. Public-domain federal-agency data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/USINFO.json

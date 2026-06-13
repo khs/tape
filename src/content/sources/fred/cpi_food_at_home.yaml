@@ -1,6 +1,6 @@
 name: CPI - Food at home
 shortName: CPI food at home
-description: Consumer Price Index for food at home — grocery prices for urban consumers. Seasonally adjusted, monthly.
+description: Consumer Price Index for food at home, grocery prices for urban consumers. Seasonally adjusted, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUSR0000SAF11.json

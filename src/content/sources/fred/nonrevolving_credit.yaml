@@ -1,6 +1,6 @@
 name: Nonrevolving consumer credit (auto + student)
 shortName: Nonrevolving credit
-description: Outstanding nonrevolving consumer credit — primarily auto and student loans (seasonally adjusted), monthly from the Federal Reserve G.19.
+description: Outstanding nonrevolving consumer credit, primarily auto and student loans (seasonally adjusted), monthly from the Federal Reserve G.19.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/NONREVSL.json

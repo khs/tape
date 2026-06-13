@@ -1,6 +1,6 @@
 name: Median gross rent — NY
 shortName: NY median gross rent
-description: Median gross rent for NY (statewide). Population-weighted average of the 29 congressional-district median gross rent values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B25064), released annually.
+description: Median gross rent for NY (statewide). Population-weighted average of the 29 congressional-district median gross rent values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B25064), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_gross_rent_ny.json

@@ -1,6 +1,6 @@
 name: Households with income $200k+ — TX
 shortName: TX HHs $200k+
-description: Households with income $200k+ for TX (statewide). Aggregated from the 38 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B19001), released annually.
+description: Households with income $200k+ for TX (statewide). Aggregated from the 38 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B19001), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/households_above_200k_tx.json

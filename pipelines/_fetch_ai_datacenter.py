@@ -34,7 +34,7 @@ FRED_NEW = [
         "description": (
             "Producer Price Index for semiconductor and related device "
             "manufacturing (NAICS 3344). Tracks wholesale prices in the "
-            "chip-making industry — crashes during memory + commodity-"
+            "chip-making industry, crashes during memory + commodity-"
             "chip gluts, climbs during AI-driven capacity tightness. "
             "Monthly from BLS via FRED."
         ),
@@ -72,7 +72,7 @@ FRED_NEW = [
             "Industrial production index for mining (NAICS 21), "
             "including oil & gas extraction. Pair with IPMAN "
             "(manufacturing) and IPUTIL (utilities) for the three-sector "
-            "view of US industrial output — these often diverge sharply "
+            "view of US industrial output, these often diverge sharply "
             "(e.g. utilities up on AI demand while mining swings on oil "
             "prices). Monthly from Fed via FRED."
         ),
@@ -97,7 +97,7 @@ YAHOO_NEW = [
      "desc": "CPU + datacenter chip maker; recent foundry pivot. Daily adjusted close.",
      "tags": ["large-stocks", "tech", "us"]},
     {"sym": "AMAT", "name": "Applied Materials (AMAT)",
-     "desc": "Wafer fab equipment leader — the upstream tools that make every chip. Daily adjusted close.",
+     "desc": "Wafer fab equipment leader, the upstream tools that make every chip. Daily adjusted close.",
      "tags": ["large-stocks", "tech", "us"]},
     {"sym": "KLAC", "name": "KLA Corp (KLAC)",
      "desc": "Process control + inspection equipment for semiconductor manufacturing. Daily adjusted close.",
@@ -106,10 +106,10 @@ YAHOO_NEW = [
      "desc": "Etch and deposition equipment for semiconductor fabs. Daily adjusted close.",
      "tags": ["large-stocks", "tech", "us"]},
     {"sym": "ARM", "name": "Arm Holdings (ARM)",
-     "desc": "CPU architecture licensor — IP shipped in nearly every mobile chip + growing AI inference share. Daily adjusted close.",
+     "desc": "CPU architecture licensor, IP shipped in nearly every mobile chip + growing AI inference share. Daily adjusted close.",
      "tags": ["large-stocks", "tech"]},
     {"sym": "SMCI", "name": "Super Micro Computer (SMCI)",
-     "desc": "AI server systems integrator — assembles GPU racks for hyperscalers and enterprises. Daily adjusted close.",
+     "desc": "AI server systems integrator, assembles GPU racks for hyperscalers and enterprises. Daily adjusted close.",
      "tags": ["large-stocks", "tech", "us"]},
     # Datacenter REITs
     {"sym": "EQIX", "name": "Equinix (EQIX)",
@@ -136,13 +136,13 @@ YAHOO_NEW = [
      "tags": ["large-stocks", "energy", "us"]},
     # AI thematic ETFs
     {"sym": "BOTZ", "name": "Global X Robotics + AI ETF (BOTZ)",
-     "desc": "Holds companies positioned to benefit from increased adoption of robotics + AI — heavy in NVDA, Japanese industrial robotics, semis. Daily adjusted close.",
+     "desc": "Holds companies positioned to benefit from increased adoption of robotics + AI, heavy in NVDA, Japanese industrial robotics, semis. Daily adjusted close.",
      "tags": ["equity-index", "tech"]},
     {"sym": "AIQ", "name": "Global X AI + Tech ETF (AIQ)",
-     "desc": "Holds companies developing and using AI technology — broader than BOTZ; heavy in mega-cap tech (MSFT, GOOG, META) plus chipmakers. Daily adjusted close.",
+     "desc": "Holds companies developing and using AI technology, broader than BOTZ; heavy in mega-cap tech (MSFT, GOOG, META) plus chipmakers. Daily adjusted close.",
      "tags": ["equity-index", "tech"]},
     {"sym": "ROBO", "name": "ROBO Global Robotics + Automation ETF (ROBO)",
-     "desc": "Equal-weighted basket of robotics + automation companies — different tilt from BOTZ's market-cap weighting, more industrial automation exposure. Daily adjusted close.",
+     "desc": "Equal-weighted basket of robotics + automation companies, different tilt from BOTZ's market-cap weighting, more industrial automation exposure. Daily adjusted close.",
      "tags": ["equity-index", "tech"]},
     {"sym": "SMH", "name": "VanEck Semiconductor ETF (SMH)",
      "desc": "Broader semiconductor ETF than SOXX; market-cap weighted, heavy NVDA + TSM concentration. Daily adjusted close.",

@@ -1,6 +1,6 @@
 name: Total workers (commute-table denominator) — NC
 shortName: NC workers total (commute)
-description: Total workers (commute-table denominator) for NC (statewide). Aggregated from the 14 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B08301), released annually.
+description: Total workers (commute-table denominator) for NC (statewide). Aggregated from the 14 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B08301), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/workers_total_commute_nc.json

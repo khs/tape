@@ -1,6 +1,6 @@
 name: Households with no vehicle available — OH
 shortName: OH HHs no vehicle
-description: Households with no vehicle available for OH (statewide). Aggregated from the 18 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B08201), released annually.
+description: Households with no vehicle available for OH (statewide). Aggregated from the 18 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B08201), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/households_no_vehicle_oh.json

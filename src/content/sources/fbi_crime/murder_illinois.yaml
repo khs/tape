@@ -1,6 +1,6 @@
 name: "Murder rate — Illinois"
 shortName: Illinois Murder
-description: Reported murders and nonnegligent manslaughters per 100,000 population per year, from the FBI's Crime Data Explorer. The most reliable crime measure — homicide is consistently reported, so it's the least subject to the reporting artifacts that affect other categories. Multiply by a population series to recover the total count. Values for Illinois.
+description: Reported murders and nonnegligent manslaughters per 100,000 population per year, from the FBI's Crime Data Explorer. The most reliable crime measure, homicide is consistently reported, so it's the least subject to the reporting artifacts that affect other categories. Multiply by a population series to recover the total count. Values for Illinois.
 kind: timeseries
 pipeline: fbi_crime
 dataFile: data/fbi_crime/murder_illinois.json

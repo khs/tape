@@ -1,6 +1,6 @@
 name: Super Micro Computer (SMCI)
 shortName: SMCI
-description: AI server systems integrator — assembles GPU racks for hyperscalers
+description: AI server systems integrator, assembles GPU racks for hyperscalers
   and enterprises. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes

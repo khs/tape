@@ -1,6 +1,6 @@
 name: Building permits — Connecticut
 shortName: Connecticut building permits
-description: New privately-owned housing units authorized by building permits in Connecticut, monthly (not seasonally adjusted). From the Census Bureau's Building Permits Survey, via FRED — a leading indicator of residential construction.
+description: New privately-owned housing units authorized by building permits in Connecticut, monthly (not seasonally adjusted). From the Census Bureau's Building Permits Survey, via FRED, a leading indicator of residential construction.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CTBPPRIV.json

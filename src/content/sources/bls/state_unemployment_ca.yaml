@@ -1,6 +1,6 @@
 name: California unemployment rate
 shortName: CA unemployment
-description: Local Area Unemployment Statistics — California state unemployment 
+description: Local Area Unemployment Statistics, California state unemployment 
   rate, monthly, seasonally adjusted.
 kind: timeseries
 pipeline: bls

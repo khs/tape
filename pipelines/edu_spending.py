@@ -106,7 +106,7 @@ def write_yaml(sid: str, geo_key: str) -> None:
         short = f"{geo_key.upper()} per-pupil K-12"
         tags = ["education", "fiscal", "us-state", "us"]
     desc = (
-        f"Current spending per pupil on K-12 public education in {where} — "
+        f"Current spending per pupil on K-12 public education in {where}, "
         f"total current expenditure divided by fall enrollment. NCES Common "
         f"Core of Data (F-33 school-system finance), via the Urban Institute "
         f"Education Data Portal."

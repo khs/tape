@@ -1,6 +1,6 @@
 name: People without health insurance coverage — NC
 shortName: NC uninsured
-description: People without health insurance coverage for NC (statewide). Aggregated from the 14 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B27010), released annually.
+description: People without health insurance coverage for NC (statewide). Aggregated from the 14 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B27010), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/people_uninsured_nc.json

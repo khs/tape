@@ -1,6 +1,6 @@
 name: Foreign-born population — IA
 shortName: IA foreign-born
-description: Foreign-born population for IA (statewide). Aggregated from the 5 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B05002), released annually.
+description: Foreign-born population for IA (statewide). Aggregated from the 5 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B05002), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/foreign_born_ia.json

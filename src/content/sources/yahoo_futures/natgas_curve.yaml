@@ -1,7 +1,7 @@
 name: Henry Hub natural gas — spot history + futures curve
 shortName: Henry Hub curve
 description: |
-  Henry Hub natural gas (Louisiana hub) — the reference price for US natural gas wholesale markets. The solid line is monthly-averaged spot front-month price; the dashed extension is the current NYMEX forward curve out ~15 months.
+  Henry Hub natural gas (Louisiana hub), the reference price for US natural gas wholesale markets. The solid line is monthly-averaged spot front-month price; the dashed extension is the current NYMEX forward curve out ~15 months.
 kind: timeseries
 pipeline: yahoo_futures
 dataFile: data/yahoo_futures/natgas_curve.json
@@ -16,7 +16,7 @@ provenance:
   series: NG=F + monthly contracts (NG[M][YY].NYM)
   url: https://finance.yahoo.com/quote/NG%3DF
   notes: |
-    The projection segment is the forward curve at run time — actual market-quoted contract prices, not a Tape-generated forecast.
+    The projection segment is the forward curve at run time, actual market-quoted contract prices, not a Tape-generated forecast.
   license: Free for personal / non-commercial use with attribution. Verify 
     yahoo.com terms for commercial redistribution.
 tags:

@@ -1,6 +1,6 @@
 name: Strategy (formerly MicroStrategy) (MSTR)
 shortName: MSTR
-description: Strategy, Inc. (formerly MicroStrategy) — a corporate Bitcoin 
+description: Strategy, Inc. (formerly MicroStrategy), a corporate Bitcoin 
   holder that has reframed itself around its BTC treasury.
 kind: timeseries
 pipeline: yahoo_quotes

@@ -5,7 +5,7 @@ description: |
   average of the U-3 unemployment rate rises 0.5pp above its
   trailing-12-month minimum. Devised by Claudia Sahm (2019). Monthly.
 
-  This is the SAHMREALTIME variant — built from the unemployment data
+  This is the SAHMREALTIME variant, built from the unemployment data
   available at each publication date, with no later revisions. The
   SAHMCURRENT variant uses revised data.
 kind: timeseries

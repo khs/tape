@@ -1,6 +1,6 @@
 name: 'Alaska state government total revenue'
 shortName: 'AK state revenue'
-description: 'All revenue — taxes, federal and local transfers, current charges, and insurance-trust receipts, for Alaska''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'All revenue, taxes, federal and local transfers, current charges, and insurance-trust receipts, for Alaska''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/state_totrev_ak.json

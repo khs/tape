@@ -1,6 +1,6 @@
 name: Median travel time to work — VA
 shortName: VA median commute
-description: Median travel time to work for VA (statewide). Population-weighted average of the 11 congressional-district median travel time to work values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B08303), released annually.
+description: Median travel time to work for VA (statewide). Population-weighted average of the 11 congressional-district median travel time to work values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B08303), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_commute_minutes_va.json

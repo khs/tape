@@ -1,6 +1,6 @@
 name: Building permits, new private housing
 shortName: Building permits
-description: Authorized but not necessarily started — leads housing starts by 
+description: Authorized but not necessarily started, leads housing starts by 
   1-2 months. Monthly, seasonally adjusted at annual rate.
 kind: timeseries
 pipeline: fred_series

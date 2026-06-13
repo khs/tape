@@ -1,6 +1,6 @@
 name: Total households (vehicle-table denominator) — MS
 shortName: MS HHs total (vehicle)
-description: Total households (vehicle-table denominator) for MS (statewide). Aggregated from the 4 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B08201), released annually.
+description: Total households (vehicle-table denominator) for MS (statewide). Aggregated from the 4 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B08201), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/households_total_vehicle_ms.json

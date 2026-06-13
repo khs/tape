@@ -1,6 +1,6 @@
 name: Industrial production — Mining
 shortName: IP mining
-description: Industrial production index for mining (NAICS 21), including oil & gas extraction. Pair with IPMAN (manufacturing) and IPUTIL (utilities) for the three-sector view of US industrial output — these often diverge sharply (e.g. utilities up on AI demand while mining swings on oil prices). Monthly from Fed via FRED.
+description: Industrial production index for mining (NAICS 21), including oil & gas extraction. Pair with IPMAN (manufacturing) and IPUTIL (utilities) for the three-sector view of US industrial output, these often diverge sharply (e.g. utilities up on AI demand while mining swings on oil prices). Monthly from Fed via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/IPMINE.json

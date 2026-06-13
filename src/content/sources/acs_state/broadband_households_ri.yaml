@@ -1,6 +1,6 @@
 name: Households with broadband internet — RI
 shortName: RI broadband
-description: Households with broadband internet for RI (statewide). Aggregated from the 2 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B28002), released annually.
+description: Households with broadband internet for RI (statewide). Aggregated from the 2 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B28002), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/broadband_households_ri.json

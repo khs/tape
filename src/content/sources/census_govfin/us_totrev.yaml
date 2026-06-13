@@ -1,6 +1,6 @@
 name: 'State governments'' total revenue (US total)'
 shortName: 'State govt revenue (US)'
-description: 'All revenue — taxes, federal and local transfers, current charges, and insurance-trust receipts, summed across all 50 state governments. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'All revenue, taxes, federal and local transfers, current charges, and insurance-trust receipts, summed across all 50 state governments. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/us_totrev.json

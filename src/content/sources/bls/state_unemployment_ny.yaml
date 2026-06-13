@@ -1,6 +1,6 @@
 name: New York unemployment rate
 shortName: NY unemployment
-description: Local Area Unemployment Statistics — New York state unemployment 
+description: Local Area Unemployment Statistics, New York state unemployment 
   rate, monthly, seasonally adjusted.
 kind: timeseries
 pipeline: bls

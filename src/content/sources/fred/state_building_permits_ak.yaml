@@ -1,6 +1,6 @@
 name: Building permits — Alaska
 shortName: Alaska building permits
-description: New privately-owned housing units authorized by building permits in Alaska, monthly (not seasonally adjusted). From the Census Bureau's Building Permits Survey, via FRED — a leading indicator of residential construction.
+description: New privately-owned housing units authorized by building permits in Alaska, monthly (not seasonally adjusted). From the Census Bureau's Building Permits Survey, via FRED, a leading indicator of residential construction.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/AKBPPRIV.json

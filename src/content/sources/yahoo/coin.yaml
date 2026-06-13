@@ -1,6 +1,6 @@
 name: Coinbase Global (COIN)
 shortName: COIN
-description: Coinbase Global, Inc. — the largest US-listed crypto exchange.
+description: Coinbase Global, Inc., the largest US-listed crypto exchange.
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/COIN.json

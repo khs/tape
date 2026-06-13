@@ -1,6 +1,6 @@
 name: 'Federal government employment'
 shortName: 'Fed jobs'
-description: 'Federal employees (BLS CES). Includes USPS, which makes up ~25% of the total — non-postal federal employment moves at a different cadence + reflects the size of the civilian executive branch. Public-domain federal-agency data via FRED.'
+description: 'Federal employees (BLS CES). Includes USPS, which makes up ~25% of the total, non-postal federal employment moves at a different cadence + reflects the size of the civilian executive branch. Public-domain federal-agency data via FRED.'
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CES9091000001.json

@@ -1,6 +1,6 @@
 name: Texas unemployment rate
 shortName: TX unemployment
-description: Local Area Unemployment Statistics — Texas state unemployment rate,
+description: Local Area Unemployment Statistics, Texas state unemployment rate,
   monthly, seasonally adjusted.
 kind: timeseries
 pipeline: bls

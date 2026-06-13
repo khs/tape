@@ -1,6 +1,6 @@
 name: Adults 25+ with bachelor's degree — RI
 shortName: RI bachelors plus
-description: Adults 25+ with bachelor's degree for RI (statewide). Aggregated from the 2 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B15003), released annually.
+description: Adults 25+ with bachelor's degree for RI (statewide). Aggregated from the 2 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B15003), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/bachelors_plus_ri.json

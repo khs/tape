@@ -1,6 +1,6 @@
 name: Net farm income
 shortName: Net farm income
-description: USDA net farm income — the farm sector's profit after expenses, nationwide. Annual, in current dollars.
+description: USDA net farm income, the farm sector's profit after expenses, nationwide. Annual, in current dollars.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/B1448C1A027NBEA.json

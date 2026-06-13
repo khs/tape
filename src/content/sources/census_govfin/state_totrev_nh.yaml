@@ -1,6 +1,6 @@
 name: 'New Hampshire state government total revenue'
 shortName: 'NH state revenue'
-description: 'All revenue — taxes, federal and local transfers, current charges, and insurance-trust receipts, for New Hampshire''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'All revenue, taxes, federal and local transfers, current charges, and insurance-trust receipts, for New Hampshire''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/state_totrev_nh.json

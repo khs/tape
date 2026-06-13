@@ -121,9 +121,9 @@ def write_yaml(sid: str, suffix: str, geo_key: str) -> None:
     # Emitted as a PLAIN (unquoted) scalar, exactly as committed.
     desc = (
         f"Average scale score, {METRIC_LABEL[suffix]}, for {where}, from "
-        f"the National Assessment of Educational Progress (NAEP) — \"the "
+        f"the National Assessment of Educational Progress (NAEP), \"the "
         f"Nation's Report Card\" (NCES). Administered identically in every "
-        f"state, so scores are directly comparable across states — unlike "
+        f"state, so scores are directly comparable across states, unlike "
         f"each state's own proficiency tests. Public-domain US government "
         f"data."
     )

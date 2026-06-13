@@ -1,6 +1,6 @@
 name: Arm Holdings (ARM)
 shortName: ARM
-description: CPU architecture licensor — IP shipped in nearly every mobile chip 
+description: CPU architecture licensor, IP shipped in nearly every mobile chip 
   + growing AI inference share. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes

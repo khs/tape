@@ -1,6 +1,6 @@
 name: 'Rhode Island state government highway expenditure'
 shortName: 'RI state highways'
-description: 'Direct spending on regular highways — state DOT construction, maintenance, and operations (excludes toll facilities). Unlike K-12 (funded by states but spent by local districts), highways are a function states largely build and run directly, for Rhode Island''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'Direct spending on regular highways, state DOT construction, maintenance, and operations (excludes toll facilities). Unlike K-12 (funded by states but spent by local districts), highways are a function states largely build and run directly, for Rhode Island''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/state_hwyexp_ri.json

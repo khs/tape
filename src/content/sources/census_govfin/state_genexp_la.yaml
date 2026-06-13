@@ -1,6 +1,6 @@
 name: 'Louisiana state government general expenditure'
 shortName: 'LA state general exp'
-description: 'Core public-service spending — excludes utility, liquor-store, and insurance-trust (pension) outlays, so it tracks day-to-day government activity, for Louisiana''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'Core public-service spending, excludes utility, liquor-store, and insurance-trust (pension) outlays, so it tracks day-to-day government activity, for Louisiana''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/state_genexp_la.json

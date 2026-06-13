@@ -1,6 +1,6 @@
 name: PPI - Farm products
 shortName: PPI farm products
-description: Producer Price Index for farm products — wholesale prices received by farmers for crops and livestock. Not seasonally adjusted, monthly.
+description: Producer Price Index for farm products, wholesale prices received by farmers for crops and livestock. Not seasonally adjusted, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WPU01.json

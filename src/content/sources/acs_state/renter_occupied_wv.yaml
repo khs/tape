@@ -1,6 +1,6 @@
 name: Renter-occupied housing units — WV
 shortName: WV renter-occupied
-description: Renter-occupied housing units for WV (statewide). Aggregated from the 3 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B25003), released annually.
+description: Renter-occupied housing units for WV (statewide). Aggregated from the 3 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B25003), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/renter_occupied_wv.json

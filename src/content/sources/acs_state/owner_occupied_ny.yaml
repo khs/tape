@@ -1,6 +1,6 @@
 name: Owner-occupied housing units — NY
 shortName: NY owner-occupied
-description: Owner-occupied housing units for NY (statewide). Aggregated from the 29 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B25003), released annually.
+description: Owner-occupied housing units for NY (statewide). Aggregated from the 29 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B25003), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/owner_occupied_ny.json

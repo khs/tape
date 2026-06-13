@@ -1,6 +1,6 @@
 name: Hires rate (JOLTS)
 shortName: Hires rate
-description: Job Openings and Labor Turnover Survey — total hires as a share of 
+description: Job Openings and Labor Turnover Survey, total hires as a share of 
   employment. Hiring momentum that's not visible in the headline payrolls 
   number.
 kind: timeseries

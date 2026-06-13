@@ -1,6 +1,6 @@
 name: France unemployment rate
 shortName: France unemployment
-description: Harmonized unemployment rate from OECD — monthly, seasonally 
+description: Harmonized unemployment rate from OECD, monthly, seasonally 
   adjusted, age 15+, both sexes. The harmonized methodology makes cross-country 
   comparisons clean (unlike mixing national labor-force surveys with different 
   definitions).

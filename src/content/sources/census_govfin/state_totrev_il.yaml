@@ -1,6 +1,6 @@
 name: 'Illinois state government total revenue'
 shortName: 'IL state revenue'
-description: 'All revenue — taxes, federal and local transfers, current charges, and insurance-trust receipts, for Illinois''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'All revenue, taxes, federal and local transfers, current charges, and insurance-trust receipts, for Illinois''s state government. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/state_totrev_il.json

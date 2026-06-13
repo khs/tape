@@ -67,7 +67,7 @@ INDEX_FAMILIES: dict[str, dict] = {
         "notation": "compact",
         "tags": ["real-estate", "housing"],
         "describe": (
-            "Zillow Home Value Index (ZHVI) — typical home value (35th–65th "
+            "Zillow Home Value Index (ZHVI), typical home value (35th–65th "
             "percentile band, single-family + condo, smoothed seasonally "
             "adjusted). Monthly back to January 2000."
         ),
@@ -81,7 +81,7 @@ INDEX_FAMILIES: dict[str, dict] = {
         "notation": "compact",
         "tags": ["real-estate", "housing", "inflation"],
         "describe": (
-            "Zillow Observed Rent Index (ZORI) — typical observed market-"
+            "Zillow Observed Rent Index (ZORI), typical observed market-"
             "rate rent across a region, repeat-rent index weighted to the "
             "rental housing stock. Monthly back to January 2015."
         ),

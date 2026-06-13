@@ -28,7 +28,7 @@ ROWS = [
         "level",
         "All employees in the health care + social assistance sector (BLS CES). "
         "Largest single industry by employment in the modern US economy and one "
-        "of the most counter-cyclical — keeps growing through recessions when "
+        "of the most counter-cyclical, keeps growing through recessions when "
         "other sectors shed jobs.",
     ),
     (
@@ -123,7 +123,7 @@ ROWS = [
         "number", 0, "compact",
         ["macro", "labor", "tech", "us"],
         "level",
-        "All employees in the information sector — software publishing, "
+        "All employees in the information sector, software publishing, "
         "telecoms, broadcasting, motion pictures, data processing, web "
         "search. The tech-employment headline in BLS terms.",
     ),
@@ -151,7 +151,7 @@ ROWS = [
         ["macro", "government", "us"],
         "level",
         "Total federal current expenditures (BEA NIPA). Includes consumption, "
-        "transfers, interest, and subsidies — broader than the cash-basis "
+        "transfers, interest, and subsidies, broader than the cash-basis "
         "outlays we get from Treasury via USAspending.",
     ),
     (
@@ -190,7 +190,7 @@ ROWS = [
         ["macro", "labor", "government", "us"],
         "level",
         "Federal employees (BLS CES). Includes USPS, which makes up ~25% of "
-        "the total — non-postal federal employment moves at a different "
+        "the total, non-postal federal employment moves at a different "
         "cadence + reflects the size of the civilian executive branch.",
     ),
     (

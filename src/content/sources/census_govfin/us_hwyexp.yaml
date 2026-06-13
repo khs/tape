@@ -1,6 +1,6 @@
 name: 'State governments'' highway expenditure (US total)'
 shortName: 'State govt highways (US)'
-description: 'Direct spending on regular highways — state DOT construction, maintenance, and operations (excludes toll facilities). Unlike K-12 (funded by states but spent by local districts), highways are a function states largely build and run directly, summed across all 50 state governments. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
+description: 'Direct spending on regular highways, state DOT construction, maintenance, and operations (excludes toll facilities). Unlike K-12 (funded by states but spent by local districts), highways are a function states largely build and run directly, summed across all 50 state governments. Census Annual Survey of State Government Finances; the state-government layer only, excluding local and federal spending. Public-domain US government data.'
 kind: timeseries
 pipeline: census_govfin
 dataFile: data/census_govfin/us_hwyexp.json

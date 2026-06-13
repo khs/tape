@@ -1,6 +1,6 @@
 name: Civilian noninstitutionalized population (disability-table denominator) — NH
 shortName: NH pop. total (disability)
-description: Civilian noninstitutionalized population (disability-table denominator) for NH (statewide). Aggregated from the 2 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B18101), released annually.
+description: Civilian noninstitutionalized population (disability-table denominator) for NH (statewide). Aggregated from the 2 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B18101), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/people_disability_universe_nh.json

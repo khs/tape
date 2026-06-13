@@ -1,6 +1,6 @@
 name: Renter-occupied housing units — MI
 shortName: MI renter-occupied
-description: Renter-occupied housing units for MI (statewide). Aggregated from the 15 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B25003), released annually.
+description: Renter-occupied housing units for MI (statewide). Aggregated from the 15 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B25003), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/renter_occupied_mi.json

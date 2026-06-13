@@ -1,6 +1,6 @@
 name: CPI - Food away from home
 shortName: CPI food away
-description: Consumer Price Index for food away from home — restaurant and prepared-food prices for urban consumers. Seasonally adjusted, monthly.
+description: Consumer Price Index for food away from home, restaurant and prepared-food prices for urban consumers. Seasonally adjusted, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUSR0000SEFV.json

@@ -1,6 +1,6 @@
 name: Zillow Home Value Index — Atlanta, GA
 shortName: Atlanta ZHVI
-description: Zillow Home Value Index (ZHVI) — typical home value (35th–65th percentile band, single-family + condo, smoothed seasonally adjusted). Monthly back to January 2000.
+description: Zillow Home Value Index (ZHVI), typical home value (35th–65th percentile band, single-family + condo, smoothed seasonally adjusted). Monthly back to January 2000.
 kind: timeseries
 pipeline: zillow
 dataFile: data/zillow/zhvi_atlanta.json

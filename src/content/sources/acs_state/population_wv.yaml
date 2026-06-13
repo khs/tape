@@ -1,6 +1,6 @@
 name: Total population — WV
 shortName: WV population
-description: Total population for WV (statewide). Aggregated from the 3 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B01003), released annually.
+description: Total population for WV (statewide). Aggregated from the 3 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B01003), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/population_wv.json

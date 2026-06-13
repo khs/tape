@@ -1,6 +1,6 @@
 name: Sticky-price CPI, less food & energy (YoY)
 shortName: Sticky CPI
-description: Year-over-year change in the sticky-price consumer price index (CPI) excluding food and energy — the basket of prices that adjust infrequently, which the Atlanta Fed tracks as a gauge of inflation's persistent trend. Monthly, seasonally adjusted.
+description: Year-over-year change in the sticky-price consumer price index (CPI) excluding food and energy, the basket of prices that adjust infrequently, which the Atlanta Fed tracks as a gauge of inflation's persistent trend. Monthly, seasonally adjusted.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CORESTICKM159SFRBATL.json

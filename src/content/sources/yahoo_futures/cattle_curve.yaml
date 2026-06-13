@@ -1,7 +1,7 @@
 name: Live cattle — spot history + futures curve
 shortName: Cattle curve
 description: |
-  CME live cattle front-month spot history + today's forward curve. Beef is a top US ag export. Contracts deliver Feb / Apr / Jun / Aug / Oct / Dec — the bimonthly cycle is unusual among ag futures and tied to feedlot turnover. Quoted in US cents per pound.
+  CME live cattle front-month spot history + today's forward curve. Beef is a top US ag export. Contracts deliver Feb / Apr / Jun / Aug / Oct / Dec, the bimonthly cycle is unusual among ag futures and tied to feedlot turnover. Quoted in US cents per pound.
 kind: timeseries
 pipeline: yahoo_futures
 dataFile: data/yahoo_futures/cattle_curve.json
@@ -16,7 +16,7 @@ provenance:
   series: LE=F + monthly contracts (LE[M][YY].CME)
   url: https://finance.yahoo.com/quote/LE%3DF
   notes: |
-    The projection segment is the CME forward curve at run time — actual quoted contract prices, not a Tape-generated forecast.
+    The projection segment is the CME forward curve at run time, actual quoted contract prices, not a Tape-generated forecast.
   license: Free for personal / non-commercial use with attribution. Verify 
     yahoo.com terms for commercial redistribution.
 tags:

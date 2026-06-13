@@ -142,7 +142,7 @@ _WB_FFILL_RE = re.compile(
 # or a dangling "the … is administered" fragment).
 _NAEP_OLD = '. NAEP ("the Nation\'s Report Card", NCES) is administered identically'
 _NAEP_NEW = (
-    ', from the National Assessment of Educational Progress (NAEP) — '
+    ', from the National Assessment of Educational Progress (NAEP), '
     '"the Nation\'s Report Card" (NCES). Administered identically'
 )
 

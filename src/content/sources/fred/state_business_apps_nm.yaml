@@ -1,6 +1,6 @@
 name: Business applications — New Mexico
 shortName: New Mexico business applications
-description: Total business applications in New Mexico, monthly (seasonally adjusted). From the Census Bureau's Business Formation Statistics, via FRED — a high-frequency gauge of new-business creation.
+description: Total business applications in New Mexico, monthly (seasonally adjusted). From the Census Bureau's Business Formation Statistics, via FRED, a high-frequency gauge of new-business creation.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/BABATOTALSANM.json

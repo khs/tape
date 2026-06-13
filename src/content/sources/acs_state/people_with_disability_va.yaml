@@ -1,6 +1,6 @@
 name: People with a disability — VA
 shortName: VA with disability
-description: People with a disability for VA (statewide). Aggregated from the 11 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B18101), released annually.
+description: People with a disability for VA (statewide). Aggregated from the 11 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B18101), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/people_with_disability_va.json

@@ -1,6 +1,6 @@
 name: American Tower (AMT)
 shortName: AMT
-description: American Tower Corporation — major US-listed REIT that owns and 
+description: American Tower Corporation, major US-listed REIT that owns and 
   leases cell tower infrastructure.
 kind: timeseries
 pipeline: yahoo_quotes

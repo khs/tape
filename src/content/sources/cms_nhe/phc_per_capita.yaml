@@ -1,6 +1,6 @@
 name: 'Personal health-care spending per capita'
 shortName: 'Personal health $/cap'
-description: 'Per-capita spending on personal health care in the United States — the medical goods and services delivered to individuals (hospital, physician, clinical, dental, drug, nursing, and home-health care). From CMS''s National Health Expenditure Accounts, Table 1. Annual, current dollars. Public-domain federal data.'
+description: 'Per-capita spending on personal health care in the United States, the medical goods and services delivered to individuals (hospital, physician, clinical, dental, drug, nursing, and home-health care). From CMS''s National Health Expenditure Accounts, Table 1. Annual, current dollars. Public-domain federal data.'
 kind: timeseries
 pipeline: cms_nhe
 dataFile: data/cms_nhe/phc_per_capita.json

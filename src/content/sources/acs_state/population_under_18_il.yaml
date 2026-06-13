@@ -1,6 +1,6 @@
 name: Population under 18 — IL
 shortName: IL pop. under 18
-description: Population under 18 for IL (statewide). Aggregated from the 19 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B01001), released annually.
+description: Population under 18 for IL (statewide). Aggregated from the 19 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B01001), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/population_under_18_il.json

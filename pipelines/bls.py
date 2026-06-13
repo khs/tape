@@ -222,7 +222,7 @@ SERIES: list[BlsSpec] = [
         out_id="jolts_quits_rate",
         label="JOLTS: quits rate (total nonfarm)",
         unit="% of employment",
-        notes="Quits as a share of employment — the 'great resignation' metric.",
+        notes="Quits as a share of employment, the 'great resignation' metric.",
     ),
     BlsSpec(
         series_id="JTS000000000000000HIR",

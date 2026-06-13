@@ -1,6 +1,6 @@
 name: Median home value (owner-occupied) — AR
 shortName: AR median home value
-description: Median home value (owner-occupied) for AR (statewide). Population-weighted average of the 4 congressional-district median home value (owner-occupied) values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B25077), released annually.
+description: Median home value (owner-occupied) for AR (statewide). Population-weighted average of the 4 congressional-district median home value (owner-occupied) values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B25077), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_home_value_ar.json

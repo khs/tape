@@ -1,6 +1,6 @@
 name: Median year housing structure built — NE
 shortName: NE median year built
-description: Median year housing structure built for NE (statewide). Population-weighted average of the 3 congressional-district median year housing structure built values for this state — an approximation, not the true Census state-level median. Underlying source — American Community Survey 5-year estimates (table B25035), released annually.
+description: Median year housing structure built for NE (statewide). Population-weighted average of the 3 congressional-district median year housing structure built values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B25035), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_year_built_ne.json

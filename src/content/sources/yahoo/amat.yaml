@@ -1,6 +1,6 @@
 name: Applied Materials (AMAT)
 shortName: AMAT
-description: Wafer fab equipment leader — the upstream tools that make every 
+description: Wafer fab equipment leader, the upstream tools that make every 
   chip. Daily adjusted close.
 kind: timeseries
 pipeline: yahoo_quotes

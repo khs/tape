@@ -1,6 +1,6 @@
 name: 'Idaho NAEP grade 4 reading score'
 shortName: 'ID NAEP g4 reading'
-description: Average scale score, grade 4 reading, for Idaho, from the National Assessment of Educational Progress (NAEP) — "the Nation's Report Card" (NCES). Administered identically in every state, so scores are directly comparable across states — unlike each state's own proficiency tests. Public-domain US government data.
+description: Average scale score, grade 4 reading, for Idaho, from the National Assessment of Educational Progress (NAEP), "the Nation's Report Card" (NCES). Administered identically in every state, so scores are directly comparable across states, unlike each state's own proficiency tests. Public-domain US government data.
 kind: timeseries
 pipeline: naep
 dataFile: data/naep/state_readg4_id.json

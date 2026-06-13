@@ -1,6 +1,6 @@
 name: Population born in current state of residence — NJ
 shortName: NJ born same state
-description: Population born in current state of residence for NJ (statewide). Aggregated from the 13 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B05002), released annually.
+description: Population born in current state of residence for NJ (statewide). Aggregated from the 13 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B05002), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/born_same_state_nj.json

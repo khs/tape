@@ -1,6 +1,6 @@
 name: Global X Robotics + AI ETF (BOTZ)
 shortName: BOTZ
-description: Holds companies positioned to benefit from increased adoption of robotics + AI — heavy in NVDA, Japanese industrial robotics, semis. Daily adjusted close. (ETF = exchange-traded fund.)
+description: Holds companies positioned to benefit from increased adoption of robotics + AI, heavy in NVDA, Japanese industrial robotics, semis. Daily adjusted close. (ETF = exchange-traded fund.)
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/BOTZ.json

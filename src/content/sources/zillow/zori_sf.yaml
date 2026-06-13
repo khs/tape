@@ -1,6 +1,6 @@
 name: Zillow Observed Rent Index — San Francisco, CA
 shortName: San Francisco ZORI
-description: Zillow Observed Rent Index (ZORI) — typical observed market-rate rent across a region, repeat-rent index weighted to the rental housing stock. Monthly back to January 2015.
+description: Zillow Observed Rent Index (ZORI), typical observed market-rate rent across a region, repeat-rent index weighted to the rental housing stock. Monthly back to January 2015.
 kind: timeseries
 pipeline: zillow
 dataFile: data/zillow/zori_sf.json

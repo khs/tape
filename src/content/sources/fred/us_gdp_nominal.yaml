@@ -1,6 +1,6 @@
 name: US GDP (nominal)
 shortName: Nominal GDP
-description: Gross domestic product in current dollars (seasonally adjusted annual rate), quarterly from the BEA. The nominal complement to real GDP — use it as a per-capita or ratio denominator.
+description: Gross domestic product in current dollars (seasonally adjusted annual rate), quarterly from the BEA. The nominal complement to real GDP, use it as a per-capita or ratio denominator.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GDP.json

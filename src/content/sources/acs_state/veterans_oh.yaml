@@ -1,6 +1,6 @@
 name: Civilian veteran population (18+) — OH
 shortName: OH veterans
-description: Civilian veteran population (18+) for OH (statewide). Aggregated from the 18 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B21001), released annually.
+description: Civilian veteran population (18+) for OH (statewide). Aggregated from the 18 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B21001), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/veterans_oh.json

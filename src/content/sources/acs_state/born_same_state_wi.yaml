@@ -1,6 +1,6 @@
 name: Population born in current state of residence — WI
 shortName: WI born same state
-description: Population born in current state of residence for WI (statewide). Aggregated from the 8 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B05002), released annually.
+description: Population born in current state of residence for WI (statewide). Aggregated from the 8 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B05002), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/born_same_state_wi.json

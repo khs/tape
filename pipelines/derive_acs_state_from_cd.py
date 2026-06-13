@@ -456,7 +456,7 @@ def description_for(indicator: dict[str, Any], state: str, n_cds: int) -> str:
             f"{name} for {abbr} (statewide). Aggregated from the "
             f"{n_cds} congressional-district series for this state "
             f"(118th-Congress boundaries) via direct sum. Underlying "
-            f"source — American Community Survey 5-year estimates "
+            f"source, American Community Survey 5-year estimates "
             f"(table {table}), released annually."
         )
     # Median branch.
@@ -471,8 +471,8 @@ def description_for(indicator: dict[str, Any], state: str, n_cds: int) -> str:
     return (
         f"{name} for {abbr} (statewide). Population-weighted average "
         f"of the {n_cds} congressional-district {name.lower()} values "
-        f"for this state — an approximation, not the true Census "
-        f"state-level median. Underlying source — American Community "
+        f"for this state, an approximation, not the true Census "
+        f"state-level median. Underlying source, American Community "
         f"Survey 5-year estimates (table {table}), released annually."
     )
 

@@ -1,6 +1,6 @@
 name: People in poverty — OK
 shortName: OK poverty count
-description: People in poverty for OK (statewide). Aggregated from the 5 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source — American Community Survey 5-year estimates (table B17001), released annually.
+description: People in poverty for OK (statewide). Aggregated from the 5 congressional-district series for this state (118th-Congress boundaries) via direct sum. Underlying source, American Community Survey 5-year estimates (table B17001), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/poverty_count_ok.json
