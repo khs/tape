@@ -252,7 +252,7 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
   )}
 
   <script>
-    import { readStoredSession } from "../../lib/supabase";
+    import { readStoredSession } from "../../lib/supabase-session";
 
     const root = document.querySelector<HTMLElement>(".chart-detail");
     if (root) {

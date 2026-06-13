@@ -9,6 +9,19 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * Both server-rendered pages (like /u/[slug].astro) and the composer island
  * import from here.
  */
+// Cheap session helpers live in a zero-dependency module so importing
+// THEM doesn't drag in @supabase/supabase-js. Re-exported here so the
+// many existing importers of supabase.ts keep working unchanged; code
+// on the anonymous-content critical path should import from
+// ./supabase-session directly to stay client-free.
+export {
+  isSupabaseConfigured,
+  SUPABASE_REST_URL,
+  SUPABASE_REST_ANON_KEY,
+  readStoredSession,
+  type StoredSession,
+} from "./supabase-session";
+
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
@@ -74,43 +87,3 @@ export function createSupabase(): SupabaseClient | null {
   });
 }
 
-/** Publicly-consumable flag so UI can hide auth/save features in dev without creds. */
-export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
-
-/** Expose URL + anon key for direct-fetch REST calls (used when we want to
- *  bypass supabase-js's auth lock, which has been observed to deadlock on
- *  getSession() during token refresh). */
-export const SUPABASE_REST_URL = SUPABASE_URL ?? "";
-export const SUPABASE_REST_ANON_KEY = SUPABASE_ANON_KEY ?? "";
-
-export type StoredSession = {
-  access_token: string;
-  refresh_token?: string;
-  user: { id: string; email?: string };
-  expires_at?: number;
-};
-
-/** Reads the active session straight from localStorage, bypassing supabase-js
- *  entirely. Useful when getSession() is deadlocked and for first-paint auth
- *  checks that don't want to wait for async hydration. */
-export function readStoredSession(): StoredSession | null {
-  if (typeof window === "undefined" || !SUPABASE_URL) return null;
-  try {
-    const m = SUPABASE_URL.match(/https:\/\/([^.]+)\.supabase\.co/);
-    if (!m) return null;
-    const ref = m[1];
-    const raw = localStorage.getItem(`sb-${ref}-auth-token`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    const s = parsed?.currentSession ?? parsed;
-    if (!s?.access_token || !s?.user?.id) return null;
-    return {
-      access_token: s.access_token,
-      refresh_token: s.refresh_token,
-      user: { id: s.user.id, email: s.user.email },
-      expires_at: s.expires_at,
-    };
-  } catch {
-    return null;
-  }
-}

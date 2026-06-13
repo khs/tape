@@ -218,66 +218,100 @@ const navActive = (prefix: string): boolean =>
     </div>
 
     <script>
+      // Nav auth state. The heavy @supabase/supabase-js client (~52KB) is
+      // ONLY needed for an actual auth action (sign in / sign out / token
+      // refresh), so we don't statically import it here — that would load
+      // it on every page for every anonymous reader. Instead:
+      //   - the synchronous localStorage check (cheap, no client) sets the
+      //     nav state immediately, so signed-in users see their links with
+      //     no flash and no bytes;
+      //   - the real client is dynamic-imported lazily: at idle for already
+      //     signed-in users (to catch token refresh / sign-out), or on the
+      //     Sign-in click for anonymous users (who only pay on intent).
       import {
-        createSupabase,
         isSupabaseConfigured,
         readStoredSession,
-      } from "../lib/supabase";
-      import { maybeSeedTutorial } from "../lib/seed-tutorial";
+      } from "../lib/supabase-session";
       if (isSupabaseConfigured) {
-        const sb = createSupabase();
-        if (sb) {
-          const signin = document.querySelector<HTMLButtonElement>(
-            "[data-role='auth-signin']",
-          );
-          const signout = document.querySelector<HTMLButtonElement>(
-            "[data-role='auth-signout']",
-          );
-          const meLink = document.querySelector<HTMLAnchorElement>(
-            "[data-role='auth-me-link']",
-          );
-          const alertsLink = document.querySelector<HTMLAnchorElement>(
-            "[data-role='auth-alerts-link']",
-          );
+        const signin = document.querySelector<HTMLButtonElement>(
+          "[data-role='auth-signin']",
+        );
+        const signout = document.querySelector<HTMLButtonElement>(
+          "[data-role='auth-signout']",
+        );
+        const meLink = document.querySelector<HTMLAnchorElement>(
+          "[data-role='auth-me-link']",
+        );
+        const alertsLink = document.querySelector<HTMLAnchorElement>(
+          "[data-role='auth-alerts-link']",
+        );
 
-          function refresh() {
-            // Storage-based, synchronous — avoids the getSession/getUser
-            // NavigatorLock deadlock path.
-            const stored = readStoredSession();
-            if (stored) {
-              if (signin) signin.style.display = "none";
-              if (signout) signout.style.display = "";
-              if (meLink) meLink.style.display = "";
-              if (alertsLink) alertsLink.style.display = "";
-              // First-sign-in tutorial seed. Self-gated: idempotent +
-              // bails out if the user already has any saved dashboards.
-              // See src/lib/seed-tutorial.ts for the contract.
-              void maybeSeedTutorial(stored);
-            } else {
-              if (signin) signin.style.display = "";
-              if (signout) signout.style.display = "none";
-              if (meLink) meLink.style.display = "none";
-              if (alertsLink) alertsLink.style.display = "none";
-            }
+        function applyNavState(signedIn: boolean) {
+          if (signin) signin.style.display = signedIn ? "none" : "";
+          if (signout) signout.style.display = signedIn ? "" : "none";
+          if (meLink) meLink.style.display = signedIn ? "" : "none";
+          if (alertsLink) alertsLink.style.display = signedIn ? "" : "none";
+        }
+
+        // Synchronous, client-free first paint of the nav state.
+        const stored = readStoredSession();
+        applyNavState(Boolean(stored));
+
+        // Lazy single-instance client loader (createSupabase caches on
+        // window, so idle-load and click-load share one instance).
+        let clientPromise: Promise<
+          ReturnType<typeof import("../lib/supabase").createSupabase>
+        > | null = null;
+        function loadClient() {
+          if (!clientPromise) {
+            clientPromise = import("../lib/supabase").then((m) => m.createSupabase());
           }
+          return clientPromise;
+        }
 
-          signin?.addEventListener("click", async () => {
-            await sb.auth.signInWithOAuth({
-              provider: "google",
-              options: {
-                redirectTo: window.location.href,
-                // Request minimum scopes: the user's unique ID + email only.
-                // Omitting `profile` means Google won't send name / picture.
-                scopes: "openid email",
-              },
-            });
+        function refresh() {
+          const s = readStoredSession();
+          applyNavState(Boolean(s));
+          if (s) {
+            // First-sign-in tutorial seed. Self-gated: idempotent + bails
+            // out if the user already has saved dashboards. Dynamic so the
+            // seed code (and its supabase use) only loads when signed in.
+            void import("../lib/seed-tutorial").then((m) => m.maybeSeedTutorial(s));
+          }
+        }
+
+        signin?.addEventListener("click", async () => {
+          const sb = await loadClient();
+          await sb?.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: window.location.href,
+              // Minimum scopes: unique ID + email only. Omitting `profile`
+              // means Google won't send name / picture.
+              scopes: "openid email",
+            },
           });
-          signout?.addEventListener("click", async () => {
+        });
+        signout?.addEventListener("click", async () => {
+          const sb = await loadClient();
+          if (sb) {
             await sb.auth.signOut();
             refresh();
+          }
+        });
+
+        // Signed-in: hydrate the client at idle to wire token-refresh /
+        // cross-tab auth changes. Anonymous: never loads here.
+        if (stored) {
+          const schedule =
+            window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 1200));
+          schedule(async () => {
+            const sb = await loadClient();
+            if (sb) {
+              sb.auth.onAuthStateChange(() => refresh());
+              refresh();
+            }
           });
-          sb.auth.onAuthStateChange(() => refresh());
-          refresh();
         }
       }
     </script>
@@ -290,7 +324,7 @@ const navActive = (prefix: string): boolean =>
         readStoredSession,
         SUPABASE_REST_URL,
         SUPABASE_REST_ANON_KEY,
-      } from "../lib/supabase";
+      } from "../lib/supabase-session";
 
       type SavedRow = {
         id: string;
@@ -662,8 +696,38 @@ const navActive = (prefix: string): boolean =>
       // Custom events go through ../lib/track which routes to PostHog —
       // Vercel's Hobby tier silently drops custom events.
       import { inject } from "@vercel/analytics";
-      import { track } from "../lib/track";
       inject();
+
+      // PostHog (via ../lib/track) is ~64KB and pure analytics — nothing
+      // here needs it for first paint. Buffer track() calls through a shim
+      // and dynamic-import the real module at idle, then flush. The error
+      // + outbound listeners below register eagerly (cheap) and call this
+      // shim, so events fired before PostHog loads are queued, not lost.
+      type TrackFn = (event: string, props?: Record<string, unknown>) => void;
+      let realTrack: TrackFn | null = null;
+      const trackQueue: Array<[string, Record<string, unknown> | undefined]> = [];
+      function track(event: string, props?: Record<string, unknown>) {
+        if (realTrack) realTrack(event, props);
+        else trackQueue.push([event, props]);
+      }
+      function loadTrack() {
+        void import("../lib/track").then((m) => {
+          // track() accepts a subset of Record<string, unknown> at the
+          // type level; the cast bridges that — runtime is unaffected.
+          const fn = m.track as TrackFn;
+          realTrack = fn;
+          for (const [e, p] of trackQueue) fn(e, p);
+          trackQueue.length = 0;
+        });
+      }
+      const scheduleTrack =
+        window.requestIdleCallback ??
+        ((fn: () => void) => window.setTimeout(fn, 2000));
+      if (document.readyState === "complete") scheduleTrack(loadTrack);
+      else
+        window.addEventListener("load", () => scheduleTrack(loadTrack), {
+          once: true,
+        });
 
       // --- Error monitoring ---------------------------------------------
       // Rate-limit + dedupe so a single error firing in a render loop
