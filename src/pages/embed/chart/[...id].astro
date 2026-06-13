@@ -210,6 +210,23 @@ const censusDisclaimer =
           // ChartMap.astro handles its own dialog opening.
           const tile = document.querySelector(".chart-tile");
           if (tile instanceof HTMLElement) tile.click();
+          // The dialog opens at Chart.astro's default min(92vw, 820px).
+          // In expanded mode the iframe IS the dialog stage (the welcome
+          // popout sized it to ~1800px), so the CSS below widens it to
+          // min(96vw, 1700px); nudge a resize so the line/bar plot
+          // re-renders into the wider dialog instead of staying at its
+          // ~820px measure-at-open width. Maps go fullscreen — same
+          // doubled-frame collapse the chart-detail popout does.
+          setTimeout(function () {
+            window.dispatchEvent(new Event("resize"));
+            const mapDlg = document.querySelector(
+              "#map-expand-dialog[open]",
+            );
+            if (mapDlg && !mapDlg.classList.contains("map-dialog-wide")) {
+              const fsBtn = mapDlg.querySelector(".map-dialog-fullscreen");
+              if (fsBtn instanceof HTMLElement) fsBtn.click();
+            }
+          }, 150);
         });
       });
     } else {
@@ -403,6 +420,57 @@ const censusDisclaimer =
   }
   body.embed-body-expanded .embed-attribution {
     display: none;
+  }
+  /* Expanded popout: the dialog BECOMES the iframe — no centered modal
+     box. The welcome popout overlay already frames this iframe (dark
+     backdrop, rounded white container, close button); a second centered
+     dialog inside it just reads as a small chart floating in a grey
+     field (Chart.astro caps .chart-dialog at min(92vw, 820px)). So drop
+     the modal chrome and let the dialog fill the iframe edge-to-edge,
+     scrolling internally — the same treatment Chart.astro's mobile
+     breakpoint and ChartMap's own fullscreen layout already use. The
+     inner ::backdrop goes transparent so the overlay does the dimming
+     (no double-dim). `body.embed-body-expanded .chart-dialog` is (0,2,1),
+     beating Chart.astro's scoped (0,2,0); !important on the dimensions
+     makes the fill immune to a future compound component selector.
+     This is the page the popout actually loads
+     (/embed/chart/<id>/?expanded=1) — rules on the /chart/ detail page
+     never applied here. */
+  body.embed-body-expanded .chart-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  body.embed-body-expanded .chart-dialog::backdrop {
+    background: transparent;
+  }
+  /* Let the dialog body take the iframe height and scroll inside it
+     (the close/action bar above it is ~56px). */
+  body.embed-body-expanded .dialog-body {
+    max-height: calc(100vh - 56px) !important;
+  }
+  /* Maps run their own fullscreen layout (the script above clicks the
+     map's Full-screen control → .map-dialog-wide). Pin it to fill the
+     iframe exactly — ChartMap's `width:100vw` otherwise hugs its SVG and
+     leaves a strip of the scrollable page beside it (the "doubled
+     frame"). inset:0 + overflow:hidden = one clean frame. */
+  body.embed-body-expanded .map-dialog.map-dialog-wide {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
   }
   /* Small "↗" affordance in the upper-right of the tile signaling
      that clicking opens elsewhere. Pseudo-element so it doesn't
