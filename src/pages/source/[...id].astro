@@ -21,7 +21,7 @@
  * each series). One page per source = many thousands of indexable
  * pages, each one a clean entry point from outside search.
  */
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Chart from "../../components/Chart.astro";
 import ChartController from "../../components/ChartController.astro";
@@ -54,8 +54,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 // reading "Retrieved … from /source/<id>/" is useless off-site.
 const siteOrigin = canonicalOrigin(Astro);
 
-const sources = await getCollection("sources");
-const source = sources.find((s) => s.id === sourceId) ?? null;
+// Single keyed lookup — NOT getCollection("sources"), which loads and
+// iterates all ~34,000 source entries on every request (that full scan
+// was the source-page SSR's dominant cost: ~0.8-1.5s TTFB → slow FCP).
+// getEntry pulls just this one entry from the content store.
+const source = (await getEntry("sources", sourceId)) ?? null;
 
 // All library charts that reference this source — used for the
 // "Where this source shows up" panel below the chart. Includes
