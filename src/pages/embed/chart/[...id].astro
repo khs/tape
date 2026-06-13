@@ -210,23 +210,27 @@ const censusDisclaimer =
           // ChartMap.astro handles its own dialog opening.
           const tile = document.querySelector(".chart-tile");
           if (tile instanceof HTMLElement) tile.click();
-          // The dialog opens at Chart.astro's default min(92vw, 820px).
-          // In expanded mode the iframe IS the dialog stage (the welcome
-          // popout sized it to ~1800px), so the CSS below widens it to
-          // min(96vw, 1700px); nudge a resize so the line/bar plot
-          // re-renders into the wider dialog instead of staying at its
-          // ~820px measure-at-open width. Maps go fullscreen — same
-          // doubled-frame collapse the chart-detail popout does.
-          setTimeout(function () {
-            window.dispatchEvent(new Event("resize"));
-            const mapDlg = document.querySelector(
-              "#map-expand-dialog[open]",
-            );
-            if (mapDlg && !mapDlg.classList.contains("map-dialog-wide")) {
-              const fsBtn = mapDlg.querySelector(".map-dialog-fullscreen");
-              if (fsBtn instanceof HTMLElement) fsBtn.click();
-            }
-          }, 150);
+          // Line/bar dialogs (.chart-dialog) open at Chart.astro's default
+          // min(92vw, 820px). In expanded mode the iframe IS the dialog
+          // stage (the welcome popout sized it to ~1800px) and the CSS
+          // below widens .chart-dialog to min(96vw, 1700px); nudge a resize
+          // so the plot re-renders into the wider dialog instead of
+          // staying at its ~820px measure-at-open width.
+          //
+          // The map dialog (.map-dialog, a separate element) is NOT widened
+          // and we deliberately do NOT auto-toggle its fullscreen here.
+          // Each fullscreen toggle clears + re-hydrates the canvas
+          // (innerHTML="" → rAF → hydrateAll), so open→resize→fullscreen was
+          // three renders at three sizes — the visible "contortions before
+          // it settles." The map renders once, at its normal (large,
+          // centered) dialog size; the user can still hit "Full screen"
+          // themselves if they want edge-to-edge.
+          const isMap = !!document.querySelector("#map-expand-dialog[open]");
+          if (!isMap) {
+            setTimeout(function () {
+              window.dispatchEvent(new Event("resize"));
+            }, 150);
+          }
         });
       });
     } else {
