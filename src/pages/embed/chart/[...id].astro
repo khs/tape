@@ -460,6 +460,24 @@ const censusDisclaimer =
   body.embed-body-expanded .dialog-body {
     max-height: calc(100vh - 56px) !important;
   }
+  /* The welcome popout's own chrome already shows a close "×" in the
+     top-right corner, so the dialog's own close control is a redundant
+     SECOND "×". Hide it in expanded mode.
+       - Line dialogs (.chart-dialog) keep their action bar (copy image /
+         embed / citation); only the trailing × is dropped.
+       - Bar dialogs (.chart-bar-dialog) have nothing in that bar but the
+         ×, so drop the whole strip.
+       - Map dialogs keep their header controls (color / zoom / full
+         screen); only the close × goes. */
+  body.embed-body-expanded .chart-dialog .dialog-close {
+    display: none;
+  }
+  body.embed-body-expanded .chart-bar-dialog .dialog-close-bar {
+    display: none;
+  }
+  body.embed-body-expanded #map-expand-dialog .map-dialog-close {
+    display: none;
+  }
   /* Maps run their own fullscreen layout (the script above clicks the
      map's Full-screen control → .map-dialog-wide). Pin it to fill the
      iframe exactly — ChartMap's `width:100vw` otherwise hugs its SVG and
