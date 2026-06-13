@@ -1,4 +1,4 @@
-title: Underlying inflation — sticky vs. median
+title: Underlying inflation: sticky vs. median
 sources:
   - fred/sticky_cpi
   - fred/median_cpi
@@ -9,7 +9,7 @@ tags: [us, macro, inflation]
 blurb: |
   Two regional-Fed measures that strip the noise out of headline
   inflation. The Atlanta Fed's sticky-price CPI tracks only prices
-  that change infrequently (rent, services) — they signal where
+  that change infrequently (rent, services), they signal where
   inflation is heading, not where it's been. The Cleveland Fed's
   median CPI takes the middle of the monthly price-change
   distribution, ignoring outliers in either direction. When both run

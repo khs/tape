@@ -8,7 +8,7 @@ defaultDelta: 1y
 tags: [us, macro, derived, spread, rates, inflation]
 blurb: |
   The bond market's pricing of expected average inflation over the
-  next decade — what the Fed pays closest attention to. Computed on
+  next decade, what the Fed pays closest attention to. Computed on
   the fly as the spread between the 10-year nominal Treasury yield
   and the 10-year TIPS (real) yield, so the chart stays in sync with
   the underlying components.

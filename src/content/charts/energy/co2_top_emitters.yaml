@@ -1,4 +1,4 @@
-title: CO2 emissions — top emitters
+title: CO2 emissions: top emitters
 sources:
   - owid_co2/co2_china
   - owid_co2/co2_united_states
@@ -14,5 +14,5 @@ blurb: |
   tonnes (Our World in Data). China overtook the US around 2006 and
   has kept climbing; US emissions have drifted down from their
   mid-2000s peak; India's are rising fast off a low base. Production-
-  based accounting — emissions are attributed to where goods are
+  based accounting, emissions are attributed to where goods are
   made, not consumed.

@@ -19,12 +19,12 @@ annotations:
     label: Inflation peak 9.1%
 blurb: |
   **Headline CPI** tracks a typical urban household's basket of
-  goods and services. **Core CPI** strips out food and energy —
+  goods and services. **Core CPI** strips out food and energy, 
   they bounce on short-term shocks (weather, OPEC, harvests) and obscure
   underlying inflation pressure.
 
   **PCE** (Personal Consumption Expenditures) is the Fed's
   preferred inflation gauge. Different basket from CPI, and it lets that
-  basket shift as consumers substitute toward cheaper goods — so PCE
+  basket shift as consumers substitute toward cheaper goods, so PCE
   usually runs ~0.3 pp below CPI. **Headline vs Core PCE**
   follows the same with/without-food-and-energy distinction.

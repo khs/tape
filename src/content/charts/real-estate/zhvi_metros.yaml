@@ -1,4 +1,4 @@
-title: Zillow Home Value Index — major US metros
+title: Zillow Home Value Index: major US metros
 sources:
   - zillow/zhvi_national
   - zillow/zhvi_nyc
@@ -22,7 +22,7 @@ blurb: |
   Zillow's methodology, smoothed + seasonally adjusted, monthly.
 
   ZHVI is faster than Case-Shiller (no rolling three-month average)
-  + broader (every ZIP) but methodology-different — the two indices
+  + broader (every ZIP) but methodology-different, the two indices
   agree on direction but disagree on level by ~10-20% depending on
   metro. Use ZHVI for metro-level granularity, Case-Shiller for
   the long-run benchmark.

@@ -4,7 +4,7 @@ render: line
 defaultDelta: 30y
 tags: [us, macro, labor]
 blurb: |
-  Triggers at 0.5pp — when the 3-month MA of U3 unemployment is
+  Triggers at 0.5pp, when the 3-month MA of U3 unemployment is
   0.5 percentage points above its trailing-12-month minimum, the
   Sahm rule is "on." Every US recession since 1970 was preceded by
   a Sahm-rule trigger.
@@ -13,12 +13,12 @@ blurb: |
   a recession. Sahm herself argued the trigger was being driven by
   unusual post-COVID labor-supply dynamics (rising participation,
   fast normalization of immigration) rather than the cyclical
-  layoff signal the rule was designed to catch — i.e., the rule
+  layoff signal the rule was designed to catch, i.e., the rule
   fired on a different mechanism than the one it was calibrated
   against. Worth watching whether the next trigger behaves more
   conventionally.
 
-  Uses FRED's SAHMREALTIME variant — computed from the
+  Uses FRED's SAHMREALTIME variant, computed from the
   unemployment-rate data available at each publication date, with
   no benefit of later revisions. The SAHMCURRENT variant uses
   revised data; that's the version that retrospectively-confirms

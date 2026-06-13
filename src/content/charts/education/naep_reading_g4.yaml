@@ -1,4 +1,4 @@
-title: NAEP grade 4 reading — selected states
+title: NAEP grade 4 reading: selected states
 sources:
   - naep/us_readg4
   - naep/state_readg4_ny
@@ -17,5 +17,5 @@ seriesLabels:
   - Texas
   - Utah
   - Mississippi
-blurb: "Average NAEP grade-4 reading scale score. Mississippi is the standout — sustained gains through the 2010s on below-average per-pupil spending, often credited to its early-literacy retention law."
+blurb: "Average NAEP grade-4 reading scale score. Mississippi is the standout, sustained gains through the 2010s on below-average per-pupil spending, often credited to its early-literacy retention law."
 tags: [education]

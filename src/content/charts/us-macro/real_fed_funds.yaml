@@ -8,7 +8,7 @@ defaultDelta: 50y
 tags: [us, macro, derived, spread, rates, inflation]
 blurb: |
   The nominal Federal funds effective rate minus the trailing
-  12-month CPI inflation — what the Fed's policy rate looks like
+  12-month CPI inflation, what the Fed's policy rate looks like
   in real (inflation-adjusted) terms. Computed on the fly as
   fed_funds − cpi_yoy so the chart stays in sync with both
   underlying series.

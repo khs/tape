@@ -9,7 +9,7 @@ tags: [us, macro, derived, spread, rates, recession]
 blurb: |
   The yield curve slope between the 10-year and 3-month US Treasuries
   (10Y − 3M). This is the NY Fed's preferred recession-indicator
-  spread — historically, every US recession in the modern era has been
+  spread, historically, every US recession in the modern era has been
   preceded by an inversion (negative reading) of this curve by 6 to
   18 months. Tends to read more cleanly than 10Y − 2Y because the
   3-month is anchored to the current Fed funds rate.

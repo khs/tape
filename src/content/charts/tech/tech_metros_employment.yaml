@@ -1,4 +1,4 @@
-title: Tech-economy metros — payroll employment
+title: Tech-economy metros: payroll employment
 sources:
   - bls/metro_payrolls_41940  # San Jose-Sunnyvale-Santa Clara (Silicon Valley proper)
   - bls/metro_payrolls_41860  # San Francisco-Oakland
@@ -19,7 +19,7 @@ blurb: |
 
   The 10-year window catches the long shape: Austin pulled away well
   before the pandemic. San Francisco never fully recovered its 2019
-  peak — the WFH wave + AI-era hiring concentration in San Jose
+  peak, the WFH wave + AI-era hiring concentration in San Jose
   (Silicon Valley proper) shifted Bay Area growth south. Boston and
   NYC track the broader US labor market more closely; both bent but
   didn't break in 2020 because tech is a smaller share of their total
@@ -30,7 +30,7 @@ blurb: |
   total employment is the closest direct read on a tech-economy
   metro's overall trajectory.
 
-  Seattle-Tacoma is intentionally excluded for the moment — the BLS
+  Seattle-Tacoma is intentionally excluded for the moment, the BLS
   API hit its daily quota during the last refresh and the Seattle
   metro series didn't land. It'll be added back when the next refresh
   catches it.

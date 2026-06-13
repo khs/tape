@@ -1,4 +1,4 @@
-title: Federal spending — DC area congressional districts
+title: Federal spending: DC area congressional districts
 sources:
   - "usaspending/state_dc"
   - "usaspending/district_va_08"
@@ -17,6 +17,6 @@ blurb: |
   Prince George's MD-05).
 
   Rebased to 100 at window-start so the trajectory comparison is clean
-  — DC's nominal volume is in the tens of billions, the Virginia
+, DC's nominal volume is in the tens of billions, the Virginia
   districts are in the same range, but raw levels differ enough that
   rebase is the right comparison.

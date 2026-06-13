@@ -1,4 +1,4 @@
-title: Soybeans — spot history + futures curve
+title: Soybeans: spot history + futures curve
 sources:
   - yahoo_futures/soybean_curve
 render: line

@@ -9,7 +9,7 @@ tags: [us, macro, derived, ratio, income]
 shading: [recessions]
 blurb: |
   Total personal income (nominal, SAAR) divided by US population.
-  Includes wages, transfer payments, and investment income — so
+  Includes wages, transfer payments, and investment income, so
   it's a broader measure than wage data alone. Reads as the average
   per-person income flow at an annualized rate.
 

@@ -1,10 +1,10 @@
-title: CPI — Rent of primary residence
+title: CPI: Rent of primary residence
 sources: ["fred/cpi_rent"]
 render: line
 defaultDelta: 10y
 tags: [us, macro, inflation, housing]
 blurb: |
-  Rent CPI tracks contract rents paid by renters — a smaller
+  Rent CPI tracks contract rents paid by renters, a smaller
   subset of the broader Shelter component (which also includes
   Owners' Equivalent Rent for homeowners). The slow-rolling
   renewal-weighted methodology means contract-rent CPI runs

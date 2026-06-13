@@ -1,4 +1,4 @@
-title: US crime rate — violent vs. property
+title: US crime rate: violent vs. property
 sources:
   - fbi_crime/violent_crime_united_states
   - fbi_crime/property_crime_united_states
@@ -11,5 +11,5 @@ blurb: |
   National violent- and property-crime rates per 100,000 (FBI Crime
   Data Explorer), on a dual axis since property crime is roughly five
   times more common. Both fell dramatically from their early-1990s
-  peaks — one of the more striking long-run trends in US social data —
+  peaks, one of the more striking long-run trends in US social data, 
   and both remain far below those highs.

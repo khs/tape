@@ -1,8 +1,8 @@
-title: Live cattle — spot history + futures curve
+title: Live cattle: spot history + futures curve
 sources:
   - yahoo_futures/cattle_curve
 render: line
 defaultDelta: 5y
 tags: [commodities, agriculture]
 blurb: |
-  Solid line: monthly-averaged CME live cattle front-month. Dashed extension: today's forward curve (Feb/Apr/Jun/Aug/Oct/Dec — bimonthly cycle tied to feedlot turnover). Beef is a top US ag export.
+  Solid line: monthly-averaged CME live cattle front-month. Dashed extension: today's forward curve (Feb/Apr/Jun/Aug/Oct/Dec, bimonthly cycle tied to feedlot turnover). Beef is a top US ag export.

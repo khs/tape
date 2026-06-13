@@ -1,10 +1,10 @@
-title: CPI — Energy
+title: CPI: Energy
 sources: ["fred/cpi_energy"]
 render: line
 defaultDelta: 5y
 tags: [us, macro, inflation, energy]
 blurb: |
-  Energy CPI — the most volatile major component, dominated by retail
+  Energy CPI, the most volatile major component, dominated by retail
   gasoline + utility-bill price swings. Bounces with WTI / Brent crude
   (gasoline is roughly 60% of the energy CPI basket) and weather-driven
   natural-gas demand. Stripped out of "core" inflation for exactly this

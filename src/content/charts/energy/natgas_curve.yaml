@@ -1,8 +1,8 @@
-title: Henry Hub natural gas — history + futures curve
+title: Henry Hub natural gas: history + futures curve
 sources:
   - yahoo_futures/natgas_curve
 render: line
 defaultDelta: 5y
 tags: [commodities, energy]
 blurb: |
-  Solid line: monthly-averaged spot Henry Hub. Dashed line: today's NYMEX forward curve. The seasonal sawtooth in the curve reflects winter heating demand — winter contracts in any given year typically price higher than the surrounding summer months.
+  Solid line: monthly-averaged spot Henry Hub. Dashed line: today's NYMEX forward curve. The seasonal sawtooth in the curve reflects winter heating demand, winter contracts in any given year typically price higher than the surrounding summer months.

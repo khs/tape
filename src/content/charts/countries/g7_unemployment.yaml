@@ -12,7 +12,7 @@ defaultDelta: 10y
 tags: [world, macro]
 normalize: raw
 blurb: |
-  Harmonized unemployment rates from OECD — same methodology across
+  Harmonized unemployment rates from OECD, same methodology across
   countries, so the comparisons are apples-to-apples (unlike stitching
   together national labor-force surveys with different definitions).
 

@@ -1,4 +1,4 @@
-title: Business applications — US new-business formation
+title: Business applications: US new-business formation
 sources:
   - fred/business_applications_us
 render: line
@@ -7,7 +7,7 @@ emphasis: change
 tags: [us, business, macro]
 blurb: |
   Monthly business applications filed with the IRS, seasonally
-  adjusted — the Census Bureau's Business Formation Statistics, via
+  adjusted, the Census Bureau's Business Formation Statistics, via
   FRED. A high-frequency read on entrepreneurship that jumped to a
   durably higher level after mid-2020 and hasn't come back down. Swap
   in any state's series from the composer to see the local picture.

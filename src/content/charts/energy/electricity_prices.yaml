@@ -1,4 +1,4 @@
-title: Retail electricity prices — selected states
+title: Retail electricity prices: selected states
 sources:
   - eia_prices/electricity_price_hi
   - eia_prices/electricity_price_ca
@@ -11,6 +11,6 @@ seriesLabels: ["Hawaii", "California", "New York", "Texas", "Washington"]
 tags: [energy, us, us-state]
 blurb: |
   Average retail electricity price (all sectors), cents per
-  kilowatt-hour, from the EIA. The spread is enormous — Hawaii
+  kilowatt-hour, from the EIA. The spread is enormous, Hawaii
   (imported oil) runs roughly three times Washington (cheap
   hydropower). Swap in any state from the composer.

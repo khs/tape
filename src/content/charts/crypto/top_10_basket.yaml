@@ -17,5 +17,5 @@ normalize: rebase
 blurb: |
   Top ~10 cryptocurrencies by market cap, prices rebased to 100 at
   window-start so trajectories are comparable. Useful for "did
-  Bitcoin or alts lead this cycle?" — historically Bitcoin tends to
+  Bitcoin or alts lead this cycle?", historically Bitcoin tends to
   lead bull runs and alts lever up beyond it.

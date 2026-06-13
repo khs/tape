@@ -1,13 +1,13 @@
-title: NY Fed model — US recession probability (12-mo ahead)
+title: NY Fed model: US recession probability (12-mo ahead)
 sources: ["fred/recession_probability_ny_fed"]
 render: line
 defaultDelta: 30y
 tags: [us, macro, rates]
 blurb: |
-  The NY Fed's term-structure-derived recession probability — the
+  The NY Fed's term-structure-derived recession probability, the
   output of a logit model that maps the 10y-3mo Treasury spread to
   the probability of a recession beginning in the next 12 months.
   Hit 70% in late 2023 from the curve inversion alone; the
   comparable 1989 reading also peaked around 70% and was followed
-  by the 1990-91 recession. Doesn't include any judgment input —
+  by the 1990-91 recession. Doesn't include any judgment input, 
   just the curve signal mechanically translated.

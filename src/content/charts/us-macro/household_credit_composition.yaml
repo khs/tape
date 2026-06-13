@@ -1,4 +1,4 @@
-title: Consumer credit — composition
+title: Consumer credit: composition
 sources:
   - fred/consumer_credit
   - fred/revolving_credit
@@ -11,5 +11,5 @@ blurb: |
   Outstanding consumer credit and its two components, from the
   Federal Reserve's G.19 release. Revolving credit is mostly credit
   cards; nonrevolving is dominated by auto and student loans. The two
-  components sum to the total — nonrevolving has pulled far ahead
+  components sum to the total, nonrevolving has pulled far ahead
   since the late 2000s as student debt climbed.

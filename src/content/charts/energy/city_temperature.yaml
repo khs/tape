@@ -1,4 +1,4 @@
-title: Average temperature — major cities
+title: Average temperature: major cities
 sources:
   - noaa_climate/temperature_miami
   - noaa_climate/temperature_phoenix
@@ -11,6 +11,6 @@ seriesLabels: ["Miami", "Phoenix", "Washington DC", "Seattle", "Minneapolis"]
 tags: [climate, us]
 blurb: |
   Annual average temperature at the long-record airport station for
-  five US metros, from NOAA. The vertical spread is the climate gap —
-  Miami and Phoenix sit ~30°F above Minneapolis — and the gentle
+  five US metros, from NOAA. The vertical spread is the climate gap, 
+  Miami and Phoenix sit ~30°F above Minneapolis, and the gentle
   upward drift in each line over 75 years is the warming trend.

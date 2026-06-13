@@ -1,4 +1,4 @@
-title: VA-08 demographics — population, education, foreign-born, owner-occupied
+title: VA-08 demographics: population, education, foreign-born, owner-occupied
 sources:
   - "acs_cd/population_va_08"
   - "acs_cd/bachelors_plus_va_08"
@@ -17,7 +17,7 @@ blurb: |
 
   Population is roughly flat (the district is built out), so the
   growth in bachelor's-degree-holders and foreign-born population is
-  composition change — the district is getting more highly-educated
+  composition change, the district is getting more highly-educated
   and more international, not just bigger. Owner-occupied unit growth
   is the slowest line, reflecting how much of the district's housing
   stock is dense rental rather than single-family ownership.

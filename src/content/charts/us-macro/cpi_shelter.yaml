@@ -1,11 +1,11 @@
-title: CPI — Shelter
+title: CPI: Shelter
 sources: ["fred/cpi_shelter"]
 render: line
 defaultDelta: 10y
 tags: [us, macro, inflation, housing]
 blurb: |
   Shelter is roughly a third of headline CPI and the single
-  largest weight in core CPI — so where shelter inflation goes,
+  largest weight in core CPI, so where shelter inflation goes,
   core inflation tends to follow. BLS measures shelter via
   Owners' Equivalent Rent + actual rents, which adjust slowly:
   new leases pass through immediately, but rolling-renewal

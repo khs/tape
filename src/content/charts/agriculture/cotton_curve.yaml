@@ -1,4 +1,4 @@
-title: Cotton — spot history + futures curve
+title: Cotton: spot history + futures curve
 sources:
   - yahoo_futures/cotton_curve
 render: line

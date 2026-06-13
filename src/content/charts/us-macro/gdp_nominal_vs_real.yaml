@@ -1,4 +1,4 @@
-title: GDP — nominal vs. real
+title: GDP: nominal vs. real
 sources:
   - fred/us_gdp_nominal
   - fred/us_real_gdp
@@ -9,5 +9,5 @@ tags: [us, macro]
 blurb: |
   Current-dollar GDP against inflation-adjusted (chained 2017-dollar)
   GDP. The two start together in the base year and fan apart over
-  time — the widening gap is the cumulative effect of price inflation
+  time, the widening gap is the cumulative effect of price inflation
   on the headline number. Both from the BEA, quarterly.

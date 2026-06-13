@@ -1,4 +1,4 @@
-title: Violent crime rate — selected states
+title: Violent crime rate: selected states
 sources:
   - fbi_crime/violent_crime_united_states
   - fbi_crime/violent_crime_new_mexico
@@ -12,6 +12,6 @@ tags: [crime, us]
 blurb: |
   Reported violent-crime offenses per 100,000 residents, from the
   FBI's Crime Data Explorer. The national rate fell sharply from its
-  early-1990s peak. The state spread is wide and persistent — New
-  Mexico runs several times Maine's rate — and reporting gaps during
+  early-1990s peak. The state spread is wide and persistent, New
+  Mexico runs several times Maine's rate, and reporting gaps during
   the 2021 transition to NIBRS show up as wobble in some series.

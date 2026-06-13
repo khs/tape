@@ -8,7 +8,7 @@ defaultDelta: 10y
 tags: [us, macro, derived, spread, rates]
 shading: [recessions]
 blurb: |
-  The slope of the LONG end of the US Treasury curve — 30-year
+  The slope of the LONG end of the US Treasury curve, 30-year
   yield minus 10-year yield. Reflects term-premium expectations
   and the market's read on long-horizon inflation + growth, vs.
   the more Fed-policy-driven front of the curve (10Y–2Y, 10Y–3M).

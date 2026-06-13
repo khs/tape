@@ -1,4 +1,4 @@
-title: Median household income by census tract — DC metro area (2022)
+title: Median household income by census tract: DC metro area (2022)
 render: map
 geo: tract
 states: [VA, MD, DC]
@@ -12,6 +12,6 @@ tags: [government, dmv, demographics, income]
 blurb: |
   Tract-level median household income across the DC metropolitan
   area, ACS 5-year ending 2022. Darker = higher median income. The
-  federal-corridor income gradient is sharp at this resolution —
+  federal-corridor income gradient is sharp at this resolution, 
   Anacostia tracts sit ~3x below their inner-NW-DC and N. Arlington
   counterparts within a few miles.

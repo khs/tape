@@ -1,4 +1,4 @@
-title: Federal debt held by the public / GDP — CBO baseline
+title: Federal debt held by the public / GDP: CBO baseline
 sources:
   - cbo/cbo_debt_pct_gdp
 render: line

@@ -5,7 +5,7 @@ defaultDelta: 5y
 tags: [us, macro, real-estate]
 blurb: |
   FHFA's all-transactions House Price Index for the United States.
-  A repeat-sales index — same property selling twice, so changes in
+  A repeat-sales index, same property selling twice, so changes in
   the mix of homes selling each month don't drive the number. Covers
   single-family properties with conforming Fannie / Freddie mortgages,
   which gives broader geographic coverage than alternatives.

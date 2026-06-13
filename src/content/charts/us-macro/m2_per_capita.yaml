@@ -8,12 +8,12 @@ defaultDelta: 30y
 tags: [us, macro, derived, ratio, money]
 shading: [recessions]
 blurb: |
-  M2 money stock divided by US population — average liquid money
+  M2 money stock divided by US population, average liquid money
   per US person. Drifted from ~$15K in 2000 to over $65K today;
   the 2020–21 step-change was the COVID-era fiscal + monetary
   expansion landing in checking accounts.
 
   Reads in raw dollars per person via the currency÷count combine
   rule. Useful background context when looking at the M2/GDP
-  ratio — same numerator, different denominator (people vs.
+  ratio, same numerator, different denominator (people vs.
   output) tells a different story about who's "got" the money.

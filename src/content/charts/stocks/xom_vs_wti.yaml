@@ -10,7 +10,7 @@ defaultDelta: 1y
 normalize: rebase
 blurb: |
   XOM and WTI crude, rebased to 100 at the window start. Integrated oil
-  majors trade as a levered bet on crude — the line shapes track each
+  majors trade as a levered bet on crude, the line shapes track each
   other on most multi-year horizons. Divergences (XOM up while WTI flat,
   or vice versa) usually flag a company-specific story (capex cycle,
   dividend policy, M&A) worth investigating separately.

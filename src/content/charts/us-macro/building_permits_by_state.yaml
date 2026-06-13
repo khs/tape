@@ -1,4 +1,4 @@
-title: Building permits — largest states
+title: Building permits: largest states
 sources:
   - fred/state_building_permits_ca
   - fred/state_building_permits_tx
@@ -10,7 +10,7 @@ seriesLabels: ["California", "Texas", "Florida", "New York"]
 tags: [us, real-estate]
 blurb: |
   New privately-owned housing units authorized by building permits,
-  monthly, for the four largest states — a leading indicator of where
+  monthly, for the four largest states, a leading indicator of where
   residential construction is headed. From the Census Bureau's
   Building Permits Survey (via FRED). Texas and Florida have pulled
   well ahead of California and New York over the past decade.

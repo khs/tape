@@ -13,7 +13,7 @@ blurb: |
   percentage because both inputs are already percentages, so the
   sum is too.
 
-  This is the walkthrough's **addition** example —
+  This is the walkthrough's **addition** example, 
   two existing single-source series, combined on the fly with
   op=sum. Try the composer's "+ Custom chart" to build others
   (e.g., a regional CPI + a different unemployment series).

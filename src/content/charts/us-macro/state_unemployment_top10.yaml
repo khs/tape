@@ -16,7 +16,7 @@ tags: [us, macro, labor]
 normalize: raw
 blurb: |
   Headline unemployment rate by state, BLS LAUS, seasonally adjusted.
-  Headline US unemployment hides a lot of dispersion — a national 4% rate
+  Headline US unemployment hides a lot of dispersion, a national 4% rate
   can mean Massachusetts at 3 and Nevada at 6 simultaneously. The composer
   has all 50 states + DC available individually if you need a different
   cut.
