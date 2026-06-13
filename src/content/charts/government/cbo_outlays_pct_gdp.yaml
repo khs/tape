@@ -1,4 +1,4 @@
-title: Federal outlays / GDP: CBO baseline
+title: "Federal outlays / GDP: CBO baseline"
 sources:
   - cbo/cbo_outlays_pct_gdp
 render: line

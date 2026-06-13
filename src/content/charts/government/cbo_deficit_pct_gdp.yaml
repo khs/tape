@@ -1,4 +1,4 @@
-title: Federal deficit / GDP: CBO baseline
+title: "Federal deficit / GDP: CBO baseline"
 sources:
   - cbo/cbo_deficit_pct_gdp
 render: line

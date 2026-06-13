@@ -19,7 +19,7 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
 ---
 
 <BaseLayout
-  title="About — Tape"
+  title="About | Tape"
   description="Tape is a tool for writing about the economy: shareable, citation-ready dashboards composed from public data."
 >
   <article class="about-root">
@@ -29,13 +29,13 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
     <p class="lead">
       It's Sunday night. A principal needs CPI and PCE on the same
       axes, going back to the 80s, by 8 a.m. Tape gets you from
-      that ask to a chart you can paste into a memo — with a citation,
+      that ask to a chart you can paste into a memo, with a citation,
       a last-updated date, and a URL a colleague can open and modify.
     </p>
 
     <p class="about-byline">
       Built by <a href="https://kellerscholl.com" rel="noopener">Keller
-      Scholl</a> — 7 years at the RAND Corporation, made Tape because
+      Scholl</a>, 7 years at the RAND Corporation, made Tape because
       he was tired of handling data manually.
     </p>
 
@@ -67,113 +67,113 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
     <h2>Where the data comes from</h2>
     <ul>
       <li>
-        <strong>FRED</strong> (St. Louis Fed) — US Treasury yields,
+        <strong>FRED</strong> (St. Louis Fed): US Treasury yields,
         inflation, employment, GDP, federal spending by function,
         most US-macro series.
       </li>
       <li>
-        <strong>BLS</strong> — state-level unemployment + payrolls for
+        <strong>BLS</strong>: state-level unemployment + payrolls for
         all 50 states and DC; productivity; CPI subcomponents.
       </li>
       <li>
-        <strong>CBO</strong> — Congressional Budget Office Historical
+        <strong>CBO</strong>: Congressional Budget Office Historical
         Budget Data plus the 10-year baseline projection from the most
         recent Budget &amp; Economic Outlook: federal debt, deficit,
         outlays, and revenues as a share of GDP.
       </li>
       <li>
-        <strong>USAspending.gov</strong> — federal contracts, grants,
+        <strong>USAspending.gov</strong>: federal contracts, grants,
         loans, and direct payments by recipient state and by congressional
         district, fiscal-year, back to FY2008.
       </li>
       <li>
-        <strong>Census Bureau</strong> — American Community Survey 5-year
+        <strong>Census Bureau</strong>: American Community Survey 5-year
         estimates (income, population, poverty, education) at the
         congressional-district and metro level, plus the Annual Survey
         of State Government Finances (general expenditures by state).
       </li>
       <li>
-        <strong>NCES / NAEP</strong> — National Center for Education
+        <strong>NCES / NAEP</strong>: National Center for Education
         Statistics: K&ndash;12 spending per pupil (Common Core of Data
         F-33, via the Urban Institute Education Data Portal) and NAEP
         ("the Nation's Report Card") state achievement scores.
       </li>
       <li>
-        <strong>SSA</strong> — Social Security Administration OASDI
+        <strong>SSA</strong>: Social Security Administration OASDI
         Trustees Report: program cost, income, and worker-to-beneficiary
         ratio, with the intermediate-cost long-range projection extended
         as a dashed line.
       </li>
       <li>
-        <strong>EIA</strong> — U.S. Energy Information Administration
+        <strong>EIA</strong>: U.S. Energy Information Administration
         state-level electricity net generation, annual, for all 50
         states and DC.
       </li>
       <li>
-        <strong>OECD</strong> — harmonized cross-country comparisons of
+        <strong>OECD</strong>: harmonized cross-country comparisons of
         unemployment, CPI, government debt and deficit, life expectancy,
         and health spending.
       </li>
       <li>
-        <strong>US Treasury</strong> — TIC system foreign-holder data for
+        <strong>US Treasury</strong>: TIC system foreign-holder data for
         US Treasury securities.
       </li>
       <li>
-        <strong>World Bank</strong> — country GDP series.
+        <strong>World Bank</strong>: country GDP series.
       </li>
       <li>
-        <strong>USDA NASS</strong> — state and national crop yield,
+        <strong>USDA NASS</strong>: state and national crop yield,
         production, and value (corn, soybeans, wheat) from the QuickStats
         survey. This product uses the NASS API but is not endorsed or
         certified by NASS.
       </li>
       <li>
-        <strong>CDC / NCHS</strong> — US life expectancy at birth by
+        <strong>CDC / NCHS</strong>: US life expectancy at birth by
         race and sex, and age-adjusted death rates for the leading
         causes of death, by state.
       </li>
       <li>
-        <strong>USGS</strong> — National Water-Use Survey: freshwater
+        <strong>USGS</strong>: National Water-Use Survey: freshwater
         withdrawals by sector (thermoelectric, irrigation, public
         supply, etc.) for the US and each state, released every five years.
       </li>
       <li>
-        <strong>CMS Office of the Actuary</strong> — National Health
+        <strong>CMS Office of the Actuary</strong>: National Health
         Expenditure Accounts: total and personal health-care spending
         per capita, 1960&ndash;present.
       </li>
       <li>
-        <strong>Zillow Research</strong> — Zillow Home Value Index
+        <strong>Zillow Research</strong>: Zillow Home Value Index
         (ZHVI) and Zillow Observed Rent Index (ZORI), nationally and
         for a dozen major metros, monthly back to 2000.
       </li>
       <li>
-        <strong>Yahoo Finance</strong> (via <code>yfinance</code>) — equity
+        <strong>Yahoo Finance</strong> (via <code>yfinance</code>): equity
         tickers, ETFs, futures, FX, crypto spot prices.
       </li>
       <li>
-        <strong>BEA</strong> — Bureau of Economic Analysis regional
-        accounts: GDP (nominal and real) and personal income — total and
-        per-capita — for all 50 states and DC, annual.
+        <strong>BEA</strong>: Bureau of Economic Analysis regional
+        accounts: GDP (nominal and real) and personal income, total and
+        per-capita, for all 50 states and DC, annual.
       </li>
       <li>
-        <strong>FBI</strong> — Crime Data Explorer: reported violent- and
+        <strong>FBI</strong>: Crime Data Explorer: reported violent- and
         property-crime rates per 100,000 residents, by state and
         nationally, annual back to 1985.
       </li>
       <li>
-        <strong>FEC</strong> — Federal Election Commission: total U.S.
+        <strong>FEC</strong>: Federal Election Commission: total U.S.
         House campaign spending (candidate disbursements) by congressional
         district, summed per two-year election cycle, back to 2008.
       </li>
       <li>
-        <strong>NOAA</strong> — National Centers for Environmental
+        <strong>NOAA</strong>: National Centers for Environmental
         Information: annual average temperature and total precipitation
         for major US metros, from long-record airport weather stations,
         back to 1950.
       </li>
       <li>
-        <strong>Our World in Data</strong> — CO2 and energy: annual,
+        <strong>Our World in Data</strong>: CO2 and energy: annual,
         per-capita, consumption-based, and by-fuel emissions plus
         cumulative totals and primary energy per capita, for the major
         emitters and the world. CC&nbsp;BY.
@@ -216,8 +216,8 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
         Try the <a href={`${baseUrl}/compose/`}>composer</a>.
       </li>
       <li>
-        <strong>Generators tab.</strong> Pick a geography — any state,
-        congressional district, MSA, or country — and the composer
+        <strong>Generators tab.</strong> Pick a geography, any state,
+        congressional district, MSA, or country, and the composer
         offers every series Tape has for it as a ready-to-add chart.
         Backed by ~1,800 per-state / per-CD / per-MSA / per-country
         source files, indexed in one click.
@@ -283,9 +283,9 @@ const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
     </p>
     <p>
       <strong>Data licensing.</strong> Underlying series carry their
-      providers' licensing terms. US government data — FRED, BLS, CBO,
+      providers' licensing terms. US government data, FRED, BLS, CBO,
       USAspending.gov, Census Bureau, NCES, SSA, EIA, US Treasury,
-      USDA NASS, CDC / NCHS, USGS, and CMS — is in the public domain.
+      USDA NASS, CDC / NCHS, USGS, and CMS, is in the public domain.
       The Urban Institute Education Data Portal (used as the access
       layer for NCES CCD) is licensed ODC-BY 1.0. World Bank Open Data
       is CC BY-4.0. OECD data is used under OECD terms. Zillow Research

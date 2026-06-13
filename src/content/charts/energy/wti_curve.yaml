@@ -1,4 +1,4 @@
-title: WTI crude: history + futures curve
+title: "WTI crude: history + futures curve"
 sources:
   - yahoo_futures/wti_curve
 render: line

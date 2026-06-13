@@ -1,4 +1,4 @@
-title: CPI: Rent of primary residence
+title: "CPI: Rent of primary residence"
 sources: ["fred/cpi_rent"]
 render: line
 defaultDelta: 10y

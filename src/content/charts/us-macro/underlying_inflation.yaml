@@ -1,4 +1,4 @@
-title: Underlying inflation: sticky vs. median
+title: "Underlying inflation: sticky vs. median"
 sources:
   - fred/sticky_cpi
   - fred/median_cpi

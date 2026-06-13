@@ -1,4 +1,4 @@
-title: SLOOS: banks tightening C&I loan standards
+title: "SLOOS: banks tightening C&I loan standards"
 sources: ["fred/sloos_ci_loans_tightening"]
 render: line
 defaultDelta: 30y

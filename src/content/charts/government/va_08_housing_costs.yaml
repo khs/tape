@@ -1,4 +1,4 @@
-title: VA-08 housing costs: median home value + median rent
+title: "VA-08 housing costs: median home value + median rent"
 sources:
   - "acs_cd/median_home_value_va_08"
   - "acs_cd/median_gross_rent_va_08"

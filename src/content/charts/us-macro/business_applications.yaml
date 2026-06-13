@@ -1,4 +1,4 @@
-title: Business applications: US new-business formation
+title: "Business applications: US new-business formation"
 sources:
   - fred/business_applications_us
 render: line

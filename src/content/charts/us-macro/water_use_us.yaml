@@ -1,4 +1,4 @@
-title: US water withdrawals: total
+title: "US water withdrawals: total"
 sources:
   - usgs_water/total_us
 render: line

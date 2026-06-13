@@ -1,4 +1,4 @@
-title: Building permits: largest states
+title: "Building permits: largest states"
 sources:
   - fred/state_building_permits_ca
   - fred/state_building_permits_tx

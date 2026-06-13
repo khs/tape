@@ -1,4 +1,4 @@
-title: Median household income by census block group: Indiana (2022)
+title: "Median household income by census block group: Indiana (2022)"
 render: map
 geo: block-group
 states: [IN]

@@ -1,4 +1,4 @@
-title: CPI: Food
+title: "CPI: Food"
 sources: ["fred/cpi_food"]
 render: line
 defaultDelta: 5y

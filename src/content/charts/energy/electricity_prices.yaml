@@ -1,4 +1,4 @@
-title: Retail electricity prices: selected states
+title: "Retail electricity prices: selected states"
 sources:
   - eia_prices/electricity_price_hi
   - eia_prices/electricity_price_ca

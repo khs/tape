@@ -1,4 +1,4 @@
-title: Zillow Home Value Index: major US metros
+title: "Zillow Home Value Index: major US metros"
 sources:
   - zillow/zhvi_national
   - zillow/zhvi_nyc

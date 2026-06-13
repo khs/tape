@@ -1,4 +1,4 @@
-title: CPI: food at home vs food away from home
+title: "CPI: food at home vs food away from home"
 sources:
   - fred/cpi_food_at_home
   - fred/cpi_food_away

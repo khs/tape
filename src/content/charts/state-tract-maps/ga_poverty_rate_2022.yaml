@@ -1,4 +1,4 @@
-title: Poverty rate by census tract: Georgia (2022)
+title: "Poverty rate by census tract: Georgia (2022)"
 render: map
 geo: tract
 states: [GA]

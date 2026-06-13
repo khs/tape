@@ -1,4 +1,4 @@
-title: GDP: nominal vs. real
+title: "GDP: nominal vs. real"
 sources:
   - fred/us_gdp_nominal
   - fred/us_real_gdp

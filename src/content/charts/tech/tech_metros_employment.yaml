@@ -1,4 +1,4 @@
-title: Tech-economy metros: payroll employment
+title: "Tech-economy metros: payroll employment"
 sources:
   - bls/metro_payrolls_41940  # San Jose-Sunnyvale-Santa Clara (Silicon Valley proper)
   - bls/metro_payrolls_41860  # San Francisco-Oakland

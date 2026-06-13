@@ -1,4 +1,4 @@
-title: CPI: Medical care
+title: "CPI: Medical care"
 sources: ["fred/cpi_medical"]
 render: line
 defaultDelta: 10y

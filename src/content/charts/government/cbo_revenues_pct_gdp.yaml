@@ -1,4 +1,4 @@
-title: Federal revenues / GDP: CBO baseline
+title: "Federal revenues / GDP: CBO baseline"
 sources:
   - cbo/cbo_revenues_pct_gdp
 render: line

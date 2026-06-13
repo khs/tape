@@ -1,4 +1,4 @@
-title: Average temperature: major cities
+title: "Average temperature: major cities"
 sources:
   - noaa_climate/temperature_miami
   - noaa_climate/temperature_phoenix

@@ -1,4 +1,4 @@
-title: GDP by state: largest economies
+title: "GDP by state: largest economies"
 sources:
   - bea/gdp_california
   - bea/gdp_texas

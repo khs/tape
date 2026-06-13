@@ -1,4 +1,4 @@
-title: SLOOS: banks tightening credit-card standards
+title: "SLOOS: banks tightening credit-card standards"
 sources: ["fred/sloos_cc_tightening"]
 render: line
 defaultDelta: 30y

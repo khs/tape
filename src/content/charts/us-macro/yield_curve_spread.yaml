@@ -17,8 +17,8 @@ blurb: |
   downturn. The 2022 inversion is the second exception so far, 
   un-inverted by mid-2025 without an NBER-dated recession yet.
 
-  This is the walkthrough's **subtraction** example
-, same on-the-fly diff machinery as the 5-year breakeven
+  This is the walkthrough's **subtraction** example:
+  same on-the-fly diff machinery as the 5-year breakeven
   inflation chart, applied to two policy-relevant rates instead
   of two parts of the same maturity. Build your own from any pair
   of percentage-unit series via the composer's "+ Custom chart".

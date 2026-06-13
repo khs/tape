@@ -1,4 +1,4 @@
-title: Real GDP by country: latest year
+title: "Real GDP by country: latest year"
 sources:
   - worldbank_gdp_raw/usa
   - worldbank_gdp_raw/china

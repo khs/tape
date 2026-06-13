@@ -1,4 +1,4 @@
-title: Murder rate: US and selected states
+title: "Murder rate: US and selected states"
 sources:
   - fbi_crime/murder_united_states
   - fbi_crime/murder_louisiana

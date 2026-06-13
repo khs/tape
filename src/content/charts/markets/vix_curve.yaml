@@ -1,4 +1,4 @@
-title: VIX volatility: spot + futures curve
+title: "VIX volatility: spot + futures curve"
 sources: ["yahoo_futures/vix_curve"]
 render: line
 defaultDelta: 5y

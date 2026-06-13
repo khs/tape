@@ -1,4 +1,4 @@
-title: Wheat: spot history + futures curve
+title: "Wheat: spot history + futures curve"
 sources:
   - yahoo_futures/wheat_curve
 render: line

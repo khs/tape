@@ -1,4 +1,4 @@
-title: US crime rate: violent vs. property
+title: "US crime rate: violent vs. property"
 sources:
   - fbi_crime/violent_crime_united_states
   - fbi_crime/property_crime_united_states

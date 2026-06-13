@@ -1,4 +1,4 @@
-title: Live cattle: spot history + futures curve
+title: "Live cattle: spot history + futures curve"
 sources:
   - yahoo_futures/cattle_curve
 render: line

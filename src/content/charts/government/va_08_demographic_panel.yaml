@@ -1,4 +1,4 @@
-title: VA-08 demographics: population, education, foreign-born, owner-occupied
+title: "VA-08 demographics: population, education, foreign-born, owner-occupied"
 sources:
   - "acs_cd/population_va_08"
   - "acs_cd/bachelors_plus_va_08"

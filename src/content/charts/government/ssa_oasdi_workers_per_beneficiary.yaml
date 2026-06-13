@@ -1,4 +1,4 @@
-title: Covered workers per OASDI beneficiary: SSA Trustees
+title: "Covered workers per OASDI beneficiary: SSA Trustees"
 sources:
   - ssa/oasdi_workers_per_beneficiary
 render: line

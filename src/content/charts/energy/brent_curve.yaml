@@ -1,4 +1,4 @@
-title: Brent crude: history + futures curve
+title: "Brent crude: history + futures curve"
 sources:
   - yahoo_futures/brent_curve
 render: line

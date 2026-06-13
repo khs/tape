@@ -1,4 +1,4 @@
-title: NY Fed model: US recession probability (12-mo ahead)
+title: "NY Fed model: US recession probability (12-mo ahead)"
 sources: ["fred/recession_probability_ny_fed"]
 render: line
 defaultDelta: 30y

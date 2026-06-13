@@ -1,4 +1,4 @@
-title: CPI: Energy
+title: "CPI: Energy"
 sources: ["fred/cpi_energy"]
 render: line
 defaultDelta: 5y

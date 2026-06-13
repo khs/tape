@@ -1,4 +1,4 @@
-title: Median household income by census tract: Arkansas (2022)
+title: "Median household income by census tract: Arkansas (2022)"
 render: map
 geo: tract
 states: [AR]

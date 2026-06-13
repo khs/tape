@@ -1,4 +1,4 @@
-title: Median household income by census tract: Kentucky (2022)
+title: "Median household income by census tract: Kentucky (2022)"
 render: map
 geo: tract
 states: [KY]

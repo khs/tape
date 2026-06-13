@@ -1,4 +1,4 @@
-title: Henry Hub natural gas: history + futures curve
+title: "Henry Hub natural gas: history + futures curve"
 sources:
   - yahoo_futures/natgas_curve
 render: line

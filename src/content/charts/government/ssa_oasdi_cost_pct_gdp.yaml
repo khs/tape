@@ -1,4 +1,4 @@
-title: OASDI cost / GDP: SSA Trustees
+title: "OASDI cost / GDP: SSA Trustees"
 sources:
   - ssa/oasdi_cost_pct_gdp
 render: line

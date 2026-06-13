@@ -1,4 +1,4 @@
-title: CPI: Shelter
+title: "CPI: Shelter"
 sources: ["fred/cpi_shelter"]
 render: line
 defaultDelta: 10y
