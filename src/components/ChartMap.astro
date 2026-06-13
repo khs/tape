@@ -468,6 +468,7 @@ const statesJoined = stateCodes.join(",");
   // "Census Tract NNNN" label when no curated entry exists.
   import { specialTractName } from "../lib/special-tract-names";
   import { disambiguateCountyCityNames } from "../lib/disambiguate-county-city";
+  import { statePostalFromFips } from "../lib/state-fips";
 
   // Lazy-loaded county FIPS (5-digit) → name lookup. Block-group
   // hover labels need this to resolve the parent county from the
@@ -819,6 +820,24 @@ const statesJoined = stateCodes.join(",");
           if (!newName) continue;
           const p = (f as { properties?: Props }).properties;
           if (p) p.name = newName;
+        }
+      }
+    }
+    // County hover: suffix the two-letter state postal code, so "Travis"
+    // reads "Travis, TX". Done AFTER the city/county disambiguation pass
+    // (which keys on the bare name + state FIPS) so the suffix doesn't
+    // defeat collision detection. Postal code (not "County"/"Parish"/
+    // "Borough") because the local-government noun varies but ", TX" is
+    // always right. 5-digit GEOID = state2 + county3.
+    if (b.geo === "county") {
+      type Props = { name?: string };
+      for (const f of features) {
+        const id = (f as { id?: string }).id;
+        const p = (f as { properties?: Props }).properties;
+        if (!p?.name || !id || id.length !== 5) continue;
+        const postal = statePostalFromFips(id.slice(0, 2));
+        if (postal && !p.name.endsWith(`, ${postal}`)) {
+          p.name = `${p.name}, ${postal}`;
         }
       }
     }
