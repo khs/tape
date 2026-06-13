@@ -2389,20 +2389,46 @@ const statesJoined = stateCodes.join(",");
     align-items: center;
     justify-content: center;
   }
+  /* Plot wraps the legend + map in a <figure> (figure.append(
+     ...legends, svg)). Left as a plain block, that figure's height is
+     just its content (legend + a height:100% map that resolves against
+     an indefinite parent → intrinsic), so the figure grows TALLER than
+     the centered canvas and its top — the legend — clips out of view.
+     Make the figure an explicit flex column with a DEFINITE height
+     (100% of the canvas): the legend takes its natural height at the
+     top and the map flex-fills the rest, so neither clips. */
+  .map-dialog.map-dialog-wide .map-canvas-expanded > figure {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
   .map-dialog.map-dialog-wide .map-canvas-expanded svg.map-geo-svg {
+    /* flex:1 + min-height:0 lets the map yield vertical space to the
+       legend instead of forcing the old overflow; preserveAspectRatio
+       "xMidYMid meet" then fits the drawing inside whatever box the
+       flex row leaves it. */
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
     height: 100%;
     max-width: 100%;
     max-height: 100%;
   }
-  /* The Plot color-legend svg (no geo paths) sits above the map; keep it
-     at its natural size so its tick text doesn't scale up with the
-     fullscreen width. Centered to match the map. */
+  /* The Plot color-legend svg (no geo paths) sits above the map. Its
+     intrinsic ~240px width renders tiny in a fullscreen dialog; clamp it
+     to a readable band (never the full-width giant the old svg{width:100%}
+     rule produced). flex:0 0 auto keeps it at its own height at the top. */
   .map-dialog.map-dialog-wide .map-canvas-expanded svg:not(.map-geo-svg) {
-    width: auto;
-    height: auto;
-    max-width: 100%;
     flex: 0 0 auto;
+    width: clamp(280px, 38%, 500px);
+    height: auto;
+    max-width: 90%;
   }
   .map-dialog-footer {
     padding: 8px 20px 16px;
