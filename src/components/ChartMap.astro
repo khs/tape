@@ -395,6 +395,10 @@ const statesJoined = stateCodes.join(",");
   data-dashboard-slug={dashboardSlug}
   data-role="chart-tile"
   data-map="1"
+  role="button"
+  tabindex="0"
+  aria-haspopup="dialog"
+  aria-label={`${tileTitle}, open expanded map`}
 >
   <header class="chart-tile-header">
     <h3 class="chart-tile-title">{tileTitle}</h3>
@@ -2090,6 +2094,20 @@ const statesJoined = stateCodes.join(",");
       // (re-clicks on the expanded canvas shouldn't re-trigger
       // the open).
       if ((e.target as HTMLElement | null)?.closest(".map-dialog")) return;
+      openExpanded(tile);
+    });
+    // Keyboard activation: the tile is role="button" tabindex="0", so it
+    // takes focus in the tab order. Enter/Space must open the dialog too
+    // (line/bar tiles get this free by being real <button>s). Only act
+    // when the tile ITSELF is focused, so a key aimed at a control inside
+    // it isn't hijacked; preventDefault stops Space from scrolling.
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      const target = e.target as HTMLElement | null;
+      const tile = target?.closest<HTMLElement>("[data-map='1']");
+      if (!tile || target !== tile) return;
+      if (target.closest(".map-dialog")) return;
+      e.preventDefault();
       openExpanded(tile);
     });
   }
