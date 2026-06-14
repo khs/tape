@@ -2246,7 +2246,30 @@
     }
 
     const plotEl = dialog.querySelector<HTMLElement>('[data-role="plot"]');
-    if (plotEl) renderFullPlot(plotEl, payload, window);
+    if (plotEl) {
+      try {
+        renderFullPlot(plotEl, payload, window);
+      } catch (err) {
+        // Observable Plot can throw on a degenerate spec (NaN/Infinity in a
+        // domain, a non-positive value reaching a log scale, an all-NaN
+        // derived series from combineTwo). Without this guard the throw
+        // propagates out of the synchronous tile-click handler, leaving the
+        // modal open with a permanently blank plot + an uncaught console
+        // error. Mirror ChartMap's Plot.plot try/catch — but only show the
+        // fallback when nothing has rendered yet, so a failed high-fi
+        // RE-render (phase-2 upgrade or a pill click) keeps the working
+        // low-fi plot in place instead of blanking it.
+        console.error(
+          "[chart] renderFullPlot threw:",
+          err,
+          payload.chartId ?? "unknown",
+        );
+        if (!plotEl.querySelector("svg")) {
+          plotEl.innerHTML =
+            '<p class="dialog-error muted small">This chart couldn\'t be rendered.</p>';
+        }
+      }
+    }
     // (Pill-active toggling is handled by the call site so that the "fixed"
     // pill — whose data-window value isn't a DeltaWindow — can be activated
     // alongside regular windows.)
@@ -2568,7 +2591,19 @@
         ctx.selectedView = ctx.currentWindow;
       }
       tileContexts.push(ctx);
-      updateTile(tile, payload, ctx.currentWindow);
+      try {
+        updateTile(tile, payload, ctx.currentWindow);
+      } catch (err) {
+        // A render throw for ONE tile must not abort the whole forEach —
+        // that would leave every later tile on the dashboard static and
+        // non-interactive (no sparkline, dead clicks). Degrade this tile to
+        // its server-rendered readouts and keep hydrating the rest.
+        console.warn(
+          "[chart] tile render failed:",
+          err,
+          payload.chartId ?? "unknown",
+        );
+      }
 
       tile.addEventListener("click", () => {
         // Two-phase open for snappier perceived latency:
