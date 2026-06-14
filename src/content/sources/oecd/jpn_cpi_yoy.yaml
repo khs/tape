@@ -1,6 +1,13 @@
 name: Japan CPI inflation (YoY)
 shortName: Japan CPI YoY
 description: Headline consumer price inflation, year-over-year, from OECD. Monthly, all items, national methodology, not seasonally adjusted. Cross-country comparable because OECD applies the same harmonization rules. (CPI = Consumer Price Index.)
+# Hidden (data-quality audit, 2026-06-13): the OECD fetch is frozen at
+# 2021-06, missing the entire 2022-23 inflation surge, while every other
+# G7 CPI sibling reaches 2026. Removed from countries/g7_inflation and
+# hidden from the picker until the OECD pipeline is repaired (then re-add
+# it to the chart and restore the "G7" title). Surfaced by the
+# cohort-staleness check in scripts/audit-source-data.mjs.
+hidden: true
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/jpn_cpi_yoy.json

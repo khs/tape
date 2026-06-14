@@ -1,6 +1,12 @@
 name: Norway gov debt/GDP
 shortName: NO gov debt/GDP
 description: General government gross financial liabilities as % of GDP. OECD Economic Outlook (GGFLQ). Annual. (GDP = Gross Domestic Product.)
+# Hidden (data-quality audit, 2026-06-13): the OECD fetch is frozen at
+# 2021 while every other OECD gov-debt sibling reaches 2025, a silent
+# upstream pipeline break. Unreferenced by any chart, so just hidden from
+# the picker until the OECD pipeline is repaired. Surfaced by the
+# cohort-staleness check in scripts/audit-source-data.mjs.
+hidden: true
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/nor_gov_debt_pct_gdp.json
