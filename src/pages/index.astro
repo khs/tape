@@ -7,11 +7,20 @@ import DashboardGrid from "../components/DashboardGrid.astro";
 import { resolveDashboardForRender } from "../lib/resolve-dashboard-for-render";
 import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../lib/brand";
 
-// Server-rendered so we can pick which preset dashboard to feature based on
-// `?dash=<slug>` without pre-building N variants. The page is a pure
-// function of the request URL, so Vercel's edge cache makes this
-// effectively static — same URL, same response, no cold-start cost.
-export const prerender = false;
+// Prerendered (static): the home page features the default (lowest-
+// `order`) preset dashboard, baked in at build time so there's zero
+// per-request SSR or serverless cold-start cost on the highest-traffic
+// page. The featured tabs are <a> links to each preset's canonical
+// `/<slug>/` page, so picking a different preset is a normal static
+// navigation.
+//
+// (Previously SSR to honor `?dash=<slug>` for the inline featured
+// render. That param was never load-bearing: nothing links to
+// `/?dash=`, the home page's OG image doesn't depend on it [the
+// /og.png endpoint reads it separately], signed-out visitors are
+// redirected to /welcome/ before they ever see the featured render,
+// and signed-in visitors get their "My dashboards" list instead. So a
+// static default-featured build is equivalent for real users.)
 
 const dashboards = await getCollection("dashboards");
 const sorted = dashboards.sort(
@@ -20,12 +29,7 @@ const sorted = dashboards.sort(
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-// Pick the active dashboard from the query string, falling back to the
-// lowest-`order` dashboard for plain "/" loads. Tabs are <a> links to
-// `/?dash=<slug>` variants, which Vercel will edge-cache by URL.
-const requestedSlug = Astro.url.searchParams.get("dash");
-const active =
-  sorted.find((d) => d.id === requestedSlug) ?? sorted[0] ?? null;
+const active = sorted[0] ?? null;
 
 // Full resolution for the active dashboard only. Resolving all 7 every
 // request would pull ~20MB of JSON into the page payload; lazy-resolving
@@ -313,10 +317,10 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../lib/brand";
 
     // --- Featured-dashboard tab telemetry ---------------------------------
-    // Tabs are real <a> links now (server picks the active dashboard from
-    // ?dash=<slug>), so there's no client-side tab-state to manage. We
-    // just fire a Vercel analytics event on each click so we can tell
-    // which dashboard names actually pull users in.
+    // Tabs are real <a> links to each preset's `/<slug>/` page, so there's
+    // no client-side tab-state to manage. We just fire a Vercel analytics
+    // event on each click so we can tell which dashboard names actually
+    // pull users in.
     for (const tab of document.querySelectorAll<HTMLAnchorElement>(
       "[data-role='featured-tab']",
     )) {
