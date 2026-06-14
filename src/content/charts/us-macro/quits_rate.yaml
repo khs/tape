@@ -3,4 +3,14 @@ sources:
   - fred/jolts_quits_rate
 render: line
 defaultDelta: 5y
-tags: [labor, macro, us]
+tags: [labor, macro, us, consumer]
+blurb: |
+  Quits as a percent of total employment. People quit when they're
+  confident enough in the labor market to bet on finding another
+  job, the "great resignation" pattern of 2021-22 shows up here as
+  a sharp run-up before peaking and reverting. Useful as a worker-
+  side confidence read that often turns before unemployment does.
+
+  Public-domain BLS data, one of three consumer-mood proxies we
+  carry in place of the UMich consumer-sentiment series (third-party
+  copyrighted, not redistributable).
