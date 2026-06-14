@@ -230,6 +230,24 @@ def build_life_expectancy() -> int:
             f"CDC NCHS life expectancy at birth; All Races; {sex}", LE_URL, None,
         )
         n += 1
+    # The w9j2-ggv5 mortality column also stops at 2018. Append the final
+    # age-adjusted all-cause death rate (per 100k) for 2019+ from the NCHS
+    # "Mortality in the United States" Data Briefs. Cross-checked against the
+    # VSRR Socrata dataset 489q-934x (All causes / Age-adjusted / 12-months-
+    # ending-Q4 = calendar year) for 2023+ (750.5, 722.1 — exact match).
+    # That VSRR dataset only carries a ~2-year rolling window, so it can't
+    # be the sole source; hand-entered final figures, verify on update.
+    NVSS_DEATH_RATE = {
+        "2019": 715.2,  # Data Brief 395 (final 2019)
+        "2020": 835.4,  # Data Brief 427 (final 2020)
+        "2021": 879.7,  # Data Brief 456 (final 2021)
+        "2022": 798.8,  # Data Brief 492 (final 2022)
+        "2023": 750.5,  # Data Brief 521 (final 2023); matches VSRR 489q-934x
+        "2024": 722.1,  # Data Brief 548 (final 2024); matches VSRR 489q-934x
+    }
+    for yr, rate in NVSS_DEATH_RATE.items():
+        mortality.append({"t": f"{yr}-12-31", "v": rate})
+
     if len(mortality) >= 2:
         mortality.sort(key=lambda p: p["t"])
         write_timeseries(PIPELINE, "death_rate_us", "Age-adjusted death rate — United States",
@@ -237,7 +255,9 @@ def build_life_expectancy() -> int:
         write_yaml(
             "death_rate_us", "Age-adjusted death rate — United States", "US death rate",
             "Age-adjusted all-cause death rate per 100,000 population for the "
-            "United States, by year. CDC / National Center for Health Statistics.",
+            "United States, by year. CDC / National Center for Health Statistics. "
+            "Values through 2018 are from NCHS Socrata; 2019 onward are final "
+            "figures from the NCHS 'Mortality in the United States' Data Briefs.",
             "us", ["1y", "10y", "30y", "50y"], "per 100k", 1, " per 100k",
             "CDC NCHS age-adjusted death rate; all causes; All Races; Both Sexes",
             LE_URL, "rate",

@@ -1,6 +1,6 @@
 name: 'Age-adjusted death rate — United States'
 shortName: 'US death rate'
-description: 'Age-adjusted all-cause death rate per 100,000 population for the United States, by year. CDC / National Center for Health Statistics.'
+description: 'Age-adjusted all-cause death rate per 100,000 population for the United States, by year. CDC / National Center for Health Statistics. Values through 2018 are from NCHS Socrata; 2019 onward are final figures from the NCHS ''Mortality in the United States'' Data Briefs.'
 kind: timeseries
 pipeline: cdc_health
 dataFile: data/cdc_health/death_rate_us.json
