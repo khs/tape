@@ -466,12 +466,20 @@ const censusDisclaimer =
        - Bar dialogs (.chart-bar-dialog) have nothing in that bar but the
          ×, so drop the whole strip.
        - Map dialogs keep their header controls (color / zoom / full
-         screen); only the close × goes. */
+         screen); only the close × goes.
+     !important on the line + bar rules: Chart/ChartBar style their own
+     close controls in SCOPED <style> blocks, which Astro emits with two
+     [data-astro-cid] attributes (e.g. `.chart-bar-dialog[cid]
+     .dialog-close-bar[cid]{display:flex}`) → specificity (0,4,0), above
+     this global rule's (0,3,1). Their display isn't !important, so
+     !important here wins without a specificity arms race. The map rule
+     needs none — its #map-expand-dialog ID already outranks the scoped
+     selector. */
   body.embed-body-expanded .chart-dialog .dialog-close {
-    display: none;
+    display: none !important;
   }
   body.embed-body-expanded .chart-bar-dialog .dialog-close-bar {
-    display: none;
+    display: none !important;
   }
   body.embed-body-expanded #map-expand-dialog .map-dialog-close {
     display: none;
