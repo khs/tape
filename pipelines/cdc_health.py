@@ -174,7 +174,7 @@ def build_life_expectancy() -> int:
     # LE column drifted (leb in 2019, le in 2020) and "Total" is our
     # "Both Sexes". The 2018 value is byte-identical across w9j2 and these,
     # so the methodology is consistent. 2021+ national-by-sex values exist
-    # ONLY in NVSS PDF reports (not Socrata) — wired separately.
+    # ONLY in NVSS report tables (not Socrata) and are appended below.
     PER_YEAR_LE = [("2019", "ncvk-7amm"), ("2020", "ss2j-8ajj")]
     SEX_MAP = {"Total": "Both Sexes", "Male": "Male", "Female": "Female"}
     for yr, ds in PER_YEAR_LE:
@@ -190,6 +190,24 @@ def build_life_expectancy() -> int:
                 continue
             by_sex.setdefault(sex, []).append({"t": f"{yr}-12-31", "v": round(le, 1)})
 
+    # 2021+ US national life-expectancy-by-sex exists ONLY in NVSS/NCHS
+    # report tables ("Mortality in the United States" Data Briefs), NOT in
+    # any Socrata API dataset (the 2021 state dataset even dropped the
+    # national row). Hand-entered FINAL figures, each cross-checked against
+    # the cited primary source. When adding a year, verify Male/Female/Total
+    # against that year's Data Brief before committing.
+    NVSS_LE: dict[str, tuple[float, float, float]] = {
+        # year: (Both Sexes, Male, Female)
+        "2021": (76.4, 73.5, 79.3),  # NCHS Data Brief 456 (final 2021)
+        "2022": (77.5, 74.8, 80.2),  # NCHS Data Brief 492; confirmed in 521
+        "2023": (78.4, 75.8, 81.1),  # NCHS Data Brief 521 (final 2023)
+        "2024": (79.0, 76.5, 81.4),  # NCHS Data Brief 548 (final 2024)
+    }
+    for yr, (tot, male, female) in NVSS_LE.items():
+        by_sex.setdefault("Both Sexes", []).append({"t": f"{yr}-12-31", "v": tot})
+        by_sex.setdefault("Male", []).append({"t": f"{yr}-12-31", "v": male})
+        by_sex.setdefault("Female", []).append({"t": f"{yr}-12-31", "v": female})
+
     n = 0
     SEX = [("Both Sexes", "life_expectancy_us", "Life expectancy at birth — United States", "US life expectancy"),
            ("Male", "life_expectancy_male_us", "Life expectancy at birth, male — United States", "US life expectancy (male)"),
@@ -203,8 +221,11 @@ def build_life_expectancy() -> int:
         write_yaml(
             sid, name, short,
             f"Life expectancy at birth{sexnote} for the United States, by year. "
-            f"CDC / National Center for Health Statistics (National Vital "
-            f"Statistics System).",
+            f"CDC / National Center for Health Statistics. Values through 2020 "
+            f"come from NCHS Socrata datasets; 2021 onward are final figures "
+            f"from the NCHS 'Mortality in the United States' Data Briefs, which "
+            f"are the only authoritative source for recent national-by-sex "
+            f"values (not available via the Socrata API).",
             "us", ["1y", "10y", "30y", "50y"], "years", 1, " yrs",
             f"CDC NCHS life expectancy at birth; All Races; {sex}", LE_URL, None,
         )
