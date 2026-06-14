@@ -28,6 +28,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import re
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
@@ -127,6 +130,50 @@ def _merge_projections(
     return {k: out[k] for k in sorted(out)} if out else None
 
 
+_ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def validate_points(
+    points: list[dict[str, Any]],
+    *,
+    allow_empty: bool = False,
+) -> list[str]:
+    """Structural validation of a freshly-assembled point list, run at the
+    single write choke point so malformed data is rejected the moment a
+    pipeline produces it — not discovered weeks later on the site. Returns
+    a (capped) list of human-readable problems; empty == valid.
+
+    Checks the invariants the renderer + the data-integrity test suite rely
+    on: at least one point, ISO YYYY-MM-DD dates, finite numeric values,
+    strictly ascending with no duplicate dates. This is purely STRUCTURAL;
+    staleness/freshness is a separate gate (tests/data-freshness.test.ts),
+    because a write helper can't know a series is frozen — the upstream
+    may simply have no new data this run.
+    """
+    problems: list[str] = []
+    if not isinstance(points, list):
+        return ["points is not a list"]
+    if not points:
+        return [] if allow_empty else ["no points"]
+    prev: str | None = None
+    for p in points:
+        t = p.get("t") if isinstance(p, dict) else None
+        v = p.get("v") if isinstance(p, dict) else None
+        if not isinstance(t, str) or not _ISO_DATE.match(t):
+            problems.append(f"non-ISO date {t!r}")
+        else:
+            if prev is not None and t <= prev:
+                problems.append(f"out-of-order/duplicate date {prev} -> {t}")
+            prev = t
+        # bool is an int subclass — exclude it explicitly.
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+            problems.append(f"non-finite value {v!r} at {t!r}")
+        if len(problems) >= 10:
+            problems.append("...(more)")
+            break
+    return problems
+
+
 def write_timeseries(
     pipeline: str,
     series_id: str,
@@ -185,6 +232,25 @@ def write_timeseries(
         # vintages in some non-deterministic order shouldn't show up
         # as gratuitous noise in CI diffs).
         payload["projections"] = {k: projections[k] for k in sorted(projections)}
+    problems = validate_points(points)
+    if projections:
+        for vintage, arr in projections.items():
+            problems += [
+                f"projection {vintage}: {p}"
+                for p in validate_points(arr, allow_empty=True)
+            ]
+    if problems:
+        # Refuse to overwrite good data with garbage. merge=True already
+        # preserved the prior points, so skipping the write keeps the last
+        # good file; the ::warning:: surfaces it in the refresh logs. (A
+        # frozen-but-well-formed series is NOT caught here — that's the
+        # freshness gate's job; this only blocks structural corruption.)
+        print(
+            f"::warning::[common] {pipeline}/{series_id}: refusing to write "
+            f"malformed data (existing file preserved): " + "; ".join(problems),
+            file=sys.stderr,
+        )
+        return out
     _write_json(out, payload)
     return out
 

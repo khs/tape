@@ -326,5 +326,80 @@ class CachedGetTests(unittest.TestCase):
         self.assertEqual(len(files), 2)
 
 
+class ValidatePointsTests(unittest.TestCase):
+    """validate_points is the structural gate at the single write choke
+    point — malformed data must be rejected the moment a pipeline produces
+    it, not discovered weeks later on the site (the data-integrity test
+    suite's invariants, enforced at write time)."""
+
+    def test_valid_points_pass(self) -> None:
+        self.assertEqual(
+            common.validate_points(
+                [{"t": "2024-01-01", "v": 1.0}, {"t": "2024-02-01", "v": 2.5}],
+            ),
+            [],
+        )
+
+    def test_empty_rejected_unless_allowed(self) -> None:
+        self.assertEqual(common.validate_points([]), ["no points"])
+        self.assertEqual(common.validate_points([], allow_empty=True), [])
+
+    def test_non_finite_values_flagged(self) -> None:
+        for bad in (float("nan"), float("inf"), None, "5", True):
+            problems = common.validate_points([{"t": "2024-01-01", "v": bad}])
+            self.assertTrue(
+                any("non-finite" in p for p in problems),
+                f"{bad!r} should be flagged, got {problems}",
+            )
+
+    def test_non_iso_date_flagged(self) -> None:
+        problems = common.validate_points(
+            [{"t": "2024", "v": 1.0}, {"t": "2024-02-01", "v": 2.0}],
+        )
+        self.assertTrue(any("non-ISO" in p for p in problems), problems)
+
+    def test_out_of_order_and_duplicate_flagged(self) -> None:
+        desc = common.validate_points(
+            [{"t": "2024-02-01", "v": 1.0}, {"t": "2024-01-01", "v": 2.0}],
+        )
+        self.assertTrue(any("out-of-order" in p for p in desc), desc)
+        dup = common.validate_points(
+            [{"t": "2024-01-01", "v": 1.0}, {"t": "2024-01-01", "v": 2.0}],
+        )
+        self.assertTrue(any("duplicate" in p for p in dup), dup)
+
+
+class WriteTimeseriesValidationTests(unittest.TestCase):
+    """A malformed fetch must NOT clobber a good on-disk file — the write
+    is skipped and a warning emitted, so a broken upstream response can't
+    corrupt already-shipped data."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = Path(self._tmp.name)
+        self._orig = common.DATA_ROOT
+        common.DATA_ROOT = self.tmp
+
+    def tearDown(self) -> None:
+        common.DATA_ROOT = self._orig
+        self._tmp.cleanup()
+
+    def test_malformed_write_preserves_existing_file(self) -> None:
+        out = self.tmp / "fakepipe" / "fakeid.json"
+        common.write_timeseries(
+            "fakepipe", "fakeid", "Fake",
+            [{"t": "2024-01-01", "v": 1.0}, {"t": "2024-02-01", "v": 2.0}],
+        )
+        good_points = json.loads(out.read_text())["points"]
+        # A later refresh returns garbage (NaN). merge=False so the bad list
+        # isn't masked by the union — the validator alone must block it.
+        common.write_timeseries(
+            "fakepipe", "fakeid", "Fake",
+            [{"t": "2024-03-01", "v": float("nan")}],
+            merge=False,
+        )
+        self.assertEqual(json.loads(out.read_text())["points"], good_points)
+
+
 if __name__ == "__main__":
     unittest.main()

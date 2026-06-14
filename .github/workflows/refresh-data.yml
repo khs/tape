@@ -146,6 +146,15 @@ jobs:
       - name: Audit source descriptions (strict)
         run: python pipelines/audit_source_descriptions.py --strict
 
+      # Magnitude/scale sanity: flags sources whose latest value's order of
+      # magnitude doesn't fit its declared unit/format (e.g. raw dollars
+      # stored as billions, %-as-decimal vs %-as-100). Report-only — the
+      # classify() heuristic is unit-tested in CI (test_audit_source_scales),
+      # but the corpus-wide scan previously ran NOWHERE; this surfaces it in
+      # the refresh log each run without blocking the publish on a heuristic.
+      - name: Audit source magnitudes (report)
+        run: python pipelines/audit_source_scales.py
+
       # Indicator alerts: evaluate every active alert_rules row against
       # the freshly-refreshed source data files. Writes alert_triggers
       # rows when a rule fires. Idempotent — skips rules whose source's
