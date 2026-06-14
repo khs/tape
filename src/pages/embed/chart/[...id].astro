@@ -69,6 +69,14 @@ const resolved = await resolveChart(chartId);
 // in the render-type guard + the bar-snapshot preload below.
 const effChart = resolved ? effectiveChart(resolved) : null;
 
+// A missing chart is a genuine not-found: return 404 rather than a 200
+// with a "Chart not found" panel, so embeds of dead IDs aren't indexed
+// as valid and monitoring can tell missing from real. The panel still
+// renders; only the status code changes.
+if (!resolved || !effChart) {
+  Astro.response.status = 404;
+}
+
 // Bar charts need the per-source snapshot data preloaded so
 // ChartBar's JSX can render without an inline await. Skipped for
 // every other render type — the call is cheap (single chart) but

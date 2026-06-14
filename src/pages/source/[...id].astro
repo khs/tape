@@ -60,6 +60,14 @@ const siteOrigin = canonicalOrigin(Astro);
 // getEntry pulls just this one entry from the content store.
 const source = (await getEntry("sources", sourceId)) ?? null;
 
+// SSR page: a missing source is a genuine not-found, so return 404 (not a
+// 200 with a friendly panel). Otherwise crawlers index the not-found page
+// and monitoring can't distinguish missing from valid. The panel below
+// still renders; only the status code changes. (custom.astro does the same.)
+if (!source) {
+  Astro.response.status = 404;
+}
+
 // All library charts that reference this source — used for the
 // "Where this source shows up" panel below the chart. Includes
 // any chart whose sources[] array contains the source ID, even
