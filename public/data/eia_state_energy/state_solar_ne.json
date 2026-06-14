@@ -3,7 +3,7 @@
   "name": "state_solar_ne",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-06-07T08:50:57Z",
+  "lastUpdated": "2026-06-14T09:27:00Z",
   "points": [
     {
       "t": "2016-12-31",
