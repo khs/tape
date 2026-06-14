@@ -111,6 +111,36 @@ function pointOrderIssue(points) {
 }
 
 /**
+ * Derive a "sibling cohort" key so we can flag a country/geo series that
+ * has frozen years behind the rest of its family. The geo code is the
+ * leading 2-3 letter token of the name part:
+ *   oecd/jpn_cpi_yoy      → oecd::cpi_yoy      (siblings: usa_, can_, …)
+ *   oecd/nor_gov_debt_…   → oecd::gov_debt_…   (siblings: the other OECD)
+ *   edu_spending/ny_perpupil → edu_spending::perpupil
+ * Names whose leading token is a real word ("median_listing_price") or
+ * whose geo code trails (fred state series) don't match — they have no
+ * leading-geo cohort and return null. The >=3-member + threshold guards
+ * downstream keep false positives near zero.
+ */
+function cohortKeyFor(id) {
+  const slash = id.indexOf("/");
+  if (slash < 0) return null;
+  const pipeline = id.slice(0, slash);
+  const name = id.slice(slash + 1);
+  const m = name.match(/^([a-z]{2,3})_(.+)$/);
+  if (!m) return null;
+  return `${pipeline}::${m[2]}`;
+}
+
+/** Last (most recent) point date of a parsed data file, or null. */
+function lastPointDate(parsed) {
+  const pts = parsed?.points;
+  if (!Array.isArray(pts) || pts.length === 0) return null;
+  const t = pts[pts.length - 1]?.t;
+  return typeof t === "string" ? t : null;
+}
+
+/**
  * If a sibling .summary.json exists, check its latest.t matches the
  * data file's final point. Returns a problem string or null. A missing
  * summary file is fine (not every pipeline writes one).
@@ -206,6 +236,9 @@ async function main() {
   const failures = [];
   /** @type {{ id: string, reason: string }[]} */
   const warnings = [];
+  /** Members of country/geo sibling cohorts, for the staleness pass.
+   *  @type {{ id: string, cohortKey: string, lastT: string }[]} */
+  const cohortMembers = [];
 
   // Iterate only the REFERENCED sources for the hard-fail check.
   // Skipping data-file reads for the other ~20k YAMLs cuts the audit
@@ -317,6 +350,13 @@ async function main() {
         });
       }
     }
+    // Capture for the cohort-staleness pass (after the loop). Referenced
+    // sources are read here in fast mode, so chart-shipping cohorts
+    // (e.g. the G7 cpi_yoy family behind countries/g7_inflation) are
+    // covered on every prebuild.
+    const cohortKey = cohortKeyFor(sid);
+    const lastT = lastPointDate(parsed);
+    if (cohortKey && lastT) cohortMembers.push({ id: sid, cohortKey, lastT });
   }
 
   // 3b. Topical-tag-pill guard — a fast local mirror of the
@@ -488,8 +528,62 @@ async function main() {
           deepIssues++;
         }
       }
+      // Feed unreferenced sources into the cohort pass too, so an
+      // unreferenced-but-stale outlier (e.g. oecd/nor_gov_debt_pct_gdp,
+      // frozen at 2021 while its OECD siblings reach 2025) surfaces in
+      // CI even though it ships no chart today.
+      const cohortKey = cohortKeyFor(id);
+      const lastT = lastPointDate(parsed);
+      if (cohortKey && lastT) cohortMembers.push({ id, cohortKey, lastT });
     }
     console.log(`[data-audit/full] deep scan: ${deepIssues} issue${deepIssues === 1 ? "" : "s"} across unreferenced sources.`);
+  }
+
+  // 3e. Cohort-relative staleness. Country/geo sibling series should
+  // advance together; a member whose last point is far behind its
+  // cohort's most-recent sibling is a silent upstream break — the file
+  // is well-formed and ordered (passes every check above) but ships a
+  // chart frozen years in the past. This catches the class the
+  // structural checks can't see: correctly-ordered, internally
+  // consistent, but stale (oecd/jpn_cpi_yoy frozen at 2021 inside
+  // countries/g7_inflation while every other G7 line runs to 2026).
+  //
+  // WARN, don't block: the heuristic is cohort-relative, and we don't
+  // want a legitimately-late single-country report to wedge a deploy.
+  // The threshold (~13 months) is well past normal release lag, so a
+  // hit is a real freeze, not a country reporting a quarter behind.
+  const COHORT_STALE_MS = 400 * 24 * 60 * 60 * 1000; // ~13 months
+  const MIN_COHORT = 3;
+  /** @type {Map<string, typeof cohortMembers>} */
+  const byCohort = new Map();
+  for (const m of cohortMembers) {
+    if (!byCohort.has(m.cohortKey)) byCohort.set(m.cohortKey, []);
+    byCohort.get(m.cohortKey).push(m);
+  }
+  for (const [key, members] of byCohort) {
+    if (members.length < MIN_COHORT) continue;
+    let maxMs = -Infinity;
+    let maxT = "";
+    for (const m of members) {
+      const ms = Date.parse(m.lastT);
+      if (!Number.isNaN(ms) && ms > maxMs) { maxMs = ms; maxT = m.lastT; }
+    }
+    if (maxMs === -Infinity) continue;
+    for (const m of members) {
+      const ms = Date.parse(m.lastT);
+      if (Number.isNaN(ms)) continue;
+      if (maxMs - ms > COHORT_STALE_MS) {
+        const behindDays = Math.round((maxMs - ms) / 86400000);
+        const reason =
+          `data ends ${m.lastT}, ${behindDays} days behind its cohort ` +
+          `'${key}' (most recent sibling ends ${maxT}) — likely a silent ` +
+          `upstream pipeline break shipping a stale chart`;
+        warnings.push({ id: m.id, reason });
+        // ::warning:: renders as a GitHub Actions annotation, like the
+        // quarantine flags above, so CI surfaces it loudly.
+        console.log(`::warning::[data-audit] STALE COHORT OUTLIER: ${m.id} — ${reason}`);
+      }
+    }
   }
 
   // 4. Report + fail.
