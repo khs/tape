@@ -1,23 +1,21 @@
-name: FHFA DC-metro home price index
+name: FHFA DC home price index
 shortName: FHFA DC HPI
-description: FHFA all-transactions House Price Index for the Washington-Arlington-Alexandria MSA. Quarterly, repeat-sales-based. Public-domain federal-agency data; replaced the third-party DC-metro Case-Shiller series in 2026 for compliance reasons. (FHFA = Federal Housing Finance Agency.)
+description: FHFA all-transactions House Price Index for the District of Columbia. Quarterly, repeat-sales-based. Public-domain federal-agency data. (Replaced the Washington-Arlington-Alexandria metro-division series ATNHPIUS47894Q, which FHFA discontinued after 2024; this DC-proper index is the live successor.) (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fred_series
-dataFile: data/fred/ATNHPIUS47894Q.json
+dataFile: data/fred/DCSTHPI.json
 supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "index 1995Q1=100"
+unit: "index 1980Q1=100"
 formatting:
   style: number
   decimals: 1
 emphasis: change
 provenance:
   provider: U.S. Federal Housing Finance Agency (FHFA) via FRED
-  series: ATNHPIUS47894Q
-  url: https://fred.stlouisfed.org/series/ATNHPIUS47894Q
+  series: DCSTHPI
+  url: https://fred.stlouisfed.org/series/DCSTHPI
   license: Public domain (US government data; FHFA publishes the underlying index)
 tags:
   - real-estate
   - us
-  - metro
-  - "metro:47894"
 unitClass: index

@@ -374,9 +374,14 @@ SPECS: list[FredSpec] = [
     # conditions in the federal-economy core regardless of jurisdiction.
     # WDXRSA (DC-metro Case-Shiller) intentionally NOT ingested:
     # third-party copyrighted by S&P / CoreLogic / Case-Shiller.
-    # Removed 2026-05-27. FHFA DC-MSA HPI is the clean substitute:
-    # public domain, quarterly, covers the same metro area.
-    FredSpec("ATNHPIUS47894Q", "FHFA all-transactions HPI, DC-MSA", "index"),
+    # Removed 2026-05-27. FHFA HPI is the clean public-domain substitute.
+    # ATNHPIUS47894Q (Washington-Arlington-Alexandria MSAD) was itself
+    # discontinued upstream at 2024-Q3 (the metro division was retired), so
+    # we use DCSTHPI (District of Columbia proper) — the live FHFA
+    # all-transactions successor. Different geography + base (1980Q1=100);
+    # the source YAML + the (rebased) dc_fhfa_vs_us chart were relabeled to
+    # DC, not metro.
+    FredSpec("DCSTHPI", "FHFA all-transactions HPI, District of Columbia", "index"),
     FredSpec("WASH911URN", "DC-metro unemployment rate", "%"),
     FredSpec("WASH911NA", "DC-metro nonfarm payroll employment", "thousands"),
     FredSpec("MEDLISPRI47900", "DC-metro median listing price (homes for sale)", "USD"),

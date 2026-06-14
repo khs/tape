@@ -167,6 +167,29 @@ def build_life_expectancy() -> int:
             if m is not None:
                 mortality.append({"t": f"{yr}-12-31", "v": round(m, 1)})
 
+    # Splice 2019-2020 from the per-year "U.S. State Life Expectancy by Sex"
+    # datasets: the headline w9j2-ggv5 table stops at 2018, so without this
+    # the life-expectancy charts froze there (missing the COVID drop). Each
+    # per-year dataset carries a "United States" national row by sex. The
+    # LE column drifted (leb in 2019, le in 2020) and "Total" is our
+    # "Both Sexes". The 2018 value is byte-identical across w9j2 and these,
+    # so the methodology is consistent. 2021+ national-by-sex values exist
+    # ONLY in NVSS PDF reports (not Socrata) — wired separately.
+    PER_YEAR_LE = [("2019", "ncvk-7amm"), ("2020", "ss2j-8ajj")]
+    SEX_MAP = {"Total": "Both Sexes", "Male": "Male", "Female": "Female"}
+    for yr, ds in PER_YEAR_LE:
+        for r in fetch_csv(ds):
+            geo = (r.get("state") or r.get("area") or "").strip()
+            if geo != "United States":
+                continue
+            sex = SEX_MAP.get((r.get("sex") or "").strip())
+            if not sex:
+                continue
+            le = _f(r.get("leb") or r.get("le") or r.get("life_expectancy"))
+            if le is None:
+                continue
+            by_sex.setdefault(sex, []).append({"t": f"{yr}-12-31", "v": round(le, 1)})
+
     n = 0
     SEX = [("Both Sexes", "life_expectancy_us", "Life expectancy at birth — United States", "US life expectancy"),
            ("Male", "life_expectancy_male_us", "Life expectancy at birth, male — United States", "US life expectancy (male)"),

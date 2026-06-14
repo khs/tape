@@ -1,4 +1,4 @@
-title: DC-metro vs US home prices (FHFA)
+title: DC vs US home prices (FHFA)
 sources:
   - "fred/fhfa_dc_hpi"
   - "fred/fhfa_us_hpi"
@@ -6,13 +6,13 @@ render: line
 defaultDelta: 30y
 tags: [us, real-estate]
 normalize: rebase
-seriesLabels: ["DC-metro", "US national"]
+seriesLabels: ["District of Columbia", "US national"]
 blurb: |
-  FHFA House Price Indices for the DC-MSA and the United States,
-  rebased to the start of the visible window so trajectories are
-  directly comparable. DC-metro prices outpaced the national index
-  through the 2010s federal-spending recovery, then mostly tracked
-  the national pattern during the 2020-22 housing surge.
+  FHFA House Price Indices for the District of Columbia and the United
+  States, rebased to the start of the visible window so trajectories are
+  directly comparable. DC prices outpaced the national index through the
+  2010s federal-spending recovery, then mostly tracked the national
+  pattern during the 2020-22 housing surge.
 
-  Pair this with the median-listing-price chart for the level
-  read, the index here is trajectory only.
+  Pair this with the median-listing-price chart for the level read, the
+  index here is trajectory only.
