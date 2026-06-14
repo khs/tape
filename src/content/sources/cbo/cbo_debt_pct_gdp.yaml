@@ -15,7 +15,7 @@ provenance:
   url: https://www.cbo.gov/data/budget-economic-data
   license: Public domain (per cbo.gov copyright statement)
   notes: |
-    Baseline projections hold current law fixed. The projection's slope is sensitive to assumed interest rates and to whether expiring tax provisions get extended — both are areas where realized policy has historically diverged from the baseline assumption.
+    Baseline projections hold current law fixed. The projection's slope is sensitive to assumed interest rates and to whether expiring tax provisions get extended, both are areas where realized policy has historically diverged from the baseline assumption.
 tags:
   - fiscal
   - government

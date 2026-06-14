@@ -16,7 +16,7 @@ provenance:
   url: https://www.cbo.gov/data/budget-economic-data
   license: Public domain (per cbo.gov copyright statement)
   notes: |
-    "Baseline" deficit projections are mechanically defined — current law is held fixed, with no legislative extensions or new policy. Realized deficits typically exceed baseline because expiring provisions tend to get extended.
+    "Baseline" deficit projections are mechanically defined, current law is held fixed, with no legislative extensions or new policy. Realized deficits typically exceed baseline because expiring provisions tend to get extended.
 tags:
   - fiscal
   - government

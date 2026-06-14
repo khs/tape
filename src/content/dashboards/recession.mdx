@@ -2,21 +2,21 @@
 title: "Recession monitor"
 order: 8
 defaultDelta: 30y
-description: "The dozen indicators that historically lead US recessions — yield curve, bank tightening, claims, equities, credit spreads, sentiment, profits. Each individually has false signals; the convergence is what matters."
+description: "The dozen indicators that historically lead US recessions, yield curve, bank tightening, claims, equities, credit spreads, sentiment, profits. Each individually has false signals; the convergence is what matters."
 aboutBlurb: "No single indicator predicts recessions reliably. This dashboard collects the dozen with the best historical track records so the convergence can be visually checked. Read the body essay for which signals to weight when."
 sections:
-  - title: "Curve + model — the bond-market signal"
-    description: "10y-3mo spread is the highest-batting-average recession indicator in modern US history — every recession since 1980 was preceded by inversion. The NY Fed publishes a model translating that spread to a recession probability."
+  - title: "Curve + model: the bond-market signal"
+    description: "10y-3mo spread is the highest-batting-average recession indicator in modern US history, every recession since 1980 was preceded by inversion. The NY Fed publishes a model translating that spread to a recession probability."
     charts:
       - us-macro/curve_spread_3m
       - us-macro/curve_spread
       - us-macro/recession_probability_ny_fed
   - title: "Bank tightening (SLOOS)"
-    description: "Senior Loan Officer Opinion Survey — quarterly, the Fed asks banks whether they're tightening or easing credit. Sustained tightening precedes recessions because banks pull credit in advance of expected loan losses."
+    description: "Senior Loan Officer Opinion Survey, quarterly, the Fed asks banks whether they're tightening or easing credit. Sustained tightening precedes recessions because banks pull credit in advance of expected loan losses."
     charts:
       - us-macro/sloos_ci_loans_tightening
       - us-macro/sloos_cc_tightening
-  - title: "Labor — initial claims as the highest-frequency gauge"
+  - title: "Labor: initial claims as the highest-frequency gauge"
     description: "Weekly UI claims spike before unemployment headlines move. Sustained 4-week MA above 400-450k has historically preceded recessions; sustained 350k+ has been a warning."
     charts:
       - us-macro/initial_claims
@@ -26,7 +26,7 @@ sections:
     description: "Single-number recession indicator from the unemployment rate. Fires when the 3-month MA of U3 rises 0.5pp above its trailing-12-month minimum. Every US recession since 1970 was preceded by a Sahm trigger; mid-2024 was the first trigger that didn't materialize into one. See the explainer below."
     charts:
       - us-macro/sahm_rule
-  - title: "Policy stance — real fed funds rate"
+  - title: "Policy stance: real fed funds rate"
     description: "Fed policy rate adjusted for realized inflation. Negative real rates = loose policy (borrowers paying back less in real terms than they borrowed); positive = tight. The peak real rate before each modern recession was at least +3% (Volcker era was much higher)."
     charts:
       - us-macro/real_fed_funds
@@ -53,23 +53,23 @@ No single indicator predicts US recessions reliably enough to bet
 on. The 10y-2y curve is the highest-batting-average single signal
 (every modern US recession was preceded by inversion), but it's
 had false positives (1966) and its lead times vary from 8 to 22
-months. The current 2022-onward episode — no NBER-dated recession
+months. The current 2022-onward episode, no NBER-dated recession
 yet, despite the curve inverting in mid-2022 and the Sahm rule
-triggering in mid-2024 — is the longest lead-without-recession on
+triggering in mid-2024, is the longest lead-without-recession on
 record.
 
-What the dashboard *can* do is show the convergence — when many
+What the dashboard *can* do is show the convergence, when many
 historically-reliable indicators flip the same direction, the case
 strengthens. Each panel here ranks indicators by approximate
 batting average × lead time:
 
-1. **Curve** — best single signal, ~18 months lead. Inverted hard
+1. **Curve**: best single signal, ~18 months lead. Inverted hard
    2022-24.
-2. **Bank tightening (SLOOS)** — strong leading indicator, 6-9
+2. **Bank tightening (SLOOS)**: strong leading indicator, 6-9
    months ahead. Tightened sharply 2022-23.
-3. **Initial claims** — leading by 3-6 weeks. Has stayed
+3. **Initial claims**: leading by 3-6 weeks. Has stayed
    surprisingly low.
-4. **Real economy** — coincident or lagging. By the time these
+4. **Real economy**: coincident or lagging. By the time these
    confirm, the recession is already underway.
 
 ## What the indicators got right (and wrong) recently
@@ -83,7 +83,7 @@ batting average × lead time:
 | Initial claims | Briefly elevated then resumed declining | No spike |
 
 This is roughly the historical pattern for a "soft landing"
-sequence — early-cycle stress signals that don't propagate to
+sequence, early-cycle stress signals that don't propagate to
 labor + real economy. The closest historical comp is 1994-95:
 Fed hiked aggressively, curve flattened, growth wobbled, but
 unemployment stayed low and the cycle continued.
@@ -96,7 +96,7 @@ track the answer as it develops.
 
 ## Why claims and not the unemployment rate
 
-The headline unemployment rate (U3) is a lagging indicator —
+The headline unemployment rate (U3) is a lagging indicator,
 typically doesn't turn up until the recession has already started.
 Initial claims lead by weeks; sustained increases above ~400k
 in the 4-week moving average have historically preceded recessions.
@@ -138,15 +138,15 @@ strictly that's a forecast not an in-sample fit).
 rule crossed 0.5pp for the first time since 2020. No recession
 followed in the subsequent year. Claudia Sahm herself argued that
 the trigger was being driven by unusual post-COVID labor-supply
-dynamics — rising prime-age participation, fast immigration
-catch-up, voluntary job-switching — rather than the cyclical
+dynamics, rising prime-age participation, fast immigration
+catch-up, voluntary job-switching, rather than the cyclical
 layoff signal the rule was designed to detect. The unemployment
 rate rising while initial claims stayed low + JOLTS quits rising
 is consistent with a "more people looking for jobs" story
 rather than the "more people losing jobs" story Sahm calibrated
 against.
 
-That doesn't kill the rule — it surfaces an interpretation
+That doesn't kill the rule, it surfaces an interpretation
 challenge. Watching the SAHMREALTIME series (which uses the
 unemployment-rate data available at each publication date) is
 the honest version: it answers "would this have signaled in
@@ -184,7 +184,7 @@ The "subtract REALIZED CPI" framing here differs from the
 defensible. Realized tells you the squeeze borrowers feel right
 now; expected tells you the squeeze the bond market thinks is
 coming. For recession-watching, realized is the more relevant
-quantity — recessions hit when current debt servicing gets
+quantity, recessions hit when current debt servicing gets
 expensive, not when forward expectations move.
 
 ## Customizing your recession framework

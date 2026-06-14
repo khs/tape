@@ -1,12 +1,12 @@
 ---
-title: "VA-08 — Arlington / Alexandria / Falls Church"
-description: "A dashboard built around Virginia's 8th Congressional District — federal money flow, local labor, housing, demographics. The flagship Northern Virginia federal-economy district."
+title: "VA-08: Arlington / Alexandria / Falls Church"
+description: "A dashboard built around Virginia's 8th Congressional District, federal money flow, local labor, housing, demographics. The flagship Northern Virginia federal-economy district."
 order: 2
 defaultDelta: 10y
-aboutBlurb: "A dashboard for one of the most federally-dependent congressional districts in the country — Don Beyer's VA-08, covering Arlington, Alexandria, Falls Church, and inner Fairfax County."
+aboutBlurb: "A dashboard for one of the most federally-dependent congressional districts in the country, Don Beyer's VA-08, covering Arlington, Alexandria, Falls Church, and inner Fairfax County."
 sections:
   - title: "how VA-08 compares"
-    description: "ACS heatmaps across geographic scales — state, county, and DMV-tract for all four indicators, plus VA-08 block-group resolution for income and education. (The Census Bureau suppresses poverty and place-of-birth statistics at the block-group level under its disclosure-avoidance rules, so those two indicators stop at tract resolution.) Click any tile for an expanded dialog with a color-scheme picker and full-screen toggle."
+    description: "ACS heatmaps across geographic scales, state, county, and DMV-tract for all four indicators, plus VA-08 block-group resolution for income and education. (The Census Bureau suppresses poverty and place-of-birth statistics at the block-group level under its disclosure-avoidance rules, so those two indicators stop at tract resolution.) Click any tile for an expanded dialog with a color-scheme picker and full-screen toggle."
     charts:
       - government/us_poverty_rate_map_2022
       - government/us_poverty_rate_county_map_2022
@@ -28,7 +28,7 @@ sections:
       - government/va_08_federal_spending
       - government/va_08_vs_neighbors
   - title: "Local labor market"
-    description: "County-level unemployment for the four jurisdictions that make up VA-08, plus the broader DC-metro and US-national rates as context. The metro reliably runs 1–2 percentage points below the national average, and that gap widens during recessions — federal-employee jobs aren't cyclical."
+    description: "County-level unemployment for the four jurisdictions that make up VA-08, plus the broader DC-metro and US-national rates as context. The metro reliably runs 1–2 percentage points below the national average, and that gap widens during recessions, federal-employee jobs aren't cyclical."
     charts:
       - government/va_08_local_unemployment
       - government/dc_metro_unemployment_vs_us
@@ -56,16 +56,16 @@ sections:
 | Median age | 37.1 | National median ~38.9 |
 | Residents in poverty | 58,700 (**7.4%**) | US national rate ~11.5% |
 | Adults with bachelor's degree (just) | 175,600 | Substantial additional population has graduate degrees on top |
-| **Foreign-born share** | **27.2%** | National foreign-born share ~13.9% — VA-08 nearly double |
-| Veteran population (civilian) | 49,400 (6.2%) | National veteran share ~6.0% — at the national rate despite DoD-adjacency |
-| Owner-occupied households | 171,100 (51.6%) | National homeownership ~65% — VA-08 is a renter-heavy district |
+| **Foreign-born share** | **27.2%** | National foreign-born share ~13.9%, VA-08 nearly double |
+| Veteran population (civilian) | 49,400 (6.2%) | National veteran share ~6.0%, at the national rate despite DoD-adjacency |
+| Owner-occupied households | 171,100 (51.6%) | National homeownership ~65%, VA-08 is a renter-heavy district |
 | Median home value | **$695,100** | US median ~$280,000 (2.5× national) |
 | Median gross rent | **$2,072/mo** | US median ~$1,300/mo (1.6× national) |
 | Households with broadband | 311,500 (94.0%) | National rate ~88% |
 
 The five-year nominal-income trajectory ($104k → $126k = +21% from 2017
 to 2022) tracks ~2 percentage points above national CPI inflation over
-the same window — a modest real-income gain on top of inflation. The
+the same window, a modest real-income gain on top of inflation. The
 trajectory chart below shows VA-08 sitting in the middle of the
 DC-metro pack; VA-10 (Loudoun and outer Fairfax) is the metro's
 richest CD.
@@ -89,7 +89,7 @@ tract-medians approximation other CD-aggregation efforts use.
 The medians for age, home value, and rent are currently
 contemporaneous-CD-level (i.e. the geography that was in effect each
 vintage). Recomputing them via distribution tables is a future
-addition — same technique as for income.
+addition, same technique as for income.
 
 **Coverage caveat.** The tract-level stable-geo aggregation currently
 runs 2017–2022; the Census API's tract-level endpoints for pre-2017
@@ -100,7 +100,7 @@ rent) extend back to ACS 2010 as a partial fallback.
 ## What "federal spending in VA-08" actually means
 
 The USAspending.gov data we use here attributes dollars by **prime
-recipient location** — where the contractor's primary office is, not
+recipient location**, where the contractor's primary office is, not
 where the work is performed. For VA-08, this is a feature, not a bug:
 the district's economic identity is built around being the place those
 prime contractors are headquartered. A Crystal City defense firm
@@ -111,13 +111,13 @@ interact with this place economically."
 It does mean the figures aren't directly comparable to "federal
 spending per capita on residents" in the welfare-and-transfers sense.
 Aggregated, our 50-state sum captures about 73% of total federal
-outlays — the missing 27% is debt service, some classified spending,
+outlays, the missing 27% is debt service, some classified spending,
 and outlays without a clean recipient-state attribution.
 
 ## Three regimes in district federal spending
 
 1. **Pre-2011 growth.** Steady increase through the late-Bush + early-
-   Obama buildup — DoD spending, the Stimulus, post-9/11 contractor
+   Obama buildup, DoD spending, the Stimulus, post-9/11 contractor
    expansion.
 2. **2011–2015 flat-and-decline.** The Budget Control Act of 2011
    imposed sequestration on FY2013+. VA-08 felt this sharply because
@@ -144,7 +144,7 @@ downturns:
 - **2020 COVID.** US peaked at 14.7%; DC-metro at 9.4%. A 5.3-point
   gap, the widest in modern history.
 
-This isn't because the metro is recession-proof — it's because federal
+This isn't because the metro is recession-proof, it's because federal
 employment is roughly 12% of the regional workforce (vs ~2% nationally),
 and the federal payroll doesn't cyclically shed workers the way
 manufacturing or hospitality do. Federal-contractor employment is
@@ -159,7 +159,7 @@ volatility because the small base makes the rate noisy.
 ## Housing as the constraint
 
 DC-metro home prices outpaced the national index from roughly 2012 to
-2017 — the federal-spending recovery decade — and then matched the
+2017, the federal-spending recovery decade, and then matched the
 national 2020–22 housing surge from an elevated starting point. The
 listing-price chart shows the resulting level: median list around
 $550k as of mid-decade, well above the national ~$430k.
@@ -167,13 +167,13 @@ $550k as of mid-decade, well above the national ~$430k.
 This is the binding constraint on the district as a place to live.
 The same federal-economy advantage that explains low unemployment,
 high household incomes, and high educational attainment also makes
-the local cost-of-living anchor near the top of US metros — pricing
+the local cost-of-living anchor near the top of US metros, pricing
 out the people who staff the offices that get this money in the first
 place.
 
 ## Why this dashboard
 
-Most "congressional district" data is hard to compose — published as
+Most "congressional district" data is hard to compose, published as
 PDF maps, locked behind interactive web tools, or aggregated only to
 the state level. VA-08 in particular is a useful case study because:
 

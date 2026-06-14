@@ -1,11 +1,11 @@
 ---
-title: "Walkthrough — a tour of every Tape feature"
+title: "Walkthrough: a tour of every Tape feature"
 # Stuck at the back of the home-page tab strip (state atlases occupy
 # 14-17; the next data-refresh might add more curated dashboards in
 # 11-13, hence the 20 cushion).
 order: 20
 defaultDelta: 1y
-description: "A tour of what Tape can do — read this if you've just landed and want to know which knobs are where. Each section below shows a real chart + a short note about the feature it demonstrates."
+description: "A tour of what Tape can do, read this if you've just landed and want to know which knobs are where. Each section below shows a real chart + a short note about the feature it demonstrates."
 aboutBlurb: "Curated demo dashboard. Every section below is a real Tape feature, shown via real charts; the headings are the explanations. Click any tile to see its expanded view + the per-tile controls."
 sections:
   - title: "Every mini-chart shows the level and the change"
@@ -16,7 +16,7 @@ sections:
       - us-macro/life_expectancy
 
   - title: "Same data, different windows"
-    description: "The dashboard-wide pills above (1W, 1M, YTD, 1Y, 5Y, 10Y, 30Y, 50Y) flip every tile to that lookback in lockstep. A section can pin its own window — these three render at 30Y regardless of where the top pills are set, useful for stacking 'last decade' + 'last thirty years' commentary side by side."
+    description: "The dashboard-wide pills above (1W, 1M, YTD, 1Y, 5Y, 10Y, 30Y, 50Y) flip every tile to that lookback in lockstep. A section can pin its own window, these three render at 30Y regardless of where the top pills are set, useful for stacking 'last decade' + 'last thirty years' commentary side by side."
     defaultDelta: 30y
     charts:
       - us-macro/real_gdp
@@ -24,7 +24,7 @@ sections:
       - us-macro/core_cpi
 
   - title: "Multi-source charts: combine series with math"
-    description: "A tile can combine two or more series via the composer's '+ Custom chart' or '+ Derived source' button. Pick raw / rebased-to-100 / dual-axis, or pick an operator (sum, difference, division) to collapse the inputs into one derived line. The three tiles below are the canonical examples — addition (misery index = inflation + unemployment), subtraction (yield-curve recession signal = 10Y minus fed funds), and division (real GDP per capita = real GDP ÷ population)."
+    description: "A tile can combine two or more series via the composer's '+ Custom chart' or '+ Derived source' button. Pick raw / rebased-to-100 / dual-axis, or pick an operator (sum, difference, division) to collapse the inputs into one derived line. The three tiles below are the canonical examples, addition (misery index = inflation + unemployment), subtraction (yield-curve recession signal = 10Y minus fed funds), and division (real GDP per capita = real GDP ÷ population)."
     charts:
       - us-macro/misery_index
       - us-macro/yield_curve_spread
@@ -41,18 +41,18 @@ sections:
       - government/cbo_debt_pct_gdp
 
   - title: "Forecasts ship as a dashed line"
-    description: "When a series has an official projection, it renders as a dashed extension of the historical line — same axis, same tooltip, no extra controls. CBO's deficit projection below extends ~30 years past the last historical fiscal year. Same treatment for the Social Security trustees' OASDI projection and the futures curves for oil, VIX, and ag commodities."
+    description: "When a series has an official projection, it renders as a dashed extension of the historical line, same axis, same tooltip, no extra controls. CBO's deficit projection below extends ~30 years past the last historical fiscal year. Same treatment for the Social Security trustees' OASDI projection and the futures curves for oil, VIX, and ag commodities."
     charts:
       - government/cbo_deficit_pct_gdp
 
   - title: "Bar snapshots"
-    description: "Set a chart's render type to bar and the tile becomes a horizontal-bar snapshot of each source's latest observation, sorted largest-to-smallest by default. Use it when relative magnitude at a point in time is the story (GDP by country, market cap by sector, federal spending by category). Hover labels in the dialog show the as-of date per bar — sources that update on different cadences won't all share the anchor."
+    description: "Set a chart's render type to bar and the tile becomes a horizontal-bar snapshot of each source's latest observation, sorted largest-to-smallest by default. Use it when relative magnitude at a point in time is the story (GDP by country, market cap by sector, federal spending by category). Hover labels in the dialog show the as-of date per bar, sources that update on different cadences won't all share the anchor."
     charts:
       - countries/gdp_snapshot
       - us-macro/water_use_us
 
   - title: "Maps: maps at four resolutions"
-    description: "Census ACS demographic data renders as interactive maps at four geographic scales: state (one tile per state), county (~3,140), tract (~500–9,000 per state), and block group (up to ~30,000 per state). The four tiles below all show median household income — same indicator, increasing resolution top-to-bottom — so the visual hand-off from one scale to the next is the story. Click any region for the value + name. The state-level dropdown in the composer has 20+ indicators; finer geographies have 4 (county/tract) or 2 (block-group, the set Census actually publishes that deep)."
+    description: "Census ACS demographic data renders as interactive maps at four geographic scales: state (one tile per state), county (~3,140), tract (~500–9,000 per state), and block group (up to ~30,000 per state). The four tiles below all show median household income, same indicator, increasing resolution top-to-bottom, so the visual hand-off from one scale to the next is the story. Click any region for the value + name. The state-level dropdown in the composer has 20+ indicators; finer geographies have 4 (county/tract) or 2 (block-group, the set Census actually publishes that deep)."
     charts:
       - government/us_median_hh_income_map_2022
       - government/us_median_hh_income_county_map_2022
@@ -60,7 +60,7 @@ sections:
       - government/va_08_median_hh_income_bg_map_2022
 
   - title: "Multi-state regions"
-    description: "Tract and block-group maps can stitch up to 4 states into one regional view. The DMV poverty-rate tile below combines VA, MD, and DC — same tract geometry as the median-income map two sections up, just a different indicator so the regional poverty pattern stands out. The composer's Maps tab has region preset chips for DMV, NY tri-state, New England, Mid-Atlantic, and Pacific Northwest, plus a multi-select for any combination you want."
+    description: "Tract and block-group maps can stitch up to 4 states into one regional view. The DMV poverty-rate tile below combines VA, MD, and DC, same tract geometry as the median-income map two sections up, just a different indicator so the regional poverty pattern stands out. The composer's Maps tab has region preset chips for DMV, NY tri-state, New England, Mid-Atlantic, and Pacific Northwest, plus a multi-select for any combination you want."
     charts:
       - government/dmv_poverty_rate_tract_map_2022
 
@@ -68,26 +68,26 @@ sections:
 
 ## What's outside the chart grid
 
-A few things this dashboard's tiles can't demonstrate inline — open
+A few things this dashboard's tiles can't demonstrate inline, open
 the relevant page in another tab to play with them.
 
 ### Composer (top right → **Compose**)
 
 The composer is where you build a custom dashboard:
 
-- **Sources tab** — every individual data series we have (~9,000 of
+- **Sources tab**: every individual data series we have (~9,000 of
   them: FRED economic series, Yahoo equities + futures, ACS demographics
   by congressional district / state / metro / county / tract / block
   group, World Bank country indicators, BLS subseries, Treasury TIC,
   USAspending federal flows). Click any source to drop it into your
   active section as a single-series tile.
-- **Pregenerated charts tab** — curated multi-source comparisons
+- **Pregenerated charts tab**: curated multi-source comparisons
   (breakeven inflation rates, country GDP-share ratios, etc.). Drag in
   whole; edit inline by clicking the tile.
-- **Maps tab** — build a map without leaving the page. Pick
+- **Maps tab**: build a map without leaving the page. Pick
   geography first, then indicator, then optional state(s), color
   scheme, and an area-of-interest bbox.
-- **Generators tab** — mass-compose. Pick one series template
+- **Generators tab**: mass-compose. Pick one series template
   ("nonfarm payroll employment", "median household income", "CO2 emissions per
   capita") plus a set of MSAs / states / countries, and the composer
   drops one tile per entity into your section. Useful for "unemployment
@@ -98,13 +98,13 @@ The composer is where you build a custom dashboard:
 - **Just share the URL** for any dashboard with under 50 entries
   or so, or make an account to enable custom URLs and unlimited
   length.
-- **Accounts** — make an account using Google to save dashboards
+- **Accounts**: make an account using Google to save dashboards
   you've created and make them easily accessible, or to edit a copy
   of a dashboard someone else shared with you.
-- **Set as default** — on the home page row actions for any saved
+- **Set as default**: on the home page row actions for any saved
   dashboard. Pins it to a hero card above the list so it's a
   one-click open on every home-page visit.
-- **Make a copy** — clones a dashboard to a fresh slug. Useful for
+- **Make a copy**: clones a dashboard to a fresh slug. Useful for
   forking a curated dashboard like this one and editing it without
   losing the original.
 
@@ -127,7 +127,7 @@ The composer is where you build a custom dashboard:
 ### Embed a chart in a piece
 
 - Open the expanded view of any chart and copy the `<iframe>`
-  snippet — it renders the chart on your blog, Substack, or research
+  snippet, it renders the chart on your blog, Substack, or research
   note, and auto-updates as the underlying series refreshes (no
   re-export needed).
 - Embeds keep the same window pills + tooltip + source link the
@@ -146,9 +146,9 @@ The composer is where you build a custom dashboard:
 
 ### Where to go next
 
-- [**/compose/**](/compose/) — start a new dashboard from scratch
-- [**/me/**](/me/) — the canonical list of your saved dashboards
-- [**/us-macro/**](/us-macro/) — the most comprehensive single-dashboard
+- [**/compose/**](/compose/), start a new dashboard from scratch
+- [**/me/**](/me/), the canonical list of your saved dashboards
+- [**/us-macro/**](/us-macro/), the most comprehensive single-dashboard
   example, if you want to see how the pieces fit together
 - The regional ACS map atlases, one per Census Bureau region:
   [northeast](/state-atlas-northeast/), [south](/state-atlas-south/),

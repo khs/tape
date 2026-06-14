@@ -1,7 +1,7 @@
 name: HY Telecom/Media/Tech bonds (XHYT)
 shortName: XHYT
 description: "BondBloxx HY Telecom/Media/Tech Sector ETF. High-yield corporate bonds
-  from TMT issuers — NOT investment grade. Big-tech IG bonds (AAPL, MSFT etc.) are
+  from TMT issuers, NOT investment grade. Big-tech IG bonds (AAPL, MSFT etc.) are
   not in this index."
 kind: timeseries
 pipeline: yahoo_quotes

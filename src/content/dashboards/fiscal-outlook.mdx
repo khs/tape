@@ -3,22 +3,22 @@ title: "Fiscal outlook"
 order: 4
 defaultDelta: 5y
 description: "Forward-looking views of fiscal and energy series, with the projection segments drawn as dashed extensions of the historical line. CBO's 10-year baseline (outlays, revenues, deficit, debt), the SSA Trustees' 75-year OASDI projection, and the three energy commodity futures curves."
-aboutBlurb: "Forward-looking projections from the institutions that publish them — futures markets for energy commodities, CBO for the federal budget baseline, SSA for the long-run Social Security trajectory. The renderer draws projection segments as dashed extensions of the historical line so the past-vs-forecast boundary is visible at a glance."
+aboutBlurb: "Forward-looking projections from the institutions that publish them, futures markets for energy commodities, CBO for the federal budget baseline, SSA for the long-run Social Security trajectory. The renderer draws projection segments as dashed extensions of the historical line so the past-vs-forecast boundary is visible at a glance."
 sections:
-  - title: "CBO budget baseline — 10-year projections"
-    description: "Each chart's solid line is FY1962-onward historical actuals from CBO's Historical Budget Data; the dashed extension is the most recent 10-year baseline projection. The baseline holds current law fixed — actual outcomes typically diverge as expiring provisions get extended. Multiple Outlook release vintages ride along under each source's `projections` map for the future as-of picker."
+  - title: "CBO budget baseline: 10-year projections"
+    description: "Each chart's solid line is FY1962-onward historical actuals from CBO's Historical Budget Data; the dashed extension is the most recent 10-year baseline projection. The baseline holds current law fixed, actual outcomes typically diverge as expiring provisions get extended. Multiple Outlook release vintages ride along under each source's `projections` map for the future as-of picker."
     charts:
       - government/cbo_outlays_pct_gdp
       - government/cbo_revenues_pct_gdp
       - government/cbo_deficit_pct_gdp
       - government/cbo_debt_pct_gdp
-  - title: "Social Security — 75-year Trustees projection"
+  - title: "Social Security: 75-year Trustees projection"
     description: "OASDI = Old-Age, Survivors, and Disability Insurance (Social Security in aggregate). Solid lines (where available) are historical SSA actuals; dashed extensions are the intermediate-cost (Alternative II) projection from the 2025 Trustees Report. Cost / GDP rises as the worker-to-beneficiary ratio falls. The OASDI-cost-as-%-GDP series is projection-only because the source SSA page doesn't ship historical actuals in the same table."
     charts:
       - government/ssa_oasdi_cost_pct_gdp
       - government/ssa_oasdi_workers_per_beneficiary
-  - title: "Energy commodities — current forward curves"
-    description: "Solid lines are monthly-averaged historical spot prices. Dashed extensions are today's futures curves — each future-month contract plotted at its delivery month, priced at its most-recent close. These are market-quoted contract prices, not Tape-generated forecasts."
+  - title: "Energy commodities: current forward curves"
+    description: "Solid lines are monthly-averaged historical spot prices. Dashed extensions are today's futures curves, each future-month contract plotted at its delivery month, priced at its most-recent close. These are market-quoted contract prices, not Tape-generated forecasts."
     charts:
       - energy/wti_curve
       - energy/brent_curve
@@ -28,20 +28,20 @@ sections:
 ## What's on this dashboard
 
 The Forecast UI ships forward-looking projections from the institutions
-that publish them — not Tape-generated forecasts. In every chart, the
+that publish them, not Tape-generated forecasts. In every chart, the
 solid line is historical actuals and the dashed line is the projection.
 The renderer extends the x-axis automatically to fit the projection's
 last point.
 
 The dashboard now spans three projection types:
 
-- **CBO 10-year baseline** — federal outlays, revenues, deficit,
+- **CBO 10-year baseline**: federal outlays, revenues, deficit,
   and debt held by the public, all as a percent of GDP. Refreshes
   with each new Budget & Economic Outlook release.
-- **SSA Trustees 75-year OASDI projection** — Social Security cost
+- **SSA Trustees 75-year OASDI projection**: Social Security cost
   as a percent of GDP and the worker-to-beneficiary ratio.
   Intermediate-cost (Alternative II) scenario.
-- **Energy commodity futures curves** — WTI crude, Brent crude, and
+- **Energy commodity futures curves**: WTI crude, Brent crude, and
   Henry Hub natural gas. Each refreshes on every pipeline run with
   the latest NYMEX-quoted contract prices.
 
@@ -54,7 +54,7 @@ commodity in each future month. So it represents:
 
 - **A consensus of market participants' expected prices**, weighted
   by who is willing to put money behind each view.
-- **A risk-adjusted view** — buyers value certainty, sellers value
+- **A risk-adjusted view**: buyers value certainty, sellers value
   storage costs and convenience yield, so the curve incorporates
   more than pure expectation.
 - **An option to act**: anyone who disagrees with the curve can

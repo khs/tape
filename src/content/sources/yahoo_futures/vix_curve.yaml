@@ -1,7 +1,7 @@
 name: VIX volatility — spot history + futures curve
 shortName: VIX curve
 description: |
-  The CBOE Volatility Index (VIX): the market's implied expectation of S&P 500 volatility over the next 30 days, derived from SPX options prices. Solid line is monthly-averaged spot ^VIX; dashed extension is the current CBOE VIX futures curve (front-month + 2nd-month). The slope is the headline read — contango (upward, calm regime) vs backwardation (downward, crisis premium for near-term protection).
+  The CBOE Volatility Index (VIX): the market's implied expectation of S&P 500 volatility over the next 30 days, derived from SPX options prices. Solid line is monthly-averaged spot ^VIX; dashed extension is the current CBOE VIX futures curve (front-month + 2nd-month). The slope is the headline read, contango (upward, calm regime) vs backwardation (downward, crisis premium for near-term protection).
 kind: timeseries
 pipeline: yahoo_futures
 dataFile: data/yahoo_futures/vix_curve.json

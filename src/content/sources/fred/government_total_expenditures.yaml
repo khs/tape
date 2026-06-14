@@ -1,7 +1,7 @@
 name: Government total expenditures (federal + state + local)
 shortName: Govt total expenditures
 description: Total expenditures of all U.S. governments, federal plus
-  state plus local — from the NIPA accounts. Quarterly, annualized rate,
+  state plus local, from the NIPA accounts. Quarterly, annualized rate,
   billions USD.
 kind: timeseries
 pipeline: fred_series

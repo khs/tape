@@ -2,8 +2,8 @@
 title: "Markets outlook"
 order: 5
 defaultDelta: 5y
-description: "Forward-looking views of commodity and volatility futures markets. Each chart shows the monthly-averaged spot history as a solid line and today's market-implied forward curve as a dashed continuation — actual quoted contract prices, not a Tape-generated forecast."
-aboutBlurb: "Where commodity and volatility futures are pricing the future. Each dashed extension is the current forward curve — what the market is willing to pay TODAY for delivery in each future month. Curves refresh on every pipeline run."
+description: "Forward-looking views of commodity and volatility futures markets. Each chart shows the monthly-averaged spot history as a solid line and today's market-implied forward curve as a dashed continuation, actual quoted contract prices, not a Tape-generated forecast."
+aboutBlurb: "Where commodity and volatility futures are pricing the future. Each dashed extension is the current forward curve, what the market is willing to pay TODAY for delivery in each future month. Curves refresh on every pipeline run."
 sections:
   - title: "Energy"
     description: "WTI and Brent crude oil and Henry Hub natural gas. Solid line is monthly-averaged spot front-month. Dashed line is the NYMEX forward curve."
@@ -11,7 +11,7 @@ sections:
       - energy/wti_curve
       - energy/brent_curve
       - energy/natgas_curve
-  - title: "Agriculture — major US export commodities"
+  - title: "Agriculture: major US export commodities"
     description: "Corn, soybeans, wheat (the US grain export trio), plus cotton and live cattle. Each contract trades in a specific set of delivery months tied to growing or feeding cycles; the dashed curves reflect that schedule (gaps between contracts are normal). Sources from CBOT, ICE, and CME via Yahoo Finance."
     charts:
       - agriculture/corn_curve
@@ -20,7 +20,7 @@ sections:
       - agriculture/cotton_curve
       - agriculture/cattle_curve
   - title: "Volatility"
-    description: "The VIX (CBOE Volatility Index) and the front-vs-second-month VIX-futures spread. The SLOPE of that 2-point curve is the market-regime indicator — contango (upward) is the calm-market default, backwardation (downward) appears in crisis."
+    description: "The VIX (CBOE Volatility Index) and the front-vs-second-month VIX-futures spread. The SLOPE of that 2-point curve is the market-regime indicator, contango (upward) is the calm-market default, backwardation (downward) appears in crisis."
     charts:
       - markets/vix_curve
 ---
@@ -31,27 +31,27 @@ Forward-looking views of commodity and volatility markets, all sourced
 from the futures curves themselves. In every chart:
 
 - **Solid line:** historical spot front-month, monthly averaged.
-- **Dashed line:** today's forward curve — each future-month contract
+- **Dashed line:** today's forward curve, each future-month contract
   plotted at its delivery month, priced at its most recent close.
 
 The dashed segment is not a forecast in the CBO / SSA "we built a
 model and ran it" sense. It's the actual price at which traders are
 willing to buy and sell contracts that physically deliver the
-commodity in each future month — i.e., the market's consensus
+commodity in each future month, i.e., the market's consensus
 forecast, weighted by who is willing to put money behind each view.
 
 ## How to read each curve
 
 ### Energy
 
-Energy curves typically run smooth — WTI and Brent contracts trade
+Energy curves typically run smooth, WTI and Brent contracts trade
 every month, and the curve's shape is dominated by inventory
 expectations and stored-oil arbitrage. A persistent upward slope
 ("contango") implies expected appreciation, but storage costs eat
 into the gain. A downward slope ("backwardation") implies tight
 near-term supply.
 
-Henry Hub natural gas has a much stronger seasonal sawtooth —
+Henry Hub natural gas has a much stronger seasonal sawtooth,
 winter contracts in any given year price ~50-100% higher than the
 surrounding summer months because of heating-demand peaks.
 
@@ -69,7 +69,7 @@ in specific calendar months tied to growing cycles:
 | Live cattle | Feb, Apr, Jun, Aug, Oct, Dec |
 
 A "discontinuity" between, say, September corn and December corn is
-not a curve oddity — it's the market pricing old-crop (pre-harvest)
+not a curve oddity, it's the market pricing old-crop (pre-harvest)
 versus new-crop (post-harvest) supply at different levels, which is
 the way ag futures are supposed to work.
 
@@ -78,7 +78,7 @@ the way ag futures are supposed to work.
 The VIX is the market's pricing of expected S&P 500 volatility over
 the next 30 days. The futures market lets traders take that view
 out to ~9 months, but Yahoo only carries the front-month and
-second-month continuous indices — the 2-point spread between them
+second-month continuous indices, the 2-point spread between them
 is the curve's headline anyway:
 
 - **Front < second-month** ("contango"): calm market, normal state.
@@ -97,7 +97,7 @@ and policy announcements. The dashed line is a snapshot of what
 contract prices closed at on the most recent data-pipeline refresh;
 it isn't a guarantee that those prices will hold. Backtests of
 oil-futures forecasts versus realized prices show typical 1-to-4
-month errors of $5-10 per barrel — the curve is the cleanest public
+month errors of $5-10 per barrel, the curve is the cleanest public
 price-forecast available, but it's not precise.
 
 ## Customizing this dashboard

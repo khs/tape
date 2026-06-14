@@ -1,7 +1,7 @@
 name: Grand total (foreign) — US Treasury holdings
 shortName: Grand total (foreign)
 description: Total foreign-held US Treasury securities. Monthly. Sum of all 
-  reported country positions plus "All Other" — represents the total dollar 
+  reported country positions plus "All Other", represents the total dollar 
   amount of US debt held outside the United States.
 kind: timeseries
 pipeline: treasury_tic

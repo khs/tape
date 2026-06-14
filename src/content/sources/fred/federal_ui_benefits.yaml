@@ -2,7 +2,7 @@ name: Federal unemployment insurance benefits
 shortName: UI benefits
 description: Federal government unemployment insurance benefit payments,
   NIPA basis. Quarterly, annualized rate, billions USD. Spikes mark
-  recessions (extended-benefit programs) — most dramatically the 2020
+  recessions (extended-benefit programs), most dramatically the 2020
   pandemic expansions.
 kind: timeseries
 pipeline: fred_series

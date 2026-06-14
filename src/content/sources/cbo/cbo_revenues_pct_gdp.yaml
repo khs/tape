@@ -15,7 +15,7 @@ provenance:
   url: https://www.cbo.gov/data/budget-economic-data
   license: Public domain (per cbo.gov copyright statement)
   notes: |
-    Revenues / GDP have hovered near 17% for three quarters of a century — sometimes called "Hauser's Law." The CBO baseline holds existing tax-law parameters fixed, so the projected segment captures only mechanical revenue effects from projected GDP growth, not policy changes.
+    Revenues / GDP have hovered near 17% for three quarters of a century, sometimes called "Hauser's Law." The CBO baseline holds existing tax-law parameters fixed, so the projected segment captures only mechanical revenue effects from projected GDP growth, not policy changes.
 tags:
   - fiscal
   - government

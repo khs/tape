@@ -2,29 +2,29 @@
 title: "Federal budget"
 order: 3
 defaultDelta: 30y
-description: "A dashboard for the federal fiscal picture — outlays vs receipts vs deficit, debt trajectory, spending by function, geographic distribution, and the external counterparts (foreign Treasury holdings, trade balance)."
+description: "A dashboard for the federal fiscal picture, outlays vs receipts vs deficit, debt trajectory, spending by function, geographic distribution, and the external counterparts (foreign Treasury holdings, trade balance)."
 aboutBlurb: "Where federal dollars come from, where they go, and what the resulting debt + external positions look like. Mostly FRED + USAspending data with ACS demographic context for the geographic-distribution section."
 sections:
   - title: "The big picture"
-    description: "Outlays, receipts, deficit, and debt — all expressed as percent of GDP so the post-WWII trend is comparable across eras of vastly different nominal sizes. Receipts have hovered ~17% of GDP for 75 years; outlays trend up; the gap is the deficit."
+    description: "Outlays, receipts, deficit, and debt, all expressed as percent of GDP so the post-WWII trend is comparable across eras of vastly different nominal sizes. Receipts have hovered ~17% of GDP for 75 years; outlays trend up; the gap is the deficit."
     charts:
       - government/federal_outlays_pct_gdp
       - government/federal_receipts_pct_gdp
       - government/federal_deficit_pct_gdp
       - government/federal_debt_pct_gdp
   - title: "What the money buys"
-    description: "Spending broken down by function — three entitlements (Social Security, Medicare, Medicaid), defense, nondefense discretionary, and net interest. Interest crossed defense in 2024 for the first time in the post-WWII era."
+    description: "Spending broken down by function, three entitlements (Social Security, Medicare, Medicaid), defense, nondefense discretionary, and net interest. Interest crossed defense in 2024 for the first time in the post-WWII era."
     charts:
       - government/federal_spending_by_function
       - government/federal_defense
       - government/federal_interest_pct_gdp
   - title: "Where the money lands"
-    description: "Federal-spending geography — which states receive the most absolute dollars, and which DC-area congressional districts (the prime-recipient corridor) are most plugged into the contract / grant economy."
+    description: "Federal-spending geography, which states receive the most absolute dollars, and which DC-area congressional districts (the prime-recipient corridor) are most plugged into the contract / grant economy."
     charts:
       - government/federal_spending_by_state_top10
       - government/federal_spending_dc_districts
   - title: "Demographic context (heatmaps)"
-    description: "ACS maps at state + county granularity, four indicators — useful for connecting federal-program design (poverty, education, foreign-born share, income) to where in the country those populations live. Click any tile for color-scheme picker + year slider."
+    description: "ACS maps at state + county granularity, four indicators, useful for connecting federal-program design (poverty, education, foreign-born share, income) to where in the country those populations live. Click any tile for color-scheme picker + year slider."
     charts:
       - government/us_poverty_rate_map_2022
       - government/us_poverty_rate_county_map_2022
@@ -52,8 +52,8 @@ US federal finances split cleanly into four moving parts:
 | **Deficit** | Outlays − receipts. Funded by borrowing. | "deficit / GDP" chart |
 | **Debt** | Accumulated past deficits, still outstanding | "debt / GDP" chart |
 
-Receipts have hovered near 17% of GDP for three quarters of a century
-— the famous "Hauser's Law" observation. Outlays drift up over time
+Receipts have hovered near 17% of GDP for three quarters of a century,
+the famous "Hauser's Law" observation. Outlays drift up over time
 as entitlement programs mature and the population ages. The gap
 between the two lines is the annual deficit; integrated over decades
 it's the debt-to-GDP trajectory.
@@ -61,7 +61,7 @@ it's the debt-to-GDP trajectory.
 ## Why interest crossed defense in 2024
 
 For the first time since World War II, federal net interest payments
-exceeded the defense budget in 2024 — visible in the spending-by-
+exceeded the defense budget in 2024, visible in the spending-by-
 function chart. Two forces drove the crossover:
 
 1. **Stock effect.** Debt-to-GDP roughly doubled between 2007 and
@@ -74,14 +74,14 @@ function chart. Two forces drove the crossover:
 
 The combination is mechanical: even with the deficit held constant,
 higher rates × bigger stock = higher annual interest. The crossover
-isn't a one-time event — at current rates and a debt trajectory
+isn't a one-time event, at current rates and a debt trajectory
 that's still expanding faster than GDP, interest as a share of the
 budget keeps climbing.
 
 ## Reading the geography panel
 
-The "where the money lands" charts use **prime-recipient location**
-— where the contractor or grantee has its primary office, not where
+The "where the money lands" charts use **prime-recipient location**,
+where the contractor or grantee has its primary office, not where
 the work is performed. This matters for two reasons:
 
 - **VA + MD + DC capture the contracting economy.** The DC-metro
@@ -97,7 +97,7 @@ the work is performed. This matters for two reasons:
   up disproportionately in the contracting-corridor states.
 
 For a per-resident view of federal money, the demographic-context
-heatmaps below help — places with high poverty + foreign-born share
+heatmaps below help, places with high poverty + foreign-born share
 + lower educational attainment receive more per-capita
 transfer-payment outlay even if their state's contract-dollar count
 is small.
