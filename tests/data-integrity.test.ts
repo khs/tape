@@ -320,3 +320,50 @@ describe("referential integrity", () => {
     expect(bad, show(bad)).toEqual([]);
   });
 });
+
+describe("choropleth value integrity (referenced maps)", () => {
+  // The integrity loader above only sees time-series files; choropleth
+  // (geo/values) files were value-unchecked, so a map could render blank or
+  // garbage states with zero test resistance. Validate the values maps of
+  // the state/county maps here (the common, non-sharded case + the proven
+  // blind spot). tract/block-group are sharded into thousands of files —
+  // their existence is checked above; deep value scanning is left to the
+  // --full audit to keep this gate fast.
+  const geoDir: Record<string, string> = { state: "acs_state", county: "acs_county" };
+  const GEOID_LEN: Record<string, number> = { state: 2, county: 5 };
+
+  it("every referenced state/county map has finite, non-negative values", () => {
+    const bad: string[] = [];
+    const seen = new Set<string>();
+    for (const c of charts()) {
+      if (!isLiveChart(c) || c.data.render !== "map") continue;
+      const geo = c.data.geo as string;
+      const dir = geoDir[geo];
+      if (!dir) continue; // state/county only
+      const rel = `data/${dir}/${c.data.indicator}_${c.data.vintage}.json`;
+      if (seen.has(rel)) continue; // many charts share one indicator file
+      seen.add(rel);
+      const fp = dataPath(rel);
+      if (!existsSync(fp)) continue; // existence is asserted elsewhere
+      const d = readJson(fp) as Json;
+      const values = d.values as Record<string, unknown> | undefined;
+      const keys = values ? Object.keys(values) : [];
+      if (!values || keys.length === 0) {
+        bad.push(`${rel}: empty/missing values map`);
+        continue;
+      }
+      const len = GEOID_LEN[geo];
+      for (const [geoid, v] of Object.entries(values)) {
+        if (!/^\d+$/.test(geoid) || geoid.length !== len) {
+          bad.push(`${rel}: malformed GEOID '${geoid}'`);
+          break;
+        }
+        if (typeof v !== "number" || !Number.isFinite(v) || v < 0) {
+          bad.push(`${rel}: bad value ${JSON.stringify(v)} for ${geoid}`);
+          break;
+        }
+      }
+    }
+    expect(bad, show(bad)).toEqual([]);
+  });
+});

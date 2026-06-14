@@ -191,6 +191,44 @@ export function medianCadenceDays(pts: Point[]): number | null {
 export const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
+ * The date the series' VALUE last changed — not the last timestamp.
+ *
+ * Some pipelines (worldbank_gdp_raw/*) deliberately stamp the most recent
+ * value forward onto fresh "today" dates, so lastPoint.t is always ~today
+ * even when the real datum is years old. Measuring freshness off the
+ * timestamp would make a frozen upstream permanently invisible (the exact
+ * jpn_cpi_yoy failure mode). So when the tail is a run of IDENTICAL values
+ * stamped at sub-cadence spacing (the carry-forward signature), report the
+ * date the value actually last moved. A genuinely-flat-but-fresh series
+ * (e.g. a policy rate held steady, with new points at the normal cadence)
+ * is NOT collapsed — its trailing run is cadence-spaced, not dense.
+ */
+export function lastChangeDate(pts: Point[], cadenceDays: number | null): string | null {
+  if (!pts.length) return null;
+  const last = pts[pts.length - 1];
+  if (pts.length < 2 || cadenceDays == null) return last.t;
+  const dense = cadenceDays * 0.5;
+  // Walk back over a trailing run of IDENTICAL values whose points are
+  // stamped at sub-cadence spacing — the carry-forward signature (e.g.
+  // daily restamps of an annual GDP value). A genuinely-flat-but-fresh
+  // series (a rate held steady with new points at the normal cadence) has
+  // cadence-spaced gaps, so it is NOT collapsed and stays fresh.
+  let i = pts.length - 1;
+  while (i > 0) {
+    const gap = (Date.parse(pts[i].t) - Date.parse(pts[i - 1].t)) / 86_400_000;
+    if (pts[i - 1].v === last.v && gap < dense) i--;
+    else break;
+  }
+  // If a dense tail was collapsed, the real datum is the point BEFORE it —
+  // pts[i-1] carries the same value but sits a normal gap earlier (it was
+  // the last genuine publication, then carried forward). Guard on the
+  // value matching so a flat-recent stretch of a real series isn't treated
+  // as carry-forward off an older changed value.
+  if (i < pts.length - 1 && i > 0 && pts[i - 1].v === last.v) return pts[i - 1].t;
+  return pts[i].t;
+}
+
+/**
  * "Sibling cohort" key for cross-country/geo series, so we can flag a
  * member that froze years behind the rest of its family (the
  * oecd/jpn_cpi_yoy signature). The geo code is the leading 2-3-letter
