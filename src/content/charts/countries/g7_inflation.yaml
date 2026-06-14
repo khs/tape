@@ -1,8 +1,4 @@
-title: Inflation across major economies
-# Japan (oecd/jpn_cpi_yoy) temporarily removed (2026-06-13): its OECD
-# fetch is frozen at 2021, which dragged a dead line across the chart.
-# Re-add it and restore the "G7 inflation" title once the OECD Japan CPI
-# pipeline is repaired (see the note in that source's YAML).
+title: G7 inflation
 sources:
   - "oecd/usa_cpi_yoy"
   - "oecd/can_cpi_yoy"
@@ -10,12 +6,14 @@ sources:
   - "oecd/fra_cpi_yoy"
   - "oecd/deu_cpi_yoy"
   - "oecd/ita_cpi_yoy"
+  - "oecd/jpn_cpi_yoy"
 render: line
 defaultDelta: 10y
 tags: [world, macro]
 normalize: raw
 blurb: |
-  Headline consumer price inflation (year-over-year) for major advanced
-  economies, harmonized methodology from OECD. Useful for spotting
-  whether an inflation episode is global (the 2022 spike hit all of them
-  at once) or local to one country.
+  Headline consumer price inflation (year-over-year) for G7 economies,
+  harmonized methodology from OECD. Useful for spotting whether an
+  inflation episode is global (2022 spike across all seven) or local
+  (Japan running near zero while everyone else struggled with prices
+  in the 2010s).

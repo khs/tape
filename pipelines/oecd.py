@@ -212,6 +212,26 @@ SPECS: list[OECDSpec] = [
         filter_fn=_headline_cpi,
         countries=G7_COUNTRIES,
     ),
+    # OECD migrated several countries' ongoing CPI publication from the
+    # COICOP-1999 dataflow above to a parallel COICOP-2018 dataflow. Japan
+    # in particular publishes ONLY here now — in DF_PRICES_ALL it dead-ends
+    # at 2021-06, which silently froze jpn_cpi_yoy for ~5 years (caught by
+    # the data-quality audit, 2026). The dimension structure + codes are
+    # identical, so the same _headline_cpi filter and trailing_dots=7 work
+    # verbatim. Same pipeline_id="cpi_yoy" → write_timeseries(merge=True)
+    # UNIONS each country's points by date: Japan fills entirely from here,
+    # US/GBR/DEU (absent from COICOP-2018) keep their legacy points, and
+    # FRA/ITA (fresher here than in legacy) get pulled current. Do NOT
+    # replace the legacy spec — US/GBR/DEU would freeze instead.
+    OECDSpec(
+        pipeline_id="cpi_yoy",
+        dataflow="OECD.SDD.TPS,DSD_PRICES_COICOP2018@DF_PRICES_C2018_ALL,1.0",
+        name_prefix="CPI inflation (YoY)",
+        unit="%",
+        trailing_dots=7,
+        filter_fn=_headline_cpi,
+        countries=G7_COUNTRIES,
+    ),
     OECDSpec(
         pipeline_id="gov_debt_pct_gdp",
         dataflow="OECD.ECO.MAD,DSD_EO@DF_EO,1.0",
