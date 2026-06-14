@@ -45,6 +45,11 @@ const navActive = (prefix: string): boolean =>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    {/* Favicon. SVG is honored by all current browsers (Chrome, Firefox,
+        Edge, Safari 16+); the same file doubles as the Apple touch icon.
+        A raster .ico/.png fallback can be added later for very old UAs. */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
 
