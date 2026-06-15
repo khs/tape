@@ -1,10 +1,3 @@
 {
-  "_doc": "Referenced time-series sources that data-freshness.test.ts has confirmed are stale but ACCEPTED — the upstream genuinely publishes nothing newer (capped/discontinued), so the chart is as current as the source allows. Each entry needs a reason and, where a fix is pending, a task. A NEW freeze (e.g. a fetch break like oecd/jpn_cpi_yoy) will NOT be here, so the gate fails on it. When a source is fixed or stops being referenced, the gate also fails until its stale entry is removed, so this list cannot rot.",
-
-  "edu_spending/us_perpupil": { "reason": "Urban Institute Education Data API (CCD F-33) is capped at school year 2019-20; year=2021 returns 'Invalid year argument'. We already fetch the max available year.", "task": "re-source FY2022+ from Census F-33 / NCES flat files (separate pipeline)" },
-  "edu_spending/state_perpupil_ny": { "reason": "Urban Education Data API capped at SY2019-20 (see edu_spending/us_perpupil)." },
-  "edu_spending/state_perpupil_ma": { "reason": "Urban Education Data API capped at SY2019-20 (see edu_spending/us_perpupil)." },
-  "edu_spending/state_perpupil_tx": { "reason": "Urban Education Data API capped at SY2019-20 (see edu_spending/us_perpupil)." },
-  "edu_spending/state_perpupil_ut": { "reason": "Urban Education Data API capped at SY2019-20 (see edu_spending/us_perpupil)." },
-  "edu_spending/state_perpupil_ms": { "reason": "Urban Education Data API capped at SY2019-20 (see edu_spending/us_perpupil)." }
+  "_doc": "Referenced time-series sources that data-freshness.test.ts has confirmed are stale but ACCEPTED — the upstream genuinely publishes nothing newer (capped/discontinued), so the chart is as current as the source allows. Each entry needs a reason and, where a fix is pending, a task. A NEW freeze (e.g. a fetch break like oecd/jpn_cpi_yoy) will NOT be here, so the gate fails on it. When a source is fixed or stops being referenced, the gate also fails until its stale entry is removed, so this list cannot rot. (Currently empty: every referenced series is current.)"
 }
