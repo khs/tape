@@ -180,7 +180,13 @@ const ogD = state
 
 <BaseLayout
   title={`${state?.title ?? "Saved dashboard"} — Tape`}
+  description={
+    state?.title
+      ? `${state.title}. A dashboard built on Tape.`
+      : "A dashboard built on Tape."
+  }
   ogImage={ogD ? `/og.png?d=${encodeURIComponent(ogD)}` : undefined}
+  noindex
 >
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"

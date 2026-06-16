@@ -36,6 +36,7 @@ import { isVisibleChart } from "../../lib/resolve-dashboard";
 import type { CitationInput } from "../../lib/citation";
 import { canonicalOrigin } from "../../lib/site";
 import { jsonForScript } from "../../lib/json-island";
+import { breadcrumbList } from "../../lib/breadcrumb-jsonld";
 import { getMethodology } from "../../lib/methodology";
 
 // Server-rendered per request rather than statically generated. We
@@ -181,15 +182,29 @@ const datasetSchema = source
       url: canonicalUrl,
       license: provenance?.license,
       isAccessibleForFree: true,
-      creator: { "@type": "Organization", name: provenance?.provider ?? "Unknown" },
+      creator: {
+        "@type": "Organization",
+        name: provenance?.provider ?? "Unknown",
+        url: provenance?.url,
+      },
       temporalCoverage: dataStartIso && dataEndIso ? `${dataStartIso}/${dataEndIso}` : undefined,
+      dateModified: dataEndIso ?? undefined,
       variableMeasured: source.data.unit,
+      keywords: source.data.tags.length ? source.data.tags : undefined,
       // Deliberately NO `distribution` / DataDownload. Advertising the raw
       // JSON as a downloadable distribution invites scraping and implies the
       // files are free-to-grab public documents — they carry no license or
       // attribution metadata, so we don't present them that way. The chart UI
       // still fetches them at render time; we just don't link or list them.
     }
+  : null;
+
+// BreadcrumbList for the SERP breadcrumb rich result (Home > Source).
+const breadcrumbSchema = source
+  ? breadcrumbList([
+      { name: "Tape", url: `${siteOrigin}${baseUrl}/` },
+      { name: source.data.name, url: canonicalUrl },
+    ])
   : null;
 
 // Frequency: inferred from supportedDeltas. Not perfect (a source
@@ -217,7 +232,7 @@ const methodology = source ? getMethodology(source.data.pipeline) : null;
   title={source ? `${source.data.name} — Tape` : `Source not found — Tape`}
   description={
     source?.data.description ??
-    (source ? `${source.data.name} from ${provenance?.provider ?? "Unknown"} — full history, citation, license, and the dashboards that use it.` : undefined)
+    (source ? `${source.data.name} from ${provenance?.provider ?? "Unknown"}. Full history, citation, license, and the dashboards that use it.` : undefined)
   }
   ogImage={source ? `/og.png?source=${encodeURIComponent(sourceId)}` : undefined}
 >
@@ -227,6 +242,15 @@ const methodology = source ? getMethodology(source.data.pipeline) : null;
         is:inline
         type="application/ld+json"
         set:html={jsonForScript(datasetSchema)}
+      />
+    )
+  }
+  {
+    breadcrumbSchema && (
+      <script
+        is:inline
+        type="application/ld+json"
+        set:html={jsonForScript(breadcrumbSchema)}
       />
     )
   }

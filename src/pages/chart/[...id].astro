@@ -11,6 +11,9 @@ import {
 import { resolveBarSnapshot } from "../../lib/resolve-bar-snapshots";
 import { encodeComposedState } from "../../lib/composer-state";
 import AnalyticsDashboardView from "../../components/AnalyticsDashboardView.astro";
+import { canonicalOrigin } from "../../lib/site";
+import { jsonForScript } from "../../lib/json-island";
+import { breadcrumbList } from "../../lib/breadcrumb-jsonld";
 
 export async function getStaticPaths() {
   const charts = await getCollection("charts");
@@ -55,6 +58,38 @@ const composeUrl =
 // Source list for the dashboard_viewed telemetry event. Chart-detail pages
 // have exactly one chart, so this is the source set of that single chart.
 const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
+
+// JSON-LD: a chart detail page is a data visualization backed by named
+// sources, so advertise it as a schema.org Dataset (Google Dataset
+// Search + rich results) plus a BreadcrumbList for the SERP breadcrumb.
+// Mirrors the source detail page; the only origin-dependent piece is the
+// shared canonicalOrigin() helper.
+const siteOrigin = canonicalOrigin(Astro);
+const chartUrl = `${siteOrigin}${baseUrl}/chart/${chartId}/`;
+const firstProv = resolved?.sources[0]?.data.provenance;
+const datasetSchema = resolved
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: resolved.chart.data.title,
+      description: resolved.chart.data.blurb ?? "",
+      url: chartUrl,
+      isAccessibleForFree: true,
+      creator: firstProv
+        ? { "@type": "Organization", name: firstProv.provider, url: firstProv.url }
+        : undefined,
+      license: firstProv?.license,
+      keywords: resolved.chart.data.tags.length
+        ? resolved.chart.data.tags
+        : undefined,
+    }
+  : null;
+const breadcrumbSchema = resolved
+  ? breadcrumbList([
+      { name: "Tape", url: `${siteOrigin}${baseUrl}/` },
+      { name: resolved.chart.data.title, url: chartUrl },
+    ])
+  : null;
 ---
 
 <BaseLayout
@@ -62,6 +97,24 @@ const viewedSourceIds = resolved?.sources.map((s) => s.id) ?? [];
   description={resolved?.chart.data.blurb ?? "A single chart from the Tape library."}
   ogImage={`/og.png?chart=${encodeURIComponent(chartId)}`}
 >
+  {
+    datasetSchema && (
+      <script
+        is:inline
+        type="application/ld+json"
+        set:html={jsonForScript(datasetSchema)}
+      />
+    )
+  }
+  {
+    breadcrumbSchema && (
+      <script
+        is:inline
+        type="application/ld+json"
+        set:html={jsonForScript(breadcrumbSchema)}
+      />
+    )
+  }
   {/*
     Synchronous, runs before first paint. When this page is loaded
     INSIDE an iframe (the welcome-page COVERAGE popout overlay, or
