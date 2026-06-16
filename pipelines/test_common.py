@@ -3,7 +3,7 @@ Unit tests for pipelines/common.py helpers.
 
 Two cross-cutting behaviors with survival semantics:
 
-  - **Merge-on-write** for write_timeseries / write_curve. Existing
+  - **Merge-on-write** for write_timeseries. Existing
     on-disk points unioned with the new ones; newer values win on
     timestamp collision. Protects history if a future API restriction
     truncates a series's window.

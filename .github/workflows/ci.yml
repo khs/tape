@@ -78,7 +78,7 @@ jobs:
         #     template label. Also audits the checked-in
         #     generators-index.json.
         #   - test_common.py: locks down the merge-on-write semantics
-        #     in write_timeseries / write_curve and the TTL cache in
+        #     in write_timeseries and the TTL cache in
         #     cached_get. Without these tests it would be easy to
         #     silently regress to "overwrite, drop history" in a
         #     future common.py edit.

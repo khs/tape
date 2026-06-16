@@ -401,7 +401,7 @@ const statesJoined = stateCodes.join(",");
   aria-label={`${tileTitle}, open expanded map`}
 >
   <header class="chart-tile-header">
-    <h3 class="chart-tile-title">{tileTitle}</h3>
+    <div class="chart-tile-title">{tileTitle}</div>
     {summary && (
       <p class="map-eyebrow muted small">
         {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : "block groups"}
@@ -1671,6 +1671,10 @@ const statesJoined = stateCodes.join(",");
     dialog = document.createElement("dialog");
     dialog.id = "map-expand-dialog";
     dialog.className = "map-dialog";
+    // Accessible name: the dialog's visible title heading (its textContent is
+    // set per-open in showExpanded). aria-labelledby points at that heading so
+    // screen readers announce "<map title>, dialog" instead of a bare "dialog".
+    dialog.setAttribute("aria-labelledby", "map-dialog-title-h");
     // Build the scheme-picker options HTML once.
     const optsHtml = SCHEMES.map(
       (s) => `<option value="${s.key}">${s.label}</option>`,
@@ -1678,7 +1682,7 @@ const statesJoined = stateCodes.join(",");
     dialog.innerHTML = `
       <header class="map-dialog-header">
         <div class="map-dialog-titles">
-          <h3 class="map-dialog-title"></h3>
+          <h3 class="map-dialog-title" id="map-dialog-title-h"></h3>
           <p class="map-dialog-eyebrow muted small"></p>
         </div>
         <div class="map-dialog-actions">

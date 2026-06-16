@@ -458,6 +458,9 @@ const EDITORIAL_FEATURES: string[] = [
       const popoutClose = document.querySelector<HTMLButtonElement>(
         "[data-role='popout-close']",
       );
+      const popoutSentinel = document.querySelector<HTMLElement>(
+        "[data-role='popout-focus-sentinel']",
+      );
 
       // Track the element that had focus when the popout opened so we
       // can hand focus back on close — keeps keyboard users anchored
@@ -465,6 +468,14 @@ const EDITORIAL_FEATURES: string[] = [
       let popoutLastFocus: HTMLElement | null = null;
       function openPopout(chartHref: string): void {
         if (!popoutOverlay || !popoutIframe) return;
+        if (!popoutOverlay.hidden) {
+          // Already open (e.g. a second tile click while the overlay is
+          // up): swap the chart in place but keep the saved restore-focus
+          // target + scroll lock, so closing still returns focus to the
+          // original chip rather than to an element inside the overlay.
+          popoutIframe.src = chartHref;
+          return;
+        }
         popoutLastFocus = document.activeElement as HTMLElement | null;
         popoutIframe.src = chartHref;
         popoutOverlay.hidden = false;
@@ -509,14 +520,48 @@ const EDITORIAL_FEATURES: string[] = [
       });
 
       popoutClose?.addEventListener("click", closePopout);
+      // Forward focus-exit out of the iframe lands on the sentinel (the
+      // tab stop right after the iframe); bounce it back to the top of the
+      // overlay so focus can't reach the page sitting behind the modal.
+      popoutSentinel?.addEventListener("focus", () => {
+        if (popoutOverlay && !popoutOverlay.hidden) popoutClose?.focus();
+      });
       // Click outside the modal iframe (on the dimming backdrop) closes.
       popoutOverlay?.addEventListener("click", (e) => {
         if (e.target === popoutOverlay) closePopout();
       });
-      // Esc closes — standard expected behavior for modal overlays.
+      // Esc closes; Tab is trapped inside the overlay so keyboard focus
+      // can't wander onto the welcome page sitting behind the modal.
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && popoutOverlay && !popoutOverlay.hidden) {
+        if (!popoutOverlay || popoutOverlay.hidden) return;
+        if (e.key === "Escape") {
           closePopout();
+          return;
+        }
+        if (e.key !== "Tab") return;
+        // Focus trap. The overlay's own focusable controls are the close
+        // button and the iframe element; wrap at both ends so Tab /
+        // Shift+Tab cycle between them instead of escaping to the page
+        // behind. (Once focus descends INTO the same-origin iframe's own
+        // document, its internal tab order is the embed's concern — those
+        // Tab presses fire in the iframe document, not on this handler.)
+        const focusable = Array.from(
+          popoutOverlay.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((el) => el.dataset.role !== "popout-focus-sentinel");
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey) {
+          if (active === first || !popoutOverlay.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else if (active === last || !popoutOverlay.contains(active)) {
+          e.preventDefault();
+          first.focus();
         }
       });
 
@@ -717,6 +762,18 @@ const EDITORIAL_FEATURES: string[] = [
         src="about:blank"
         title="Expanded chart view"
       ></iframe>
+      {/* Focus sentinel. When the user Tabs forward past the iframe's own
+          last control, focus lands here (the next tab stop after the
+          iframe) and the handler bounces it back to the close button.
+          That closes the one-keypress gap where focus would otherwise
+          advance to a welcome-page element behind the modal. The parent
+          keydown trap can't catch that Tab: it fires inside the
+          same-origin iframe's document, not on this page. */}
+      <div
+        data-role="popout-focus-sentinel"
+        tabindex="0"
+        style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;"
+      ></div>
     </div>
 
     {/* Newsletter signup — quiet, low-friction. Anonymous visitors

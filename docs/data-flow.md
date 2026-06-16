@@ -105,8 +105,6 @@ on-disk contract:
   upstream API truncates its window. `projections` (vintage_date → points)
   merge the same way for forecast-bearing series. Pipelines that fully
   re-derive each run pass `merge=False`.
-- `write_curve(...)` → `kind:"curve"` with `snapshots` keyed/merged by `asOf`
-  (forward curves).
 - `cached_get(url, ttl_seconds, ...)` — HTTP GET with a SHA-256-keyed on-disk
   TTL cache under `pipelines/_response_cache/` (gitignored). Lazy-imports
   `requests`.

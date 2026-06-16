@@ -6,7 +6,7 @@ JSON into ``public/data/<pipeline>/<id>.json``. The JSON format matches the
 TypeScript ``SourceData`` interface in ``src/lib/data-types.ts``.
 
 Two cross-cutting behaviors live here and benefit every pipeline that calls
-``write_timeseries`` / ``write_curve``:
+``write_timeseries``:
 
   - **Merge-on-write.** A pipeline's "new" points list is unioned with whatever
     is already on disk before the file is written. If a future API restriction
@@ -252,58 +252,6 @@ def write_timeseries(
         )
         return out
     _write_json(out, payload)
-    return out
-
-
-def write_curve(
-    pipeline: str,
-    series_id: str,
-    name: str,
-    snapshots: list[dict[str, Any]],
-    unit: str | None = None,
-    *,
-    merge: bool = True,
-) -> Path:
-    """
-    Write a curve JSON file. ``snapshots`` is a list of
-    ``{"asOf": iso_date, "points": [{"tenor": str, "tenorMonths": int, "v": float}, ...]}``
-    ordered chronologically (oldest first).
-
-    ``merge`` (default True) unions snapshots by ``asOf`` date with the
-    existing on-disk file — same survival semantics as the timeseries
-    variant. Each new snapshot from the same asOf date replaces the
-    older one (legitimate restatement); historical snapshots from
-    earlier asOf dates are preserved.
-    """
-    out = DATA_ROOT / pipeline / f"{series_id}.json"
-    if merge:
-        prior = _read_existing_payload(out)
-        if prior is not None:
-            prior_snapshots = prior.get("snapshots")
-            if isinstance(prior_snapshots, list):
-                # Snapshots are keyed by asOf rather than t, but the
-                # merge mechanic is otherwise identical.
-                merged: dict[str, dict[str, Any]] = {}
-                for s in prior_snapshots:
-                    k = s.get("asOf")
-                    if isinstance(k, str):
-                        merged[k] = s
-                for s in snapshots:
-                    k = s.get("asOf")
-                    if isinstance(k, str):
-                        merged[k] = s
-                snapshots = [merged[k] for k in sorted(merged)]
-    _write_json(
-        out,
-        {
-            "id": series_id,
-            "name": name,
-            "kind": "curve",
-            "unit": unit,
-            "lastUpdated": utc_now_iso(),
-            "snapshots": snapshots,
-        },
-    )
     return out
 
 
