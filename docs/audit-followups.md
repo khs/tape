@@ -44,8 +44,8 @@ no `astro build`, no `astro dev`; Chrome MCP currently disconnected).
    header shipped first (commit 86f5a6e04b) and was later promoted to
    enforcing with `'unsafe-inline'`.
    ```
-   default-src 'self'; script-src 'self' https://us.i.posthog.com;
-   style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self';
+   default-src 'self'; script-src 'self' 'unsafe-inline' https://us.i.posthog.com;
+   style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:;
    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://us.i.posthog.com https://us-assets.i.posthog.com;
    object-src 'none'; base-uri 'self'
    ```

@@ -7,7 +7,9 @@ description: General government gross financial liabilities as % of GDP. OECD Ec
 # sovereign wealth fund makes the gross-liabilities ratio non-meaningful
 # as a projection variable; its deficit series is still published). There
 # is no drop-in successor in DF_EO, so this stays hidden permanently.
-# Unreferenced by any chart. Listed in the freshness-gate allowlist.
+# Unreferenced by any chart, so it is exempt from the freshness gate (that
+# gate only checks chart-referenced series); the --full audit's cohort
+# pass allowlists it in scripts/audit-source-data.mjs so it stops warning.
 hidden: true
 kind: timeseries
 pipeline: oecd

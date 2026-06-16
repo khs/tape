@@ -554,6 +554,18 @@ async function main() {
   // hit is a real freeze, not a country reporting a quarter behind.
   const COHORT_STALE_MS = 400 * 24 * 60 * 60 * 1000; // ~13 months
   const MIN_COHORT = 3;
+  // Known-and-accepted cohort outliers: unreferenced series whose upstream
+  // genuinely stopped (no successor), so the staleness warning is expected
+  // recurring noise, not a new break. Unlike the vitest freshness gate this
+  // --full pass had no allowlist, so a permanently-retired member would warn
+  // on every CI run and blend a real future freeze into the noise. Keep tiny.
+  /** @type {Record<string, string>} */
+  const AUDIT_COHORT_ALLOWLIST = {
+    "oecd/nor_gov_debt_pct_gdp":
+      "OECD dropped Norway from the EO gross-debt series; no successor (retired).",
+    "oecd/tur_life_expectancy":
+      "OECD DF_LE for Turkey has a pre-2017 vintage discontinuity and lags ~1yr; retired (unreferenced).",
+  };
   /** @type {Map<string, typeof cohortMembers>} */
   const byCohort = new Map();
   for (const m of cohortMembers) {
@@ -573,6 +585,12 @@ async function main() {
       const ms = Date.parse(m.lastT);
       if (Number.isNaN(ms)) continue;
       if (maxMs - ms > COHORT_STALE_MS) {
+        if (AUDIT_COHORT_ALLOWLIST[m.id]) {
+          console.log(
+            `[data-audit] cohort outlier (allowlisted, accepted): ${m.id} (${AUDIT_COHORT_ALLOWLIST[m.id]})`,
+          );
+          continue;
+        }
         const behindDays = Math.round((maxMs - ms) / 86400000);
         const reason =
           `data ends ${m.lastT}, ${behindDays} days behind its cohort ` +
