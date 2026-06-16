@@ -128,8 +128,6 @@ export function formatValue(v: number, fmt: Formatting): string {
       formatted = new Intl.NumberFormat("en-US", opts).format(scaled);
   }
 
-  if (fmt.prefix) formatted = fmt.prefix + formatted;
-  if (fmt.suffix) formatted = formatted + fmt.suffix;
   // Swap the ASCII hyphen-minus (U+002D) for the typographic Unicode
   // minus sign (U+2212) on negative values. The Inter / system-font
   // hyphen-minus glyph is thin and short — at chart-axis sizes
@@ -140,9 +138,17 @@ export function formatValue(v: number, fmt: Formatting): string {
   // touches the leading sign — internal dashes (e.g. inside an
   // accounting-style "(123)" placeholder, dates, ISO strings) stay
   // alone because formatValue never emits those.
+  //
+  // This MUST run on the numeric core before the prefix is attached:
+  // a prefix like "$" would otherwise make the string no longer start
+  // with "-", so the swap silently no-ops and a negative $-prefixed
+  // value (e.g. a falling commodity-price delta) ships the very thin
+  // hyphen this is meant to replace.
   if (formatted.startsWith("-")) {
     formatted = "−" + formatted.slice(1);
   }
+  if (fmt.prefix) formatted = fmt.prefix + formatted;
+  if (fmt.suffix) formatted = formatted + fmt.suffix;
   return formatted;
 }
 

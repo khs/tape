@@ -137,8 +137,11 @@ function applyInline(line: string): string {
  */
 export function renderMarkdown(input: string): string {
   if (!input) return "";
-  // Normalize line endings.
-  const text = input.replace(/\r\n?/g, "\n");
+  // Normalize line endings, and strip the control-char sentinels the
+  // renderer uses internally (U+0001 in applyInline, U+0002 for the
+  // synthetic line-break marker in flushParagraph) so a user-typed copy
+  // of either can't collide with the placeholder machinery.
+  const text = input.replace(/\r\n?/g, "\n").replace(/[]/g, "");
   const lines = text.split("\n");
   const out: string[] = [];
 
@@ -152,17 +155,22 @@ export function renderMarkdown(input: string): string {
     // Join lines within a paragraph with <br/> when each line ends
     // with "  " (two spaces), else with a space. Then run inline on
     // the joined text.
+    // Mark hard line-breaks (a line ending in two spaces) with a control
+    // sentinel, NOT a literal "<br/>": if we split on a literal "<br/>",
+    // a user who TYPED "<br/>" would have it treated as a synthetic break
+    // and smuggle a real tag past applyInline's escaping. The sentinel
+    // (U+0002) is stripped from user input during normalization, so each
+    // part runs through applyInline (which escapes any typed "<br/>" to
+    // text) and the parts are then re-joined with the real break tag.
+    const BR = "";
     const joined = para
       .map((l, idx) => {
         const hasBr = l.endsWith("  ");
         const stripped = hasBr ? l.slice(0, -2) : l;
-        return stripped + (idx < para.length - 1 ? (hasBr ? "<br/>" : " ") : "");
+        return stripped + (idx < para.length - 1 ? (hasBr ? BR : " ") : "");
       })
       .join("");
-    // hasBr was already inlined as a literal <br/> string above; need
-    // to render it as raw HTML (not escaped). Detect those and
-    // assemble a final string where <br/> markers stay literal.
-    const parts = joined.split("<br/>");
+    const parts = joined.split(BR);
     const rendered = parts.map((p) => applyInline(p)).join("<br/>");
     out.push(`<p>${rendered}</p>`);
     para = [];

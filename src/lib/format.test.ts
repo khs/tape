@@ -36,6 +36,27 @@ describe("formatValue — basic styles", () => {
       }),
     ).toBe(">42x");
   });
+
+  it("applies the Unicode minus on negatives even when a prefix is set", () => {
+    // Regression: the minus-swap used to run AFTER the prefix was
+    // prepended, so a "$"-prefixed negative (e.g. a falling commodity
+    // delta like silver/gold futures) kept the thin ASCII hyphen. The
+    // swap must hit the numeric core first → "$−2.50 /oz", not "$-2.50".
+    const out = formatValue(-2.5, {
+      style: "number",
+      decimals: 2,
+      prefix: "$",
+      suffix: " /oz",
+    });
+    expect(out).toBe("$−2.50 /oz");
+    expect(out).not.toContain("-"); // no ASCII hyphen (U+002D) anywhere
+  });
+
+  it("still uses the Unicode minus for a bare currency negative", () => {
+    expect(formatValue(-2.5, { style: "currency", decimals: 2 })).toBe(
+      "−$2.50",
+    );
+  });
 });
 
 describe("formatValue — scaleFactor", () => {

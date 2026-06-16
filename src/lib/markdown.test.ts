@@ -48,6 +48,19 @@ describe("renderMarkdown — paragraphs + inline", () => {
     );
   });
 
+  it("escapes a user-typed literal <br/> instead of emitting a real break", () => {
+    // Regression: flushParagraph used to split on the literal string
+    // "<br/>", so a "<br/>" the user typed survived as a real tag. It
+    // must be escaped like any other raw HTML.
+    expect(renderMarkdown("a<br/>b")).toBe("<p>a&lt;br/&gt;b</p>");
+  });
+
+  it("keeps real two-space breaks while still escaping a typed <br/>", () => {
+    expect(renderMarkdown("a<br/>b  \nc")).toBe(
+      "<p>a&lt;br/&gt;b<br/>c</p>",
+    );
+  });
+
   it("breaks paragraphs on blank lines", () => {
     expect(renderMarkdown("first para\n\nsecond para")).toBe(
       "<p>first para</p>\n<p>second para</p>",
