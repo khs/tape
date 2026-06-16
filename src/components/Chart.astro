@@ -758,7 +758,7 @@ const mostRecentUpdate = payload.sources
       anyLoadError ? (
         <p class="dialog-error">{anyLoadError.loadError}</p>
       ) : isMulti ? (
-        <div class="dialog-multi-readouts" data-role="multi-readouts">
+        <div class="dialog-multi-readouts" data-role="multi-readouts" aria-live="polite">
           {perSource.map((p) => (
             <div class="multi-readout-row tabular" data-source-id={p.id}>
               <span class="series-dot" style={`background: ${p.color}`} />
@@ -791,7 +791,7 @@ const mostRecentUpdate = payload.sources
         </div>
       ) : (
         <>
-          <div class="readout-row tabular">
+          <div class="readout-row tabular" aria-live="polite" aria-atomic="true">
             <span class="readout-value" data-role="value">
               {primary.currentStr}
             </span>

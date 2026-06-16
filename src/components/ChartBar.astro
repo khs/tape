@@ -463,6 +463,13 @@ const payload = {
     border-color: rgba(55, 53, 47, 0.18);
     box-shadow: 0 1px 3px rgba(55, 53, 47, 0.06);
   }
+  /* Match the line tile's focus ring (Chart.astro's rule is scoped to
+     that component, so the shared .chart-tile class doesn't inherit it
+     here): keeps all tile types focusing identically. */
+  .chart-bar-tile:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
   .chart-bar-tile .tile-head {
     display: flex;
     flex-direction: column;

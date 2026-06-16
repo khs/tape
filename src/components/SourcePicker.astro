@@ -1647,7 +1647,13 @@ const extraSourcesJson = extraSources.length > 0
     border: 0;
     border-bottom: 1px solid rgba(55, 53, 47, 0.08);
     font-size: 13px;
-    outline: none;
+  }
+  /* Focus is moved into this input when the popover opens, so it needs a
+     visible focus indicator (WCAG 2.4.7). Mirror the main search outline
+     rather than the previous outline:none. */
+  .source-picker-geo-search:focus {
+    outline: 2px solid var(--color-accent, #0F766E);
+    outline-offset: -2px;
   }
   .source-picker-geo-list {
     flex: 1 1 auto;
@@ -1706,7 +1712,8 @@ const extraSourcesJson = extraSources.length > 0
     padding: 2px 4px;
   }
   .source-picker-geo-cd-select:focus {
-    outline: none;
+    outline: 2px solid var(--color-accent, #0F766E);
+    outline-offset: 1px;
     background: var(--color-white, #fff);
   }
   /* Disabled card -- e.g. the source picked on the other A/B side in the

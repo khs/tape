@@ -142,3 +142,21 @@ mark.todo {
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(55, 53, 47, 0.08);
 }
+
+/* Honor the OS-level "reduce motion" setting site-wide. Neutralizes CSS
+   transitions, animations (including compose.css's hover-merge-fill
+   progress keyframe), and smooth-scroll for users who opt out of motion.
+   Uses the widely-adopted near-zero-duration approach so functional state
+   changes still apply instantly without animating. Previously only
+   welcome.astro honored this; this covers every component in one place.
+   (WCAG 2.3.3 Animation from Interactions; supports 2.2.2.) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1720,7 +1720,7 @@ const statesJoined = stateCodes.join(",");
         <p class="muted small">
           Reference: Crameri, Shephard &amp; Heron,
           <a href="https://doi.org/10.1038/s41467-020-19160-7"
-             target="_blank" rel="noopener">The misuse of colour in
+             target="_blank" rel="noopener noreferrer">The misuse of colour in
           science communication</a> (Nature Communications, 2020).
         </p>
       </details>
@@ -2138,6 +2138,14 @@ const statesJoined = stateCodes.join(",");
        chart-grid template falls back gracefully on narrow viewports
        where there's only one column anyway. */
     grid-column: span 2;
+  }
+  /* The map tile is a focusable role=button article; the line tile's
+     focus ring (Chart.astro) is component-scoped and doesn't reach here,
+     so define a matching one so all tile types focus identically and a
+     future global outline reset can't make this an invisible-focus bug. */
+  .map-tile:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
   @media (max-width: 720px) {
     .map-tile { grid-column: span 1; }
