@@ -1,0 +1,23 @@
+name: Colorado labor force
+shortName: CO labor force
+description: "Local Area Unemployment Statistics, Colorado labor force level, monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_labor_force_co.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST080000000000006
+  url: https://data.bls.gov/timeseries/LASST080000000000006
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: count

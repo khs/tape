@@ -179,6 +179,43 @@ def state_payrolls_specs() -> list[BlsSpec]:
     return out
 
 
+# LAUS measure codes beyond the headline unemployment rate (003, covered by
+# state_unemployment_specs). Each tuple is (measure, out_id stem, label
+# suffix, unit). Verified live against the California series 2026-06:
+# employment 18.67M, labor force 19.72M, employed + unemployed == labor
+# force exactly, and 1 - employed/labor-force reproduces the published
+# unemployment rate (5.3%). Levels are RAW PERSON COUNTS (not thousands —
+# that caveat is CES-only), stored raw per the canonical-units invariant.
+LAUS_MEASURES: list[tuple[str, str, str, str]] = [
+    ("004", "unemployed",     "unemployment level",                 "people"),
+    ("005", "employed",       "employment level (household survey)", "people"),
+    ("006", "labor_force",    "labor force",                        "people"),
+    ("007", "emp_pop_ratio",  "employment-population ratio",        "%"),
+    ("008", "lfpr",           "labor force participation rate",     "%"),
+]
+
+
+def state_labor_force_specs() -> list[BlsSpec]:
+    """
+    LAUS state-level labor-force measures beyond the headline unemployment
+    rate. Series IDs: LASST + <FIPS> + 0000000000 + <measure>. SA, monthly.
+    See LAUS_MEASURES for the per-measure codes, units, and the live
+    California cross-check that pins down units + measure semantics.
+    """
+    out: list[BlsSpec] = []
+    for fips, (abbr, name) in US_STATES.items():
+        for code, stem, suffix, unit in LAUS_MEASURES:
+            out.append(
+                BlsSpec(
+                    series_id=f"LASST{fips}0000000000{code}",
+                    out_id=f"state_{stem}_{abbr.lower()}",
+                    label=f"{name} {suffix}",
+                    unit=unit,
+                )
+            )
+    return out
+
+
 # Curated set. Categories:
 #   1. CPI subcomponents — beyond what FRED carries broadly
 #   2. JOLTS by industry — labor demand granularity
@@ -245,7 +282,12 @@ SERIES: list[BlsSpec] = [
         "discontinued FRED Washington-Baltimore CMSA series.",
     ),
     # ---- State-level series follow, generated programmatically. ----
-] + state_unemployment_specs() + state_payrolls_specs() + dc_metro_county_unemployment_specs()
+] + (
+    state_unemployment_specs()
+    + state_payrolls_specs()
+    + state_labor_force_specs()
+    + dc_metro_county_unemployment_specs()
+)
 
 
 def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:
@@ -328,8 +370,25 @@ def bls_period_to_iso(year: str, period: str) -> str | None:
 
 
 def main() -> int:
+    # Optional CLI subset: any positional args filter SERIES to specs whose
+    # out_id or series_id contains one of the tokens. Lets us refetch just a
+    # new family (e.g. `python pipelines/bls.py state_lfpr state_employed`)
+    # without burning the keyless API's 25-queries/day budget on the ~117
+    # series we already have, and without polluting the commit diff with
+    # routine refreshes of unrelated series.
+    tokens = [a for a in sys.argv[1:] if not a.startswith("-")]
+    series = SERIES
+    if tokens:
+        series = [
+            s for s in SERIES
+            if any(t in s.out_id or t in s.series_id for t in tokens)
+        ]
+        print(
+            f"Subset: {len(series)}/{len(SERIES)} series match {tokens}",
+            flush=True,
+        )
     # Batch up to 25 per request.
-    batches = [SERIES[i : i + 25] for i in range(0, len(SERIES), 25)]
+    batches = [series[i : i + 25] for i in range(0, len(series), 25)]
     all_data: dict[str, list[dict]] = {}
     for batch in batches:
         ids = [s.series_id for s in batch]
@@ -341,7 +400,7 @@ def main() -> int:
             continue
         all_data.update(data)
 
-    for spec in SERIES:
+    for spec in series:
         rows = all_data.get(spec.series_id, [])
         if not rows:
             print(f"  {spec.series_id}: no data", file=sys.stderr)

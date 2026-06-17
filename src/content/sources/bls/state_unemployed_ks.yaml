@@ -1,0 +1,23 @@
+name: Kansas unemployment level
+shortName: KS unemployed
+description: "Local Area Unemployment Statistics, Kansas unemployment level (number of people unemployed), monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_unemployed_ks.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST200000000000004
+  url: https://data.bls.gov/timeseries/LASST200000000000004
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: count

@@ -1,0 +1,22 @@
+name: Arkansas employment-population ratio
+shortName: AR emp-pop ratio
+description: "Local Area Unemployment Statistics, Arkansas employment-population ratio, monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_emp_pop_ratio_ar.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST050000000000007
+  url: https://data.bls.gov/timeseries/LASST050000000000007
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: rate

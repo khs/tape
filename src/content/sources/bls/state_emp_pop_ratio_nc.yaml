@@ -1,0 +1,22 @@
+name: North Carolina employment-population ratio
+shortName: NC emp-pop ratio
+description: "Local Area Unemployment Statistics, North Carolina employment-population ratio, monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_emp_pop_ratio_nc.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST370000000000007
+  url: https://data.bls.gov/timeseries/LASST370000000000007
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: rate

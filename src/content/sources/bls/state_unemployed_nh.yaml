@@ -1,0 +1,23 @@
+name: New Hampshire unemployment level
+shortName: NH unemployed
+description: "Local Area Unemployment Statistics, New Hampshire unemployment level (number of people unemployed), monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_unemployed_nh.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST330000000000004
+  url: https://data.bls.gov/timeseries/LASST330000000000004
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: count

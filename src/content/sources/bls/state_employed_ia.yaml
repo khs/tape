@@ -1,0 +1,23 @@
+name: Iowa employment level
+shortName: IA employed
+description: "Local Area Unemployment Statistics, Iowa employment level from the household survey, monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_employed_ia.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST190000000000005
+  url: https://data.bls.gov/timeseries/LASST190000000000005
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: count

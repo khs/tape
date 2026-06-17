@@ -1,0 +1,23 @@
+name: Louisiana employment level
+shortName: LA employed
+description: "Local Area Unemployment Statistics, Louisiana employment level from the household survey, monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_employed_la.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: people
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST220000000000005
+  url: https://data.bls.gov/timeseries/LASST220000000000005
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: count

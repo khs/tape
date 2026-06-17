@@ -1,0 +1,22 @@
+name: Oklahoma labor force participation rate
+shortName: OK participation
+description: "Local Area Unemployment Statistics, Oklahoma labor force participation rate, monthly, seasonally adjusted."
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/state_lfpr_ok.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LASST400000000000008
+  url: https://data.bls.gov/timeseries/LASST400000000000008
+  license: Public domain (US government data)
+tags:
+  - labor
+  - macro
+  - us
+unitClass: rate

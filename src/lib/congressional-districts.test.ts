@@ -211,6 +211,17 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("bls/state_payrolls_ca")).toEqual({ state: "ca" });
   });
 
+  it("parses BLS LAUS labor-force measures, incl. multi-underscore stems", () => {
+    // The labor-force expansion adds stems like emp_pop_ratio / labor_force
+    // whose internal underscores must not fool the `_([a-z]{2})$` capture —
+    // greedy `.+` has to backtrack to leave the trailing state code.
+    expect(parseStateSourceId("bls/state_employed_ca")).toEqual({ state: "ca" });
+    expect(parseStateSourceId("bls/state_unemployed_wy")).toEqual({ state: "wy" });
+    expect(parseStateSourceId("bls/state_labor_force_tx")).toEqual({ state: "tx" });
+    expect(parseStateSourceId("bls/state_emp_pop_ratio_dc")).toEqual({ state: "dc" });
+    expect(parseStateSourceId("bls/state_lfpr_ny")).toEqual({ state: "ny" });
+  });
+
   it("parses Census state-government-finance series", () => {
     expect(parseStateSourceId("census_govfin/state_totexp_ca")).toEqual({ state: "ca" });
     expect(parseStateSourceId("census_govfin/state_welfexp_tx")).toEqual({ state: "tx" });
