@@ -21,9 +21,14 @@ This script builds the two crosswalks the ACS pipeline needs:
     118th CD (via the BAF).
 
 Inputs (downloaded fresh each run):
-  - Per-state Block Assignment Files (BAFs):
-    https://www2.census.gov/geo/docs/maps-data/data/baf2020/BlockAssign_ST<FIPS>_<ABBR>.zip
-    Inside each, BlockAssign_ST<FIPS>_<ABBR>_CD.txt maps 2020 blocks to 118th CDs.
+  - The national 118th-Congress Block Equivalency File (cd118.zip, Census
+    Redistricting Data Office): one comma-delimited member per state,
+    "<FIPS>_<ABBR>_CD118.txt", header GEOID,CDFP, mapping 2020 blocks to
+    118th CDs. This is the AUTHORITATIVE 118th map; an earlier version of
+    this script used baf2020/BlockAssign_*_CD.txt, which carried 116th
+    districts despite the cd118 name (CA=53/TX=36/NC=13/MT at-large) and
+    produced stale geography. The BEF is verified 118th (CA=52/TX=38/
+    NC=14/MT=2, 435 seats).
 
   - Per-state 2010-to-2020 block correspondence files:
     https://www2.census.gov/geo/docs/maps-data/data/rel2020/t10t20/TAB2010_TAB2020_ST<FIPS>.zip
@@ -65,6 +70,18 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = REPO_ROOT / "pipelines" / "_crosswalks_cache"
 OUT_DIR = REPO_ROOT / "pipelines" / "_crosswalks"
 
+# Census 2020 Census 118th-Congressional-District Block Equivalency File
+# (RDO). A single national archive with one comma-delimited member per
+# state, "<FIPS>_<ABBR>_CD118.txt". This is the TRUE 118th-Congress
+# block-to-CD map. It replaces the old baf2020 BlockAssign_*_CD.txt
+# source, which silently carried 116th-Congress districts (CA=53, TX=36,
+# NC=13, MT at-large) despite the cd118 naming. Verified 118th here:
+# CA=52, TX=38, NC=14, MT=2 (01/02), 435 seats total.
+CD118_URL = (
+    "https://www2.census.gov/programs-surveys/decennial/rdo/mapping-files/"
+    "2023/118-congressional-district-bef/cd118.zip"
+)
+
 # State FIPS -> abbreviation. 50 states + DC; Census BAFs exist for all of these.
 STATES: list[tuple[str, str]] = [
     ("01", "AL"), ("02", "AK"), ("04", "AZ"), ("05", "AR"), ("06", "CA"),
@@ -97,30 +114,44 @@ def fetch(url: str, dest: Path) -> bool:
     return dest.stat().st_size > 0
 
 
+def cd118_zip() -> Path | None:
+    """Download the national 118th-CD Block Equivalency File once, cached."""
+    zip_path = CACHE_DIR / "cd118.zip"
+    return zip_path if fetch(CD118_URL, zip_path) else None
+
+
 def read_baf_cd(fips: str, abbr: str) -> dict[str, str]:
     """
-    Returns {block_geoid_15: cd_2digit} for one state's 2020 blocks.
+    Returns {block_geoid_15: cd_2digit} for one state's 2020 blocks, on
+    TRUE 118th-Congress districts.
 
-    BAF file format (pipe-delimited):
-        BLOCKID|DISTRICT
-        510010901011000|02
-    Districts of "00" / "98" / "ZZ" are non-voting placeholders we skip.
+    Source: the national cd118.zip (CD118_URL), one comma-delimited member
+    per state named "<FIPS>_<ABBR>_CD118.txt":
+        GEOID,CDFP
+        010010201001000,02
+    (Previously this pulled baf2020/BlockAssign_*_CD.txt, which carried
+    116th-Congress districts despite the cd118 naming — that was the
+    boundary bug this swap fixes.)
+
+    Districts "ZZ" / "98" are non-voting placeholders we skip. "00" is the
+    at-large designator for single-CD states (AK, DE, ND, SD, VT, WY);
+    keep it — it's a real CD, just encoded as 00 instead of 01. Montana,
+    at-large in the 116th, now has numbered districts 01/02.
     """
-    url = f"https://www2.census.gov/geo/docs/maps-data/data/baf2020/BlockAssign_ST{fips}_{abbr}.zip"
-    zip_path = CACHE_DIR / f"baf_{abbr}.zip"
-    if not fetch(url, zip_path):
+    zip_path = cd118_zip()
+    if zip_path is None:
         return {}
+    inner = f"{fips}_{abbr}_CD118.txt"
     try:
         with zipfile.ZipFile(zip_path) as zf:
-            inner = f"BlockAssign_ST{fips}_{abbr}_CD.txt"
             with zf.open(inner) as fh:
                 content = fh.read().decode("utf-8", errors="replace")
     except (zipfile.BadZipFile, KeyError) as e:
-        print(f"    bad zip {zip_path}: {e}", file=sys.stderr)
+        print(f"    bad zip / missing member {inner}: {e}", file=sys.stderr)
         return {}
     out: dict[str, str] = {}
-    for line in content.splitlines()[1:]:  # skip header
-        parts = line.split("|")
+    for line in content.splitlines()[1:]:  # skip "GEOID,CDFP" header
+        parts = line.split(",")
         if len(parts) < 2:
             continue
         block_id, cd = parts[0].strip(), parts[1].strip()
@@ -130,9 +161,6 @@ def read_baf_cd(fips: str, abbr: str) -> dict[str, str]:
             # ZZ = territory / not in any CD. 98 = non-voting delegate
             # (DC, PR, etc). We drop both.
             continue
-        # "00" is the at-large designator for single-CD states (AK, DE,
-        # ND, SD, VT, WY currently — Montana had it pre-2022 split).
-        # Keep these — they're real CDs, just encoded as 00 instead of 01.
         out[block_id] = cd
     return out
 

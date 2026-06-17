@@ -48,6 +48,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import defaultdict
@@ -1332,6 +1333,9 @@ def main() -> int:
     written = 0
     redirected = 0
     skipped_unknown = 0
+    # Track every district slug we actually emit to acs_cd this run, so we
+    # can prune superseded districts afterwards (see below).
+    acs_cd_slugs_written: set[str] = set()
     for (out_id, slug), points in series_accum.items():
         if not points:
             continue
@@ -1391,6 +1395,7 @@ def main() -> int:
             merge=False,
         )
         written += 1
+        acs_cd_slugs_written.add(slug)
     # Cache summary: how much upstream traffic did we save this run?
     th = _cache_stats["tract_hit"]
     tm = _cache_stats["tract_miss"]
@@ -1405,6 +1410,39 @@ def main() -> int:
         f"cd {ch}/{cd_total} hit ({cd_pct})",
         flush=True,
     )
+
+    # Prune superseded districts. write_timeseries only overwrites; nothing
+    # here used to remove a slug the crosswalk no longer produces. So a
+    # redistricting renumber (ca_53 -> ca_52, MT at-large -> mt_01/mt_02)
+    # left the stale files on disk, and derive_acs_state_from_cd.py — which
+    # SUMS every acs_cd series for a state — then double-counted old + new
+    # districts into a bogus state total (MT pop read ~2x). Delete any
+    # acs_cd file whose slug we did NOT write this run. Guarded: a run that
+    # wrote implausibly few slugs (interrupted / failed) skips pruning so it
+    # can't wipe the catalog.
+    pruned = 0
+    if len(acs_cd_slugs_written) < 400:
+        print(
+            f"acs_cd: prune SKIPPED — only {len(acs_cd_slugs_written)} slugs "
+            f"written (expected ~429); refusing to prune to avoid data loss",
+            file=sys.stderr,
+        )
+    else:
+        slug_rx = re.compile(r"_([a-z]{2}_[a-z0-9]{2})$")
+        acs_cd_dir = REPO_ROOT / "public" / "data" / "acs_cd"
+        for p in acs_cd_dir.glob("*.json"):
+            stem = (
+                p.name[: -len(".summary.json")]
+                if p.name.endswith(".summary.json")
+                else p.stem
+            )
+            m = slug_rx.search(stem)
+            if m and m.group(1) not in acs_cd_slugs_written:
+                p.unlink()
+                pruned += 1
+        if pruned:
+            print(f"acs_cd: pruned {pruned} orphan files "
+                  f"(districts no longer in the crosswalk universe)", flush=True)
 
     print(f"\nacs_cd: wrote {written} stable-geo series across "
           f"{len(ACS_VINTAGES)} vintages "

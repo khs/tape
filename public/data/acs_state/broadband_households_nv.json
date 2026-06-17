@@ -3,15 +3,15 @@
   "name": "Households with broadband internet \u2014 NV",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-12T18:43:29Z",
+  "lastUpdated": "2026-06-17T19:27:52Z",
   "points": [
     {
       "t": "2017-12-31",
-      "v": 839512
+      "v": 839513
     },
     {
       "t": "2018-12-31",
-      "v": 880180
+      "v": 880179
     },
     {
       "t": "2019-12-31",

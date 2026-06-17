@@ -3,7 +3,7 @@
   "name": "Households with broadband internet \u2014 NE",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-12T18:43:29Z",
+  "lastUpdated": "2026-06-17T19:27:52Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -19,11 +19,11 @@
     },
     {
       "t": "2020-12-31",
-      "v": 609689
+      "v": 609690
     },
     {
       "t": "2021-12-31",
-      "v": 619397
+      "v": 619396
     },
     {
       "t": "2022-12-31",

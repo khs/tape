@@ -623,7 +623,27 @@ def main() -> int:
         written += w
         skipped += s
 
-    print(f"Wrote {written} new source YAMLs ({skipped} already existed).")
+    # Prune orphan YAMLs: every acs_cd source YAML carries a 1:1
+    # dataFile (data/acs_cd/<stem>.json). census_acs_cd.py now deletes
+    # data files for districts the crosswalk no longer produces (e.g. a
+    # redistricting renumber), so a stale YAML would be left pointing at a
+    # dead dataFile — breaking chart resolution and, because
+    # derive_acs_state_from_cd.py globs these YAMLs to enumerate a state's
+    # districts, double-counting the state total. Guarded: skip if the
+    # data dir looks empty (a failed upstream run) so we never mass-delete.
+    pruned = 0
+    data_count = sum(1 for _ in DATA_DIR.glob("*.json"))
+    if data_count > 1000:
+        for yaml_path in SOURCES_DIR.glob("*.yaml"):
+            if not (DATA_DIR / f"{yaml_path.stem}.json").exists():
+                yaml_path.unlink()
+                pruned += 1
+    else:
+        print(f"  YAML prune SKIPPED: only {data_count} data files present "
+              f"(expected ~40k); refusing to prune.")
+
+    print(f"Wrote {written} new source YAMLs ({skipped} already existed); "
+          f"pruned {pruned} orphan YAMLs.")
     print()
     print(f"{'indicator':<25}  {'wrote':>6}  {'skipped':>8}")
     print(f"{'-' * 25}  {'-' * 6}  {'-' * 8}")

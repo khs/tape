@@ -31,9 +31,12 @@ import {
   cdMetaDescription,
 } from "../../lib/cd-page-copy";
 
-// Prerendered: one static landing page per current congressional
-// district (429 today — the acs_cd pipeline doesn't yet emit the six
-// at-large states; when it does, they become pages automatically).
+// Prerendered: one static landing page per current 118th-Congress
+// district that the acs_cd pipeline emits. The six single-district
+// (at-large) states — AK, DE, ND, SD, VT, WY — carry their ACS data at
+// the state level rather than as a CD series, so they get no page;
+// every multi-district state's CDs do. (Montana was at-large in the
+// 116th but has two districts on 118th boundaries: MT-01 and MT-02.)
 // Each page is sitemap-indexed with a unique title, description, and
 // OG image — the SEO surface for "economy of <district>" queries.
 export const prerender = true;

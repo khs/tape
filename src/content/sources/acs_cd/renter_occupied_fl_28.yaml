@@ -1,0 +1,23 @@
+name: Renter-occupied housing units — FL-28
+shortName: FL-28 renter-occupied
+description: Renter-occupied housing units for FL-28, on 2023 (118th Congress) congressional-district boundaries held constant across years. American Community Survey (ACS) 5-year estimates, released annually.
+kind: timeseries
+pipeline: acs_cd
+dataFile: data/acs_cd/renter_occupied_fl_28.json
+supportedDeltas: ["5y", "10y"]
+unit: households
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: US Census Bureau (ACS 5-year)
+  series: renter_occupied
+  url: https://api.census.gov/data/2022/acs/acs5
+  license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - real-estate
+unitClass: count

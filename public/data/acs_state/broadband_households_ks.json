@@ -3,7 +3,7 @@
   "name": "Households with broadband internet \u2014 KS",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-12T18:43:28Z",
+  "lastUpdated": "2026-06-17T19:27:51Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -11,7 +11,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 896105
+      "v": 896106
     },
     {
       "t": "2019-12-31",
