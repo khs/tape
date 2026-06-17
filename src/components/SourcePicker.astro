@@ -226,6 +226,7 @@ const extraSourcesJson = extraSources.length > 0
     UNLOCK_QUERY_MIN_CHARS,
   } from "../lib/source-filters";
   import { isMobileViewport } from "../lib/viewport";
+  import { track } from "../lib/track";
 
   /**
    * Source-side shape returned by /library.json. Mirrors the inline
@@ -298,6 +299,11 @@ const extraSourcesJson = extraSources.length > 0
      *  schedule call comes in mid-debounce. Used only by
      *  scheduleRender — desktop bypasses this entirely. */
     pendingScheduleId: number | null;
+    /** Pending setTimeout id for the settled-search-query telemetry
+     *  debounce, or null. Distinct from pendingScheduleId (a perf render
+     *  throttle): this is a longer idle timer that fires the
+     *  source_search_zeroed event once a query settles. */
+    searchLogId: number | null;
   }
   const instances = new Map<string, InstanceState>();
   /** Debounce window on mobile between the last keystroke and the
@@ -305,6 +311,10 @@ const extraSourcesJson = extraSources.length > 0
    *  burst, prevents per-keystroke re-walks of the source list on
    *  low-end phones. Desktop bypasses this. */
   const MOBILE_RENDER_DEBOUNCE_MS = 100;
+  /** Idle window after the last keystroke before logging a SETTLED search
+   *  that returned zero real results, a "we lack this data" demand signal.
+   *  Long enough to fire once per settled query, never per keystroke. */
+  const SEARCH_LOG_IDLE_MS = 500;
 
   // Module-level library cache. The first mount fetches; later mounts
   // (cc-modal opens after main page renders) share. Stashed on window
@@ -712,6 +722,64 @@ const extraSourcesJson = extraSources.length > 0
     }, MOBILE_RENDER_DEBOUNCE_MS);
   }
 
+  /** Map an instanceId to a coarse surface label for telemetry. Known
+   *  mounts: lib (composer Sources tab), cc (chart-creator modal),
+   *  ds-a/ds-b (derived-source A/B modal), alerts-source (alerts page).
+   *  An unknown future mount logs its raw id. */
+  function searchSurface(instanceId: string): string {
+    if (instanceId === "lib") return "compose_sources";
+    if (instanceId === "cc") return "cc_modal";
+    if (instanceId === "ds-a" || instanceId === "ds-b") return "ds_modal";
+    if (instanceId.startsWith("alerts")) return "alerts";
+    return instanceId;
+  }
+
+  /** Log a SETTLED, non-empty source search that returned zero real
+   *  (non-hint, non-extra) results. A failed search is a strong demand
+   *  signal: it tells us what data users want that we don't have yet. We
+   *  log once per settled query (idle-debounced), never per keystroke, and
+   *  include the active geo/tag filters so a true "missing data" miss is
+   *  distinguishable from an over-narrow filter. The query text is the
+   *  user's own search input (the whole point); no other PII is captured. */
+  function scheduleSearchLog(state: InstanceState, lib: LibraryPayload): void {
+    if (state.searchLogId !== null) {
+      window.clearTimeout(state.searchLogId);
+      state.searchLogId = null;
+    }
+    state.searchLogId = window.setTimeout(() => {
+      state.searchLogId = null;
+      const q = state.searchQuery.trim().toLowerCase();
+      if (q.length < 2) return; // skip empty + single-char noise
+      // Reuse filteredSources so "zero" matches exactly what the user saw;
+      // exclude hint/extra cards (discoverability bridges + host-provided),
+      // the same exclusion topicalTagCounts uses for "real" sources.
+      const real = filteredSources(state, lib).filter(
+        (m) => m.kind !== "hint" && m.kind !== "extra",
+      );
+      if (real.length > 0) return; // only ZERO-result searches are the signal
+      const tagsActive = [...state.selectedTags]
+        .filter((t) => !isGeoTag(t))
+        .sort()
+        .join(",");
+      const geoActive = state.selectedMetroCbsa
+        ? `metro:${state.selectedMetroCbsa}`
+        : state.selectedCountryCode
+          ? `country:${state.selectedCountryCode}`
+          : state.cdState
+            ? `cd:${state.cdState}${state.cdDistrict ? ":" + state.cdDistrict : ""}`
+            : "";
+      track("source_search_zeroed", {
+        query: q,
+        query_len: q.length,
+        surface: searchSurface(state.instanceId),
+        instance_id: state.instanceId,
+        tags_active: tagsActive,
+        geo_active: geoActive,
+        result_count: 0,
+      });
+    }, SEARCH_LOG_IDLE_MS);
+  }
+
   // Rich card extras (geo badges + tags + shortName) for the Sources-tab
   // browser. CD/state sources get a "TX-12" / "TX statewide" badge -- without
   // it the ~435 same-named district cards would be visually identical.
@@ -1000,6 +1068,7 @@ const extraSourcesJson = extraSources.length > 0
       rich: root.dataset.spickerRich === "1",
       extraSources,
       pendingScheduleId: null,
+      searchLogId: null,
     };
     instances.set(instanceId, state);
 
@@ -1044,7 +1113,10 @@ const extraSourcesJson = extraSources.length > 0
     searchInput?.addEventListener("input", () => {
       state.searchQuery = searchInput.value;
       state.hasInteracted = true;
-      loadLibrary().then((lib) => scheduleRender(state, lib));
+      loadLibrary().then((lib) => {
+        scheduleRender(state, lib);
+        scheduleSearchLog(state, lib);
+      });
     });
 
     // Initial library load, then render every dependent UI piece.
