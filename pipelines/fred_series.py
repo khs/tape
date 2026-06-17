@@ -73,6 +73,7 @@ SPECS: list[FredSpec] = [
     # required under FRED ToS § III. Removed 2026-05-27. See
     # docs/fred-copyright-audit.md.
     FredSpec("GDPC1", "US real GDP (chained 2017 dollars)", "billions USD"),
+    FredSpec("A939RX0Q048SBEA", "US real GDP per capita (chained 2017 dollars)", "USD"),
     FredSpec("INDPRO", "US industrial production", "index (2017=100)"),
     # SP500 (S&P 500) intentionally NOT ingested: third-party
     # copyrighted by S&P Dow Jones Indices LLC, pre-approval
@@ -97,6 +98,11 @@ SPECS: list[FredSpec] = [
     FredSpec("CPILFESL", "Core CPI (all items less food & energy)", "index (1982-84=100)"),
     FredSpec("PCEPI", "PCE price index (headline)", "index (2017=100)"),
     FredSpec("PCEPILFE", "Core PCE price index", "index (2017=100)"),
+    # Producer prices (BLS, public domain): headline wholesale/pipeline
+    # inflation. PPIACO is the long-history all-commodities index; PPIFIS
+    # is the modern final-demand headline most analysts now cite.
+    FredSpec("PPIACO", "Producer Price Index, all commodities", "index (1982=100)"),
+    FredSpec("PPIFIS", "Producer Price Index, final demand", "index (Nov 2009=100)"),
     # Labor
     FredSpec("PAYEMS", "Nonfarm payrolls", "thousands of persons"),
     FredSpec("CIVPART", "Labor force participation rate", "%"),

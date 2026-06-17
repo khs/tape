@@ -1,0 +1,21 @@
+name: Producer Price Index - all commodities
+shortName: PPI all commodities
+description: Producer Price Index for all commodities, the long-history wholesale-price gauge tracking the prices producers receive for their output. Monthly, BLS. (PPI = Producer Price Index.)
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PPIACO.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+unit: "index (1982=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PPIACO
+  url: https://fred.stlouisfed.org/series/PPIACO
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: index

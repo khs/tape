@@ -1,0 +1,21 @@
+name: Producer Price Index - final demand
+shortName: PPI final demand
+description: Producer Price Index for final demand, the headline producer-inflation measure most analysts now cite (the modern successor to the finished-goods PPI). Monthly, BLS. (PPI = Producer Price Index.)
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/PPIFIS.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "index (Nov 2009=100)"
+formatting:
+  style: index
+  decimals: 1
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: PPIFIS
+  url: https://fred.stlouisfed.org/series/PPIFIS
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: index

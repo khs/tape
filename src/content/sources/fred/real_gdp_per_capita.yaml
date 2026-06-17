@@ -1,0 +1,21 @@
+name: US real GDP per capita
+shortName: Real GDP per capita
+description: Real gross domestic product per person, quarterly, chained 2017 dollars. The standard living-standards measure of output per resident. (GDP = Gross Domestic Product.)
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/A939RX0Q048SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: USD
+formatting:
+  style: number
+  decimals: 0
+  prefix: "$"
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: A939RX0Q048SBEA
+  url: https://fred.stlouisfed.org/series/A939RX0Q048SBEA
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: currency
