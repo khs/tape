@@ -245,17 +245,18 @@ export function stateNameFor(code: string): string {
 /* ------------------------------------------------------------------ */
 
 /**
- * Districts present in the acs_cd catalog but DEFUNCT on 118th-Congress
- * (2023) boundaries — leftovers from pre-2020-census apportionment (CA
- * lost a seat, MT split its at-large seat into 2 numbered districts,
- * etc.). Their data is real history for the OLD boundaries, so the
- * sources stay, but they must not get landing pages presenting them as
- * current districts. Entries become harmless no-ops once the pipeline
- * retires the underlying sources.
+ * Districts present in the acs_cd catalog but DEFUNCT on current
+ * (118th-Congress, 2023) boundaries. Empty by construction since the
+ * 2026-06-17 crosswalk fix: census_acs_cd.py now auto-prunes any district
+ * the rebuilt crosswalk no longer produces, and _generate_acs_sources.py
+ * prunes the matching YAMLs, so the acs_cd catalog only ever holds current
+ * districts (no defunct district is still "present"). The old hardcoded
+ * set (ca_53, ny_27, pa_18, il_18, oh_16, mi_14, wv_03, mt_al — all
+ * verified retired on 118th lines) became unnecessary once the prune
+ * shipped. Kept as an explicit exclusion hook in case a future partial or
+ * failed refresh ever leaves an orphan before the prune runs.
  */
-export const DEFUNCT_CD_KEYS: ReadonlySet<string> = new Set([
-  "ca_53", "ny_27", "pa_18", "il_18", "oh_16", "mi_14", "wv_03", "mt_al",
-]);
+export const DEFUNCT_CD_KEYS: ReadonlySet<string> = new Set<string>();
 
 /** 1 → "1st", 2 → "2nd", 3 → "3rd", 11 → "11th", 22 → "22nd", … */
 export function ordinal(n: number): string {
