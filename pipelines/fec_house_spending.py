@@ -217,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
         if code not in ("al", "98"):
             years = [int(p["t"][:4]) for p in points]
             notes = [
-                (f"{bnd}-01-01", f"Boundaries redrawn — {census} Census")
+                (f"{bnd}-01-01", f"Boundaries redrawn ({census} Census)")
                 for bnd, census in REDISTRICTING
                 if any(y < bnd for y in years) and any(y >= bnd for y in years)
             ]

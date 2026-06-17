@@ -13,13 +13,13 @@ formatting:
 emphasis: change
 defaultAnnotations:
   - date: "1992-01-01"
-    label: "Boundaries redrawn — 1990 Census"
+    label: "Boundaries redrawn (1990 Census)"
   - date: "2002-01-01"
-    label: "Boundaries redrawn — 2000 Census"
+    label: "Boundaries redrawn (2000 Census)"
   - date: "2012-01-01"
-    label: "Boundaries redrawn — 2010 Census"
+    label: "Boundaries redrawn (2010 Census)"
   - date: "2022-01-01"
-    label: "Boundaries redrawn — 2020 Census"
+    label: "Boundaries redrawn (2020 Census)"
 provenance:
   provider: FEC (Federal Election Commission)
   series: candidates/totals office=H sum(disbursements) TN-05
