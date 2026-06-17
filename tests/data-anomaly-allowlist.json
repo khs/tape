@@ -1,0 +1,3 @@
+{
+  "_doc": "Referenced time-series sources whose order-of-magnitude or projection-scale jump is ACCEPTED as a genuine, legitimate move (NOT a pipeline corruption). Maps source id -> reason. data-anomaly.test.ts skips these. The thresholds are deliberately conservative (a >=100x step between consecutive points, which no real economic series makes), so this list should stay tiny or empty; a NEW anomaly will NOT be here and so fails the gate. (Currently empty: no referenced series jumps two decades between its last two points, nor mismatches its own projection's base scale.)"
+}
