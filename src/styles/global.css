@@ -23,6 +23,22 @@ table,
   font-variant-numeric: tabular-nums;
 }
 
+/* Visually hidden but exposed to screen readers + the document outline.
+   Use for a heading whose visible role is served by another control (the
+   composer's editable title input) so the page still has a top-level
+   heading. Unlayered so it beats the @layer base element rules. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @layer base {
   h1 {
     font-size: var(--text-3xl);
