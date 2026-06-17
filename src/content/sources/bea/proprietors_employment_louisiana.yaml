@@ -1,0 +1,23 @@
+name: "Proprietors employment — Louisiana"
+shortName: Louisiana proprietor jobs
+description: Proprietors (self-employed) employment by place of work, by state, annual (BEA Regional table SAINC4, line 7040). Values for Louisiana.
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/proprietors_employment_louisiana.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "jobs"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: SAINC4 line 7040 / 22000
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - us-state
+unitClass: count

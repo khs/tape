@@ -1,0 +1,23 @@
+name: "Wage and salary employment — Idaho"
+shortName: Idaho wage/salary jobs
+description: Wage-and-salary employment by place of work, by state, annual (BEA Regional table SAINC4, line 7020). Values for Idaho.
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/wage_salary_employment_idaho.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "jobs"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: SAINC4 line 7020 / 16000
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - us-state
+unitClass: count

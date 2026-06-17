@@ -1,0 +1,23 @@
+name: "GDP (nominal) — United States"
+shortName: United States GDP
+description: Gross domestic product by state in current dollars, annual, all-industry total (BEA Regional table SAGDP2). Values for United States.
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/gdp_united_states.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "B"
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: SAGDP2 line 1 / 00000
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+  - us-state
+unitClass: currency

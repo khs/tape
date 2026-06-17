@@ -67,9 +67,10 @@ class Indicator:
     style: str          # currency | number | ...
     decimals: int
     unit_class: str | None
-    to_billions: bool   # True: aggregate $ → canonical billions; False: store raw (per-capita)
+    to_billions: bool   # True: aggregate $ → canonical billions; False: store raw (per-capita / counts)
     suffix: str | None
     desc: str
+    notation: str | None = None  # e.g. "compact" so 25.6M jobs reads cleanly
 
 
 INDICATORS: list[Indicator] = [
@@ -85,6 +86,25 @@ INDICATORS: list[Indicator] = [
     Indicator("SAINC1", "3", "pc_personal_income", "Per-capita personal income", "Per-capita income",
               "USD", "currency", 0, "currency", False, None,
               "Personal income per resident by state, annual (BEA Regional table SAINC1, per-capita line)."),
+    # Employment by place of work, BEA's broadest jobs count: it adds the
+    # self-employed (proprietors) and farm to the establishment-survey
+    # payroll concept, so total runs well above the BLS CES payroll count.
+    # (SAEMP25N, the old by-industry employment table, was retired from
+    # BEA's Regional API; SAINC4's major-component lines are the live
+    # source for total / wage-salary / proprietors employment.) Counts are
+    # raw jobs (UNIT_MULT 0), so to_billions=False.
+    Indicator("SAINC4", "7010", "total_employment", "Total employment", "total employment",
+              "jobs", "number", 0, "count", False, None,
+              "Total employment by place of work (wage-and-salary jobs plus proprietors, all industries including farm) by state, annual (BEA Regional table SAINC4, line 7010).",
+              notation="compact"),
+    Indicator("SAINC4", "7020", "wage_salary_employment", "Wage and salary employment", "wage/salary jobs",
+              "jobs", "number", 0, "count", False, None,
+              "Wage-and-salary employment by place of work, by state, annual (BEA Regional table SAINC4, line 7020).",
+              notation="compact"),
+    Indicator("SAINC4", "7040", "proprietors_employment", "Proprietors employment", "proprietor jobs",
+              "jobs", "number", 0, "count", False, None,
+              "Proprietors (self-employed) employment by place of work, by state, annual (BEA Regional table SAINC4, line 7040).",
+              notation="compact"),
 ]
 
 # GeoNames we keep (50 states + DC + US). BEA's GeoFIPS=STATE response also
@@ -155,6 +175,13 @@ def points_from_rows(ind: Indicator, rows: list[dict]) -> list[dict]:
         except (TypeError, ValueError):
             continue
         v = dollars / 1e9 if ind.to_billions else dollars
+        if v <= 0:
+            # BEA returns 0 for not-yet-published years (SAINC4 employment
+            # lags its income lines by a year, so the latest year is a 0
+            # placeholder) and for combined-area sentinels. No state-level
+            # GDP / income / employment level is genuinely <= 0, so treat
+            # these as missing rather than shipping a bogus 0 as "latest".
+            continue
         by_t[f"{yr}-01-01"] = {"t": f"{yr}-01-01", "v": v}
     return [by_t[t] for t in sorted(by_t)]
 
@@ -174,6 +201,8 @@ def yaml_for(ind: Indicator, geoname: str, slug: str, geofips: str) -> str:
         f"  style: {ind.style}",
         f"  decimals: {ind.decimals}",
     ]
+    if ind.notation:
+        lines.append(f"  notation: {ind.notation}")
     if ind.suffix:
         lines.append(f'  suffix: "{ind.suffix}"')
     lines += [
@@ -266,7 +295,10 @@ def main(argv: list[str] | None = None) -> int:
         by_geo: dict[str, list[dict]] = {}
         fips_of: dict[str, str] = {}
         for r in rows:
-            g = r.get("GeoName", "")
+            # BEA footnotes some geos in some tables (e.g. SAINC4 returns
+            # "Alaska *" / "Hawaii *"); strip the trailing marker so they
+            # match KEEP instead of being silently dropped.
+            g = re.sub(r"\s*\*+$", "", r.get("GeoName", "")).strip()
             if g not in KEEP:
                 continue
             by_geo.setdefault(g, []).append(r)

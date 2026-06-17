@@ -3,7 +3,7 @@
 // Counts under src/content/sources as of the last build.
 
 /** Exact source count at build time. */
-export const SOURCE_COUNT = 34803;
+export const SOURCE_COUNT = 34964;
 
 /** Marketing figure, floored to the nearest 1,000 with a "+", e.g. "34,000+". */
 export const SOURCE_COUNT_DISPLAY = "34,000+";
