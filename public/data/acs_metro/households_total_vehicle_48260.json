@@ -1,10 +1,18 @@
 {
   "id": "households_total_vehicle_48260",
-  "name": "Total households (vehicle-table denominator) \u2014 Weirton-Steubenville",
+  "name": "Total households (vehicle-table denominator) \u2014 Weirton-Steubenville, WV-OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 51184.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 51232.0
+    },
     {
       "t": "2015-12-31",
       "v": 50882.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 49551.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 49455.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 49642.0
     }
   ]
 }

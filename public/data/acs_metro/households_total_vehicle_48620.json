@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_48620",
-  "name": "Total households (vehicle-table denominator) \u2014 Wichita",
+  "name": "Total households (vehicle-table denominator) \u2014 Wichita, KS",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 237351.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 238268.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 239544.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 242541.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 241831.0
+    },
     {
       "t": "2015-12-31",
       "v": 242912.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 249468.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 252501.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 254776.0
     }
   ]
 }

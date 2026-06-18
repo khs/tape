@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_25980",
-  "name": "Total workers (commute-table denominator) \u2014 Hinesville",
+  "name": "Total workers (commute-table denominator) \u2014 Hinesville, GA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 33927.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 34635.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 34261.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 33778.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 34314.0
+    },
     {
       "t": "2015-12-31",
       "v": 34657.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 37072.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 37598.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 38254.0
     }
   ]
 }

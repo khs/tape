@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_36980",
-  "name": "Households with no vehicle available \u2014 Owensboro",
+  "name": "Households with no vehicle available \u2014 Owensboro, KY",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3179.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3076.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3060.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2677.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2581.0
+    },
     {
       "t": "2015-12-31",
       "v": 2554.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3145.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3290.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3030.0
     }
   ]
 }

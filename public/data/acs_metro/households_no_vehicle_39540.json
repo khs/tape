@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_39540",
-  "name": "Households with no vehicle available \u2014 Racine-Mount Pleasant",
+  "name": "Households with no vehicle available \u2014 Racine-Mount Pleasant, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5237.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5695.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5703.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6086.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5754.0
+    },
     {
       "t": "2015-12-31",
       "v": 5808.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4672.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4502.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4191.0
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "id": "households_no_vehicle_28450",
+  "name": "Households with no vehicle available \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 3338.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3390.0
+    }
+  ]
+}

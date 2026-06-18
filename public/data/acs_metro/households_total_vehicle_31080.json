@@ -1,10 +1,18 @@
 {
   "id": "households_total_vehicle_31080",
-  "name": "Total households (vehicle-table denominator) \u2014 Los Angeles-Long Beach-Anaheim",
+  "name": "Total households (vehicle-table denominator) \u2014 Los Angeles-Long Beach-Anaheim, CA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 4225895.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4244676.0
+    },
     {
       "t": "2015-12-31",
       "v": 4272422.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 4429379.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4464908.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4499409.0
     }
   ]
 }

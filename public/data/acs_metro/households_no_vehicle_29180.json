@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_29180",
-  "name": "Households with no vehicle available \u2014 Lafayette",
+  "name": "Households with no vehicle available \u2014 Lafayette, LA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 7532.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 7918.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 7503.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 12895.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 13345.0
+    },
     {
       "t": "2015-12-31",
       "v": 13441.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 14959.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 12459.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 12959.0
     }
   ]
 }

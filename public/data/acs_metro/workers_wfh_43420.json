@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_43420",
-  "name": "Workers who work from home \u2014 Sierra Vista-Douglas",
+  "name": "Workers who work from home \u2014 Sierra Vista-Douglas, AZ",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2441.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2484.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2449.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2174.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2615.0
+    },
     {
       "t": "2015-12-31",
       "v": 2613.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4123.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4927.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 5609.0
     }
   ]
 }

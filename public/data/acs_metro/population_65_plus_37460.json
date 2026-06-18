@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_37460",
-  "name": "Population 65 and older \u2014 Panama City-Panama City Beach",
+  "name": "Population 65 and older \u2014 Panama City-Panama City Beach, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 23541
+    },
+    {
+      "t": "2011-12-31",
+      "v": 24063
+    },
+    {
+      "t": "2012-12-31",
+      "v": 24852
+    },
+    {
+      "t": "2013-12-31",
+      "v": 28265
+    },
+    {
+      "t": "2014-12-31",
+      "v": 29253
+    },
     {
       "t": "2015-12-31",
       "v": 30407
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 32777
+    },
+    {
+      "t": "2023-12-31",
+      "v": 37698
+    },
+    {
+      "t": "2024-12-31",
+      "v": 38881
     }
   ]
 }

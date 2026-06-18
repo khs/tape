@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_31020",
-  "name": "Total households (vehicle-table denominator) \u2014 Longview-Kelso",
+  "name": "Total households (vehicle-table denominator) \u2014 Longview-Kelso, WA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 39441.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 39793.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 39683.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 39602.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 39765.0
+    },
     {
       "t": "2015-12-31",
       "v": 39763.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 43167.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 43409.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 43943.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Total population (insurance-table denominator) \u2014 TN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:07Z",
+  "lastUpdated": "2026-06-18T21:26:02Z",
   "points": [
     {
       "t": "2013-12-31",
@@ -44,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 6822830
+    },
+    {
+      "t": "2023-12-31",
+      "v": 6888125
+    },
+    {
+      "t": "2024-12-31",
+      "v": 6970654
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_30780",
-  "name": "Total workers (commute-table denominator) \u2014 Little Rock-North Little Rock-Conway",
+  "name": "Total workers (commute-table denominator) \u2014 Little Rock-North Little Rock-Conway, AR",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 323099.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 325359.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 327657.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 328157.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 330670.0
+    },
     {
       "t": "2015-12-31",
       "v": 332186.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 349028.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 350783.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 353688.0
     }
   ]
 }

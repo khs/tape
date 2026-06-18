@@ -114,7 +114,7 @@ _cache_stats = {"tract_hit": 0, "tract_miss": 0, "cd_hit": 0, "cd_miss": 0}
 # endpoint. Range starts at 2010 (the earliest ACS5 with CD-level data)
 # and goes to 2022 (the latest released as of mid-2026). Extending to
 # new vintages is one-line additions when they release each December.
-ACS_VINTAGES = list(range(2010, 2023))
+ACS_VINTAGES = list(range(2010, 2025))
 
 # The boundary at which ACS switched from 2010-decennial tract
 # definitions to 2020-decennial tract definitions. Set empirically:

@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_17860",
-  "name": "Total population (mobility-table denominator) \u2014 Columbia",
+  "name": "Total population (mobility-table denominator) \u2014 Columbia, MO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 166039.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 168549.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 171031.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 163423.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 165814.0
+    },
     {
       "t": "2015-12-31",
       "v": 168521.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 208360.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 209942.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 212306.0
     }
   ]
 }

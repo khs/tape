@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_13820",
-  "name": "Total workers (commute-table denominator) \u2014 Birmingham",
+  "name": "Total workers (commute-table denominator) \u2014 Birmingham, AL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 499403.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 496150.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 493155.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 489521.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 490678.0
+    },
     {
       "t": "2015-12-31",
       "v": 495788.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 511286.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 538805.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 544375.0
     }
   ]
 }

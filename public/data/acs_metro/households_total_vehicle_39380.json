@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_39380",
-  "name": "Total households (vehicle-table denominator) \u2014 Pueblo",
+  "name": "Total households (vehicle-table denominator) \u2014 Pueblo, CO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 61418.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 61858.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 62090.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 62439.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 62829.0
+    },
     {
       "t": "2015-12-31",
       "v": 62888.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 67090.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 67816.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 68523.0
     }
   ]
 }

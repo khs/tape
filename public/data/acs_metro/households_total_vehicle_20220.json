@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_20220",
-  "name": "Total households (vehicle-table denominator) \u2014 Dubuque",
+  "name": "Total households (vehicle-table denominator) \u2014 Dubuque, IA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 36787.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 36984.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 37323.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 37366.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 37720.0
+    },
     {
       "t": "2015-12-31",
       "v": 37891.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 39985.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 40585.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 40989.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Owner-occupied housing units \u2014 IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-18T02:35:27Z",
+  "lastUpdated": "2026-06-18T21:25:30Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3312808
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3343033
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3378909
     }
   ]
 }

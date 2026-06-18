@@ -3,7 +3,7 @@
   "name": "Households with broadband internet \u2014 HI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T19:27:51Z",
+  "lastUpdated": "2026-06-18T21:25:39Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -28,6 +28,14 @@
     {
       "t": "2022-12-31",
       "v": 434531
+    },
+    {
+      "t": "2023-12-31",
+      "v": 445178
+    },
+    {
+      "t": "2024-12-31",
+      "v": 453216
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "population_under_18_37980",
-  "name": "Population under 18 \u2014 Philadelphia-Camden-Wilmington",
+  "name": "Population under 18 \u2014 Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1404713
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1396061
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1387909
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1378134
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1368598
+    },
     {
       "t": "2015-12-31",
       "v": 1358957
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1336644
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1342514
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1337913
     }
   ]
 }

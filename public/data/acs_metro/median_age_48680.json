@@ -1,0 +1,17 @@
+{
+  "id": "median_age_48680",
+  "name": "Median age \u2014 Wildwood-The Villages, FL",
+  "kind": "timeseries",
+  "unit": "years",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 68.4
+    },
+    {
+      "t": "2024-12-31",
+      "v": 68.5
+    }
+  ]
+}

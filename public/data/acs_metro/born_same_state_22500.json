@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_22500",
-  "name": "Population born in current state of residence \u2014 Florence",
+  "name": "Population born in current state of residence \u2014 Florence, SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 158637.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 159421.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 158072.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 157590.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 157157.0
+    },
     {
       "t": "2015-12-31",
       "v": 157640.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 153573.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 151872.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 150716.0
     }
   ]
 }

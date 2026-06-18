@@ -3,7 +3,7 @@
   "name": "Households with no vehicle available \u2014 MT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-18T02:35:59Z",
+  "lastUpdated": "2026-06-18T21:25:55Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 20609
+    },
+    {
+      "t": "2023-12-31",
+      "v": 20707
+    },
+    {
+      "t": "2024-12-31",
+      "v": 21480
     }
   ]
 }

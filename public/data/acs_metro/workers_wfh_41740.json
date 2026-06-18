@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_41740",
-  "name": "Workers who work from home \u2014 San Diego-Chula Vista-Carlsbad",
+  "name": "Workers who work from home \u2014 San Diego-Chula Vista-Carlsbad, CA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 86297.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 85845.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 89605.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 91722.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 95331.0
+    },
     {
       "t": "2015-12-31",
       "v": 102357.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 241667.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 275067.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 306200.0
     }
   ]
 }

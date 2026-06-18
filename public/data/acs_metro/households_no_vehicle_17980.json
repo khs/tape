@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_17980",
-  "name": "Households with no vehicle available \u2014 Columbus",
+  "name": "Households with no vehicle available \u2014 Columbus, GA-AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 10394.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 10093.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 10149.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 9754.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 10099.0
+    },
     {
       "t": "2015-12-31",
       "v": 10459.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 11200.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 11152.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 11719.0
     }
   ]
 }

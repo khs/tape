@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_36220",
-  "name": "Total workers (commute-table denominator) \u2014 Odessa",
+  "name": "Total workers (commute-table denominator) \u2014 Odessa, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 59951.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 61415.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 63150.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 64364.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 66280.0
+    },
     {
       "t": "2015-12-31",
       "v": 69020.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 73281.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 74383.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 74555.0
     }
   ]
 }

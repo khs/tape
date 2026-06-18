@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_20020",
-  "name": "Total workers (commute-table denominator) \u2014 Dothan",
+  "name": "Total workers (commute-table denominator) \u2014 Dothan, AL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 60809.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 60809.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 60803.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 60836.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 61033.0
+    },
     {
       "t": "2015-12-31",
       "v": 60633.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 63145.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 64237.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 65425.0
     }
   ]
 }

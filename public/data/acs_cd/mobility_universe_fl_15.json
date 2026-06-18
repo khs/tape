@@ -3,7 +3,7 @@
   "name": "Total population (mobility-table denominator) \u2014 FL-15",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-17T19:24:51Z",
+  "lastUpdated": "2026-06-18T21:21:44Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 770043
+    },
+    {
+      "t": "2023-12-31",
+      "v": 783443
+    },
+    {
+      "t": "2024-12-31",
+      "v": 798844
     }
   ]
 }

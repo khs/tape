@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_19740",
-  "name": "Foreign-born population \u2014 Denver-Aurora-Centennial",
+  "name": "Foreign-born population \u2014 Denver-Aurora-Centennial, CO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 298761
+    },
+    {
+      "t": "2011-12-31",
+      "v": 301938
+    },
+    {
+      "t": "2012-12-31",
+      "v": 307890
+    },
+    {
+      "t": "2013-12-31",
+      "v": 311594
+    },
+    {
+      "t": "2014-12-31",
+      "v": 323181
+    },
     {
       "t": "2015-12-31",
       "v": 330595
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 353864
+    },
+    {
+      "t": "2023-12-31",
+      "v": 360307
+    },
+    {
+      "t": "2024-12-31",
+      "v": 374111
     }
   ]
 }

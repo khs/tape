@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_22660",
-  "name": "Households with no vehicle available \u2014 Fort Collins-Loveland",
+  "name": "Households with no vehicle available \u2014 Fort Collins-Loveland, CO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 4404.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 4962.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5027.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5190.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5499.0
+    },
     {
       "t": "2015-12-31",
       "v": 5360.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 5620.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 5542.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 5572.0
     }
   ]
 }

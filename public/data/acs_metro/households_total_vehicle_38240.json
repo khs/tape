@@ -1,10 +1,18 @@
 {
   "id": "households_total_vehicle_38240",
-  "name": "Total households (vehicle-table denominator) \u2014 Pinehurst-Southern Pines",
+  "name": "Total households (vehicle-table denominator) \u2014 Pinehurst-Southern Pines, NC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 36997.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 36947.0
+    },
     {
       "t": "2015-12-31",
       "v": 37143.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 41782.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 42814.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 44013.0
     }
   ]
 }

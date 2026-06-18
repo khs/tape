@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_37860",
-  "name": "Population born in current state of residence \u2014 Pensacola-Ferry Pass-Brent",
+  "name": "Population born in current state of residence \u2014 Pensacola-Ferry Pass-Brent, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 187028.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 188325.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 188986.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 191330.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 196511.0
+    },
     {
       "t": "2015-12-31",
       "v": 198485.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 213972.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 214099.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 213718.0
     }
   ]
 }

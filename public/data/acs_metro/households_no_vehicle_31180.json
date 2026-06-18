@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_31180",
-  "name": "Households with no vehicle available \u2014 Lubbock",
+  "name": "Households with no vehicle available \u2014 Lubbock, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5937.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5573.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5798.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6023.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5904.0
+    },
     {
       "t": "2015-12-31",
       "v": 6192.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 7052.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 8100.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 7977.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_29340",
-  "name": "Total workers (commute-table denominator) \u2014 Lake Charles",
+  "name": "Total workers (commute-table denominator) \u2014 Lake Charles, LA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 86139.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 86132.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 85689.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 86158.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 85970.0
+    },
     {
       "t": "2015-12-31",
       "v": 87797.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 93410.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 105728.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 106373.0
     }
   ]
 }

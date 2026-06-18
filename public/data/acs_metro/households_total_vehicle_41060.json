@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_41060",
-  "name": "Total households (vehicle-table denominator) \u2014 St. Cloud",
+  "name": "Total households (vehicle-table denominator) \u2014 St. Cloud, MN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:46Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 71351.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 71608.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 71888.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 72096.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 72216.0
+    },
     {
       "t": "2015-12-31",
       "v": 72897.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 76821.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 77431.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 78122.0
     }
   ]
 }

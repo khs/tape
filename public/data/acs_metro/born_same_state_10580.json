@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_10580",
-  "name": "Population born in current state of residence \u2014 Albany-Schenectady-Troy",
+  "name": "Population born in current state of residence \u2014 Albany-Schenectady-Troy, NY",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 666121.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 668058.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 673022.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 673700.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 676233.0
+    },
     {
       "t": "2015-12-31",
       "v": 677017.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 674719.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 673301.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 675163.0
     }
   ]
 }

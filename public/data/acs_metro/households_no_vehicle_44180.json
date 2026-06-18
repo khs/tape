@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_44180",
-  "name": "Households with no vehicle available \u2014 Springfield",
+  "name": "Households with no vehicle available \u2014 Springfield, MO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 10052.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 10316.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 10191.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 10402.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 10445.0
+    },
     {
       "t": "2015-12-31",
       "v": 10451.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 11902.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 11637.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 11136.0
     }
   ]
 }

@@ -1,10 +1,18 @@
 {
   "id": "population_14010",
-  "name": "Total population \u2014 Bloomington",
+  "name": "Total population \u2014 Bloomington, IL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 187751
+    },
+    {
+      "t": "2014-12-31",
+      "v": 188851
+    },
     {
       "t": "2015-12-31",
       "v": 189502
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 171284
+    },
+    {
+      "t": "2023-12-31",
+      "v": 170882
+    },
+    {
+      "t": "2024-12-31",
+      "v": 171556
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_19100",
-  "name": "Households with no vehicle available \u2014 Dallas-Fort Worth-Arlington",
+  "name": "Households with no vehicle available \u2014 Dallas-Fort Worth-Arlington, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 112309.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 114647.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 114513.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 117927.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 120556.0
+    },
     {
       "t": "2015-12-31",
       "v": 122940.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 128084.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 133389.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 139373.0
     }
   ]
 }

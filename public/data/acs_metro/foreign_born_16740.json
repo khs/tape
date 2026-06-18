@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_16740",
-  "name": "Foreign-born population \u2014 Charlotte-Concord-Gastonia",
+  "name": "Foreign-born population \u2014 Charlotte-Concord-Gastonia, NC-SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 166047
+    },
+    {
+      "t": "2011-12-31",
+      "v": 172647
+    },
+    {
+      "t": "2012-12-31",
+      "v": 181090
+    },
+    {
+      "t": "2013-12-31",
+      "v": 207619
+    },
+    {
+      "t": "2014-12-31",
+      "v": 211636
+    },
     {
       "t": "2015-12-31",
       "v": 221569
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 286135
+    },
+    {
+      "t": "2023-12-31",
+      "v": 308897
+    },
+    {
+      "t": "2024-12-31",
+      "v": 328237
     }
   ]
 }

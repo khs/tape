@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_45300",
-  "name": "Total households (vehicle-table denominator) \u2014 Tampa-St. Petersburg-Clearwater",
+  "name": "Total households (vehicle-table denominator) \u2014 Tampa-St. Petersburg-Clearwater, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1123163.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1120102.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1121530.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1125965.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1134997.0
+    },
     {
       "t": "2015-12-31",
       "v": 1145501.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1281240.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1303644.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1330303.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_38860",
-  "name": "Total workers (commute-table denominator) \u2014 Portland-South Portland",
+  "name": "Total workers (commute-table denominator) \u2014 Portland-South Portland, ME",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 265039.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 264494.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 264700.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 264015.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 265829.0
+    },
     {
       "t": "2015-12-31",
       "v": 269001.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 294475.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 296406.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 297964.0
     }
   ]
 }

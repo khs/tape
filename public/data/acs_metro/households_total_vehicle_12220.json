@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_12220",
-  "name": "Total households (vehicle-table denominator) \u2014 Auburn-Opelika",
+  "name": "Total households (vehicle-table denominator) \u2014 Auburn-Opelika, AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 54016.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 55176.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 55350.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 55864.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 56637.0
+    },
     {
       "t": "2015-12-31",
       "v": 57171.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 65166.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 75095.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 76673.0
     }
   ]
 }

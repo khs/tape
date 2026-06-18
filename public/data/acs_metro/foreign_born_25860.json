@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_25860",
-  "name": "Foreign-born population \u2014 Hickory-Lenoir-Morganton",
+  "name": "Foreign-born population \u2014 Hickory-Lenoir-Morganton, NC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 18040
+    },
+    {
+      "t": "2011-12-31",
+      "v": 18507
+    },
+    {
+      "t": "2012-12-31",
+      "v": 18600
+    },
+    {
+      "t": "2013-12-31",
+      "v": 18802
+    },
+    {
+      "t": "2014-12-31",
+      "v": 18738
+    },
     {
       "t": "2015-12-31",
       "v": 19213
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 18693
+    },
+    {
+      "t": "2023-12-31",
+      "v": 19437
+    },
+    {
+      "t": "2024-12-31",
+      "v": 19552
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_41740",
-  "name": "Foreign-born population \u2014 San Diego-Chula Vista-Carlsbad",
+  "name": "Foreign-born population \u2014 San Diego-Chula Vista-Carlsbad, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 698486
+    },
+    {
+      "t": "2011-12-31",
+      "v": 709270
+    },
+    {
+      "t": "2012-12-31",
+      "v": 720485
+    },
+    {
+      "t": "2013-12-31",
+      "v": 733577
+    },
+    {
+      "t": "2014-12-31",
+      "v": 743480
+    },
     {
       "t": "2015-12-31",
       "v": 758527
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 742955
+    },
+    {
+      "t": "2023-12-31",
+      "v": 738271
+    },
+    {
+      "t": "2024-12-31",
+      "v": 749735
     }
   ]
 }

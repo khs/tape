@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_13820",
-  "name": "Total population (mobility-table denominator) \u2014 Birmingham",
+  "name": "Total population (mobility-table denominator) \u2014 Birmingham, AL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1101908.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1108704.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1114706.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1118890.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1121608.0
+    },
     {
       "t": "2015-12-31",
       "v": 1124432.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1102175.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1169185.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1172419.0
     }
   ]
 }

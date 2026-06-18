@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_17140",
-  "name": "Total workers (commute-table denominator) \u2014 Cincinnati",
+  "name": "Total workers (commute-table denominator) \u2014 Cincinnati, OH-KY-IN",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 998219.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1000528.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 999355.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 987226.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 994701.0
+    },
     {
       "t": "2015-12-31",
       "v": 1005702.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1104490.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1106616.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1111065.0
     }
   ]
 }

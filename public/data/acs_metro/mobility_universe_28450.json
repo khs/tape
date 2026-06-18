@@ -1,0 +1,17 @@
+{
+  "id": "mobility_universe_28450",
+  "name": "Total population (mobility-table denominator) \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 166540.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 166482.0
+    }
+  ]
+}

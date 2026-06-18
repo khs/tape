@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_28100",
-  "name": "Households with no vehicle available \u2014 Kankakee",
+  "name": "Households with no vehicle available \u2014 Kankakee, IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:12Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3138.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3098.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2844.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2900.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2937.0
+    },
     {
       "t": "2015-12-31",
       "v": 2952.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2784.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2692.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2700.0
     }
   ]
 }

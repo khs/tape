@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_43420",
-  "name": "Foreign-born population \u2014 Sierra Vista-Douglas",
+  "name": "Foreign-born population \u2014 Sierra Vista-Douglas, AZ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 15855
+    },
+    {
+      "t": "2011-12-31",
+      "v": 15837
+    },
+    {
+      "t": "2012-12-31",
+      "v": 15595
+    },
+    {
+      "t": "2013-12-31",
+      "v": 15171
+    },
+    {
+      "t": "2014-12-31",
+      "v": 14984
+    },
     {
       "t": "2015-12-31",
       "v": 14801
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 13535
+    },
+    {
+      "t": "2023-12-31",
+      "v": 13411
+    },
+    {
+      "t": "2024-12-31",
+      "v": 14221
     }
   ]
 }

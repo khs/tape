@@ -1,9 +1,9 @@
 {
   "id": "median_commute_minutes_39150",
-  "name": "Median travel time to work \u2014 Prescott Valley-Prescott",
+  "name": "Median travel time to work \u2014 Prescott Valley-Prescott, AZ",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 20.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 18.5
+    },
+    {
+      "t": "2024-12-31",
+      "v": 18.9
     }
   ]
 }

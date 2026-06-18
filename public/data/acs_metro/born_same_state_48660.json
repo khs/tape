@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_48660",
-  "name": "Population born in current state of residence \u2014 Wichita Falls",
+  "name": "Population born in current state of residence \u2014 Wichita Falls, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 95182.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 94593.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 95596.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 96925.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 97060.0
+    },
     {
       "t": "2015-12-31",
       "v": 97233.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 93928.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 95039.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 95690.0
     }
   ]
 }

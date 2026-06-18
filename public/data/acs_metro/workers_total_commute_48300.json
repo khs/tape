@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_48300",
-  "name": "Total workers (commute-table denominator) \u2014 Wenatchee-East Wenatchee",
+  "name": "Total workers (commute-table denominator) \u2014 Wenatchee-East Wenatchee, WA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 48693.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 48698.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 49003.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 49407.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 49066.0
+    },
     {
       "t": "2015-12-31",
       "v": 50018.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 57150.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 57082.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 56753.0
     }
   ]
 }

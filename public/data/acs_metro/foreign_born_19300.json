@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_19300",
-  "name": "Foreign-born population \u2014 Daphne-Fairhope-Foley",
+  "name": "Foreign-born population \u2014 Daphne-Fairhope-Foley, AL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 6415
+    },
+    {
+      "t": "2011-12-31",
+      "v": 6731
+    },
+    {
+      "t": "2012-12-31",
+      "v": 6835
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6806
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6811
+    },
     {
       "t": "2015-12-31",
       "v": 6882
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 8106
+    },
+    {
+      "t": "2023-12-31",
+      "v": 9136
+    },
+    {
+      "t": "2024-12-31",
+      "v": 10220
     }
   ]
 }

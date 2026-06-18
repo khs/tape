@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_43100",
-  "name": "Total workers (commute-table denominator) \u2014 Sheboygan",
+  "name": "Total workers (commute-table denominator) \u2014 Sheboygan, WI",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 58503.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 57847.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 58009.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 57547.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 57751.0
+    },
     {
       "t": "2015-12-31",
       "v": 58080.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 60282.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 60105.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 59821.0
     }
   ]
 }

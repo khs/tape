@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_16300",
-  "name": "Households with no vehicle available \u2014 Cedar Rapids",
+  "name": "Households with no vehicle available \u2014 Cedar Rapids, IA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5892.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 6203.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 6171.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5755.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5887.0
+    },
     {
       "t": "2015-12-31",
       "v": 5658.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 5500.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 5267.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 5240.0
     }
   ]
 }

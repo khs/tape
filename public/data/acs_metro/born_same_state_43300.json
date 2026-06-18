@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_43300",
-  "name": "Population born in current state of residence \u2014 Sherman-Denison",
+  "name": "Population born in current state of residence \u2014 Sherman-Denison, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 78862.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 80641.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 80911.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 81388.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 81520.0
+    },
     {
       "t": "2015-12-31",
       "v": 82247.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 88150.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 89698.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 90677.0
     }
   ]
 }

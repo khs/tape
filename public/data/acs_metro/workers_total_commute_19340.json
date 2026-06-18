@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_19340",
-  "name": "Total workers (commute-table denominator) \u2014 Davenport-Moline-Rock Island",
+  "name": "Total workers (commute-table denominator) \u2014 Davenport-Moline-Rock Island, IA-IL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 179604.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 180137.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 180571.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 178565.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 179046.0
+    },
     {
       "t": "2015-12-31",
       "v": 180045.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 181349.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 180889.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 180852.0
     }
   ]
 }

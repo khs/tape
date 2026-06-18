@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_29420",
-  "name": "Population born in current state of residence \u2014 Lake Havasu City-Kingman",
+  "name": "Population born in current state of residence \u2014 Lake Havasu City-Kingman, AZ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 36636.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 38158.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 37636.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 38850.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 38707.0
+    },
     {
       "t": "2015-12-31",
       "v": 38443.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 40114.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 41284.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 41326.0
     }
   ]
 }

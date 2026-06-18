@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_20260",
-  "name": "Total workers (commute-table denominator) \u2014 Duluth",
+  "name": "Total workers (commute-table denominator) \u2014 Duluth, MN-WI",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 130272.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 130745.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 130193.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 129973.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 129746.0
+    },
     {
       "t": "2015-12-31",
       "v": 131435.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 138253.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 134181.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 134016.0
     }
   ]
 }

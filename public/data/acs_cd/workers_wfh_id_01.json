@@ -3,7 +3,7 @@
   "name": "Workers who work from home \u2014 ID-01",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-17T21:48:55Z",
+  "lastUpdated": "2026-06-18T21:21:45Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 47242
+    },
+    {
+      "t": "2023-12-31",
+      "v": 57133
+    },
+    {
+      "t": "2024-12-31",
+      "v": 64263
     }
   ]
 }

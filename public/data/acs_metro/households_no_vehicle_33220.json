@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_33220",
-  "name": "Households with no vehicle available \u2014 Midland",
+  "name": "Households with no vehicle available \u2014 Midland, MI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1790.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1682.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1637.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1728.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1659.0
+    },
     {
       "t": "2015-12-31",
       "v": 1578.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1987.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1981.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1901.0
     }
   ]
 }

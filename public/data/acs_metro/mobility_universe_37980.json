@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_37980",
-  "name": "Total population (mobility-table denominator) \u2014 Philadelphia-Camden-Wilmington",
+  "name": "Total population (mobility-table denominator) \u2014 Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5842329.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5869608.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5898415.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5924145.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5945411.0
+    },
     {
       "t": "2015-12-31",
       "v": 5965834.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 6170205.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 6177557.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 6207612.0
     }
   ]
 }

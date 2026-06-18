@@ -1,9 +1,9 @@
 {
   "id": "median_age_19430",
-  "name": "Median age \u2014 Dayton-Kettering-Beavercreek",
+  "name": "Median age \u2014 Dayton-Kettering-Beavercreek, OH",
   "kind": "timeseries",
   "unit": "years",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 39.3
+    },
+    {
+      "t": "2023-12-31",
+      "v": 39.1
+    },
+    {
+      "t": "2024-12-31",
+      "v": 39.1
     }
   ]
 }

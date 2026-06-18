@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_22380",
-  "name": "Total households (vehicle-table denominator) \u2014 Flagstaff",
+  "name": "Total households (vehicle-table denominator) \u2014 Flagstaff, AZ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 45478.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 45266.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 45718.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 46198.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 46391.0
+    },
     {
       "t": "2015-12-31",
       "v": 46619.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 51993.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 53642.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 55118.0
     }
   ]
 }

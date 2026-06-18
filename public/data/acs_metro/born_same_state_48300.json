@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_48300",
-  "name": "Population born in current state of residence \u2014 Wenatchee-East Wenatchee",
+  "name": "Population born in current state of residence \u2014 Wenatchee-East Wenatchee, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 61786.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 61750.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 62772.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 63533.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 64093.0
+    },
     {
       "t": "2015-12-31",
       "v": 65128.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 70410.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 70191.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 70744.0
     }
   ]
 }

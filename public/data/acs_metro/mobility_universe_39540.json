@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_39540",
-  "name": "Total population (mobility-table denominator) \u2014 Racine-Mount Pleasant",
+  "name": "Total population (mobility-table denominator) \u2014 Racine-Mount Pleasant, WI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 192260.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 192710.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 192852.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 192782.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 192805.0
+    },
     {
       "t": "2015-12-31",
       "v": 192411.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 195392.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 195057.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 195679.0
     }
   ]
 }

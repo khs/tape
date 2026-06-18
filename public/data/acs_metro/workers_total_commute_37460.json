@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_37460",
-  "name": "Total workers (commute-table denominator) \u2014 Panama City-Panama City Beach",
+  "name": "Total workers (commute-table denominator) \u2014 Panama City-Panama City Beach, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 78809.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 79334.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 78601.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 82944.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 82726.0
+    },
     {
       "t": "2015-12-31",
       "v": 84212.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 85923.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 96823.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 100479.0
     }
   ]
 }

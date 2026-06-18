@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_37980",
-  "name": "Workers who work from home \u2014 Philadelphia-Camden-Wilmington",
+  "name": "Workers who work from home \u2014 Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 97423.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 101574.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 104450.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 107386.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 111964.0
+    },
     {
       "t": "2015-12-31",
       "v": 115914.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 439572.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 515047.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 582760.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_49620",
-  "name": "Total population (mobility-table denominator) \u2014 York-Hanover",
+  "name": "Total population (mobility-table denominator) \u2014 York-Hanover, PA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:54Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 423388.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 427189.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 430028.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 432017.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 433572.0
+    },
     {
       "t": "2015-12-31",
       "v": 435280.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 452759.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 455095.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 458832.0
     }
   ]
 }

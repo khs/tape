@@ -3,7 +3,7 @@
   "name": "Households with broadband internet \u2014 NY-12",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T19:25:02Z",
+  "lastUpdated": "2026-06-18T21:21:55Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -28,6 +28,14 @@
     {
       "t": "2022-12-31",
       "v": 354098
+    },
+    {
+      "t": "2023-12-31",
+      "v": 361562
+    },
+    {
+      "t": "2024-12-31",
+      "v": 366073
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_39580",
-  "name": "Total workers (commute-table denominator) \u2014 Raleigh-Cary",
+  "name": "Total workers (commute-table denominator) \u2014 Raleigh-Cary, NC",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 530723.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 544474.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 554144.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 563102.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 579346.0
+    },
     {
       "t": "2015-12-31",
       "v": 597524.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 730417.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 745571.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 768406.0
     }
   ]
 }

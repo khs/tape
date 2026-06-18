@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_19500",
-  "name": "Total households (vehicle-table denominator) \u2014 Decatur",
+  "name": "Total households (vehicle-table denominator) \u2014 Decatur, IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 44947.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 44568.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 45074.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 45142.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 45153.0
+    },
     {
       "t": "2015-12-31",
       "v": 44915.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 43362.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 43334.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 43468.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_42700",
-  "name": "Households with no vehicle available \u2014 Sebring",
+  "name": "Households with no vehicle available \u2014 Sebring, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2135.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2399.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2527.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2668.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2834.0
+    },
     {
       "t": "2015-12-31",
       "v": 2659.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2343.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2525.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2609.0
     }
   ]
 }

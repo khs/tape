@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_25940",
-  "name": "People who moved in the last year \u2014 Hilton Head Island-Bluffton-Port Royal",
+  "name": "People who moved in the last year \u2014 Hilton Head Island-Bluffton-Port Royal, SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 33343
+    },
+    {
+      "t": "2011-12-31",
+      "v": 32713
+    },
+    {
+      "t": "2012-12-31",
+      "v": 32562
+    },
+    {
+      "t": "2013-12-31",
+      "v": 34364
+    },
+    {
+      "t": "2014-12-31",
+      "v": 35256
+    },
     {
       "t": "2015-12-31",
       "v": 36842
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 30429
+    },
+    {
+      "t": "2023-12-31",
+      "v": 30521
+    },
+    {
+      "t": "2024-12-31",
+      "v": 31833
     }
   ]
 }

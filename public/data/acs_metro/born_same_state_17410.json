@@ -1,0 +1,17 @@
+{
+  "id": "born_same_state_17410",
+  "name": "Population born in current state of residence \u2014 Cleveland, OH",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 1639705.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1640833.0
+    }
+  ]
+}

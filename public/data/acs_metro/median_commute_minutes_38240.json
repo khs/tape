@@ -1,10 +1,18 @@
 {
   "id": "median_commute_minutes_38240",
-  "name": "Median travel time to work \u2014 Pinehurst-Southern Pines",
+  "name": "Median travel time to work \u2014 Pinehurst-Southern Pines, NC",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 20.4
+    },
+    {
+      "t": "2014-12-31",
+      "v": 20.6
+    },
     {
       "t": "2015-12-31",
       "v": 20.5
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 21.9
+    },
+    {
+      "t": "2023-12-31",
+      "v": 22.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22.9
     }
   ]
 }

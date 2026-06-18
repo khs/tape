@@ -3,7 +3,7 @@
   "name": "Total workers (commute-table denominator) \u2014 KS",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-18T02:35:54Z",
+  "lastUpdated": "2026-06-18T21:25:51Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1445477
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1448524
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1454367
     }
   ]
 }

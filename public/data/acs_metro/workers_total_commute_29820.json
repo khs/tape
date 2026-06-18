@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_29820",
-  "name": "Total workers (commute-table denominator) \u2014 Las Vegas-Henderson-North Las Vegas",
+  "name": "Total workers (commute-table denominator) \u2014 Las Vegas-Henderson-North Las Vegas, NV",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 894892.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 893404.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 889931.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 884897.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 893489.0
+    },
     {
       "t": "2015-12-31",
       "v": 912471.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1040510.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1057051.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1079990.0
     }
   ]
 }

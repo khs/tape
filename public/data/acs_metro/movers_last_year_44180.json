@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_44180",
-  "name": "People who moved in the last year \u2014 Springfield",
+  "name": "People who moved in the last year \u2014 Springfield, MO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 89565
+    },
+    {
+      "t": "2011-12-31",
+      "v": 87919
+    },
+    {
+      "t": "2012-12-31",
+      "v": 86604
+    },
+    {
+      "t": "2013-12-31",
+      "v": 84497
+    },
+    {
+      "t": "2014-12-31",
+      "v": 85397
+    },
     {
       "t": "2015-12-31",
       "v": 86067
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 68269
+    },
+    {
+      "t": "2023-12-31",
+      "v": 69152
+    },
+    {
+      "t": "2024-12-31",
+      "v": 69380
     }
   ]
 }

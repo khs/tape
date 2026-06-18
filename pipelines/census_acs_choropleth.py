@@ -81,7 +81,7 @@ DATA_ROOT = ROOT / "public" / "data"
 # without surprises.
 VINTAGES: list[str] = [
     "2010", "2011", "2012", "2013", "2014", "2015", "2016",
-    "2017", "2018", "2019", "2020", "2021", "2022",
+    "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024",
 ]
 
 # State FIPS codes (2-digit). 50 states + DC. Skip Puerto Rico /

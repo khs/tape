@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_17980",
-  "name": "Total households (vehicle-table denominator) \u2014 Columbus",
+  "name": "Total households (vehicle-table denominator) \u2014 Columbus, GA-AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 109062.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 109628.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 109978.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 110424.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 111394.0
+    },
     {
       "t": "2015-12-31",
       "v": 112225.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 124701.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 126156.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 127512.0
     }
   ]
 }

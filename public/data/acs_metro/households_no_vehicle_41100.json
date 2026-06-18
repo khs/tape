@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_41100",
-  "name": "Households with no vehicle available \u2014 St. George",
+  "name": "Households with no vehicle available \u2014 St. George, UT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:46Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1513.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1631.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1604.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1753.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1653.0
+    },
     {
       "t": "2015-12-31",
       "v": 1570.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1918.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2093.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2300.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_16220",
-  "name": "Total households (vehicle-table denominator) \u2014 Casper",
+  "name": "Total households (vehicle-table denominator) \u2014 Casper, WY",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 29597.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 29850.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 30406.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 31116.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 31790.0
+    },
     {
       "t": "2015-12-31",
       "v": 32131.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 32895.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 33285.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 33886.0
     }
   ]
 }

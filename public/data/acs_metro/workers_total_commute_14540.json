@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_14540",
-  "name": "Total workers (commute-table denominator) \u2014 Bowling Green",
+  "name": "Total workers (commute-table denominator) \u2014 Bowling Green, KY",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 57295.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 57366.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 57539.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 70945.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 71799.0
+    },
     {
       "t": "2015-12-31",
       "v": 72930.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 83733.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 85456.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 86724.0
     }
   ]
 }

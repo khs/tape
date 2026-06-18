@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_15380",
-  "name": "Households with no vehicle available \u2014 Buffalo-Cheektowaga",
+  "name": "Households with no vehicle available \u2014 Buffalo-Cheektowaga, NY",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 60284.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 61248.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 60298.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 61918.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 61225.0
+    },
     {
       "t": "2015-12-31",
       "v": 62077.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 58709.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 58321.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 56277.0
     }
   ]
 }

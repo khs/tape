@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_36100",
-  "name": "Households with no vehicle available \u2014 Ocala",
+  "name": "Households with no vehicle available \u2014 Ocala, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 6295.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 7106.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 7540.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 7874.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 8018.0
+    },
     {
       "t": "2015-12-31",
       "v": 8076.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 7597.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 7799.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 7858.0
     }
   ]
 }

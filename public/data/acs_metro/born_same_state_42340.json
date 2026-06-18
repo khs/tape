@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_42340",
-  "name": "Population born in current state of residence \u2014 Savannah",
+  "name": "Population born in current state of residence \u2014 Savannah, GA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 200399.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 201461.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 203876.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 206316.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 207237.0
+    },
     {
       "t": "2015-12-31",
       "v": 209473.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 217372.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 214775.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 216071.0
     }
   ]
 }

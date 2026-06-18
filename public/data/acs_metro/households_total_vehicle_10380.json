@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_10380",
-  "name": "Total households (vehicle-table denominator) \u2014 Aguadilla",
+  "name": "Total households (vehicle-table denominator) \u2014 Aguadilla, PR",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 97174.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 97968.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 95774.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 108283.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 109620.0
+    },
     {
       "t": "2015-12-31",
       "v": 110432.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 111556.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 90839.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 94130.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_22420",
-  "name": "Population born in current state of residence \u2014 Flint",
+  "name": "Population born in current state of residence \u2014 Flint, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 352453.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 350885.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 348624.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 347414.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 344929.0
+    },
     {
       "t": "2015-12-31",
       "v": 343289.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 336687.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 336739.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 334851.0
     }
   ]
 }

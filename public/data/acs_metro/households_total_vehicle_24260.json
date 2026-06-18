@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_24260",
-  "name": "Total households (vehicle-table denominator) \u2014 Grand Island",
+  "name": "Total households (vehicle-table denominator) \u2014 Grand Island, NE",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 27704.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 27850.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 28001.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 31548.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 31918.0
+    },
     {
       "t": "2015-12-31",
       "v": 31967.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 29745.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 30110.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 30296.0
     }
   ]
 }

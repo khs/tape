@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_42220",
-  "name": "Total workers (commute-table denominator) \u2014 Santa Rosa-Petaluma",
+  "name": "Total workers (commute-table denominator) \u2014 Santa Rosa-Petaluma, CA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 226243.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 226280.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 225785.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 225640.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 229141.0
+    },
     {
       "t": "2015-12-31",
       "v": 235017.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 242102.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 239742.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 237164.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_38340",
-  "name": "Population born in current state of residence \u2014 Pittsfield",
+  "name": "Population born in current state of residence \u2014 Pittsfield, MA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 90280.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 89338.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 89440.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 89015.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 87849.0
+    },
     {
       "t": "2015-12-31",
       "v": 86274.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 82711.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 81803.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 80816.0
     }
   ]
 }

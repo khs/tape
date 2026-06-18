@@ -1,0 +1,17 @@
+{
+  "id": "population_28450",
+  "name": "Total population \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 168413
+    },
+    {
+      "t": "2024-12-31",
+      "v": 168438
+    }
+  ]
+}

@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_15940",
-  "name": "Total population (mobility-table denominator) \u2014 Canton-Massillon",
+  "name": "Total population (mobility-table denominator) \u2014 Canton-Massillon, OH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 400613.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 400308.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 399708.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 399493.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 399052.0
+    },
     {
       "t": "2015-12-31",
       "v": 398839.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 396807.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 396312.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 396349.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_29100",
-  "name": "Foreign-born population \u2014 La Crosse-Onalaska",
+  "name": "Foreign-born population \u2014 La Crosse-Onalaska, WI-MN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 4313
+    },
+    {
+      "t": "2011-12-31",
+      "v": 4274
+    },
+    {
+      "t": "2012-12-31",
+      "v": 4215
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4052
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3667
+    },
     {
       "t": "2015-12-31",
       "v": 3601
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3731
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4166
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4344
     }
   ]
 }

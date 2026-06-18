@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_31900",
-  "name": "Households with no vehicle available \u2014 Mansfield",
+  "name": "Households with no vehicle available \u2014 Mansfield, OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3870.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3955.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3948.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4049.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4095.0
+    },
     {
       "t": "2015-12-31",
       "v": 4165.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3760.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3579.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3583.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_26380",
-  "name": "Foreign-born population \u2014 Houma-Bayou Cane-Thibodaux",
+  "name": "Foreign-born population \u2014 Houma-Bayou Cane-Thibodaux, LA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5194
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5790
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5808
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6351
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6633
+    },
     {
       "t": "2015-12-31",
       "v": 7120
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4655
+    },
+    {
+      "t": "2023-12-31",
+      "v": 5899
+    },
+    {
+      "t": "2024-12-31",
+      "v": 5672
     }
   ]
 }

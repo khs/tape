@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_33700",
-  "name": "Total households (vehicle-table denominator) \u2014 Modesto",
+  "name": "Total households (vehicle-table denominator) \u2014 Modesto, CA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 163841.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 164933.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 165999.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 166883.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 168090.0
+    },
     {
       "t": "2015-12-31",
       "v": 169196.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 175747.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 176457.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 177874.0
     }
   ]
 }

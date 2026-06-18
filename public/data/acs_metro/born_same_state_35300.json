@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_35300",
-  "name": "Population born in current state of residence \u2014 New Haven",
+  "name": "Population born in current state of residence \u2014 New Haven, CT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 535325.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 534018.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 534787.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 536025.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 536446.0
+    },
     {
       "t": "2015-12-31",
       "v": 534493.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 516774.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 338413.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 338468.0
     }
   ]
 }

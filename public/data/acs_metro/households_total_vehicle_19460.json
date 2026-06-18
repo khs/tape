@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_19460",
-  "name": "Total households (vehicle-table denominator) \u2014 Decatur",
+  "name": "Total households (vehicle-table denominator) \u2014 Decatur, AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 59787.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 59660.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 59499.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 59574.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 59168.0
+    },
     {
       "t": "2015-12-31",
       "v": 59772.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 60833.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 61897.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 62667.0
     }
   ]
 }

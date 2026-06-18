@@ -1,10 +1,30 @@
 {
   "id": "median_commute_minutes_39540",
-  "name": "Median travel time to work \u2014 Racine-Mount Pleasant",
+  "name": "Median travel time to work \u2014 Racine-Mount Pleasant, WI",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 18.8
+    },
+    {
+      "t": "2011-12-31",
+      "v": 20.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 20.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 20.2
+    },
+    {
+      "t": "2014-12-31",
+      "v": 20.4
+    },
     {
       "t": "2015-12-31",
       "v": 20.3
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 21.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 21.1
+    },
+    {
+      "t": "2024-12-31",
+      "v": 21.2
     }
   ]
 }

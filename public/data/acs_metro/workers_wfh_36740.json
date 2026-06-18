@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_36740",
-  "name": "Workers who work from home \u2014 Orlando-Kissimmee-Sanford",
+  "name": "Workers who work from home \u2014 Orlando-Kissimmee-Sanford, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 45168.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 44750.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 44337.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 45859.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 48200.0
+    },
     {
       "t": "2015-12-31",
       "v": 51449.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 169631.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 208527.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 241596.0
     }
   ]
 }

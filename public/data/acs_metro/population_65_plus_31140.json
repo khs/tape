@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_31140",
-  "name": "Population 65 and older \u2014 Louisville/Jefferson County",
+  "name": "Population 65 and older \u2014 Louisville/Jefferson County, KY-IN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 157826
+    },
+    {
+      "t": "2011-12-31",
+      "v": 161218
+    },
+    {
+      "t": "2012-12-31",
+      "v": 165386
+    },
+    {
+      "t": "2013-12-31",
+      "v": 165156
+    },
+    {
+      "t": "2014-12-31",
+      "v": 170223
+    },
     {
       "t": "2015-12-31",
       "v": 175798
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 212212
+    },
+    {
+      "t": "2023-12-31",
+      "v": 227994
+    },
+    {
+      "t": "2024-12-31",
+      "v": 234198
     }
   ]
 }

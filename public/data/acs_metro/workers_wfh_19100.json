@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_19100",
-  "name": "Workers who work from home \u2014 Dallas-Fort Worth-Arlington",
+  "name": "Workers who work from home \u2014 Dallas-Fort Worth-Arlington, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 123444.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 129461.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 135610.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 144465.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 149446.0
+    },
     {
       "t": "2015-12-31",
       "v": 157437.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 526725.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 627778.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 717347.0
     }
   ]
 }

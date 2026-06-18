@@ -1,10 +1,30 @@
 {
   "id": "population_29820",
-  "name": "Total population \u2014 Las Vegas-Henderson-North Las Vegas",
+  "name": "Total population \u2014 Las Vegas-Henderson-North Las Vegas, NV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1895521
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1928695
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1954773
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1976925
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2003613
+    },
     {
       "t": "2015-12-31",
       "v": 2035572
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2265926
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2293764
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2329548
     }
   ]
 }

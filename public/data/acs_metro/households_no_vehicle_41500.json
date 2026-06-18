@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_41500",
-  "name": "Households with no vehicle available \u2014 Salinas",
+  "name": "Households with no vehicle available \u2014 Salinas, CA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 7950.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 7686.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 7020.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6710.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6591.0
+    },
     {
       "t": "2015-12-31",
       "v": 6364.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 6253.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 6041.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 6264.0
     }
   ]
 }

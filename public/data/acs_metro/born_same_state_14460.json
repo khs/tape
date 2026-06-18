@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_14460",
-  "name": "Population born in current state of residence \u2014 Boston-Cambridge-Newton",
+  "name": "Population born in current state of residence \u2014 Boston-Cambridge-Newton, MA-NH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2628400.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2644062.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2662419.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2684195.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2692849.0
+    },
     {
       "t": "2015-12-31",
       "v": 2702380.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2681270.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2667582.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2671771.0
     }
   ]
 }

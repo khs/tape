@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_46660",
-  "name": "Total workers (commute-table denominator) \u2014 Valdosta",
+  "name": "Total workers (commute-table denominator) \u2014 Valdosta, GA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:52Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 60136.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 58950.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 59031.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 58017.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 57915.0
+    },
     {
       "t": "2015-12-31",
       "v": 57997.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 64591.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 65726.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 65709.0
     }
   ]
 }

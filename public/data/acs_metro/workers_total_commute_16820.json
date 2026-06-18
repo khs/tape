@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_16820",
-  "name": "Total workers (commute-table denominator) \u2014 Charlottesville",
+  "name": "Total workers (commute-table denominator) \u2014 Charlottesville, VA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 95298.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 95361.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 94921.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 99216.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 101614.0
+    },
     {
       "t": "2015-12-31",
       "v": 104300.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 107724.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 109211.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 109218.0
     }
   ]
 }

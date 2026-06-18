@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_28420",
-  "name": "Population born in current state of residence \u2014 Kennewick-Richland",
+  "name": "Population born in current state of residence \u2014 Kennewick-Richland, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:12Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 115139.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 119802.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 126209.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 131904.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 135652.0
+    },
     {
       "t": "2015-12-31",
       "v": 139613.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 158956.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 162551.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 164535.0
     }
   ]
 }

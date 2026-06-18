@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_21140",
-  "name": "Population born in current state of residence \u2014 Elkhart-Goshen",
+  "name": "Population born in current state of residence \u2014 Elkhart-Goshen, IN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:05Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 126226.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 128232.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 130859.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 132282.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 133788.0
+    },
     {
       "t": "2015-12-31",
       "v": 134768.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 140342.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 138998.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 139942.0
     }
   ]
 }

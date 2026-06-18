@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_30980",
-  "name": "Total workers (commute-table denominator) \u2014 Longview",
+  "name": "Total workers (commute-table denominator) \u2014 Longview, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 90938.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 91680.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 91474.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 91275.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 91774.0
+    },
     {
       "t": "2015-12-31",
       "v": 91876.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 124450.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 125726.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 126269.0
     }
   ]
 }

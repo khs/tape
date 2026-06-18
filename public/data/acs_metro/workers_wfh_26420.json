@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_26420",
-  "name": "Workers who work from home \u2014 Houston-Pasadena-The Woodlands",
+  "name": "Workers who work from home \u2014 Houston-Pasadena-The Woodlands, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 88287.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 91370.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 93620.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 97098.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 98248.0
+    },
     {
       "t": "2015-12-31",
       "v": 104086.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 346341.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 408963.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 471189.0
     }
   ]
 }

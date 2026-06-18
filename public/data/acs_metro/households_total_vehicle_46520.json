@@ -1,10 +1,18 @@
 {
   "id": "households_total_vehicle_46520",
-  "name": "Total households (vehicle-table denominator) \u2014 Urban Honolulu",
+  "name": "Total households (vehicle-table denominator) \u2014 Urban Honolulu, HI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 309803.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 310141.0
+    },
     {
       "t": "2015-12-31",
       "v": 309602.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 333700.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 337061.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 338868.0
     }
   ]
 }

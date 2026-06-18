@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_44100",
-  "name": "People who moved in the last year \u2014 Springfield",
+  "name": "People who moved in the last year \u2014 Springfield, IL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 33117
+    },
+    {
+      "t": "2011-12-31",
+      "v": 33428
+    },
+    {
+      "t": "2012-12-31",
+      "v": 33362
+    },
+    {
+      "t": "2013-12-31",
+      "v": 31888
+    },
+    {
+      "t": "2014-12-31",
+      "v": 31835
+    },
     {
       "t": "2015-12-31",
       "v": 32944
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 25024
+    },
+    {
+      "t": "2023-12-31",
+      "v": 23282
+    },
+    {
+      "t": "2024-12-31",
+      "v": 21167
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_34580",
-  "name": "Total households (vehicle-table denominator) \u2014 Mount Vernon-Anacortes",
+  "name": "Total households (vehicle-table denominator) \u2014 Mount Vernon-Anacortes, WA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 45253.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 45475.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 45474.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 45293.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 45309.0
+    },
     {
       "t": "2015-12-31",
       "v": 45841.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 50824.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 51518.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 52329.0
     }
   ]
 }

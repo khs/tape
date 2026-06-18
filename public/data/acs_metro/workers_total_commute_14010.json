@@ -1,10 +1,18 @@
 {
   "id": "workers_total_commute_14010",
-  "name": "Total workers (commute-table denominator) \u2014 Bloomington",
+  "name": "Total workers (commute-table denominator) \u2014 Bloomington, IL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 95172.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 96341.0
+    },
     {
       "t": "2015-12-31",
       "v": 97400.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 84210.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 84403.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 85768.0
     }
   ]
 }

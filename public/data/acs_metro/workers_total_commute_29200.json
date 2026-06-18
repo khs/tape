@@ -1,10 +1,18 @@
 {
   "id": "workers_total_commute_29200",
-  "name": "Total workers (commute-table denominator) \u2014 Lafayette-West Lafayette",
+  "name": "Total workers (commute-table denominator) \u2014 Lafayette-West Lafayette, IN",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 94479.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 95197.0
+    },
     {
       "t": "2015-12-31",
       "v": 97768.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 106343.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 108022.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 108324.0
     }
   ]
 }

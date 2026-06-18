@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_22220",
-  "name": "Population born in current state of residence \u2014 Fayetteville-Springdale-Rogers",
+  "name": "Population born in current state of residence \u2014 Fayetteville-Springdale-Rogers, AR",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 194732.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 200320.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 204741.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 209768.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 211880.0
+    },
     {
       "t": "2015-12-31",
       "v": 217422.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 248795.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 253775.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 257827.0
     }
   ]
 }

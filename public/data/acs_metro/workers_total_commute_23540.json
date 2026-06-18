@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_23540",
-  "name": "Total workers (commute-table denominator) \u2014 Gainesville",
+  "name": "Total workers (commute-table denominator) \u2014 Gainesville, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:07Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 119873.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 119479.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 119473.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 117528.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 118512.0
+    },
     {
       "t": "2015-12-31",
       "v": 120845.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 154744.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 156820.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 159811.0
     }
   ]
 }

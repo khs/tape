@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_14860",
-  "name": "Population 65 and older \u2014 Bridgeport-Stamford-Danbury",
+  "name": "Population 65 and older \u2014 Bridgeport-Stamford-Danbury, CT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 120537
+    },
+    {
+      "t": "2011-12-31",
+      "v": 122501
+    },
+    {
+      "t": "2012-12-31",
+      "v": 125049
+    },
+    {
+      "t": "2013-12-31",
+      "v": 127650
+    },
+    {
+      "t": "2014-12-31",
+      "v": 130275
+    },
     {
       "t": "2015-12-31",
       "v": 132779
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 155905
+    },
+    {
+      "t": "2023-12-31",
+      "v": 157181
+    },
+    {
+      "t": "2024-12-31",
+      "v": 162018
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_34820",
-  "name": "Total households (vehicle-table denominator) \u2014 Myrtle Beach-Conway-North Myrtle Beach",
+  "name": "Total households (vehicle-table denominator) \u2014 Myrtle Beach-Conway-North Myrtle Beach, SC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 112057.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 112358.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 113412.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 161090.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 164095.0
+    },
     {
       "t": "2015-12-31",
       "v": 167931.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 203298.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 150342.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 158779.0
     }
   ]
 }

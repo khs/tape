@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_16940",
-  "name": "Total population (mobility-table denominator) \u2014 Cheyenne",
+  "name": "Total population (mobility-table denominator) \u2014 Cheyenne, WY",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 88025.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 89251.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 90484.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 91975.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 93336.0
+    },
     {
       "t": "2015-12-31",
       "v": 94520.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 99129.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 99458.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 99834.0
     }
   ]
 }

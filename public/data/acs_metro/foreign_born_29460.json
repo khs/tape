@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_29460",
-  "name": "Foreign-born population \u2014 Lakeland-Winter Haven",
+  "name": "Foreign-born population \u2014 Lakeland-Winter Haven, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 63026
+    },
+    {
+      "t": "2011-12-31",
+      "v": 63339
+    },
+    {
+      "t": "2012-12-31",
+      "v": 63506
+    },
+    {
+      "t": "2013-12-31",
+      "v": 62357
+    },
+    {
+      "t": "2014-12-31",
+      "v": 62198
+    },
     {
       "t": "2015-12-31",
       "v": 62222
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 79909
+    },
+    {
+      "t": "2023-12-31",
+      "v": 87684
+    },
+    {
+      "t": "2024-12-31",
+      "v": 99373
     }
   ]
 }

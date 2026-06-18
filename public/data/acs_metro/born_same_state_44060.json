@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_44060",
-  "name": "Population born in current state of residence \u2014 Spokane-Spokane Valley",
+  "name": "Population born in current state of residence \u2014 Spokane-Spokane Valley, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 243742.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 245888.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 247060.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 283361.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 286721.0
+    },
     {
       "t": "2015-12-31",
       "v": 291226.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 319064.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 320509.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 323074.0
     }
   ]
 }

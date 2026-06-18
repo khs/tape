@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_12060",
-  "name": "Workers who work from home \u2014 Atlanta-Sandy Springs-Roswell",
+  "name": "Workers who work from home \u2014 Atlanta-Sandy Springs-Roswell, GA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:56Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 129684.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 133573.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 138073.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 139576.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 144336.0
+    },
     {
       "t": "2015-12-31",
       "v": 152264.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 482968.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 564422.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 637399.0
     }
   ]
 }

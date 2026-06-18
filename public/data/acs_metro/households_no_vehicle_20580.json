@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_20580",
-  "name": "Households with no vehicle available \u2014 Eagle Pass",
+  "name": "Households with no vehicle available \u2014 Eagle Pass, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1232.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1219.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1204.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1227.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1239.0
+    },
     {
       "t": "2015-12-31",
       "v": 1209.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1401.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1323.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1185.0
     }
   ]
 }

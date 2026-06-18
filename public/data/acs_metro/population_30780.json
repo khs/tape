@@ -1,10 +1,30 @@
 {
   "id": "population_30780",
-  "name": "Total population \u2014 Little Rock-North Little Rock-Conway",
+  "name": "Total population \u2014 Little Rock-North Little Rock-Conway, AR",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 681812
+    },
+    {
+      "t": "2011-12-31",
+      "v": 691478
+    },
+    {
+      "t": "2012-12-31",
+      "v": 700952
+    },
+    {
+      "t": "2013-12-31",
+      "v": 709447
+    },
+    {
+      "t": "2014-12-31",
+      "v": 716849
+    },
     {
       "t": "2015-12-31",
       "v": 722684
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 749290
+    },
+    {
+      "t": "2023-12-31",
+      "v": 753605
+    },
+    {
+      "t": "2024-12-31",
+      "v": 758629
     }
   ]
 }

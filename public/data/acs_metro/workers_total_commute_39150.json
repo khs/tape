@@ -1,9 +1,9 @@
 {
   "id": "workers_total_commute_39150",
-  "name": "Total workers (commute-table denominator) \u2014 Prescott Valley-Prescott",
+  "name": "Total workers (commute-table denominator) \u2014 Prescott Valley-Prescott, AZ",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 92865.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 94528.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 96204.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_19340",
-  "name": "Households with no vehicle available \u2014 Davenport-Moline-Rock Island",
+  "name": "Households with no vehicle available \u2014 Davenport-Moline-Rock Island, IA-IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 10619.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 10879.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 10813.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 10642.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 10747.0
+    },
     {
       "t": "2015-12-31",
       "v": 10858.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 11496.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 11697.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 11722.0
     }
   ]
 }

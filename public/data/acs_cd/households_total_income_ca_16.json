@@ -3,7 +3,7 @@
   "name": "Total households (income-table denominator) \u2014 CA-16",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T19:24:50Z",
+  "lastUpdated": "2026-06-18T21:21:44Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 268965
+    },
+    {
+      "t": "2023-12-31",
+      "v": 269760
+    },
+    {
+      "t": "2024-12-31",
+      "v": 270097
     }
   ]
 }

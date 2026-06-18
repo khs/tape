@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_37100",
-  "name": "Total population (mobility-table denominator) \u2014 Oxnard-Thousand Oaks-Ventura",
+  "name": "Total population (mobility-table denominator) \u2014 Oxnard-Thousand Oaks-Ventura, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 799014.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 805752.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 813097.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 819299.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 826407.0
+    },
     {
       "t": "2015-12-31",
       "v": 831110.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 833669.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 830086.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 829202.0
     }
   ]
 }

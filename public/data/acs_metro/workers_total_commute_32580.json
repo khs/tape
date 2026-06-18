@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_32580",
-  "name": "Total workers (commute-table denominator) \u2014 McAllen-Edinburg-Mission",
+  "name": "Total workers (commute-table denominator) \u2014 McAllen-Edinburg-Mission, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 260986.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 269223.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 274317.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 279633.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 285509.0
+    },
     {
       "t": "2015-12-31",
       "v": 291874.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 332795.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 336737.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 345428.0
     }
   ]
 }

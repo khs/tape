@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_39660",
-  "name": "Households with no vehicle available \u2014 Rapid City",
+  "name": "Households with no vehicle available \u2014 Rapid City, SD",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2171.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2460.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2547.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2354.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2408.0
+    },
     {
       "t": "2015-12-31",
       "v": 2248.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2777.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2951.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3064.0
     }
   ]
 }

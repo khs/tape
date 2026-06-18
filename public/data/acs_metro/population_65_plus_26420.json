@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_26420",
-  "name": "Population 65 and older \u2014 Houston-Pasadena-The Woodlands",
+  "name": "Population 65 and older \u2014 Houston-Pasadena-The Woodlands, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 476550
+    },
+    {
+      "t": "2011-12-31",
+      "v": 496851
+    },
+    {
+      "t": "2012-12-31",
+      "v": 520359
+    },
+    {
+      "t": "2013-12-31",
+      "v": 542161
+    },
+    {
+      "t": "2014-12-31",
+      "v": 572040
+    },
     {
       "t": "2015-12-31",
       "v": 603786
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 832286
+    },
+    {
+      "t": "2023-12-31",
+      "v": 875814
+    },
+    {
+      "t": "2024-12-31",
+      "v": 918547
     }
   ]
 }

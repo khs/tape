@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_12540",
-  "name": "Population born in current state of residence \u2014 Bakersfield-Delano",
+  "name": "Population born in current state of residence \u2014 Bakersfield-Delano, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 506920.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 521146.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 531117.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 537666.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 549522.0
+    },
     {
       "t": "2015-12-31",
       "v": 561005.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 613886.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 618450.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 620098.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_42540",
-  "name": "Households with no vehicle available \u2014 Scranton--Wilkes-Barre",
+  "name": "Households with no vehicle available \u2014 Scranton--Wilkes-Barre, PA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 23496.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 23762.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 23685.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 23503.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 23368.0
+    },
     {
       "t": "2015-12-31",
       "v": 23230.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 23006.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 22307.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 21680.0
     }
   ]
 }

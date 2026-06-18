@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_36500",
-  "name": "People who moved in the last year \u2014 Olympia-Lacey-Tumwater",
+  "name": "People who moved in the last year \u2014 Olympia-Lacey-Tumwater, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 43924
+    },
+    {
+      "t": "2011-12-31",
+      "v": 45446
+    },
+    {
+      "t": "2012-12-31",
+      "v": 45564
+    },
+    {
+      "t": "2013-12-31",
+      "v": 46648
+    },
+    {
+      "t": "2014-12-31",
+      "v": 47728
+    },
     {
       "t": "2015-12-31",
       "v": 49518
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 48371
+    },
+    {
+      "t": "2023-12-31",
+      "v": 46426
+    },
+    {
+      "t": "2024-12-31",
+      "v": 43214
     }
   ]
 }

@@ -1,10 +1,18 @@
 {
   "id": "born_same_state_42200",
-  "name": "Population born in current state of residence \u2014 Santa Maria-Santa Barbara",
+  "name": "Population born in current state of residence \u2014 Santa Maria-Santa Barbara, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 232794.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 237725.0
+    },
     {
       "t": "2015-12-31",
       "v": 241987.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 257942.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 257796.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 258734.0
     }
   ]
 }

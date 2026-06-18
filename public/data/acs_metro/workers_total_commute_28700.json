@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_28700",
-  "name": "Total workers (commute-table denominator) \u2014 Kingsport-Bristol",
+  "name": "Total workers (commute-table denominator) \u2014 Kingsport-Bristol, TN-VA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 128618.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 128310.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 126484.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 125184.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 125326.0
+    },
     {
       "t": "2015-12-31",
       "v": 125261.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 127819.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 128974.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 129558.0
     }
   ]
 }

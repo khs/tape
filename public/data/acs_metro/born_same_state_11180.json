@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_11180",
-  "name": "Population born in current state of residence \u2014 Ames",
+  "name": "Population born in current state of residence \u2014 Ames, IA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:56Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 54972.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 55338.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 56062.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 56305.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 56210.0
+    },
     {
       "t": "2015-12-31",
       "v": 57624.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 82588.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 81785.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 82334.0
     }
   ]
 }

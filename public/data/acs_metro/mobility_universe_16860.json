@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_16860",
-  "name": "Total population (mobility-table denominator) \u2014 Chattanooga",
+  "name": "Total population (mobility-table denominator) \u2014 Chattanooga, TN-GA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 511644.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 517418.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 522748.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 527216.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 531445.0
+    },
     {
       "t": "2015-12-31",
       "v": 535016.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 558128.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 562274.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 568656.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_13820",
-  "name": "Total households (vehicle-table denominator) \u2014 Birmingham",
+  "name": "Total households (vehicle-table denominator) \u2014 Birmingham, AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 432183.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 432911.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 434584.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 435313.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 435724.0
+    },
     {
       "t": "2015-12-31",
       "v": 438124.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 429181.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 460747.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 465003.0
     }
   ]
 }

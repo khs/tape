@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_40420",
-  "name": "Total households (vehicle-table denominator) \u2014 Rockford",
+  "name": "Total households (vehicle-table denominator) \u2014 Rockford, IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:46Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 130374.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 130975.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 130983.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 131387.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 131715.0
+    },
     {
       "t": "2015-12-31",
       "v": 132041.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 134238.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 134604.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 135474.0
     }
   ]
 }

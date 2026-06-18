@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_28700",
-  "name": "Total households (vehicle-table denominator) \u2014 Kingsport-Bristol",
+  "name": "Total households (vehicle-table denominator) \u2014 Kingsport-Bristol, TN-VA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 130522.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 130899.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 130342.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 129708.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 129662.0
+    },
     {
       "t": "2015-12-31",
       "v": 129358.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 128510.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 129894.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 130939.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_37100",
-  "name": "Workers who work from home \u2014 Oxnard-Thousand Oaks-Ventura",
+  "name": "Workers who work from home \u2014 Oxnard-Thousand Oaks-Ventura, CA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 18893.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 19889.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 20687.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 20923.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 21757.0
+    },
     {
       "t": "2015-12-31",
       "v": 21580.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 49966.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 56432.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 63155.0
     }
   ]
 }

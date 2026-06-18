@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_31540",
-  "name": "Households with no vehicle available \u2014 Madison",
+  "name": "Households with no vehicle available \u2014 Madison, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 16306.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 16836.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 18064.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 19531.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 19234.0
+    },
     {
       "t": "2015-12-31",
       "v": 18929.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 20107.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 21705.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22842.0
     }
   ]
 }

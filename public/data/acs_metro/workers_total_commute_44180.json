@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_44180",
-  "name": "Total workers (commute-table denominator) \u2014 Springfield",
+  "name": "Total workers (commute-table denominator) \u2014 Springfield, MO",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 200653.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 200764.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 200882.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 199666.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 201130.0
+    },
     {
       "t": "2015-12-31",
       "v": 202937.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 221667.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 226248.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 231490.0
     }
   ]
 }

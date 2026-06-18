@@ -3,7 +3,7 @@
   "name": "Total workers (commute-table denominator) \u2014 VA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-18T02:35:57Z",
+  "lastUpdated": "2026-06-18T21:25:53Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4290609
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4308388
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4327663
     }
   ]
 }

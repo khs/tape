@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_25020",
-  "name": "Total workers (commute-table denominator) \u2014 Guayama",
+  "name": "Total workers (commute-table denominator) \u2014 Guayama, PR",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:09Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 21130.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 21282.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 20097.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 19345.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 18217.0
+    },
     {
       "t": "2015-12-31",
       "v": 17171.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 16879.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 18083.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 19698.0
     }
   ]
 }

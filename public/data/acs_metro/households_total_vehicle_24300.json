@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_24300",
-  "name": "Total households (vehicle-table denominator) \u2014 Grand Junction",
+  "name": "Total households (vehicle-table denominator) \u2014 Grand Junction, CO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 57123.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 58288.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 58635.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 58598.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 58966.0
+    },
     {
       "t": "2015-12-31",
       "v": 59215.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 63098.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 64559.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 65830.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_11540",
-  "name": "Total population (mobility-table denominator) \u2014 Appleton",
+  "name": "Total population (mobility-table denominator) \u2014 Appleton, WI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:56Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 219620.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 221300.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 223018.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 224770.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 226172.0
+    },
     {
       "t": "2015-12-31",
       "v": 227546.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 240538.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 241716.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 243223.0
     }
   ]
 }

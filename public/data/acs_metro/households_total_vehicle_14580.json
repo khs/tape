@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_14580",
-  "name": "Total households (vehicle-table denominator) \u2014 Bozeman",
+  "name": "Total households (vehicle-table denominator) \u2014 Bozeman, MT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 35753.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 36528.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 36659.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 36973.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 37495.0
+    },
     {
       "t": "2015-12-31",
       "v": 38292.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 47874.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 50031.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 51215.0
     }
   ]
 }

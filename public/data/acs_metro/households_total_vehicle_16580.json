@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_16580",
-  "name": "Total households (vehicle-table denominator) \u2014 Champaign-Urbana",
+  "name": "Total households (vehicle-table denominator) \u2014 Champaign-Urbana, IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 90044.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 91116.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 91327.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 91334.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 91858.0
+    },
     {
       "t": "2015-12-31",
       "v": 92183.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 89250.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 96356.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 98224.0
     }
   ]
 }

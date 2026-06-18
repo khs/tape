@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_29620",
-  "name": "Foreign-born population \u2014 Lansing-East Lansing",
+  "name": "Foreign-born population \u2014 Lansing-East Lansing, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 29044
+    },
+    {
+      "t": "2011-12-31",
+      "v": 29917
+    },
+    {
+      "t": "2012-12-31",
+      "v": 29762
+    },
+    {
+      "t": "2013-12-31",
+      "v": 29799
+    },
+    {
+      "t": "2014-12-31",
+      "v": 30495
+    },
     {
       "t": "2015-12-31",
       "v": 30467
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 34542
+    },
+    {
+      "t": "2023-12-31",
+      "v": 33097
+    },
+    {
+      "t": "2024-12-31",
+      "v": 33308
     }
   ]
 }

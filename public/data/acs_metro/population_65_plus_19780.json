@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_19780",
-  "name": "Population 65 and older \u2014 Des Moines-West Des Moines",
+  "name": "Population 65 and older \u2014 Des Moines-West Des Moines, IA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 61482
+    },
+    {
+      "t": "2011-12-31",
+      "v": 62821
+    },
+    {
+      "t": "2012-12-31",
+      "v": 64403
+    },
+    {
+      "t": "2013-12-31",
+      "v": 66371
+    },
+    {
+      "t": "2014-12-31",
+      "v": 68609
+    },
     {
       "t": "2015-12-31",
       "v": 71353
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 100294
+    },
+    {
+      "t": "2023-12-31",
+      "v": 102705
+    },
+    {
+      "t": "2024-12-31",
+      "v": 106366
     }
   ]
 }

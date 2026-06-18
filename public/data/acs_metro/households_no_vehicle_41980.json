@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_41980",
-  "name": "Households with no vehicle available \u2014 San Juan-Bayam\u00f3n-Caguas",
+  "name": "Households with no vehicle available \u2014 San Juan-Bayam\u00f3n-Caguas, PR",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 163147.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 161077.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 152703.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 141589.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 138716.0
+    },
     {
       "t": "2015-12-31",
       "v": 136801.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 111502.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 109050.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 108632.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_33700",
-  "name": "Total workers (commute-table denominator) \u2014 Modesto",
+  "name": "Total workers (commute-table denominator) \u2014 Modesto, CA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 201003.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 199567.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 198002.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 196796.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 199368.0
+    },
     {
       "t": "2015-12-31",
       "v": 202400.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 229451.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 232981.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 233227.0
     }
   ]
 }

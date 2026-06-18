@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_12020",
-  "name": "Total households (vehicle-table denominator) \u2014 Athens-Clarke County",
+  "name": "Total households (vehicle-table denominator) \u2014 Athens-Clarke County, GA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:56Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 67266.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 66676.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 66530.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 67776.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 68975.0
+    },
     {
       "t": "2015-12-31",
       "v": 70973.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 83822.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 85019.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 86101.0
     }
   ]
 }

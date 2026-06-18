@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_31540",
-  "name": "Total population (mobility-table denominator) \u2014 Madison",
+  "name": "Total population (mobility-table denominator) \u2014 Madison, WI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 551154.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 557628.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 564065.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 607010.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 612986.0
+    },
     {
       "t": "2015-12-31",
       "v": 620548.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 672315.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 677726.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 685941.0
     }
   ]
 }

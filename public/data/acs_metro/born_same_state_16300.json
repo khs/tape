@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_16300",
-  "name": "Population born in current state of residence \u2014 Cedar Rapids",
+  "name": "Population born in current state of residence \u2014 Cedar Rapids, IA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 191662.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 193456.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 194787.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 195583.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 195376.0
+    },
     {
       "t": "2015-12-31",
       "v": 196573.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 203016.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 203047.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 204256.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_46340",
-  "name": "Total workers (commute-table denominator) \u2014 Tyler",
+  "name": "Total workers (commute-table denominator) \u2014 Tyler, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:52Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 91396.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 91262.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 92263.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 92647.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 93342.0
+    },
     {
       "t": "2015-12-31",
       "v": 93972.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 107599.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 107752.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 110174.0
     }
   ]
 }

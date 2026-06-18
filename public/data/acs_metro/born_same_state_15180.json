@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_15180",
-  "name": "Population born in current state of residence \u2014 Brownsville-Harlingen",
+  "name": "Population born in current state of residence \u2014 Brownsville-Harlingen, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 250373.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 256437.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 261368.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 264635.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 268060.0
+    },
     {
       "t": "2015-12-31",
       "v": 273091.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 284771.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 283919.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 283272.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_25620",
-  "name": "Total workers (commute-table denominator) \u2014 Hattiesburg",
+  "name": "Total workers (commute-table denominator) \u2014 Hattiesburg, MS",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 61539.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 62682.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 62334.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 62534.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 62608.0
+    },
     {
       "t": "2015-12-31",
       "v": 63645.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 76354.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 70095.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 70766.0
     }
   ]
 }

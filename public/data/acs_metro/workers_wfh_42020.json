@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_42020",
-  "name": "Workers who work from home \u2014 San Luis Obispo-Paso Robles",
+  "name": "Workers who work from home \u2014 San Luis Obispo-Paso Robles, CA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 7204.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 8202.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 8329.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 8357.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 8076.0
+    },
     {
       "t": "2015-12-31",
       "v": 8706.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 16858.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 18049.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 19256.0
     }
   ]
 }

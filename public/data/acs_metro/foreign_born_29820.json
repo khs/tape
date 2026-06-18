@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_29820",
-  "name": "Foreign-born population \u2014 Las Vegas-Henderson-North Las Vegas",
+  "name": "Foreign-born population \u2014 Las Vegas-Henderson-North Las Vegas, NV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 418443
+    },
+    {
+      "t": "2011-12-31",
+      "v": 423192
+    },
+    {
+      "t": "2012-12-31",
+      "v": 427735
+    },
+    {
+      "t": "2013-12-31",
+      "v": 431587
+    },
+    {
+      "t": "2014-12-31",
+      "v": 436457
+    },
     {
       "t": "2015-12-31",
       "v": 445605
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 494511
+    },
+    {
+      "t": "2023-12-31",
+      "v": 497940
+    },
+    {
+      "t": "2024-12-31",
+      "v": 509336
     }
   ]
 }

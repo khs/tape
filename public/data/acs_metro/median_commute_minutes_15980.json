@@ -1,10 +1,30 @@
 {
   "id": "median_commute_minutes_15980",
-  "name": "Median travel time to work \u2014 Cape Coral-Fort Myers",
+  "name": "Median travel time to work \u2014 Cape Coral-Fort Myers, FL",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 23.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 23.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 23.1
+    },
+    {
+      "t": "2013-12-31",
+      "v": 23.3
+    },
+    {
+      "t": "2014-12-31",
+      "v": 23.5
+    },
     {
       "t": "2015-12-31",
       "v": 23.8
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 25.5
+    },
+    {
+      "t": "2023-12-31",
+      "v": 25.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": 26.9
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_33780",
-  "name": "Total workers (commute-table denominator) \u2014 Monroe",
+  "name": "Total workers (commute-table denominator) \u2014 Monroe, MI",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 68007.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 66533.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 65955.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 65105.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 65710.0
+    },
     {
       "t": "2015-12-31",
       "v": 66682.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 69702.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 70195.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 70475.0
     }
   ]
 }

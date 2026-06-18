@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_22540",
-  "name": "Total households (vehicle-table denominator) \u2014 Fond du Lac",
+  "name": "Total households (vehicle-table denominator) \u2014 Fond du Lac, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 40484.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 40832.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 41057.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 41267.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 41290.0
+    },
     {
       "t": "2015-12-31",
       "v": 41069.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 42368.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 43016.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 43243.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_16180",
-  "name": "Households with no vehicle available \u2014 Carson City",
+  "name": "Households with no vehicle available \u2014 Carson City, NV",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1323.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1193.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1398.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1623.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1545.0
+    },
     {
       "t": "2015-12-31",
       "v": 1601.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1463.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1464.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1620.0
     }
   ]
 }

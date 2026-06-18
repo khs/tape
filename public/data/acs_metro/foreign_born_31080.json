@@ -1,10 +1,18 @@
 {
   "id": "foreign_born_31080",
-  "name": "Foreign-born population \u2014 Los Angeles-Long Beach-Anaheim",
+  "name": "Foreign-born population \u2014 Los Angeles-Long Beach-Anaheim, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 4400918
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4420863
+    },
     {
       "t": "2015-12-31",
       "v": 4436466
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 4249106
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4231599
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4241527
     }
   ]
 }

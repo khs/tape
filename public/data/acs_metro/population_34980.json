@@ -1,10 +1,30 @@
 {
   "id": "population_34980",
-  "name": "Total population \u2014 Nashville-Davidson--Murfreesboro--Franklin",
+  "name": "Total population \u2014 Nashville-Davidson--Murfreesboro--Franklin, TN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1541541
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1569470
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1595454
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1702603
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1730515
+    },
     {
       "t": "2015-12-31",
       "v": 1761848
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1990873
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2043713
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2079596
     }
   ]
 }

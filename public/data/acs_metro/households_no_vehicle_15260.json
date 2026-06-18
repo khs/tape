@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_15260",
-  "name": "Households with no vehicle available \u2014 Brunswick-St. Simons",
+  "name": "Households with no vehicle available \u2014 Brunswick-St. Simons, GA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2564.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2730.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2306.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2443.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2747.0
+    },
     {
       "t": "2015-12-31",
       "v": 2905.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2696.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2590.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2269.0
     }
   ]
 }

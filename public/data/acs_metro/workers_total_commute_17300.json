@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_17300",
-  "name": "Total workers (commute-table denominator) \u2014 Clarksville",
+  "name": "Total workers (commute-table denominator) \u2014 Clarksville, TN-KY",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 114593.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 115908.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 117050.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 113644.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 114849.0
+    },
     {
       "t": "2015-12-31",
       "v": 118644.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 145460.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 148720.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 153593.0
     }
   ]
 }

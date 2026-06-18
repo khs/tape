@@ -3,7 +3,7 @@
   "name": "Total workers (industry-table denominator) \u2014 NC",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-18T02:36:25Z",
+  "lastUpdated": "2026-06-18T21:26:17Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4925499
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4990709
+    },
+    {
+      "t": "2024-12-31",
+      "v": 5084959
     }
   ]
 }

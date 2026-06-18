@@ -1,0 +1,17 @@
+{
+  "id": "born_same_state_28450",
+  "name": "Population born in current state of residence \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 85992.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 84833.0
+    }
+  ]
+}

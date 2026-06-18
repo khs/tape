@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_38860",
-  "name": "Total population (mobility-table denominator) \u2014 Portland-South Portland",
+  "name": "Total population (mobility-table denominator) \u2014 Portland-South Portland, ME",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 507755.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 508691.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 510091.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 511156.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 513420.0
+    },
     {
       "t": "2015-12-31",
       "v": 516179.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 548155.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 553001.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 558268.0
     }
   ]
 }

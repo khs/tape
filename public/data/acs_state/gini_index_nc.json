@@ -3,7 +3,7 @@
   "name": "Income inequality (Gini index) \u2014 NC",
   "kind": "timeseries",
   "unit": "ratio",
-  "lastUpdated": "2026-06-17T19:29:24Z",
+  "lastUpdated": "2026-06-18T21:26:45Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 0.468
+    },
+    {
+      "t": "2023-12-31",
+      "v": 0.467
+    },
+    {
+      "t": "2024-12-31",
+      "v": 0.469
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_13980",
-  "name": "Workers who work from home \u2014 Blacksburg-Christiansburg-Radford",
+  "name": "Workers who work from home \u2014 Blacksburg-Christiansburg-Radford, VA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3091.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3330.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3281.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3756.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3507.0
+    },
     {
       "t": "2015-12-31",
       "v": 3236.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 5803.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 8093.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 8870.0
     }
   ]
 }

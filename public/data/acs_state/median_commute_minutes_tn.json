@@ -3,7 +3,7 @@
   "name": "Median travel time to work \u2014 TN",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-18T02:36:56Z",
+  "lastUpdated": "2026-06-18T21:26:52Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 22.5
+    },
+    {
+      "t": "2023-12-31",
+      "v": 22.6
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22.7
     }
   ]
 }

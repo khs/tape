@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_12580",
-  "name": "Workers who work from home \u2014 Baltimore-Columbia-Towson",
+  "name": "Workers who work from home \u2014 Baltimore-Columbia-Towson, MD",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 48605.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 50052.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 51397.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 53448.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 54459.0
+    },
     {
       "t": "2015-12-31",
       "v": 55995.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 195793.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 230167.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 261810.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_26980",
-  "name": "Total population (mobility-table denominator) \u2014 Iowa City",
+  "name": "Total population (mobility-table denominator) \u2014 Iowa City, IA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:11Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 146655.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 149002.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 151562.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 153990.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 156798.0
+    },
     {
       "t": "2015-12-31",
       "v": 159377.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 173832.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 175409.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 177298.0
     }
   ]
 }

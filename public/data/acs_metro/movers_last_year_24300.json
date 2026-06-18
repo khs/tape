@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_24300",
-  "name": "People who moved in the last year \u2014 Grand Junction",
+  "name": "People who moved in the last year \u2014 Grand Junction, CO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 29389
+    },
+    {
+      "t": "2011-12-31",
+      "v": 29143
+    },
+    {
+      "t": "2012-12-31",
+      "v": 27817
+    },
+    {
+      "t": "2013-12-31",
+      "v": 27746
+    },
+    {
+      "t": "2014-12-31",
+      "v": 28484
+    },
     {
       "t": "2015-12-31",
       "v": 28274
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 28654
+    },
+    {
+      "t": "2023-12-31",
+      "v": 26560
+    },
+    {
+      "t": "2024-12-31",
+      "v": 24152
     }
   ]
 }

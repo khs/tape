@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_24420",
-  "name": "Total workers (commute-table denominator) \u2014 Grants Pass",
+  "name": "Total workers (commute-table denominator) \u2014 Grants Pass, OR",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 30990.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 29927.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 29213.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 27940.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 27682.0
+    },
     {
       "t": "2015-12-31",
       "v": 27714.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 32841.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 32729.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 33231.0
     }
   ]
 }

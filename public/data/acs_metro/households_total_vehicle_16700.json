@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_16700",
-  "name": "Total households (vehicle-table denominator) \u2014 Charleston-North Charleston",
+  "name": "Total households (vehicle-table denominator) \u2014 Charleston-North Charleston, SC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 245938.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 250406.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 253715.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 259430.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 264864.0
+    },
     {
       "t": "2015-12-31",
       "v": 268904.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 318484.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 327420.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 335865.0
     }
   ]
 }

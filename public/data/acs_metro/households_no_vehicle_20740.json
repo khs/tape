@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_20740",
-  "name": "Households with no vehicle available \u2014 Eau Claire",
+  "name": "Households with no vehicle available \u2014 Eau Claire, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3547.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3697.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3690.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3841.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4104.0
+    },
     {
       "t": "2015-12-31",
       "v": 4001.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3514.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3561.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4183.0
     }
   ]
 }

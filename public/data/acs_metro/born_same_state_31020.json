@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_31020",
-  "name": "Population born in current state of residence \u2014 Longview-Kelso",
+  "name": "Population born in current state of residence \u2014 Longview-Kelso, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 54571.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 55684.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 56203.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 56389.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 57164.0
+    },
     {
       "t": "2015-12-31",
       "v": 57365.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 58151.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 58198.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 58559.0
     }
   ]
 }

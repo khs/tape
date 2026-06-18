@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_18140",
-  "name": "Total households (vehicle-table denominator) \u2014 Columbus",
+  "name": "Total households (vehicle-table denominator) \u2014 Columbus, OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 700135.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 705771.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 710600.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 741026.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 748544.0
+    },
     {
       "t": "2015-12-31",
       "v": 756520.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 843638.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 855292.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 864663.0
     }
   ]
 }

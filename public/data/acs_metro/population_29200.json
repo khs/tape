@@ -1,10 +1,18 @@
 {
   "id": "population_29200",
-  "name": "Total population \u2014 Lafayette-West Lafayette",
+  "name": "Total population \u2014 Lafayette-West Lafayette, IN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 204560
+    },
+    {
+      "t": "2014-12-31",
+      "v": 207013
+    },
     {
       "t": "2015-12-31",
       "v": 209718
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 224515
+    },
+    {
+      "t": "2023-12-31",
+      "v": 225019
+    },
+    {
+      "t": "2024-12-31",
+      "v": 226805
     }
   ]
 }

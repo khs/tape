@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_27780",
-  "name": "Population born in current state of residence \u2014 Johnstown",
+  "name": "Population born in current state of residence \u2014 Johnstown, PA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:12Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 128002.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 127689.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 126788.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 126060.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 123878.0
+    },
     {
       "t": "2015-12-31",
       "v": 121832.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 117073.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 115655.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 114733.0
     }
   ]
 }

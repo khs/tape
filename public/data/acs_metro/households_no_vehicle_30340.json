@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_30340",
-  "name": "Households with no vehicle available \u2014 Lewiston-Auburn",
+  "name": "Households with no vehicle available \u2014 Lewiston-Auburn, ME",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 4048.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 4237.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 4329.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4735.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4968.0
+    },
     {
       "t": "2015-12-31",
       "v": 4755.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4130.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4190.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4427.0
     }
   ]
 }

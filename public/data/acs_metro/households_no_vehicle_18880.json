@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_18880",
-  "name": "Households with no vehicle available \u2014 Crestview-Fort Walton Beach-Destin",
+  "name": "Households with no vehicle available \u2014 Crestview-Fort Walton Beach-Destin, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2735.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2940.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3241.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4530.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4665.0
+    },
     {
       "t": "2015-12-31",
       "v": 5044.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4316.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4488.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4266.0
     }
   ]
 }

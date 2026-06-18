@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_29820",
-  "name": "Population 65 and older \u2014 Las Vegas-Henderson-North Las Vegas",
+  "name": "Population 65 and older \u2014 Las Vegas-Henderson-North Las Vegas, NV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 205650
+    },
+    {
+      "t": "2011-12-31",
+      "v": 213960
+    },
+    {
+      "t": "2012-12-31",
+      "v": 223824
+    },
+    {
+      "t": "2013-12-31",
+      "v": 234741
+    },
+    {
+      "t": "2014-12-31",
+      "v": 247087
+    },
     {
       "t": "2015-12-31",
       "v": 260523
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 343754
+    },
+    {
+      "t": "2023-12-31",
+      "v": 357352
+    },
+    {
+      "t": "2024-12-31",
+      "v": 370419
     }
   ]
 }

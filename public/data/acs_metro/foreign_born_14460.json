@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_14460",
-  "name": "Foreign-born population \u2014 Boston-Cambridge-Newton",
+  "name": "Foreign-born population \u2014 Boston-Cambridge-Newton, MA-NH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 731099
+    },
+    {
+      "t": "2011-12-31",
+      "v": 744137
+    },
+    {
+      "t": "2012-12-31",
+      "v": 756017
+    },
+    {
+      "t": "2013-12-31",
+      "v": 771081
+    },
+    {
+      "t": "2014-12-31",
+      "v": 794041
+    },
     {
       "t": "2015-12-31",
       "v": 813764
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 962256
+    },
+    {
+      "t": "2023-12-31",
+      "v": 966395
+    },
+    {
+      "t": "2024-12-31",
+      "v": 991133
     }
   ]
 }

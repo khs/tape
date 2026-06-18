@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_48060",
-  "name": "Total households (vehicle-table denominator) \u2014 Watertown-Fort Drum",
+  "name": "Total households (vehicle-table denominator) \u2014 Watertown-Fort Drum, NY",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 44109.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 44722.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 45162.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 45011.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 44822.0
+    },
     {
       "t": "2015-12-31",
       "v": 44306.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 46099.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 46701.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 47606.0
     }
   ]
 }

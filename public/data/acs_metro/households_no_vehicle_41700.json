@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_41700",
-  "name": "Households with no vehicle available \u2014 San Antonio-New Braunfels",
+  "name": "Households with no vehicle available \u2014 San Antonio-New Braunfels, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 53284.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 54076.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 53778.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 53318.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 54282.0
+    },
     {
       "t": "2015-12-31",
       "v": 53568.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 52274.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 52723.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 54454.0
     }
   ]
 }

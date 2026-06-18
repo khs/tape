@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_24140",
-  "name": "Total households (vehicle-table denominator) \u2014 Goldsboro",
+  "name": "Total households (vehicle-table denominator) \u2014 Goldsboro, NC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:07Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 46280.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 47027.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 47482.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 47330.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 47480.0
+    },
     {
       "t": "2015-12-31",
       "v": 47530.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 46949.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 46888.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 47507.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_33340",
-  "name": "Households with no vehicle available \u2014 Milwaukee-Waukesha",
+  "name": "Households with no vehicle available \u2014 Milwaukee-Waukesha, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 60187.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 61287.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 62931.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 63898.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 64792.0
+    },
     {
       "t": "2015-12-31",
       "v": 64802.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 57922.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 57953.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 58663.0
     }
   ]
 }

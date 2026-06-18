@@ -3,7 +3,7 @@
   "name": "Total population (mobility-table denominator) \u2014 OR",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:15Z",
+  "lastUpdated": "2026-06-18T21:26:08Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4190769
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4200283
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4216018
     }
   ]
 }

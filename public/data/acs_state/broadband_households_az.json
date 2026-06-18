@@ -3,7 +3,7 @@
   "name": "Households with broadband internet \u2014 AZ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-18T02:35:38Z",
+  "lastUpdated": "2026-06-18T21:25:38Z",
   "points": [
     {
       "t": "2017-12-31",
@@ -28,6 +28,14 @@
     {
       "t": "2022-12-31",
       "v": 2443288
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2527555
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2614705
     }
   ]
 }

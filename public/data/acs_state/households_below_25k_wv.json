@@ -3,7 +3,7 @@
   "name": "Households with income under $25k \u2014 WV",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-18T02:36:30Z",
+  "lastUpdated": "2026-06-18T21:26:21Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 165514
+    },
+    {
+      "t": "2023-12-31",
+      "v": 158487
+    },
+    {
+      "t": "2024-12-31",
+      "v": 154074
     }
   ]
 }

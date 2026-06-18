@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_27100",
-  "name": "Population born in current state of residence \u2014 Jackson",
+  "name": "Population born in current state of residence \u2014 Jackson, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:11Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 132574.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 132415.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 131154.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 131617.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 130346.0
+    },
     {
       "t": "2015-12-31",
       "v": 131020.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 133994.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 133877.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 133622.0
     }
   ]
 }

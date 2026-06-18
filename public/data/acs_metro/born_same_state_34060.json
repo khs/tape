@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_34060",
-  "name": "Population born in current state of residence \u2014 Morgantown",
+  "name": "Population born in current state of residence \u2014 Morgantown, WV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 78734.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 80159.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 80880.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 81831.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 83413.0
+    },
     {
       "t": "2015-12-31",
       "v": 84670.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 81990.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 82216.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 82867.0
     }
   ]
 }

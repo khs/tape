@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_39380",
-  "name": "Total workers (commute-table denominator) \u2014 Pueblo",
+  "name": "Total workers (commute-table denominator) \u2014 Pueblo, CO",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 64355.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 64931.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 64611.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 63899.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 64429.0
+    },
     {
       "t": "2015-12-31",
       "v": 64378.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 69850.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 70535.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 71229.0
     }
   ]
 }

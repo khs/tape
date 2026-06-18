@@ -1,0 +1,17 @@
+{
+  "id": "workers_total_commute_28880",
+  "name": "Total workers (commute-table denominator) \u2014 Kiryas Joel-Poughkeepsie-Newburgh, NY",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 329881.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 329548.0
+    }
+  ]
+}

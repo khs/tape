@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_41540",
-  "name": "Total population (mobility-table denominator) \u2014 Salisbury",
+  "name": "Total population (mobility-table denominator) \u2014 Salisbury, MD",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 121915.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 122946.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 123931.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 374272.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 377981.0
+    },
     {
       "t": "2015-12-31",
       "v": 381940.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 418177.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 127666.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 128618.0
     }
   ]
 }

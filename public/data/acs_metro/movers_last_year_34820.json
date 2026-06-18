@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_34820",
-  "name": "People who moved in the last year \u2014 Myrtle Beach-Conway-North Myrtle Beach",
+  "name": "People who moved in the last year \u2014 Myrtle Beach-Conway-North Myrtle Beach, SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 42251
+    },
+    {
+      "t": "2011-12-31",
+      "v": 41632
+    },
+    {
+      "t": "2012-12-31",
+      "v": 43277
+    },
+    {
+      "t": "2013-12-31",
+      "v": 61502
+    },
+    {
+      "t": "2014-12-31",
+      "v": 66102
+    },
     {
       "t": "2015-12-31",
       "v": 68397
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 60939
+    },
+    {
+      "t": "2023-12-31",
+      "v": 48416
+    },
+    {
+      "t": "2024-12-31",
+      "v": 48967
     }
   ]
 }

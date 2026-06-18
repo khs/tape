@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_20940",
-  "name": "Population born in current state of residence \u2014 El Centro",
+  "name": "Population born in current state of residence \u2014 El Centro, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:05Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 94989.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 96610.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 97884.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 99745.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 101182.0
+    },
     {
       "t": "2015-12-31",
       "v": 101573.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 107342.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 108160.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 107598.0
     }
   ]
 }

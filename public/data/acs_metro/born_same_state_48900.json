@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_48900",
-  "name": "Population born in current state of residence \u2014 Wilmington",
+  "name": "Population born in current state of residence \u2014 Wilmington, NC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:54Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 182751.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 185177.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 186616.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 135093.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 136200.0
+    },
     {
       "t": "2015-12-31",
       "v": 138706.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 145584.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 206013.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 211320.0
     }
   ]
 }

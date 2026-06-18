@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_13980",
-  "name": "Population born in current state of residence \u2014 Blacksburg-Christiansburg-Radford",
+  "name": "Population born in current state of residence \u2014 Blacksburg-Christiansburg-Radford, VA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 99087.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 99291.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 100392.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 113012.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 112672.0
+    },
     {
       "t": "2015-12-31",
       "v": 113378.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 102689.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 112352.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 113220.0
     }
   ]
 }

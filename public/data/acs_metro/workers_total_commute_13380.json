@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_13380",
-  "name": "Total workers (commute-table denominator) \u2014 Bellingham",
+  "name": "Total workers (commute-table denominator) \u2014 Bellingham, WA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 92557.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 95114.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 94554.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 94736.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 95296.0
+    },
     {
       "t": "2015-12-31",
       "v": 96906.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 109391.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 111136.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 113527.0
     }
   ]
 }

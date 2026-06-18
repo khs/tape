@@ -1,10 +1,18 @@
 {
   "id": "households_no_vehicle_14010",
-  "name": "Households with no vehicle available \u2014 Bloomington",
+  "name": "Households with no vehicle available \u2014 Bloomington, IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 4392.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4399.0
+    },
     {
       "t": "2015-12-31",
       "v": 4581.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 4021.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3975.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4165.0
     }
   ]
 }

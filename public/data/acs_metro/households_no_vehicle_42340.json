@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_42340",
-  "name": "Households with no vehicle available \u2014 Savannah",
+  "name": "Households with no vehicle available \u2014 Savannah, GA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 9504.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 9017.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 8773.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 9059.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 9336.0
+    },
     {
       "t": "2015-12-31",
       "v": 9353.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 9585.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 9878.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 10409.0
     }
   ]
 }

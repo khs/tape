@@ -3,7 +3,7 @@
   "name": "Adults 25+ with bachelor's degree \u2014 AR",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:35:18Z",
+  "lastUpdated": "2026-06-18T21:25:23Z",
   "points": [
     {
       "t": "2012-12-31",
@@ -48,6 +48,14 @@
     {
       "t": "2022-12-31",
       "v": 317437
+    },
+    {
+      "t": "2023-12-31",
+      "v": 324625
+    },
+    {
+      "t": "2024-12-31",
+      "v": 334916
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_19820",
-  "name": "Total households (vehicle-table denominator) \u2014 Detroit-Warren-Dearborn",
+  "name": "Total households (vehicle-table denominator) \u2014 Detroit-Warren-Dearborn, MI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1667113.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1657772.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1652102.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1654891.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1656829.0
+    },
     {
       "t": "2015-12-31",
       "v": 1662948.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1742543.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1755372.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1768816.0
     }
   ]
 }

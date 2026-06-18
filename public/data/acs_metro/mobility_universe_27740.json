@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_27740",
-  "name": "Total population (mobility-table denominator) \u2014 Johnson City",
+  "name": "Total population (mobility-table denominator) \u2014 Johnson City, TN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:12Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 193557.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 195155.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 196544.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 197607.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 198151.0
+    },
     {
       "t": "2015-12-31",
       "v": 198293.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 205868.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 207393.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 209136.0
     }
   ]
 }

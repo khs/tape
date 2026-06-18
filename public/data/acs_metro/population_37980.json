@@ -1,10 +1,30 @@
 {
   "id": "population_37980",
-  "name": "Total population \u2014 Philadelphia-Camden-Wilmington",
+  "name": "Total population \u2014 Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5911638
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5938918
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5967349
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5992766
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6015336
+    },
     {
       "t": "2015-12-31",
       "v": 6035680
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 6232894
+    },
+    {
+      "t": "2023-12-31",
+      "v": 6241882
+    },
+    {
+      "t": "2024-12-31",
+      "v": 6272014
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "People without health insurance coverage \u2014 OH-03",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-17T19:25:02Z",
+  "lastUpdated": "2026-06-18T21:21:54Z",
   "points": [
     {
       "t": "2013-12-31",
@@ -44,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 62706
+    },
+    {
+      "t": "2023-12-31",
+      "v": 65511
+    },
+    {
+      "t": "2024-12-31",
+      "v": 67634
     }
   ]
 }

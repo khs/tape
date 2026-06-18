@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_22520",
-  "name": "Population 65 and older \u2014 Florence-Muscle Shoals",
+  "name": "Population 65 and older \u2014 Florence-Muscle Shoals, AL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 24337
+    },
+    {
+      "t": "2011-12-31",
+      "v": 24745
+    },
+    {
+      "t": "2012-12-31",
+      "v": 25086
+    },
+    {
+      "t": "2013-12-31",
+      "v": 25537
+    },
+    {
+      "t": "2014-12-31",
+      "v": 25947
+    },
     {
       "t": "2015-12-31",
       "v": 26343
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 30430
+    },
+    {
+      "t": "2023-12-31",
+      "v": 30772
+    },
+    {
+      "t": "2024-12-31",
+      "v": 31498
     }
   ]
 }

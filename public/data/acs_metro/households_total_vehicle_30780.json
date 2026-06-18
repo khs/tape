@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_30780",
-  "name": "Total households (vehicle-table denominator) \u2014 Little Rock-North Little Rock-Conway",
+  "name": "Total households (vehicle-table denominator) \u2014 Little Rock-North Little Rock-Conway, AR",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 270040.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 271327.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 274808.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 273230.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 274285.0
+    },
     {
       "t": "2015-12-31",
       "v": 276358.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 301896.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 306520.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 311547.0
     }
   ]
 }

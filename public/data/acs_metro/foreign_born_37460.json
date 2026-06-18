@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_37460",
-  "name": "Foreign-born population \u2014 Panama City-Panama City Beach",
+  "name": "Foreign-born population \u2014 Panama City-Panama City Beach, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 9070
+    },
+    {
+      "t": "2011-12-31",
+      "v": 8800
+    },
+    {
+      "t": "2012-12-31",
+      "v": 8164
+    },
+    {
+      "t": "2013-12-31",
+      "v": 8851
+    },
+    {
+      "t": "2014-12-31",
+      "v": 9269
+    },
     {
       "t": "2015-12-31",
       "v": 8901
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 13210
+    },
+    {
+      "t": "2023-12-31",
+      "v": 15315
+    },
+    {
+      "t": "2024-12-31",
+      "v": 16729
     }
   ]
 }

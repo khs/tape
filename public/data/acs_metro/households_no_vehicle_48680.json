@@ -1,0 +1,17 @@
+{
+  "id": "households_no_vehicle_48680",
+  "name": "Households with no vehicle available \u2014 Wildwood-The Villages, FL",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 2132.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2164.0
+    }
+  ]
+}

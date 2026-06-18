@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_29460",
-  "name": "Total workers (commute-table denominator) \u2014 Lakeland-Winter Haven",
+  "name": "Total workers (commute-table denominator) \u2014 Lakeland-Winter Haven, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 240951.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 238215.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 235965.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 235020.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 236739.0
+    },
     {
       "t": "2015-12-31",
       "v": 241162.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 315558.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 328520.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 345479.0
     }
   ]
 }

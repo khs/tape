@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_41700",
-  "name": "People who moved in the last year \u2014 San Antonio-New Braunfels",
+  "name": "People who moved in the last year \u2014 San Antonio-New Braunfels, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 380958
+    },
+    {
+      "t": "2011-12-31",
+      "v": 382445
+    },
+    {
+      "t": "2012-12-31",
+      "v": 378048
+    },
+    {
+      "t": "2013-12-31",
+      "v": 385934
+    },
+    {
+      "t": "2014-12-31",
+      "v": 393836
+    },
     {
       "t": "2015-12-31",
       "v": 394338
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 397787
+    },
+    {
+      "t": "2023-12-31",
+      "v": 399111
+    },
+    {
+      "t": "2024-12-31",
+      "v": 407963
     }
   ]
 }

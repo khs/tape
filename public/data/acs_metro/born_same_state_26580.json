@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_26580",
-  "name": "Population born in current state of residence \u2014 Huntington-Ashland",
+  "name": "Population born in current state of residence \u2014 Huntington-Ashland, WV-KY-OH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 184478.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 184042.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 183038.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 245504.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 245200.0
+    },
     {
       "t": "2015-12-31",
       "v": 244802.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 235555.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 244932.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 242067.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Owner-occupied housing units \u2014 WI-04",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T19:24:58Z",
+  "lastUpdated": "2026-06-18T21:21:51Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 137586
+    },
+    {
+      "t": "2023-12-31",
+      "v": 138672
+    },
+    {
+      "t": "2024-12-31",
+      "v": 140818
     }
   ]
 }

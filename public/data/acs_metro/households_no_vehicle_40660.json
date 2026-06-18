@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_40660",
-  "name": "Households with no vehicle available \u2014 Rome",
+  "name": "Households with no vehicle available \u2014 Rome, GA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:46Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3131.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2916.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2915.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2666.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2876.0
+    },
     {
       "t": "2015-12-31",
       "v": 2730.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3015.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2631.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2695.0
     }
   ]
 }

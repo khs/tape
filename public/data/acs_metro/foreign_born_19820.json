@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_19820",
-  "name": "Foreign-born population \u2014 Detroit-Warren-Dearborn",
+  "name": "Foreign-born population \u2014 Detroit-Warren-Dearborn, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 370064
+    },
+    {
+      "t": "2011-12-31",
+      "v": 370537
+    },
+    {
+      "t": "2012-12-31",
+      "v": 372810
+    },
+    {
+      "t": "2013-12-31",
+      "v": 379510
+    },
+    {
+      "t": "2014-12-31",
+      "v": 383033
+    },
     {
       "t": "2015-12-31",
       "v": 392502
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 444670
+    },
+    {
+      "t": "2023-12-31",
+      "v": 451270
+    },
+    {
+      "t": "2024-12-31",
+      "v": 467634
     }
   ]
 }

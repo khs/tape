@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_44140",
-  "name": "Households with no vehicle available \u2014 Springfield",
+  "name": "Households with no vehicle available \u2014 Springfield, MA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 29690.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 30257.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 30897.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 28930.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 29586.0
+    },
     {
       "t": "2015-12-31",
       "v": 28610.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 29270.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 22204.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22134.0
     }
   ]
 }

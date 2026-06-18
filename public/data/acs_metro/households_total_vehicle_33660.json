@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_33660",
-  "name": "Total households (vehicle-table denominator) \u2014 Mobile",
+  "name": "Total households (vehicle-table denominator) \u2014 Mobile, AL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 153302.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 155638.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 156772.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 155178.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 154400.0
+    },
     {
       "t": "2015-12-31",
       "v": 154188.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 165111.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 160507.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 161665.0
     }
   ]
 }

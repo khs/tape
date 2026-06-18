@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_41780",
-  "name": "Population born in current state of residence \u2014 Sandusky",
+  "name": "Population born in current state of residence \u2014 Sandusky, OH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 61460.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 60798.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 61174.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 60887.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 60767.0
+    },
     {
       "t": "2015-12-31",
       "v": 60986.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 60410.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 93031.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 93346.0
     }
   ]
 }

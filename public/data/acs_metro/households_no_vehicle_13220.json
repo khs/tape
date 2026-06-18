@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_13220",
-  "name": "Households with no vehicle available \u2014 Beckley",
+  "name": "Households with no vehicle available \u2014 Beckley, WV",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2841.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2977.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3018.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4714.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4341.0
+    },
     {
       "t": "2015-12-31",
       "v": 4390.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4359.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4266.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3866.0
     }
   ]
 }

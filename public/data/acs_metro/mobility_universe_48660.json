@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_48660",
-  "name": "Total population (mobility-table denominator) \u2014 Wichita Falls",
+  "name": "Total population (mobility-table denominator) \u2014 Wichita Falls, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 148843.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 148561.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 148762.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 149098.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 149495.0
+    },
     {
       "t": "2015-12-31",
       "v": 149378.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 147208.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 147676.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 148073.0
     }
   ]
 }

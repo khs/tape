@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_27860",
-  "name": "Population born in current state of residence \u2014 Jonesboro",
+  "name": "Population born in current state of residence \u2014 Jonesboro, AR",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:12Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 79323.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 81817.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 83244.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 84529.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 86611.0
+    },
     {
       "t": "2015-12-31",
       "v": 88028.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 96201.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 94801.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 95305.0
     }
   ]
 }

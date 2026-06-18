@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_10740",
-  "name": "Total workers (commute-table denominator) \u2014 Albuquerque",
+  "name": "Total workers (commute-table denominator) \u2014 Albuquerque, NM",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 399169.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 398267.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 398187.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 397443.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 395683.0
+    },
     {
       "t": "2015-12-31",
       "v": 395799.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 421395.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 425556.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 426903.0
     }
   ]
 }

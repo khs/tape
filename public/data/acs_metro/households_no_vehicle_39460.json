@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_39460",
-  "name": "Households with no vehicle available \u2014 Punta Gorda",
+  "name": "Households with no vehicle available \u2014 Punta Gorda, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3379.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3688.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3843.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3928.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3750.0
+    },
     {
       "t": "2015-12-31",
       "v": 3702.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3812.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3738.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4066.0
     }
   ]
 }

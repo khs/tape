@@ -3,7 +3,7 @@
   "name": "Total households (vehicle-table denominator) \u2014 MN-07",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T21:48:57Z",
+  "lastUpdated": "2026-06-18T21:21:47Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 288945
+    },
+    {
+      "t": "2023-12-31",
+      "v": 292356
+    },
+    {
+      "t": "2024-12-31",
+      "v": 295071
     }
   ]
 }

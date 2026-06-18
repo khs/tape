@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_45300",
-  "name": "Population 65 and older \u2014 Tampa-St. Petersburg-Clearwater",
+  "name": "Population 65 and older \u2014 Tampa-St. Petersburg-Clearwater, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 468442
+    },
+    {
+      "t": "2011-12-31",
+      "v": 475104
+    },
+    {
+      "t": "2012-12-31",
+      "v": 485460
+    },
+    {
+      "t": "2013-12-31",
+      "v": 497232
+    },
+    {
+      "t": "2014-12-31",
+      "v": 511275
+    },
     {
       "t": "2015-12-31",
       "v": 527790
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 638923
+    },
+    {
+      "t": "2023-12-31",
+      "v": 652769
+    },
+    {
+      "t": "2024-12-31",
+      "v": 672215
     }
   ]
 }

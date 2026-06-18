@@ -3,7 +3,7 @@
   "name": "Total workers (industry-table denominator) \u2014 AL-01",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-17T19:24:48Z",
+  "lastUpdated": "2026-06-18T21:21:42Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 307724
+    },
+    {
+      "t": "2023-12-31",
+      "v": 313178
+    },
+    {
+      "t": "2024-12-31",
+      "v": 318426
     }
   ]
 }

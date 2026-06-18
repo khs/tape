@@ -1,10 +1,18 @@
 {
   "id": "workers_wfh_46520",
-  "name": "Workers who work from home \u2014 Urban Honolulu",
+  "name": "Workers who work from home \u2014 Urban Honolulu, HI",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 16200.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 16635.0
+    },
     {
       "t": "2015-12-31",
       "v": 17824.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 37552.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 41806.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 45468.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_18880",
-  "name": "Foreign-born population \u2014 Crestview-Fort Walton Beach-Destin",
+  "name": "Foreign-born population \u2014 Crestview-Fort Walton Beach-Destin, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 12401
+    },
+    {
+      "t": "2011-12-31",
+      "v": 13183
+    },
+    {
+      "t": "2012-12-31",
+      "v": 13067
+    },
+    {
+      "t": "2013-12-31",
+      "v": 15099
+    },
+    {
+      "t": "2014-12-31",
+      "v": 15804
+    },
     {
       "t": "2015-12-31",
       "v": 16147
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 22505
+    },
+    {
+      "t": "2023-12-31",
+      "v": 24156
+    },
+    {
+      "t": "2024-12-31",
+      "v": 26063
     }
   ]
 }

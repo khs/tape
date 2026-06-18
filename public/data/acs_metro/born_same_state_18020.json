@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_18020",
-  "name": "Population born in current state of residence \u2014 Columbus",
+  "name": "Population born in current state of residence \u2014 Columbus, IN",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 53424.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 53310.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 53599.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 53154.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 53297.0
+    },
     {
       "t": "2015-12-31",
       "v": 53904.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 54634.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 55359.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 56094.0
     }
   ]
 }

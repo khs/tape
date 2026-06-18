@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_44100",
-  "name": "Total workers (commute-table denominator) \u2014 Springfield",
+  "name": "Total workers (commute-table denominator) \u2014 Springfield, IL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 102722.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 103260.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 103689.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 102207.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 102061.0
+    },
     {
       "t": "2015-12-31",
       "v": 101411.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 97824.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 96252.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 95509.0
     }
   ]
 }

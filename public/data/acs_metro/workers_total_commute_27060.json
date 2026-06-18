@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_27060",
-  "name": "Total workers (commute-table denominator) \u2014 Ithaca",
+  "name": "Total workers (commute-table denominator) \u2014 Ithaca, NY",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:11Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 49414.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 48800.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 48674.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 48129.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 47977.0
+    },
     {
       "t": "2015-12-31",
       "v": 47735.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 48267.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 48359.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 49438.0
     }
   ]
 }

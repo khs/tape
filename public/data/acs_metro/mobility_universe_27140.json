@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_27140",
-  "name": "Total population (mobility-table denominator) \u2014 Jackson",
+  "name": "Total population (mobility-table denominator) \u2014 Jackson, MS",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:11Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 525573.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 529649.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 533796.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 564822.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 568025.0
+    },
     {
       "t": "2015-12-31",
       "v": 570656.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 586083.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 610197.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 605188.0
     }
   ]
 }

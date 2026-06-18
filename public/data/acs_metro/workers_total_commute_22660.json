@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_22660",
-  "name": "Total workers (commute-table denominator) \u2014 Fort Collins-Loveland",
+  "name": "Total workers (commute-table denominator) \u2014 Fort Collins-Loveland, CO",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 148674.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 150600.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 153156.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 153688.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 156205.0
+    },
     {
       "t": "2015-12-31",
       "v": 160572.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 189742.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 192586.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 193404.0
     }
   ]
 }

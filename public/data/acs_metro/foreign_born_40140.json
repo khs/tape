@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_40140",
-  "name": "Foreign-born population \u2014 Riverside-San Bernardino-Ontario",
+  "name": "Foreign-born population \u2014 Riverside-San Bernardino-Ontario, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 904558
+    },
+    {
+      "t": "2011-12-31",
+      "v": 911725
+    },
+    {
+      "t": "2012-12-31",
+      "v": 916242
+    },
+    {
+      "t": "2013-12-31",
+      "v": 920860
+    },
+    {
+      "t": "2014-12-31",
+      "v": 941363
+    },
     {
       "t": "2015-12-31",
       "v": 951508
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 986815
+    },
+    {
+      "t": "2023-12-31",
+      "v": 997638
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1018578
     }
   ]
 }

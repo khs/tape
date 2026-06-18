@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_16300",
-  "name": "Total households (vehicle-table denominator) \u2014 Cedar Rapids",
+  "name": "Total households (vehicle-table denominator) \u2014 Cedar Rapids, IA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 103740.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 104425.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 103993.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 104194.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 105376.0
+    },
     {
       "t": "2015-12-31",
       "v": 105643.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 112467.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 113271.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 114000.0
     }
   ]
 }

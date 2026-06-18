@@ -1,0 +1,17 @@
+{
+  "id": "median_age_43640",
+  "name": "Median age \u2014 Slidell-Mandeville-Covington, LA",
+  "kind": "timeseries",
+  "unit": "years",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 40.4
+    },
+    {
+      "t": "2024-12-31",
+      "v": 40.5
+    }
+  ]
+}

@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_17900",
-  "name": "Total population (mobility-table denominator) \u2014 Columbia",
+  "name": "Total population (mobility-table denominator) \u2014 Columbia, SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 734169.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 746775.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 757905.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 768003.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 776019.0
+    },
     {
       "t": "2015-12-31",
       "v": 783894.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 823700.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 831844.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 841169.0
     }
   ]
 }

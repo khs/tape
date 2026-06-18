@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_30700",
-  "name": "Total workers (commute-table denominator) \u2014 Lincoln",
+  "name": "Total workers (commute-table denominator) \u2014 Lincoln, NE",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 159610.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 160238.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 161396.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 161684.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 163687.0
+    },
     {
       "t": "2015-12-31",
       "v": 167359.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 182400.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 181496.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 182890.0
     }
   ]
 }

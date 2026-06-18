@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_48300",
-  "name": "Foreign-born population \u2014 Wenatchee-East Wenatchee",
+  "name": "Foreign-born population \u2014 Wenatchee-East Wenatchee, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 13612
+    },
+    {
+      "t": "2011-12-31",
+      "v": 14074
+    },
+    {
+      "t": "2012-12-31",
+      "v": 14168
+    },
+    {
+      "t": "2013-12-31",
+      "v": 14632
+    },
+    {
+      "t": "2014-12-31",
+      "v": 14810
+    },
     {
       "t": "2015-12-31",
       "v": 14647
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 17723
+    },
+    {
+      "t": "2023-12-31",
+      "v": 18584
+    },
+    {
+      "t": "2024-12-31",
+      "v": 18280
     }
   ]
 }

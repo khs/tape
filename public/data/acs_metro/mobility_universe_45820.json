@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_45820",
-  "name": "Total population (mobility-table denominator) \u2014 Topeka",
+  "name": "Total population (mobility-table denominator) \u2014 Topeka, KS",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 228061.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 229183.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 230229.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 230972.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 231634.0
+    },
     {
       "t": "2015-12-31",
       "v": 231579.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 230637.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 230279.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 230006.0
     }
   ]
 }

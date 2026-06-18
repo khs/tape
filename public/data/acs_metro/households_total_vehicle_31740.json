@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_31740",
-  "name": "Total households (vehicle-table denominator) \u2014 Manhattan",
+  "name": "Total households (vehicle-table denominator) \u2014 Manhattan, KS",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 43981.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 45121.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 45799.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 33869.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 34271.0
+    },
     {
       "t": "2015-12-31",
       "v": 34659.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 49331.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 50008.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 51234.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_22140",
-  "name": "Population born in current state of residence \u2014 Farmington",
+  "name": "Population born in current state of residence \u2014 Farmington, NM",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 73919.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 74903.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 76243.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 75677.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 74993.0
+    },
     {
       "t": "2015-12-31",
       "v": 73529.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 75972.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 74843.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 74636.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Total households (income-table denominator) \u2014 HI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T19:27:58Z",
+  "lastUpdated": "2026-06-18T21:25:45Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 483906
+    },
+    {
+      "t": "2023-12-31",
+      "v": 488991
+    },
+    {
+      "t": "2024-12-31",
+      "v": 492453
     }
   ]
 }

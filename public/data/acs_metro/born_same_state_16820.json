@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_16820",
-  "name": "Population born in current state of residence \u2014 Charlottesville",
+  "name": "Population born in current state of residence \u2014 Charlottesville, VA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 102891.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 103765.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 104136.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 117104.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 118395.0
+    },
     {
       "t": "2015-12-31",
       "v": 119705.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 108052.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 108838.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 108916.0
     }
   ]
 }

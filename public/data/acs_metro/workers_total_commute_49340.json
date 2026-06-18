@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_49340",
-  "name": "Total workers (commute-table denominator) \u2014 Worcester",
+  "name": "Total workers (commute-table denominator) \u2014 Worcester, MA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:54Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 383497.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 386176.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 387403.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 442897.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 447119.0
+    },
     {
       "t": "2015-12-31",
       "v": 452181.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 488235.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 433641.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 436993.0
     }
   ]
 }

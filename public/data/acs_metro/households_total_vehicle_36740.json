@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_36740",
-  "name": "Total households (vehicle-table denominator) \u2014 Orlando-Kissimmee-Sanford",
+  "name": "Total households (vehicle-table denominator) \u2014 Orlando-Kissimmee-Sanford, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 768754.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 770401.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 769234.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 770982.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 779612.0
+    },
     {
       "t": "2015-12-31",
       "v": 798168.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 948499.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 985142.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1022315.0
     }
   ]
 }

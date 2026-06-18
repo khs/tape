@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_24340",
-  "name": "Foreign-born population \u2014 Grand Rapids-Wyoming-Kentwood",
+  "name": "Foreign-born population \u2014 Grand Rapids-Wyoming-Kentwood, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 46912
+    },
+    {
+      "t": "2011-12-31",
+      "v": 47112
+    },
+    {
+      "t": "2012-12-31",
+      "v": 46522
+    },
+    {
+      "t": "2013-12-31",
+      "v": 61771
+    },
+    {
+      "t": "2014-12-31",
+      "v": 63943
+    },
     {
       "t": "2015-12-31",
       "v": 66078
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 71602
+    },
+    {
+      "t": "2023-12-31",
+      "v": 75444
+    },
+    {
+      "t": "2024-12-31",
+      "v": 78597
     }
   ]
 }

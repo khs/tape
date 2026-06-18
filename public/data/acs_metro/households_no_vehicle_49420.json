@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_49420",
-  "name": "Households with no vehicle available \u2014 Yakima",
+  "name": "Households with no vehicle available \u2014 Yakima, WA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:54Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 4470.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 4681.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 4543.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4477.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4557.0
+    },
     {
       "t": "2015-12-31",
       "v": 4480.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4498.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4453.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4600.0
     }
   ]
 }

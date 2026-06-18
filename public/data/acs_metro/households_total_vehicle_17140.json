@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_17140",
-  "name": "Total households (vehicle-table denominator) \u2014 Cincinnati",
+  "name": "Total households (vehicle-table denominator) \u2014 Cincinnati, OH-KY-IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 813576.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 814307.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 816963.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 813297.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 817460.0
+    },
     {
       "t": "2015-12-31",
       "v": 822679.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 892073.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 899273.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 906675.0
     }
   ]
 }

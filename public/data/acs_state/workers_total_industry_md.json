@@ -3,7 +3,7 @@
   "name": "Total workers (industry-table denominator) \u2014 MD",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-17T19:28:38Z",
+  "lastUpdated": "2026-06-18T21:26:17Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3131412
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3133266
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3151451
     }
   ]
 }

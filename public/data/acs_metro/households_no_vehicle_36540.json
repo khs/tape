@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_36540",
-  "name": "Households with no vehicle available \u2014 Omaha",
+  "name": "Households with no vehicle available \u2014 Omaha, NE-IA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 20728.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 21376.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 22029.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 21502.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 21492.0
+    },
     {
       "t": "2015-12-31",
       "v": 21567.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 21058.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 21746.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22293.0
     }
   ]
 }

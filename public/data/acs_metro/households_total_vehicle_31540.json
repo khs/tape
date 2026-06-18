@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_31540",
-  "name": "Total households (vehicle-table denominator) \u2014 Madison",
+  "name": "Total households (vehicle-table denominator) \u2014 Madison, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 229033.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 232350.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 236610.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 253967.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 255724.0
+    },
     {
       "t": "2015-12-31",
       "v": 258237.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 290256.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 295527.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 301580.0
     }
   ]
 }

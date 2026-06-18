@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_30620",
-  "name": "Total households (vehicle-table denominator) \u2014 Lima",
+  "name": "Total households (vehicle-table denominator) \u2014 Lima, OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 40719.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 40703.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 40622.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 40552.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 40191.0
+    },
     {
       "t": "2015-12-31",
       "v": 39986.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 40735.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 40928.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 41295.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_12620",
-  "name": "Population born in current state of residence \u2014 Bangor",
+  "name": "Population born in current state of residence \u2014 Bangor, ME",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 109908.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 109759.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 110302.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 110316.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 109806.0
+    },
     {
       "t": "2015-12-31",
       "v": 109593.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 105676.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 104862.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 104836.0
     }
   ]
 }

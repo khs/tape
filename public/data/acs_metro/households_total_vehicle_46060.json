@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_46060",
-  "name": "Total households (vehicle-table denominator) \u2014 Tucson",
+  "name": "Total households (vehicle-table denominator) \u2014 Tucson, AZ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 381880.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 382366.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 382814.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 384041.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 386155.0
+    },
     {
       "t": "2015-12-31",
       "v": 389658.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 423075.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 430965.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 437827.0
     }
   ]
 }

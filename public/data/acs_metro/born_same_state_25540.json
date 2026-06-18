@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_25540",
-  "name": "Population born in current state of residence \u2014 Hartford-West Hartford-East Hartford",
+  "name": "Population born in current state of residence \u2014 Hartford-West Hartford-East Hartford, CT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:09Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 696776.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 702677.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 704761.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 705597.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 709316.0
+    },
     {
       "t": "2015-12-31",
       "v": 708752.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 700613.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 650916.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 656249.0
     }
   ]
 }

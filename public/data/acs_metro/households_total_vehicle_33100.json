@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_33100",
-  "name": "Total households (vehicle-table denominator) \u2014 Miami-Fort Lauderdale-West Palm Beach",
+  "name": "Total households (vehicle-table denominator) \u2014 Miami-Fort Lauderdale-West Palm Beach, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2019604.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2013933.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2015983.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2017496.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2030848.0
+    },
     {
       "t": "2015-12-31",
       "v": 2047042.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2284247.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2311230.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2334797.0
     }
   ]
 }

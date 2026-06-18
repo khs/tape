@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_41500",
-  "name": "Population born in current state of residence \u2014 Salinas",
+  "name": "Population born in current state of residence \u2014 Salinas, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 208218.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 210811.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 215257.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 220288.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 224300.0
+    },
     {
       "t": "2015-12-31",
       "v": 227682.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 243790.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 244255.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 243683.0
     }
   ]
 }

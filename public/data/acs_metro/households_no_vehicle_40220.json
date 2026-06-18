@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_40220",
-  "name": "Households with no vehicle available \u2014 Roanoke",
+  "name": "Households with no vehicle available \u2014 Roanoke, VA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 9021.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 9413.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 9637.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 9428.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 9575.0
+    },
     {
       "t": "2015-12-31",
       "v": 9626.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 8904.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 8681.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 8805.0
     }
   ]
 }

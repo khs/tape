@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_36740",
-  "name": "Population born in current state of residence \u2014 Orlando-Kissimmee-Sanford",
+  "name": "Population born in current state of residence \u2014 Orlando-Kissimmee-Sanford, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 666714.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 686410.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 711269.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 740140.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 762875.0
+    },
     {
       "t": "2015-12-31",
       "v": 782403.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 896243.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 916151.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 940901.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_17820",
-  "name": "Population born in current state of residence \u2014 Colorado Springs",
+  "name": "Population born in current state of residence \u2014 Colorado Springs, CO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 193019.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 197731.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 201150.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 204798.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 211428.0
+    },
     {
       "t": "2015-12-31",
       "v": 217126.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 235132.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 236394.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 240929.0
     }
   ]
 }

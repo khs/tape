@@ -1,10 +1,30 @@
 {
   "id": "median_commute_minutes_33100",
-  "name": "Median travel time to work \u2014 Miami-Fort Lauderdale-West Palm Beach",
+  "name": "Median travel time to work \u2014 Miami-Fort Lauderdale-West Palm Beach, FL",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 25.3
+    },
+    {
+      "t": "2011-12-31",
+      "v": 25.1
+    },
+    {
+      "t": "2012-12-31",
+      "v": 25.2
+    },
+    {
+      "t": "2013-12-31",
+      "v": 25.2
+    },
+    {
+      "t": "2014-12-31",
+      "v": 25.6
+    },
     {
       "t": "2015-12-31",
       "v": 26.2
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 27.7
+    },
+    {
+      "t": "2023-12-31",
+      "v": 27.2
+    },
+    {
+      "t": "2024-12-31",
+      "v": 27.2
     }
   ]
 }

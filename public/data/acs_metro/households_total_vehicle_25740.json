@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_25740",
-  "name": "Total households (vehicle-table denominator) \u2014 Helena",
+  "name": "Total households (vehicle-table denominator) \u2014 Helena, MT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 30503.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 31066.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 31147.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 31082.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 31050.0
+    },
     {
       "t": "2015-12-31",
       "v": 31226.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 34962.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 38433.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 39033.0
     }
   ]
 }

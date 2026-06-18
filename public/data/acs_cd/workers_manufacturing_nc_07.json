@@ -3,7 +3,7 @@
   "name": "Workers in manufacturing \u2014 NC-07",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-17T21:48:59Z",
+  "lastUpdated": "2026-06-18T21:21:48Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 29201
+    },
+    {
+      "t": "2023-12-31",
+      "v": 29134
+    },
+    {
+      "t": "2024-12-31",
+      "v": 30118
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_14740",
-  "name": "Population 65 and older \u2014 Bremerton-Silverdale-Port Orchard",
+  "name": "Population 65 and older \u2014 Bremerton-Silverdale-Port Orchard, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 31152
+    },
+    {
+      "t": "2011-12-31",
+      "v": 32357
+    },
+    {
+      "t": "2012-12-31",
+      "v": 33708
+    },
+    {
+      "t": "2013-12-31",
+      "v": 35225
+    },
+    {
+      "t": "2014-12-31",
+      "v": 36984
+    },
     {
       "t": "2015-12-31",
       "v": 38877
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 51416
+    },
+    {
+      "t": "2023-12-31",
+      "v": 52865
+    },
+    {
+      "t": "2024-12-31",
+      "v": 54611
     }
   ]
 }

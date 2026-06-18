@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_12940",
-  "name": "Total workers (commute-table denominator) \u2014 Baton Rouge",
+  "name": "Total workers (commute-table denominator) \u2014 Baton Rouge, LA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 360063.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 365716.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 369944.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 369814.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 371002.0
+    },
     {
       "t": "2015-12-31",
       "v": 373807.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 396232.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 394252.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 394020.0
     }
   ]
 }

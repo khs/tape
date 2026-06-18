@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_34820",
-  "name": "Population born in current state of residence \u2014 Myrtle Beach-Conway-North Myrtle Beach",
+  "name": "Population born in current state of residence \u2014 Myrtle Beach-Conway-North Myrtle Beach, SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 102263.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 105429.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 107225.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 162644.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 165142.0
+    },
     {
       "t": "2015-12-31",
       "v": 166572.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 181758.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 124220.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 126557.0
     }
   ]
 }

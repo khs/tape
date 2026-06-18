@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_48620",
-  "name": "Population born in current state of residence \u2014 Wichita",
+  "name": "Population born in current state of residence \u2014 Wichita, KS",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 391685.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 397139.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 399247.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 408845.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 412262.0
+    },
     {
       "t": "2015-12-31",
       "v": 415717.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 420870.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 420991.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 424359.0
     }
   ]
 }

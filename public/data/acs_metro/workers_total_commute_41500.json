@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_41500",
-  "name": "Total workers (commute-table denominator) \u2014 Salinas",
+  "name": "Total workers (commute-table denominator) \u2014 Salinas, CA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 176845.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 175968.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 177157.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 176312.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 177092.0
+    },
     {
       "t": "2015-12-31",
       "v": 179034.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 189526.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 187975.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 188150.0
     }
   ]
 }

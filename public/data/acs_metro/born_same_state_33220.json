@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_33220",
-  "name": "Population born in current state of residence \u2014 Midland",
+  "name": "Population born in current state of residence \u2014 Midland, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 65278.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 65394.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 65535.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 66992.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 67244.0
+    },
     {
       "t": "2015-12-31",
       "v": 67187.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 66319.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 66890.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 67020.0
     }
   ]
 }

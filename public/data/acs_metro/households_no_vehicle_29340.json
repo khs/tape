@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_29340",
-  "name": "Households with no vehicle available \u2014 Lake Charles",
+  "name": "Households with no vehicle available \u2014 Lake Charles, LA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5114.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5052.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5165.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5127.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4990.0
+    },
     {
       "t": "2015-12-31",
       "v": 5057.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4800.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 5449.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 6324.0
     }
   ]
 }

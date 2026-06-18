@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_45940",
-  "name": "Households with no vehicle available \u2014 Trenton-Princeton",
+  "name": "Households with no vehicle available \u2014 Trenton-Princeton, NJ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 14931.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 15070.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 15337.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 15503.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 15551.0
+    },
     {
       "t": "2015-12-31",
       "v": 15486.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 16249.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 16636.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 16114.0
     }
   ]
 }

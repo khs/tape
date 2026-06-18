@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_43900",
-  "name": "Total workers (commute-table denominator) \u2014 Spartanburg",
+  "name": "Total workers (commute-table denominator) \u2014 Spartanburg, SC",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 119082.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 119380.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 119791.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 130643.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 132296.0
+    },
     {
       "t": "2015-12-31",
       "v": 135733.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 151753.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 166353.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 171117.0
     }
   ]
 }

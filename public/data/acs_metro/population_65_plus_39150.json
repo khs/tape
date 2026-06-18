@@ -1,9 +1,9 @@
 {
   "id": "population_65_plus_39150",
-  "name": "Population 65 and older \u2014 Prescott Valley-Prescott",
+  "name": "Population 65 and older \u2014 Prescott Valley-Prescott, AZ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 77854
+    },
+    {
+      "t": "2023-12-31",
+      "v": 80878
+    },
+    {
+      "t": "2024-12-31",
+      "v": 83800
     }
   ]
 }

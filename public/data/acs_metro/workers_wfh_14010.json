@@ -1,10 +1,18 @@
 {
   "id": "workers_wfh_14010",
-  "name": "Workers who work from home \u2014 Bloomington",
+  "name": "Workers who work from home \u2014 Bloomington, IL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 2941.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2887.0
+    },
     {
       "t": "2015-12-31",
       "v": 3046.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 11175.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 13327.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 15050.0
     }
   ]
 }

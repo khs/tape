@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_40140",
-  "name": "Population 65 and older \u2014 Riverside-San Bernardino-Ontario",
+  "name": "Population 65 and older \u2014 Riverside-San Bernardino-Ontario, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 416280
+    },
+    {
+      "t": "2011-12-31",
+      "v": 429539
+    },
+    {
+      "t": "2012-12-31",
+      "v": 445423
+    },
+    {
+      "t": "2013-12-31",
+      "v": 462808
+    },
+    {
+      "t": "2014-12-31",
+      "v": 482450
+    },
     {
       "t": "2015-12-31",
       "v": 503141
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 619089
+    },
+    {
+      "t": "2023-12-31",
+      "v": 640047
+    },
+    {
+      "t": "2024-12-31",
+      "v": 659872
     }
   ]
 }

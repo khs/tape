@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_29420",
-  "name": "Population 65 and older \u2014 Lake Havasu City-Kingman",
+  "name": "Population 65 and older \u2014 Lake Havasu City-Kingman, AZ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 43760
+    },
+    {
+      "t": "2011-12-31",
+      "v": 45405
+    },
+    {
+      "t": "2012-12-31",
+      "v": 46974
+    },
+    {
+      "t": "2013-12-31",
+      "v": 48715
+    },
+    {
+      "t": "2014-12-31",
+      "v": 50721
+    },
     {
       "t": "2015-12-31",
       "v": 52629
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 66984
+    },
+    {
+      "t": "2023-12-31",
+      "v": 69401
+    },
+    {
+      "t": "2024-12-31",
+      "v": 71936
     }
   ]
 }

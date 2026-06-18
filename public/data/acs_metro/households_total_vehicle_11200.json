@@ -1,0 +1,17 @@
+{
+  "id": "households_total_vehicle_11200",
+  "name": "Total households (vehicle-table denominator) \u2014 Amherst Town-Northampton, MA",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 61770.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 62114.0
+    }
+  ]
+}

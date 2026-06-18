@@ -1,10 +1,30 @@
 {
   "id": "population_under_18_40140",
-  "name": "Population under 18 \u2014 Riverside-San Bernardino-Ontario",
+  "name": "Population under 18 \u2014 Riverside-San Bernardino-Ontario, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1211886
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1214909
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1212497
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1205931
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1201161
+    },
     {
       "t": "2015-12-31",
       "v": 1194491
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1162268
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1162650
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1157747
     }
   ]
 }

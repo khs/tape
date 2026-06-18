@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_21660",
-  "name": "Total workers (commute-table denominator) \u2014 Eugene-Springfield",
+  "name": "Total workers (commute-table denominator) \u2014 Eugene-Springfield, OR",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:05Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 156251.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 153805.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 152003.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 149847.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 152607.0
+    },
     {
       "t": "2015-12-31",
       "v": 154832.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 178879.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 178882.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 179963.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_18020",
-  "name": "Total workers (commute-table denominator) \u2014 Columbus",
+  "name": "Total workers (commute-table denominator) \u2014 Columbus, IN",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 35843.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 36001.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 36686.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 36749.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 37353.0
+    },
     {
       "t": "2015-12-31",
       "v": 38196.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 40397.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 40985.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 41204.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_29340",
-  "name": "Population born in current state of residence \u2014 Lake Charles",
+  "name": "Population born in current state of residence \u2014 Lake Charles, LA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 154501.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 155817.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 156128.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 156811.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 158108.0
+    },
     {
       "t": "2015-12-31",
       "v": 157238.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 170510.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 194570.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 193860.0
     }
   ]
 }

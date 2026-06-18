@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_26580",
-  "name": "Workers who work from home \u2014 Huntington-Ashland",
+  "name": "Workers who work from home \u2014 Huntington-Ashland, WV-KY-OH",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2277.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2172.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2030.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3238.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3045.0
+    },
     {
       "t": "2015-12-31",
       "v": 3261.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 7719.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 9128.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 10617.0
     }
   ]
 }

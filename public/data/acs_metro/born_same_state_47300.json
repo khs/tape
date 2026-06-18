@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_47300",
-  "name": "Population born in current state of residence \u2014 Visalia",
+  "name": "Population born in current state of residence \u2014 Visalia, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:52Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 275026.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 279714.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 286185.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 291188.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 296612.0
+    },
     {
       "t": "2015-12-31",
       "v": 302364.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 324089.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 327153.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 328646.0
     }
   ]
 }

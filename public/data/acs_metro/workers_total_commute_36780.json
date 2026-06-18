@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_36780",
-  "name": "Total workers (commute-table denominator) \u2014 Oshkosh-Neenah",
+  "name": "Total workers (commute-table denominator) \u2014 Oshkosh-Neenah, WI",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 83011.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 82813.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 82899.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 82661.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 84095.0
+    },
     {
       "t": "2015-12-31",
       "v": 84595.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 88979.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 89398.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 89202.0
     }
   ]
 }

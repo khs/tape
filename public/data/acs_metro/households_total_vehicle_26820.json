@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_26820",
-  "name": "Total households (vehicle-table denominator) \u2014 Idaho Falls",
+  "name": "Total households (vehicle-table denominator) \u2014 Idaho Falls, ID",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:11Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 43139.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 44004.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 44010.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 45146.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 45605.0
+    },
     {
       "t": "2015-12-31",
       "v": 45797.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 53049.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 54294.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 55456.0
     }
   ]
 }

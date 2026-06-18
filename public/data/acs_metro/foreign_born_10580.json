@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_10580",
-  "name": "Foreign-born population \u2014 Albany-Schenectady-Troy",
+  "name": "Foreign-born population \u2014 Albany-Schenectady-Troy, NY",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 58307
+    },
+    {
+      "t": "2011-12-31",
+      "v": 58106
+    },
+    {
+      "t": "2012-12-31",
+      "v": 57888
+    },
+    {
+      "t": "2013-12-31",
+      "v": 60472
+    },
+    {
+      "t": "2014-12-31",
+      "v": 60512
+    },
     {
       "t": "2015-12-31",
       "v": 61526
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 75241
+    },
+    {
+      "t": "2023-12-31",
+      "v": 76253
+    },
+    {
+      "t": "2024-12-31",
+      "v": 76838
     }
   ]
 }

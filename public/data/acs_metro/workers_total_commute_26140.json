@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_26140",
-  "name": "Total workers (commute-table denominator) \u2014 Homosassa Springs",
+  "name": "Total workers (commute-table denominator) \u2014 Homosassa Springs, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 45131.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 43895.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 43717.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 42854.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 42893.0
+    },
     {
       "t": "2015-12-31",
       "v": 42386.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 48459.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 50070.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 52359.0
     }
   ]
 }

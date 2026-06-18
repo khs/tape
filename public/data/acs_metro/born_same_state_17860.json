@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_17860",
-  "name": "Population born in current state of residence \u2014 Columbia",
+  "name": "Population born in current state of residence \u2014 Columbia, MO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 106340.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 107455.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 108955.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 103270.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 104970.0
+    },
     {
       "t": "2015-12-31",
       "v": 107658.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 136592.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 137837.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 138801.0
     }
   ]
 }

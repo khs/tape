@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_29420",
-  "name": "Total households (vehicle-table denominator) \u2014 Lake Havasu City-Kingman",
+  "name": "Total households (vehicle-table denominator) \u2014 Lake Havasu City-Kingman, AZ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 80361.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 80389.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 80355.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 80230.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 80529.0
+    },
     {
       "t": "2015-12-31",
       "v": 80832.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 95169.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 96899.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 101973.0
     }
   ]
 }

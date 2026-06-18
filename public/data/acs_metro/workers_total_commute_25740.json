@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_25740",
-  "name": "Total workers (commute-table denominator) \u2014 Helena",
+  "name": "Total workers (commute-table denominator) \u2014 Helena, MT",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 37150.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 37206.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 37506.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 37640.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 37992.0
+    },
     {
       "t": "2015-12-31",
       "v": 38042.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 41377.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 44915.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 46424.0
     }
   ]
 }

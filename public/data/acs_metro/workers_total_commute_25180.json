@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_25180",
-  "name": "Total workers (commute-table denominator) \u2014 Hagerstown-Martinsburg",
+  "name": "Total workers (commute-table denominator) \u2014 Hagerstown-Martinsburg, MD-WV",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:09Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 124016.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 123764.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 122424.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 114058.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 114184.0
+    },
     {
       "t": "2015-12-31",
       "v": 114953.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 138856.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 140985.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 142621.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_35620",
-  "name": "Total households (vehicle-table denominator) \u2014 New York-Newark-Jersey City",
+  "name": "Total households (vehicle-table denominator) \u2014 New York-Newark-Jersey City, NY-NJ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 6809482.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 6818735.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 6839116.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 7078765.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 7105003.0
+    },
     {
       "t": "2015-12-31",
       "v": 7121206.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 7321054.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 7362500.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 7409947.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_28940",
-  "name": "Total households (vehicle-table denominator) \u2014 Knoxville",
+  "name": "Total households (vehicle-table denominator) \u2014 Knoxville, TN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 283776.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 286362.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 287751.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 341859.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 340980.0
+    },
     {
       "t": "2015-12-31",
       "v": 341889.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 354916.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 371027.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 378234.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_38900",
-  "name": "Workers who work from home \u2014 Portland-Vancouver-Hillsboro",
+  "name": "Workers who work from home \u2014 Portland-Vancouver-Hillsboro, OR-WA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 62935.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 64270.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 66252.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 67688.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 69311.0
+    },
     {
       "t": "2015-12-31",
       "v": 70718.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 224072.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 259185.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 290996.0
     }
   ]
 }

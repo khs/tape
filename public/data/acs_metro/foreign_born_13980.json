@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_13980",
-  "name": "Foreign-born population \u2014 Blacksburg-Christiansburg-Radford",
+  "name": "Foreign-born population \u2014 Blacksburg-Christiansburg-Radford, VA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 8784
+    },
+    {
+      "t": "2011-12-31",
+      "v": 9429
+    },
+    {
+      "t": "2012-12-31",
+      "v": 10030
+    },
+    {
+      "t": "2013-12-31",
+      "v": 10398
+    },
+    {
+      "t": "2014-12-31",
+      "v": 10636
+    },
     {
       "t": "2015-12-31",
       "v": 10138
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 9950
+    },
+    {
+      "t": "2023-12-31",
+      "v": 10770
+    },
+    {
+      "t": "2024-12-31",
+      "v": 11019
     }
   ]
 }

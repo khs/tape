@@ -1,0 +1,17 @@
+{
+  "id": "workers_wfh_28450",
+  "name": "Workers who work from home \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 7952.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 9159.0
+    }
+  ]
+}

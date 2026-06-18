@@ -1,10 +1,30 @@
 {
   "id": "median_commute_minutes_41740",
-  "name": "Median travel time to work \u2014 San Diego-Chula Vista-Carlsbad",
+  "name": "Median travel time to work \u2014 San Diego-Chula Vista-Carlsbad, CA",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 21.9
+    },
+    {
+      "t": "2011-12-31",
+      "v": 21.8
+    },
+    {
+      "t": "2012-12-31",
+      "v": 21.8
+    },
+    {
+      "t": "2013-12-31",
+      "v": 21.9
+    },
+    {
+      "t": "2014-12-31",
+      "v": 22.0
+    },
     {
       "t": "2015-12-31",
       "v": 22.2
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 22.8
+    },
+    {
+      "t": "2023-12-31",
+      "v": 22.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22.6
     }
   ]
 }

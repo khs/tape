@@ -1,10 +1,18 @@
 {
   "id": "households_no_vehicle_31080",
-  "name": "Households with no vehicle available \u2014 Los Angeles-Long Beach-Anaheim",
+  "name": "Households with no vehicle available \u2014 Los Angeles-Long Beach-Anaheim, CA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 362086.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 365589.0
+    },
     {
       "t": "2015-12-31",
       "v": 363769.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 340596.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 346214.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 354267.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_49420",
-  "name": "Total workers (commute-table denominator) \u2014 Yakima",
+  "name": "Total workers (commute-table denominator) \u2014 Yakima, WA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:54Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 95250.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 95376.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 96104.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 96410.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 97871.0
+    },
     {
       "t": "2015-12-31",
       "v": 99088.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 105896.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 107186.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 106921.0
     }
   ]
 }

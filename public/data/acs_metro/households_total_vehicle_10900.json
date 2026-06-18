@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_10900",
-  "name": "Total households (vehicle-table denominator) \u2014 Allentown-Bethlehem-Easton",
+  "name": "Total households (vehicle-table denominator) \u2014 Allentown-Bethlehem-Easton, PA-NJ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 312520.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 313091.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 313438.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 312844.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 313786.0
+    },
     {
       "t": "2015-12-31",
       "v": 314305.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 333576.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 336977.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 339656.0
     }
   ]
 }

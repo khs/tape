@@ -1,0 +1,17 @@
+{
+  "id": "population_65_plus_48680",
+  "name": "Population 65 and older \u2014 Wildwood-The Villages, FL",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 79463
+    },
+    {
+      "t": "2024-12-31",
+      "v": 82722
+    }
+  ]
+}

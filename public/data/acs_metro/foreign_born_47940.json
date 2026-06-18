@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_47940",
-  "name": "Foreign-born population \u2014 Waterloo-Cedar Falls",
+  "name": "Foreign-born population \u2014 Waterloo-Cedar Falls, IA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 6100
+    },
+    {
+      "t": "2011-12-31",
+      "v": 6334
+    },
+    {
+      "t": "2012-12-31",
+      "v": 6172
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6574
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6779
+    },
     {
       "t": "2015-12-31",
       "v": 6610
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 9189
+    },
+    {
+      "t": "2023-12-31",
+      "v": 8905
+    },
+    {
+      "t": "2024-12-31",
+      "v": 9098
     }
   ]
 }

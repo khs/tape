@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_30860",
-  "name": "Total population (mobility-table denominator) \u2014 Logan",
+  "name": "Total population (mobility-table denominator) \u2014 Logan, UT-ID",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 117107.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 120201.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 122622.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 124779.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 126586.0
+    },
     {
       "t": "2015-12-31",
       "v": 128073.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 146514.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 149438.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 152947.0
     }
   ]
 }

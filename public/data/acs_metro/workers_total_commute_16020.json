@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_16020",
-  "name": "Total workers (commute-table denominator) \u2014 Cape Girardeau",
+  "name": "Total workers (commute-table denominator) \u2014 Cape Girardeau, MO-IL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 44627.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 44346.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 43984.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 43555.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 43498.0
+    },
     {
       "t": "2015-12-31",
       "v": 44075.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 46897.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 47527.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 48225.0
     }
   ]
 }

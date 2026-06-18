@@ -3,7 +3,7 @@
   "name": "Adults 25+ with bachelor's degree \u2014 LA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:35:19Z",
+  "lastUpdated": "2026-06-18T21:25:24Z",
   "points": [
     {
       "t": "2012-12-31",
@@ -48,6 +48,14 @@
     {
       "t": "2022-12-31",
       "v": 519481
+    },
+    {
+      "t": "2023-12-31",
+      "v": 521669
+    },
+    {
+      "t": "2024-12-31",
+      "v": 527353
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Renter-occupied housing units \u2014 NC-14",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T21:48:59Z",
+  "lastUpdated": "2026-06-18T21:21:48Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 133476
+    },
+    {
+      "t": "2023-12-31",
+      "v": 138660
+    },
+    {
+      "t": "2024-12-31",
+      "v": 142096
     }
   ]
 }

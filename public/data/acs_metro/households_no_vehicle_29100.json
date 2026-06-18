@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_29100",
-  "name": "Households with no vehicle available \u2014 La Crosse-Onalaska",
+  "name": "Households with no vehicle available \u2014 La Crosse-Onalaska, WI-MN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3666.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3730.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3704.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3124.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2964.0
+    },
     {
       "t": "2015-12-31",
       "v": 2669.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3787.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 5001.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4987.0
     }
   ]
 }

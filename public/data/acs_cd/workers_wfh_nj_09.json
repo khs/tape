@@ -3,7 +3,7 @@
   "name": "Workers who work from home \u2014 NJ-09",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-17T19:24:54Z",
+  "lastUpdated": "2026-06-18T21:21:47Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 32162
+    },
+    {
+      "t": "2023-12-31",
+      "v": 38313
+    },
+    {
+      "t": "2024-12-31",
+      "v": 44263
     }
   ]
 }

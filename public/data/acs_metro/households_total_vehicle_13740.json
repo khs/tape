@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_13740",
-  "name": "Total households (vehicle-table denominator) \u2014 Billings",
+  "name": "Total households (vehicle-table denominator) \u2014 Billings, MT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 63895.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 64528.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 64922.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 65668.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 66009.0
+    },
     {
       "t": "2015-12-31",
       "v": 66242.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 76348.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 77857.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 78371.0
     }
   ]
 }

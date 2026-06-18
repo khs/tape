@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_12260",
-  "name": "Workers who work from home \u2014 Augusta-Richmond County",
+  "name": "Workers who work from home \u2014 Augusta-Richmond County, GA-SC",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 6187.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5901.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5218.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5475.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5455.0
+    },
     {
       "t": "2015-12-31",
       "v": 5620.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 19874.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 24021.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 27279.0
     }
   ]
 }

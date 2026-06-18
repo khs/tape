@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_41660",
-  "name": "Total households (vehicle-table denominator) \u2014 San Angelo",
+  "name": "Total households (vehicle-table denominator) \u2014 San Angelo, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 42084.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 42075.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 42383.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 42940.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 42986.0
+    },
     {
       "t": "2015-12-31",
       "v": 43483.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 46488.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 46700.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 47344.0
     }
   ]
 }

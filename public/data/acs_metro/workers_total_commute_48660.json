@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_48660",
-  "name": "Total workers (commute-table denominator) \u2014 Wichita Falls",
+  "name": "Total workers (commute-table denominator) \u2014 Wichita Falls, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 70843.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 70736.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 70531.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 69984.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 69544.0
+    },
     {
       "t": "2015-12-31",
       "v": 68716.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 71022.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 71755.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 71384.0
     }
   ]
 }

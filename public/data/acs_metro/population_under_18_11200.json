@@ -1,0 +1,17 @@
+{
+  "id": "population_under_18_11200",
+  "name": "Population under 18 \u2014 Amherst Town-Northampton, MA",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 23349
+    },
+    {
+      "t": "2024-12-31",
+      "v": 23042
+    }
+  ]
+}

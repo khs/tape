@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_34940",
-  "name": "Total workers (commute-table denominator) \u2014 Naples-Marco Island",
+  "name": "Total workers (commute-table denominator) \u2014 Naples-Marco Island, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 130741.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 128137.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 129178.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 129802.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 133282.0
+    },
     {
       "t": "2015-12-31",
       "v": 138014.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 158573.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 160079.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 164884.0
     }
   ]
 }

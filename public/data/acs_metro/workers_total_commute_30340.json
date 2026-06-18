@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_30340",
-  "name": "Total workers (commute-table denominator) \u2014 Lewiston-Auburn",
+  "name": "Total workers (commute-table denominator) \u2014 Lewiston-Auburn, ME",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 51319.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 51281.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 51181.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 50445.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 50209.0
+    },
     {
       "t": "2015-12-31",
       "v": 51494.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 54700.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 54870.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 55291.0
     }
   ]
 }

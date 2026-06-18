@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_40060",
-  "name": "Total workers (commute-table denominator) \u2014 Richmond",
+  "name": "Total workers (commute-table denominator) \u2014 Richmond, VA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 591773.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 597281.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 598300.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 577949.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 587512.0
+    },
     {
       "t": "2015-12-31",
       "v": 602744.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 665398.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 672701.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 679206.0
     }
   ]
 }

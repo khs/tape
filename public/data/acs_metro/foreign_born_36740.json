@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_36740",
-  "name": "Foreign-born population \u2014 Orlando-Kissimmee-Sanford",
+  "name": "Foreign-born population \u2014 Orlando-Kissimmee-Sanford, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 337925
+    },
+    {
+      "t": "2011-12-31",
+      "v": 346552
+    },
+    {
+      "t": "2012-12-31",
+      "v": 349849
+    },
+    {
+      "t": "2013-12-31",
+      "v": 354759
+    },
+    {
+      "t": "2014-12-31",
+      "v": 364012
+    },
     {
       "t": "2015-12-31",
       "v": 379528
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 528804
+    },
+    {
+      "t": "2023-12-31",
+      "v": 552967
+    },
+    {
+      "t": "2024-12-31",
+      "v": 588966
     }
   ]
 }

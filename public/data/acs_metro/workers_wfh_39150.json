@@ -1,9 +1,9 @@
 {
   "id": "workers_wfh_39150",
-  "name": "Workers who work from home \u2014 Prescott Valley-Prescott",
+  "name": "Workers who work from home \u2014 Prescott Valley-Prescott, AZ",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 10236.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 11826.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 13866.0
     }
   ]
 }

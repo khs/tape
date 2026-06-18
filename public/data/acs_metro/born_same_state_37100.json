@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_37100",
-  "name": "Population born in current state of residence \u2014 Oxnard-Thousand Oaks-Ventura",
+  "name": "Population born in current state of residence \u2014 Oxnard-Thousand Oaks-Ventura, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 445446.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 452952.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 459394.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 464839.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 473995.0
+    },
     {
       "t": "2015-12-31",
       "v": 480363.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 511005.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 503355.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 502950.0
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "id": "households_total_vehicle_28450",
+  "name": "Total households (vehicle-table denominator) \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 67631.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 68904.0
+    }
+  ]
+}

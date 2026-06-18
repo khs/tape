@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_13140",
-  "name": "Foreign-born population \u2014 Beaumont-Port Arthur",
+  "name": "Foreign-born population \u2014 Beaumont-Port Arthur, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 27025
+    },
+    {
+      "t": "2011-12-31",
+      "v": 27918
+    },
+    {
+      "t": "2012-12-31",
+      "v": 28780
+    },
+    {
+      "t": "2013-12-31",
+      "v": 29916
+    },
+    {
+      "t": "2014-12-31",
+      "v": 30071
+    },
     {
       "t": "2015-12-31",
       "v": 31873
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 34616
+    },
+    {
+      "t": "2023-12-31",
+      "v": 34873
+    },
+    {
+      "t": "2024-12-31",
+      "v": 34833
     }
   ]
 }

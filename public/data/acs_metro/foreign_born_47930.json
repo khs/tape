@@ -1,0 +1,17 @@
+{
+  "id": "foreign_born_47930",
+  "name": "Foreign-born population \u2014 Waterbury-Shelton, CT",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 60819
+    },
+    {
+      "t": "2024-12-31",
+      "v": 64667
+    }
+  ]
+}

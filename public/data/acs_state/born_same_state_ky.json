@@ -3,7 +3,7 @@
   "name": "Population born in current state of residence \u2014 KY",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:17Z",
+  "lastUpdated": "2026-06-18T21:26:10Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3069012
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3062355
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3053667
     }
   ]
 }

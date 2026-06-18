@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_46220",
-  "name": "Population born in current state of residence \u2014 Tuscaloosa",
+  "name": "Population born in current state of residence \u2014 Tuscaloosa, AL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 163625.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 164432.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 165548.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 173931.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 175514.0
+    },
     {
       "t": "2015-12-31",
       "v": 174804.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 198258.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 198389.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 195655.0
     }
   ]
 }

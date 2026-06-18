@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_30700",
-  "name": "Households with no vehicle available \u2014 Lincoln",
+  "name": "Households with no vehicle available \u2014 Lincoln, NE",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 6792.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 6964.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 7305.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 7799.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 7857.0
+    },
     {
       "t": "2015-12-31",
       "v": 7827.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 6861.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 7699.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 8637.0
     }
   ]
 }

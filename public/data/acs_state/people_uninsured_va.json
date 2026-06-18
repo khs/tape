@@ -3,7 +3,7 @@
   "name": "People without health insurance coverage \u2014 VA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:41Z",
+  "lastUpdated": "2026-06-18T21:26:25Z",
   "points": [
     {
       "t": "2013-12-31",
@@ -44,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 623633
+    },
+    {
+      "t": "2023-12-31",
+      "v": 597775
+    },
+    {
+      "t": "2024-12-31",
+      "v": 586299
     }
   ]
 }

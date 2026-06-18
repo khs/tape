@@ -1,10 +1,18 @@
 {
   "id": "households_no_vehicle_29200",
-  "name": "Households with no vehicle available \u2014 Lafayette-West Lafayette",
+  "name": "Households with no vehicle available \u2014 Lafayette-West Lafayette, IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 5123.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5372.0
+    },
     {
       "t": "2015-12-31",
       "v": 5685.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 6850.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 7189.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 7930.0
     }
   ]
 }

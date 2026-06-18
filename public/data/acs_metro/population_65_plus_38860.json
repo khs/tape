@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_38860",
-  "name": "Population 65 and older \u2014 Portland-South Portland",
+  "name": "Population 65 and older \u2014 Portland-South Portland, ME",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 73135
+    },
+    {
+      "t": "2011-12-31",
+      "v": 75055
+    },
+    {
+      "t": "2012-12-31",
+      "v": 77287
+    },
+    {
+      "t": "2013-12-31",
+      "v": 80087
+    },
+    {
+      "t": "2014-12-31",
+      "v": 83014
+    },
     {
       "t": "2015-12-31",
       "v": 86277
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 112778
+    },
+    {
+      "t": "2023-12-31",
+      "v": 116229
+    },
+    {
+      "t": "2024-12-31",
+      "v": 120554
     }
   ]
 }

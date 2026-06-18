@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_19780",
-  "name": "Workers who work from home \u2014 Des Moines-West Des Moines",
+  "name": "Workers who work from home \u2014 Des Moines-West Des Moines, IA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 11920.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 12222.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 12564.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 12688.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 12968.0
+    },
     {
       "t": "2015-12-31",
       "v": 12354.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 47053.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 53927.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 61827.0
     }
   ]
 }

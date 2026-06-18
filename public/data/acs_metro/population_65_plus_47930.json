@@ -1,0 +1,17 @@
+{
+  "id": "population_65_plus_47930",
+  "name": "Population 65 and older \u2014 Waterbury-Shelton, CT",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 84656
+    },
+    {
+      "t": "2024-12-31",
+      "v": 87273
+    }
+  ]
+}

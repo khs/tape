@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_24260",
-  "name": "Population born in current state of residence \u2014 Grand Island",
+  "name": "Population born in current state of residence \u2014 Grand Island, NE",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 50015.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 50469.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 50848.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 57873.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 58039.0
+    },
     {
       "t": "2015-12-31",
       "v": 58264.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 53294.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 52061.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 51773.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_37340",
-  "name": "Population 65 and older \u2014 Palm Bay-Melbourne-Titusville",
+  "name": "Population 65 and older \u2014 Palm Bay-Melbourne-Titusville, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 107663
+    },
+    {
+      "t": "2011-12-31",
+      "v": 109373
+    },
+    {
+      "t": "2012-12-31",
+      "v": 111936
+    },
+    {
+      "t": "2013-12-31",
+      "v": 114731
+    },
+    {
+      "t": "2014-12-31",
+      "v": 118008
+    },
     {
       "t": "2015-12-31",
       "v": 121800
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 146692
+    },
+    {
+      "t": "2023-12-31",
+      "v": 150162
+    },
+    {
+      "t": "2024-12-31",
+      "v": 155030
     }
   ]
 }

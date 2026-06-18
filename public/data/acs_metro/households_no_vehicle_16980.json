@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_16980",
-  "name": "Households with no vehicle available \u2014 Chicago-Naperville-Elgin",
+  "name": "Households with no vehicle available \u2014 Chicago-Naperville-Elgin, IL-IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 399712.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 408025.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 413685.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 415623.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 417889.0
+    },
     {
       "t": "2015-12-31",
       "v": 420538.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 440096.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 445163.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 449415.0
     }
   ]
 }

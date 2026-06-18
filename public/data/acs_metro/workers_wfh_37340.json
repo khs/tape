@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_37340",
-  "name": "Workers who work from home \u2014 Palm Bay-Melbourne-Titusville",
+  "name": "Workers who work from home \u2014 Palm Bay-Melbourne-Titusville, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 9792.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 10040.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 10038.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 10107.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 10672.0
+    },
     {
       "t": "2015-12-31",
       "v": 11328.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 31170.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 36552.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 41247.0
     }
   ]
 }

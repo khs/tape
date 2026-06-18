@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_34900",
-  "name": "Total population (mobility-table denominator) \u2014 Napa",
+  "name": "Total population (mobility-table denominator) \u2014 Napa, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 132520.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 133604.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 134854.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 136235.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 137637.0
+    },
     {
       "t": "2015-12-31",
       "v": 138767.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 136194.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 134775.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 133672.0
     }
   ]
 }

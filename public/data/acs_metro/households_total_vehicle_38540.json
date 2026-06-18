@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_38540",
-  "name": "Total households (vehicle-table denominator) \u2014 Pocatello",
+  "name": "Total households (vehicle-table denominator) \u2014 Pocatello, ID",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 32458.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 32642.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 32759.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 30271.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 30277.0
+    },
     {
       "t": "2015-12-31",
       "v": 30394.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 35375.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 33340.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 33590.0
     }
   ]
 }

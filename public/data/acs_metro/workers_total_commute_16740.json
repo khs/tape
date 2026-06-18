@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_16740",
-  "name": "Total workers (commute-table denominator) \u2014 Charlotte-Concord-Gastonia",
+  "name": "Total workers (commute-table denominator) \u2014 Charlotte-Concord-Gastonia, NC-SC",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 812451.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 820838.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 832041.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1028736.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1053699.0
+    },
     {
       "t": "2015-12-31",
       "v": 1088302.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1330894.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1358636.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1394422.0
     }
   ]
 }

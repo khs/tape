@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_47260",
-  "name": "Population 65 and older \u2014 Virginia Beach-Chesapeake-Norfolk",
+  "name": "Population 65 and older \u2014 Virginia Beach-Chesapeake-Norfolk, VA-NC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:52Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 185457
+    },
+    {
+      "t": "2011-12-31",
+      "v": 189618
+    },
+    {
+      "t": "2012-12-31",
+      "v": 195148
+    },
+    {
+      "t": "2013-12-31",
+      "v": 201755
+    },
+    {
+      "t": "2014-12-31",
+      "v": 208453
+    },
     {
       "t": "2015-12-31",
       "v": 215421
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 276573
+    },
+    {
+      "t": "2023-12-31",
+      "v": 279416
+    },
+    {
+      "t": "2024-12-31",
+      "v": 288962
     }
   ]
 }

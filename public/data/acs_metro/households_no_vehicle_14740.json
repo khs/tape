@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_14740",
-  "name": "Households with no vehicle available \u2014 Bremerton-Silverdale-Port Orchard",
+  "name": "Households with no vehicle available \u2014 Bremerton-Silverdale-Port Orchard, WA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5181.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5210.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5178.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5105.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 5431.0
+    },
     {
       "t": "2015-12-31",
       "v": 5388.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4595.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4382.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4696.0
     }
   ]
 }

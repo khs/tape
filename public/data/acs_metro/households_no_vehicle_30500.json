@@ -1,0 +1,29 @@
+{
+  "id": "households_no_vehicle_30500",
+  "name": "Households with no vehicle available \u2014 Lexington Park, MD",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:15Z",
+  "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1692.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1739.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1849.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2658.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2327.0
+    }
+  ]
+}

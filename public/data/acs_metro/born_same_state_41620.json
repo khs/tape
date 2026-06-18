@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_41620",
-  "name": "Population born in current state of residence \u2014 Salt Lake City-Murray",
+  "name": "Population born in current state of residence \u2014 Salt Lake City-Murray, UT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:47Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 658520.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 664792.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 675040.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 670050.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 676819.0
+    },
     {
       "t": "2015-12-31",
       "v": 685357.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 741293.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 741406.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 738279.0
     }
   ]
 }

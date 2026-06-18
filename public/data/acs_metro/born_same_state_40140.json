@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_40140",
-  "name": "Population born in current state of residence \u2014 Riverside-San Bernardino-Ontario",
+  "name": "Population born in current state of residence \u2014 Riverside-San Bernardino-Ontario, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2397611.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2464421.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2524747.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2577234.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2621444.0
+    },
     {
       "t": "2015-12-31",
       "v": 2670372.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2927913.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2952625.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2981160.0
     }
   ]
 }

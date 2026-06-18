@@ -3,7 +3,7 @@
   "name": "Civilian veteran population (18+) \u2014 WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:35:38Z",
+  "lastUpdated": "2026-06-18T21:25:38Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 499333
+    },
+    {
+      "t": "2023-12-31",
+      "v": 486714
+    },
+    {
+      "t": "2024-12-31",
+      "v": 473124
     }
   ]
 }

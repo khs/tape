@@ -1,10 +1,30 @@
 {
   "id": "population_35840",
-  "name": "Total population \u2014 North Port-Bradenton-Sarasota",
+  "name": "Total population \u2014 North Port-Bradenton-Sarasota, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 694819
+    },
+    {
+      "t": "2011-12-31",
+      "v": 699700
+    },
+    {
+      "t": "2012-12-31",
+      "v": 705313
+    },
+    {
+      "t": "2013-12-31",
+      "v": 712581
+    },
+    {
+      "t": "2014-12-31",
+      "v": 722784
+    },
     {
       "t": "2015-12-31",
       "v": 735767
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 844461
+    },
+    {
+      "t": "2023-12-31",
+      "v": 865031
+    },
+    {
+      "t": "2024-12-31",
+      "v": 889339
     }
   ]
 }

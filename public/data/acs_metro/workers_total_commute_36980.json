@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_36980",
-  "name": "Total workers (commute-table denominator) \u2014 Owensboro",
+  "name": "Total workers (commute-table denominator) \u2014 Owensboro, KY",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 49248.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 49503.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 49478.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 49690.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 49906.0
+    },
     {
       "t": "2015-12-31",
       "v": 50379.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 54245.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 50612.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 50869.0
     }
   ]
 }

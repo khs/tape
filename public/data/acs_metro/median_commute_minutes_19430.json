@@ -1,9 +1,9 @@
 {
   "id": "median_commute_minutes_19430",
-  "name": "Median travel time to work \u2014 Dayton-Kettering-Beavercreek",
+  "name": "Median travel time to work \u2014 Dayton-Kettering-Beavercreek, OH",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 20.2
+    },
+    {
+      "t": "2023-12-31",
+      "v": 20.1
+    },
+    {
+      "t": "2024-12-31",
+      "v": 20.0
     }
   ]
 }

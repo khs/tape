@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_45940",
-  "name": "Total population (mobility-table denominator) \u2014 Trenton-Princeton",
+  "name": "Total population (mobility-table denominator) \u2014 Trenton-Princeton, NJ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 360820.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 361786.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 362819.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 364708.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 365938.0
+    },
     {
       "t": "2015-12-31",
       "v": 366562.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 380134.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 379353.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 381702.0
     }
   ]
 }

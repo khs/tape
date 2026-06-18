@@ -1,10 +1,18 @@
 {
   "id": "median_age_29200",
-  "name": "Median age \u2014 Lafayette-West Lafayette",
+  "name": "Median age \u2014 Lafayette-West Lafayette, IN",
   "kind": "timeseries",
   "unit": "years",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 29.4
+    },
+    {
+      "t": "2014-12-31",
+      "v": 29.4
+    },
     {
       "t": "2015-12-31",
       "v": 29.4
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 30.4
+    },
+    {
+      "t": "2023-12-31",
+      "v": 30.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": 30.8
     }
   ]
 }

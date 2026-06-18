@@ -1,10 +1,18 @@
 {
   "id": "population_46520",
-  "name": "Total population \u2014 Urban Honolulu",
+  "name": "Total population \u2014 Urban Honolulu, HI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 964678
+    },
+    {
+      "t": "2014-12-31",
+      "v": 975690
+    },
     {
       "t": "2015-12-31",
       "v": 984178
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 1010100
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1003666
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1001146
     }
   ]
 }

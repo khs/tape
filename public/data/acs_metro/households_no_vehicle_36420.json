@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_36420",
-  "name": "Households with no vehicle available \u2014 Oklahoma City",
+  "name": "Households with no vehicle available \u2014 Oklahoma City, OK",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 24633.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 25295.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 25883.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 26539.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 27178.0
+    },
     {
       "t": "2015-12-31",
       "v": 27596.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 28119.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 29755.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 30970.0
     }
   ]
 }

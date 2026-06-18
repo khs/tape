@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_34580",
-  "name": "Population 65 and older \u2014 Mount Vernon-Anacortes",
+  "name": "Population 65 and older \u2014 Mount Vernon-Anacortes, WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 17895
+    },
+    {
+      "t": "2011-12-31",
+      "v": 18486
+    },
+    {
+      "t": "2012-12-31",
+      "v": 19093
+    },
+    {
+      "t": "2013-12-31",
+      "v": 19811
+    },
+    {
+      "t": "2014-12-31",
+      "v": 20645
+    },
     {
       "t": "2015-12-31",
       "v": 21539
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 27804
+    },
+    {
+      "t": "2023-12-31",
+      "v": 28810
+    },
+    {
+      "t": "2024-12-31",
+      "v": 29691
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_14460",
-  "name": "Workers who work from home \u2014 Boston-Cambridge-Newton",
+  "name": "Workers who work from home \u2014 Boston-Cambridge-Newton, MA-NH",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 93974.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 100260.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 101608.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 104481.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 109821.0
+    },
     {
       "t": "2015-12-31",
       "v": 114144.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 423768.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 490444.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 549671.0
     }
   ]
 }

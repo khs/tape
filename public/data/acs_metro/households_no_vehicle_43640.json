@@ -1,0 +1,17 @@
+{
+  "id": "households_no_vehicle_43640",
+  "name": "Households with no vehicle available \u2014 Slidell-Mandeville-Covington, LA",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 4168.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4471.0
+    }
+  ]
+}

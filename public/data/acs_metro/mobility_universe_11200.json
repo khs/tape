@@ -1,0 +1,17 @@
+{
+  "id": "mobility_universe_11200",
+  "name": "Total population (mobility-table denominator) \u2014 Amherst Town-Northampton, MA",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 155674.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 161139.0
+    }
+  ]
+}

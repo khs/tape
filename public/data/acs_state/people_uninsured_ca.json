@@ -3,7 +3,7 @@
   "name": "People without health insurance coverage \u2014 CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:38Z",
+  "lastUpdated": "2026-06-18T21:26:23Z",
   "points": [
     {
       "t": "2013-12-31",
@@ -44,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 2752068
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2682732
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2557945
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Adults 25+ with master's degree \u2014 RI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:35:25Z",
+  "lastUpdated": "2026-06-18T21:25:28Z",
   "points": [
     {
       "t": "2012-12-31",
@@ -48,6 +48,14 @@
     {
       "t": "2022-12-31",
       "v": 80811
+    },
+    {
+      "t": "2023-12-31",
+      "v": 82416
+    },
+    {
+      "t": "2024-12-31",
+      "v": 84929
     }
   ]
 }

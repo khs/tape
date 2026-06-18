@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_19740",
-  "name": "Total population (mobility-table denominator) \u2014 Denver-Aurora-Centennial",
+  "name": "Total population (mobility-table denominator) \u2014 Denver-Aurora-Centennial, CO",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2428290.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2473224.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2518554.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2566221.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2617172.0
+    },
     {
       "t": "2015-12-31",
       "v": 2669359.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2929324.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2947289.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2971190.0
     }
   ]
 }

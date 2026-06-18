@@ -1,0 +1,17 @@
+{
+  "id": "workers_total_commute_43640",
+  "name": "Total workers (commute-table denominator) \u2014 Slidell-Mandeville-Covington, LA",
+  "kind": "timeseries",
+  "unit": "workers",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 123646.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 125937.0
+    }
+  ]
+}

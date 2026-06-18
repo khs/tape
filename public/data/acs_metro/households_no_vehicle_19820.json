@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_19820",
-  "name": "Households with no vehicle available \u2014 Detroit-Warren-Dearborn",
+  "name": "Households with no vehicle available \u2014 Detroit-Warren-Dearborn, MI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 137093.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 140699.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 146512.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 149284.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 151196.0
+    },
     {
       "t": "2015-12-31",
       "v": 153489.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 139728.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 138457.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 139641.0
     }
   ]
 }

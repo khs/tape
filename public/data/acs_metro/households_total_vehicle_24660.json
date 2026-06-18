@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_24660",
-  "name": "Total households (vehicle-table denominator) \u2014 Greensboro-High Point",
+  "name": "Total households (vehicle-table denominator) \u2014 Greensboro-High Point, NC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 282317.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 284797.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 286766.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 288506.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 290505.0
+    },
     {
       "t": "2015-12-31",
       "v": 291630.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 307429.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 311795.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 317045.0
     }
   ]
 }

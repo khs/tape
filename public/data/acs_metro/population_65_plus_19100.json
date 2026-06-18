@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_19100",
-  "name": "Population 65 and older \u2014 Dallas-Fort Worth-Arlington",
+  "name": "Population 65 and older \u2014 Dallas-Fort Worth-Arlington, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 522294
+    },
+    {
+      "t": "2011-12-31",
+      "v": 544184
+    },
+    {
+      "t": "2012-12-31",
+      "v": 569981
+    },
+    {
+      "t": "2013-12-31",
+      "v": 610628
+    },
+    {
+      "t": "2014-12-31",
+      "v": 642670
+    },
     {
       "t": "2015-12-31",
       "v": 676112
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 890705
+    },
+    {
+      "t": "2023-12-31",
+      "v": 926073
+    },
+    {
+      "t": "2024-12-31",
+      "v": 967934
     }
   ]
 }

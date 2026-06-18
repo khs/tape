@@ -1,10 +1,30 @@
 {
   "id": "population_18880",
-  "name": "Total population \u2014 Crestview-Fort Walton Beach-Destin",
+  "name": "Total population \u2014 Crestview-Fort Walton Beach-Destin, FL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 182076
+    },
+    {
+      "t": "2011-12-31",
+      "v": 181973
+    },
+    {
+      "t": "2012-12-31",
+      "v": 183400
+    },
+    {
+      "t": "2013-12-31",
+      "v": 242442
+    },
+    {
+      "t": "2014-12-31",
+      "v": 246805
+    },
     {
       "t": "2015-12-31",
       "v": 251724
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 288639
+    },
+    {
+      "t": "2023-12-31",
+      "v": 294127
+    },
+    {
+      "t": "2024-12-31",
+      "v": 299547
     }
   ]
 }

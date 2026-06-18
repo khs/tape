@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_12100",
-  "name": "Total households (vehicle-table denominator) \u2014 Atlantic City-Hammonton",
+  "name": "Total households (vehicle-table denominator) \u2014 Atlantic City-Hammonton, NJ",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 101645.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 101418.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 101018.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 101091.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 101166.0
+    },
     {
       "t": "2015-12-31",
       "v": 101818.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 106640.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 153081.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 154441.0
     }
   ]
 }

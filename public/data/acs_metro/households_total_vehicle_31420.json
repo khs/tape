@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_31420",
-  "name": "Total households (vehicle-table denominator) \u2014 Macon-Bibb County",
+  "name": "Total households (vehicle-table denominator) \u2014 Macon-Bibb County, GA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:16Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 84407.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 84807.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 84952.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 84195.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 84303.0
+    },
     {
       "t": "2015-12-31",
       "v": 84578.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 87541.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 88114.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 88590.0
     }
   ]
 }

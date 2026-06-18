@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_29020",
-  "name": "Households with no vehicle available \u2014 Kokomo",
+  "name": "Households with no vehicle available \u2014 Kokomo, IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:13Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2805.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3052.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3099.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2723.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2732.0
+    },
     {
       "t": "2015-12-31",
       "v": 2876.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2294.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2408.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2597.0
     }
   ]
 }

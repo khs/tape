@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_34820",
-  "name": "Population 65 and older \u2014 Myrtle Beach-Conway-North Myrtle Beach",
+  "name": "Population 65 and older \u2014 Myrtle Beach-Conway-North Myrtle Beach, SC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 41906
+    },
+    {
+      "t": "2011-12-31",
+      "v": 44300
+    },
+    {
+      "t": "2012-12-31",
+      "v": 46744
+    },
+    {
+      "t": "2013-12-31",
+      "v": 74912
+    },
+    {
+      "t": "2014-12-31",
+      "v": 80571
+    },
     {
       "t": "2015-12-31",
       "v": 86692
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 135574
+    },
+    {
+      "t": "2023-12-31",
+      "v": 94867
+    },
+    {
+      "t": "2024-12-31",
+      "v": 100979
     }
   ]
 }

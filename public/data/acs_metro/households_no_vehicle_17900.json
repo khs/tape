@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_17900",
-  "name": "Households with no vehicle available \u2014 Columbia",
+  "name": "Households with no vehicle available \u2014 Columbia, SC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 18141.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 19344.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 18643.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 18032.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 18585.0
+    },
     {
       "t": "2015-12-31",
       "v": 18832.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 18554.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 18923.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 19967.0
     }
   ]
 }

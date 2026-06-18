@@ -1,10 +1,18 @@
 {
   "id": "born_same_state_48260",
-  "name": "Population born in current state of residence \u2014 Weirton-Steubenville",
+  "name": "Population born in current state of residence \u2014 Weirton-Steubenville, WV-OH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 76666.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 75774.0
+    },
     {
       "t": "2015-12-31",
       "v": 74206.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 68635.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 66973.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 65874.0
     }
   ]
 }

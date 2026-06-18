@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_20100",
-  "name": "Population born in current state of residence \u2014 Dover",
+  "name": "Population born in current state of residence \u2014 Dover, DE",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 71671.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 72543.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 74413.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 74498.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 75066.0
+    },
     {
       "t": "2015-12-31",
       "v": 77562.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 87818.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 87722.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 89933.0
     }
   ]
 }

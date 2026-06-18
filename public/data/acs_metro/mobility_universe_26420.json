@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_26420",
-  "name": "Total population (mobility-table denominator) \u2014 Houston-Pasadena-The Woodlands",
+  "name": "Total population (mobility-table denominator) \u2014 Houston-Pasadena-The Woodlands, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5619752.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5747973.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5874354.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 5975834.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6117444.0
+    },
     {
       "t": "2015-12-31",
       "v": 6260171.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 7055678.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 7186572.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 7353502.0
     }
   ]
 }

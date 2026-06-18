@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_17140",
-  "name": "Households with no vehicle available \u2014 Cincinnati",
+  "name": "Households with no vehicle available \u2014 Cincinnati, OH-KY-IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 67716.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 67135.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 66820.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 66447.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 66236.0
+    },
     {
       "t": "2015-12-31",
       "v": 67217.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 61862.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 62445.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 62200.0
     }
   ]
 }

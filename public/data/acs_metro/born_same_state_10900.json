@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_10900",
-  "name": "Population born in current state of residence \u2014 Allentown-Bethlehem-Easton",
+  "name": "Population born in current state of residence \u2014 Allentown-Bethlehem-Easton, PA-NJ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 521035.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 521829.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 524554.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 524227.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 521816.0
+    },
     {
       "t": "2015-12-31",
       "v": 519095.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 522424.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 524882.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 524881.0
     }
   ]
 }

@@ -6,7 +6,7 @@ What this writes
 ----------------
 For each indicator in census_acs_cd.INDICATORS, one time-series file:
     public/data/acs_national/<indicator>_us.json
-covering ACS_VINTAGES (2010-2022 currently).
+covering ACS_VINTAGES (2010-2024 currently).
 
 Why a separate pipeline
 -----------------------

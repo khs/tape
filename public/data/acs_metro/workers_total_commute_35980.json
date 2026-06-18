@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_35980",
-  "name": "Total workers (commute-table denominator) \u2014 Norwich-New London-Willimantic",
+  "name": "Total workers (commute-table denominator) \u2014 Norwich-New London-Willimantic, CT",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 137763.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 137594.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 137449.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 136625.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 137534.0
+    },
     {
       "t": "2015-12-31",
       "v": 137090.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 132973.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 137307.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 137209.0
     }
   ]
 }

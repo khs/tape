@@ -1,10 +1,18 @@
 {
   "id": "population_65_plus_14010",
-  "name": "Population 65 and older \u2014 Bloomington",
+  "name": "Population 65 and older \u2014 Bloomington, IL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 20891
+    },
+    {
+      "t": "2014-12-31",
+      "v": 21320
+    },
     {
       "t": "2015-12-31",
       "v": 21992
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 23884
+    },
+    {
+      "t": "2023-12-31",
+      "v": 24285
+    },
+    {
+      "t": "2024-12-31",
+      "v": 25004
     }
   ]
 }

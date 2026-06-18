@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_41940",
-  "name": "Population born in current state of residence \u2014 San Jose-Sunnyvale-Santa Clara",
+  "name": "Population born in current state of residence \u2014 San Jose-Sunnyvale-Santa Clara, CA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 824255.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 842214.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 860817.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 870910.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 881509.0
+    },
     {
       "t": "2015-12-31",
       "v": 891981.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 901167.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 893122.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 887269.0
     }
   ]
 }

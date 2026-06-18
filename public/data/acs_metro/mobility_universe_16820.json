@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_16820",
-  "name": "Total population (mobility-table denominator) \u2014 Charlottesville",
+  "name": "Total population (mobility-table denominator) \u2014 Charlottesville, VA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 195373.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 197869.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 199859.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 218760.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 220824.0
+    },
     {
       "t": "2015-12-31",
       "v": 222802.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 219791.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 220934.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 222169.0
     }
   ]
 }

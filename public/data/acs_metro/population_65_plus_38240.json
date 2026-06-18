@@ -1,10 +1,18 @@
 {
   "id": "population_65_plus_38240",
-  "name": "Population 65 and older \u2014 Pinehurst-Southern Pines",
+  "name": "Population 65 and older \u2014 Pinehurst-Southern Pines, NC",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 20612
+    },
+    {
+      "t": "2014-12-31",
+      "v": 21080
+    },
     {
       "t": "2015-12-31",
       "v": 21637
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 24260
+    },
+    {
+      "t": "2023-12-31",
+      "v": 24731
+    },
+    {
+      "t": "2024-12-31",
+      "v": 25231
     }
   ]
 }

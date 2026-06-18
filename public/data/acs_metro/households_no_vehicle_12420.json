@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_12420",
-  "name": "Households with no vehicle available \u2014 Austin-Round Rock-San Marcos",
+  "name": "Households with no vehicle available \u2014 Austin-Round Rock-San Marcos, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:57Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 31572.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 32392.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 32897.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 32317.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 32762.0
+    },
     {
       "t": "2015-12-31",
       "v": 32987.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 39647.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 44506.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 48020.0
     }
   ]
 }

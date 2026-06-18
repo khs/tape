@@ -3,7 +3,7 @@
   "name": "Share of households with no vehicle \u2014 NC-13",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-17T19:24:55Z",
+  "lastUpdated": "2026-06-18T21:21:48Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -55,6 +55,14 @@
     },
     {
       "t": "2022-12-31",
+      "v": 4.6
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4.5
+    },
+    {
+      "t": "2024-12-31",
       "v": 4.6
     }
   ]

@@ -1,0 +1,17 @@
+{
+  "id": "median_commute_minutes_17410",
+  "name": "Median travel time to work \u2014 Cleveland, OH",
+  "kind": "timeseries",
+  "unit": "minutes",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 22.2
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22.1
+    }
+  ]
+}

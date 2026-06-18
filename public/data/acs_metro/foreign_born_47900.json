@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_47900",
-  "name": "Foreign-born population \u2014 Washington-Arlington-Alexandria",
+  "name": "Foreign-born population \u2014 Washington-Arlington-Alexandria, DC-VA-MD-WV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1136681
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1171305
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1205259
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1245847
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1285767
+    },
     {
       "t": "2015-12-31",
       "v": 1315848
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1469883
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1501590
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1535978
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_14500",
-  "name": "Households with no vehicle available \u2014 Boulder",
+  "name": "Households with no vehicle available \u2014 Boulder, CO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5901.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 5897.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 5995.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 6433.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 6566.0
+    },
     {
       "t": "2015-12-31",
       "v": 6668.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 6884.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 6845.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 7080.0
     }
   ]
 }

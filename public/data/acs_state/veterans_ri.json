@@ -3,7 +3,7 @@
   "name": "Civilian veteran population (18+) \u2014 RI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:35:37Z",
+  "lastUpdated": "2026-06-18T21:25:37Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 50470
+    },
+    {
+      "t": "2023-12-31",
+      "v": 47214
+    },
+    {
+      "t": "2024-12-31",
+      "v": 45406
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_10780",
-  "name": "Total households (vehicle-table denominator) \u2014 Alexandria",
+  "name": "Total households (vehicle-table denominator) \u2014 Alexandria, LA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:55Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 55534.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 54649.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 54815.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 54946.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 54908.0
+    },
     {
       "t": "2015-12-31",
       "v": 54871.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 55263.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 55855.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 56394.0
     }
   ]
 }

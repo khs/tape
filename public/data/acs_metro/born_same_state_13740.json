@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_13740",
-  "name": "Population born in current state of residence \u2014 Billings",
+  "name": "Population born in current state of residence \u2014 Billings, MT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 88652.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 91186.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 91470.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 92765.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 92717.0
+    },
     {
       "t": "2015-12-31",
       "v": 93992.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 106472.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 108116.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 108833.0
     }
   ]
 }

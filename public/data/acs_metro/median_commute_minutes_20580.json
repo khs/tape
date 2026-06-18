@@ -1,10 +1,30 @@
 {
   "id": "median_commute_minutes_20580",
-  "name": "Median travel time to work \u2014 Eagle Pass",
+  "name": "Median travel time to work \u2014 Eagle Pass, TX",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 13.6
+    },
+    {
+      "t": "2011-12-31",
+      "v": 13.6
+    },
+    {
+      "t": "2012-12-31",
+      "v": 15.1
+    },
+    {
+      "t": "2013-12-31",
+      "v": 13.9
+    },
+    {
+      "t": "2014-12-31",
+      "v": 15.3
+    },
     {
       "t": "2015-12-31",
       "v": 15.2
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 16.8
+    },
+    {
+      "t": "2023-12-31",
+      "v": 17.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 16.9
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_22540",
-  "name": "Households with no vehicle available \u2014 Fond du Lac",
+  "name": "Households with no vehicle available \u2014 Fond du Lac, WI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2588.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2578.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2464.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2418.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2395.0
+    },
     {
       "t": "2015-12-31",
       "v": 2263.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2420.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2420.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2428.0
     }
   ]
 }

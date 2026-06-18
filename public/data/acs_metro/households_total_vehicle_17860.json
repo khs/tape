@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_17860",
-  "name": "Total households (vehicle-table denominator) \u2014 Columbia",
+  "name": "Total households (vehicle-table denominator) \u2014 Columbia, MO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:02Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 67276.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 67584.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 68403.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 65649.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 66136.0
+    },
     {
       "t": "2015-12-31",
       "v": 66980.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 83744.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 84722.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 86393.0
     }
   ]
 }

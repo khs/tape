@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_19780",
-  "name": "Households with no vehicle available \u2014 Des Moines-West Des Moines",
+  "name": "Households with no vehicle available \u2014 Des Moines-West Des Moines, IA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 11745.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 11945.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 12118.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 12209.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 11877.0
+    },
     {
       "t": "2015-12-31",
       "v": 12139.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 13933.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 14440.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 15190.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_26580",
-  "name": "Total households (vehicle-table denominator) \u2014 Huntington-Ashland",
+  "name": "Total households (vehicle-table denominator) \u2014 Huntington-Ashland, WV-KY-OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 115862.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 115539.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 115286.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 144510.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 143943.0
+    },
     {
       "t": "2015-12-31",
       "v": 143496.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 141459.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 150091.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 152165.0
     }
   ]
 }

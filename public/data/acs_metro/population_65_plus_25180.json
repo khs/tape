@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_25180",
-  "name": "Population 65 and older \u2014 Hagerstown-Martinsburg",
+  "name": "Population 65 and older \u2014 Hagerstown-Martinsburg, MD-WV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:09Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 34630
+    },
+    {
+      "t": "2011-12-31",
+      "v": 35396
+    },
+    {
+      "t": "2012-12-31",
+      "v": 36508
+    },
+    {
+      "t": "2013-12-31",
+      "v": 34280
+    },
+    {
+      "t": "2014-12-31",
+      "v": 35469
+    },
     {
       "t": "2015-12-31",
       "v": 36753
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 50001
+    },
+    {
+      "t": "2023-12-31",
+      "v": 50933
+    },
+    {
+      "t": "2024-12-31",
+      "v": 52310
     }
   ]
 }

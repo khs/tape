@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_37620",
-  "name": "Households with no vehicle available \u2014 Parkersburg-Vienna",
+  "name": "Households with no vehicle available \u2014 Parkersburg-Vienna, WV",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 5062.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 4915.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 4694.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3038.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3103.0
+    },
     {
       "t": "2015-12-31",
       "v": 3258.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3170.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3276.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2785.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_44220",
-  "name": "Households with no vehicle available \u2014 Springfield",
+  "name": "Households with no vehicle available \u2014 Springfield, OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:50Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 4126.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 4289.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 4356.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 4585.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 4866.0
+    },
     {
       "t": "2015-12-31",
       "v": 4762.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3947.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3933.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 4025.0
     }
   ]
 }

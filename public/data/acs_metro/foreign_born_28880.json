@@ -1,0 +1,17 @@
+{
+  "id": "foreign_born_28880",
+  "name": "Foreign-born population \u2014 Kiryas Joel-Poughkeepsie-Newburgh, NY",
+  "kind": "timeseries",
+  "unit": "people",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 87698
+    },
+    {
+      "t": "2024-12-31",
+      "v": 90554
+    }
+  ]
+}

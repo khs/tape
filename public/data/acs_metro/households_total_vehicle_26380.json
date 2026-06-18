@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_26380",
-  "name": "Total households (vehicle-table denominator) \u2014 Houma-Bayou Cane-Thibodaux",
+  "name": "Total households (vehicle-table denominator) \u2014 Houma-Bayou Cane-Thibodaux, LA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 72186.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 73514.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 74221.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 74351.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 74964.0
+    },
     {
       "t": "2015-12-31",
       "v": 75678.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 78333.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 79238.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 79889.0
     }
   ]
 }

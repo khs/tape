@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_47380",
-  "name": "Total households (vehicle-table denominator) \u2014 Waco",
+  "name": "Total households (vehicle-table denominator) \u2014 Waco, TX",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:52Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 82998.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 83851.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 83966.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 90462.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 91389.0
+    },
     {
       "t": "2015-12-31",
       "v": 92187.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 100484.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 109442.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 111178.0
     }
   ]
 }

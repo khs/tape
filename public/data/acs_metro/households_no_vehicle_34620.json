@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_34620",
-  "name": "Households with no vehicle available \u2014 Muncie",
+  "name": "Households with no vehicle available \u2014 Muncie, IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 3552.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 3555.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 3545.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 3653.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3751.0
+    },
     {
       "t": "2015-12-31",
       "v": 3752.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 3567.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3334.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3308.0
     }
   ]
 }

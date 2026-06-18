@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_37900",
-  "name": "Total households (vehicle-table denominator) \u2014 Peoria",
+  "name": "Total households (vehicle-table denominator) \u2014 Peoria, IL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:43Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 150501.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 151075.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 151936.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 152119.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 152051.0
+    },
     {
       "t": "2015-12-31",
       "v": 152155.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 166063.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 152843.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 153870.0
     }
   ]
 }

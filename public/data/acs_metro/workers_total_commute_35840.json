@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_35840",
-  "name": "Total workers (commute-table denominator) \u2014 North Port-Bradenton-Sarasota",
+  "name": "Total workers (commute-table denominator) \u2014 North Port-Bradenton-Sarasota, FL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 282210.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 278177.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 277987.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 277585.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 284284.0
+    },
     {
       "t": "2015-12-31",
       "v": 290672.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 351471.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 359490.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 372785.0
     }
   ]
 }

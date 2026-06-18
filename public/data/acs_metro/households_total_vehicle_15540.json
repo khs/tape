@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_15540",
-  "name": "Total households (vehicle-table denominator) \u2014 Burlington-South Burlington",
+  "name": "Total households (vehicle-table denominator) \u2014 Burlington-South Burlington, VT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 83140.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 83744.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 84026.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 84226.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 84818.0
+    },
     {
       "t": "2015-12-31",
       "v": 85148.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 91578.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 93126.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 94559.0
     }
   ]
 }

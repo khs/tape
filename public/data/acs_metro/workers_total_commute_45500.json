@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_45500",
-  "name": "Total workers (commute-table denominator) \u2014 Texarkana",
+  "name": "Total workers (commute-table denominator) \u2014 Texarkana, TX-AR",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 56083.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 55100.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 55146.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 60005.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 58905.0
+    },
     {
       "t": "2015-12-31",
       "v": 57892.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 58824.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 59316.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 59087.0
     }
   ]
 }

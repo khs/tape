@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_43420",
-  "name": "People who moved in the last year \u2014 Sierra Vista-Douglas",
+  "name": "People who moved in the last year \u2014 Sierra Vista-Douglas, AZ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:49Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 25854
+    },
+    {
+      "t": "2011-12-31",
+      "v": 25260
+    },
+    {
+      "t": "2012-12-31",
+      "v": 25137
+    },
+    {
+      "t": "2013-12-31",
+      "v": 24804
+    },
+    {
+      "t": "2014-12-31",
+      "v": 24312
+    },
     {
       "t": "2015-12-31",
       "v": 24289
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 16650
+    },
+    {
+      "t": "2023-12-31",
+      "v": 17087
+    },
+    {
+      "t": "2024-12-31",
+      "v": 17230
     }
   ]
 }

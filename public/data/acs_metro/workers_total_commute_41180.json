@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_41180",
-  "name": "Total workers (commute-table denominator) \u2014 St. Louis",
+  "name": "Total workers (commute-table denominator) \u2014 St. Louis, MO-IL",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:46Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1324633.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1328066.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1325726.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1312609.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1318320.0
+    },
     {
       "t": "2015-12-31",
       "v": 1331071.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1390743.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1392032.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1392054.0
     }
   ]
 }

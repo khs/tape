@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_23420",
-  "name": "Total households (vehicle-table denominator) \u2014 Fresno",
+  "name": "Total households (vehicle-table denominator) \u2014 Fresno, CA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:07Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 283836.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 285338.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 287082.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 289811.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 292550.0
+    },
     {
       "t": "2015-12-31",
       "v": 296305.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 318322.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 366676.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 370081.0
     }
   ]
 }

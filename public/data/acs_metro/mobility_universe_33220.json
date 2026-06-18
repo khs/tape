@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_33220",
-  "name": "Total population (mobility-table denominator) \u2014 Midland",
+  "name": "Total population (mobility-table denominator) \u2014 Midland, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:17Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 82832.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 82925.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 83033.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 83068.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 82890.0
+    },
     {
       "t": "2015-12-31",
       "v": 82878.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 82617.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 82690.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 82929.0
     }
   ]
 }

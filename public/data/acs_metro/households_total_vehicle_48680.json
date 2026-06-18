@@ -1,0 +1,17 @@
+{
+  "id": "households_total_vehicle_48680",
+  "name": "Total households (vehicle-table denominator) \u2014 Wildwood-The Villages, FL",
+  "kind": "timeseries",
+  "unit": "households",
+  "lastUpdated": "2026-06-18T21:10:21Z",
+  "points": [
+    {
+      "t": "2023-12-31",
+      "v": 66941.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 70318.0
+    }
+  ]
+}

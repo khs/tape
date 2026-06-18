@@ -3,7 +3,7 @@
   "name": "Population born in current state of residence \u2014 AZ-03",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-17T19:24:48Z",
+  "lastUpdated": "2026-06-18T21:21:42Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 383127
+    },
+    {
+      "t": "2023-12-31",
+      "v": 377661
+    },
+    {
+      "t": "2024-12-31",
+      "v": 381904
     }
   ]
 }

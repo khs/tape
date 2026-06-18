@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_15380",
-  "name": "Population born in current state of residence \u2014 Buffalo-Cheektowaga",
+  "name": "Population born in current state of residence \u2014 Buffalo-Cheektowaga, NY",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 928987.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 929116.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 927054.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 927737.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 928164.0
+    },
     {
       "t": "2015-12-31",
       "v": 928030.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 947043.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 946212.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 940269.0
     }
   ]
 }

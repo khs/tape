@@ -3,7 +3,7 @@
   "name": "Owner-occupied housing units \u2014 NC-10",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T21:48:59Z",
+  "lastUpdated": "2026-06-18T21:21:48Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 214388
+    },
+    {
+      "t": "2023-12-31",
+      "v": 218814
+    },
+    {
+      "t": "2024-12-31",
+      "v": 223711
     }
   ]
 }

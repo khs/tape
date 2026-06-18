@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_25420",
-  "name": "Population born in current state of residence \u2014 Harrisburg-Carlisle",
+  "name": "Population born in current state of residence \u2014 Harrisburg-Carlisle, PA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:09Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 403661.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 406672.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 408156.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 408470.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 409128.0
+    },
     {
       "t": "2015-12-31",
       "v": 408802.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 419739.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 417807.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 418595.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_46340",
-  "name": "Population born in current state of residence \u2014 Tyler",
+  "name": "Population born in current state of residence \u2014 Tyler, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:52Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 138345.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 140998.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 143270.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 144914.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 147170.0
+    },
     {
       "t": "2015-12-31",
       "v": 149863.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 161692.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 163744.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 165862.0
     }
   ]
 }

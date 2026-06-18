@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_26380",
-  "name": "Total workers (commute-table denominator) \u2014 Houma-Bayou Cane-Thibodaux",
+  "name": "Total workers (commute-table denominator) \u2014 Houma-Bayou Cane-Thibodaux, LA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 90074.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 89531.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 90527.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 90263.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 89608.0
+    },
     {
       "t": "2015-12-31",
       "v": 89776.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 87328.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 86453.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 86442.0
     }
   ]
 }

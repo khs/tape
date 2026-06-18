@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_11260",
-  "name": "Total population (mobility-table denominator) \u2014 Anchorage",
+  "name": "Total population (mobility-table denominator) \u2014 Anchorage, AK",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:56Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 362115.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 368039.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 374714.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 380947.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 386261.0
+    },
     {
       "t": "2015-12-31",
       "v": 389722.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 394060.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 394736.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 396972.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_24540",
-  "name": "Total households (vehicle-table denominator) \u2014 Greeley",
+  "name": "Total households (vehicle-table denominator) \u2014 Greeley, CO",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 86776.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 88242.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 89553.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 90465.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 92369.0
+    },
     {
       "t": "2015-12-31",
       "v": 94294.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 115536.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 120019.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 124287.0
     }
   ]
 }

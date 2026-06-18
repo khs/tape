@@ -3,7 +3,7 @@
   "name": "Median travel time to work \u2014 ND",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-17T21:48:59Z",
+  "lastUpdated": "2026-06-18T21:21:49Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -55,6 +55,14 @@
     },
     {
       "t": "2022-12-31",
+      "v": 13.8
+    },
+    {
+      "t": "2023-12-31",
+      "v": 13.9
+    },
+    {
+      "t": "2024-12-31",
       "v": 13.8
     }
   ]

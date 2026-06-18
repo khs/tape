@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_38900",
-  "name": "Total population (mobility-table denominator) \u2014 Portland-Vancouver-Hillsboro",
+  "name": "Total population (mobility-table denominator) \u2014 Portland-Vancouver-Hillsboro, OR-WA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:44Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2142558.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2175117.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2205344.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2233851.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2262204.0
+    },
     {
       "t": "2015-12-31",
       "v": 2294073.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2481332.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2486040.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2496558.0
     }
   ]
 }

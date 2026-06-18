@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_18580",
-  "name": "Total workers (commute-table denominator) \u2014 Corpus Christi",
+  "name": "Total workers (commute-table denominator) \u2014 Corpus Christi, TX",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:03Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 183966.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 185939.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 187869.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 189189.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 193796.0
+    },
     {
       "t": "2015-12-31",
       "v": 197610.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 188768.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 198267.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 200016.0
     }
   ]
 }

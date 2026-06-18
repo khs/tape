@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_45780",
-  "name": "Total households (vehicle-table denominator) \u2014 Toledo",
+  "name": "Total households (vehicle-table denominator) \u2014 Toledo, OH",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 261914.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 261798.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 261450.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 243472.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 244015.0
+    },
     {
       "t": "2015-12-31",
       "v": 243939.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 270018.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 253183.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 254486.0
     }
   ]
 }

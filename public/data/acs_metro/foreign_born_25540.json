@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_25540",
-  "name": "Foreign-born population \u2014 Hartford-West Hartford-East Hartford",
+  "name": "Foreign-born population \u2014 Hartford-West Hartford-East Hartford, CT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:09Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 149058
+    },
+    {
+      "t": "2011-12-31",
+      "v": 150722
+    },
+    {
+      "t": "2012-12-31",
+      "v": 153217
+    },
+    {
+      "t": "2013-12-31",
+      "v": 155700
+    },
+    {
+      "t": "2014-12-31",
+      "v": 155291
+    },
     {
       "t": "2015-12-31",
       "v": 158432
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 163732
+    },
+    {
+      "t": "2023-12-31",
+      "v": 159585
+    },
+    {
+      "t": "2024-12-31",
+      "v": 163347
     }
   ]
 }

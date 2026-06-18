@@ -1,10 +1,30 @@
 {
   "id": "population_65_plus_26380",
-  "name": "Population 65 and older \u2014 Houma-Bayou Cane-Thibodaux",
+  "name": "Population 65 and older \u2014 Houma-Bayou Cane-Thibodaux, LA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 23828
+    },
+    {
+      "t": "2011-12-31",
+      "v": 24171
+    },
+    {
+      "t": "2012-12-31",
+      "v": 24974
+    },
+    {
+      "t": "2013-12-31",
+      "v": 25374
+    },
+    {
+      "t": "2014-12-31",
+      "v": 25961
+    },
     {
       "t": "2015-12-31",
       "v": 26752
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 31821
+    },
+    {
+      "t": "2023-12-31",
+      "v": 32211
+    },
+    {
+      "t": "2024-12-31",
+      "v": 32753
     }
   ]
 }

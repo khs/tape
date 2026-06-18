@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_16620",
-  "name": "Population born in current state of residence \u2014 Charleston",
+  "name": "Population born in current state of residence \u2014 Charleston, WV",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:01Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 249017.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 248508.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 246520.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 184056.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 182567.0
+    },
     {
       "t": "2015-12-31",
       "v": 180278.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 210263.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 168136.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 166304.0
     }
   ]
 }

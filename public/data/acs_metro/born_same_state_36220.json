@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_36220",
-  "name": "Population born in current state of residence \u2014 Odessa",
+  "name": "Population born in current state of residence \u2014 Odessa, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 94708.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 95649.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 96562.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 97464.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 99163.0
+    },
     {
       "t": "2015-12-31",
       "v": 102114.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 106572.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 106283.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 106069.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_34980",
-  "name": "Households with no vehicle available \u2014 Nashville-Davidson--Murfreesboro--Franklin",
+  "name": "Households with no vehicle available \u2014 Nashville-Davidson--Murfreesboro--Franklin, TN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:19Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 31231.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 32206.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 32436.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 34167.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 34780.0
+    },
     {
       "t": "2015-12-31",
       "v": 35356.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 32617.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 33856.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 35026.0
     }
   ]
 }

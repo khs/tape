@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_23060",
-  "name": "Total households (vehicle-table denominator) \u2014 Fort Wayne",
+  "name": "Total households (vehicle-table denominator) \u2014 Fort Wayne, IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:07Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 159781.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 160073.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 161090.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 162210.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 163427.0
+    },
     {
       "t": "2015-12-31",
       "v": 164519.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 165703.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 179472.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 182145.0
     }
   ]
 }

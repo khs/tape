@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_46140",
-  "name": "Households with no vehicle available \u2014 Tulsa",
+  "name": "Households with no vehicle available \u2014 Tulsa, OK",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 21706.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 21701.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 22316.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 21707.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 21747.0
+    },
     {
       "t": "2015-12-31",
       "v": 22046.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 21081.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 21700.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 22526.0
     }
   ]
 }

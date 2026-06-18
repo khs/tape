@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_24260",
-  "name": "Total population (mobility-table denominator) \u2014 Grand Island",
+  "name": "Total population (mobility-table denominator) \u2014 Grand Island, NE",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 69828.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 70787.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 71732.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 81429.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 82293.0
+    },
     {
       "t": "2015-12-31",
       "v": 82839.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 75605.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 75543.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 75800.0
     }
   ]
 }

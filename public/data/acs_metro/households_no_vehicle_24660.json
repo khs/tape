@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_24660",
-  "name": "Households with no vehicle available \u2014 Greensboro-High Point",
+  "name": "Households with no vehicle available \u2014 Greensboro-High Point, NC",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:08Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 19430.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 19523.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 19688.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 19868.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 20288.0
+    },
     {
       "t": "2015-12-31",
       "v": 19817.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 18248.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 19173.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 19508.0
     }
   ]
 }

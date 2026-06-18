@@ -1,10 +1,18 @@
 {
   "id": "workers_wfh_29200",
-  "name": "Workers who work from home \u2014 Lafayette-West Lafayette",
+  "name": "Workers who work from home \u2014 Lafayette-West Lafayette, IN",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 3485.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 3441.0
+    },
     {
       "t": "2015-12-31",
       "v": 3516.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 8192.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 9905.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 11214.0
     }
   ]
 }

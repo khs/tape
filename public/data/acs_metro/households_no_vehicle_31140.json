@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_31140",
-  "name": "Households with no vehicle available \u2014 Louisville/Jefferson County",
+  "name": "Households with no vehicle available \u2014 Louisville/Jefferson County, KY-IN",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:15Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 39475.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 40742.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 41368.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 40120.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 39830.0
+    },
     {
       "t": "2015-12-31",
       "v": 39914.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 37333.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 38212.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 38428.0
     }
   ]
 }

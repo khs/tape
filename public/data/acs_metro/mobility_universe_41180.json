@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_41180",
-  "name": "Total population (mobility-table denominator) \u2014 St. Louis",
+  "name": "Total population (mobility-table denominator) \u2014 St. Louis, MO-IL",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:46Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2756678.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2766211.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2774959.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2758439.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2764888.0
+    },
     {
       "t": "2015-12-31",
       "v": 2770675.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2784308.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2779839.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2781285.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_26820",
-  "name": "Population born in current state of residence \u2014 Idaho Falls",
+  "name": "Population born in current state of residence \u2014 Idaho Falls, ID",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:11Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 73438.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 75170.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 76585.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 79427.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 81257.0
+    },
     {
       "t": "2015-12-31",
       "v": 82358.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 91672.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 94309.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 95898.0
     }
   ]
 }

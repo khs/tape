@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_24220",
-  "name": "Total workers (commute-table denominator) \u2014 Grand Forks",
+  "name": "Total workers (commute-table denominator) \u2014 Grand Forks, ND-MN",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:07Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 52409.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 52594.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 52911.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 52912.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 53151.0
+    },
     {
       "t": "2015-12-31",
       "v": 53916.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 54780.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 54798.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 55367.0
     }
   ]
 }

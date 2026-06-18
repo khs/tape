@@ -3,7 +3,7 @@
   "name": "Total population (insurance-table denominator) \u2014 AR",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:04Z",
+  "lastUpdated": "2026-06-18T21:26:00Z",
   "points": [
     {
       "t": "2013-12-31",
@@ -44,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 2964272
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2977706
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2995497
     }
   ]
 }

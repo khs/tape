@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_19660",
-  "name": "Total households (vehicle-table denominator) \u2014 Deltona-Daytona Beach-Ormond Beach",
+  "name": "Total households (vehicle-table denominator) \u2014 Deltona-Daytona Beach-Ormond Beach, FL",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:04Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 200346.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 197382.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 195579.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 231554.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 233031.0
+    },
     {
       "t": "2015-12-31",
       "v": 237130.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 280222.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 287692.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 294463.0
     }
   ]
 }

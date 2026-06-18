@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_13740",
-  "name": "Total workers (commute-table denominator) \u2014 Billings",
+  "name": "Total workers (commute-table denominator) \u2014 Billings, MT",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:58Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 78557.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 80308.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 81545.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 81443.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 82421.0
+    },
     {
       "t": "2015-12-31",
       "v": 83087.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 92249.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 93219.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 94460.0
     }
   ]
 }

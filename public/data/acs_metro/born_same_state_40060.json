@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_40060",
-  "name": "Population born in current state of residence \u2014 Richmond",
+  "name": "Population born in current state of residence \u2014 Richmond, VA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 767553.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 769326.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 772007.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 740360.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 744774.0
+    },
     {
       "t": "2015-12-31",
       "v": 751090.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 787533.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 785604.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 786625.0
     }
   ]
 }

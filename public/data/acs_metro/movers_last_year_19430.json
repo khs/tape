@@ -1,9 +1,9 @@
 {
   "id": "movers_last_year_19430",
-  "name": "People who moved in the last year \u2014 Dayton-Kettering-Beavercreek",
+  "name": "People who moved in the last year \u2014 Dayton-Kettering-Beavercreek, OH",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:21Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -20,6 +20,14 @@
     {
       "t": "2022-12-31",
       "v": 123858
+    },
+    {
+      "t": "2023-12-31",
+      "v": 115778
+    },
+    {
+      "t": "2024-12-31",
+      "v": 108989
     }
   ]
 }

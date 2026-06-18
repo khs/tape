@@ -1,10 +1,30 @@
 {
   "id": "households_no_vehicle_29620",
-  "name": "Households with no vehicle available \u2014 Lansing-East Lansing",
+  "name": "Households with no vehicle available \u2014 Lansing-East Lansing, MI",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:14Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 12177.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 12618.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 12430.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 12929.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 12711.0
+    },
     {
       "t": "2015-12-31",
       "v": 12810.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 14892.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 13237.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 13655.0
     }
   ]
 }

@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_39660",
-  "name": "Total workers (commute-table denominator) \u2014 Rapid City",
+  "name": "Total workers (commute-table denominator) \u2014 Rapid City, SD",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:45Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 62489.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 63117.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 63710.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 68232.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 69816.0
+    },
     {
       "t": "2015-12-31",
       "v": 71054.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 70542.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 75356.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 76654.0
     }
   ]
 }

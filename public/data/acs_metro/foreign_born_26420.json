@@ -1,10 +1,30 @@
 {
   "id": "foreign_born_26420",
-  "name": "Foreign-born population \u2014 Houston-Pasadena-The Woodlands",
+  "name": "Foreign-born population \u2014 Houston-Pasadena-The Woodlands, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:10Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 1253385
+    },
+    {
+      "t": "2011-12-31",
+      "v": 1282771
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1319154
+    },
+    {
+      "t": "2013-12-31",
+      "v": 1350399
+    },
+    {
+      "t": "2014-12-31",
+      "v": 1394516
+    },
     {
       "t": "2015-12-31",
       "v": 1438555
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 1688354
+    },
+    {
+      "t": "2023-12-31",
+      "v": 1731737
+    },
+    {
+      "t": "2024-12-31",
+      "v": 1805510
     }
   ]
 }

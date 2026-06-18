@@ -1,10 +1,30 @@
 {
   "id": "households_total_vehicle_11260",
-  "name": "Total households (vehicle-table denominator) \u2014 Anchorage",
+  "name": "Total households (vehicle-table denominator) \u2014 Anchorage, AK",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:56Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 133676.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 135732.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 136440.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 136331.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 136268.0
+    },
     {
       "t": "2015-12-31",
       "v": 136273.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 146424.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 147550.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 148466.0
     }
   ]
 }

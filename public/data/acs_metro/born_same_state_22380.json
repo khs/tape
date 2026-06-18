@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_22380",
-  "name": "Population born in current state of residence \u2014 Flagstaff",
+  "name": "Population born in current state of residence \u2014 Flagstaff, AZ",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:06Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 67182.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 68452.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 69816.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 69333.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 69063.0
+    },
     {
       "t": "2015-12-31",
       "v": 70518.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 75123.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 76237.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 77167.0
     }
   ]
 }

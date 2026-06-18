@@ -1,10 +1,30 @@
 {
   "id": "workers_wfh_48300",
-  "name": "Workers who work from home \u2014 Wenatchee-East Wenatchee",
+  "name": "Workers who work from home \u2014 Wenatchee-East Wenatchee, WA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2158.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2123.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 1988.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2272.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2058.0
+    },
     {
       "t": "2015-12-31",
       "v": 2282.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 4562.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 4688.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 5208.0
     }
   ]
 }

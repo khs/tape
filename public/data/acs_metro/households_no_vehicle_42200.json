@@ -1,10 +1,18 @@
 {
   "id": "households_no_vehicle_42200",
-  "name": "Households with no vehicle available \u2014 Santa Maria-Santa Barbara",
+  "name": "Households with no vehicle available \u2014 Santa Maria-Santa Barbara, CA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 9852.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 9793.0
+    },
     {
       "t": "2015-12-31",
       "v": 9466.0
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 9256.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 9303.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 8881.0
     }
   ]
 }

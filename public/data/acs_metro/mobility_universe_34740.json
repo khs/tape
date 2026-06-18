@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_34740",
-  "name": "Total population (mobility-table denominator) \u2014 Muskegon-Norton Shores",
+  "name": "Total population (mobility-table denominator) \u2014 Muskegon-Norton Shores, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:18Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 170863.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 170475.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 169504.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 169194.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 169460.0
+    },
     {
       "t": "2015-12-31",
       "v": 169732.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 174135.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 173845.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 174494.0
     }
   ]
 }

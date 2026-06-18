@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_16540",
-  "name": "Total population (mobility-table denominator) \u2014 Chambersburg",
+  "name": "Total population (mobility-table denominator) \u2014 Chambersburg, PA",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:10:00Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 144543.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 146343.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 147869.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 148867.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 149754.0
+    },
     {
       "t": "2015-12-31",
       "v": 150617.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 154935.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 155217.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 156026.0
     }
   ]
 }

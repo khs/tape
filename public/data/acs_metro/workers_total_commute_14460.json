@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_14460",
-  "name": "Total workers (commute-table denominator) \u2014 Boston-Cambridge-Newton",
+  "name": "Total workers (commute-table denominator) \u2014 Boston-Cambridge-Newton, MA-NH",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:15Z",
+  "lastUpdated": "2026-06-18T21:09:59Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 2267604.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 2284545.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 2313366.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 2327807.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 2362298.0
+    },
     {
       "t": "2015-12-31",
       "v": 2411520.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 2607487.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 2618891.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 2632451.0
     }
   ]
 }

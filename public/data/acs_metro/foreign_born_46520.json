@@ -1,10 +1,18 @@
 {
   "id": "foreign_born_46520",
-  "name": "Foreign-born population \u2014 Urban Honolulu",
+  "name": "Foreign-born population \u2014 Urban Honolulu, HI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:10:20Z",
   "points": [
+    {
+      "t": "2013-12-31",
+      "v": 189027
+    },
+    {
+      "t": "2014-12-31",
+      "v": 189052
+    },
     {
       "t": "2015-12-31",
       "v": 187669
@@ -36,6 +44,14 @@
     {
       "t": "2022-12-31",
       "v": 195845
+    },
+    {
+      "t": "2023-12-31",
+      "v": 196292
+    },
+    {
+      "t": "2024-12-31",
+      "v": 195997
     }
   ]
 }

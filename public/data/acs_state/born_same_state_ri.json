@@ -3,7 +3,7 @@
   "name": "Population born in current state of residence \u2014 RI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T02:36:18Z",
+  "lastUpdated": "2026-06-18T21:26:12Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 607146
+    },
+    {
+      "t": "2023-12-31",
+      "v": 595822
+    },
+    {
+      "t": "2024-12-31",
+      "v": 590347
     }
   ]
 }

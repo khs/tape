@@ -1,10 +1,30 @@
 {
   "id": "born_same_state_45900",
-  "name": "Population born in current state of residence \u2014 Traverse City",
+  "name": "Population born in current state of residence \u2014 Traverse City, MI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:51Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 114487.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 114938.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 115826.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 115714.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 116547.0
+    },
     {
       "t": "2015-12-31",
       "v": 117371.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 119917.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 120103.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 120259.0
     }
   ]
 }

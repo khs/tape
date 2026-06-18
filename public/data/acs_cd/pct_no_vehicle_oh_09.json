@@ -3,7 +3,7 @@
   "name": "Share of households with no vehicle \u2014 OH-09",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-17T19:24:56Z",
+  "lastUpdated": "2026-06-18T21:21:49Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 6.7
+    },
+    {
+      "t": "2023-12-31",
+      "v": 6.9
+    },
+    {
+      "t": "2024-12-31",
+      "v": 6.8
     }
   ]
 }

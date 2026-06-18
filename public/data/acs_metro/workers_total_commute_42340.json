@@ -1,10 +1,30 @@
 {
   "id": "workers_total_commute_42340",
-  "name": "Total workers (commute-table denominator) \u2014 Savannah",
+  "name": "Total workers (commute-table denominator) \u2014 Savannah, GA",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:48Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 153136.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 154534.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 157095.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 157888.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 161954.0
+    },
     {
       "t": "2015-12-31",
       "v": 165798.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 195488.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 197461.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 201042.0
     }
   ]
 }

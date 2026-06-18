@@ -1,10 +1,30 @@
 {
   "id": "mobility_universe_36780",
-  "name": "Total population (mobility-table denominator) \u2014 Oshkosh-Neenah",
+  "name": "Total population (mobility-table denominator) \u2014 Oshkosh-Neenah, WI",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:42Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 163246.0
+    },
+    {
+      "t": "2011-12-31",
+      "v": 163989.0
+    },
+    {
+      "t": "2012-12-31",
+      "v": 164814.0
+    },
+    {
+      "t": "2013-12-31",
+      "v": 165727.0
+    },
+    {
+      "t": "2014-12-31",
+      "v": 166380.0
+    },
     {
       "t": "2015-12-31",
       "v": 167033.0
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 169266.0
+    },
+    {
+      "t": "2023-12-31",
+      "v": 169677.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": 170091.0
     }
   ]
 }

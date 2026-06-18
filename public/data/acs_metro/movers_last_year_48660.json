@@ -1,10 +1,30 @@
 {
   "id": "movers_last_year_48660",
-  "name": "People who moved in the last year \u2014 Wichita Falls",
+  "name": "People who moved in the last year \u2014 Wichita Falls, TX",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-01T12:06:16Z",
+  "lastUpdated": "2026-06-18T21:09:53Z",
   "points": [
+    {
+      "t": "2010-12-31",
+      "v": 33443
+    },
+    {
+      "t": "2011-12-31",
+      "v": 30962
+    },
+    {
+      "t": "2012-12-31",
+      "v": 28787
+    },
+    {
+      "t": "2013-12-31",
+      "v": 28285
+    },
+    {
+      "t": "2014-12-31",
+      "v": 27514
+    },
     {
       "t": "2015-12-31",
       "v": 26875
@@ -36,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 27092
+    },
+    {
+      "t": "2023-12-31",
+      "v": 24968
+    },
+    {
+      "t": "2024-12-31",
+      "v": 25668
     }
   ]
 }
