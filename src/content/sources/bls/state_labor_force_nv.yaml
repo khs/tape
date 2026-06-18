@@ -4,7 +4,7 @@ description: "Local Area Unemployment Statistics, Nevada labor force level, mont
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_labor_force_nv.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: people
 formatting:
   style: number

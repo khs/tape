@@ -6,7 +6,7 @@ description: Job Openings and Labor Turnover Survey, voluntary quits as a share
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/jolts_quits_rate.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

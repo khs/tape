@@ -5,7 +5,7 @@ description: Headline unemployment rate, seasonally adjusted, monthly. From BLS
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_unemployment_ks.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: percent
 formatting:
   style: percent

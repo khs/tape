@@ -4,7 +4,7 @@ description: "Local Area Unemployment Statistics, Vermont labor force participat
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_lfpr_vt.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

@@ -6,7 +6,7 @@ description: Job Openings and Labor Turnover Survey, total hires as a share of
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/jolts_hires_rate.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

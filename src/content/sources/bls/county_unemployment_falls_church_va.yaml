@@ -6,7 +6,7 @@ description: Headline unemployment rate for Falls Church City, VA. Monthly, not
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/county_unemployment_falls_church_va.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

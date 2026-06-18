@@ -6,7 +6,7 @@ description: Headline unemployment rate for Prince George's County, MD. Monthly,
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/county_unemployment_prince_georges_md.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: "%"
 formatting:
   style: percent

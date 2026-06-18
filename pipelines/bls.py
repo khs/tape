@@ -22,15 +22,26 @@ Run with: ``python pipelines/bls.py``.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
+import _env  # noqa: F401 — load .env so BLS_API_KEY is available
 from common import write_timeseries
 
 
 BLS_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+# Registered (free) BLS API key: 20-year window, 50 series/request, 500
+# req/day. Without it we fall back to the keyless 10-year trailing window.
+BLS_API_KEY = os.environ.get("BLS_API_KEY", "").strip()
+# Earliest year we try to pull (keyed). Covers LAUS (1976+), CPI (1947+),
+# CES state payrolls (1990+); series that begin later just return empty for
+# the early windows. The keyed API caps each request at 20 years, so full
+# history is fetched as a sequence of 20-year windows merged per series.
+HISTORY_START = 1947
 
 
 @dataclass
@@ -290,36 +301,20 @@ SERIES: list[BlsSpec] = [
 )
 
 
-def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:
-    """
-    POST to BLS API with up to 25 series at a time. Returns
-    {series_id: [{year, period, value}, ...]} dict.
-    """
-    if not series_ids:
-        return {}
-    if len(series_ids) > 25:
-        raise ValueError("BLS API caps at 25 series per request")
-
-    # Years window: BLS's unregistered API returns at most 10 years per
-    # request and, in practice, gives us the *first* 10 years of any
-    # requested range rather than the last. So ask for the trailing
-    # 10-year window only — extending the window earns no extra data
-    # and just discards the recent years. When we register for an API
-    # key (free, 20-year limit + higher quotas), bump this back to ~19.
-    end_year = datetime.now(timezone.utc).year
-    start_year = end_year - 9  # 10 years inclusive
-
-    payload = {
+def _fetch_window(series_ids: list[str], start_year: int, end_year: int) -> dict[str, list[dict]]:
+    """One BLS POST for a single window (<=20yr keyed, <=10yr keyless)."""
+    payload: dict = {
         "seriesid": series_ids,
         "startyear": str(start_year),
         "endyear": str(end_year),
     }
-    body = json.dumps(payload)
+    if BLS_API_KEY:
+        payload["registrationkey"] = BLS_API_KEY
     result = subprocess.run(
         [
             "curl", "-sS", "--max-time", "60",
             "-H", "Content-Type: application/json",
-            "-d", body,
+            "-d", json.dumps(payload),
             BLS_URL,
         ],
         capture_output=True,
@@ -330,12 +325,41 @@ def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:
     if parsed.get("status") != "REQUEST_SUCCEEDED":
         msg = parsed.get("message", ["unknown error"])
         raise RuntimeError(f"BLS API: {msg}")
-
     out: dict[str, list[dict]] = {}
     for s in parsed.get("Results", {}).get("series", []):
-        sid = s.get("seriesID", "")
-        out[sid] = s.get("data", [])
+        out[s.get("seriesID", "")] = s.get("data", [])
     return out
+
+
+def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:
+    """
+    Returns {series_id: [{year, period, value}, ...]}.
+
+    WITH a registered BLS_API_KEY, pulls the FULL available history by
+    sweeping 20-year windows from HISTORY_START to now and merging them
+    (windows are non-overlapping; downstream dedupes by date anyway). The
+    keyed API allows 50 series/request, 20-year windows, 500 req/day.
+
+    WITHOUT a key, falls back to a single trailing 10-year window — the
+    keyless API caps at 25 series and 10 years and returns only the first
+    10 years of any wider range, so the trailing decade is all we can get.
+    """
+    if not series_ids:
+        return {}
+    cap = 50 if BLS_API_KEY else 25
+    if len(series_ids) > cap:
+        raise ValueError(f"BLS API caps at {cap} series per request")
+    end_year = datetime.now(timezone.utc).year
+    if not BLS_API_KEY:
+        return _fetch_window(series_ids, end_year - 9, end_year)
+    merged: dict[str, list[dict]] = defaultdict(list)
+    hi = end_year
+    while hi >= HISTORY_START:
+        lo = max(HISTORY_START, hi - 19)  # 20 years inclusive
+        for sid, rows in _fetch_window(series_ids, lo, hi).items():
+            merged[sid].extend(rows)
+        hi = lo - 1
+    return dict(merged)
 
 
 def bls_period_to_iso(year: str, period: str) -> str | None:

@@ -7,7 +7,7 @@ description: Consumer Price Index for the Washington-Arlington-Alexandria
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_washington_metro.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
 unit: index (1982-84=100)
 formatting:
   style: number

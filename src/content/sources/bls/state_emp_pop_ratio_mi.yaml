@@ -4,7 +4,7 @@ description: "Local Area Unemployment Statistics, Michigan employment-population
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_emp_pop_ratio_mi.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: "%"
 formatting:
   style: percent

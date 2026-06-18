@@ -4,7 +4,7 @@ description: "Local Area Unemployment Statistics, Utah employment level from the
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_employed_ut.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
 unit: people
 formatting:
   style: number

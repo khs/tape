@@ -5,7 +5,7 @@ description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_payrolls_nj.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
 unit: jobs
 formatting:
   style: number
