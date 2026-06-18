@@ -93,6 +93,9 @@ jobs:
           python -m unittest pipelines.test_welcome_page_coverage -v
           python -m unittest pipelines.test_audit_source_scales -v
           python -m unittest pipelines.test_usaspending_annualize -v
+          python -m unittest pipelines.test_build_state_tract_topo -v
+          python -m unittest pipelines.test_treasury_tic -v
+          python -m unittest pipelines.test_cdc_health -v
 
       - name: Source-data deep audit (--full)
         # Order + summary-drift + point-count checks across EVERY

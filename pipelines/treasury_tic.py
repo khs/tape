@@ -136,9 +136,10 @@ def parse_tic(body: str) -> dict[str, list[dict]]:
             cols = row.split("\t")
             # "China, Mainland" is the only TIC label that contains a
             # comma, so Treasury wraps it in double quotes in their
-            # tab-separated file. Strip those before lookup — .strip()
-            # alone only handles whitespace.
-            country = cols[0].strip().strip('"')
+            # tab-separated file. Strip those + any trailing footnote
+            # marker before the COUNTRY_MAP lookup (.strip() alone only
+            # handles whitespace).
+            country = strip_footnote_marker(cols[0].strip().strip('"'))
             if country not in COUNTRY_MAP:
                 i += 1
                 continue
