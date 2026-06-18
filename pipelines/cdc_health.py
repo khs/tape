@@ -53,7 +53,7 @@ from pathlib import Path
 
 import _env  # noqa: F401
 
-from common import cached_get, write_timeseries
+from common import cached_get, strip_footnote_marker, write_timeseries
 
 PIPELINE = "cdc_health"
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -179,7 +179,7 @@ def build_life_expectancy() -> int:
     SEX_MAP = {"Total": "Both Sexes", "Male": "Male", "Female": "Female"}
     for yr, ds in PER_YEAR_LE:
         for r in fetch_csv(ds):
-            geo = (r.get("state") or r.get("area") or "").strip()
+            geo = strip_footnote_marker(r.get("state") or r.get("area") or "")
             if geo != "United States":
                 continue
             sex = SEX_MAP.get((r.get("sex") or "").strip())
@@ -270,7 +270,7 @@ def build_causes() -> int:
     # {(geo_key, cause_name): [{t, v(aadr)}]}
     series: dict[tuple[str, str], list[dict]] = {}
     for r in fetch_csv(CAUSES_DATASET):
-        state = (r.get("state") or "").strip()
+        state = strip_footnote_marker(r.get("state") or "")
         cause = (r.get("cause_name") or "").strip()
         yr = (r.get("year") or "").strip()
         aadr = _f(r.get("aadr"))

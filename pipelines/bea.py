@@ -40,7 +40,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-from common import write_timeseries
+from common import strip_footnote_marker, write_timeseries
 
 HERE = Path(__file__).resolve().parent
 SOURCES_DIR = HERE.parent / "src" / "content" / "sources" / "bea"
@@ -298,7 +298,7 @@ def main(argv: list[str] | None = None) -> int:
             # BEA footnotes some geos in some tables (e.g. SAINC4 returns
             # "Alaska *" / "Hawaii *"); strip the trailing marker so they
             # match KEEP instead of being silently dropped.
-            g = re.sub(r"\s*\*+$", "", r.get("GeoName", "")).strip()
+            g = strip_footnote_marker(r.get("GeoName", ""))
             if g not in KEEP:
                 continue
             by_geo.setdefault(g, []).append(r)

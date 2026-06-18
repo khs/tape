@@ -401,5 +401,43 @@ class WriteTimeseriesValidationTests(unittest.TestCase):
         self.assertEqual(json.loads(out.read_text())["points"], good_points)
 
 
+class StripFootnoteMarkerTests(unittest.TestCase):
+    """strip_footnote_marker normalizes an upstream geography/category name
+    before an exact-string allowlist match. A statistical agency tagging a
+    row "Alaska *" (BEA) or with a dagger (NCHS/Treasury) must not silently
+    drop the row — the marker is stripped so it matches "Alaska"."""
+
+    def test_strips_trailing_asterisk(self) -> None:
+        self.assertEqual(common.strip_footnote_marker("Alaska *"), "Alaska")
+        self.assertEqual(common.strip_footnote_marker("Hawaii*"), "Hawaii")
+        self.assertEqual(common.strip_footnote_marker("Alaska **"), "Alaska")
+
+    def test_strips_other_footnote_glyphs(self) -> None:
+        for marked in ("United States †", "United States ‡", "United States §",
+                       "United States †‡"):
+            self.assertEqual(
+                common.strip_footnote_marker(marked), "United States", marked,
+            )
+
+    def test_unmarked_names_unchanged(self) -> None:
+        # No marker → identical (modulo surrounding whitespace).
+        self.assertEqual(common.strip_footnote_marker("Japan"), "Japan")
+        self.assertEqual(common.strip_footnote_marker("  Belgium  "), "Belgium")
+
+    def test_interior_punctuation_preserved(self) -> None:
+        # The comma in "China, Mainland" and the interior text must survive;
+        # only a TRAILING marker is removed.
+        self.assertEqual(
+            common.strip_footnote_marker("China, Mainland"), "China, Mainland",
+        )
+        self.assertEqual(
+            common.strip_footnote_marker("China, Mainland *"), "China, Mainland",
+        )
+
+    def test_empty_and_none(self) -> None:
+        self.assertEqual(common.strip_footnote_marker(""), "")
+        self.assertEqual(common.strip_footnote_marker(None), "")
+
+
 if __name__ == "__main__":
     unittest.main()

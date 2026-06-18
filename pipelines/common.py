@@ -67,6 +67,23 @@ def utc_now_iso() -> str:
     )
 
 
+# Some statistical agencies append a footnote marker to a row's NAME (not
+# its value): BEA returns "Alaska *"; NCHS/CDC and Treasury TIC can tag a
+# geography with a dagger. An exact-string allowlist match then silently
+# drops the row. Strip a trailing run of these markers + any surrounding
+# whitespace before matching; interior text is left untouched.
+_FOOTNOTE_MARKER_RX = re.compile(r"[\s*†‡§]+$")
+
+
+def strip_footnote_marker(name: str) -> str:
+    """Return ``name`` with trailing footnote markers (asterisk, dagger,
+    double-dagger, section sign) and surrounding whitespace removed, so an
+    upstream label like ``"Alaska *"`` matches an allowlist entry ``"Alaska"``
+    instead of being silently dropped. Leading whitespace is stripped too;
+    interior characters are left intact."""
+    return _FOOTNOTE_MARKER_RX.sub("", name or "").strip()
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")

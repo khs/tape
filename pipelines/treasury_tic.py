@@ -23,7 +23,7 @@ import re
 import subprocess
 import sys
 
-from common import write_timeseries
+from common import strip_footnote_marker, write_timeseries
 
 
 TIC_URL = "https://ticdata.treasury.gov/Publish/mfhhis01.txt"
