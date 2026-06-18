@@ -150,6 +150,13 @@ SPECS: list[FredSpec] = [
     # Monetary / Fed
     FredSpec("M2SL", "M2 money supply", "billions USD"),
     FredSpec("WALCL", "Fed total assets (balance sheet)", "millions USD"),
+    # Federal Reserve monetary base + bank reserves (Board of Governors,
+    # public domain). Monetary base + total reserves publish in billions;
+    # WRESBAL (weekly reserve balances) publishes in MILLIONS, so scale=1e-3
+    # brings it to the canonical billions base (matches BOGMBASE/TOTRESNS).
+    FredSpec("BOGMBASE", "Monetary base", "billions USD"),
+    FredSpec("TOTRESNS", "Total reserves of depository institutions", "billions USD"),
+    FredSpec("WRESBAL", "Reserve balances with Federal Reserve Banks", "billions USD", scale=1e-3),
     # ------------------------------------------------------------------
     # Analyst-persona expansion 2026-05: targeted public-domain series
     # added so analysts working in health, defense, energy, tech,

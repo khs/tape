@@ -52,7 +52,8 @@ from common import cached_get, write_timeseries
 PIPELINE = "acs_labor"
 API_TMPL = "https://api.census.gov/data/{year}/acs/acs1/subject"
 # ACS 1-year vintages. 2020 omitted (no standard 1-year release).
-YEARS = [2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023]
+# Append the new vintage each year (ACS 1-year releases ~September).
+YEARS = [2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024]
 
 # FIPS -> (abbr, name). 50 states + DC (ACS 1-year covers DC).
 STATES: dict[str, tuple[str, str]] = {

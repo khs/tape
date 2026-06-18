@@ -1,0 +1,21 @@
+name: Reserve balances at the Fed
+shortName: Reserve balances
+description: Reserve balances of depository institutions held with Federal Reserve Banks, weekly (Wednesday average).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/WRESBAL.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 0
+  notation: compact
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: WRESBAL
+  url: https://fred.stlouisfed.org/series/WRESBAL
+  license: Public domain (US government data)
+tags:
+  - macro
+  - us
+unitClass: currency

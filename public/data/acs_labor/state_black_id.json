@@ -1,0 +1,13 @@
+{
+  "id": "state_black_id",
+  "name": "state_black_id",
+  "kind": "timeseries",
+  "unit": "%",
+  "lastUpdated": "2026-06-18T20:22:31Z",
+  "points": [
+    {
+      "t": "2024-07-01",
+      "v": 8.8
+    }
+  ]
+}
