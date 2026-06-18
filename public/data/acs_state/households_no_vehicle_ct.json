@@ -3,7 +3,7 @@
   "name": "Households with no vehicle available \u2014 CT",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-18T21:25:54Z",
+  "lastUpdated": "2026-06-18T22:18:28Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 120489
+    },
+    {
+      "t": "2023-12-31",
+      "v": 122113
+    },
+    {
+      "t": "2024-12-31",
+      "v": 125948
     }
   ]
 }

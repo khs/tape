@@ -38,6 +38,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pandas pyyaml python-dotenv requests openpyxl xlrd
 
+      # Nag if a newer ACS/TIGER vintage is published than what the
+      # hardcoded-vintage pipelines are pinned to. Warn-only (the freshness
+      # gate can't see this — most ACS series are unreferenced + annual
+      # cohort lag is tolerated). Prints ::warning:: lines; never blocks.
+      - name: Check for newer upstream vintages
+        continue-on-error: true
+        run: python pipelines/check_vintage_freshness.py
+
       # Census ACS by congressional district — the v4 expansion bumped
       # this from 4 indicators to 36, fetching multiple cells per
       # indicator across 13 ACS vintages × 51 states.
@@ -46,6 +54,18 @@ jobs:
         env:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         run: python pipelines/census_acs_cd.py
+
+      # Connecticut backfill: from 2022 on CT publishes tracts on new COG
+      # planning-region FIPS the tract->CD118 crosswalk can't map, so the CD
+      # step freezes CT at 2021. CT didn't redistrict, so fetch its 5 CDs
+      # directly at CD geography for the new vintages. Must run AFTER the CD
+      # step (lays down CT 2010-2021) and BEFORE the state derive (which then
+      # rolls the now-complete CT CDs up to acs_state).
+      - name: Backfill Connecticut CDs (direct CD fetch)
+        continue-on-error: true
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+        run: python pipelines/census_acs_cd_ct_direct.py
 
       # Census ACS at the metropolitan-statistical-area level. Same
       # indicator set; fetched at CBSA geography (~387 metros).

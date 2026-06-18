@@ -3,7 +3,7 @@
   "name": "Total population (insurance-table denominator) \u2014 CT-02",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T21:21:54Z",
+  "lastUpdated": "2026-06-18T22:18:27Z",
   "points": [
     {
       "t": "2013-12-31",
@@ -40,6 +40,18 @@
     {
       "t": "2021-12-31",
       "v": 594426
+    },
+    {
+      "t": "2022-12-31",
+      "v": 706242
+    },
+    {
+      "t": "2023-12-31",
+      "v": 699406
+    },
+    {
+      "t": "2024-12-31",
+      "v": 705285
     }
   ]
 }

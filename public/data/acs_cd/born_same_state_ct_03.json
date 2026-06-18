@@ -3,7 +3,7 @@
   "name": "Population born in current state of residence \u2014 CT-03",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T21:21:44Z",
+  "lastUpdated": "2026-06-18T22:18:27Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -52,6 +52,18 @@
     {
       "t": "2021-12-31",
       "v": 394838
+    },
+    {
+      "t": "2022-12-31",
+      "v": 440514
+    },
+    {
+      "t": "2023-12-31",
+      "v": 435613
+    },
+    {
+      "t": "2024-12-31",
+      "v": 436349
     }
   ]
 }

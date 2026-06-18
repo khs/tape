@@ -3,7 +3,7 @@
   "name": "Workers in manufacturing \u2014 CT",
   "kind": "timeseries",
   "unit": "workers",
-  "lastUpdated": "2026-06-18T21:26:13Z",
+  "lastUpdated": "2026-06-18T22:18:29Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -56,6 +56,14 @@
     {
       "t": "2022-12-31",
       "v": 194805
+    },
+    {
+      "t": "2023-12-31",
+      "v": 195355
+    },
+    {
+      "t": "2024-12-31",
+      "v": 198526
     }
   ]
 }

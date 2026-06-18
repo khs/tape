@@ -3,7 +3,7 @@
   "name": "Civilian noninstitutionalized population (disability-table denominator) \u2014 CT",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-06-18T21:26:29Z",
+  "lastUpdated": "2026-06-18T22:18:29Z",
   "points": [
     {
       "t": "2012-12-31",
@@ -48,6 +48,14 @@
     {
       "t": "2022-12-31",
       "v": 3567016
+    },
+    {
+      "t": "2023-12-31",
+      "v": 3555703
+    },
+    {
+      "t": "2024-12-31",
+      "v": 3581667
     }
   ]
 }

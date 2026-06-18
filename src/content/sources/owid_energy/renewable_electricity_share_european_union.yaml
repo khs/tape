@@ -1,0 +1,22 @@
+name: "Renewable electricity share — European Union (27)"
+shortName: European Union (27) renewables %
+description: Share of European Union (27)'s electricity generated from renewable sources (hydro, wind, solar, bioenergy, geothermal), annual. From Our World in Data, based on Ember and the Energy Institute Statistical Review.
+kind: timeseries
+pipeline: owid_energy
+dataFile: data/owid_energy/renewable_electricity_share_european_union.json
+supportedDeltas: ["5y", "10y", "30y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 1
+emphasis: change
+provenance:
+  provider: Our World in Data (Ember; Energy Institute)
+  series: Renewables / OWID_EU27
+  url: https://ourworldindata.org/grapher/share-electricity-renewables
+  license: CC BY 4.0 (Our World in Data)
+tags:
+  - energy
+  - climate
+  - macro
+unitClass: rate
