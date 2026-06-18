@@ -112,15 +112,48 @@ STATE_FIPS: dict[str, str] = {
 }
 
 
+def _is_zip(path: Path) -> bool:
+    """True if ``path`` is a real zip (PK signature + valid central dir).
+    Census behind Cloudflare sometimes serves a 200 HTML 'not found' page
+    for a valid-looking TIGER URL; urlretrieve would otherwise cache that
+    HTML as a bogus .zip and every retry fails with 'File is not a zip
+    file'. Observed live for tl_2025_50_bg.zip (2026-06)."""
+    try:
+        return zipfile.is_zipfile(path)
+    except OSError:
+        return False
+
+
 def fetch_zip(geo: str, fips: str) -> Path:
-    """Download a state's TIGER zip (tract or BG) into the local cache."""
+    """Download a state's TIGER zip (tract or BG) into the local cache,
+    validating it is actually a zip. On a non-zip response (a Cloudflare
+    stale-HTML 200) retry once with a cache-buster query, which forces a
+    CDN cache miss + origin fetch. Never leaves a non-zip in the cache, and
+    self-heals an already-poisoned cache entry."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     out = CACHE_DIR / f"{shapefile_stem(geo, fips)}.zip"
-    if not out.exists():
-        url = tiger_url(geo, fips)
-        print(f"  fetching {url}", flush=True)
-        urlretrieve(url, out)
-    return out
+    if out.exists():
+        if _is_zip(out):
+            return out
+        out.unlink()  # poisoned cache entry (cached HTML) — drop + refetch
+    url = tiger_url(geo, fips)
+    tmp = out.parent / (out.name + ".part")
+    urls = (url, f"{url}?cb={fips}{geo}")
+    for i, fetch_url in enumerate(urls):
+        print(f"  fetching {fetch_url}", flush=True)
+        urlretrieve(fetch_url, tmp)
+        if _is_zip(tmp):
+            tmp.replace(out)  # atomic promote: only a valid zip is cached
+            return out
+        tmp.unlink(missing_ok=True)
+        if i + 1 < len(urls):
+            print("  response was not a zip (stale CDN cache?); "
+                  "retrying cache-busted", flush=True)
+    raise RuntimeError(
+        f"TIGER download for {shapefile_stem(geo, fips)} is not a zip even "
+        f"after a cache-busted retry (Census/Cloudflare returned a non-zip "
+        f"200 for {url})."
+    )
 
 
 def extract_shapefile(zip_path: Path, geo: str, fips: str) -> Path:
