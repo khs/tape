@@ -1357,13 +1357,19 @@ def main() -> int:
         name_prefix = var.name_prefix if var else out_id
         unit = var.unit if var else "value"
         if slug in SINGLE_CD_REDUNDANT:
-            # Don't redirect pct shares to acs_state: single-CD states have
-            # no acs_state YAML generator for share indicators, so a
-            # redirected share is an orphan data file (data, no YAML). The
-            # share is still emitted at the CD level for multi-CD states;
+            # Don't redirect series that have no acs_state YAML generator —
+            # the redirected file would be an orphan (data on disk, no YAML).
+            # Two cases:
+            #   - pct shares (AGG_PCT): single-CD states get no share YAMLs.
+            #   - adults_25plus: the education-attainment denominator is the
+            #     one count NOT in derive_acs_state_from_cd.py's ALL_INDICATORS
+            #     (state education is surfaced via bachelors_plus/masters_plus
+            #     + the choropleth pct snapshots, not this bare base), so it
+            #     has no state-level YAML emitter either.
+            # Both stay emitted at the CD level for multi-CD states; the other
             # counts/medians DO get acs_state YAMLs via
             # derive_acs_state_from_cd.py, so those still redirect.
-            if var is not None and var.agg == AGG_PCT:
+            if out_id == "adults_25plus" or (var is not None and var.agg == AGG_PCT):
                 continue
             # Route to the state-level path. derive_acs_state_from_cd.py
             # would otherwise produce an empty/single-point series for
