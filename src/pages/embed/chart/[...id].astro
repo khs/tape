@@ -363,6 +363,18 @@ const censusDisclaimer =
     flex: 1 1 auto;
     min-height: 80px;
   }
+  /* 4+ series tiles ("fixed" spark mode) pin the spark to 72px on
+     dashboards so a tall legend can't crush it — but in a tall embed
+     iframe that pin leaves most of the height empty below a cramped,
+     vertically-clustered plot. The base .embed-shell rule above can't
+     undo it: .chart-tile[data-spark-mode="fixed"] .tile-spark (0,3,0)
+     out-specifies it on `flex`. Match that specificity here so the spark
+     flex-grows and the JS renders the SVG to the full iframe height. */
+  .embed-shell .chart-tile[data-spark-mode="fixed"] .tile-spark,
+  .embed-shell .chart-tile[data-spark-mode="fixed"] [data-role="tile-spark"] {
+    flex: 1 1 auto !important;
+    height: auto !important;
+  }
   /* Tile title can wrap if the chart name is long; cap the
      amount of vertical real estate it claims. */
   .embed-shell .tile-title {
