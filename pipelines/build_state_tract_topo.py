@@ -63,7 +63,7 @@ CACHE_DIR = ROOT / "pipelines" / "_tract_topo_cache"
 
 # TIGER vintage. Bump when the user wants boundaries from a different
 # vintage; the file naming convention is stable across years.
-TIGER_YEAR = 2024
+TIGER_YEAR = 2025
 TIGER_ROOT = f"https://www2.census.gov/geo/tiger/TIGER{TIGER_YEAR}"
 
 
