@@ -157,9 +157,12 @@ def read_baf_cd(fips: str, abbr: str) -> dict[str, str]:
         block_id, cd = parts[0].strip(), parts[1].strip()
         if not block_id or not cd:
             continue
-        if cd in ("ZZ", "98"):
-            # ZZ = territory / not in any CD. 98 = non-voting delegate
-            # (DC, PR, etc). We drop both.
+        if cd == "ZZ":
+            # ZZ = territory / not in any CD. Drop it. Keep "98" (the
+            # non-voting-delegate code): for DC (the only delegate geo in
+            # STATES) every block is "98", so dropping it orphaned DC from
+            # both crosswalks entirely. Kept, cd_slug() maps "98" -> dc_98,
+            # and SINGLE_CD_REDUNDANT redirects dc_98 -> acs_state/<series>_dc.
             continue
         out[block_id] = cd
     return out
@@ -314,6 +317,16 @@ def build_tract2010_crosswalk(block2020_to_cd: dict[str, str]) -> None:
         for block10, block20, area in rows:
             cd = block2020_to_cd.get(block20)
             if not cd:
+                continue
+            # Drop cross-state-boundary fragments. This state's t10t20 file
+            # includes border 2010 blocks from NEIGHBORING states (a 2010 AL
+            # block that slivers into a 2020 block in this state). Without
+            # this filter that AL tract gets stamped with THIS state's CD at
+            # full weight, leaking the whole AL tract's population into a
+            # wrong-state district (317 such tracts before the fix). A 2010
+            # tract is wholly within one state, so only count fragments whose
+            # 2020 block sits in the same state as the 2010 block.
+            if block20[:2] != block10[:2]:
                 continue
             tract10 = block10[:11]
             tract_cd_area[tract10][cd] += area

@@ -3,11 +3,11 @@
   "name": "Share of households earning under $25k \u2014 CO-04",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-17T19:24:50Z",
+  "lastUpdated": "2026-06-17T21:48:53Z",
   "points": [
     {
       "t": "2010-12-31",
-      "v": 13.8
+      "v": 13.7
     },
     {
       "t": "2011-12-31",
@@ -39,7 +39,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 11.3
+      "v": 11.2
     },
     {
       "t": "2019-12-31",

@@ -3,7 +3,7 @@
   "name": "Median travel time to work \u2014 UT-02",
   "kind": "timeseries",
   "unit": "minutes",
-  "lastUpdated": "2026-06-17T19:24:54Z",
+  "lastUpdated": "2026-06-17T21:49:02Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -51,7 +51,7 @@
     },
     {
       "t": "2021-12-31",
-      "v": 18.1
+      "v": 18.2
     },
     {
       "t": "2022-12-31",

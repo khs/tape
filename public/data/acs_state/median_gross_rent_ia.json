@@ -3,7 +3,7 @@
   "name": "Median gross rent \u2014 IA",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-06-17T19:29:19Z",
+  "lastUpdated": "2026-06-18T02:36:46Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -35,7 +35,7 @@
     },
     {
       "t": "2017-12-31",
-      "v": 738.0
+      "v": 739.0
     },
     {
       "t": "2018-12-31",

@@ -3,7 +3,7 @@
   "name": "Share of households earning $200k+ \u2014 TN-09",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-17T19:24:48Z",
+  "lastUpdated": "2026-06-17T21:49:01Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -23,7 +23,7 @@
     },
     {
       "t": "2014-12-31",
-      "v": 2.0
+      "v": 2.1
     },
     {
       "t": "2015-12-31",

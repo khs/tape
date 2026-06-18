@@ -3,7 +3,7 @@
   "name": "Median age \u2014 KS",
   "kind": "timeseries",
   "unit": "years",
-  "lastUpdated": "2026-06-17T19:29:12Z",
+  "lastUpdated": "2026-06-18T02:36:45Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -27,7 +27,7 @@
     },
     {
       "t": "2015-12-31",
-      "v": 36.1
+      "v": 36.0
     },
     {
       "t": "2016-12-31",

@@ -95,8 +95,13 @@ CITIES: list[tuple[str, str, str, str]] = [
     ("New Orleans", "new_orleans", "USW00012916", "LA"),
 ]
 
+import datetime  # noqa: E402 — kept beside its only use (END_YEAR)
+
 START_YEAR = 1950
-END_YEAR = 2024
+# Through the current year. CDO returns only published years, so a
+# not-yet-released recent year just yields no points. Was hardcoded 2024,
+# which silently dropped 2025 GSOY data once NOAA published it.
+END_YEAR = datetime.datetime.now(datetime.timezone.utc).year
 
 
 def _get(url: str, tok: str) -> dict:

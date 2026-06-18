@@ -3,19 +3,19 @@
   "name": "Households with broadband internet \u2014 GA",
   "kind": "timeseries",
   "unit": "households",
-  "lastUpdated": "2026-06-17T19:27:51Z",
+  "lastUpdated": "2026-06-18T02:35:39Z",
   "points": [
     {
       "t": "2017-12-31",
-      "v": 2813610
+      "v": 2812397
     },
     {
       "t": "2018-12-31",
-      "v": 2933335
+      "v": 2932020
     },
     {
       "t": "2019-12-31",
-      "v": 3058644
+      "v": 3057219
     },
     {
       "t": "2020-12-31",

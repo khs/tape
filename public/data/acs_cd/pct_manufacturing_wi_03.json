@@ -3,7 +3,7 @@
   "name": "Manufacturing share of workers \u2014 WI-03",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-17T19:24:54Z",
+  "lastUpdated": "2026-06-17T21:49:02Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -15,7 +15,7 @@
     },
     {
       "t": "2012-12-31",
-      "v": 16.6
+      "v": 16.5
     },
     {
       "t": "2013-12-31",

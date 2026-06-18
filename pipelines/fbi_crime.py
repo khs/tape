@@ -38,6 +38,7 @@ Run: python pipelines/fbi_crime.py            (all)
 """
 from __future__ import annotations
 
+import datetime
 import json
 import re
 import sys
@@ -52,7 +53,10 @@ from common import write_timeseries
 HERE = Path(__file__).resolve().parent
 SOURCES_DIR = HERE.parent / "src" / "content" / "sources" / "fbi_crime"
 BASE = "https://cde.ucr.cjis.gov/LATEST/summarized"
-FROM, TO = "01-1985", "12-2024"
+# TO runs through the current year; the CDE API returns only published
+# months, so a not-yet-released year is harmless (no hardcoded cap to go
+# stale — was pinned at 12-2024, which would have blocked 2025 data).
+FROM, TO = "01-1985", f"12-{datetime.datetime.now(datetime.timezone.utc).year}"
 
 
 @dataclass

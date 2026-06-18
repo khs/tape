@@ -1421,10 +1421,17 @@ def main() -> int:
     # wrote implausibly few slugs (interrupted / failed) skips pruning so it
     # can't wipe the catalog.
     pruned = 0
-    if len(acs_cd_slugs_written) < 400:
+    # Prune only WITHIN states we actually wrote this run. A per-state tract
+    # fetch can fail silently (fetch returns {} -> the state is skipped), so a
+    # blanket "delete any slug we didn't write" would wipe a transiently-failed
+    # state's committed districts. Protect any state that produced no output,
+    # and bail entirely if implausibly few states wrote (a systemic failure).
+    written_states = {s.split("_", 1)[0] for s in acs_cd_slugs_written}
+    EXPECTED_MULTI_CD_STATES = 44  # 50 states - 6 single-CD (at-large); DC redirects to acs_state
+    if len(written_states) < EXPECTED_MULTI_CD_STATES * 0.9:
         print(
-            f"acs_cd: prune SKIPPED — only {len(acs_cd_slugs_written)} slugs "
-            f"written (expected ~429); refusing to prune to avoid data loss",
+            f"acs_cd: prune SKIPPED — only {len(written_states)} states wrote "
+            f"(expected ~{EXPECTED_MULTI_CD_STATES}); refusing to prune to avoid data loss",
             file=sys.stderr,
         )
     else:
@@ -1437,12 +1444,17 @@ def main() -> int:
                 else p.stem
             )
             m = slug_rx.search(stem)
-            if m and m.group(1) not in acs_cd_slugs_written:
+            if not m:
+                continue
+            slug = m.group(1)
+            # Only prune a superseded district within a state we refreshed;
+            # never touch a state that returned no data this run.
+            if slug.split("_", 1)[0] in written_states and slug not in acs_cd_slugs_written:
                 p.unlink()
                 pruned += 1
         if pruned:
             print(f"acs_cd: pruned {pruned} orphan files "
-                  f"(districts no longer in the crosswalk universe)", flush=True)
+                  f"(superseded districts in refreshed states)", flush=True)
 
     print(f"\nacs_cd: wrote {written} stable-geo series across "
           f"{len(ACS_VINTAGES)} vintages "
