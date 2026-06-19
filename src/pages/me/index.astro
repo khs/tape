@@ -148,6 +148,78 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
     const baseUrl = host.dataset.baseUrl ?? "";
     const content = host.querySelector<HTMLElement>("[data-role='content']");
 
+    const esc = (s: string): string =>
+      s.replace(
+        /[&<>"']/g,
+        (c) =>
+          (({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }) as Record<string, string>)[c],
+      );
+    type MeAlertRow = {
+      label: string | null;
+      source_label: string;
+      condition: string;
+      threshold: number;
+      paused: boolean;
+    };
+    const ALERT_COND_LABEL: Record<string, string> = {
+      gt: ">",
+      gte: "≥",
+      lt: "<",
+      lte: "≤",
+      crosses_above: "crosses above",
+      crosses_below: "crosses below",
+      change_above: "changes by >",
+    };
+
+    // The user's alert rules, rendered below the dashboard list. /me/ is the
+    // account home, so it surfaces every saved thing — dashboards AND alerts
+    // — with a jump to the full manager. Secondary panel: a fetch failure
+    // logs + skips rather than blanking the page.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async function renderAlertsSection(sb2: any, ownerId: string): Promise<void> {
+      if (!content) return;
+      let rules: MeAlertRow[] = [];
+      try {
+        const { data } = await sb2
+          .from("alert_rules")
+          .select("label,source_label,condition,threshold,paused")
+          .eq("owner_id", ownerId)
+          .order("updated_at", { ascending: false });
+        rules = (data ?? []) as MeAlertRow[];
+      } catch (e) {
+        console.warn("[me] alerts load failed:", e);
+        return;
+      }
+      const section = document.createElement("section");
+      section.className = "me-alerts";
+      const rows = rules
+        .map((r) => {
+          const cond = `${ALERT_COND_LABEL[r.condition] ?? r.condition} ${r.threshold}`;
+          const name = r.label || r.source_label || "alert";
+          const sub = r.label ? ` · ${r.source_label}` : "";
+          const paused = r.paused
+            ? ' <span class="me-alert-paused">paused</span>'
+            : "";
+          return `<li class="me-alert-row"><span class="me-alert-name">${esc(name)}</span><span class="me-alert-cond muted">${esc(cond)}${esc(sub)}</span>${paused}</li>`;
+        })
+        .join("");
+      section.innerHTML =
+        '<div class="me-alerts-head">' +
+        '<h2 class="me-alerts-title">Alerts</h2>' +
+        `<a class="me-alerts-manage" href="${baseUrl}/alerts/">Manage &rarr;</a>` +
+        "</div>" +
+        (rules.length
+          ? `<ul class="me-alerts-list">${rows}</ul>`
+          : `<p class="me-alerts-empty muted">No alerts yet. <a href="${baseUrl}/alerts/">Set one up &rarr;</a></p>`);
+      content.appendChild(section);
+    }
+
     async function render(): Promise<void> {
       if (!content) return;
       if (!isSupabaseConfigured) {
@@ -200,6 +272,7 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
         sb,
         onMutate: () => render(),
       });
+      await renderAlertsSection(sb, user.id);
       // Admin-only footer link to /me/diagnostics. Tiny, low-contrast,
       // below the dashboard list so it doesn't pull attention but is
       // always reachable. isAdmin trusts the OAuth-verified email on
@@ -386,5 +459,66 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
   }
   .account-upgrade-cta:hover {
     filter: brightness(1.06);
+  }
+  /* Alerts panel — the user's alert rules, below the dashboard list. */
+  .me-alerts {
+    margin-top: 28px;
+    max-width: 560px;
+  }
+  .me-alerts-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .me-alerts-title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+  }
+  .me-alerts-manage {
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .me-alerts-manage:hover {
+    text-decoration: underline;
+  }
+  .me-alerts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .me-alert-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: var(--text-sm);
+    padding: 8px 12px;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+  }
+  .me-alert-name {
+    font-weight: 500;
+    color: var(--color-neutral-900);
+  }
+  .me-alert-cond {
+    font-size: var(--text-xs);
+  }
+  .me-alert-paused {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-neutral-500);
+  }
+  .me-alerts-empty {
+    font-size: var(--text-sm);
   }
 </style>
