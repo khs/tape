@@ -97,6 +97,7 @@ PROVIDER_FEATURED_ON_WELCOME: dict[str, bool] = {
     "countries_relative": False, # already represented via worldbank_gdp_raw
     "zillow": False,            # housing; not on current welcome grid (could add later)
     "owid_co2": False,          # climate/energy cross-country; via composer + energy charts
+    "owid_energy": False,       # renewable-electricity share; via composer + energy charts
     "bea": False,               # per-state GDP/income detail; via composer + Maps/Generators
     "fbi_crime": False,         # per-state crime rates; via composer + government charts
     "fec": False,               # per-CD campaign spending; via composer + elections chart

@@ -91,6 +91,7 @@ PROVIDER_TO_ABOUT_LABEL: dict[str, str | None] = {
     "fec": "FEC",
     "noaa_climate": "NOAA",
     "owid_co2": "Our World in Data",
+    "owid_energy": "Our World in Data",
     "yahoo": "Yahoo Finance",
     "yahoo_futures": "Yahoo Finance",
     "yahoo_marketcap": "Yahoo Finance",
