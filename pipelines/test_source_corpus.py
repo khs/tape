@@ -202,25 +202,12 @@ ALLOWED_WORLD_TAG_PATH_PATTERNS = (
     # holdings of US Treasuries; the dataset's whole purpose is
     # the cross-country breakdown.
     "treasury_tic/",
-    # Forex pairs in fred + yahoo — cross-currency by construction.
-    "fred/cny_usd",
-    "fred/eur_usd",
-    "fred/gbp_usd",
-    "fred/jpy_usd",
-    "fred/usd_index",
-    "yahoo/eurusd",
-    "yahoo/gbpusd",
-    "yahoo/usdcad",
-    "yahoo/usdcny",
-    "yahoo/usdinr",
-    "yahoo/usdjpy",
-    "yahoo/usdmxn",
-    # Multi-country basket ETFs.
-    "yahoo/vt.yaml",     # Total World
-    "yahoo/vea.yaml",    # Developed Markets
-    "yahoo/eem.yaml",    # Emerging Markets
-    "yahoo/efa.yaml",    # EAFE (developed ex-US/Canada)
-    "yahoo/vwo.yaml",    # FTSE Emerging
+    # The one genuinely-world equity ETF (Vanguard Total World Stock).
+    # 2026-06-19: FX pairs moved off `world` to the `fx` tag, and the
+    # EM/DM/EAFE regional ETFs (eem/vwo/vea/efa) were de-`world`-tagged —
+    # none is a cross-country AGGREGATE (FX is a single rate; EM/DM/EAFE
+    # are regional baskets). Only Total World remains.
+    "yahoo/vt.yaml",
 )
 
 

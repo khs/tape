@@ -600,6 +600,13 @@ SPECS: list[FredSpec] = [
     FredSpec("DEXJPUS", "Japanese yen per US dollar (JPY/USD)", "JPY per USD"),
     FredSpec("DEXCAUS", "Canadian dollars per US dollar (CAD/USD)", "CAD per USD"),
     FredSpec("DEXUSUK", "US dollars per UK pound (USD/GBP)", "USD per GBP"),
+    # More major-economy bilateral rates (by GDP rank) so the fx category
+    # spans the largest currencies, not just the G5 + CNY (2026-06-19). Same
+    # FRED quote conventions: KRW/BRL/CHF as units-per-USD, AUD as USD-per-unit.
+    FredSpec("DEXKOUS", "South Korean won per US dollar (KRW/USD)", "KRW per USD"),
+    FredSpec("DEXUSAL", "US dollars per Australian dollar (USD/AUD)", "USD per AUD"),
+    FredSpec("DEXBZUS", "Brazilian reais per US dollar (BRL/USD)", "BRL per USD"),
+    FredSpec("DEXSZUS", "Swiss francs per US dollar (CHF/USD)", "CHF per USD"),
     # BLS labor levels + ratio. The headline UNRATE is a ratio; these are
     # the underlying counts (and the employment-population ratio, the
     # participation measure that doesn't move with discouraged-worker

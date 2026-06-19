@@ -1,0 +1,20 @@
+name: Swiss francs per US dollar (CHF/USD)
+shortName: CHF/USD
+description: Spot exchange rate, Swiss francs per US dollar, from the Federal Reserve H.10 release.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DEXSZUS.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "CHF per USD"
+formatting:
+  style: number
+  decimals: 4
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DEXSZUS
+  url: https://fred.stlouisfed.org/series/DEXSZUS
+  license: Public domain (US government data)
+tags:
+  - fx
+unitClass: ratio

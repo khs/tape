@@ -1,0 +1,20 @@
+name: Brazilian reais per US dollar (BRL/USD)
+shortName: BRL/USD
+description: Spot exchange rate, Brazilian reais per US dollar, from the Federal Reserve H.10 release.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/DEXBZUS.json
+supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
+unit: "BRL per USD"
+formatting:
+  style: number
+  decimals: 4
+emphasis: change
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: DEXBZUS
+  url: https://fred.stlouisfed.org/series/DEXBZUS
+  license: Public domain (US government data)
+tags:
+  - fx
+unitClass: ratio
