@@ -3180,6 +3180,39 @@
       });
     });
 
+    // "Reset" returns the whole dashboard to how it loaded: the
+    // dashboard-default pill is re-highlighted and every tile snaps back to
+    // its server-resolved initial window (section-locked tiles to their
+    // section's window, the rest to the dashboard default), discarding any
+    // manual rewindowing or zoom. Mirrors the per-tile seed in hydrate().
+    const resetBtn = document.querySelector<HTMLButtonElement>(
+      "[data-dashboard-window-control] [data-dashboard-window-reset]",
+    );
+    resetBtn?.addEventListener("click", () => {
+      dashPills.forEach((p) => {
+        const active = p.dataset.dashboardWindow === dashDefault;
+        p.classList.toggle("pill-active", active);
+        p.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      tileContexts.forEach((ctx) => {
+        const wanted: DeltaWindow =
+          ctx.tile.dataset.sectionLocked === "1"
+            ? ctx.payload.defaultDelta
+            : dashDefault;
+        const w = closestSupported(wanted, ctx.payload.supportedDeltas);
+        ctx.currentWindow = w;
+        ctx.selectedView = ctx.payload.fixedRange ? "fixed" : w;
+        ctx.zoomedDomainMs = null;
+        ctx.tile.dataset.dashboardWindow = wanted;
+        ctx.dialog.dataset.dashboardWindow = wanted;
+        updateTile(ctx.tile, ctx.payload, w);
+        if (ctx.dialogInitialized) {
+          updateDialog(ctx.dialog, ctx.payload, w);
+          setActivePill(ctx.dialog, w);
+        }
+      });
+    });
+
     // Phase 2 telemetry: emit a one-shot dashboard_perf_loaded event with
     // payload size, mode-mix (summary vs full), and timing. Lets us A/B
     // the bandwidth reduction in PostHog by comparing pre/post-deploy

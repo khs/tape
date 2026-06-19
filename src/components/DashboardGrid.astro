@@ -71,6 +71,15 @@ const Heading = headingLevel;
             {DELTA_LABELS_SHORT[w]}
           </button>
         ))}
+        <button
+          type="button"
+          class="pill pill-reset"
+          data-dashboard-window-reset
+          title="Reset windows to the dashboard's defaults"
+          aria-label="Reset windows to the dashboard's defaults"
+        >
+          Reset
+        </button>
       </div>
     </div>
   ) : null
@@ -163,6 +172,17 @@ const Heading = headingLevel;
     background: var(--color-neutral-900);
     color: var(--color-white);
     border-color: var(--color-neutral-900);
+  }
+  /* "Reset" is an action, not a window option — set apart with a small
+     gap and a dashed, muted treatment so it doesn't read as a selectable
+     window pill. */
+  .dashboard-window .pill-reset {
+    margin-left: 6px;
+    border-style: dashed;
+    color: var(--color-neutral-500);
+  }
+  .dashboard-window .pill-reset:hover {
+    color: var(--color-neutral-900);
   }
   .dash-section {
     margin-bottom: 32px;

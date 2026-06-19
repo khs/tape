@@ -372,6 +372,15 @@ const ogD = state
                     {DELTA_LABELS_SHORT[w]}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  class="pill pill-reset"
+                  data-dashboard-window-reset
+                  title="Reset windows to the dashboard's defaults"
+                  aria-label="Reset windows to the dashboard's defaults"
+                >
+                  Reset
+                </button>
               </div>
             </div>
           )
@@ -726,6 +735,8 @@ const ogD = state
   .dashboard-window .pill:hover { background: var(--color-neutral-100); }
   .dashboard-window .pill-active,
   .dashboard-window .pill-active:hover { background: var(--color-neutral-900); color: var(--color-white); border-color: var(--color-neutral-900); }
+  .dashboard-window .pill-reset { margin-left: 6px; border-style: dashed; color: var(--color-neutral-500); }
+  .dashboard-window .pill-reset:hover { color: var(--color-neutral-900); }
   .dash-section { margin-bottom: 32px; }
   .section-heading { font-size: var(--text-base); font-weight: 600; color: var(--color-neutral-900); margin: 0 0 4px; }
   .section-description { font-size: var(--text-sm); color: var(--color-neutral-600); line-height: 1.5; margin: 0 0 12px; max-width: 720px; white-space: pre-wrap; }
