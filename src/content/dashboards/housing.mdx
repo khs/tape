@@ -2,17 +2,17 @@
 title: "Housing market"
 order: 9
 defaultDelta: 10y
-description: "US housing through price + supply + demand + cost-of-capital lenses. Median listing price, building permits, months supply, vacancy rates, and the mortgage rate that gates all of it. Plus DC-metro context."
-aboutBlurb: "Six angles on the US housing market: prices, listings, supply pipeline, inventory months, vacancy, and the mortgage rate. Plus a DC-metro panel because DC housing diverges enough from the national story to need its own framing."
+description: "US housing through price + supply + demand + cost-of-capital lenses. Median listing price, building permits, months supply, vacancy rates, and the mortgage rate that gates all of it."
+aboutBlurb: "Six angles on the US housing market: prices, listings, supply pipeline, inventory months, vacancy, and the mortgage rate."
 sections:
   - title: "Prices"
     description: "FHFA's repeat-sales House Price Index for the US is the headline trajectory signal, same property selling twice, so changes in the mix of homes selling don't drive the number. Median listing price adds a level read. Zillow's ZHVI and ZORI cover the per-metro level."
     charts:
       - us-macro/fhfa_us_hpi
       - us-macro/median_home_price
-      - real-estate/dc_median_listing
       - real-estate/zhvi_metros
       - real-estate/zori_metros
+      - real-estate/rent_cpi
   - title: "Supply pipeline"
     description: "What's being built. Building permits are the leading indicator (issued before construction starts); housing starts is what actually breaks ground. New-home sales close the loop. Each can lead or lag depending on whether the cycle is driven by rates, regulatory friction, or end-demand."
     charts:
@@ -29,12 +29,6 @@ sections:
     charts:
       - us-macro/mortgage_30y
       - real-estate/mortgage_15y
-  - title: "DC metro context"
-    description: "DC vs US house-price trajectory (FHFA), DC listing price, and DC-area rent CPI. The DC-area housing market consistently runs above national in both levels and cyclical amplitude, federal-payroll income stability supports prices through downturns, and the supply pipeline has been more constrained than national average."
-    charts:
-      - real-estate/dc_fhfa_vs_us
-      - real-estate/dc_median_listing
-      - real-estate/rent_cpi
   - title: "Real-estate equities"
     description: "REIT and homebuilder ETFs as a market-priced view of the sector. PLD = Prologis (industrial REIT, supply-chain proxy), VNQ = the broad REIT ETF, XHB = SPDR homebuilder ETF. AMT is American Tower, the cell-tower REIT, useful because it diverges from residential REITs even though it's in the same sector index."
     charts:
@@ -87,25 +81,6 @@ This is why "lower mortgage rates" is a structural unlock for
 housing transaction volume in a way it usually isn't. Until rates
 come back down toward where existing mortgages are locked in,
 transaction volume stays depressed.
-
-## DC-metro divergence
-
-DC-area housing runs differently from the national average for
-two structural reasons:
-
-1. **Income stability.** Federal employment is ~12% of the metro
-   workforce (vs ~2% nationally), and federal pay doesn't
-   cyclically shed during recessions. Housing demand stays
-   firmer through downturns, prices don't fall as far.
-2. **Supply constraint.** Especially in inner NoVa (Arlington,
-   Alexandria, Falls Church) and inner MD (Bethesda, Silver
-   Spring), local zoning + topography limit new construction.
-   Prices clear higher.
-
-The DC FHFA-vs-US chart shows the trajectory: DC ran with the
-national pattern through the GFC drop, then started pulling
-ahead in 2012-13, widened the gap further through the
-federal-spending recovery and tech-policy buildout of the 2010s.
 
 ## A note on the home-price index choice
 
