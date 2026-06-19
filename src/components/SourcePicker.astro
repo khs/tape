@@ -268,6 +268,10 @@ const extraSourcesJson = extraSources.length > 0
     instanceId: string;
     searchQuery: string;
     selectedTags: Set<string>;
+    /** Topical tags the user EXCLUDED (a second click on a chip): a source
+     *  is filtered OUT if it carries any of these. A third click clears it.
+     *  Disjoint from selectedTags. */
+    excludedTags: Set<string>;
     /** Selected CBSA code for the metro chip, or null = chip inactive. */
     selectedMetroCbsa: string | null;
     /** Selected country/region code, or null = chip inactive. */
@@ -399,6 +403,15 @@ const extraSourcesJson = extraSources.length > 0
     const tagsRequired = [...state.selectedTags].filter(
       (t) => !isGeoTag(t),
     );
+    const tagsExcluded = [...state.excludedTags].filter((t) => !isGeoTag(t));
+    // Tri-state topical filter: a source must carry every INCLUDED tag and
+    // NONE of the EXCLUDED tags (e.g. tech included + large-stocks excluded
+    // → tech sources that aren't large-caps).
+    const passesTopicalTags = (tags: readonly string[]): boolean => {
+      for (const t of tagsRequired) if (!tags.includes(t)) return false;
+      for (const t of tagsExcluded) if (tags.includes(t)) return false;
+      return true;
+    };
     const out: Array<LibrarySource & { id: string; tags: string[] }> = [];
     // ExtraSources: pass them through the same tag-filter + search-
     // filter pipeline as library sources. Skip the geo filters (extras
@@ -407,14 +420,7 @@ const extraSourcesJson = extraSources.length > 0
     // to the top via the .isExtra flag in the sort comparator.
     for (const src of state.extraSources) {
       const tags = src.tags ?? [];
-      let ok = true;
-      for (const t of tagsRequired) {
-        if (!tags.includes(t)) {
-          ok = false;
-          break;
-        }
-      }
-      if (!ok) continue;
+      if (!passesTopicalTags(tags)) continue;
       if (q) {
         const hay = (
           src.name +
@@ -436,14 +442,7 @@ const extraSourcesJson = extraSources.length > 0
     for (const id of Object.keys(sources)) {
       const src = sources[id];
       const tags = src.tags ?? [];
-      let ok = true;
-      for (const t of tagsRequired) {
-        if (!tags.includes(t)) {
-          ok = false;
-          break;
-        }
-      }
-      if (!ok) continue;
+      if (!passesTopicalTags(tags)) continue;
       // The lib's passes*Filter helpers are pure (no per-instance
       // state); we feed them the per-instance state's relevant fields
       // explicitly. The unlocked* sets they compute internally are
@@ -562,6 +561,24 @@ const extraSourcesJson = extraSources.length > 0
     ): number =>
       (globalCounts?.[b.tag] ?? b.count) - (globalCounts?.[a.tag] ?? a.count) ||
       a.tag.localeCompare(b.tag);
+    // Finalize a counts map into the sorted chip list. Any actively
+    // SELECTED or EXCLUDED tag stays visible even at count 0 so the user can
+    // see + cycle it; an excluded tag shows its GLOBAL size (what's being
+    // filtered out, since it has 0 matches in the filtered set).
+    const finalize = (
+      counts: Map<string, number>,
+    ): Array<{ tag: string; count: number }> => {
+      for (const t of state.selectedTags) {
+        if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
+      }
+      for (const t of state.excludedTags) {
+        if (!isGeoTag(t) && !counts.has(t))
+          counts.set(t, globalCounts?.[t] ?? 0);
+      }
+      return Array.from(counts.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort(bySize);
+    };
     // Path 2: query is in unlock range (or longer) — walk to get
     // counts that match what the user sees in the results list.
     if (trimmedQuery.length >= UNLOCK_QUERY_MIN_CHARS) {
@@ -580,24 +597,14 @@ const extraSourcesJson = extraSources.length > 0
           counts.set(t, (counts.get(t) ?? 0) + 1);
         }
       }
-      for (const t of state.selectedTags) {
-        if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
-      }
-      return Array.from(counts.entries())
-        .map(([tag, count]) => ({ tag, count }))
-        .sort(bySize);
+      return finalize(counts);
     }
     // Path 1: cheap bucket lookup.
     const key = geoFilterKey(state);
     const bucket = lib.tagCountsByGeo?.[key];
     if (bucket) {
       const counts = new Map<string, number>(Object.entries(bucket));
-      for (const t of state.selectedTags) {
-        if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
-      }
-      return Array.from(counts.entries())
-        .map(([tag, count]) => ({ tag, count }))
-        .sort(bySize);
+      return finalize(counts);
     }
     // Path 3: legacy fallback — no precomputed table.
     const counts = new Map<string, number>();
@@ -609,12 +616,7 @@ const extraSourcesJson = extraSources.length > 0
         counts.set(t, (counts.get(t) ?? 0) + 1);
       }
     }
-    for (const t of state.selectedTags) {
-      if (!isGeoTag(t) && !counts.has(t)) counts.set(t, 0);
-    }
-    return Array.from(counts.entries())
-      .map(([tag, count]) => ({ tag, count }))
-      .sort(bySize);
+    return finalize(counts);
   }
 
   function escapeHtml(s: string): string {
@@ -636,7 +638,8 @@ const extraSourcesJson = extraSources.length > 0
     // "All" chip always first — clears the tag filter. The count
     // is the sum of all topical counts (not the actual library
     // size, since geo-only sources aren't represented).
-    const allActive = state.selectedTags.size === 0;
+    const allActive =
+      state.selectedTags.size === 0 && state.excludedTags.size === 0;
     parts.push(
       `<button type="button" class="source-picker-chip${allActive ? " source-picker-chip-active" : ""}" data-spicker-tag="">All <span class="source-picker-chip-count">${totalCount}</span></button>`,
     );
@@ -646,16 +649,24 @@ const extraSourcesJson = extraSources.length > 0
     // the chip strip entirely — no "show more" affordance. The tags
     // stay on the source YAMLs, so a topic that later crosses the
     // threshold reappears on its own, and hidden topics remain reachable
-    // via free-text search. A currently SELECTED tag always shows so a
-    // deserialized filter can't get stuck hidden.
+    // via free-text search. A currently SELECTED or EXCLUDED tag always
+    // shows so an active filter can't get stuck hidden.
     const MIN_TAG_COUNT = 15;
     const visibleTags = tagCounts.filter(
-      (t) => t.count >= MIN_TAG_COUNT || state.selectedTags.has(t.tag),
+      (t) =>
+        t.count >= MIN_TAG_COUNT ||
+        state.selectedTags.has(t.tag) ||
+        state.excludedTags.has(t.tag),
     );
     for (const { tag, count } of visibleTags) {
-      const active = state.selectedTags.has(tag);
+      // Tri-state chip: excluded = red, included = accent, off = plain.
+      const stateCls = state.excludedTags.has(tag)
+        ? " source-picker-chip-excluded"
+        : state.selectedTags.has(tag)
+          ? " source-picker-chip-active"
+          : "";
       parts.push(
-        `<button type="button" class="source-picker-chip${active ? " source-picker-chip-active" : ""}" data-spicker-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="source-picker-chip-count">${count}</span></button>`,
+        `<button type="button" class="source-picker-chip${stateCls}" data-spicker-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="source-picker-chip-count">${count}</span></button>`,
       );
     }
     host.innerHTML = parts.join("");
@@ -668,12 +679,19 @@ const extraSourcesJson = extraSources.length > 0
         btn.addEventListener("click", () => {
           const tag = btn.dataset.spickerTag ?? "";
           if (tag === "") {
-            // "All" chip — clear selection.
+            // "All" chip — clear both include + exclude selections.
             state.selectedTags.clear();
+            state.excludedTags.clear();
           } else {
-            // Tag chip — toggle membership.
-            if (state.selectedTags.has(tag)) state.selectedTags.delete(tag);
-            else state.selectedTags.add(tag);
+            // Tri-state cycle: off → include (accent) → exclude (red) → off.
+            if (state.selectedTags.has(tag)) {
+              state.selectedTags.delete(tag);
+              state.excludedTags.add(tag);
+            } else if (state.excludedTags.has(tag)) {
+              state.excludedTags.delete(tag);
+            } else {
+              state.selectedTags.add(tag);
+            }
           }
           renderTagChips(state, lib);
           renderResults(state, lib);
@@ -781,10 +799,13 @@ const extraSourcesJson = extraSources.length > 0
         (m) => m.kind !== "hint" && m.kind !== "extra",
       );
       if (real.length > 0) return; // only ZERO-result searches are the signal
-      const tagsActive = [...state.selectedTags]
-        .filter((t) => !isGeoTag(t))
-        .sort()
-        .join(",");
+      const tagsActive = [
+        ...[...state.selectedTags].filter((t) => !isGeoTag(t)).sort(),
+        ...[...state.excludedTags]
+          .filter((t) => !isGeoTag(t))
+          .sort()
+          .map((t) => `-${t}`),
+      ].join(",");
       const geoActive = state.selectedMetroCbsa
         ? `metro:${state.selectedMetroCbsa}`
         : state.selectedCountryCode
@@ -839,6 +860,7 @@ const extraSourcesJson = extraSources.length > 0
       const hasFilters =
         q.length > 0 ||
         state.selectedTags.size > 0 ||
+        state.excludedTags.size > 0 ||
         !!state.selectedMetroCbsa ||
         !!state.selectedCountryCode ||
         !!state.cdState;
@@ -859,6 +881,7 @@ const extraSourcesJson = extraSources.length > 0
       clearBtn?.addEventListener("click", () => {
         state.searchQuery = "";
         state.selectedTags.clear();
+        state.excludedTags.clear();
         state.selectedMetroCbsa = null;
         state.selectedCountryCode = null;
         state.cdState = null;
@@ -1082,6 +1105,7 @@ const extraSourcesJson = extraSources.length > 0
       instanceId,
       searchQuery: "",
       selectedTags: new Set(),
+      excludedTags: new Set(),
       selectedMetroCbsa: null,
       selectedCountryCode: null,
       cdState: null,
@@ -1578,6 +1602,13 @@ const extraSourcesJson = extraSources.length > 0
     background: var(--color-accent, #0F766E);
     color: var(--color-white, #fff);
     border-color: var(--color-accent, #0F766E);
+  }
+  /* Excluded (second click): the tag is used as a negative filter. Red so
+     it reads as "removing this", distinct from the accent "including this". */
+  .source-picker-chip-excluded {
+    background: var(--color-danger, #b91c1c);
+    color: var(--color-white, #fff);
+    border-color: var(--color-danger, #b91c1c);
   }
   /* Count badge inside each tag chip. Dimmer than the tag name
      so a quick scan reads "topic, count" with the topic
