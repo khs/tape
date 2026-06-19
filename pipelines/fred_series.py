@@ -73,6 +73,21 @@ SPECS: list[FredSpec] = [
     # required under FRED ToS § III. Removed 2026-05-27. See
     # docs/fred-copyright-audit.md.
     FredSpec("GDPC1", "US real GDP (chained 2017 dollars)", "billions USD"),
+    # Federal revenue by source (BEA NIPA Table 3.2, quarterly SAAR, $B —
+    # already in the canonical billions base, so scale=1.0). Outlays are
+    # already split by function elsewhere; this is the receipts side. Series
+    # IDs + titles verified against fred.stlouisfed.org/series/<id> 2026-06-19.
+    FredSpec("W018RC1Q027SBEA", "Federal government total receipts", "billions USD"),
+    FredSpec("A074RC1Q027SBEA",
+             "Federal receipts: personal / individual income taxes", "billions USD"),
+    FredSpec("W780RC1Q027SBEA",
+             "Federal receipts: contributions for social insurance (payroll taxes)",
+             "billions USD"),
+    FredSpec("B075RC1Q027SBEA",
+             "Federal receipts: taxes on corporate income", "billions USD"),
+    FredSpec("B234RC1Q027SBEA",
+             "Federal receipts: excise taxes (taxes on production and imports)",
+             "billions USD"),
     FredSpec("A939RX0Q048SBEA", "US real GDP per capita (chained 2017 dollars)", "USD"),
     FredSpec("INDPRO", "US industrial production", "index (2017=100)"),
     # SP500 (S&P 500) intentionally NOT ingested: third-party

@@ -1,0 +1,23 @@
+name: Federal revenue, total receipts
+shortName: Federal receipts
+description: Total federal government receipts, quarterly at a seasonally adjusted annual rate. National-accounts basis (BEA NIPA table 3.2, via FRED). Includes tax receipts plus social-insurance contributions and other receipts, so it exceeds the four tax components below.
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/W018RC1Q027SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "B"
+emphasis: level
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: W018RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/W018RC1Q027SBEA
+  license: Public domain (US government data)
+unitClass: currency
+tags:
+  - tax
+  - fiscal
+  - us

@@ -1,0 +1,17 @@
+title: "Federal revenue by source"
+sources:
+  - fred/fed_receipts_individual
+  - fred/fed_receipts_payroll
+  - fred/fed_receipts_corporate
+  - fred/fed_receipts_excise
+render: line
+defaultDelta: 50y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Individual income tax
+  - Payroll (social insurance) tax
+  - Corporate income tax
+  - Excise tax
+blurb: "Where federal revenue comes from, by tax source, quarterly at a seasonally adjusted annual rate (BEA national accounts via FRED). The long view shows the shift from corporate-income and excise taxes toward individual-income and payroll taxes since the 1950s. These four are the tax components; total receipts also include non-tax items, so they do not sum to the headline total. Add the total-receipts source from the composer for the full line."
+tags: [tax, fiscal, us]

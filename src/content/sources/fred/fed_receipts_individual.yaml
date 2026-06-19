@@ -1,0 +1,23 @@
+name: Federal revenue, individual income taxes
+shortName: Individual income tax
+description: Federal receipts from personal (individual) income taxes, quarterly at a seasonally adjusted annual rate. National-accounts basis (BEA NIPA table 3.2, via FRED).
+kind: timeseries
+pipeline: fred_series
+dataFile: data/fred/A074RC1Q027SBEA.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+  suffix: "B"
+emphasis: level
+provenance:
+  provider: FRED (St. Louis Fed)
+  series: A074RC1Q027SBEA
+  url: https://fred.stlouisfed.org/series/A074RC1Q027SBEA
+  license: Public domain (US government data)
+unitClass: currency
+tags:
+  - tax
+  - fiscal
+  - us
