@@ -1,21 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { LAST_FEATURE_UPDATE } from "../lib/brand";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-// Render LAST_FEATURE_UPDATE in a UTC-anchored "Month D, YYYY" so
-// the date is identical regardless of where the build runs (matches
-// the equivalent date on /me/).
-const lastUpdatedDate = new Date(`${LAST_FEATURE_UPDATE}T00:00:00Z`);
-const lastUpdatedLabel = isNaN(lastUpdatedDate.valueOf())
-  ? LAST_FEATURE_UPDATE
-  : lastUpdatedDate.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    });
+// Build/deploy date, captured at prerender time (this page is prerendered,
+// so `new Date()` is the moment `astro build` ran). Advances every deploy;
+// matches the equivalent stamp on /me/. Formatted UTC for stable output.
+const lastUpdatedDate = new Date();
+const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+});
 ---
 
 <BaseLayout

@@ -43,9 +43,11 @@ export const ENTERPRISE_INQUIRY_URL =
  * displayed via toLocaleDateString in en-US so the user sees their
  * locale's date convention).
  *
- * Bump-protocol: whenever you ship a feature the user would want to
- * see exercised in the walkthrough, edit this constant + add the
- * feature to the walkthrough dashboard in the same commit.
+ * DEPRECATED (2026-06-19): the /me/ + /about/ "last updated" stamps now use
+ * the BUILD/deploy date (computed at prerender time, so it auto-advances
+ * every deploy and can't go stale). This constant is no longer rendered
+ * anywhere — kept only for the changelog notes below. Don't wire new UI to
+ * it; there is nothing to hand-bump.
  */
 export const LAST_FEATURE_UPDATE = "2026-05-29";
 // 2026-05-21 covered: smart-dispatch alert UX (acknowledge,
