@@ -319,6 +319,23 @@ SERIES: list[BlsSpec] = [
         label="ECI: total compensation (state & local government)",
         unit="index Dec 2005=100",
     ),
+    # ---- Median weekly earnings by sex (the gender pay gap) ----
+    # National, full-time wage & salary workers, current dollars, quarterly.
+    # "(second quartile)" = median. Series IDs verified against the BLS catalog
+    # series_title 2026-06-19. The women/men ratio is the headline pay gap;
+    # the composer's divide op builds it from these two.
+    BlsSpec(
+        series_id="LEU0252882700",
+        out_id="earnings_women_weekly",
+        label="Median weekly earnings: women (full-time)",
+        unit="USD",
+    ),
+    BlsSpec(
+        series_id="LEU0252881800",
+        out_id="earnings_men_weekly",
+        label="Median weekly earnings: men (full-time)",
+        unit="USD",
+    ),
     # ---- Metro CPI ----
     # Replacement for the discontinued FRED Washington-Baltimore CMSA
     # series (CUUSA311SA0, dead since 2017). BLS redefined the area as

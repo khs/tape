@@ -1,0 +1,13 @@
+title: "Labor force participation by sex"
+sources:
+  - fred/lfpr_women
+  - fred/lfpr_men
+render: line
+defaultDelta: 50y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Women
+  - Men
+blurb: "Share of women and men age 16+ in the labor force (working or looking for work), seasonally adjusted. The long view shows the defining 20th-century labor trend: women's participation climbing from the 1950s into the late 1990s while men's slowly declined, narrowing a gap that was once enormous."
+tags: [labor, gender, us]

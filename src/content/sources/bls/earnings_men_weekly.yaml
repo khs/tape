@@ -1,0 +1,23 @@
+name: Median weekly earnings, men
+shortName: Men weekly earnings
+description: Median usual weekly earnings of men employed full time (wage and salary workers, age 16+), in current dollars. Quarterly, not seasonally adjusted.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/earnings_men_weekly.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "USD"
+emphasis: level
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: LEU0252881800
+  url: https://data.bls.gov/timeseries/LEU0252881800
+  license: Public domain (US government data)
+unitClass: currency
+tags:
+  - labor
+  - gender
+  - us

@@ -1,0 +1,13 @@
+title: "Median weekly earnings by sex (the pay gap)"
+sources:
+  - bls/earnings_women_weekly
+  - bls/earnings_men_weekly
+render: line
+defaultDelta: 30y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Women
+  - Men
+blurb: "Median usual weekly earnings of full-time wage and salary workers, by sex, in current dollars (BLS, quarterly). Women's earnings have run roughly 80-83 percent of men's for the past decade; in the latest quarter it is about $1,098 vs $1,362. Use the divide op in the composer to chart the women-to-men ratio directly."
+tags: [labor, gender, us]

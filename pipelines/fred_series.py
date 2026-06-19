@@ -88,6 +88,10 @@ SPECS: list[FredSpec] = [
     FredSpec("B234RC1Q027SBEA",
              "Federal receipts: excise taxes (taxes on production and imports)",
              "billions USD"),
+    # Labor force participation by sex (national, SA). Titles verified
+    # against fred.stlouisfed.org/series/<id> 2026-06-19.
+    FredSpec("LNS11300002", "Labor force participation rate, women", "%"),
+    FredSpec("LNS11300001", "Labor force participation rate, men", "%"),
     FredSpec("A939RX0Q048SBEA", "US real GDP per capita (chained 2017 dollars)", "USD"),
     FredSpec("INDPRO", "US industrial production", "index (2017=100)"),
     # SP500 (S&P 500) intentionally NOT ingested: third-party
