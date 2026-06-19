@@ -1,6 +1,6 @@
 name: 'Corn production — Other States'
 shortName: 'Other States corn production'
-description: 'Corn production for Other States (in BU), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+description: 'Corn production for Other States (in BU), annual. USDA National Agricultural Statistics Service (QuickStats survey). Other States is the USDA NASS residual for states not published individually; the 48 reported separately in this dataset are AL, AR, AZ, CA, CO, CT, DE, FL, GA, IA, ID, IL, IN, KS, KY, LA, MA, MD, ME, MI, MN, MO, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VA, VT, WA, WI, WV, WY.'
 kind: timeseries
 pipeline: usda_nass
 dataFile: data/usda_nass/corn_production_ot.json

@@ -1,5 +1,10 @@
 import type { APIRoute } from "astro";
-import { buildLibraryManifest, isGeoHidden } from "../lib/build-library-manifest";
+import {
+  buildLibraryManifest,
+  buildGeoBuckets,
+  isGeoHidden,
+  stripGeoUmbrellaTags,
+} from "../lib/build-library-manifest";
 
 /**
  * Chart-library manifest consumed by the composer (/compose/), the alerts
@@ -26,14 +31,29 @@ import { buildLibraryManifest, isGeoHidden } from "../lib/build-library-manifest
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
-  const manifest = await buildLibraryManifest();
+  const [manifest, geo] = await Promise.all([
+    buildLibraryManifest(),
+    // Also runs the misc-growth guard (throws if an unplaceable geo source
+    // appears that isn't allowlisted) before this lean payload is emitted.
+    buildGeoBuckets(),
+  ]);
+  const miscIds = new Set(Object.keys(geo.misc));
 
-  // Lean partition: keep hint cards + every source that is NOT hidden behind
-  // a geo chip. tagCountsByGeo (computed over the full set) ships here so chip
-  // counts stay correct without the geo block.
+  // Lean partition: keep hint cards + every source that is NOT hidden behind a
+  // geo chip. Unplaceable geo sources (the `misc` bucket — declare a geo tag
+  // but no entity parser placed them) are ALSO emitted here, with their hiding
+  // umbrella tag stripped, so they're visible in the default list + search
+  // rather than silently unreachable. Real per-entity geo sources are the only
+  // ones excluded — they ship in their /library-geo/<kind>/<...> slice.
+  // tagCountsByGeo (computed over the full set) ships here so chip counts stay
+  // correct without the geo block.
   const sources: Record<string, unknown> = {};
   for (const [id, s] of Object.entries(manifest.sources)) {
-    if (s.kind === "hint" || !isGeoHidden(s.tags)) sources[id] = s;
+    if (s.kind === "hint" || !isGeoHidden(s.tags)) {
+      sources[id] = s;
+    } else if (miscIds.has(id)) {
+      sources[id] = { ...s, tags: stripGeoUmbrellaTags(s.tags ?? []) };
+    }
   }
 
   const body = JSON.stringify({

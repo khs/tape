@@ -302,6 +302,25 @@ def build() -> int:
         else:
             desc = (f"{c.label} {st.label} for {geo_name} (in {st.unit_out}), annual. "
                     f"USDA National Agricultural Statistics Service (QuickStats survey).")
+        # "Other States" (geo_key "ot") is NASS's residual aggregate for states
+        # it doesn't publish individually — it isn't one state, so it can't be
+        # placed under the state picker chip (it lands in the library manifest's
+        # `misc` bucket, allowlisted). Note WHICH states ARE reported separately
+        # for this crop+stat so the aggregate is interpretable + it's clear what
+        # "Other" excludes. Derived from the sibling series we just built.
+        if rec["geo_key"] == "ot":
+            prefix = f"{_slug(c.label)}_{st.key}_"
+            indiv = sorted(
+                series[k]["geo_key"].upper()
+                for k in series
+                if k.startswith(prefix) and series[k]["geo_key"] not in ("ot", "us")
+            )
+            if indiv:
+                desc += (
+                    " Other States is the USDA NASS residual for states not "
+                    f"published individually; the {len(indiv)} reported separately "
+                    f"in this dataset are " + ", ".join(indiv) + "."
+                )
         # combineHint: link price <-> production for the same crop+geo so
         # the composer can offer "price × quantity → production value" (and
         # vice-versa) as a one-click chip. Only when the partner exists with

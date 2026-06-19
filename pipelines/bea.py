@@ -215,8 +215,14 @@ def yaml_for(ind: Indicator, geoname: str, slug: str, geofips: str) -> str:
         "tags:",
         "  - macro",
         "  - us",
-        "  - us-state",
     ]
+    # The US-total row (geofips 00000) is NATIONAL data, not a state — it must
+    # NOT carry the us-state geo tag (which would hide it behind the state
+    # picker chip AND, since its id slugs the full name `united_states`,
+    # parseStateSourceId can't place it, so it'd fall into the unreachable
+    # `misc` bucket). Only the actual state rows get us-state.
+    if geofips != "00000":
+        lines.append("  - us-state")
     if ind.unit_class:
         lines.append(f"unitClass: {ind.unit_class}")
     return "\n".join(lines) + "\n"

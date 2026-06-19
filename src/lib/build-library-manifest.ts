@@ -64,13 +64,53 @@ const GEO_UMBRELLA_TAGS: ReadonlyArray<string> = [
 ];
 
 /** True if a source with these tags is hidden-by-default (belongs in the
- *  lazy-loaded /library-geo.json block rather than the lean /library.json).
+ *  lazy-loaded /library-geo block rather than the lean /library.json).
  *  Hint cards are never geo-hidden — callers keep `kind:"hint"` in lean. */
 export function isGeoHidden(tags: ReadonlyArray<string> | undefined): boolean {
   if (!tags) return false;
   for (const t of GEO_UMBRELLA_TAGS) if (tags.includes(t)) return true;
   return false;
 }
+
+/** Drop the umbrella geo tags so an UNPLACEABLE geo source (one that lands in
+ *  the residual `misc` bucket — declares a geo tag but no entity parser places
+ *  it) can be emitted into the lean manifest as a plain, visible source rather
+ *  than silently hidden-and-unreachable. Per-entity tags (metro:<cbsa>,
+ *  country-specific:<code>) are kept so e.g. a national `country-specific:USA`
+ *  series still appears under the United States chip. */
+export function stripGeoUmbrellaTags(tags: ReadonlyArray<string>): string[] {
+  const umbrellas: ReadonlyArray<string> = GEO_UMBRELLA_TAGS;
+  return tags.filter((t) => !umbrellas.includes(t));
+}
+
+/**
+ * Sources permitted to land in the residual `misc` bucket — geo-hidden (they
+ * declare us-state etc.) but no entity parser can place them under a chip.
+ * The bucket should trend to EMPTY; every entry is a KNOWN mis-tag (these are
+ * national/aggregate series wrongly carrying `us-state`) tracked for a pipeline
+ * fix. They are still surfaced — emitted into the lean manifest with their
+ * umbrella tag stripped (see stripGeoUmbrellaTags) — so nothing is invisible.
+ *
+ * The guard in computeGeoBuckets THROWS if a source lands in misc that isn't
+ * listed here: that's the "flag when misc grows" alarm. To clear it, teach
+ * parseStateSourceId / the bucketing its id pattern (preferred — then it
+ * buckets + surfaces via a chip), or add it here with a reason.
+ */
+const ALLOWED_GEO_MISC_IDS: ReadonlySet<string> = new Set([
+  // USDA NASS "Other States" aggregates: NASS's residual for states it doesn't
+  // publish individually. Not one state (can't bucket under the state chip)
+  // and not a national total — genuinely `misc`. Their description notes which
+  // states ARE reported separately (see pipelines/usda_nass.py). They're still
+  // surfaced (the lean endpoint emits them de-geo'd).
+  // (The BEA `_united_states` national series that used to sit here were
+  // re-tagged national in pipelines/bea.py — they're visible national sources
+  // now, not misc.)
+  "usda_nass/corn_production_ot",
+  "usda_nass/corn_yield_ot",
+  "usda_nass/soybeans_price_ot",
+  "usda_nass/soybeans_production_ot",
+  "usda_nass/soybeans_yield_ot",
+]);
 
 /**
  * Lightweight CBSA-code → display-name lookup, parsed from the
@@ -654,6 +694,24 @@ async function computeGeoBuckets(): Promise<GeoBuckets> {
       continue;
     }
     buckets.misc[id] = s;
+  }
+  // Flag growth: a geo-hidden source that no parser could place is unreachable
+  // via any chip. We still surface it (the lean endpoint emits misc sources
+  // de-geo'd), but a NEW one almost always means a mis-tag or an unhandled id
+  // convention — fail the build so it gets a parser rule (preferred) or an
+  // explicit ALLOWED_GEO_MISC_IDS entry rather than slipping in unnoticed.
+  const unexpected = Object.keys(buckets.misc)
+    .filter((id) => !ALLOWED_GEO_MISC_IDS.has(id))
+    .sort();
+  if (unexpected.length > 0) {
+    throw new Error(
+      `buildGeoBuckets: ${unexpected.length} geo-hidden source(s) fell into ` +
+        `the residual 'misc' bucket — they declare a geo tag (us-state etc.) ` +
+        `but no entity parser placed them, so they can't surface under a chip. ` +
+        `Teach parseStateSourceId / the bucketing their id pattern (preferred), ` +
+        `or add to ALLOWED_GEO_MISC_IDS in build-library-manifest.ts with a ` +
+        `reason:\n` + unexpected.map((id) => `  - ${id}`).join("\n"),
+    );
   }
   return buckets;
 }

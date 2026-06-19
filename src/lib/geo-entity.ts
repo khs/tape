@@ -18,7 +18,7 @@ import { parseCdSourceId, parseStateSourceId } from "./congressional-districts";
 import { parseCountrySourceId } from "./countries";
 import { parseCountySourceId, parseQcewSourceId } from "./county-sources";
 
-export type GeoEntityKind = "state" | "metro" | "country" | "county" | "misc";
+export type GeoEntityKind = "state" | "metro" | "country" | "county";
 
 export interface GeoEntity {
   kind: GeoEntityKind;

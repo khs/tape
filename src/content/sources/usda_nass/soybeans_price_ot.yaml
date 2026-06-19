@@ -1,6 +1,6 @@
 name: 'Soybeans price — Other States'
 shortName: 'Other States soybeans price'
-description: 'Soybeans price received for Other States (USD / bu, marketing-year average), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+description: 'Soybeans price received for Other States (USD / bu, marketing-year average), annual. USDA National Agricultural Statistics Service (QuickStats survey). Other States is the USDA NASS residual for states not published individually; the 31 reported separately in this dataset are AL, AR, DE, FL, GA, IA, IL, IN, KS, KY, LA, MD, MI, MN, MO, MS, NC, ND, NE, NJ, NY, OH, OK, PA, SC, SD, TN, TX, VA, WI, WV.'
 kind: timeseries
 pipeline: usda_nass
 dataFile: data/usda_nass/soybeans_price_ot.json

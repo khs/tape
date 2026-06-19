@@ -82,13 +82,13 @@ function geoState(): { inflight: Map<string, Promise<void>>; loaded: Set<string>
 }
 
 function entityKey(kind: GeoEntityKind, code: string): string {
-  return kind === "county" || kind === "misc" ? kind : `${kind}/${code}`;
+  return kind === "county" ? kind : `${kind}/${code}`;
 }
 
 function entityUrl(kind: GeoEntityKind, code: string): string {
   const b = baseUrl();
-  return kind === "county" || kind === "misc"
-    ? `${b}/library-geo/${kind}.json`
+  return kind === "county"
+    ? `${b}/library-geo/county.json`
     : `${b}/library-geo/${kind}/${encodeURIComponent(code)}.json`;
 }
 
@@ -161,6 +161,10 @@ export function ensureGeoForSourceId(
   lib: SharedLibraryPayload,
   id: string,
 ): Promise<void> {
-  const e: GeoEntity = geoEntityForSourceId(id) ?? { kind: "misc", code: "" };
+  const e = geoEntityForSourceId(id);
+  // No entity parser claims this id → it's an unplaceable geo source, which
+  // the lean manifest already carries (de-geo'd, see library.json.ts). It's
+  // therefore already in the shared object; nothing extra to fetch.
+  if (!e) return Promise.resolve();
   return ensureGeoEntity(lib, e.kind, e.code);
 }

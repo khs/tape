@@ -1,6 +1,6 @@
 name: 'Soybeans production — Other States'
 shortName: 'Other States soybeans production'
-description: 'Soybeans production for Other States (in BU), annual. USDA National Agricultural Statistics Service (QuickStats survey).'
+description: 'Soybeans production for Other States (in BU), annual. USDA National Agricultural Statistics Service (QuickStats survey). Other States is the USDA NASS residual for states not published individually; the 31 reported separately in this dataset are AL, AR, DE, FL, GA, IA, IL, IN, KS, KY, LA, MD, MI, MN, MO, MS, NC, ND, NE, NJ, NY, OH, OK, PA, SC, SD, TN, TX, VA, WI, WV.'
 kind: timeseries
 pipeline: usda_nass
 dataFile: data/usda_nass/soybeans_production_ot.json
