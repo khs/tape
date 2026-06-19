@@ -1,0 +1,25 @@
+title: "DC-area weekly wages by jurisdiction"
+sources:
+  - bls/qcew_avg_weekly_wage_dc
+  - bls/qcew_avg_weekly_wage_arlington_va
+  - bls/qcew_avg_weekly_wage_fairfax_va
+  - bls/qcew_avg_weekly_wage_montgomery_md
+  - bls/qcew_avg_weekly_wage_alexandria_va
+  - bls/qcew_avg_weekly_wage_loudoun_va
+  - bls/qcew_avg_weekly_wage_prince_georges_md
+  - bls/qcew_avg_weekly_wage_prince_william_va
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - District of Columbia
+  - Arlington County, VA
+  - Fairfax County, VA
+  - Montgomery County, MD
+  - Alexandria, VA
+  - Loudoun County, VA
+  - Prince George's County, MD
+  - Prince William County, VA
+blurb: "Average weekly wage across all covered employment by jurisdiction in the Washington DC metro area, from the BLS Quarterly Census of Employment and Wages. DC and Arlington County post the highest wages, about $2,360 a week in 2024, reflecting their concentration of federal and professional jobs; Prince William County is the lowest of these jurisdictions. Wage is total payroll divided by employment, so it moves with both pay rates and job mix."
+tags: [labor, us]

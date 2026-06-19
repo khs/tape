@@ -1,0 +1,22 @@
+name: Fairfax County, VA — average weekly wage
+shortName: Fairfax, VA avg weekly wage
+description: Average weekly wage across all covered employment in Fairfax County, VA, total annual wages divided by average employment. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual, 2014 to 2024.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/qcew_avg_weekly_wage_fairfax_va.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "USD"
+emphasis: level
+formatting:
+  style: currency
+  currency: USD
+  decimals: 0
+provenance:
+  provider: BLS (QCEW)
+  series: 51059 own=0 NAICS 10 (all industries), annual avg
+  url: https://www.bls.gov/cew/
+  license: Public domain (US government data)
+unitClass: currency
+tags:
+  - labor
+  - us

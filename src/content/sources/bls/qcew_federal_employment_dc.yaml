@@ -1,0 +1,22 @@
+name: District of Columbia — federal government employment
+shortName: DC federal jobs
+description: Federal government employment covered by unemployment insurance in District of Columbia, all agencies and industries. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual averages, 2014 to 2024.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/qcew_federal_employment_dc.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "jobs"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+provenance:
+  provider: BLS (QCEW)
+  series: 11001 own=1 NAICS 10 (all industries), annual avg
+  url: https://www.bls.gov/cew/
+  license: Public domain (US government data)
+unitClass: count
+tags:
+  - labor
+  - government
+  - us

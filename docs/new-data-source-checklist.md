@@ -158,6 +158,17 @@ emitted it is correct):
   FIPS from a fixed table and constructs the YAML name from that.
   The labels are correct by construction. Audit risk = bug in
   `bls.py`'s FIPS → name mapping.
+- **`bls` — QCEW subset** (`qcew_*` series) — `pipelines/bls_qcew.py`
+  writes the DC-metro covered-employment / average-weekly-wage /
+  federal-employment series into the same `bls/` dir from a fixed
+  area-FIPS → name table (9 jurisdictions + the Washington MSA), reading
+  the QCEW Open Data Access CSV slices (key-free, quota-free, separate
+  from the registered BLS Public Data API). Labels correct by
+  construction; audit risk = a wrong area-FIPS → name pairing or an
+  own_code / CSV-field mismap. Values are sanity-checked against the live
+  BLS figures at build time (DC 2024 = 759,572 covered jobs, $2,365/wk).
+  The api/ endpoint covers 2014+; manual bump-and-rerun when BLS posts a
+  new annual year (like `cms_nhe`, not a weekly refresh).
 - **`acs_cd`, `acs_metro`, `acs_state`, `acs_national`** (~18k
   YAMLs) — `_generate_acs_sources.py` etc. write the YAMLs from
   the data files; the data files come from `census_acs_*.py`'s

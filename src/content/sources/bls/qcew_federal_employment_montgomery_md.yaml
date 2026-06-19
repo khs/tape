@@ -1,0 +1,22 @@
+name: Montgomery County, MD — federal government employment
+shortName: Montgomery, MD federal jobs
+description: Federal government employment covered by unemployment insurance in Montgomery County, MD, all agencies and industries. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual averages, 2014 to 2024.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/qcew_federal_employment_montgomery_md.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "jobs"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+provenance:
+  provider: BLS (QCEW)
+  series: 24031 own=1 NAICS 10 (all industries), annual avg
+  url: https://www.bls.gov/cew/
+  license: Public domain (US government data)
+unitClass: count
+tags:
+  - labor
+  - government
+  - us

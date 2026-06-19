@@ -1,0 +1,13 @@
+title: "DC jobs: total vs federal government"
+sources:
+  - bls/qcew_employment_dc
+  - bls/qcew_federal_employment_dc
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - All covered jobs
+  - Federal government
+blurb: "Total covered employment in the District of Columbia against the slice that is direct federal-government employment, from the BLS Quarterly Census of Employment and Wages. Federal agencies account for roughly a quarter of DC's covered jobs, about 193,000 of 760,000 in 2024; the private sector and local government are the rest. Federal employment by jurisdiction across the metro is available in the composer (Arlington and Montgomery counties carry the next-largest federal shares)."
+tags: [labor, government, us]

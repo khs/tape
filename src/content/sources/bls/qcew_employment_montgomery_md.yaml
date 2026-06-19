@@ -1,0 +1,21 @@
+name: Montgomery County, MD — covered employment
+shortName: Montgomery, MD covered jobs
+description: Average annual employment covered by unemployment insurance in Montgomery County, MD, across all industries and ownership sectors. From the BLS Quarterly Census of Employment and Wages (QCEW), which counts about 95 percent of US jobs. Annual averages, 2014 to 2024.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/qcew_employment_montgomery_md.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "jobs"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+provenance:
+  provider: BLS (QCEW)
+  series: 24031 own=0 NAICS 10 (all industries), annual avg
+  url: https://www.bls.gov/cew/
+  license: Public domain (US government data)
+unitClass: count
+tags:
+  - labor
+  - us

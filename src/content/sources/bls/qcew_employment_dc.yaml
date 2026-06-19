@@ -1,0 +1,21 @@
+name: District of Columbia — covered employment
+shortName: DC covered jobs
+description: Average annual employment covered by unemployment insurance in District of Columbia, across all industries and ownership sectors. From the BLS Quarterly Census of Employment and Wages (QCEW), which counts about 95 percent of US jobs. Annual averages, 2014 to 2024.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/qcew_employment_dc.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "jobs"
+emphasis: level
+formatting:
+  style: number
+  decimals: 0
+provenance:
+  provider: BLS (QCEW)
+  series: 11001 own=0 NAICS 10 (all industries), annual avg
+  url: https://www.bls.gov/cew/
+  license: Public domain (US government data)
+unitClass: count
+tags:
+  - labor
+  - us

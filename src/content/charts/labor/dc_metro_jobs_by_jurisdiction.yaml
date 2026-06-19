@@ -1,0 +1,25 @@
+title: "DC-area jobs by jurisdiction"
+sources:
+  - bls/qcew_employment_dc
+  - bls/qcew_employment_fairfax_va
+  - bls/qcew_employment_montgomery_md
+  - bls/qcew_employment_prince_georges_md
+  - bls/qcew_employment_loudoun_va
+  - bls/qcew_employment_arlington_va
+  - bls/qcew_employment_prince_william_va
+  - bls/qcew_employment_alexandria_va
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - District of Columbia
+  - Fairfax County, VA
+  - Montgomery County, MD
+  - Prince George's County, MD
+  - Loudoun County, VA
+  - Arlington County, VA
+  - Prince William County, VA
+  - Alexandria, VA
+blurb: "Covered employment (jobs covered by unemployment insurance, about 95 percent of the total) by jurisdiction across the Washington DC metro area, from the BLS Quarterly Census of Employment and Wages. DC has the largest single-jurisdiction job base, about 760,000, followed by Fairfax County at about 636,000. The full metro and other jurisdictions are available in the composer."
+tags: [labor, us, government]
