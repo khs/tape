@@ -11,6 +11,13 @@
 // Runs against dist/client/library.json (built artifact) — closest
 // possible match to what users actually load.
 //
+// NOTE: since the lean/geo split (src/lib/build-library-manifest.ts),
+// dist/client/library.json is the LEAN slice (~visible-by-default sources
+// only); the ~28.9k hidden geo sources live in per-entity files under
+// dist/client/library-geo/. So this now measures the lean-walk cost, not the
+// full post-geo-load set. To benchmark the worst case, merge the geo slices
+// into the source map first (or point LIB_PATH at a concatenation).
+//
 // Usage:  node scripts/bench-tag-counts.mjs
 import { readFileSync } from "node:fs";
 import { performance } from "node:perf_hooks";

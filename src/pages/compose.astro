@@ -1076,6 +1076,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     type LibrarySource,
     type LibraryPayload,
   } from "../lib/composer/library";
+  import { ensureGeoForSourceId } from "../lib/library-loader";
   import {
     INLINE_PREFIX,
     isDerivedId,
@@ -1395,7 +1396,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   // section. This is the new dominant path for "I want to track X" \u2014
   // separate from addChart() (pregenerated multi-source compositions)
   // and from the derived-source modal (computed ratios / sums / diffs).
-  async function addSourceAsChart(sourceId: string): Promise<void> {
+  async function addSourceAsChart(
+    sourceId: string,
+    // The SourcePicker emits the resolved source object alongside the id. For
+    // a geo source it has already loaded the geo block, so this hint carries
+    // the name + defaultAnnotations even in the (normally impossible) case
+    // where the composer's shared `library.sources` hasn't picked them up yet.
+    sourceMetaHint?: LibrarySource & { name?: string },
+  ): Promise<void> {
     clampActiveSection();
     const target = state.sections[store.activeSectionIdx];
     if (!target) return;
@@ -1404,7 +1412,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       showSigninPrompt("add_source_as_chart");
       return;
     }
-    const sourceMeta = library?.sources[sourceId] as
+    const sourceMeta = (library?.sources[sourceId] ?? sourceMetaHint) as
       | (LibrarySource & { name?: string })
       | undefined;
     const chartId = INLINE_PREFIX + nanoid(8);
@@ -2736,8 +2744,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       "[data-spicker-instance='lib']",
     );
     libPicker?.addEventListener("source-picker:pick", (e) => {
-      const id = (e as CustomEvent).detail?.sourceId as string | undefined;
-      if (id) void addSourceAsChart(id);
+      const detail = (e as CustomEvent).detail as
+        | { sourceId?: string; source?: LibrarySource & { name?: string } }
+        | undefined;
+      const id = detail?.sourceId;
+      if (id) void addSourceAsChart(id, detail?.source);
     });
     libPicker?.addEventListener("source-picker:hint", (e) => {
       const chip = (e as CustomEvent).detail?.chip as string | undefined;
@@ -3379,6 +3390,23 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       // kick here — its SourcePicker island fetches + renders itself.
       renderTagFiltersCharts();
       renderComposition();
+      // A composition opened from the URL (edit / fork flow) can reference
+      // geo sources (CD / state / metro / county / country) that live in the
+      // lazy per-entity /library-geo/* slices, not the lean manifest. For each
+      // referenced source missing from lean, pull JUST its entity slice into
+      // the shared object so coverage warnings, title-default detection, and
+      // tile metadata resolve correctly, then re-render. No-op for the common
+      // case (every referenced source is already in the lean manifest).
+      const referenced = new Set<string>();
+      for (const c of Object.values(state.inlineCharts)) {
+        for (const sid of c.sources ?? []) referenced.add(sid);
+      }
+      const missing = [...referenced].filter((sid) => !lib.sources?.[sid]);
+      if (missing.length > 0) {
+        void Promise.all(
+          missing.map((sid) => ensureGeoForSourceId(lib, sid)),
+        ).then(() => renderComposition());
+      }
     })
     .catch((e) => {
       // The lib SourcePicker has its own load/error handling for the

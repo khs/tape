@@ -415,6 +415,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     import { sourceIdToPath } from "../lib/source-path";
     import { formatValue, type Formatting } from "../lib/format";
     import {
+      getSharedLibrary,
+      ensureGeoForSourceId,
+    } from "../lib/library-loader";
+    import {
       composeDefaultLabel,
       type AlertCondition,
     } from "../lib/alerts-label";
@@ -828,6 +832,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const params = new URLSearchParams(window.location.search);
       const presetSource = params.get("source");
       if (presetSource) {
+        // A deep-link can target a geo source (e.g. a CD series' "Watch for
+        // alerts" link); pull the geo block so the label resolves to a real
+        // name rather than the raw id.
+        await ensureSourceLoaded(presetSource);
         const label =
           allSources.find((s) => s.id === presetSource)?.name ?? presetSource;
         setSelectedSource(presetSource, label);
@@ -842,17 +850,44 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // parallel (picker + this) — both hit the browser cache for the
     // 2nd, so cost is negligible.
     let allSources: LibrarySource[] = [];
+    // The shared library object (lean manifest + any merged geo block). Held
+    // so allSources can be rebuilt after the lazy geo block lands.
+    let sharedLib: { sources?: Record<string, LibrarySource> } | null = null;
+
+    function rebuildAllSources(): void {
+      const map = sharedLib?.sources ?? {};
+      allSources = Object.entries(map).map(([id, s]) => ({ ...s, id }));
+    }
 
     async function loadSourceCatalog(): Promise<void> {
       try {
-        const r = await fetch(`${(import.meta.env.BASE_URL || "/").replace(/\/$/, "")}/library.json`);
-        if (!r.ok) return;
-        const blob = (await r.json()) as { sources?: Record<string, LibrarySource> };
-        const map = blob.sources ?? {};
-        allSources = Object.entries(map).map(([id, s]) => ({ ...s, id }));
+        // Shared lean manifest — same window-cached object the SourcePicker
+        // island on this page uses, so a geo-block load it triggers is
+        // visible here too (rebuildAllSources picks it up).
+        sharedLib = await getSharedLibrary<{ sources?: Record<string, LibrarySource> }>();
+        rebuildAllSources();
       } catch (e) {
         console.warn("alerts: source catalog fetch failed:", e);
       }
+    }
+
+    /** Ensure a source id is resolvable in allSources, pulling the lazy geo
+     *  block if it's missing — e.g. an existing alert or a deep-link targeting
+     *  a CD / state / metro / county / country source that lives in
+     *  /library-geo.json, not the lean manifest. Returns true once present. */
+    async function ensureSourceLoaded(id: string): Promise<boolean> {
+      if (!id || id === "derived:adhoc") return false;
+      if (allSources.some((s) => s.id === id)) return true;
+      if (sharedLib) {
+        // Pull just this id's per-entity geo slice. Always rebuild the
+        // snapshot afterward (not gated on a global "geo loaded" flag): the
+        // SourcePicker on this page may have already merged other entities
+        // into the shared object, and rebuildAllSources must pick those up
+        // too so the snapshot stays in sync with the shared library.
+        await ensureGeoForSourceId(sharedLib, id);
+        rebuildAllSources();
+      }
+      return allSources.some((s) => s.id === id);
     }
 
     /**
@@ -976,6 +1011,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         currentValueWrap.hidden = true;
         return;
       }
+      // Pull the lazy geo block if this id isn't in the lean catalog (an
+      // alert / deep-link on a geo source). Resolves immediately for the
+      // common case (lean source already present).
+      await ensureSourceLoaded(id);
       const src = allSources.find((s) => s.id === id);
       if (!src || !src.dataFile) {
         // Either the source catalog hasn't loaded yet or the typed string

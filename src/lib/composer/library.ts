@@ -11,6 +11,7 @@
  */
 import type { DeltaWindow } from "../deltas";
 import type { Annotation } from "../annotations";
+import { getSharedLibrary } from "../library-loader";
 
 export type LibraryChart = {
   id: string;
@@ -66,8 +67,12 @@ export type LibraryPayload = {
   countryTag?: string;
 };
 
-export async function loadLibrary(baseUrl: string): Promise<LibraryPayload> {
-  const r = await fetch(`${baseUrl}/library.json`);
-  if (!r.ok) throw new Error(`Library fetch failed: ${r.status}`);
-  return r.json();
+// `_baseUrl` is retained for call-site compatibility (compose.astro passes it
+// positionally) but ignored: getSharedLibrary derives the base from
+// import.meta.env.BASE_URL and, crucially, returns the SAME window-cached
+// object the SourcePicker islands use. That shared reference is what lets a
+// geo-block load triggered inside a picker (ensureGeoSources) become visible
+// to the composer's `library.sources` without the composer fetching anything.
+export async function loadLibrary(_baseUrl?: string): Promise<LibraryPayload> {
+  return getSharedLibrary<LibraryPayload>();
 }

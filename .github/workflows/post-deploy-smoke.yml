@@ -135,3 +135,22 @@ jobs:
             exit 1
           fi
           echo "/library.json: ok"
+
+      - name: Geo manifest slices are reachable
+        # The hidden-by-default geo sources (~96% of the catalog) ship in
+        # lazy per-entity slices under /library-geo/. The client merges them
+        # via fetch that only console.warns on failure, so a propagation gap
+        # would leave geo discovery silently broken with every other check
+        # green. Probe a stable singleton + a representative per-state slice.
+        run: |
+          URL="${{ steps.url.outputs.url }}"
+          for path in "/library-geo/county.json" "/library-geo/state/ca.json"; do
+            json=$(curl -sS --fail --max-time 30 "$URL$path")
+            sources=$(printf "%s" "$json" | grep -oE '"sources":\{' | head -1)
+            if [ -z "$sources" ]; then
+              echo "::error::$path missing sources object — got first 200 chars:"
+              printf "%s" "$json" | head -c 200
+              exit 1
+            fi
+            echo "$path: ok"
+          done

@@ -27,9 +27,11 @@
  * scoped per-instance — selecting a tag chip in one mount doesn't
  * affect the other.
  *
- * The component fetches /library.json on first mount and caches it
- * on `window.__tapeSourcePickerLib` so 2nd+ mounts on the same page
- * hit memory.
+ * The component fetches the lean /library.json on first mount via the
+ * shared window cache in src/lib/library-loader.ts, so 2nd+ mounts (and the
+ * composer page + alerts) all share one object. The heavy geo source block
+ * (/library-geo.json) is lazy-loaded into that same object only when a geo
+ * chip is engaged or a >=4-char query unlocks geo sources.
  *
  * Click events bubble up as a CustomEvent named `source-picker:pick`
  * with `detail: { sourceId, source }`. Hosts listen via:
@@ -227,6 +229,12 @@ const extraSourcesJson = extraSources.length > 0
   } from "../lib/source-filters";
   import { isMobileViewport } from "../lib/viewport";
   import { track } from "../lib/track";
+  import {
+    getSharedLibrary,
+    ensureGeoEntities,
+    allGeoEntitiesLoaded,
+  } from "../lib/library-loader";
+  import type { GeoEntity } from "../lib/geo-entity";
 
   /**
    * Source-side shape returned by /library.json. Mirrors the inline
@@ -320,27 +328,57 @@ const extraSourcesJson = extraSources.length > 0
    *  Long enough to fire once per settled query, never per keystroke. */
   const SEARCH_LOG_IDLE_MS = 500;
 
-  // Module-level library cache. The first mount fetches; later mounts
-  // (cc-modal opens after main page renders) share. Stashed on window
-  // so a soft hydration doesn't double-fetch.
-  type WindowWithCache = Window & {
-    __tapeSourcePickerLib?: Promise<LibraryPayload>;
-  };
+  // The lean library manifest, fetched once and shared across every
+  // consumer (composer page, all SourcePicker islands, alerts) via the
+  // window cache in src/lib/library-loader.ts. The heavy geo source block
+  // ships separately (/library-geo.json) and is merged into the SAME shared
+  // object on demand by ensureGeoSources — see loadGeoIfNeeded below.
   async function loadLibrary(): Promise<LibraryPayload> {
-    const w = window as WindowWithCache;
-    if (w.__tapeSourcePickerLib) return w.__tapeSourcePickerLib;
-    const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
-    w.__tapeSourcePickerLib = (async () => {
-      try {
-        const r = await fetch(`${base}/library.json`);
-        if (!r.ok) throw new Error(`library.json status=${r.status}`);
-        return (await r.json()) as LibraryPayload;
-      } catch (e) {
-        console.warn("[source-picker] library.json load failed:", e);
-        return { sources: {} };
-      }
-    })();
-    return w.__tapeSourcePickerLib;
+    try {
+      return await getSharedLibrary<LibraryPayload>();
+    } catch (e) {
+      // Degrade gracefully: an empty source map renders "no sources" rather
+      // than leaving the picker stuck on "Loading…". The composer surfaces
+      // its own load-failure notice separately.
+      console.warn("[source-picker] library.json load failed:", e);
+      return { sources: {} };
+    }
+  }
+
+  /** Which lazy-loaded geo entity slices does the current filter/search state
+   *  need? Geo sources are hidden until a geo chip selects a specific entity
+   *  (one metro / state / country) OR a >=4-char query matches entity names.
+   *  We load ONLY those entities — a metro pick fetches ~20 KB, not the whole
+   *  37 MB block. The common case (no chip, short/empty query) returns [] and
+   *  triggers no fetch. county has no chip, so it rides the query path (it's a
+   *  tiny ~45 KB singleton surfaced by name match). The `misc` slice is NOT
+   *  loaded here: it holds only us-state-tagged sources whose ids don't parse
+   *  to a state (e.g. bea/gdp_alabama), which passesCdFilter rejects in every
+   *  branch — they can't render in the picker, so fetching the 2 MB slice on
+   *  search would be pure waste. misc loads solely via ensureGeoForSourceId
+   *  when a saved composition / alert references one of those ids. */
+  function geoEntitiesNeeded(
+    state: InstanceState,
+    lib: LibraryPayload,
+  ): GeoEntity[] {
+    const out: GeoEntity[] = [];
+    if (state.selectedMetroCbsa)
+      out.push({ kind: "metro", code: state.selectedMetroCbsa });
+    if (state.selectedCountryCode)
+      out.push({ kind: "country", code: state.selectedCountryCode });
+    if (state.cdState) out.push({ kind: "state", code: state.cdState });
+    const q = state.searchQuery.trim();
+    if (q.length >= UNLOCK_QUERY_MIN_CHARS) {
+      const metros = unlockedMetrosForQuery(q, lib);
+      if (metros) for (const c of metros) out.push({ kind: "metro", code: c });
+      const countries = unlockedCountriesForQuery(q, lib);
+      if (countries)
+        for (const c of countries) out.push({ kind: "country", code: c });
+      const states = unlockedStatesForQuery(q);
+      if (states) for (const c of states) out.push({ kind: "state", code: c });
+      out.push({ kind: "county", code: "" });
+    }
+    return out;
   }
 
   /**
@@ -384,12 +422,8 @@ const extraSourcesJson = extraSources.length > 0
   // pre-computed unlocks parameter to the lib functions and have
   // filteredSources hoist the computation outside the per-source
   // loop. Today the ~5ms cost is below the perceptible threshold.
-  //
-  // Suppress unused-import warnings for the unlocked* helpers —
-  // they're only directly used if we add the hoisting optimization.
-  void unlockedStatesForQuery;
-  void unlockedMetrosForQuery;
-  void unlockedCountriesForQuery;
+  // (The unlocked* helpers are also used directly by geoEntitiesNeeded
+  // above to decide which per-entity geo slices a query must load.)
 
   /** Apply current filter state to the library. Returns a sorted list
    *  ready to render — extraSources first, then hint cards, then
@@ -699,9 +733,42 @@ const extraSourcesJson = extraSources.length > 0
       });
   }
 
+  /** Render tag chips + results, lazy-loading the geo source block first when
+   *  the active filter/search needs it. The common lean browse (no geo chip,
+   *  short/empty query) renders synchronously with zero extra fetch — the geo
+   *  block (~37 MB) is only worth fetching once a chip or a >=4-char query
+   *  actually surfaces those sources. When geo IS needed but not yet loaded,
+   *  show a transient "loading more" state, fetch + merge the block (into the
+   *  shared object, so every consumer benefits), then re-render for real,
+   *  including the CD district list which is derived from the geo sources. */
+  function renderFiltered(state: InstanceState, lib: LibraryPayload): void {
+    const needed = geoEntitiesNeeded(state, lib);
+    if (needed.length > 0 && !allGeoEntitiesLoaded(needed)) {
+      renderTagChips(state, lib);
+      const host = state.root.querySelector<HTMLElement>(
+        "[data-spicker-role='results']",
+      );
+      if (host)
+        host.innerHTML = `<p class="muted small">Loading more sources…</p>`;
+      void ensureGeoEntities(lib, needed).then(() => {
+        // State may have changed while the slices were in flight; the
+        // re-render reflects whatever's current. renderCdChip is re-run so a
+        // just-picked state's district dropdown (derived from that state's
+        // CD sources) fills in now that they're present.
+        renderTagChips(state, lib);
+        renderResults(state, lib);
+        renderCdChip(state, lib);
+      });
+      return;
+    }
+    renderTagChips(state, lib);
+    renderResults(state, lib);
+  }
+
   /** Geo state changed (chip picked/cleared, CD district changed,
    *  hint card activated a chip). Re-render BOTH the tag chips
-   *  (counts depend on the active geo bucket) AND the results.
+   *  (counts depend on the active geo bucket) AND the results,
+   *  loading the geo source block first if the new state needs it.
    *  Centralized so every geo-state mutation funnels through one
    *  helper rather than each site remembering to update both.
    *
@@ -714,8 +781,7 @@ const extraSourcesJson = extraSources.length > 0
     state: InstanceState,
     lib: LibraryPayload,
   ): void {
-    renderTagChips(state, lib);
-    renderResults(state, lib);
+    renderFiltered(state, lib);
   }
 
   /** Mobile-aware render scheduler for search-input keystrokes.
@@ -752,15 +818,13 @@ const extraSourcesJson = extraSources.length > 0
     }
     if (!isMobileViewport()) {
       // Desktop: synchronous, no debounce.
-      renderTagChips(state, lib);
-      renderResults(state, lib);
+      renderFiltered(state, lib);
       return;
     }
     // Mobile: queue a single delayed render.
     state.pendingScheduleId = window.setTimeout(() => {
       state.pendingScheduleId = null;
-      renderTagChips(state, lib);
-      renderResults(state, lib);
+      renderFiltered(state, lib);
     }, MOBILE_RENDER_DEBOUNCE_MS);
   }
 
@@ -792,6 +856,12 @@ const extraSourcesJson = extraSources.length > 0
       state.searchLogId = null;
       const q = state.searchQuery.trim().toLowerCase();
       if (q.length < 2) return; // skip empty + single-char noise
+      // Geo entity slices not all loaded yet for this query → the result set
+      // is still incomplete, so a "zero results" reading would be a false
+      // demand signal. Skip this settle; the fetch kicked off by the render
+      // path will land and a later interaction can log accurately.
+      const neededGeo = geoEntitiesNeeded(state, lib);
+      if (neededGeo.length > 0 && !allGeoEntitiesLoaded(neededGeo)) return;
       // Reuse filteredSources so "zero" matches exactly what the user saw;
       // exclude hint/extra cards (discoverability bridges + host-provided),
       // the same exclusion topicalTagCounts uses for "real" sources.
@@ -1122,13 +1192,16 @@ const extraSourcesJson = extraSources.length > 0
 
     // Host-driven updates: markedIds + extraSources via CustomEvent
     // on the picker root. Either updates the relevant state field
-    // and triggers a re-render of just the results.
+    // and triggers a re-render. Routes through renderFiltered (not bare
+    // renderResults) so an update arriving while a geo entity is engaged
+    // but its slice is still in flight keeps the geo sources rather than
+    // momentarily collapsing to the lean-only set.
     root.addEventListener("source-picker:set-marked-ids", ((
       e: Event,
     ) => {
       const detail = (e as CustomEvent).detail as { ids?: string[] };
       state.markedIds = new Set(detail?.ids ?? []);
-      loadLibrary().then((lib) => renderResults(state, lib));
+      loadLibrary().then((lib) => renderFiltered(state, lib));
     }) as EventListener);
 
     root.addEventListener("source-picker:set-extra-sources", ((
@@ -1138,7 +1211,7 @@ const extraSourcesJson = extraSources.length > 0
         sources?: LibrarySource[];
       };
       state.extraSources = detail?.sources ?? [];
-      loadLibrary().then((lib) => renderResults(state, lib));
+      loadLibrary().then((lib) => renderFiltered(state, lib));
     }) as EventListener);
 
     root.addEventListener("source-picker:set-disabled-ids", ((
@@ -1146,7 +1219,7 @@ const extraSourcesJson = extraSources.length > 0
     ) => {
       const detail = (e as CustomEvent).detail as { ids?: string[] };
       state.disabledIds = new Set(detail?.ids ?? []);
-      loadLibrary().then((lib) => renderResults(state, lib));
+      loadLibrary().then((lib) => renderFiltered(state, lib));
     }) as EventListener);
 
     // Wire search input. Goes through the mobile-aware scheduler:
@@ -1162,6 +1235,9 @@ const extraSourcesJson = extraSources.length > 0
       state.searchQuery = searchInput.value;
       state.hasInteracted = true;
       loadLibrary().then((lib) => {
+        // scheduleRender → renderFiltered handles loading the specific geo
+        // entity slices a >=4-char query unlocks (per-entity, so typically a
+        // few tiny files), so no whole-block prefetch is needed here.
         scheduleRender(state, lib);
         scheduleSearchLog(state, lib);
       });
