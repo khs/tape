@@ -1,0 +1,15 @@
+title: "Employment Cost Index: compensation, wages, and benefits"
+sources:
+  - bls/eci_total_comp_civilian
+  - bls/eci_wages_civilian
+  - bls/eci_benefits_civilian
+render: line
+defaultDelta: 30y
+normalize: raw
+emphasis: change
+seriesLabels:
+  - Total compensation
+  - Wages and salaries
+  - Benefits
+blurb: "The Employment Cost Index tracks what employers pay per hour worked, holding the mix of jobs fixed so it is not skewed by shifts between high- and low-wage work. Splitting civilian compensation into wages-and-salaries versus benefits (health insurance, retirement, paid leave) shows benefit costs rising faster than wages over most of this period. Quarterly, seasonally adjusted, index Dec 2005 = 100. Apply the year-over-year transform to read it as the wage-growth rate the Fed watches."
+tags: [labor, macro, us]

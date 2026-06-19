@@ -1,10 +1,10 @@
 name: "Prince George's County, MD — covered employment"
 shortName: "Prince George's, MD covered jobs"
-description: "Average annual employment covered by unemployment insurance in Prince George's County, MD, across all industries and ownership sectors. From the BLS Quarterly Census of Employment and Wages (QCEW), which counts about 95 percent of US jobs. Annual averages, 2014 to 2024."
+description: "Average annual employment covered by unemployment insurance in Prince George's County, MD, across all industries and ownership sectors. From the BLS Quarterly Census of Employment and Wages (QCEW), which counts about 95 percent of US jobs. Annual averages, 2001 to 2024."
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/qcew_employment_prince_georges_md.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: "jobs"
 emphasis: level
 formatting:

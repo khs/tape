@@ -1,10 +1,10 @@
 name: Prince William County, VA — federal government employment
 shortName: Prince William, VA federal jobs
-description: Federal government employment covered by unemployment insurance in Prince William County, VA, all agencies and industries. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual averages, 2014 to 2024.
+description: Federal government employment covered by unemployment insurance in Prince William County, VA, all agencies and industries. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual averages, 2001 to 2024.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/qcew_federal_employment_prince_william_va.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: "jobs"
 emphasis: level
 formatting:

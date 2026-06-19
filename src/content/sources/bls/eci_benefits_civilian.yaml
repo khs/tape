@@ -1,0 +1,26 @@
+name: Employment Cost Index — civilian benefits
+shortName: ECI civilian benefits
+description: Employment Cost Index for the benefits portion of civilian workers'
+  compensation (health insurance, retirement, paid leave, and the like). A
+  fixed-weight index of benefit cost per hour worked, so it is not skewed by
+  shifts in the mix of jobs. Quarterly, seasonally adjusted. From the BLS
+  National Compensation Survey.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/eci_benefits_civilian.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: index Dec 2005=100
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: CIS1030000000000I
+  url: https://data.bls.gov/timeseries/CIS1030000000000I
+  license: Public domain (US government data)
+unitClass: index
+tags:
+  - labor
+  - macro
+  - us

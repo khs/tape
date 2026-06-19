@@ -1,10 +1,10 @@
 name: District of Columbia — average weekly wage
 shortName: DC avg weekly wage
-description: Average weekly wage across all covered employment in District of Columbia, total annual wages divided by average employment. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual, 2014 to 2024.
+description: Average weekly wage across all covered employment in District of Columbia, total annual wages divided by average employment. From the BLS Quarterly Census of Employment and Wages (QCEW). Annual, 2001 to 2024.
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/qcew_avg_weekly_wage_dc.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas: ["1y", "5y", "10y", "30y"]
 unit: "USD"
 emphasis: level
 formatting:

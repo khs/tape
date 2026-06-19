@@ -1,0 +1,15 @@
+title: "Employment Cost Index by sector"
+sources:
+  - bls/eci_total_comp_civilian
+  - bls/eci_total_comp_private
+  - bls/eci_total_comp_govt
+render: line
+defaultDelta: 30y
+normalize: raw
+emphasis: change
+seriesLabels:
+  - All civilian
+  - Private industry
+  - State and local government
+blurb: "Total-compensation cost growth across the three ownership groups the Employment Cost Index covers: all civilian workers (the headline), private industry, and state and local government. Federal workers are outside the ECI. State and local government compensation has tended to rise a little faster than private over this span. Quarterly, seasonally adjusted, index Dec 2005 = 100."
+tags: [labor, macro, us]

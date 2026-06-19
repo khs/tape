@@ -278,6 +278,47 @@ SERIES: list[BlsSpec] = [
         label="JOLTS: hires rate (total nonfarm)",
         unit="% of employment",
     ),
+    # ---- Employment Cost Index (ECI) ----
+    # Quarterly index of labor costs (compensation per hour worked), holding
+    # the job mix fixed so it isn't skewed by shifts between high/low-wage
+    # work — the Fed's preferred wage-pressure gauge. Seasonally adjusted
+    # "current dollar index", base Dec 2005 = 100 (CIS prefix = compensation,
+    # seasonally adjusted; trailing I = index). Series IDs verified against the
+    # BLS catalog (series_title) on 2026-06-19. Civilian = private + state/local
+    # gov; we carry the civilian comp/wages/benefits split + the private and
+    # government sector cuts.
+    BlsSpec(
+        series_id="CIS1010000000000I",
+        out_id="eci_total_comp_civilian",
+        label="ECI: total compensation (all civilian workers)",
+        unit="index Dec 2005=100",
+        notes="Headline Employment Cost Index; the Fed's preferred "
+        "wage-pressure gauge.",
+    ),
+    BlsSpec(
+        series_id="CIS1020000000000I",
+        out_id="eci_wages_civilian",
+        label="ECI: wages and salaries (all civilian workers)",
+        unit="index Dec 2005=100",
+    ),
+    BlsSpec(
+        series_id="CIS1030000000000I",
+        out_id="eci_benefits_civilian",
+        label="ECI: benefits (all civilian workers)",
+        unit="index Dec 2005=100",
+    ),
+    BlsSpec(
+        series_id="CIS2010000000000I",
+        out_id="eci_total_comp_private",
+        label="ECI: total compensation (private industry)",
+        unit="index Dec 2005=100",
+    ),
+    BlsSpec(
+        series_id="CIS3010000000000I",
+        out_id="eci_total_comp_govt",
+        label="ECI: total compensation (state & local government)",
+        unit="index Dec 2005=100",
+    ),
     # ---- Metro CPI ----
     # Replacement for the discontinued FRED Washington-Baltimore CMSA
     # series (CUUSA311SA0, dead since 2017). BLS redefined the area as

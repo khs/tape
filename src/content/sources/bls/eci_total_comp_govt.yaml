@@ -1,0 +1,26 @@
+name: Employment Cost Index — state and local government compensation
+shortName: ECI government comp
+description: Employment Cost Index for total compensation (wages plus benefits) of
+  state and local government workers. A fixed-weight index of labor cost per hour
+  worked, so it is not skewed by shifts in the mix of jobs. (Federal workers are
+  excluded from the ECI.) Quarterly, seasonally adjusted. From the BLS National
+  Compensation Survey.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/eci_total_comp_govt.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: index Dec 2005=100
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: CIS3010000000000I
+  url: https://data.bls.gov/timeseries/CIS3010000000000I
+  license: Public domain (US government data)
+unitClass: index
+tags:
+  - labor
+  - macro
+  - us

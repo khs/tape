@@ -46,6 +46,7 @@ import io
 import sys
 import time
 import urllib.request
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -56,12 +57,23 @@ SOURCES_DIR = REPO_ROOT / "src" / "content" / "sources" / "bls"
 DATA_DIR = REPO_ROOT / "public" / "data" / "bls"
 
 QCEW_URL = "https://data.bls.gov/cew/data/api/{year}/a/area/{area}.csv"
-# The Open Data Access "api" CSV slices cover 2014-present only — pre-2014
-# returns HTTP 404 (verified). That older history lives in the bulk per-year
-# "singlefile" annual zips at bls.gov/cew/downloadable-data-files.htm, a
-# heavier ingest left as a future extension. Bump the upper bound as BLS
-# posts each new annual year (~September of the following year).
-YEARS = list(range(2014, 2025))  # 2014..2024 inclusive
+# Pre-2014 history: the Open Data Access "api" CSV slices cover 2014-present
+# only (pre-2014 returns HTTP 404). Older years live in the bulk per-year
+# "singlefile" annual zips. We backfill those to 2001 — the first NAICS year,
+# so the (own_code, industry_code 10, size_code 0) selection is identical to
+# the 2014+ data. 1990-2000 is SIC-based with a different industry hierarchy
+# (no NAICS "10" total), so it's deliberately out of scope.
+SINGLEFILE_URL = (
+    "https://data.bls.gov/cew/data/files/{year}/csv/{year}_annual_singlefile.zip"
+)
+BULK_START = 2001  # first NAICS singlefile year
+# Bump the upper bound as BLS posts each new annual year (~September of the
+# following year).
+YEARS = list(range(BULK_START, 2025))  # 2001..2024 inclusive
+BULK_YEARS = frozenset(range(BULK_START, 2014))  # 2001..2013 via singlefile zips
+# Immutable historical zips — cache under the shared gitignored pipeline cache
+# so manual re-runs don't re-download ~750 MB.
+CACHE_DIR = REPO_ROOT / "pipelines" / "_cache" / "qcew"
 
 
 @dataclass(frozen=True)
@@ -124,6 +136,60 @@ def fetch_area_year(area: str, year: int) -> list[dict[str, str]] | None:
         print(f"  {area} {year}: fetch miss ({type(e).__name__})", file=sys.stderr)
         return None
     return list(csv.DictReader(io.StringIO(raw)))
+
+
+def _download_singlefile(year: int) -> bytes | None:
+    """Fetch one year's QCEW annual singlefile zip, caching the (immutable)
+    bytes under pipelines/_cache/qcew so re-runs are free. Returns None on a
+    download error (the year is then skipped, not fatal)."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cached = CACHE_DIR / f"{year}_annual_singlefile.zip"
+    if cached.exists():
+        return cached.read_bytes()
+    url = SINGLEFILE_URL.format(year=year)
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "tape-data-pipeline (github.com/khs/tape)"}
+    )
+    try:
+        raw = urllib.request.urlopen(req, timeout=300).read()
+    except Exception as e:  # noqa: BLE001 — log + skip the year, don't abort
+        print(f"  singlefile {year}: download miss ({type(e).__name__})", file=sys.stderr)
+        return None
+    cached.write_bytes(raw)
+    return raw
+
+
+def prefetch_bulk(
+    area_fipses: set[str], years: list[int]
+) -> dict[tuple[str, int], list[dict[str, str]]]:
+    """Download each bulk year's singlefile zip ONCE and pull just the rows our
+    areas need (the all-industries totals for the ownership sectors we read),
+    keyed by (area_fips, year). One ~40-75 MB zip per year is streamed, not
+    held; only the handful of matching rows are retained."""
+    out: dict[tuple[str, int], list[dict[str, str]]] = {}
+    for year in years:
+        raw = _download_singlefile(year)
+        if raw is None:
+            continue
+        kept = 0
+        with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+            name = zf.namelist()[0]
+            with zf.open(name) as fh:
+                rdr = csv.DictReader(io.TextIOWrapper(fh, "utf-8"))
+                for r in rdr:
+                    # Match the same slice extract() reads: all-industries
+                    # total (industry 10, size 0) for our areas + ownerships.
+                    if (
+                        r.get("area_fips") in area_fipses
+                        and r.get("industry_code") == "10"
+                        and r.get("size_code") == "0"
+                    ):
+                        out.setdefault((r["area_fips"], year), []).append(r)
+                        kept += 1
+        print(f"  singlefile {year}: kept {kept} rows for {len(area_fipses)} areas",
+              flush=True)
+        time.sleep(0.05)
+    return out
 
 
 def extract(rows: list[dict[str, str]], metric: Metric) -> float | None:
@@ -189,7 +255,7 @@ def write_source_yaml(metric: Metric, area: Area, first: int, last: int) -> None
         "kind: timeseries",
         "pipeline: bls",
         f"dataFile: data/bls/{out_id(metric, area)}.json",
-        'supportedDeltas: ["1y", "5y", "10y"]',
+        'supportedDeltas: ["1y", "5y", "10y", "30y"]',
         f'unit: "{metric.unit}"',
         "emphasis: level",
         "formatting:",
@@ -221,14 +287,26 @@ def main(argv: list[str]) -> int:
                   f"{', '.join(a.slug for a in AREAS)}", file=sys.stderr)
             return 1
 
+    # Pre-2014 (NAICS) years come from the bulk singlefile zips, downloaded
+    # once + cached + scanned for all areas together; 2014+ from the per-area
+    # Open Data Access CSV. Prefetch the bulk slice up front.
+    bulk = prefetch_bulk(
+        {a.area_fips for a in areas},
+        sorted(y for y in YEARS if y in BULK_YEARS),
+    )
+
     json_written = 0
     yaml_written = 0
     for area in areas:
-        # Accumulate per-metric points across all years for this area.
+        # Accumulate per-metric points across all years for this area, in
+        # ascending year order (YEARS is sorted), so the written series is too.
         series: dict[str, list[dict]] = {out_id(m, area): [] for m in METRICS}
         for year in YEARS:
-            rows = fetch_area_year(area.area_fips, year)
-            time.sleep(0.05)  # be polite to data.bls.gov
+            if year in BULK_YEARS:
+                rows = bulk.get((area.area_fips, year))
+            else:
+                rows = fetch_area_year(area.area_fips, year)
+                time.sleep(0.05)  # be polite to data.bls.gov
             if not rows:
                 continue
             for metric in METRICS:

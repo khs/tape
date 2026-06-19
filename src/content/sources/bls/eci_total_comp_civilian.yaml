@@ -1,0 +1,27 @@
+name: Employment Cost Index — civilian total compensation
+shortName: ECI civilian comp
+description: Employment Cost Index for total compensation (wages plus benefits) of
+  all civilian workers, which covers private industry plus state and local
+  government. A fixed-weight index of labor cost per hour worked, so it is not
+  skewed by shifts in the mix of jobs. The headline ECI, watched closely as a
+  wage-pressure gauge. Quarterly, seasonally adjusted. From the BLS National
+  Compensation Survey.
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/eci_total_comp_civilian.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: index Dec 2005=100
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Bureau of Labor Statistics
+  series: CIS1010000000000I
+  url: https://data.bls.gov/timeseries/CIS1010000000000I
+  license: Public domain (US government data)
+unitClass: index
+tags:
+  - labor
+  - macro
+  - us
