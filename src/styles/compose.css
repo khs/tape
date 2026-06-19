@@ -151,6 +151,23 @@
   }
   .lib-panel[hidden] { display: none; }
 
+  /* The Sources tab's SourcePicker fills the bounded 80vh library
+     shell: the results list flex-grows into all the room left after the
+     search box + geo chips + (capped) tag strip, instead of the default
+     fixed 50vh slab that overflowed the shell and got clipped at the
+     bottom on tall screens. Composer-only — the cc/ds modal mounts keep
+     their own explicit result heights (.cc-source-picker / .ds-operand-
+     picker), and other mounts keep the 50vh default. */
+  .composer-library .lib-source-picker {
+    flex: 1;
+    min-height: 0;
+  }
+  .composer-library .lib-source-picker .source-picker-results {
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+  }
+
   /* ---- Maps tab ---------------------------------------------------- */
   /* Maps panel deliberately doesn't scroll inside the library sidebar
      — the form ends in a "+ Add map to dashboard" button that users

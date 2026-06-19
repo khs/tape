@@ -268,6 +268,10 @@ const extraSourcesJson = extraSources.length > 0
     instanceId: string;
     searchQuery: string;
     selectedTags: Set<string>;
+    /** Whether the minor (<15-source) tag chips are expanded. Default
+     *  false: the long tail is collapsed behind a "+N more" chip so the
+     *  tag strip can't bury the results list. */
+    showAllTags: boolean;
     /** Selected CBSA code for the metro chip, or null = chip inactive. */
     selectedMetroCbsa: string | null;
     /** Selected country/region code, or null = chip inactive. */
@@ -628,13 +632,48 @@ const extraSourcesJson = extraSources.length > 0
     parts.push(
       `<button type="button" class="source-picker-chip${allActive ? " source-picker-chip-active" : ""}" data-spicker-tag="">All <span class="source-picker-chip-count">${totalCount}</span></button>`,
     );
-    for (const { tag, count } of tagCounts) {
+    // Declutter the strip: by default only show "major" topics
+    // (>= MIN_TAG_COUNT sources). The long tail of tiny topics
+    // (business 1, education 7, water 9, ...) wrapped to a ~10-row
+    // wall that pushed the results list off-screen on wide displays.
+    // The minor tags stay reachable two ways: free-text search still
+    // matches them, and the "+N more" chip expands the full set. A
+    // currently SELECTED minor tag is always shown so an active filter
+    // can never hide itself.
+    const MIN_TAG_COUNT = 15;
+    const minorTotal = tagCounts.filter((t) => t.count < MIN_TAG_COUNT).length;
+    const visibleTags = state.showAllTags
+      ? tagCounts
+      : tagCounts.filter(
+          (t) => t.count >= MIN_TAG_COUNT || state.selectedTags.has(t.tag),
+        );
+    const minorHidden = tagCounts.length - visibleTags.length;
+    for (const { tag, count } of visibleTags) {
       const active = state.selectedTags.has(tag);
       parts.push(
         `<button type="button" class="source-picker-chip${active ? " source-picker-chip-active" : ""}" data-spicker-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="source-picker-chip-count">${count}</span></button>`,
       );
     }
+    // Expand / collapse the minor-tag tail — only when there is one.
+    if (!state.showAllTags && minorHidden > 0) {
+      parts.push(
+        `<button type="button" class="source-picker-chip source-picker-chip-more" data-spicker-tags-toggle="more">+${minorHidden} more</button>`,
+      );
+    } else if (state.showAllTags && minorTotal > 0) {
+      parts.push(
+        `<button type="button" class="source-picker-chip source-picker-chip-more" data-spicker-tags-toggle="fewer">Show fewer</button>`,
+      );
+    }
     host.innerHTML = parts.join("");
+    // Expand/collapse toggle for the minor-tag tail. Tags are a filter,
+    // not the query, so the results list is unchanged — only re-render
+    // the strip.
+    host
+      .querySelector<HTMLButtonElement>("[data-spicker-tags-toggle]")
+      ?.addEventListener("click", () => {
+        state.showAllTags = !state.showAllTags;
+        renderTagChips(state, lib);
+      });
     // Per-chip click handlers (NOT delegated — same reasoning as
     // /me/'s saved-dashboard renderer: re-rendering the strip would
     // accumulate listeners on the parent otherwise).
@@ -1058,6 +1097,7 @@ const extraSourcesJson = extraSources.length > 0
       instanceId,
       searchQuery: "",
       selectedTags: new Set(),
+      showAllTags: false,
       selectedMetroCbsa: null,
       selectedCountryCode: null,
       cdState: null,
@@ -1528,6 +1568,19 @@ const extraSourcesJson = extraSources.length > 0
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    /* Cap the tag strip so a long topic list can't shove the results
+       list off-screen — it scrolls internally past ~4 rows. Paired
+       with the <15-source suppression in renderTagChips so the default
+       (collapsed) strip is short and the results get the room. */
+    max-height: 116px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  /* The "+N more" / "Show fewer" toggle — visually distinct from topic
+     chips (dashed, muted) so it reads as a control, not a category. */
+  .source-picker-chip-more {
+    border-style: dashed;
+    color: var(--color-neutral-600, #666);
   }
   .source-picker-chip {
     display: inline-flex;
