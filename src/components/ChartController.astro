@@ -2575,11 +2575,21 @@
         return;
       }
 
+      // Section-locked tiles (the tile's section pinned its own window)
+      // keep that server-resolved window on hydrate. Without this, the
+      // client clobbers EVERY tile with the dashboard-level default: a
+      // tile in a 50y section snaps to the dashboard's "1m", then to "ytd"
+      // via closestSupported — monthly series drop "1m" from supportedDeltas
+      // (a 1-month window holds <=2 points), and ytd is the nearest survivor
+      // — so the reader sees a YTD readout on a section they set to 50y.
+      // Non-locked tiles still follow the dashboard default + its pill row.
+      const tileWanted: DeltaWindow =
+        tile.dataset.sectionLocked === "1" ? payload.defaultDelta : dashDefault;
       const ctx: TileCtx = {
         tile,
         dialog,
         payload,
-        currentWindow: closestSupported(dashDefault, payload.supportedDeltas),
+        currentWindow: closestSupported(tileWanted, payload.supportedDeltas),
         selectedView: payload.fixedRange ? "fixed" : "_window",
         dialogInitialized: false,
         currentTransform: payload.transform ?? "level",
