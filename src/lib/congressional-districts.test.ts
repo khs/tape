@@ -288,6 +288,39 @@ describe("parseStateSourceId", () => {
     // 2-letter state code, not just any 2 letters.
     expect(parseStateSourceId("acs_state/bachelors_plus_xy")).toBeNull();
   });
+
+  it("parses providers that scope by trailing 2-letter code without a state_ slug", () => {
+    // These declare the us-state tag but slug the state as a bare 2-letter
+    // tail (no `state_` prefix); before they were recognized here they were
+    // unreachable in the picker (passesCdFilter rejects unparseable
+    // state-tagged sources in every branch).
+    expect(parseStateSourceId("cdc_health/all_causes_aadr_al")).toEqual({ state: "al" });
+    expect(parseStateSourceId("eia_prices/electricity_price_ak")).toEqual({ state: "ak" });
+    expect(parseStateSourceId("usda_nass/corn_price_az")).toEqual({ state: "az" });
+    expect(parseStateSourceId("usgs_water/aquaculture_ar")).toEqual({ state: "ar" });
+  });
+
+  it("rejects the national siblings of those providers", () => {
+    expect(parseStateSourceId("cdc_health/all_causes_aadr_us")).toBeNull();
+    expect(parseStateSourceId("eia_prices/electricity_price_us")).toBeNull();
+    expect(parseStateSourceId("usda_nass/corn_price_us")).toBeNull();
+    expect(parseStateSourceId("usgs_water/aquaculture_us")).toBeNull();
+  });
+
+  it("parses BEA state series slugged with the full state name", () => {
+    expect(parseStateSourceId("bea/gdp_alabama")).toEqual({ state: "al" });
+    expect(parseStateSourceId("bea/gdp_new_hampshire")).toEqual({ state: "nh" });
+    expect(parseStateSourceId("bea/gdp_district_of_columbia")).toEqual({ state: "dc" });
+    // Longest-suffix wins: west_virginia must not be misread as virginia.
+    expect(parseStateSourceId("bea/gdp_west_virginia")).toEqual({ state: "wv" });
+    expect(parseStateSourceId("bea/gdp_virginia")).toEqual({ state: "va" });
+    // arkansas must not be misread as kansas (underscore anchor).
+    expect(parseStateSourceId("bea/gdp_arkansas")).toEqual({ state: "ar" });
+  });
+
+  it("rejects BEA county series (numeric FIPS tail, not a state name)", () => {
+    expect(parseStateSourceId("bea/county_income_01001")).toBeNull();
+  });
 });
 
 describe("formatDistrictLabel — statewide", () => {

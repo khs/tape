@@ -124,6 +124,28 @@ export const US_STATES: ReadonlyArray<{ code: string; name: string }> = [
 const STATE_CODE_SET = new Set(US_STATES.map((s) => s.code));
 
 /**
+ * Trailing full-state-name slug → code, for providers that slug the whole
+ * name instead of the 2-letter code (BEA: `bea/gdp_alabama`,
+ * `bea/gdp_new_hampshire`, `bea/gdp_district_of_columbia`). Sorted longest
+ * slug first so `west_virginia` wins over `virginia` for
+ * `bea/gdp_west_virginia` (the underscore anchor already prevents the
+ * arkansas/kansas class of confusion). Built once from US_STATES.
+ */
+const STATE_NAME_SLUGS: ReadonlyArray<{ slug: string; code: string }> =
+  US_STATES.map((s) => ({
+    slug: s.name.toLowerCase().replace(/[^a-z]+/g, "_"),
+    code: s.code,
+  })).sort((a, b) => b.slug.length - a.slug.length);
+
+/** State code for an id ending in `_<full-state-name>`, else null. */
+function stateCodeFromNameSuffix(id: string): string | null {
+  for (const { slug, code } of STATE_NAME_SLUGS) {
+    if (id.endsWith("_" + slug)) return code;
+  }
+  return null;
+}
+
+/**
  * Parse a state-level source ID into its state code, or return null if
  * the ID isn't a recognized state-level series.
  *
@@ -167,6 +189,26 @@ export function parseStateSourceId(id: string): { state: string } | null {
   // pipeline directory already names the scope.
   m = id.match(/^acs_state\/.+_([a-z]{2})$/);
   if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
+  // Providers that scope state-level series by the trailing 2-letter code
+  // WITHOUT a `state_` slug (the pipeline directory already says state):
+  //   cdc_health/<metric>_<st>   (cdc_health/all_causes_aadr_al)
+  //   eia_prices/<metric>_<st>   (eia_prices/electricity_price_al)
+  //   usda_nass/<metric>_<st>    (usda_nass/corn_price_al)
+  //   usgs_water/<metric>_<st>   (usgs_water/aquaculture_al)
+  // National siblings end in `_us` (not a state code) and stay visible;
+  // these providers' metro/county sources carry their own geo tags and are
+  // bucketed ahead of the state parse, so the 2-letter tail is safe here.
+  m = id.match(
+    /^(?:cdc_health|eia_prices|usda_nass|usgs_water)\/.+_([a-z]{2})$/,
+  );
+  if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
+  // BEA state series slug the FULL state name (bea/gdp_alabama,
+  // bea/gdp_new_hampshire, bea/gdp_district_of_columbia). BEA county series
+  // end in a numeric FIPS, so they don't match a name suffix.
+  if (id.startsWith("bea/")) {
+    const code = stateCodeFromNameSuffix(id);
+    if (code) return { state: code };
+  }
   return null;
 }
 
