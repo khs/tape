@@ -3148,12 +3148,12 @@
           p.setAttribute("aria-pressed", active ? "true" : "false");
         });
         tileContexts.forEach((ctx) => {
-          // Skip tiles that belong to a section with its own pinned
-          // window override — those are explicitly locked to a
-          // different window than the dashboard-wide one. Without
-          // this skip, clicking the dashboard pill would silently
-          // overwrite the section-pinned commentary's reading.
-          if (ctx.tile.dataset.sectionLocked === "1") return;
+          // A manual dashboard-pill click is an explicit user action, so
+          // EVERY tile follows it — including section-locked ones. The
+          // section lock only guards the INITIAL window (so the
+          // dashboard's auto-default can't clobber a section override on
+          // load — see hydrate()); once the reader actively picks a
+          // window, the whole dashboard tracks it.
           const w = closestSupported(want, ctx.payload.supportedDeltas);
           ctx.currentWindow = w;
           // Track the user's intent at the dashboard level so reopening
