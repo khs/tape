@@ -38,6 +38,7 @@ import { canonicalOrigin } from "../../lib/site";
 import { jsonForScript } from "../../lib/json-island";
 import { breadcrumbList } from "../../lib/breadcrumb-jsonld";
 import { getMethodology } from "../../lib/methodology";
+import { pathToSourceId } from "../../lib/source-path";
 
 // Server-rendered per request rather than statically generated. We
 // ship ~21,000 sources (~17,000 ACS-by-CD variants alone); generating
@@ -48,7 +49,12 @@ import { getMethodology } from "../../lib/methodology";
 // The Vercel adapter routes the catchall through a function on demand.
 export const prerender = false;
 
-const sourceId = Astro.params.id ?? "";
+// The [...id] catch-all can arrive percent-encoded: a caller that ran the
+// whole id through encodeURIComponent turns the provider/series slash into
+// "%2F", which the router keeps as one literal segment. Decode defensively
+// so the lookup resolves regardless of how the link was built (no-op on an
+// already-decoded, slug-like id).
+const sourceId = pathToSourceId(Astro.params.id ?? "");
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 // Absolute site origin (https://tape.io in prod, request origin in dev).
 // The citation block and JSON-LD need ABSOLUTE URLs — a copied citation

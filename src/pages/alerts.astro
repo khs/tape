@@ -384,6 +384,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       SUPABASE_REST_URL,
       SUPABASE_REST_ANON_KEY,
     } from "../lib/supabase";
+    import { sourceIdToPath } from "../lib/source-path";
     import { formatValue, type Formatting } from "../lib/format";
     import {
       composeDefaultLabel,
@@ -665,7 +666,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
         // prefix Astro is configured with (today: empty, but
         // historical builds shipped under /tape/).
         const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
-        chartDialogIframe.src = `${base}/source/${encodeURIComponent(id)}/`;
+        // Encode per path-segment so the provider/series slash stays a real
+        // separator — encodeURIComponent(id) would make it "%2F" and the
+        // /source/[...id] route would 404 ("Source not found").
+        chartDialogIframe.src = `${base}/source/${sourceIdToPath(id)}/`;
       }
       chartDialog?.showModal();
     });
