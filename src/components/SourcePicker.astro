@@ -369,11 +369,19 @@ const extraSourcesJson = extraSources.length > 0
     if (state.cdState) out.push({ kind: "state", code: state.cdState });
     const q = state.searchQuery.trim();
     if (q.length >= UNLOCK_QUERY_MIN_CHARS) {
+      // unlockedMetros/CountriesForQuery return the per-entity TAG strings
+      // (`metro:<cbsa>`, `country-specific:<code>`), NOT bare codes — strip the
+      // prefix so the slice URL is /library-geo/metro/<cbsa>.json, not the
+      // 404-ing /library-geo/metro/metro:<cbsa>.json. unlockedStatesForQuery
+      // already returns bare 2-letter codes.
       const metros = unlockedMetrosForQuery(q, lib);
-      if (metros) for (const c of metros) out.push({ kind: "metro", code: c });
+      if (metros)
+        for (const t of metros)
+          out.push({ kind: "metro", code: t.slice(METRO_TAG.length + 1) });
       const countries = unlockedCountriesForQuery(q, lib);
       if (countries)
-        for (const c of countries) out.push({ kind: "country", code: c });
+        for (const t of countries)
+          out.push({ kind: "country", code: t.slice(COUNTRY_TAG.length + 1) });
       const states = unlockedStatesForQuery(q);
       if (states) for (const c of states) out.push({ kind: "state", code: c });
       out.push({ kind: "county", code: "" });
