@@ -414,5 +414,73 @@ class LoadDerivedLatestObservationTests(unittest.TestCase):
         )
 
 
+class LoadLatestProjectionTests(unittest.TestCase):
+    """The "#projection" source-id suffix targets the latest forecast's
+    furthest-horizon point (the dual-threshold alerts feature)."""
+
+    def setUp(self) -> None:
+        self._orig = check_alerts._load_payload
+
+    def tearDown(self) -> None:
+        check_alerts._load_payload = self._orig
+
+    def _stub_payload(self, by_id: dict) -> None:
+        def stub(source_id: str):
+            return by_id.get(source_id)
+
+        check_alerts._load_payload = stub  # type: ignore[assignment]
+
+    _CBO = {
+        "cbo/debt": {
+            "points": [{"t": "2025-09-30", "v": 99.4}],
+            "projections": {
+                "2024-02": [
+                    {"t": "2026-09-30", "v": 100.0},
+                    {"t": "2034-09-30", "v": 110.0},
+                ],
+                "2026-02": [
+                    {"t": "2027-09-30", "v": 102.0},
+                    {"t": "2036-09-30", "v": 120.2},
+                ],
+            },
+        },
+    }
+
+    def test_furthest_point_of_latest_vintage(self) -> None:
+        self._stub_payload(self._CBO)
+        # latest vintage = "2026-02" (max key); furthest horizon = 2036.
+        self.assertEqual(
+            check_alerts.load_latest_projection("cbo/debt"),
+            ("2036-09-30", 120.2),
+        )
+
+    def test_suffix_routes_through_load_observations(self) -> None:
+        # A #projection id resolves to a SINGLE observation (the furthest
+        # point) — what the evaluator's windowed main loop consumes.
+        self._stub_payload(self._CBO)
+        self.assertEqual(
+            check_alerts.load_observations("cbo/debt#projection"),
+            [("2036-09-30", 120.2)],
+        )
+
+    def test_suffix_routes_through_latest_observation(self) -> None:
+        self._stub_payload(self._CBO)
+        self.assertEqual(
+            check_alerts.load_latest_observation("cbo/debt#projection"),
+            ("2036-09-30", 120.2),
+        )
+
+    def test_no_projections_returns_none(self) -> None:
+        self._stub_payload(
+            {"fred/cpi": {"points": [{"t": "2024-01-01", "v": 3.0}]}},
+        )
+        self.assertIsNone(check_alerts.load_latest_projection("fred/cpi"))
+        self.assertIsNone(check_alerts.load_observations("fred/cpi#projection"))
+
+    def test_unresolvable_base_returns_none(self) -> None:
+        self._stub_payload({})
+        self.assertIsNone(check_alerts.load_latest_projection("cbo/missing"))
+
+
 if __name__ == "__main__":
     unittest.main()

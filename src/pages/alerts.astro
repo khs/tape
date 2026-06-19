@@ -264,6 +264,34 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               </button>
             </div>
 
+            {/* Projected-value target. Shown only when the picked source
+                carries a forecast (summary.latestProjection) — lets the user
+                alert on where the latest forecast is headed (its furthest
+                horizon) instead of the current actual. Stored as a
+                "#projection" suffix on the rule's source_id. */}
+            <div class="alerts-projection" data-role="alerts-projection" hidden>
+              <span class="alerts-projection-label">Alert on</span>
+              <label class="alerts-projection-opt">
+                <input
+                  type="radio"
+                  name="alerts-target"
+                  value="current"
+                  checked
+                  data-role="alerts-target-current"
+                />
+                Current value
+              </label>
+              <label class="alerts-projection-opt">
+                <input
+                  type="radio"
+                  name="alerts-target"
+                  value="projection"
+                  data-role="alerts-target-projection"
+                />
+                Projected <span class="muted" data-role="alerts-projection-readout"></span>
+              </label>
+            </div>
+
             <label class="alerts-field">
               <span class="alerts-field-label">Threshold</span>
               <input
@@ -459,6 +487,13 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // observation is a day, a week, or a month after the prior one.
     type SourceSummary = {
       latest?: { t: string; v: number };
+      // Latest forecast vintage's curve (CBO/SSA). Present only for
+      // projection-bearing sources; powers the "projected value" alert
+      // target — the threshold compares against the furthest-horizon point.
+      latestProjection?: {
+        vintage: string;
+        points: { t: string; v: number }[];
+      };
       sparks?: Record<string, SparkPoint[]>;
     };
 
@@ -622,6 +657,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     const currentValueWrap = document.querySelector<HTMLElement>("[data-role='alerts-current-value']");
     const currentValueReadout = document.querySelector<HTMLElement>("[data-role='alerts-current-value-readout']");
     const currentValueAsOf = document.querySelector<HTMLElement>("[data-role='alerts-current-value-asof']");
+    const projectionWrap = document.querySelector<HTMLElement>("[data-role='alerts-projection']");
+    const projectionReadout = document.querySelector<HTMLElement>("[data-role='alerts-projection-readout']");
+    const projectionRadio = document.querySelector<HTMLInputElement>("[data-role='alerts-target-projection']");
+    const currentRadio = document.querySelector<HTMLInputElement>("[data-role='alerts-target-current']");
     const frequencyHintWrap = document.querySelector<HTMLElement>(
       "[data-role='alerts-frequency-hint']",
     );
@@ -929,6 +968,10 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     async function refreshCurrentValue(sourceId: string): Promise<void> {
       if (!currentValueWrap || !currentValueReadout || !currentValueAsOf) return;
       const id = sourceId.trim();
+      // Default the projection target hidden + reset to "current" on each
+      // (re)load; the success path below re-shows it for forecast sources.
+      if (projectionWrap) projectionWrap.hidden = true;
+      if (currentRadio) currentRadio.checked = true;
       if (!id) {
         currentValueWrap.hidden = true;
         return;
@@ -980,6 +1023,19 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       };
       currentValueReadout.textContent = formatValue(summary.latest.v, fmt);
       currentValueAsOf.textContent = `as of ${summary.latest.t}`;
+
+      // Forecast-bearing sources (CBO/SSA) get a "projected value" target:
+      // alert on the latest forecast's furthest-horizon point instead of the
+      // current actual. Saved as a "#projection" suffix on source_id (see
+      // pipelines/check_alerts.py).
+      const proj = summary.latestProjection;
+      if (projectionWrap && proj?.points?.length) {
+        const finalPt = proj.points[proj.points.length - 1];
+        if (projectionReadout) {
+          projectionReadout.textContent = `value (forecast: ${formatValue(finalPt.v, fmt)} by ${finalPt.t.slice(0, 4)})`;
+        }
+        projectionWrap.hidden = false;
+      }
     }
 
     async function fetchSourceSummary(dataFile: string): Promise<SourceSummary | null> {
@@ -1282,16 +1338,25 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!sourceInput || !conditionSelect || !thresholdInput || !labelInput || !addMsg) return;
-        const sourceId = sourceInput.value.trim();
+        const baseId = sourceInput.value.trim();
         const threshold = parseFloat(thresholdInput.value);
-        if (!sourceId || !Number.isFinite(threshold)) {
+        if (!baseId || !Number.isFinite(threshold)) {
           addMsg.textContent = "Need a source and a numeric threshold.";
           return;
         }
-        const sourceLabel =
+        // Projected-value target: append the "#projection" suffix the
+        // evaluator recognizes (pipelines/check_alerts.py). Only when the
+        // projection control is actually shown + selected for this source.
+        const useProjection =
+          !!projectionRadio?.checked && projectionWrap?.hidden === false;
+        const sourceId = useProjection ? `${baseId}#projection` : baseId;
+        const baseLabel =
           sourceInput.dataset.label ??
-          allSources.find((s) => s.id === sourceId)?.name ??
-          sourceId;
+          allSources.find((s) => s.id === baseId)?.name ??
+          baseId;
+        const sourceLabel = useProjection
+          ? `${baseLabel} (projected)`
+          : baseLabel;
         addMsg.textContent = "Saving…";
         const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/alert_rules`, {
           method: "POST",
@@ -1628,6 +1693,29 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     letter-spacing: 0.04em;
     font-size: 10.5px;
     font-weight: 500;
+  }
+  /* Projected-value target (forecast sources only). */
+  .alerts-projection {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12px;
+    margin-top: -4px;
+  }
+  .alerts-projection-label {
+    color: #6f6c66;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .alerts-projection-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
   }
   .alerts-current-value-readout {
     font-family: ui-monospace, "SF Mono", Consolas, monospace;

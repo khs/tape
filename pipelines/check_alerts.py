@@ -141,12 +141,11 @@ def supabase_patch(url: str, path: str, key: str, body: Any) -> None:
         resp.read()
 
 
-def _load_points(source_id: str) -> list[dict[str, Any]] | None:
-    """Load the full points[] array for a source ID, or None if the
-    source can't be resolved. Used by the derived-indicator path so
-    we can align timestamps between A and B before computing A op B.
-    Same source-id sanitization + path-confinement as
-    load_latest_observation."""
+def _load_payload(source_id: str) -> dict[str, Any] | None:
+    """Load + parse a source's data-file JSON (the full dict: points,
+    projections, metadata), or None if it can't be resolved. Shared
+    source-id sanitization + path-confinement; the foundation for both
+    _load_points and the projection path."""
     if not source_id or not SAFE_SOURCE_ID.match(source_id):
         return None
     yaml_path = SOURCES_ROOT / f"{source_id}.yaml"
@@ -175,7 +174,15 @@ def _load_points(source_id: str) -> list[dict[str, Any]] | None:
         payload = json.loads(json_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    if not isinstance(payload, dict):
+    return payload if isinstance(payload, dict) else None
+
+
+def _load_points(source_id: str) -> list[dict[str, Any]] | None:
+    """Load the full points[] array for a source ID, or None if the
+    source can't be resolved. Used by the derived-indicator path so
+    we can align timestamps between A and B before computing A op B."""
+    payload = _load_payload(source_id)
+    if payload is None:
         return None
     points = payload.get("points")
     if not isinstance(points, list) or not points:
@@ -183,11 +190,56 @@ def _load_points(source_id: str) -> list[dict[str, Any]] | None:
     return points
 
 
+# Suffix on a source_id that targets the LATEST forecast's furthest-horizon
+# value instead of the latest actual observation. The alerts form appends it
+# when the user picks "Projected value"; it's stripped here for data
+# resolution. Kept out of band (vs a schema column) so the feature ships
+# without a migration.
+PROJECTION_SUFFIX = "#projection"
+
+
+def load_latest_projection(base_id: str) -> tuple[str, float] | None:
+    """The latest projection vintage's FURTHEST-horizon point — "where the
+    most recent published forecast says the series ends up" (e.g. CBO's debt
+    forecast reaching 120% of GDP by 2036). Returns (furthest_t, furthest_v),
+    or None when the source carries no projections.
+
+    The furthest-horizon date is the idempotency anchor: an annual CBO/SSA
+    re-forecast extends the horizon by a year, advancing that date, so a new
+    forecast re-evaluates. A same-horizon mid-cycle revision (rare) won't
+    re-fire on its own — acceptable for annual forecast cadence."""
+    payload = _load_payload(base_id)
+    if payload is None:
+        return None
+    projections = payload.get("projections")
+    if not isinstance(projections, dict) or not projections:
+        return None
+    # Vintages are sortable "YYYY-MM" (or full-date) strings; max == latest.
+    latest_vintage = max(projections.keys())
+    pts = projections.get(latest_vintage)
+    if not isinstance(pts, list) or not pts:
+        return None
+    last = pts[-1]
+    if not isinstance(last, dict):
+        return None
+    t = last.get("t")
+    v = last.get("v")
+    if not isinstance(t, str) or not isinstance(v, (int, float)):
+        return None
+    return (t, float(v))
+
+
 def load_observations(source_id: str) -> list[tuple[str, float]] | None:
     """Full chronological [(t, v)] series for a regular source ID.
     Same source-id sanitization + path confinement as
     load_latest_observation (rides on _load_points). Returns None when
-    the source is unresolvable or has no usable points."""
+    the source is unresolvable or has no usable points. A "#projection"-
+    suffixed id resolves to a SINGLE observation: the latest forecast's
+    furthest-horizon point, so the windowed evaluator treats each new
+    forecast as one new data point."""
+    if source_id.endswith(PROJECTION_SUFFIX):
+        proj = load_latest_projection(source_id[: -len(PROJECTION_SUFFIX)])
+        return [proj] if proj else None
     pts = _load_points(source_id)
     if not pts:
         return None
@@ -287,6 +339,8 @@ def load_latest_observation(source_id: str) -> tuple[str, float] | None:
 
     Returns None when the source can't be resolved or has no points.
     """
+    if source_id.endswith(PROJECTION_SUFFIX):
+        return load_latest_projection(source_id[: -len(PROJECTION_SUFFIX)])
     # Reject anything that doesn't look like a source ID. Without
     # this guard a malicious authed user could write source_id =
     # "../../../etc/passwd" into alert_rules and the service-role
