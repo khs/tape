@@ -550,6 +550,18 @@ const extraSourcesJson = extraSources.length > 0
     lib: LibraryPayload,
   ): Array<{ tag: string; count: number }> {
     const trimmedQuery = state.searchQuery.trim();
+    // Order chips by topic SIZE (most sources first), not alphabetically.
+    // The size key is the GLOBAL (__all-bucket) count, so the order is
+    // stable: it's fixed at build and doesn't reshuffle when a geo chip or
+    // query narrows the per-bucket counts the chips display. Falls back to
+    // the entry's own count when there's no precomputed table (path 3).
+    const globalCounts = lib.tagCountsByGeo?.["__all"];
+    const bySize = (
+      a: { tag: string; count: number },
+      b: { tag: string; count: number },
+    ): number =>
+      (globalCounts?.[b.tag] ?? b.count) - (globalCounts?.[a.tag] ?? a.count) ||
+      a.tag.localeCompare(b.tag);
     // Path 2: query is in unlock range (or longer) — walk to get
     // counts that match what the user sees in the results list.
     if (trimmedQuery.length >= UNLOCK_QUERY_MIN_CHARS) {
@@ -573,7 +585,7 @@ const extraSourcesJson = extraSources.length > 0
       }
       return Array.from(counts.entries())
         .map(([tag, count]) => ({ tag, count }))
-        .sort((a, b) => a.tag.localeCompare(b.tag));
+        .sort(bySize);
     }
     // Path 1: cheap bucket lookup.
     const key = geoFilterKey(state);
@@ -585,7 +597,7 @@ const extraSourcesJson = extraSources.length > 0
       }
       return Array.from(counts.entries())
         .map(([tag, count]) => ({ tag, count }))
-        .sort((a, b) => a.tag.localeCompare(b.tag));
+        .sort(bySize);
     }
     // Path 3: legacy fallback — no precomputed table.
     const counts = new Map<string, number>();
@@ -602,7 +614,7 @@ const extraSourcesJson = extraSources.length > 0
     }
     return Array.from(counts.entries())
       .map(([tag, count]) => ({ tag, count }))
-      .sort((a, b) => a.tag.localeCompare(b.tag));
+      .sort(bySize);
   }
 
   function escapeHtml(s: string): string {
