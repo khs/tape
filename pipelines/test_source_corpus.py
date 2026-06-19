@@ -139,7 +139,8 @@ class BlsProvenanceUrlInvariants(unittest.TestCase):
         at https://data.bls.gov/timeseries/<series> — the canonical
         per-series Data Viewer. Skips YAMLs without a series ID (the
         few aggregate / program-level entries that legitimately don't
-        point at a series)."""
+        point at a series), and QCEW (Open Data Access has no per-series
+        Data Viewer page — see below)."""
         bls_dir = SOURCES_DIR / "bls"
         offenders: list[str] = []
         for path in sorted(bls_dir.glob("*.yaml")):
@@ -148,6 +149,16 @@ class BlsProvenanceUrlInvariants(unittest.TestCase):
             series = prov.get("series", "")
             url = prov.get("url", "")
             if not series:
+                continue
+            # QCEW (provider "BLS (QCEW)", pipelines/bls_qcew.py) comes from
+            # the Open Data Access CSV endpoint, where a "series" is an
+            # area + ownership + industry tuple with no per-series Data
+            # Viewer page. Its provenance.series is a human descriptor, not
+            # a Public-Data-API timeseries ID, so the data.bls.gov/timeseries
+            # invariant can't apply; it cites the QCEW program/methodology
+            # home (www.bls.gov/cew/) instead, which is NOT in
+            # BLS_BARE_PROGRAM_URLS (that set is the LAUS/CES homes).
+            if "QCEW" in prov.get("provider", ""):
                 continue
             if not url.startswith(BLS_DATA_VIEWER_PREFIX):
                 offenders.append(f"{path.name}: {url}")
