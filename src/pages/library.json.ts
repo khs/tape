@@ -21,6 +21,7 @@ import {
 import {
   COUNTY_TAG,
   parseCountySourceId,
+  parseQcewSourceId,
 } from "../lib/county-sources";
 import { isVisibleChart } from "../lib/resolve-dashboard";
 import { synthesizeSourceHints } from "../lib/source-hints";
@@ -236,6 +237,10 @@ export const GET: APIRoute = async () => {
     if (parseCdSourceId(s.id)) synthetics.push(CD_TAG);
     if (parseStateSourceId(s.id)) synthetics.push(STATE_TAG);
     if (parseCountySourceId(s.id)) synthetics.push(COUNTY_TAG);
+    // QCEW jurisdiction sources (bls/qcew_*) reuse the COUNTY_TAG
+    // hide-by-default flag (8 county-equivalents + the Washington MSA);
+    // without this they leak into the default list tagged `us`.
+    if (parseQcewSourceId(s.id)) synthetics.push(COUNTY_TAG);
     const metroExtra = metroTagsFor(s.id);
     if (metroExtra.length > 0) synthetics.push(...metroExtra);
     const parsedMetro = parseMetroSourceId(s.id);

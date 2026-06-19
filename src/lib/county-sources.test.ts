@@ -1,9 +1,14 @@
+import { readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   COUNTY_TAG,
   parseCountySourceId,
   isCountySourceId,
   countyTagsFor,
+  parseQcewSourceId,
+  isQcewSourceId,
 } from "./county-sources";
 
 describe("parseCountySourceId", () => {
@@ -224,5 +229,91 @@ describe("search-unlock heuristic (regression for the 'unemployment' leak)", () 
         "bls/county_unemployment_falls_church_va",
       )?.countyName.toLowerCase(),
     ).toContain("falls");
+  });
+});
+
+describe("parseQcewSourceId", () => {
+  it("parses a county-equivalent area + each metric", () => {
+    expect(parseQcewSourceId("bls/qcew_employment_alexandria_va")).toEqual({
+      metric: "employment",
+      areaSlug: "alexandria_va",
+      areaName: "alexandria",
+    });
+    expect(
+      parseQcewSourceId("bls/qcew_avg_weekly_wage_montgomery_md"),
+    ).toEqual({
+      metric: "avg_weekly_wage",
+      areaSlug: "montgomery_md",
+      areaName: "montgomery",
+    });
+    expect(
+      parseQcewSourceId("bls/qcew_federal_employment_prince_georges_md"),
+    ).toEqual({
+      metric: "federal_employment",
+      areaSlug: "prince_georges_md",
+      areaName: "prince georges",
+    });
+  });
+
+  it("parses DC and the MSA, matching the longest slug first (dc_metro before dc)", () => {
+    expect(parseQcewSourceId("bls/qcew_employment_dc")).toEqual({
+      metric: "employment",
+      areaSlug: "dc",
+      areaName: "district of columbia",
+    });
+    expect(parseQcewSourceId("bls/qcew_employment_dc_metro")).toEqual({
+      metric: "employment",
+      areaSlug: "dc_metro",
+      areaName: "washington metro",
+    });
+  });
+
+  it("returns null for non-qcew ids and unregistered areas", () => {
+    expect(
+      parseQcewSourceId("bls/county_unemployment_alexandria_va"),
+    ).toBeNull();
+    expect(parseQcewSourceId("fred/cpi")).toBeNull();
+    expect(parseQcewSourceId("bls/qcew_employment_nowhere")).toBeNull();
+    expect(parseQcewSourceId("")).toBeNull();
+  });
+
+  it("areaName never contains a metric word (the 'employment'-leak guard)", () => {
+    // Same contract as the county search-unlock: typing a series name must
+    // NOT surface every area, so no area name may contain a metric token —
+    // otherwise passesCountyFilter would leak them on a "employment" query.
+    const METRIC_WORDS = ["employment", "wage", "weekly", "avg", "federal"];
+    for (const id of [
+      "bls/qcew_employment_alexandria_va",
+      "bls/qcew_avg_weekly_wage_dc",
+      "bls/qcew_federal_employment_dc_metro",
+    ]) {
+      const name = parseQcewSourceId(id)!.areaName;
+      for (const w of METRIC_WORDS) expect(name).not.toContain(w);
+    }
+  });
+});
+
+describe("QCEW corpus is fully recognized (structural leak guard)", () => {
+  // Every shipped bls/qcew_*.yaml MUST parse via parseQcewSourceId so
+  // library.json injects COUNTY_TAG and the picker hides it from the default
+  // list. A new QCEW area whose slug isn't registered in QCEW_AREA_NAMES
+  // would otherwise leak (the original "Alexandria showing up unsearched"
+  // bug). Walking the real YAMLs makes adding an area without registering it
+  // fail here, at unit-test time.
+  const blsDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "content",
+    "sources",
+    "bls",
+  );
+  const qcewIds = readdirSync(blsDir)
+    .filter((f) => f.startsWith("qcew_") && f.endsWith(".yaml"))
+    .map((f) => `bls/${f.slice(0, -".yaml".length)}`);
+
+  it("every shipped qcew_* YAML is recognized (none leak into the general list)", () => {
+    expect(qcewIds.length).toBeGreaterThanOrEqual(27);
+    const unrecognized = qcewIds.filter((id) => !isQcewSourceId(id));
+    expect(unrecognized).toEqual([]);
   });
 });

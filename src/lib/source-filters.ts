@@ -33,7 +33,11 @@ import {
   parseCdSourceId,
   parseStateSourceId,
 } from "./congressional-districts";
-import { COUNTY_TAG, parseCountySourceId } from "./county-sources";
+import {
+  COUNTY_TAG,
+  parseCountySourceId,
+  parseQcewSourceId,
+} from "./county-sources";
 
 /** Minimum query length that "unlocks" geo sources via name match.
  *  Cross-references: every unlocked* helper below applies this floor. */
@@ -245,7 +249,15 @@ export function passesCountyFilter(
 ): boolean {
   if (!sourceTags.includes(COUNTY_TAG)) return true;
   if (query.length < UNLOCK_QUERY_MIN_CHARS) return false;
-  const parsed = parseCountySourceId(sourceId);
-  if (!parsed) return false; // defensive — should never happen given the COUNTY_TAG check
-  return parsed.countyName.toLowerCase().includes(query.toLowerCase());
+  const ql = query.toLowerCase();
+  const county = parseCountySourceId(sourceId);
+  if (county) return county.countyName.toLowerCase().includes(ql);
+  // QCEW jurisdiction sources (bls/qcew_*) share COUNTY_TAG but parse via
+  // their own recognizer. Surface them when the query matches the AREA name
+  // ("alexandria", "washington metro", ...), NOT the metric — so a series-
+  // name query ("employment") can't surface every area. areaName is already
+  // lowercase.
+  const qcew = parseQcewSourceId(sourceId);
+  if (qcew) return qcew.areaName.includes(ql);
+  return false; // defensive — COUNTY_TAG without a known parser
 }

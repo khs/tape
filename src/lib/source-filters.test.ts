@@ -387,4 +387,39 @@ describe("passesCountyFilter", () => {
       passesCountyFilter("bls/county_unemployment_prince_william_va", tags, "prince"),
     ).toBe(true);
   });
+
+  // QCEW jurisdiction sources reuse COUNTY_TAG but parse via parseQcewSourceId.
+  // These were the original leak: "Alexandria, VA — average weekly wage" et al.
+  // showing up in the default list unsearched.
+  it("qcew sources are hidden without a ≥ 4-char query", () => {
+    const tags = [COUNTY_TAG];
+    expect(passesCountyFilter("bls/qcew_avg_weekly_wage_alexandria_va", tags, "")).toBe(false);
+    expect(passesCountyFilter("bls/qcew_employment_dc_metro", tags, "")).toBe(false);
+  });
+
+  it("qcew sources unlock via an area-name query", () => {
+    const tags = [COUNTY_TAG];
+    expect(
+      passesCountyFilter("bls/qcew_avg_weekly_wage_alexandria_va", tags, "alexandria"),
+    ).toBe(true);
+    expect(
+      passesCountyFilter("bls/qcew_employment_montgomery_md", tags, "montgomery"),
+    ).toBe(true);
+    // the MSA surfaces on "washington"
+    expect(
+      passesCountyFilter("bls/qcew_employment_dc_metro", tags, "washington"),
+    ).toBe(true);
+  });
+
+  it("a metric-name query does NOT leak qcew sources", () => {
+    // The whole reason for the gate: "employment"/"wage" match the series
+    // name but must not surface every QCEW area.
+    const tags = [COUNTY_TAG];
+    expect(
+      passesCountyFilter("bls/qcew_employment_alexandria_va", tags, "employment"),
+    ).toBe(false);
+    expect(
+      passesCountyFilter("bls/qcew_avg_weekly_wage_dc", tags, "wage"),
+    ).toBe(false);
+  });
 });
