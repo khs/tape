@@ -74,9 +74,14 @@ ZIP_URL = (
 FARS_URL = "https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars"
 
 START_YEAR = 1975  # FARS begins in 1975
-# Bump as NHTSA posts each new FINAL National file (~Q1, ~1.5 yrs after the
-# data year — 2023 final was posted Feb 2026).
-END_YEAR = 2023
+# END_YEAR is the last FINAL data year. The static National CSV for the most
+# recent year is the preliminary Annual Report File (ARF), whose counts get
+# revised down when finalized: the 2023 National zip sums to 41,025, but NHTSA's
+# published FINAL 2023 total is 40,901 (and 1975-2022 match the finals exactly).
+# So we stop at 2022 to ship only final figures. Bump to 2023 once NHTSA replaces
+# the downloadable 2023 National file with the Final (sum should hit 40,901), and
+# invalidate pipelines/_cache/fars/agg_2023.json so the stale ARF isn't reused.
+END_YEAR = 2022
 
 # State FIPS -> (USPS lowercase, full name). 50 states + DC; territories excluded.
 FIPS_STATE = {

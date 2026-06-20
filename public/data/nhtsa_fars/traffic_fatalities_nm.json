@@ -3,7 +3,7 @@
   "name": "Traffic fatalities \u2014 New Mexico",
   "kind": "timeseries",
   "unit": "deaths",
-  "lastUpdated": "2026-06-20T01:23:22Z",
+  "lastUpdated": "2026-06-20T01:56:46Z",
   "points": [
     {
       "t": "1975-12-31",
@@ -196,10 +196,6 @@
     {
       "t": "2022-12-31",
       "v": 466
-    },
-    {
-      "t": "2023-12-31",
-      "v": 440
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Traffic fatality rate \u2014 Ohio",
   "kind": "timeseries",
   "unit": "per 100,000 population",
-  "lastUpdated": "2026-06-20T01:23:22Z",
+  "lastUpdated": "2026-06-20T01:56:46Z",
   "points": [
     {
       "t": "1975-12-31",
@@ -196,10 +196,6 @@
     {
       "t": "2022-12-31",
       "v": 10.8
-    },
-    {
-      "t": "2023-12-31",
-      "v": 10.5
     }
   ]
 }
