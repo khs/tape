@@ -53,6 +53,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 import sys
 import urllib.request
 import zipfile
@@ -60,12 +61,44 @@ from pathlib import Path
 
 import _env  # noqa: F401
 
-from common import cached_get, write_timeseries
+from common import cached_get, utc_now_iso, write_timeseries
 
 PIPELINE = "nhtsa_fars"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
 CACHE_DIR = REPO_ROOT / "pipelines" / "_cache" / "fars"
+# County choropleth data lands in the shared map-data dir the ChartMap renderer
+# reads (acs_<geo>/<indicator>_<vintage>.json); it is map data, not a source
+# time-series, so it carries no YAML and isn't in library.json / source_index.
+COUNTY_MAP_DIR = REPO_ROOT / "public" / "data" / "acs_county"
+# 10-year window for the per-county rate: a decade of a fatality census smooths
+# the small-county noise that makes single-year county rates unusable.
+COUNTY_WINDOW = range(2013, 2023)  # 2013-2022 inclusive
+COUNTY_VINTAGE = "2022"            # window-end label (schema wants YYYY)
+COUNTY_MIDPOINT_YEAR = 2017        # window midpoint = rate-denominator pop year
+# Census Population Estimates (PEP) county totals — keyless static CSV. The
+# 2010-2019 vintage PREDATES Connecticut's 2022 county→planning-region switch,
+# so it carries CT's OLD county FIPS (09001-09015) — exactly what FARS files and
+# what the restored old county TopoJSON renders. Using the midpoint-year
+# population as the rate denominator means the whole window needs only this one
+# file (no later vintage that would have re-coded CT).
+PEP_MIDPOINT_URL = (
+    "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/"
+    "counties/totals/co-est2019-alldata.csv"
+)
+# The FARS county map pins the OLD us-atlas county TopoJSON (old CT counties +
+# pre-2024 FIPS), restored at public/maps/us-counties-10m.json. It matches the
+# 2013-2022 FARS vintages — including Connecticut's old counties — far better
+# than the cb_2024 boundaries the ACS county maps use.
+COUNTY_BOUNDARY = "/maps/us-counties-10m.json"
+# A few counties were renamed mid-window; early FARS years file the old FIPS.
+# Stitch those deaths into the current county (present in the TopoJSON + PEP) so
+# the area shows one complete 2013-2022 figure. (Genuine splits, e.g. the 2008
+# Alaska area reorganizations, can't be allocated and are left to fall out.)
+FIPS_REMAP = {
+    "02270": "02158",  # Wade Hampton Census Area -> Kusilvak (renamed 2015)
+    "46113": "46102",  # Shannon County, SD -> Oglala Lakota (renamed 2015)
+}
 
 ZIP_URL = (
     "https://static.nhtsa.gov/nhtsa/downloads/FARS/"
@@ -158,6 +191,141 @@ def fetch_year_aggregate(year: int) -> dict[int, int]:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache.write_text(json.dumps(agg))
     return agg
+
+
+def fetch_year_county_aggregate(year: int) -> dict[str, int]:
+    """``{county_geoid: total_fatals}`` (5-digit state+county FIPS) for one FARS
+    year. Drops unknown-county rows (COUNTY 0 / 997-999) and Connecticut (its
+    2022 county→planning-region change breaks the join). Cached separately from
+    the state aggregate."""
+    cache = CACHE_DIR / f"agg_county_{year}.json"
+    if cache.exists():
+        return {k: int(v) for k, v in json.loads(cache.read_text()).items()}
+    url = ZIP_URL.format(year=year)
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        blob = resp.read()
+    zf = zipfile.ZipFile(io.BytesIO(blob))
+    member = next(
+        (m for m in zf.namelist() if m.lower().endswith("accident.csv")), None
+    )
+    if member is None:
+        raise RuntimeError(f"no accident.csv in {url}")
+    raw = zf.read(member)
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = raw.decode("latin-1")
+    reader = csv.DictReader(io.StringIO(text))
+    fields = {f.replace("﻿", "").strip().upper(): f
+              for f in (reader.fieldnames or [])}
+    state_f, county_f, fatals_f = (
+        fields.get("STATE"), fields.get("COUNTY"), fields.get("FATALS"),
+    )
+    if not (state_f and county_f and fatals_f):
+        raise RuntimeError(
+            f"missing STATE/COUNTY/FATALS in {url}: {reader.fieldnames}"
+        )
+    agg: dict[str, int] = {}
+    for row in reader:
+        try:
+            st = int(str(row[state_f]).strip())
+            co = int(str(row[county_f]).strip())
+            fat = int(float(str(row[fatals_f]).strip()))
+        except (TypeError, ValueError):
+            continue
+        if co == 0 or co >= 997:
+            continue  # unknown / not-applicable county code
+        geoid = f"{st:02d}{co:03d}"
+        agg[geoid] = agg.get(geoid, 0) + fat
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps(agg))
+    return agg
+
+
+def county_midpoint_pop(year: int) -> dict[str, float]:
+    """``{county_geoid: population}`` for one year from the Census PEP county
+    totals. The 2010-2019 vintage carries Connecticut's OLD county FIPS, so old
+    CT counties get a denominator like every other county."""
+    body = cached_get(PEP_MIDPOINT_URL, ttl_seconds=30 * 24 * 3600)
+    reader = csv.DictReader(io.StringIO(body))
+    col = next(
+        (f for f in (reader.fieldnames or [])
+         if (f or "").strip() == f"POPESTIMATE{year}"),
+        None,
+    )
+    if col is None:
+        raise RuntimeError(f"no POPESTIMATE{year} column in PEP file")
+    out: dict[str, float] = {}
+    for row in reader:
+        try:
+            st = int(str(row["STATE"]).strip())
+            co = int(str(row["COUNTY"]).strip())
+        except (KeyError, TypeError, ValueError):
+            continue
+        if co == 0:
+            continue  # state-total row
+        try:
+            out[f"{st:02d}{co:03d}"] = float(
+                str(row[col]).replace(",", "").strip()
+            )
+        except (TypeError, ValueError):
+            pass
+    return out
+
+
+def _write_county_map(indicator: str, unit: str, decimals: int,
+                      value_label: str, values: dict) -> None:
+    COUNTY_MAP_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "geo": "county", "indicator": indicator, "vintage": COUNTY_VINTAGE,
+        "unit": unit, "decimals": decimals, "valueLabel": value_label,
+        "lastUpdated": utc_now_iso(), "values": values,
+    }
+    (COUNTY_MAP_DIR / f"{indicator}_{COUNTY_VINTAGE}.json").write_text(
+        json.dumps(payload), encoding="utf-8",
+    )
+
+
+def build_county_choropleth() -> int:
+    """Per-county choropleth data: total traffic deaths and the average annual
+    fatality rate per 100k over COUNTY_WINDOW (a decade smooths small-county
+    noise). Writes map-data JSONs the ChartMap renderer joins to the county
+    TopoJSON by GEOID. Not source time-series (no YAML / source_index)."""
+    fatals: dict[str, int] = {}
+    nyears = 0
+    for yr in COUNTY_WINDOW:
+        try:
+            agg = fetch_year_county_aggregate(yr)
+        except Exception as e:  # noqa: BLE001
+            print(f"  [county {yr}] skipped: {e}", file=sys.stderr)
+            continue
+        nyears += 1
+        for g, f in agg.items():
+            g = FIPS_REMAP.get(g, g)
+            fatals[g] = fatals.get(g, 0) + f
+    if nyears == 0:
+        print("nhtsa_fars county: no FARS years fetched", file=sys.stderr)
+        return 1
+
+    pop = county_midpoint_pop(COUNTY_MIDPOINT_YEAR)
+    rate = {
+        g: round(f / (pop[g] * nyears) * 100000, 1)
+        for g, f in fatals.items()
+        if pop.get(g, 0) > 0
+    }
+    start, end = COUNTY_WINDOW.start, COUNTY_WINDOW.stop - 1
+    _write_county_map(
+        "traffic_fatality_rate", "per 100k", 1,
+        f"Traffic deaths per 100,000 per year ({start}-{end} average)", rate,
+    )
+    _write_county_map(
+        "traffic_fatalities", "deaths", 0,
+        f"Total traffic deaths ({start}-{end})", fatals,
+    )
+    print(f"nhtsa_fars county: {nyears} yrs; rate for {len(rate)} counties, "
+          f"counts for {len(fatals)} counties.")
+    return 0
 
 
 def state_population(usps: str) -> dict[int, float]:
@@ -254,6 +422,11 @@ def write_yaml(sid: str, kind: str, geo_key: str, geo_name: str) -> None:
 def run(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     want = {a.lower() for a in argv}  # empty = all geos
+
+    # `python pipelines/nhtsa_fars.py county` builds the per-county choropleth
+    # map data instead of the state/national time-series.
+    if "county" in want:
+        return build_county_choropleth()
 
     years = list(range(START_YEAR, END_YEAR + 1))
     # {fips: {year: fatals}} + national {year: fatals}

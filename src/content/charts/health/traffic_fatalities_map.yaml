@@ -1,0 +1,16 @@
+title: "Traffic deaths by county (10-year total)"
+render: map
+geo: county
+indicator: traffic_fatalities
+vintage: "2022"
+boundaryFile: /maps/us-counties-10m.json
+colorScheme: reds
+colorScale: log
+blurb: |
+  Total motor-vehicle traffic deaths by county over 2013-2022, from the NHTSA
+  Fatality Analysis Reporting System, a complete census of fatal crashes. Counts
+  track population, so the largest counties see the most deaths; for a per-capita
+  view see the county fatality-rate map. The color scale is logarithmic. The map
+  uses pre-2022 county boundaries to match the crash years (Connecticut shows its
+  eight historical counties).
+tags: [health, us]

@@ -1,0 +1,19 @@
+title: "Traffic fatality rate by county (10-year average)"
+render: map
+geo: county
+indicator: traffic_fatality_rate
+vintage: "2022"
+boundaryFile: /maps/us-counties-10m.json
+colorScheme: ylorrd
+colorScale: log
+blurb: |
+  Motor-vehicle traffic deaths per 100,000 people per year, by county, averaged
+  over 2013-2022. A decade of data smooths the year-to-year noise that makes
+  single-year county rates unusable. NHTSA Fatality Analysis Reporting System
+  over Census population. One caveat: rates count deaths by crash location, not
+  residence, so a sparsely populated county crossed by a major interstate reads
+  very high (its few thousand residents, plus everyone driving through). The
+  color scale is logarithmic to keep those extremes from washing out the rest.
+  The map uses pre-2022 county boundaries, matching the crash years (so
+  Connecticut shows its eight historical counties, not the new planning regions).
+tags: [health, us]
