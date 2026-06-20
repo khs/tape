@@ -259,6 +259,7 @@ describe("referential integrity", () => {
       county: "acs_county",
       tract: "acs_tract",
       "block-group": "acs_block_group",
+      cd: "acs_cd",
     };
     const bad: string[] = [];
     for (const c of charts()) {
