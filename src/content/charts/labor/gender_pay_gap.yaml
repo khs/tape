@@ -1,0 +1,18 @@
+title: "Gender pay gap (women's earnings as a share of men's)"
+sources:
+  - bls/earnings_women_weekly
+  - bls/earnings_men_weekly
+op: divide
+percentDisplay: percent
+render: line
+defaultDelta: 30y
+normalize: raw
+emphasis: level
+blurb: |
+  Women's median usual weekly earnings as a percentage of men's, full-time wage
+  and salary workers (BLS, quarterly). The ratio rose from around 62 percent in
+  the early 1980s to the low 80s by the 2000s and has been roughly flat since,
+  hovering near 82 to 83 percent. This is the headline "pay gap" figure; it
+  compares all full-time workers and is not adjusted for occupation, hours, or
+  experience.
+tags: [labor, gender, us]
