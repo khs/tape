@@ -11,6 +11,10 @@ const deltaWindow = z.enum([
   "10y",
   "30y",
   "50y",
+  // "max" (all time) is synthetic — the renderer appends it to every chart's
+  // pill row, never declared in a source's supportedDeltas. Permitted in the
+  // enum so a persisted defaultDelta:"max" (from a pill click) passes Zod.
+  "max",
 ]);
 
 const formatting = z

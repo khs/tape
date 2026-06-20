@@ -119,10 +119,16 @@ const normalize: "rebase" | "raw" | "dual-axis" =
 const allSupported: DeltaWindow[] = DELTA_WINDOWS.filter((w) =>
   sources.every((s) => s.data.supportedDeltas.includes(w)),
 );
-const effectiveSupported: DeltaWindow[] =
+const baseSupported: DeltaWindow[] =
   allSupported.length > 0
     ? allSupported
     : (sources[0].data.supportedDeltas as DeltaWindow[]);
+// "max" (all time) is synthetic — always offered as the longest window, never
+// declared per-source. Append it so it appears on every chart's pill row and
+// so a persisted defaultDelta:"max" resolves to itself via closestSupported.
+const effectiveSupported: DeltaWindow[] = baseSupported.includes("max")
+  ? baseSupported
+  : [...baseSupported, "max"];
 
 // Effective default delta:
 // 1) dashboardWindow (mapped to closest effectiveSupported)

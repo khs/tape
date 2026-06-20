@@ -500,7 +500,12 @@
   function inceptionPoint(s: SourcePayload, window: DeltaWindow): Point | null {
     if (s.summary) {
       const sp = s.summary.sparks[window];
-      return sp && sp.length > 0 ? sp[0] : null;
+      if (sp && sp.length > 0) return sp[0];
+      // "max" (all time) has no precomputed spark, so fall through to the
+      // loaded full series' first point. Other windows keep the strict
+      // null (their spark is authoritative). Without this, max's descriptor
+      // wrongly reads "History doesn't cover the full history".
+      if (window !== "max") return null;
     }
     const pts = s.points;
     return pts && pts.length > 0 ? pts[0] : null;
@@ -687,10 +692,23 @@
     const lastMs = lastMsFromFull ?? lastMsFromSpark;
     let domainMs: [number, number] | null = null;
     if (lastMs !== null) {
-      const winStart = windowStartMs(lastMs, window);
-      const leadInMs =
-        windowDays(window, new Date(lastMs)) * 86400000 * 0.15;
-      domainMs = [winStart - leadInMs, lastMs];
+      if (window === "max") {
+        // "all time": windowStartMs returns the −8.64e15 floor (so the point
+        // filter keeps everything), but the x-domain must hand-fit to the
+        // EARLIEST real point or Plot pads the axis back to year −271821.
+        const firstMs = s.points
+          ? new Date(s.points[0].t).getTime()
+          : spark && spark.length > 0
+            ? new Date(spark[0].t).getTime()
+            : lastMs;
+        const pad = (lastMs - firstMs) * 0.02; // 2% cosmetic lead-in
+        domainMs = [firstMs - pad, lastMs];
+      } else {
+        const winStart = windowStartMs(lastMs, window);
+        const leadInMs =
+          windowDays(window, new Date(lastMs)) * 86400000 * 0.15;
+        domainMs = [winStart - leadInMs, lastMs];
+      }
     }
 
     if (s.points) {

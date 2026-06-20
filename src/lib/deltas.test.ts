@@ -75,6 +75,30 @@ describe("windowStartMs", () => {
   });
 });
 
+describe("max (all time)", () => {
+  it("windowStartMs(max) floors at the min valid JS date so every point passes", () => {
+    const start = windowStartMs(Date.UTC(2026, 0, 1), "max");
+    expect(start).toBe(-8.64e15);
+    // Must stay a valid Date everywhere downstream consumes it (not NaN).
+    expect(Number.isNaN(new Date(start).getTime())).toBe(false);
+  });
+
+  it("windowDays(max) is the finite 200y sentinel, not the floor", () => {
+    expect(windowDays("max")).toBe(365 * 200);
+  });
+
+  it("closestSupported treats max as universally supported", () => {
+    expect(closestSupported("max", ["1y", "5y"])).toBe("max");
+    expect(closestSupported("max", ["1m", "max"])).toBe("max");
+    expect(closestSupported("max", [])).toBe("max");
+  });
+
+  it("keeps max last in DELTA_WINDOWS (ascending-order invariant holds)", () => {
+    expect(DELTA_WINDOWS[DELTA_WINDOWS.length - 1]).toBe("max");
+    expect(DELTA_DAYS.max).toBeGreaterThan(DELTA_DAYS["50y"]);
+  });
+});
+
 describe("deltaPrior", () => {
   it("returns a Date matching windowStartMs", () => {
     const now = new Date(Date.UTC(2025, 5, 15));

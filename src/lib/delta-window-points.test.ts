@@ -39,6 +39,21 @@ function withDailyPoints(
   return { data: { points: pts } };
 }
 
+describe("max (all time) window", () => {
+  it("is never filtered out — it's the longest window, always kept", () => {
+    // 1m has 1 point (<3) and a longer window exists, so it's dropped; max is
+    // arr[last] so the longest-keep rule retains it unconditionally.
+    const out = filterSupportedDeltas(["1m", "max"], [withSpark("1m", 1)]);
+    expect(out).toContain("max");
+  });
+
+  it("pointsInDeltaWindow(max) is Infinity (no max spark -> permissive)", () => {
+    // No source ships a `max` spark, so it falls through to data.points (null
+    // here) and returns Infinity, i.e. is never thinned.
+    expect(pointsInDeltaWindow(withSpark("1m", 5), "max")).toBe(Infinity);
+  });
+});
+
 describe("pointsInDeltaWindow", () => {
   it("returns Infinity for ytd (calendar window, opt-out of filtering)", () => {
     // The pill row keeps ytd visible even in January when it has 1-2

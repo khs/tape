@@ -11,6 +11,7 @@ export const DELTA_WINDOWS = [
   "10y",
   "30y",
   "50y",
+  "max",
 ] as const;
 export type DeltaWindow = (typeof DELTA_WINDOWS)[number];
 
@@ -23,6 +24,7 @@ export const DELTA_LABELS: Record<DeltaWindow, string> = {
   "10y": "10 years",
   "30y": "30 years",
   "50y": "50 years",
+  max: "all time",
 };
 
 /**
@@ -38,6 +40,7 @@ export const DELTA_LABELS_PAST: Record<DeltaWindow, string> = {
   "10y": "past ten years",
   "30y": "past 30 years",
   "50y": "past 50 years",
+  max: "full history",
 };
 
 export const DELTA_LABELS_SHORT: Record<DeltaWindow, string> = {
@@ -49,6 +52,7 @@ export const DELTA_LABELS_SHORT: Record<DeltaWindow, string> = {
   "10y": "10Y",
   "30y": "30Y",
   "50y": "50Y",
+  max: "MAX",
 };
 
 /**
@@ -68,6 +72,11 @@ export const DELTA_DAYS: Record<DeltaWindow, number> = {
   "10y": 365 * 10,
   "30y": 365 * 30,
   "50y": 365 * 50,
+  // "all time" sentinel: finite + large (200y), kept > 50y for the ascending-
+  // order invariant and away from Infinity so closestSupported's Math.log and
+  // trim math stay valid. The actual "all points" behavior comes from the
+  // windowStartMs floor below, not this number.
+  max: 365 * 200,
 };
 
 /**
@@ -89,6 +98,13 @@ export function windowDays(window: DeltaWindow, now: Date = new Date()): number 
  * January 1 of the reference date's year regardless of refMs's exact value.
  */
 export function windowStartMs(refMs: number, window: DeltaWindow): number {
+  // "all time": floor at the minimum valid JS Date (−8.64e15 ms) so every
+  // point passes the `t >= start` filter, regardless of how old the series is.
+  // new Date(-8.64e15) is valid (not NaN), so all downstream `new Date()` uses
+  // stay safe. The dialog x-domain is hand-fitted to the first real point
+  // separately (see ChartController dialogPlotPoints) so the axis isn't padded
+  // back to year −271821.
+  if (window === "max") return -8.64e15;
   if (window === "ytd") {
     return Date.UTC(new Date(refMs).getUTCFullYear(), 0, 1);
   }
@@ -109,6 +125,11 @@ export function closestSupported(
   supported: readonly DeltaWindow[],
 ): DeltaWindow {
   if (supported.length === 0) return want;
+  // "max" (all time) is universal — every source can show all of its own
+  // points — so it's always "supported" even though no source declares it.
+  // Without this, dual-axis (which maps the window per-source via
+  // closestSupported against declared deltas) would collapse max to 50y.
+  if (want === "max") return "max";
   if (supported.includes(want)) return want;
   const wantLog = Math.log(DELTA_DAYS[want]);
   let best = supported[0];
