@@ -4,8 +4,13 @@ description: Market-implied expected average inflation over the five-year period
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/T5YIFR.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -14,9 +19,9 @@ provenance:
   provider: FRED (St. Louis Fed) / Federal Reserve Board
   series: T5YIFR
   url: https://fred.stlouisfed.org/series/T5YIFR
-  license: Citation required — Federal Reserve Board (via FRED)
+  license: Citation required, Federal Reserve Board (via FRED)
 tags:
-  - inflation
-  - macro
-  - us
+- inflation
+- macro
+- us
 unitClass: rate

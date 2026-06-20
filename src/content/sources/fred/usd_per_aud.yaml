@@ -4,8 +4,15 @@ description: Spot exchange rate, US dollars per Australian dollar, from the Fede
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DEXUSAL.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "USD per AUD"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: USD per AUD
 formatting:
   style: number
   decimals: 4
@@ -16,5 +23,5 @@ provenance:
   url: https://fred.stlouisfed.org/series/DEXUSAL
   license: Public domain (US government data)
 tags:
-  - fx
+- fx
 unitClass: ratio

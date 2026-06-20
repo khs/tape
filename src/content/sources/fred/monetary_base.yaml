@@ -4,8 +4,15 @@ description: US monetary base, currency in circulation plus bank reserves held a
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/BOGMBASE.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "billions USD"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: billions USD
 formatting:
   style: currency
   decimals: 0
@@ -16,6 +23,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/BOGMBASE
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: currency

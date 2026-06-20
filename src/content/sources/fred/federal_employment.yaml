@@ -1,24 +1,30 @@
-name: 'Federal government employment'
-shortName: 'Fed jobs'
-description: 'Federal employees (BLS CES). Includes USPS, which makes up ~25% of the total, non-postal federal employment moves at a different cadence + reflects the size of the civilian executive branch. Public-domain federal-agency data via FRED.'
+name: Federal government employment
+shortName: Fed jobs
+description: Federal employees (BLS CES). Includes USPS, which makes up ~25% of the total, non-postal federal employment moves at a different cadence + reflects the size of the civilian executive branch. Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CES9091000001.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 0
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: CES9091000001
   url: https://fred.stlouisfed.org/series/CES9091000001
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - government
-  - us
+- macro
+- labor
+- government
+- us
 unitClass: count

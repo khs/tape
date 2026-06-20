@@ -4,8 +4,13 @@ description: Consumer Price Index for food at home, grocery prices for urban con
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUSR0000SAF11.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "index (1982-84=100)"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: index (1982-84=100)
 formatting:
   style: index
   decimals: 1
@@ -16,7 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/CUSR0000SAF11
   license: Public domain (US government data)
 tags:
-  - agriculture
-  - us
-  - inflation
+- agriculture
+- us
+- inflation
 unitClass: index

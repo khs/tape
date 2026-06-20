@@ -4,8 +4,13 @@ description: Federal government revenue (taxes plus other receipts) as a share o
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYFRGDA188S.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -16,9 +21,9 @@ provenance:
   url: https://fred.stlouisfed.org/series/FYFRGDA188S
   license: Public domain (US government data)
 tags:
-  - fiscal
-  - government
-  - tax
-  - macro
-  - us
+- fiscal
+- government
+- tax
+- macro
+- us
 unitClass: rate

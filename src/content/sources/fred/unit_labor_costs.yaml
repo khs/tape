@@ -1,15 +1,15 @@
 name: Nonfarm business unit labor costs
 shortName: Unit labor costs
-description: Unit labor costs = compensation per hour minus productivity. 
-  Watched as a leading indicator of inflation pressure.
-tags:
-  - inflation
-  - macro
-  - us
+description: Unit labor costs = compensation per hour minus productivity. Watched as a leading indicator of inflation pressure.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/ULCNFB.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: index 2017=100
 formatting:
   style: number
@@ -20,4 +20,8 @@ provenance:
   series: ULCNFB
   url: https://fred.stlouisfed.org/series/ULCNFB
   license: Public domain (US government data)
+tags:
+- inflation
+- macro
+- us
 unitClass: index

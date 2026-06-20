@@ -1,12 +1,19 @@
 name: US 10-year Treasury yield
 shortName: 10Y
-description: Nominal yield on the constant-maturity 10-year US Treasury note. 
-  Daily.
+description: Nominal yield on the constant-maturity 10-year US Treasury note. Daily.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DGS10.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -16,7 +23,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DGS10
   license: Public domain (US government data)
 tags:
-  - macro
-  - rates
-  - us
+- macro
+- rates
+- us
 unitClass: rate

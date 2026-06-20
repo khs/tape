@@ -1,12 +1,18 @@
 name: US 2-year Treasury yield
 shortName: 2Y
-description: Nominal yield on the constant-maturity 2-year US Treasury note. 
-  Daily.
+description: Nominal yield on the constant-maturity 2-year US Treasury note. Daily.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DGS2.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -16,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DGS2
   license: Public domain (US government data)
 tags:
-  - macro
-  - rates
-  - us
+- macro
+- rates
+- us
 unitClass: rate

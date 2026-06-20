@@ -1,10 +1,15 @@
-name: "CPI: Shelter"
+name: 'CPI: Shelter'
 shortName: Shelter CPI
 description: Shelter component of CPI. Includes rent + owner's equivalent rent + lodging away from home. The biggest weight in core CPI. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUUR0000SAH1.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: index 1982-84=100
 formatting:
   style: number
@@ -16,9 +21,9 @@ provenance:
   url: https://fred.stlouisfed.org/series/CUUR0000SAH1
   license: Public domain (US government data)
 tags:
-  - macro
-  - real-estate
-  - us
-  - housing
-  - inflation
+- macro
+- real-estate
+- us
+- housing
+- inflation
 unitClass: index

@@ -4,8 +4,12 @@ description: The Cleveland Fed's median consumer price index (CPI), the one-mont
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MEDCPIM158SFRBCLE.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -14,9 +18,9 @@ provenance:
   provider: FRED (St. Louis Fed) / Federal Reserve Bank of Cleveland
   series: MEDCPIM158SFRBCLE
   url: https://fred.stlouisfed.org/series/MEDCPIM158SFRBCLE
-  license: Citation required — Federal Reserve Bank of Cleveland (via FRED)
+  license: Citation required, Federal Reserve Bank of Cleveland (via FRED)
 tags:
-  - inflation
-  - macro
-  - us
+- inflation
+- macro
+- us
 unitClass: rate

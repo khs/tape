@@ -4,8 +4,12 @@ description: Producer Price Index for fertilizer materials, a major farm input c
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WPS0652.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "index (1982=100)"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: index (1982=100)
 formatting:
   style: index
   decimals: 1
@@ -16,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/WPS0652
   license: Public domain (US government data)
 tags:
-  - agriculture
-  - us
-  - inflation
+- agriculture
+- us
+- inflation
 unitClass: index

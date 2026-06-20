@@ -4,8 +4,15 @@ description: Share of men age 16+ who are working or actively looking for work. 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/LNS11300001.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: number
   decimals: 1
@@ -15,8 +22,8 @@ provenance:
   series: LNS11300001
   url: https://fred.stlouisfed.org/series/LNS11300001
   license: Public domain (US government data)
-unitClass: rate
 tags:
-  - labor
-  - gender
-  - us
+- labor
+- gender
+- us
+unitClass: rate

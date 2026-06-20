@@ -1,25 +1,31 @@
-name: 'Federal government employment in Hawaii'
-shortName: 'HI federal govt'
-description: 'Federal civilian employees working in Hawaii, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED.'
+name: Federal government employment in Hawaii
+shortName: HI federal govt
+description: Federal civilian employees working in Hawaii, monthly (BLS SAES). Includes the U.S. Postal Service, which is ~25% of total federal employment nationally. Public-domain BLS data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS15000009091000001.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 1
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. Bureau of Labor Statistics (BLS) via FRED
   series: SMS15000009091000001
   url: https://fred.stlouisfed.org/series/SMS15000009091000001
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - government
-  - us-state
-  - us
+- macro
+- labor
+- government
+- us-state
+- us
 unitClass: count

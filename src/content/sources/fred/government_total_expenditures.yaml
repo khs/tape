@@ -1,19 +1,22 @@
 name: Government total expenditures (federal + state + local)
 shortName: Govt total expenditures
-description: Total expenditures of all U.S. governments, federal plus
-  state plus local, from the NIPA accounts. Quarterly, annualized rate,
-  billions USD.
+description: Total expenditures of all U.S. governments, federal plus state plus local, from the NIPA accounts. Quarterly, annualized rate, billions USD.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/W068RCQ027SBEA.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: billions USD
 formatting:
   style: currency
-  currency: USD
   decimals: 1
   notation: compact
-  scaleFactor: 1.0e+9
+  scaleFactor: 1000000000.0
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -21,7 +24,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/W068RCQ027SBEA
   license: Public domain (US government data)
 tags:
-  - government
-  - macro
-  - us
+- government
+- macro
+- us
 unitClass: currency

@@ -4,8 +4,13 @@ description: Consumer Price Index for medical care (services and commodities), a
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPIMEDSL.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "index (1982-84=100)"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: index (1982-84=100)
 formatting:
   style: index
   decimals: 1
@@ -16,7 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/CPIMEDSL
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - inflation
+- macro
+- us
+- inflation
 unitClass: index

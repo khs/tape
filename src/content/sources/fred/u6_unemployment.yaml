@@ -1,13 +1,17 @@
 name: U-6 unemployment rate (broader)
 shortName: U-6
-description: Total unemployed plus all marginally attached workers plus people 
-  employed part-time for economic reasons, as a percent of the civilian labor 
-  force plus marginally attached. Always higher than the headline U-3 rate.
+description: Total unemployed plus all marginally attached workers plus people employed part-time for economic reasons, as a percent of the civilian labor force plus marginally attached. Always higher than the headline U-3 rate.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/U6RATE.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -18,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/U6RATE
   license: Public domain (US government data)
 tags:
-  - labor
-  - macro
-  - us
+- labor
+- macro
+- us
 unitClass: rate

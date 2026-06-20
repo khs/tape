@@ -4,13 +4,18 @@ description: Total public debt outstanding for the federal government, in millio
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GFDEBTN.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "millions USD"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: millions USD
 formatting:
   style: currency
-  currency: USD
   decimals: 1
   notation: compact
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -18,7 +23,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/GFDEBTN
   license: Public domain (US government data)
 tags:
-  - government
-  - macro
-  - us
+- government
+- macro
+- us
 unitClass: currency

@@ -4,8 +4,15 @@ description: Core PCE price index (ex food & energy), 2017=100, monthly. (PCE = 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PCEPILFE.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "index"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: index
 formatting:
   style: number
   decimals: 2
@@ -15,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/PCEPILFE
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - inflation
+- macro
+- us
+- inflation
 unitClass: index

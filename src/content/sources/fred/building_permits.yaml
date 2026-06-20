@@ -1,11 +1,17 @@
 name: Building permits, new private housing
 shortName: Building permits
-description: Authorized but not necessarily started, leads housing starts by 
-  1-2 months. Monthly, seasonally adjusted at annual rate.
+description: Authorized but not necessarily started, leads housing starts by 1-2 months. Monthly, seasonally adjusted at annual rate.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PERMIT.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: permits
 formatting:
   style: number
@@ -18,8 +24,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/PERMIT
   license: Public domain (US government data)
 tags:
-  - macro
-  - real-estate
-  - us
-  - housing
+- macro
+- real-estate
+- us
+- housing
 unitClass: count

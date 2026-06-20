@@ -1,16 +1,18 @@
 name: Average hourly earnings, all employees
 shortName: Avg. hourly earnings
-description: Mean private-sector hourly wage across all employees (production + 
-  supervisory). Headline earnings figure in the monthly jobs report.
+description: Mean private-sector hourly wage across all employees (production + supervisory). Headline earnings figure in the monthly jobs report.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CES0500000003.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
 unit: USD/hour
 formatting:
   style: currency
-  currency: USD
   decimals: 2
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -18,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/CES0500000003
   license: Public domain (US government data)
 tags:
-  - labor
-  - macro
-  - us
+- labor
+- macro
+- us
 unitClass: currency

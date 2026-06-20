@@ -1,22 +1,28 @@
-name: 'Real disposable personal income per capita'
-shortName: 'Real DPI/cap'
-description: 'Per-capita real disposable personal income (BEA). The aggregate series we also carry (DSPIC96) responds to population growth + income growth; this per-capita version isolates the per-person purchasing-power read. Public-domain federal-agency data via FRED.'
+name: Real disposable personal income per capita
+shortName: Real DPI/cap
+description: Per-capita real disposable personal income (BEA). The aggregate series we also carry (DSPIC96) responds to population growth + income growth; this per-capita version isolates the per-person purchasing-power read. Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/A229RX0.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "chained 2017 USD"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: chained 2017 USD
 formatting:
   style: currency
   decimals: 0
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: A229RX0
   url: https://fred.stlouisfed.org/series/A229RX0
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - consumer
-  - us
+- macro
+- consumer
+- us
 unitClass: currency

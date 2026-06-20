@@ -4,8 +4,12 @@ description: Producer Price Index for data processing, hosting, and related serv
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PCU518210518210.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "index (Dec 2009=100)"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: index (Dec 2009=100)
 formatting:
   style: index
   decimals: 1
@@ -16,8 +20,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/PCU518210518210
   license: Public domain (US government data)
 tags:
-  - tech
-  - macro
-  - us
-  - inflation
+- tech
+- macro
+- us
+- inflation
 unitClass: index

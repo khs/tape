@@ -1,24 +1,30 @@
-name: 'State + local government current expenditures'
-shortName: 'S+L expend.'
-description: 'State + local current expenditures (BEA NIPA). The other half of the general-government picture; ~$3T-vs-federal-$7T scale matters for anyone thinking about total public-sector economic footprint. Public-domain federal-agency data via FRED.'
+name: State + local government current expenditures
+shortName: S+L expend.
+description: State + local current expenditures (BEA NIPA). The other half of the general-government picture; ~$3T-vs-federal-$7T scale matters for anyone thinking about total public-sector economic footprint. Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SLEXPND.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "billions USD"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: billions USD
 formatting:
   style: currency
   decimals: 0
   notation: compact
   scaleFactor: 1000000000
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: SLEXPND
   url: https://fred.stlouisfed.org/series/SLEXPND
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - government
-  - us
+- macro
+- government
+- us
 unitClass: currency

@@ -1,11 +1,18 @@
-name: "Core CPI (all items less food & energy)"
+name: Core CPI (all items less food & energy)
 shortName: Core CPI
 description: Core CPI (1982-84=100), monthly. (CPI = Consumer Price Index.)
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CPILFESL.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "index"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: index
 formatting:
   style: number
   decimals: 2
@@ -15,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/CPILFESL
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - inflation
+- macro
+- us
+- inflation
 unitClass: index

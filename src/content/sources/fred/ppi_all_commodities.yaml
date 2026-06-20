@@ -4,8 +4,15 @@ description: Producer Price Index for all commodities, the long-history wholesal
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PPIACO.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "index (1982=100)"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: index (1982=100)
 formatting:
   style: index
   decimals: 1
@@ -16,7 +23,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/PPIACO
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - inflation
+- macro
+- us
+- inflation
 unitClass: index

@@ -4,8 +4,15 @@ description: All employees, total nonfarm (thousands, SA). Monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PAYEMS.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "jobs"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: jobs
 formatting:
   style: number
   decimals: 0
@@ -16,6 +23,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/PAYEMS
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: count

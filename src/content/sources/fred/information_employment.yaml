@@ -1,24 +1,30 @@
-name: 'Information-sector employment'
-shortName: 'Info jobs'
-description: 'All employees in the information sector, software publishing, telecoms, broadcasting, motion pictures, data processing, web search. The tech-employment headline in BLS terms. Public-domain federal-agency data via FRED.'
+name: Information-sector employment
+shortName: Info jobs
+description: All employees in the information sector, software publishing, telecoms, broadcasting, motion pictures, data processing, web search. The tech-employment headline in BLS terms. Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/USINFO.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 0
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: USINFO
   url: https://fred.stlouisfed.org/series/USINFO
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - tech
-  - us
+- macro
+- labor
+- tech
+- us
 unitClass: count

@@ -1,23 +1,22 @@
 name: Federal defense outlays
 shortName: Defense outlays
 description: Federal national-defense spending in nominal dollars. Quarterly.
-# Retired twin (audit #9): duplicate of fred/federal_defense_spending —
-# same FDEFX dataFile and identical formatting. Hidden from the picker;
-# its one chart (government/federal_defense) was repointed to the
-# survivor. Kept (not deleted) so any saved dashboard pinning this id
-# still resolves via resolve-dashboard.
-hidden: true
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FDEFX.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: billions USD
 formatting:
   style: currency
-  currency: USD
   decimals: 1
   notation: compact
-  scaleFactor: 1.0e+9
+  scaleFactor: 1000000000.0
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -25,8 +24,9 @@ provenance:
   url: https://fred.stlouisfed.org/series/FDEFX
   license: Public domain (US government data)
 tags:
-  - fiscal
-  - government
-  - macro
-  - us
+- fiscal
+- government
+- macro
+- us
 unitClass: currency
+hidden: true

@@ -4,8 +4,12 @@ description: Share of credit-card loan balances at least 30 days past due, all c
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DRCCLACBS.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -16,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DRCCLACBS
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - consumer
+- macro
+- us
+- consumer
 unitClass: rate

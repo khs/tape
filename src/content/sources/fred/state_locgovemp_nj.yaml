@@ -1,25 +1,31 @@
-name: 'Local government employment in New Jersey'
-shortName: 'NJ local govt'
-description: 'Employees of city, county, and special-district governments within New Jersey (BLS SAES). K-12 school district payrolls are the largest single component. Public-domain BLS data via FRED.'
+name: Local government employment in New Jersey
+shortName: NJ local govt
+description: Employees of city, county, and special-district governments within New Jersey (BLS SAES). K-12 school district payrolls are the largest single component. Public-domain BLS data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/SMS34000009093000001.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 1
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. Bureau of Labor Statistics (BLS) via FRED
   series: SMS34000009093000001
   url: https://fred.stlouisfed.org/series/SMS34000009093000001
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - government
-  - us-state
-  - us
+- macro
+- labor
+- government
+- us-state
+- us
 unitClass: count

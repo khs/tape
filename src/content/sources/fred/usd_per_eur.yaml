@@ -4,8 +4,15 @@ description: Spot exchange rate, US dollars per euro, daily noon buying rates fr
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DEXUSEU.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "USD per EUR"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: USD per EUR
 formatting:
   style: number
   decimals: 4
@@ -16,5 +23,5 @@ provenance:
   url: https://fred.stlouisfed.org/series/DEXUSEU
   license: Public domain (US government data)
 tags:
-  - fx
+- fx
 unitClass: ratio

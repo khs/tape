@@ -4,8 +4,13 @@ description: Producer Price Index for final demand, the headline producer-inflat
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/PPIFIS.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: "index (Nov 2009=100)"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+unit: index (Nov 2009=100)
 formatting:
   style: index
   decimals: 1
@@ -16,7 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/PPIFIS
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - inflation
+- macro
+- us
+- inflation
 unitClass: index

@@ -1,12 +1,17 @@
 name: New single-family home sales
 shortName: New home sales
-description: Sales of newly built single-family homes (Census Bureau). Excludes 
-  existing-home turnover; covers only first-sale transactions of new 
-  construction. Monthly, seasonally adjusted at annual rate.
+description: Sales of newly built single-family homes (Census Bureau). Excludes existing-home turnover; covers only first-sale transactions of new construction. Monthly, seasonally adjusted at annual rate.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/HSN1F.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: homes sold
 formatting:
   style: number
@@ -19,8 +24,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/HSN1F
   license: Public domain (US government data)
 tags:
-  - macro
-  - real-estate
-  - us
-  - housing
+- macro
+- real-estate
+- us
+- housing
 unitClass: count

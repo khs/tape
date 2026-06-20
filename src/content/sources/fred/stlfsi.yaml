@@ -4,8 +4,14 @@ description: St. Louis Fed Financial Stress Index, version 4. Weekly. A z-score 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/STLFSI4.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "index (z-score)"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: index (z-score)
 formatting:
   style: number
   decimals: 2
@@ -16,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/STLFSI4
   license: Public domain (US government data)
 tags:
-  - macro
-  - rates
-  - us
+- macro
+- rates
+- us
 unitClass: index

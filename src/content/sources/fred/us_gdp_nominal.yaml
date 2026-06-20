@@ -4,18 +4,22 @@ description: Gross domestic product in current dollars (seasonally adjusted annu
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GDP.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "billions USD"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: billions USD
 formatting:
   style: currency
   decimals: 0
-  suffix: "B"
+  suffix: B
 provenance:
   provider: FRED (St. Louis Fed)
   series: GDP
   url: https://fred.stlouisfed.org/series/GDP
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: currency

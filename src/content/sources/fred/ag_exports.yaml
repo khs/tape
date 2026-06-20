@@ -4,12 +4,16 @@ description: US exports of agricultural goods (BEA). Quarterly, seasonally adjus
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/B181RC1Q027SBEA.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "billions USD"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: billions USD
 formatting:
   style: currency
   decimals: 0
-  suffix: "B"
+  suffix: B
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -17,6 +21,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/B181RC1Q027SBEA
   license: Public domain (US government data)
 tags:
-  - agriculture
-  - us
+- agriculture
+- us
 unitClass: currency

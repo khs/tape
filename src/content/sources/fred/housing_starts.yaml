@@ -4,8 +4,15 @@ description: New privately-owned housing units started, thousands SAAR, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/HOUST.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "starts"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: starts
 formatting:
   style: number
   decimals: 0
@@ -16,7 +23,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/HOUST
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - housing
+- macro
+- us
+- housing
 unitClass: count

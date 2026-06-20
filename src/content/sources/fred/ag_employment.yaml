@@ -4,8 +4,13 @@ description: Employment level in agriculture and related industries (Current Pop
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/LNS12034560.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "jobs"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: jobs
 formatting:
   style: number
   decimals: 0
@@ -17,6 +22,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/LNS12034560
   license: Public domain (US government data)
 tags:
-  - agriculture
-  - us
+- agriculture
+- us
 unitClass: count

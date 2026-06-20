@@ -4,8 +4,12 @@ description: Total required household debt payments as a share of disposable per
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/TDSP.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -16,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/TDSP
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - consumer
+- macro
+- us
+- consumer
 unitClass: rate

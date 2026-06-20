@@ -1,12 +1,15 @@
 name: DC-metro unemployment rate
 shortName: DC unemployment
-description: Headline unemployment rate for the Washington-Arlington-Alexandria 
-  MSA. Monthly, BLS LAUS, not seasonally adjusted.
+description: Headline unemployment rate for the Washington-Arlington-Alexandria MSA. Monthly, BLS LAUS, not seasonally adjusted.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WASH911URN.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -17,6 +20,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/WASH911URN
   license: Public domain (US government data)
 tags:
-  - labor
-  - us
+- labor
+- us
 unitClass: rate

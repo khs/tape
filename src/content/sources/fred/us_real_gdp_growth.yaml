@@ -4,8 +4,12 @@ description: Percent change in real gross domestic product (GDP) from the preced
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/A191RL1Q225SBEA.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -16,6 +20,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/A191RL1Q225SBEA
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: rate

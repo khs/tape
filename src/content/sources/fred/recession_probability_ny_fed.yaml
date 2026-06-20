@@ -21,8 +21,12 @@ description: |
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/RECPROUSM156N.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -33,6 +37,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/RECPROUSM156N
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: rate

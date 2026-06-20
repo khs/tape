@@ -1,23 +1,29 @@
-name: 'Unemployment rate, White'
-shortName: 'Unrate (W)'
-description: 'Civilian unemployment rate, White workers (BLS CPS). Lowest of the three race/ethnicity series we carry; useful as the baseline for reading the persistent gaps with Black and Hispanic unemployment. Public-domain federal-agency data via FRED.'
+name: Unemployment rate, White
+shortName: Unrate (W)
+description: Civilian unemployment rate, White workers (BLS CPS). Lowest of the three race/ethnicity series we carry; useful as the baseline for reading the persistent gaps with Black and Hispanic unemployment. Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/LNS14000003.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "%"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: LNS14000003
   url: https://fred.stlouisfed.org/series/LNS14000003
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - demographics
-  - us
+- macro
+- labor
+- demographics
+- us
 unitClass: rate

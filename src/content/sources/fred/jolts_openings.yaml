@@ -4,7 +4,10 @@ description: Number of unfilled job postings on the last business day of the mon
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSJOL.json
-supportedDeltas: ["1y", "5y", "10y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
 unit: openings
 formatting:
   style: number
@@ -17,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/JTSJOL
   license: Public domain (US government data)
 tags:
-  - labor
-  - macro
-  - us
+- labor
+- macro
+- us
 unitClass: count

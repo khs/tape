@@ -4,12 +4,19 @@ description: Outstanding nonrevolving consumer credit, primarily auto and studen
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/NONREVSL.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "billions USD"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: billions USD
 formatting:
   style: currency
   decimals: 0
-  suffix: "B"
+  suffix: B
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -17,7 +24,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/NONREVSL
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - consumer
+- macro
+- us
+- consumer
 unitClass: currency

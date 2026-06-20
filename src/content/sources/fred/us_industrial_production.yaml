@@ -3,7 +3,14 @@ description: Industrial Production Index (2017 = 100), monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/INDPRO.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: index (2017=100)
 formatting:
   style: number
@@ -14,6 +21,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/INDPRO
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: index

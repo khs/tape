@@ -4,17 +4,24 @@ description: Weekly US average retail diesel price. EIA via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/GASDESW.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
 unit: USD/gal
 formatting:
   style: currency
-  currency: USD
   decimals: 3
+  currency: USD
 provenance:
   provider: FRED (St. Louis Fed)
   series: GASDESW
   url: https://fred.stlouisfed.org/series/GASDESW
   license: Public domain (US government data)
 tags:
-  - commodities
+- commodities
 unitClass: currency

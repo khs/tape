@@ -1,25 +1,31 @@
-name: 'Total government employment in Maine'
-shortName: 'ME total govt'
-description: 'All government employees (federal + state + local) in Maine. Headline public-sector workforce signal for the state. Public-domain BLS data via FRED.'
+name: Total government employment in Maine
+shortName: ME total govt
+description: All government employees (federal + state + local) in Maine. Headline public-sector workforce signal for the state. Public-domain BLS data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MEGOVT.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 1
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. Bureau of Labor Statistics (BLS) via FRED
   series: MEGOVT
   url: https://fred.stlouisfed.org/series/MEGOVT
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - government
-  - us-state
-  - us
+- macro
+- labor
+- government
+- us-state
+- us
 unitClass: count

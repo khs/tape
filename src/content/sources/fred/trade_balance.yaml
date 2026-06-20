@@ -1,17 +1,20 @@
 name: US trade balance, goods and services
 shortName: Trade balance
-description: Monthly net exports (exports minus imports) of goods and services. 
-  Negative values indicate a trade deficit.
+description: Monthly net exports (exports minus imports) of goods and services. Negative values indicate a trade deficit.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/BOPGSTB.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
 unit: millions USD
 formatting:
   style: currency
-  currency: USD
   decimals: 0
   notation: compact
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -19,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/BOPGSTB
   license: Public domain (US government data)
 tags:
-  - government
-  - macro
-  - us
+- government
+- macro
+- us
 unitClass: currency

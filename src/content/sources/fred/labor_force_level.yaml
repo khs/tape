@@ -4,8 +4,15 @@ description: Number of people aged 16+ who are either employed or actively seeki
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CLF16OV.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "people"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: people
 formatting:
   style: number
   decimals: 0
@@ -16,6 +23,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/CLF16OV
   license: Public domain (US government data)
 tags:
-  - labor
-  - us
+- labor
+- us
 unitClass: count

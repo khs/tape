@@ -4,8 +4,12 @@ description: New privately-owned housing units authorized by building permits in
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/WVBPPRIV.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "units"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: units
 formatting:
   style: number
   decimals: 0
@@ -17,9 +21,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/WVBPPRIV
   license: Public domain (US government data)
 tags:
-  - real-estate
-  - us
-  - us-state
-  - housing
+- real-estate
+- us
+- us-state
+- housing
 unitClass: count
-

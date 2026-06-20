@@ -1,13 +1,18 @@
 name: 15-year fixed mortgage rate
 shortName: 15Y mortgage
-description: Average rate on a conforming 15-year fixed-rate US mortgage 
-  (Freddie Mac PMMS). Lower rate, faster amortization, higher monthly payment 
-  than the 30-year.
+description: Average rate on a conforming 15-year fixed-rate US mortgage (Freddie Mac PMMS). Lower rate, faster amortization, higher monthly payment than the 30-year.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MORTGAGE15US.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -16,11 +21,11 @@ provenance:
   provider: FRED (St. Louis Fed) / Freddie Mac
   series: MORTGAGE15US
   url: https://fred.stlouisfed.org/series/MORTGAGE15US
-  license: Freddie Mac Primary Mortgage Market Survey — citation required, via FRED
+  license: Freddie Mac Primary Mortgage Market Survey, citation required, via FRED
 tags:
-  - macro
-  - rates
-  - real-estate
-  - us
-  - housing
+- macro
+- rates
+- real-estate
+- us
+- housing
 unitClass: rate

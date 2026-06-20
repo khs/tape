@@ -4,8 +4,15 @@ description: Constant-maturity 3-month US Treasury yield. Daily.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DGS3MO.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -15,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DGS3MO
   license: Public domain (US government data)
 tags:
-  - macro
-  - rates
-  - us
+- macro
+- rates
+- us
 unitClass: rate

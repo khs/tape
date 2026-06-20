@@ -4,8 +4,13 @@ description: Average weekly hours worked by production and nonsupervisory employ
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/AWHMAN.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "hours"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: hours
 formatting:
   style: number
   decimals: 1
@@ -16,7 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/AWHMAN
   license: Public domain (US government data)
 tags:
-  - labor
-  - macro
-  - us
+- labor
+- macro
+- us
 unitClass: ratio

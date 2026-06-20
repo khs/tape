@@ -4,8 +4,15 @@ description: Spot exchange rate, South Korean won per US dollar, from the Federa
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DEXKOUS.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "KRW per USD"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: KRW per USD
 formatting:
   style: number
   decimals: 2
@@ -16,5 +23,5 @@ provenance:
   url: https://fred.stlouisfed.org/series/DEXKOUS
   license: Public domain (US government data)
 tags:
-  - fx
+- fx
 unitClass: ratio

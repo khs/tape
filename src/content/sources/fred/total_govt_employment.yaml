@@ -1,24 +1,30 @@
-name: 'Government employment, total'
-shortName: 'Govt jobs'
-description: 'All employees in government (BLS CES, federal + state + local combined). ~22 million people; the headline jobs metric for public-sector employment. Public-domain federal-agency data via FRED.'
+name: Government employment, total
+shortName: Govt jobs
+description: All employees in government (BLS CES, federal + state + local combined). ~22 million people; the headline jobs metric for public-sector employment. Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/USGOVT.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 0
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: USGOVT
   url: https://fred.stlouisfed.org/series/USGOVT
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - government
-  - us
+- macro
+- labor
+- government
+- us
 unitClass: count

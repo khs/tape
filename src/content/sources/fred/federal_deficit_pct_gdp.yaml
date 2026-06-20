@@ -4,8 +4,13 @@ description: Annual federal budget balance (negative = deficit) as a percent of 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYFSGDA188S.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -16,8 +21,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/FYFSGDA188S
   license: Public domain (US government data)
 tags:
-  - fiscal
-  - government
-  - macro
-  - us
+- fiscal
+- government
+- macro
+- us
 unitClass: rate

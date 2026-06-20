@@ -4,18 +4,23 @@ description: Real gross domestic product per person, quarterly, chained 2017 dol
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/A939RX0Q048SBEA.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: USD
 formatting:
   style: number
   decimals: 0
-  prefix: "$"
+  prefix: $
 provenance:
   provider: FRED (St. Louis Fed)
   series: A939RX0Q048SBEA
   url: https://fred.stlouisfed.org/series/A939RX0Q048SBEA
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: currency

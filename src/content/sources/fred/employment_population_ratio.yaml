@@ -4,8 +4,15 @@ description: Share of the civilian noninstitutional population aged 16+ that is 
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/EMRATIO.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -16,6 +23,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/EMRATIO
   license: Public domain (US government data)
 tags:
-  - labor
-  - us
+- labor
+- us
 unitClass: rate

@@ -1,24 +1,30 @@
-name: 'Health care + social assistance employment'
-shortName: 'Healthcare jobs'
-description: 'All employees in the health care + social assistance sector (BLS CES). Public-domain federal-agency data via FRED.'
+name: Health care + social assistance employment
+shortName: Healthcare jobs
+description: All employees in the health care + social assistance sector (BLS CES). Public-domain federal-agency data via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CES6562000001.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "thousands of persons"
-emphasis: level
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: thousands of persons
 formatting:
   style: number
   decimals: 0
   notation: compact
+emphasis: level
 provenance:
   provider: U.S. federal-agency data via FRED
   series: CES6562000001
   url: https://fred.stlouisfed.org/series/CES6562000001
-  license: "Public domain (US government data; see FRED tag 'public domain: citation requested')"
+  license: 'Public domain (US government data; see FRED tag ''public domain: citation requested'')'
 tags:
-  - macro
-  - labor
-  - health
-  - us
+- macro
+- labor
+- health
+- us
 unitClass: count

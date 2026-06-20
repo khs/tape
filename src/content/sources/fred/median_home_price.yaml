@@ -4,8 +4,13 @@ description: Median sales price of houses sold (USD), quarterly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MSPUS.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "USD"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: USD
 formatting:
   style: currency
   decimals: 0
@@ -16,7 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/MSPUS
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
-  - housing
+- macro
+- us
+- housing
 unitClass: currency

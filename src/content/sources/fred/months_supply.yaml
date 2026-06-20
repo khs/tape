@@ -1,12 +1,15 @@
 name: Months supply of new houses for sale
 shortName: Months supply
-description: Months it would take to sell the current new-home inventory at the 
-  current sales pace. Below ~6 indicates a tight market favoring sellers; above 
-  ~6 favors buyers.
+description: Months it would take to sell the current new-home inventory at the current sales pace. Below ~6 indicates a tight market favoring sellers; above ~6 favors buyers.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MSACSR.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: months
 formatting:
   style: number
@@ -18,7 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/MSACSR
   license: Public domain (US government data)
 tags:
-  - macro
-  - real-estate
-  - us
+- macro
+- real-estate
+- us
 unitClass: ratio

@@ -4,8 +4,14 @@ description: Total consumer credit outstanding (revolving + non-revolving), owne
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/TOTALSL.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "billions USD"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: billions USD
 formatting:
   style: currency
   decimals: 0
@@ -17,7 +23,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/TOTALSL
   license: Public domain (US government data; FRB G.19 Consumer Credit release)
 tags:
-  - macro
-  - consumer
-  - us
+- macro
+- consumer
+- us
 unitClass: currency

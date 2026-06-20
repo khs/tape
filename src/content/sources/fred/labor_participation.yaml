@@ -4,8 +4,15 @@ description: Civilian labor force participation rate, monthly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CIVPART.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -15,6 +22,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/CIVPART
   license: Public domain (US government data)
 tags:
-  - macro
-  - us
+- macro
+- us
 unitClass: rate

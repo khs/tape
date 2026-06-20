@@ -4,8 +4,12 @@ description: FHFA all-transactions House Price Index for the United States. Repe
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/USSTHPI.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "index 1980Q1=100"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: index 1980Q1=100
 formatting:
   style: number
   decimals: 1
@@ -15,8 +19,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/USSTHPI
   license: Public domain (US government data; FHFA publishes the underlying index)
 tags:
-  - macro
-  - real-estate
-  - us
-  - housing
+- macro
+- real-estate
+- us
+- housing
 unitClass: index

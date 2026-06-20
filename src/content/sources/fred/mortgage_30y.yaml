@@ -4,8 +4,16 @@ description: Freddie Mac primary mortgage market survey, weekly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MORTGAGE30US.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -13,10 +21,10 @@ provenance:
   provider: FRED (St. Louis Fed) / Freddie Mac
   series: MORTGAGE30US
   url: https://fred.stlouisfed.org/series/MORTGAGE30US
-  license: Freddie Mac Primary Mortgage Market Survey — citation required, via FRED
+  license: Freddie Mac Primary Mortgage Market Survey, citation required, via FRED
 tags:
-  - macro
-  - rates
-  - us
-  - housing
+- macro
+- rates
+- us
+- housing
 unitClass: rate

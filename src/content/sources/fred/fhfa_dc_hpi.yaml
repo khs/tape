@@ -4,8 +4,12 @@ description: FHFA all-transactions House Price Index for the District of Columbi
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DCSTHPI.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "index 1980Q1=100"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: index 1980Q1=100
 formatting:
   style: number
   decimals: 1
@@ -16,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DCSTHPI
   license: Public domain (US government data; FHFA publishes the underlying index)
 tags:
-  - real-estate
-  - us
-  - housing
+- real-estate
+- us
+- housing
 unitClass: index

@@ -4,8 +4,12 @@ description: Senior Loan Officer Opinion Survey, share of banks reporting tighte
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DRTSCLCC.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -16,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DRTSCLCC
   license: Public domain (US government data)
 tags:
-  - macro
-  - rates
-  - us
+- macro
+- rates
+- us
 unitClass: rate

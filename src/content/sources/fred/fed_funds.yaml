@@ -4,8 +4,15 @@ description: Monthly average of daily fed funds effective rate.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FEDFUNDS.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -15,7 +22,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/FEDFUNDS
   license: Public domain (US government data)
 tags:
-  - macro
-  - rates
-  - us
+- macro
+- rates
+- us
 unitClass: rate

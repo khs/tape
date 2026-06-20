@@ -1,18 +1,23 @@
 name: Henry Hub natural gas spot price
 shortName: Henry Hub nat gas
-description: Henry Hub natural gas spot price in USD per MMBtu (million British 
-  thermal units). The US benchmark for natural-gas wholesale trading. Weekly. 
-  From FRED via the EIA.
+description: Henry Hub natural gas spot price in USD per MMBtu (million British thermal units). The US benchmark for natural-gas wholesale trading. Weekly. From FRED via the EIA.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DHHNGSP.json
-supportedDeltas: ["1w", "1m", "ytd", "1y", "5y", "10y", "30y"]
+supportedDeltas:
+- 1w
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
 unit: USD/MMBtu
 formatting:
   style: currency
-  currency: USD
   decimals: 2
-  suffix: '/MMBtu'
+  suffix: /MMBtu
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed) / EIA
@@ -20,6 +25,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/DHHNGSP
   license: Public domain (US government data, EIA)
 tags:
-  - commodities
-  - energy
+- commodities
+- energy
 unitClass: currency

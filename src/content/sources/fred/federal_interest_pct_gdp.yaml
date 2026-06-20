@@ -4,8 +4,13 @@ description: Federal interest payments on outstanding debt, net of interest rece
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/FYOIGDA188S.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 2
@@ -16,9 +21,9 @@ provenance:
   url: https://fred.stlouisfed.org/series/FYOIGDA188S
   license: Public domain (US government data)
 tags:
-  - fiscal
-  - government
-  - macro
-  - rates
-  - us
+- fiscal
+- government
+- macro
+- rates
+- us
 unitClass: rate

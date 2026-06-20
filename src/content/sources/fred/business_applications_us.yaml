@@ -4,8 +4,12 @@ description: Total business applications in the United States, monthly (seasonal
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/BABATOTALSAUS.json
-supportedDeltas: ["1y", "5y", "10y", "30y"]
-unit: "applications"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+unit: applications
 formatting:
   style: number
   decimals: 0
@@ -17,8 +21,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/BABATOTALSAUS
   license: Public domain (US government data)
 tags:
-  - business
-  - us
-  - macro
+- business
+- us
+- macro
 unitClass: count
-

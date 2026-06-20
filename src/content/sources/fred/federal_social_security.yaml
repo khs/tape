@@ -4,14 +4,19 @@ description: OASDI (old-age, survivors, disability insurance) benefits paid by t
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/W823RC1Q027SBEA.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: billions USD
 formatting:
   style: currency
-  currency: USD
   decimals: 1
   notation: compact
-  scaleFactor: 1.0e+9
+  scaleFactor: 1000000000.0
+  currency: USD
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -19,7 +24,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/W823RC1Q027SBEA
   license: Public domain (US government data)
 tags:
-  - government
-  - macro
-  - us
+- government
+- macro
+- us
 unitClass: currency

@@ -4,8 +4,14 @@ description: After-tax income adjusted for inflation.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/DSPIC96.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y", "30y"]
-unit: "billions chained 2017 USD"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+- 30y
+unit: billions chained 2017 USD
 formatting:
   style: currency
   decimals: 0
@@ -17,7 +23,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/DSPIC96
   license: Public domain (US government data; BEA publishes the underlying NIPA series)
 tags:
-  - macro
-  - consumer
-  - us
+- macro
+- consumer
+- us
 unitClass: currency

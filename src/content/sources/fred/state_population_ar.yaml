@@ -1,11 +1,14 @@
 name: Arkansas population
 shortName: Arkansas pop
-description: Annual estimate of Arkansas's population, in thousands. From Census
-  Bureau Population Estimates Program via FRED.
+description: Annual estimate of Arkansas's population, in thousands. From Census Bureau Population Estimates Program via FRED.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/ARPOP.json
-supportedDeltas: ["5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 5y
+- 10y
+- 30y
+- 50y
 unit: people
 formatting:
   style: number

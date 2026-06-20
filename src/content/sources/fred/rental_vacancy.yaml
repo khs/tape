@@ -1,12 +1,16 @@
 name: US rental vacancy rate
 shortName: Rental vacancy
-description: Share of all rental units vacant and available for rent. Census 
-  HVS, quarterly.
+description: Share of all rental units vacant and available for rent. Census HVS, quarterly.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/RRVRUSQ156N.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
-unit: "%"
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -17,8 +21,8 @@ provenance:
   url: https://fred.stlouisfed.org/series/RRVRUSQ156N
   license: Public domain (US government data)
 tags:
-  - macro
-  - real-estate
-  - us
-  - housing
+- macro
+- real-estate
+- us
+- housing
 unitClass: rate

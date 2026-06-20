@@ -4,8 +4,13 @@ description: Quits as a percent of total employment. The "great resignation" ser
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/JTSQUR.json
-supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
-unit: "%"
+supportedDeltas:
+- 1m
+- ytd
+- 1y
+- 5y
+- 10y
+unit: '%'
 formatting:
   style: percent
   decimals: 1
@@ -15,7 +20,7 @@ provenance:
   url: https://fred.stlouisfed.org/series/JTSQUR
   license: Public domain (US government data; BLS Job Openings and Labor Turnover Survey)
 tags:
-  - macro
-  - labor
-  - us
+- macro
+- labor
+- us
 unitClass: rate

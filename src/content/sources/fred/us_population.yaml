@@ -1,14 +1,15 @@
 name: US population
 shortName: US population
-description: US population, all persons. Monthly from FRED (POPTHM); commonly 
-  used as a denominator to convert headline aggregates into per-capita series.
-tags:
-  - macro
-  - us
+description: US population, all persons. Monthly from FRED (POPTHM); commonly used as a denominator to convert headline aggregates into per-capita series.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/POPTHM.json
-supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+supportedDeltas:
+- 1y
+- 5y
+- 10y
+- 30y
+- 50y
 unit: people
 formatting:
   style: number
@@ -20,4 +21,7 @@ provenance:
   series: POPTHM
   url: https://fred.stlouisfed.org/series/POPTHM
   license: Public domain (US government data)
+tags:
+- macro
+- us
 unitClass: count
