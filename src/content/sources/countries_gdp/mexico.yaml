@@ -1,6 +1,8 @@
 name: Mexico real-GDP share of world
 shortName: Mexico
 description: Mexico real GDP / world real GDP (constant 2015 USD), annual (World Bank). the most recent value is carried forward to the current date; World Bank data typically lags by about a year. (GDP = Gross Domestic Product.)
+tags:
+  - macro
 kind: timeseries
 pipeline: worldbank_gdp
 dataFile: data/worldbank_gdp/EWW.json

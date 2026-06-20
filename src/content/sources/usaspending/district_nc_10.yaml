@@ -2,6 +2,9 @@ name: Federal spending — NC-10
 shortName: NC-10
 description: Total federal outlays where the recipient is in North Carolina's 
   district 10 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_nc_10.json

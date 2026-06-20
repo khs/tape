@@ -2,6 +2,8 @@ name: TRON (USD)
 shortName: TRX
 description: Spot TRON price. Daily close, weekends included for spot tokens 
   since crypto trades 24/7.
+tags:
+  - crypto
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/TRX_USD.json

@@ -2,6 +2,9 @@ name: Federal spending — VA-06
 shortName: VA-06
 description: Total federal outlays where the recipient is in Virginia's district
   6 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_va_06.json

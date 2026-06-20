@@ -1,6 +1,9 @@
 name: Spain gov deficit/GDP
 shortName: ES gov deficit/GDP
 description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual. (GDP = Gross Domestic Product.)
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/esp_gov_deficit_pct_gdp.json

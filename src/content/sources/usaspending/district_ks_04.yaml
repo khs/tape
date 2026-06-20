@@ -2,6 +2,9 @@ name: Federal spending — KS-04
 shortName: KS-04
 description: Total federal outlays where the recipient is in Kansas's district 4
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ks_04.json

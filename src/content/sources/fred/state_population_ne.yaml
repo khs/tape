@@ -20,4 +20,6 @@ provenance:
   series: NEPOP
   url: https://fred.stlouisfed.org/series/NEPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

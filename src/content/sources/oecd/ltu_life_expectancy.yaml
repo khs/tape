@@ -2,6 +2,8 @@ name: Lithuania life expectancy
 shortName: LT life expectancy
 description: Life expectancy at birth, both sexes combined. OECD Health 
   Statistics. Annual.
+tags:
+  - health
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/ltu_life_expectancy.json

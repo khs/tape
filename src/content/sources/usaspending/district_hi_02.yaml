@@ -2,6 +2,9 @@ name: Federal spending — HI-02
 shortName: HI-02
 description: Total federal outlays where the recipient is in Hawaii's district 2
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_hi_02.json

@@ -1,6 +1,8 @@
 name: Cisco Systems (CSCO)
 shortName: CSCO
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/CSCO.json

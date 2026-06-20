@@ -1,6 +1,8 @@
 name: PepsiCo (PEP)
 shortName: PEP
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/PEP.json

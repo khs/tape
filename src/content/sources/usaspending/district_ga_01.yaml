@@ -2,6 +2,9 @@ name: Federal spending — GA-01
 shortName: GA-01
 description: Total federal outlays where the recipient is in Georgia's district 
   1 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ga_01.json

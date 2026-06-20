@@ -2,6 +2,9 @@ name: Federal spending — WA-01
 shortName: WA-01
 description: Total federal outlays where the recipient is in Washington's 
   district 1 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_wa_01.json

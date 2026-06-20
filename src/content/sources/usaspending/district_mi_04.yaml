@@ -2,6 +2,9 @@ name: Federal spending — MI-04
 shortName: MI-04
 description: Total federal outlays where the recipient is in Michigan's district
   4 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_mi_04.json

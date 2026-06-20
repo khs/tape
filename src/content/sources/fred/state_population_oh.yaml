@@ -20,4 +20,6 @@ provenance:
   series: OHPOP
   url: https://fred.stlouisfed.org/series/OHPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

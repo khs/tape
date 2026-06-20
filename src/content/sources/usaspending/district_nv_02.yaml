@@ -2,6 +2,9 @@ name: Federal spending — NV-02
 shortName: NV-02
 description: Total federal outlays where the recipient is in Nevada's district 2
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_nv_02.json

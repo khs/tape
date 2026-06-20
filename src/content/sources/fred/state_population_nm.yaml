@@ -20,4 +20,6 @@ provenance:
   series: NMPOP
   url: https://fred.stlouisfed.org/series/NMPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

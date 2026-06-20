@@ -1,6 +1,8 @@
 name: "Johnson & Johnson (JNJ)"
 shortName: JNJ
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/JNJ.json

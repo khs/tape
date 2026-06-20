@@ -20,4 +20,6 @@ provenance:
   series: IDPOP
   url: https://fred.stlouisfed.org/series/IDPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

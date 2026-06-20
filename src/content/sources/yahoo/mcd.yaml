@@ -1,6 +1,8 @@
 name: McDonald's (MCD)
 shortName: MCD
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/MCD.json

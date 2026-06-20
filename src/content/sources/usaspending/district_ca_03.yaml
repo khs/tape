@@ -2,6 +2,9 @@ name: Federal spending — CA-03
 shortName: CA-03
 description: Total federal outlays where the recipient is in California's 
   district 3 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ca_03.json

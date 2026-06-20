@@ -2,6 +2,9 @@ name: Federal spending — KS-01
 shortName: KS-01
 description: Total federal outlays where the recipient is in Kansas's district 1
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ks_01.json

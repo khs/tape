@@ -20,4 +20,6 @@ provenance:
   series: UTPOP
   url: https://fred.stlouisfed.org/series/UTPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

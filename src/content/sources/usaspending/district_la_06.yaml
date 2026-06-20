@@ -2,6 +2,9 @@ name: Federal spending — LA-06
 shortName: LA-06
 description: Total federal outlays where the recipient is in Louisiana's 
   district 6 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_la_06.json

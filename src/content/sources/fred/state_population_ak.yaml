@@ -20,4 +20,6 @@ provenance:
   series: AKPOP
   url: https://fred.stlouisfed.org/series/AKPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

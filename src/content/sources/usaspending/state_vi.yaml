@@ -3,6 +3,9 @@ shortName: US Virgin Islands fed $
 description: Total federal contract + grant + loan + direct payment outlays 
   where the recipient is located in US Virgin Islands, by fiscal year. From 
   USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_vi.json

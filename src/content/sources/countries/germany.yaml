@@ -2,6 +2,8 @@ name: Germany equity market vs. world
 shortName: EWG
 description: iShares MSCI Germany ETF (EWG) divided by Vanguard Total World ETF 
   (VT), indexed to 100 at series start. Daily.
+tags:
+  - equity-index
 kind: timeseries
 pipeline: countries_relative
 dataFile: data/countries_relative/EWG.json

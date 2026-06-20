@@ -2,6 +2,9 @@ name: Federal spending — SC-01
 shortName: SC-01
 description: Total federal outlays where the recipient is in South Carolina's 
   district 1 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_sc_01.json

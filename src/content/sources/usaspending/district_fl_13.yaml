@@ -2,6 +2,9 @@ name: Federal spending — FL-13
 shortName: FL-13
 description: Total federal outlays where the recipient is in Florida's district 
   13 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_fl_13.json

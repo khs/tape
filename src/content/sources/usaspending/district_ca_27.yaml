@@ -2,6 +2,9 @@ name: Federal spending — CA-27
 shortName: CA-27
 description: Total federal outlays where the recipient is in California's 
   district 27 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ca_27.json

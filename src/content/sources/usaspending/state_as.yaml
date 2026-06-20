@@ -3,6 +3,9 @@ shortName: American Samoa fed $
 description: Total federal contract + grant + loan + direct payment outlays 
   where the recipient is located in American Samoa, by fiscal year. From 
   USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_as.json

@@ -2,6 +2,9 @@ name: Federal spending — TX-11
 shortName: TX-11
 description: Total federal outlays where the recipient is in Texas's district 11
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_tx_11.json

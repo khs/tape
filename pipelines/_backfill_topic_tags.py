@@ -75,6 +75,46 @@ for _pat in ("state_payrolls_*", "state_unemployment_*", "county_unemployment_*"
         PLAN.setdefault(f"bls/{Path(_f).stem}", set()).add("labor")
 
 
+# --- Topical tags for hand-written providers that shipped fully untagged ----
+# Each rule matches the topical tags the provider's already-tagged siblings use
+# (or, for country/geo-hidden providers, the obvious topic), so this only fills
+# gaps, never invents a taxonomy. ensure_tags is idempotent.
+# usaspending: federal spending (tagged siblings carry government+macro).
+for _f in glob.glob(str(SRC / "usaspending" / "*.yaml")):
+    PLAN.setdefault(f"usaspending/{Path(_f).stem}", set()).update({"government", "macro"})
+# OECD foreign indicators, by metric suffix (country tag already hides them).
+for _f in glob.glob(str(SRC / "oecd" / "*.yaml")):
+    _s = Path(_f).stem
+    if _s.endswith("_gov_debt_pct_gdp") or _s.endswith("_gov_deficit_pct_gdp"):
+        PLAN.setdefault(f"oecd/{_s}", set()).update({"macro", "government"})
+    elif _s.endswith("_health_spending_pct_gdp"):
+        PLAN.setdefault(f"oecd/{_s}", set()).update({"health", "macro"})
+    elif _s.endswith("_life_expectancy"):
+        PLAN.setdefault(f"oecd/{_s}", set()).add("health")
+# fred per-state population (matches us_population -> macro; geo supplies us/state).
+for _f in glob.glob(str(SRC / "fred" / "state_population_*.yaml")):
+    PLAN.setdefault(f"fred/{Path(_f).stem}", set()).add("macro")
+# treasury_tic foreign holders of US treasuries (matches siblings).
+for _f in glob.glob(str(SRC / "treasury_tic" / "*.yaml")):
+    PLAN.setdefault(f"treasury_tic/{Path(_f).stem}", set()).update({"government", "macro"})
+# country GDP-share + worldbank US GDP -> macro; country equity-vs-world -> equity-index.
+for _f in glob.glob(str(SRC / "countries_gdp" / "*.yaml")):
+    PLAN.setdefault(f"countries_gdp/{Path(_f).stem}", set()).add("macro")
+PLAN.setdefault("worldbank_gdp_raw/usa", set()).add("macro")
+for _f in glob.glob(str(SRC / "countries" / "*.yaml")):
+    PLAN.setdefault(f"countries/{Path(_f).stem}", set()).add("equity-index")
+# yahoo: only the UNTAGGED set (mega-cap stocks vs a few crypto); never re-tag
+# the existing ETF/commodity/fx/crypto entries.
+_CRYPTO_YAHOO = {"dot_usd", "shib_usd", "trx_usd", "etha"}
+for _f in glob.glob(str(SRC / "yahoo" / "*.yaml")):
+    _txt = open(_f, encoding="utf-8").read()
+    if "\ntags:" in _txt or _txt.startswith("tags:"):
+        continue  # already tagged
+    _s = Path(_f).stem
+    PLAN.setdefault(f"yahoo/{_s}", set()).add(
+        "crypto" if _s in _CRYPTO_YAHOO else "large-stocks")
+
+
 def ensure_tags(path: Path, needed: set[str]) -> list[str]:
     """Return the tags actually added (empty if none)."""
     lines = path.read_text(encoding="utf-8").split("\n")

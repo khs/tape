@@ -1,6 +1,8 @@
 name: Salesforce (CRM)
 shortName: CRM
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/CRM.json

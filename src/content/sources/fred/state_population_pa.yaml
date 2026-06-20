@@ -20,4 +20,6 @@ provenance:
   series: PAPOP
   url: https://fred.stlouisfed.org/series/PAPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

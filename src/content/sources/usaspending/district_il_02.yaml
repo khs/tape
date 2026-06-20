@@ -2,6 +2,9 @@ name: Federal spending — IL-02
 shortName: IL-02
 description: Total federal outlays where the recipient is in Illinois's district
   2 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_il_02.json

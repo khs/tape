@@ -20,4 +20,6 @@ provenance:
   series: MDPOP
   url: https://fred.stlouisfed.org/series/MDPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

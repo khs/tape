@@ -1,6 +1,9 @@
 name: Poland gov deficit/GDP
 shortName: PL gov deficit/GDP
 description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual. (GDP = Gross Domestic Product.)
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/pol_gov_deficit_pct_gdp.json

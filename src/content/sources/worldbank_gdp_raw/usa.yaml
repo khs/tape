@@ -1,6 +1,8 @@
 name: United States real GDP
 shortName: USA GDP
 description: United States real GDP, constant 2015 USD (World Bank, NY.GDP.MKTP.KD, USA). Annual, the most recent value is carried forward to the current date; World Bank data typically lags by about a year. (GDP = Gross Domestic Product.)
+tags:
+  - macro
 kind: timeseries
 pipeline: worldbank_gdp_raw
 dataFile: data/worldbank_gdp_raw/USA.json

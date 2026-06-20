@@ -2,6 +2,9 @@ name: Federal spending — AR-01
 shortName: AR-01
 description: Total federal outlays where the recipient is in Arkansas's district
   1 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ar_01.json

@@ -2,6 +2,9 @@ name: Federal spending — MT-02
 shortName: MT-02
 description: Total federal outlays where the recipient is in Montana's district 
   2 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_mt_02.json

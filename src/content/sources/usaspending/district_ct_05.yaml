@@ -2,6 +2,9 @@ name: Federal spending — CT-05
 shortName: CT-05
 description: Total federal outlays where the recipient is in Connecticut's 
   district 5 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ct_05.json

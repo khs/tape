@@ -1,6 +1,9 @@
 name: Ireland health spending/GDP
 shortName: IE health spending/GDP
 description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual. (GDP = Gross Domestic Product.)
+tags:
+  - health
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/irl_health_spending_pct_gdp.json

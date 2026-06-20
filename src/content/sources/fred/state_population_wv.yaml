@@ -20,4 +20,6 @@ provenance:
   series: WVPOP
   url: https://fred.stlouisfed.org/series/WVPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

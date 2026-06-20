@@ -2,6 +2,8 @@ name: Hungary life expectancy
 shortName: HU life expectancy
 description: Life expectancy at birth, both sexes combined. OECD Health 
   Statistics. Annual.
+tags:
+  - health
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/hun_life_expectancy.json

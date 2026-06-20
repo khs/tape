@@ -2,6 +2,8 @@ name: Mexico life expectancy
 shortName: MX life expectancy
 description: Life expectancy at birth, both sexes combined. OECD Health 
   Statistics. Annual.
+tags:
+  - health
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/mex_life_expectancy.json

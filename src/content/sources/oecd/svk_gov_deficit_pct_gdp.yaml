@@ -1,6 +1,9 @@
 name: Slovak Republic gov deficit/GDP
 shortName: SK gov deficit/GDP
 description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual. (GDP = Gross Domestic Product.)
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/svk_gov_deficit_pct_gdp.json

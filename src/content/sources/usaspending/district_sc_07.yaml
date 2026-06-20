@@ -2,6 +2,9 @@ name: Federal spending — SC-07
 shortName: SC-07
 description: Total federal outlays where the recipient is in South Carolina's 
   district 7 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_sc_07.json

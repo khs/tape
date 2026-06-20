@@ -2,6 +2,9 @@ name: Federal spending — AZ-05
 shortName: AZ-05
 description: Total federal outlays where the recipient is in Arizona's district 
   5 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_az_05.json

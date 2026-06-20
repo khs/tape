@@ -3,6 +3,9 @@ shortName: West Virginia fed $
 description: Total federal contract + grant + loan + direct payment outlays 
   where the recipient is located in West Virginia, by fiscal year. From 
   USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_wv.json

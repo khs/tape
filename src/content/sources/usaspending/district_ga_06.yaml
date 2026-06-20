@@ -2,6 +2,9 @@ name: Federal spending — GA-06
 shortName: GA-06
 description: Total federal outlays where the recipient is in Georgia's district 
   6 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ga_06.json

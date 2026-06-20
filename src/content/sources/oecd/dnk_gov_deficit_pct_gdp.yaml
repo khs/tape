@@ -1,6 +1,9 @@
 name: Denmark gov deficit/GDP
 shortName: DK gov deficit/GDP
 description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual. (GDP = Gross Domestic Product.)
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/dnk_gov_deficit_pct_gdp.json

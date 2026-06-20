@@ -2,6 +2,9 @@ name: Federal spending — CA-33
 shortName: CA-33
 description: Total federal outlays where the recipient is in California's 
   district 33 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ca_33.json

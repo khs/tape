@@ -2,6 +2,9 @@ name: Federal spending — MO-05
 shortName: MO-05
 description: Total federal outlays where the recipient is in Missouri's district
   5 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_mo_05.json

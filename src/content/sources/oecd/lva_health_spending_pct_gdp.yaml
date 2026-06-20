@@ -1,6 +1,9 @@
 name: Latvia health spending/GDP
 shortName: LV health spending/GDP
 description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual. (GDP = Gross Domestic Product.)
+tags:
+  - health
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/lva_health_spending_pct_gdp.json

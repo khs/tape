@@ -20,4 +20,6 @@ provenance:
   series: DEPOP
   url: https://fred.stlouisfed.org/series/DEPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

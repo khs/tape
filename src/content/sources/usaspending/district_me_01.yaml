@@ -2,6 +2,9 @@ name: Federal spending — ME-01
 shortName: ME-01
 description: Total federal outlays where the recipient is in Maine's district 1 
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_me_01.json

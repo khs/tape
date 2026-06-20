@@ -2,6 +2,9 @@ name: Federal spending — KY-06
 shortName: KY-06
 description: Total federal outlays where the recipient is in Kentucky's district
   6 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ky_06.json

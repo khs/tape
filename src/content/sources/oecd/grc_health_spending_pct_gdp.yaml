@@ -1,6 +1,9 @@
 name: Greece health spending/GDP
 shortName: GR health spending/GDP
 description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual. (GDP = Gross Domestic Product.)
+tags:
+  - health
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/grc_health_spending_pct_gdp.json

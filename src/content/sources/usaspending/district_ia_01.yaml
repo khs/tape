@@ -2,6 +2,9 @@ name: Federal spending — IA-01
 shortName: IA-01
 description: Total federal outlays where the recipient is in Iowa's district 1 
   (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ia_01.json

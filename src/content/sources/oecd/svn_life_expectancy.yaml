@@ -2,6 +2,8 @@ name: Slovenia life expectancy
 shortName: SI life expectancy
 description: Life expectancy at birth, both sexes combined. OECD Health 
   Statistics. Annual.
+tags:
+  - health
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/svn_life_expectancy.json

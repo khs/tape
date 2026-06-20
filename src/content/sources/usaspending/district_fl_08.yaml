@@ -2,6 +2,9 @@ name: Federal spending — FL-08
 shortName: FL-08
 description: Total federal outlays where the recipient is in Florida's district 
   8 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_fl_08.json

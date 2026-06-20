@@ -2,6 +2,9 @@ name: Federal spending — FL-20
 shortName: FL-20
 description: Total federal outlays where the recipient is in Florida's district 
   20 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_fl_20.json

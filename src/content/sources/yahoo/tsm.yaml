@@ -2,6 +2,8 @@ name: TSMC (Taiwan Semiconductor)
 shortName: TSMC
 description: Daily adjusted close. NYSE-listed ADR for Taiwan Semiconductor 
   Manufacturing Co.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/TSM.json

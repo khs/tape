@@ -1,6 +1,9 @@
 name: South Korea gov deficit/GDP
 shortName: KR gov deficit/GDP
 description: General government net lending as % of GDP (negative = deficit). OECD Economic Outlook (NLGQ). Annual. (GDP = Gross Domestic Product.)
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/kor_gov_deficit_pct_gdp.json

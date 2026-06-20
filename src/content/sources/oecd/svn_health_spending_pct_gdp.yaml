@@ -1,6 +1,9 @@
 name: Slovenia health spending/GDP
 shortName: SI health spending/GDP
 description: Total current expenditure on health as % of GDP, all financing schemes. OECD System of Health Accounts. Annual. (GDP = Gross Domestic Product.)
+tags:
+  - health
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/svn_health_spending_pct_gdp.json

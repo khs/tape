@@ -2,6 +2,9 @@ name: Federal spending — IN-07
 shortName: IN-07
 description: Total federal outlays where the recipient is in Indiana's district 
   7 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_in_07.json

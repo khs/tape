@@ -1,6 +1,8 @@
 name: Costco (COST)
 shortName: COST
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/COST.json

@@ -3,6 +3,9 @@ shortName: Poland
 description: US Treasury securities held by Poland, monthly. From Treasury's TIC
   (Treasury International Capital) major-foreign-holders release. End-of-month 
   positions, billions of USD.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: treasury_tic
 dataFile: data/treasury_tic/poland.json

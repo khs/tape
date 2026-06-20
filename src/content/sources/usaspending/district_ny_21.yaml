@@ -2,6 +2,9 @@ name: Federal spending — NY-21
 shortName: NY-21
 description: Total federal outlays where the recipient is in New York's district
   21 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ny_21.json

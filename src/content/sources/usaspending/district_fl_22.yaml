@@ -2,6 +2,9 @@ name: Federal spending — FL-22
 shortName: FL-22
 description: Total federal outlays where the recipient is in Florida's district 
   22 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_fl_22.json

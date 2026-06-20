@@ -11,6 +11,9 @@ description: General government gross financial liabilities as % of GDP. OECD Ec
 # gate only checks chart-referenced series); the --full audit's cohort
 # pass allowlists it in scripts/audit-source-data.mjs so it stops warning.
 hidden: true
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/nor_gov_debt_pct_gdp.json

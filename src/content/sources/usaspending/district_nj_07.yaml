@@ -2,6 +2,9 @@ name: Federal spending — NJ-07
 shortName: NJ-07
 description: Total federal outlays where the recipient is in New Jersey's 
   district 7 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_nj_07.json

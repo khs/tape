@@ -20,4 +20,6 @@ provenance:
   series: CAPOP
   url: https://fred.stlouisfed.org/series/CAPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

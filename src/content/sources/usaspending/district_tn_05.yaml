@@ -2,6 +2,9 @@ name: Federal spending — TN-05
 shortName: TN-05
 description: Total federal outlays where the recipient is in Tennessee's 
   district 5 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_tn_05.json

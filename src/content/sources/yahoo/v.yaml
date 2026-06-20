@@ -1,6 +1,8 @@
 name: Visa (V)
 shortName: V
 description: Daily adjusted close.
+tags:
+  - large-stocks
 kind: timeseries
 pipeline: yahoo_quotes
 dataFile: data/yahoo/V.json

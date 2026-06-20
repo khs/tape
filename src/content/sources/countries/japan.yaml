@@ -2,6 +2,8 @@ name: Japan equity market vs. world
 shortName: EWJ
 description: iShares MSCI Japan ETF (EWJ) divided by Vanguard Total World ETF 
   (VT), indexed to 100 at series start. Daily.
+tags:
+  - equity-index
 kind: timeseries
 pipeline: countries_relative
 dataFile: data/countries_relative/EWJ.json

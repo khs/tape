@@ -2,6 +2,9 @@ name: Federal spending — WA-03
 shortName: WA-03
 description: Total federal outlays where the recipient is in Washington's 
   district 3 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_wa_03.json

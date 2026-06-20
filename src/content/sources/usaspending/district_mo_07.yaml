@@ -2,6 +2,9 @@ name: Federal spending — MO-07
 shortName: MO-07
 description: Total federal outlays where the recipient is in Missouri's district
   7 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_mo_07.json

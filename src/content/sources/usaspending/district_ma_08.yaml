@@ -2,6 +2,9 @@ name: Federal spending — MA-08
 shortName: MA-08
 description: Total federal outlays where the recipient is in Massachusetts's 
   district 8 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ma_08.json

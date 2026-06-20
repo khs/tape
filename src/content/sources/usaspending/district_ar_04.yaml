@@ -2,6 +2,9 @@ name: Federal spending — AR-04
 shortName: AR-04
 description: Total federal outlays where the recipient is in Arkansas's district
   4 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ar_04.json

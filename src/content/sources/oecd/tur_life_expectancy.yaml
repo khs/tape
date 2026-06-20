@@ -10,6 +10,8 @@ description: Life expectancy at birth, both sexes combined. OECD Health
 # if revived, first verify 2012-2017 against the OECD SDMX API and TurkStat
 # life tables. Allowlisted in the --full audit cohort pass.
 hidden: true
+tags:
+  - health
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/tur_life_expectancy.json

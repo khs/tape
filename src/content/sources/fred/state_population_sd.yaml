@@ -20,4 +20,6 @@ provenance:
   series: SDPOP
   url: https://fred.stlouisfed.org/series/SDPOP
   license: Public domain (US government data)
+tags:
+- macro
 unitClass: count

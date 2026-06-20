@@ -2,6 +2,9 @@ name: Federal spending — IN-04
 shortName: IN-04
 description: Total federal outlays where the recipient is in Indiana's district 
   4 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_in_04.json

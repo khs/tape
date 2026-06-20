@@ -3,6 +3,9 @@ shortName: South Carolina fed $
 description: Total federal contract + grant + loan + direct payment outlays 
   where the recipient is located in South Carolina, by fiscal year. From 
   USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/state_sc.json

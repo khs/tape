@@ -2,6 +2,8 @@ name: New Zealand life expectancy
 shortName: NZ life expectancy
 description: Life expectancy at birth, both sexes combined. OECD Health 
   Statistics. Annual.
+tags:
+  - health
 kind: timeseries
 pipeline: oecd
 dataFile: data/oecd/nzl_life_expectancy.json

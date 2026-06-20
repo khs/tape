@@ -1,6 +1,9 @@
 name: Federal spending — New Haven, CT
 shortName: New Haven, CT
 description: Total federal outlays where the recipient location is in the New Haven metropolitan statistical area (CBSA 35300, OMB-defined). Aggregated up from USAspending.gov's county-level results by fiscal year.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/metro_35300.json

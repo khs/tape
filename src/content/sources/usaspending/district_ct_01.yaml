@@ -2,6 +2,9 @@ name: Federal spending — CT-01
 shortName: CT-01
 description: Total federal outlays where the recipient is in Connecticut's 
   district 1 (118th Congress boundaries), by fiscal year. From USAspending.gov.
+tags:
+  - government
+  - macro
 kind: timeseries
 pipeline: usaspending
 dataFile: data/usaspending/district_ct_01.json
