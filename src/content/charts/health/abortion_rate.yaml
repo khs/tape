@@ -1,0 +1,16 @@
+title: "US abortion rate"
+sources:
+  - cdc_health/abortion_rate_us
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+blurb: |
+  Legal induced abortions per 1,000 women aged 15 to 44, reported to the CDC
+  each year. The rate held in a narrow band near 11 to 12 over the decade
+  through 2022. Based on the 47 areas that reported continuously, so the series
+  is consistent over time but undercounts the national total: several large
+  areas, including California, Maryland, New Hampshire, and New Jersey, do not
+  report to the CDC. The fuller count published by the Guttmacher Institute is
+  substantially higher. Recent years are provisional.
+tags: [health, gender, us]

@@ -1,0 +1,15 @@
+title: "US abortion ratio"
+sources:
+  - cdc_health/abortion_ratio_us
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+blurb: |
+  Legal induced abortions per 1,000 live births, reported to the CDC each year.
+  The ratio complements the rate by measuring abortions relative to births
+  rather than to the female population, and stayed in the high 180s to low 200s
+  over the decade through 2022. Based on the 47 areas that reported
+  continuously, so it is consistent over time but excludes several non-reporting
+  areas, including California. Recent years are provisional.
+tags: [health, gender, us]

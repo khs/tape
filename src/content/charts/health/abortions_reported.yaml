@@ -1,0 +1,16 @@
+title: "US reported abortions"
+sources:
+  - cdc_health/abortions_reported_us
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+blurb: |
+  Number of legal induced abortions reported to the CDC each year, from the 47
+  areas that reported continuously. The reported count eased from about 640,000
+  in 2013 to about 609,000 in 2022. This is a consistent series over time but an
+  undercount of the national total: several areas, including California,
+  Maryland, New Hampshire, and New Jersey, do not report to the CDC, and the
+  fuller national count from the Guttmacher Institute is substantially higher.
+  Recent years are provisional.
+tags: [health, gender, us]
