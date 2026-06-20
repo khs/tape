@@ -298,6 +298,8 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("eia_prices/electricity_price_ak")).toEqual({ state: "ak" });
     expect(parseStateSourceId("usda_nass/corn_price_az")).toEqual({ state: "az" });
     expect(parseStateSourceId("usgs_water/aquaculture_ar")).toEqual({ state: "ar" });
+    expect(parseStateSourceId("nhtsa_fars/traffic_fatalities_tx")).toEqual({ state: "tx" });
+    expect(parseStateSourceId("nhtsa_fars/traffic_fatality_rate_ms")).toEqual({ state: "ms" });
   });
 
   it("rejects the national siblings of those providers", () => {
@@ -305,6 +307,8 @@ describe("parseStateSourceId", () => {
     expect(parseStateSourceId("eia_prices/electricity_price_us")).toBeNull();
     expect(parseStateSourceId("usda_nass/corn_price_us")).toBeNull();
     expect(parseStateSourceId("usgs_water/aquaculture_us")).toBeNull();
+    expect(parseStateSourceId("nhtsa_fars/traffic_fatalities_us")).toBeNull();
+    expect(parseStateSourceId("nhtsa_fars/traffic_fatality_rate_us")).toBeNull();
   });
 
   it("parses BEA state series slugged with the full state name", () => {

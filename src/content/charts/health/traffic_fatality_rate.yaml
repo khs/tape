@@ -1,0 +1,22 @@
+title: "Traffic fatality rate, US and a high/low state"
+sources:
+  - nhtsa_fars/traffic_fatality_rate_us
+  - nhtsa_fars/traffic_fatality_rate_ms
+  - nhtsa_fars/traffic_fatality_rate_ma
+render: line
+defaultDelta: 50y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - United States
+  - Mississippi
+  - Massachusetts
+blurb: |
+  Motor-vehicle traffic deaths per 100,000 population, by year. A complete
+  census of fatal crashes from the NHTSA Fatality Analysis Reporting System,
+  over Census population. The national rate roughly halved from the mid-1970s
+  into the 2010s as seat belts, air bags, and drunk-driving enforcement spread,
+  then ticked back up after 2019. The state gap is wide and persistent:
+  Mississippi runs near the top, Massachusetts near the bottom. Rates for all 50
+  states and DC are in the composer.
+tags: [health, us]

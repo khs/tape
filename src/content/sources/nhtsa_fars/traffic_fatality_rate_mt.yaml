@@ -1,0 +1,23 @@
+name: 'Traffic fatality rate — Montana'
+shortName: 'MT traffic death rate'
+description: 'Motor-vehicle traffic fatalities per 100,000 population in Montana, by year. Deaths from the NHTSA Fatality Analysis Reporting System over Census resident population. Annual, 1975 onward; the rate comparable across states and over time.'
+kind: timeseries
+pipeline: nhtsa_fars
+dataFile: data/nhtsa_fars/traffic_fatality_rate_mt.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "per 100,000 population"
+emphasis: change
+formatting:
+  style: number
+  decimals: 1
+  suffix: " per 100k"
+provenance:
+  provider: NHTSA Fatality Analysis Reporting System (FARS)
+  series: NHTSA FARS FATALS / Census population * 100000; geo=mt
+  url: https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars
+  license: Public domain (US government data)
+tags:
+  - health
+  - us-state
+  - us
+unitClass: rate

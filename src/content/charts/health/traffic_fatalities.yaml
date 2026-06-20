@@ -1,0 +1,15 @@
+title: "US traffic fatalities"
+sources:
+  - nhtsa_fars/traffic_fatalities_us
+render: line
+defaultDelta: 50y
+normalize: raw
+emphasis: level
+blurb: |
+  Total motor-vehicle traffic deaths in the United States, by year, from the
+  NHTSA Fatality Analysis Reporting System, a complete census of fatal crashes
+  on public roads. Deaths fell from about 44,500 in 1975 to a low near 32,700 in
+  2014, despite far more miles driven, then rose sharply after 2019 to about
+  41,000. Per-state counts and population-adjusted rates are available in the
+  composer.
+tags: [health, us]

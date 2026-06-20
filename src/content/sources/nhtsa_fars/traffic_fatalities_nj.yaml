@@ -1,0 +1,23 @@
+name: 'Traffic fatalities — New Jersey'
+shortName: 'NJ traffic deaths'
+description: 'Motor-vehicle traffic fatalities in New Jersey, by year. A complete census of deaths from crashes on public roads, from the NHTSA Fatality Analysis Reporting System. Annual, 1975 onward.'
+kind: timeseries
+pipeline: nhtsa_fars
+dataFile: data/nhtsa_fars/traffic_fatalities_nj.json
+supportedDeltas: ["1y", "5y", "10y", "30y", "50y"]
+unit: "deaths"
+emphasis: change
+formatting:
+  style: number
+  decimals: 0
+  suffix: ""
+provenance:
+  provider: NHTSA Fatality Analysis Reporting System (FARS)
+  series: NHTSA FARS accident.csv FATALS summed; geo=nj
+  url: https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars
+  license: Public domain (US government data)
+tags:
+  - health
+  - us-state
+  - us
+unitClass: count

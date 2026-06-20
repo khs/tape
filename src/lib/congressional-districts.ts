@@ -195,11 +195,12 @@ export function parseStateSourceId(id: string): { state: string } | null {
   //   eia_prices/<metric>_<st>   (eia_prices/electricity_price_al)
   //   usda_nass/<metric>_<st>    (usda_nass/corn_price_al)
   //   usgs_water/<metric>_<st>   (usgs_water/aquaculture_al)
+  //   nhtsa_fars/<metric>_<st>   (nhtsa_fars/traffic_fatalities_al)
   // National siblings end in `_us` (not a state code) and stay visible;
   // these providers' metro/county sources carry their own geo tags and are
   // bucketed ahead of the state parse, so the 2-letter tail is safe here.
   m = id.match(
-    /^(?:cdc_health|eia_prices|usda_nass|usgs_water)\/.+_([a-z]{2})$/,
+    /^(?:cdc_health|eia_prices|usda_nass|usgs_water|nhtsa_fars)\/.+_([a-z]{2})$/,
   );
   if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
   // BEA state series slug the FULL state name (bea/gdp_alabama,

@@ -209,6 +209,18 @@ emitted it is correct):
   per-state lookup; correct by construction. Audit risk = an XLSX
   column-header reshuffle (USGS releases every 5 years so this is
   detected at the next vintage rather than incrementally).
+- **`nhtsa_fars`** (~104 YAMLs) — `nhtsa_fars.py` sums the `FATALS`
+  column of each year's FARS National `accident.csv` (read by header
+  name, decoded latin-1) grouped by `STATE` FIPS, mapped through a
+  fixed FIPS → (USPS, name) table to per-state + national traffic-
+  fatality counts, and divides by FRED `<USPS>POP` to get the per-100k
+  rate. Labels are constructed from that fixed table; correct by
+  construction. Audit risk = a wrong FIPS → name pairing or a column-
+  header drift across the 1975-2023 vintages (mitigated by the
+  by-header-name parse + the column-presence assert). Values are
+  sanity-anchorable: US 2023 ≈ 41,025 deaths (≈12/100k); TX ≈ 4,294.
+  Manual bump-and-rerun when NHTSA posts a new final National file
+  (~Q1, ~1.5 yrs after the data year), like `cms_nhe` / `bls_qcew`.
 
 For each of these, the right audit is "diff what the pipeline
 WOULD generate today against what's checked in." A `--dry-run`
