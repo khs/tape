@@ -44,6 +44,20 @@ import type {
 import type { LibraryPayload } from "./library";
 import type { InlineChart } from "../composer-state";
 
+/**
+ * Compact y-axis tick formatter for the in-dialog preview Plots. Default Plot
+ * formatting renders large values as "1,000,000", which overruns the fixed
+ * preview marginLeft and clips the leading digit(s). Compact notation keeps
+ * every label short ("1M", "300K", "1.2B") so nothing is clipped regardless of
+ * magnitude; small values (rates, indices) pass through unchanged ("4.2",
+ * "100"). The tile/dialog keep full per-source formatting; this is preview-only.
+ */
+const compactTick = (v: number): string =>
+  new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 2,
+  }).format(v);
+
 
 export interface CustomChartModalContext {
   shell: HTMLElement;
@@ -931,6 +945,7 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
           label: null,
           grid: true,
           ticks: 4,
+          tickFormat: compactTick,
           type: useLog ? "log" : undefined,
         },
         marks: [
@@ -1042,7 +1057,7 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         );
       }
       marks.push(
-        Plot.axisY({ anchor: "left", color: leftAxisColor, ticks: 4 }),
+        Plot.axisY({ anchor: "left", color: leftAxisColor, ticks: 4, tickFormat: compactTick }),
         Plot.axisY({
           anchor: "right",
           color: rightAxisColor,
@@ -1119,6 +1134,7 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
           label: mode === "rebase" ? "index (start = 100)" : null,
           grid: true,
           ticks: 4,
+          tickFormat: compactTick,
           type: useLog ? "log" : undefined,
         },
         marks,
