@@ -1,0 +1,23 @@
+name: 'Abortion ratio — United States'
+shortName: 'US abortion ratio'
+description: 'Legal induced abortions per 1,000 live births in the United States, by year. CDC / National Center for Health Statistics, Abortion Surveillance. National only. CDC abortion surveillance is voluntary and incomplete: several areas do not report, including California, Maryland, New Hampshire, and New Jersey, so the count undercounts total US abortions. These figures use the 47 areas that reported every year from 2013 to 2022, so the series is consistent over time; the fuller national count published by the Guttmacher Institute is substantially higher. Recent years are provisional.'
+kind: timeseries
+pipeline: cdc_health
+dataFile: data/cdc_health/abortion_ratio_us.json
+supportedDeltas: ["1y", "5y", "10y"]
+unit: "per 1,000 live births"
+emphasis: change
+formatting:
+  style: number
+  decimals: 0
+  suffix: " per 1k births"
+provenance:
+  provider: CDC / National Center for Health Statistics
+  series: 'CDC Abortion Surveillance MMWR; 47 continuous reporting areas; ratio'
+  url: https://www.cdc.gov/mmwr/volumes/73/ss/ss7307a1.htm
+  license: Public domain (US government data)
+tags:
+  - health
+  - gender
+  - us
+unitClass: ratio

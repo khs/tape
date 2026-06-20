@@ -651,12 +651,72 @@ def build_infant() -> int:
     return 1
 
 
+ABORTION_URL = "https://www.cdc.gov/mmwr/volumes/73/ss/ss7307a1.htm"
+_ABORTION_CAVEAT = (
+    "National only. CDC abortion surveillance is voluntary and incomplete: "
+    "several areas do not report, including California, Maryland, New Hampshire, "
+    "and New Jersey, so the count undercounts total US abortions. These figures "
+    "use the 47 areas that reported every year from 2013 to 2022, so the series "
+    "is consistent over time; the fuller national count published by the "
+    "Guttmacher Institute is substantially higher. Recent years are provisional."
+)
+# year -> (number, rate per 1,000 women 15-44, ratio per 1,000 live births).
+# CDC Abortion Surveillance (MMWR SS73/07, Table 1); the 47 reporting areas that
+# reported continuously 2013-2022 (year-comparable; the all-48-areas 2022 total
+# was 613,383, intentionally not mixed in). Hand-entered from the MMWR report,
+# the same pattern as the NVSS life-expectancy / infant-mortality dicts above;
+# there is NO Socrata dataset for national abortion surveillance.
+ABORTION = {
+    "2013": (640154, 12.4, 198), "2014": (625668, 12.0, 190),
+    "2015": (613911, 11.8, 187), "2016": (599001, 11.5, 184),
+    "2017": (587611, 11.2, 184), "2018": (591884, 11.2, 188),
+    "2019": (603168, 11.4, 194), "2020": (592939, 11.1, 197),
+    "2021": (622108, 11.6, 204), "2022": (609360, 11.2, 199),
+}
+
+
+def build_abortion() -> int:
+    """National reported-abortion count, rate, and ratio (CDC Abortion
+    Surveillance). National only; hand-entered from the MMWR report (no Socrata
+    endpoint exists). Tagged gender, alongside maternal mortality."""
+    yrs = sorted(ABORTION)
+    specs = [
+        ("abortions_reported_us", "Reported abortions — United States",
+         "US abortions", 0, "abortions", 0, "", "count",
+         "CDC Abortion Surveillance MMWR; 47 continuous reporting areas; number",
+         "Number of legal induced abortions reported to CDC"),
+        ("abortion_rate_us", "Abortion rate — United States",
+         "US abortion rate", 1, "per 1,000 women 15-44", 1, " per 1k", "rate",
+         "CDC Abortion Surveillance MMWR; 47 continuous reporting areas; rate",
+         "Legal induced abortions per 1,000 women aged 15 to 44"),
+        ("abortion_ratio_us", "Abortion ratio — United States",
+         "US abortion ratio", 2, "per 1,000 live births", 0, " per 1k births",
+         "ratio",
+         "CDC Abortion Surveillance MMWR; 47 continuous reporting areas; ratio",
+         "Legal induced abortions per 1,000 live births"),
+    ]
+    n = 0
+    for sid, name, short, idx, unit, dec, suf, ucls, note, lead in specs:
+        pts = [{"t": f"{y}-12-31", "v": ABORTION[y][idx]} for y in yrs]
+        write_timeseries(PIPELINE, sid, name, pts, unit=unit, merge=False)
+        write_yaml(
+            sid, name, short,
+            f"{lead} in the United States, by year. CDC / National Center for "
+            f"Health Statistics, Abortion Surveillance. {_ABORTION_CAVEAT}",
+            "us", ["1y", "5y", "10y"], unit, dec, suf, note, ABORTION_URL,
+            ucls, extra_tags=["gender"],
+        )
+        n += 1
+    return n
+
+
 BUILDERS = {
     "life_expectancy": build_life_expectancy,
     "causes": build_causes,
     "overdose": build_overdose,
     "maternal": build_maternal,
     "infant": build_infant,
+    "abortion": build_abortion,
 }
 
 
