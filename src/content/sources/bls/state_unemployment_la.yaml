@@ -2,6 +2,8 @@ name: Louisiana unemployment rate
 shortName: LA unemployment
 description: Headline unemployment rate, seasonally adjusted, monthly. From BLS 
   Local Area Unemployment Statistics (LAUS).
+tags:
+  - labor
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_unemployment_la.json

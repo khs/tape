@@ -65,6 +65,15 @@ add("bls", ["cpi_shelter"], {"housing"})
 for _f in glob.glob(str(SRC / "fred" / "state_building_permits_*.yaml")):
     PLAN.setdefault(f"fred/{Path(_f).stem}", set()).add("housing")
 
+# --- Labor: BLS employment series that shipped with NO tags at all ----------
+# National JOLTS hires/quits rates.
+add("bls", ["jolts_hires_rate", "jolts_quits_rate"], {"macro", "us", "labor"})
+# State payrolls, state + county unemployment: geo tags already supply us/state;
+# add the topical `labor` tag so they surface under the labor chip (+ geo).
+for _pat in ("state_payrolls_*", "state_unemployment_*", "county_unemployment_*"):
+    for _f in glob.glob(str(SRC / "bls" / _pat)):
+        PLAN.setdefault(f"bls/{Path(_f).stem}", set()).add("labor")
+
 
 def ensure_tags(path: Path, needed: set[str]) -> list[str]:
     """Return the tags actually added (empty if none)."""

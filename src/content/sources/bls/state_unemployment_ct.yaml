@@ -2,6 +2,8 @@ name: Connecticut unemployment rate
 shortName: CT unemployment
 description: Headline unemployment rate, seasonally adjusted, monthly. From BLS 
   Local Area Unemployment Statistics (LAUS).
+tags:
+  - labor
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_unemployment_ct.json

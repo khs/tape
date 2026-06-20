@@ -3,6 +3,8 @@ shortName: Montgomery County unemployment
 description: Headline unemployment rate for Montgomery County, MD. Monthly, not 
   seasonally adjusted. From BLS Local Area Unemployment Statistics (LAUS) 
   county-level data.
+tags:
+  - labor
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/county_unemployment_montgomery_md.json

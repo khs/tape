@@ -2,6 +2,8 @@ name: Utah nonfarm payroll employment
 shortName: UT payrolls
 description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS
   Current Employment Statistics (CES) state series, in thousands of persons.
+tags:
+  - labor
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_payrolls_ut.json

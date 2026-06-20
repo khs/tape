@@ -3,6 +3,10 @@ shortName: Quits rate
 description: Job Openings and Labor Turnover Survey, voluntary quits as a share
   of total employment. The headline "great resignation" indicator; a tight labor
   market shows up here first.
+tags:
+  - labor
+  - macro
+  - us
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/jolts_quits_rate.json

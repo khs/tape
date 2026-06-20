@@ -2,6 +2,8 @@ name: District of Columbia nonfarm payroll employment
 shortName: DC payrolls
 description: Total nonfarm payroll employment, seasonally adjusted, monthly. BLS
   Current Employment Statistics (CES) state series, in thousands of persons.
+tags:
+  - labor
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/state_payrolls_dc.json

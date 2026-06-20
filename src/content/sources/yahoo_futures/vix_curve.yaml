@@ -23,4 +23,5 @@ provenance:
 tags:
   - markets
   - volatility
+  - macro
 unitClass: index

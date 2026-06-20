@@ -373,7 +373,11 @@ async function compute(): Promise<LibraryManifest> {
       /^oecd\/usa_/.test(s.id) ||
       /_united_states$/.test(s.id) ||
       /^(?:worldbank_gdp_raw|countries_gdp)\/usa$/.test(s.id);
-    if ((hasUsGeo || isUsNational) && !declaredTags.includes("us")) {
+    // Every USAspending source is US federal spending — including the
+    // territories (state_as/gu/mp/pr/vi), whose codes parseStateSourceId
+    // doesn't recognize, so they'd otherwise miss the geo-based us tag above.
+    const isUsProvider = /^usaspending\//.test(s.id);
+    if ((hasUsGeo || isUsNational || isUsProvider) && !declaredTags.includes("us")) {
       synthetics.push("us");
     }
     const hasUs = declaredTags.includes("us") || synthetics.includes("us");
