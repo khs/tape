@@ -297,6 +297,26 @@ const WB_EXTENDED_ENTITY_SLUG_SORTED: ReadonlyArray<[string, string]> =
     (a, b) => b[0].length - a[0].length,
   );
 
+// owid_co2/<metric>_<entity> (Our World in Data CO2 + energy). The entity is
+// the SUFFIX of the slug (the metric prefix varies in token count:
+// co2 / per_capita / coal_co2 / energy_per_capita / share_global_co2 / ...),
+// so we match longest-entity-first like worldbank_extended. owid uses plain
+// English-name slugs that don't match the worldbank table's conventions
+// (russia vs russian_federation, south_korea vs korea_rep), so this is its own
+// map. united_states + world are intentionally omitted → they fall through to
+// null and stay in the default source list, the same convention as
+// worldbank_gdp / oecd / treasury_tic.
+const OWID_CO2_ENTITY: Record<string, string> = {
+  australia: "AUS", brazil: "BRA", canada: "CAN", china: "CHN",
+  european_union: "EUU", france: "FRA", germany: "DEU", india: "IND",
+  indonesia: "IDN", iran: "IRN", italy: "ITA", japan: "JPN", mexico: "MEX",
+  russia: "RUS", saudi_arabia: "SAU", south_africa: "ZAF", south_korea: "KOR",
+  turkey: "TUR", united_kingdom: "GBR",
+};
+const OWID_CO2_ENTITY_SORTED = Object.entries(OWID_CO2_ENTITY).sort(
+  (a, b) => b[0].length - a[0].length,
+);
+
 /**
  * Parse a source ID to determine whether it's a country / region
  * source, and which country / region it represents. Returns null for
@@ -361,6 +381,20 @@ export function parseCountrySourceId(
     if (iso3 === "USA") return null;
     if (COUNTRY_NAME_BY_CODE[iso3]) {
       return { code: iso3, name: COUNTRY_NAME_BY_CODE[iso3] };
+    }
+  }
+  // owid_co2/<metric>_<entity>. Entity is the slug suffix; match longest
+  // entity first. united_states + world are absent from the map, so they
+  // fall through to null and stay in the default list.
+  m = id.match(/^owid_co2\/(.+)$/);
+  if (m) {
+    const slug = m[1];
+    for (const [entitySlug, code] of OWID_CO2_ENTITY_SORTED) {
+      if (slug.endsWith(`_${entitySlug}`)) {
+        const name =
+          COUNTRY_NAME_BY_CODE[code] ?? REGION_NAME_BY_CODE[code] ?? code;
+        return { code, name };
+      }
     }
   }
   // worldbank_extended/<indicator>_<entity>. Match against the

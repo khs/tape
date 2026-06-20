@@ -144,6 +144,49 @@ describe("parseCountrySourceId", () => {
     });
   });
 
+  describe("owid_co2/<metric>_<entity> branch", () => {
+    it("hides a plain-country series (the leak the user reported)", () => {
+      expect(parseCountrySourceId("owid_co2/co2_australia")).toEqual({
+        code: "AUS",
+        name: "Australia",
+      });
+    });
+
+    it("parses every metric prefix by matching the entity suffix", () => {
+      // The metric prefix varies in token count; the entity is always the
+      // suffix. All of these must resolve to South Korea.
+      for (const id of [
+        "owid_co2/co2_south_korea",
+        "owid_co2/per_capita_south_korea",
+        "owid_co2/coal_co2_south_korea",
+        "owid_co2/energy_per_capita_south_korea",
+        "owid_co2/share_global_co2_south_korea",
+      ]) {
+        expect(parseCountrySourceId(id)?.code, id).toBe("KOR");
+      }
+    });
+
+    it("does not let a short entity swallow a longer one (longest-first)", () => {
+      expect(parseCountrySourceId("owid_co2/co2_south_africa")?.code).toBe("ZAF");
+      expect(parseCountrySourceId("owid_co2/co2_united_kingdom")?.code).toBe(
+        "GBR",
+      );
+    });
+
+    it("maps the EU aggregate to its region code", () => {
+      expect(parseCountrySourceId("owid_co2/co2_european_union")?.code).toBe(
+        "EUU",
+      );
+    });
+
+    it("keeps United States + World in the default list (null)", () => {
+      expect(parseCountrySourceId("owid_co2/co2_united_states")).toBeNull();
+      expect(parseCountrySourceId("owid_co2/per_capita_united_states")).toBeNull();
+      expect(parseCountrySourceId("owid_co2/co2_world")).toBeNull();
+      expect(parseCountrySourceId("owid_co2/share_global_co2_world")).toBeNull();
+    });
+  });
+
   describe("unknown / malformed IDs", () => {
     it("returns null for empty string", () => {
       expect(parseCountrySourceId("")).toBeNull();
