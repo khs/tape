@@ -293,8 +293,10 @@ const charts = defineCollection({
     colorScheme: z.string().optional(),
     // Color-scale type. "linear" maps min→max linearly; "log" is
     // useful for indicators with a long tail (population, GDP) so
-    // small regions don't all wash to the same dim color.
-    colorScale: z.enum(["linear", "log"]).optional(),
+    // small regions don't all wash to the same dim color. "diverging"
+    // pivots the (red↔blue) scheme at 0 with a symmetric domain — for
+    // signed quantities like an election margin.
+    colorScale: z.enum(["linear", "log", "diverging"]).optional(),
     // ---- Bar-snapshot fields (render === "bar") ----
     // Bar orientation. "vertical" emits Plot.barY (categories on
     // x-axis, values on y); "horizontal" emits Plot.barX (categories

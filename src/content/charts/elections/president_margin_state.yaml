@@ -1,0 +1,14 @@
+title: "Presidential election margin by state"
+render: map
+geo: state
+indicator: pres_margin
+vintage: "2024"
+colorScheme: rdbu
+colorScale: diverging
+blurb: |
+  Margin in each state's presidential vote, Democratic minus Republican, in
+  percentage points of the total vote. Blue = Democratic win, red = Republican,
+  white = a tie. MIT Election Data and Science Lab (public domain). Drag the
+  year slider in the expanded view to scrub every election from 1976 to 2024 and
+  watch states realign.
+tags: [elections, us]

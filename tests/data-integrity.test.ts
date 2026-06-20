@@ -332,7 +332,7 @@ describe("choropleth value integrity (referenced maps)", () => {
   const geoDir: Record<string, string> = { state: "acs_state", county: "acs_county" };
   const GEOID_LEN: Record<string, number> = { state: 2, county: 5 };
 
-  it("every referenced state/county map has finite, non-negative values", () => {
+  it("every referenced state/county map has finite values (non-negative unless diverging)", () => {
     const bad: string[] = [];
     const seen = new Set<string>();
     for (const c of charts()) {
@@ -343,6 +343,9 @@ describe("choropleth value integrity (referenced maps)", () => {
       const rel = `data/${dir}/${c.data.indicator}_${c.data.vintage}.json`;
       if (seen.has(rel)) continue; // many charts share one indicator file
       seen.add(rel);
+      // Diverging-scale maps (e.g. an election margin, Dem minus Rep) are
+      // legitimately signed; only the non-diverging indicators must be >= 0.
+      const allowNegative = c.data.colorScale === "diverging";
       const fp = dataPath(rel);
       if (!existsSync(fp)) continue; // existence is asserted elsewhere
       const d = readJson(fp) as Json;
@@ -358,7 +361,11 @@ describe("choropleth value integrity (referenced maps)", () => {
           bad.push(`${rel}: malformed GEOID '${geoid}'`);
           break;
         }
-        if (typeof v !== "number" || !Number.isFinite(v) || v < 0) {
+        if (
+          typeof v !== "number" ||
+          !Number.isFinite(v) ||
+          (!allowNegative && v < 0)
+        ) {
           bad.push(`${rel}: bad value ${JSON.stringify(v)} for ${geoid}`);
           break;
         }

@@ -29,6 +29,7 @@
 import type { CollectionEntry } from "astro:content";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
+import { pickVintages, combineShardVintages } from "../lib/map-vintages";
 import {
   isServerlessRuntime,
   resolveServerlessOrigin,
@@ -116,52 +117,26 @@ const dataFileUrls = dataFileRels.map((r) => `/${r}`);
 // would render an incomplete-coverage map without warning the user
 // the slider position is meaningful).
 async function discoverVintages(): Promise<string[]> {
-  const indicatorRe = new RegExp(
-    `^${indicator.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}_(\\d{4})\\.json$`,
-  );
-  function pickVintages(files: string[]): string[] {
-    const out: string[] = [];
-    for (const f of files) {
-      const m = f.match(indicatorRe);
-      if (m) out.push(m[1]);
-    }
-    return out.sort();
-  }
+  // Pure parsing/intersection lives in ../lib/map-vintages (unit-tested).
   if (geo === "state" || geo === "county") {
     try {
       const files = await fs.readdir(
         join(process.cwd(), "public", "data", dataDirSeg),
       );
-      return pickVintages(files);
+      return pickVintages(files, indicator);
     } catch { return []; }
   }
-  // tract / block-group: intersection across state shards.
+  // tract / block-group: intersection across per-state shards.
   const perState: string[][] = [];
   for (const st of stateCodes) {
     try {
       const files = await fs.readdir(
         join(process.cwd(), "public", "data", dataDirSeg, st),
       );
-      perState.push(pickVintages(files));
+      perState.push(pickVintages(files, indicator));
     } catch { perState.push([]); }
   }
-  if (perState.length === 0) return [];
-  // If any shard has no data at all, intersection would be empty —
-  // fall back to the union so the slider at least lets the user step
-  // through whatever any state has (the renderer's missing-shard
-  // path handles per-state gaps gracefully).
-  const anyEmpty = perState.some((arr) => arr.length === 0);
-  if (anyEmpty) {
-    const union = new Set<string>();
-    perState.forEach((arr) => arr.forEach((v) => union.add(v)));
-    return [...union].sort();
-  }
-  let acc = perState[0];
-  for (let i = 1; i < perState.length; i++) {
-    const s = new Set(perState[i]);
-    acc = acc.filter((v) => s.has(v));
-  }
-  return acc;
+  return combineShardVintages(perState);
 }
 const availableVintages = await discoverVintages();
 
@@ -531,7 +506,7 @@ const statesJoined = stateCodes.join(",");
     state: string;
     bbox: [number, number, number, number] | null;
     colorScheme: string;
-    colorScale: "linear" | "log";
+    colorScale: "linear" | "log" | "diverging";
     valueLabel: string;
     unit: string;
     decimals: number;
@@ -547,7 +522,10 @@ const statesJoined = stateCodes.join(",");
   // Order matches user preference: highest-priority on top.
   type SchemeKey =
     | "reds" | "greys" | "viridis" | "batlow"
-    | "blues" | "greens" | "oranges" | "purples";
+    | "blues" | "greens" | "oranges" | "purples"
+    // Diverging red<->blue, for signed quantities like an election margin
+    // (used with colorScale:"diverging", which pivots the scheme at 0).
+    | "rdbu";
   interface SchemeEntry {
     key: SchemeKey;
     label: string;
@@ -575,6 +553,7 @@ const statesJoined = stateCodes.join(",");
     { key: "greens",  label: "Green",   plot: { scheme: "greens" } },
     { key: "oranges", label: "Orange",  plot: { scheme: "oranges" } },
     { key: "purples", label: "Purple",  plot: { scheme: "purples" } },
+    { key: "rdbu",    label: "Red-Blue", plot: { scheme: "rdbu" } },
   ];
   function schemeByKey(key: string): SchemeEntry {
     return SCHEMES.find((s) => s.key === key) ?? SCHEMES[0];
@@ -947,9 +926,16 @@ const statesJoined = stateCodes.join(",");
     // scheme).
     const sk = effectiveScheme(b.chartId, b.colorScheme);
     const entry = schemeByKey(sk);
+    // Diverging (signed quantities like an election margin): pivot the scheme
+    // at 0 and use a SYMMETRIC domain [-m, m] so 0 is the neutral midpoint
+    // (white) and equal-magnitude positive/negative read as equal-intensity
+    // opposite hues. Sequential scales keep the tight [1st, 99th] domain.
+    const isDiverging = b.colorScale === "diverging";
+    const divMax = Math.max(Math.abs(lo), Math.abs(hi)) || 1;
     const colorSpec: Record<string, unknown> = {
-      type: b.colorScale,
-      domain: colorDomain,
+      type: isDiverging ? "diverging" : b.colorScale,
+      ...(isDiverging ? { pivot: 0 } : {}),
+      domain: isDiverging ? [-divMax, divMax] : colorDomain,
       // Tile mode: drop the legend. A map tile is short
       // (~280px in embeds, ~200px in dashboard grids); the legend
       // figure consumes 30-50px of vertical space, leaving the
