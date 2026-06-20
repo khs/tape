@@ -9,6 +9,9 @@ description: Consumer price index for the Washington DC-MD-VA metro area, all
 # the picker; kept (not deleted) so saved dashboards pinning this id
 # still resolve to the frozen 2017 history rather than 404.
 hidden: true
+tags:
+  - inflation
+  - us
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/CUUSA311SA0.json

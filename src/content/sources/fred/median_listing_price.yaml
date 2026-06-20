@@ -3,6 +3,9 @@ shortName: Median list $
 description: Median list price of homes for sale, monthly. Different from the 
   median sale price (Case-Shiller), list = asking price, sale = transaction 
   price.
+tags:
+  - housing
+  - us
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/MEDLISPRIUS.json

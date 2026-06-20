@@ -2,6 +2,10 @@ name: CPI new vehicles
 shortName: CPI new vehicles
 description: Consumer Price Index, new vehicles. Tracks dealer-lot sticker-price
   inflation for new cars and trucks.
+tags:
+  - inflation
+  - macro
+  - us
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_new_vehicles.json

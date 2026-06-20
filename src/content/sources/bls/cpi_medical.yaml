@@ -3,6 +3,10 @@ shortName: CPI medical
 description: Consumer Price Index, medical-care component. Tracks the price of 
   doctor visits, prescription drugs, and health-insurance premiums (as measured 
   by BLS).
+tags:
+  - inflation
+  - macro
+  - us
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_medical.json

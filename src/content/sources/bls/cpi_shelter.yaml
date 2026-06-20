@@ -3,6 +3,11 @@ shortName: CPI shelter
 description: Consumer Price Index, shelter component (housing-cost inflation). 
   The single biggest weight in core CPI; what people mean when they say "rent 
   inflation is sticky."
+tags:
+  - housing
+  - inflation
+  - macro
+  - us
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_shelter.json

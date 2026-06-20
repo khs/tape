@@ -4,6 +4,10 @@ description: Consumer Price Index for the Washington-Arlington-Alexandria
   DC-VA-MD-WV metro area, all items. Published bi-monthly by BLS.
   Successor to the discontinued Washington-Baltimore CMSA series
   (FRED CUUSA311SA0, dead since 2017).
+tags:
+  - inflation
+  - macro
+  - us
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_washington_metro.json

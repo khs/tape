@@ -2,6 +2,9 @@ name: US population
 shortName: US population
 description: US population, all persons. Monthly from FRED (POPTHM); commonly 
   used as a denominator to convert headline aggregates into per-capita series.
+tags:
+  - macro
+  - us
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/POPTHM.json

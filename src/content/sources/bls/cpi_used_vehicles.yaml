@@ -2,6 +2,10 @@ name: CPI used cars & trucks
 shortName: CPI used vehicles
 description: Consumer Price Index, used cars and trucks. The poster-child series
   for the 2021-22 inflation surge.
+tags:
+  - inflation
+  - macro
+  - us
 kind: timeseries
 pipeline: bls
 dataFile: data/bls/cpi_used_vehicles.json
