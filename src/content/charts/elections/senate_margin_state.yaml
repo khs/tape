@@ -1,0 +1,15 @@
+title: "Senate election margin by state"
+render: map
+geo: state
+indicator: sen_margin
+vintage: "2024"
+colorScheme: rdbu
+colorScale: diverging
+blurb: |
+  Margin in each state's US Senate election, Democratic minus Republican, in
+  percentage points. Blue = Democratic, red = Republican, white = a tie. Only
+  states with a Senate seat on the ballot are colored each cycle, since Senate
+  terms are staggered and about a third of the seats are up each election. Drag
+  the year slider in the expanded view to scrub 1976 to 2024. MIT Election Data
+  and Science Lab returns (public domain).
+tags: [elections, us]

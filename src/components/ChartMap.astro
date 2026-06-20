@@ -100,7 +100,7 @@ const dataDirSeg = geo === "block-group" ? "acs_block_group" : `acs_${geo}`;
 // charts (e.g. DMV tracts = VA + MD + DC) load each shard
 // client-side and merge in the renderer.
 const dataFileRels: string[] =
-  geo === "state" || geo === "county"
+  geo === "state" || geo === "county" || geo === "cd"
     ? [`data/${dataDirSeg}/${indicator}_${vintage}.json`]
     : stateCodes.map(
         (st) => `data/${dataDirSeg}/${st}/${indicator}_${vintage}.json`,
@@ -118,7 +118,7 @@ const dataFileUrls = dataFileRels.map((r) => `/${r}`);
 // the slider position is meaningful).
 async function discoverVintages(): Promise<string[]> {
   // Pure parsing/intersection lives in ../lib/map-vintages (unit-tested).
-  if (geo === "state" || geo === "county") {
+  if (geo === "state" || geo === "county" || geo === "cd") {
     try {
       const files = await fs.readdir(
         join(process.cwd(), "public", "data", dataDirSeg),
@@ -330,9 +330,11 @@ const tileTitle = chart.title;
 // (09110..09190) are present — the us-atlas file still has CT's old
 // county FIPS (09001..09015) which no longer match ACS API output.
 const defaultBoundary =
-  geo === "state" || geo === "county"
-    ? "/maps/us-counties-2024-10m.json"
-    : "";
+  geo === "cd"
+    ? "/maps/us-cd118-10m.json"
+    : geo === "state" || geo === "county"
+      ? "/maps/us-counties-2024-10m.json"
+      : "";
 // Boundary resolution order:
 //   1. Explicit chart.boundaryFile (pre-built regional bundle like
 //      /maps/dmv-tracts-topo.json — used by curated dashboards that
@@ -379,7 +381,7 @@ const statesJoined = stateCodes.join(",");
     <div class="chart-tile-title">{tileTitle}</div>
     {summary && (
       <p class="map-eyebrow muted small">
-        {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : "block groups"}
+        {summary.count} {geo === "state" ? "states" : geo === "county" ? "counties" : geo === "tract" ? "tracts" : geo === "cd" ? "districts" : "block groups"}
         {" · range "}
         {fmt(summary.min, summary.unit, summary.decimals)}
         {" – "}
@@ -502,7 +504,7 @@ const statesJoined = stateCodes.join(",");
      *  regional bundles; length > 1 for multi-state regions composed
      *  ad-hoc from per-state TopoJSONs. */
     boundaryUrls: string[];
-    geo: "state" | "county" | "tract" | "block-group";
+    geo: "state" | "county" | "tract" | "block-group" | "cd";
     state: string;
     bbox: [number, number, number, number] | null;
     colorScheme: string;
@@ -677,6 +679,7 @@ const statesJoined = stateCodes.join(",");
     if (b.geo === "state") layerName = "states";
     else if (b.geo === "county") layerName = "counties";
     else if (b.geo === "tract") layerName = "tracts";
+    else if (b.geo === "cd") layerName = "cd";
     else layerName = "block_groups";
     const urls = b.boundaryUrls && b.boundaryUrls.length > 0
       ? b.boundaryUrls
@@ -982,7 +985,7 @@ const statesJoined = stateCodes.join(",");
     // crammed into a sliver — visually that read as a white tile
     // because the actual polygons sat off the visible canvas.
     let projection: unknown;
-    if (b.geo === "state" || b.geo === "county") {
+    if (b.geo === "state" || b.geo === "county" || b.geo === "cd") {
       projection = "albers-usa";
     } else {
       // Compute the geographic bbox of the clipped features so we can

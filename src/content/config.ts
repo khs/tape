@@ -258,7 +258,7 @@ const charts = defineCollection({
     // further). Renderer joins ACS values onto us-atlas TopoJSON via
     // GEOID — 2-digit state FIPS, 5-digit county FIPS, 11-digit
     // tract GEOID, 12-digit block-group GEOID.
-    geo: z.enum(["state", "county", "tract", "block-group"]).optional(),
+    geo: z.enum(["state", "county", "tract", "block-group", "cd"]).optional(),
     // ACS indicator key (e.g., "poverty_rate", "median_hh_income",
     // "bachelors_plus_pct", "foreign_born_pct"). Must match the
     // out_id of one of pipelines/census_acs_choropleth.py's

@@ -37,6 +37,20 @@ describe("pickVintages", () => {
     expect(pickVintages(files, "pres_margin_county")).toEqual(["2024"]);
   });
 
+  it("keeps coexisting election indicators in acs_state separate", () => {
+    // acs_state holds pres_margin_<year> AND sen_margin_<year>; each chart's
+    // slider must see only its own indicator's vintages.
+    const files = [
+      "pres_margin_2020.json",
+      "pres_margin_2024.json",
+      "sen_margin_2020.json",
+      "sen_margin_2022.json",
+      "sen_margin_2024.json",
+    ];
+    expect(pickVintages(files, "pres_margin")).toEqual(["2020", "2024"]);
+    expect(pickVintages(files, "sen_margin")).toEqual(["2020", "2022", "2024"]);
+  });
+
   it("returns [] when nothing matches", () => {
     expect(pickVintages(["foo.json", "bar_2020.json"], "pres_margin")).toEqual([]);
   });
