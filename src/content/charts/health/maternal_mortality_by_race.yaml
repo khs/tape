@@ -1,0 +1,20 @@
+title: "Maternal mortality rate by race and ethnicity (US)"
+sources:
+  - cdc_health/maternal_mortality_rate_black_us
+  - cdc_health/maternal_mortality_rate_white_us
+  - cdc_health/maternal_mortality_rate_hispanic_us
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - Black (non-Hispanic)
+  - White (non-Hispanic)
+  - Hispanic
+blurb: |
+  Maternal deaths per 100,000 live births in the United States by race and
+  ethnicity, by year. CDC National Center for Health Statistics. Black women's
+  rate has run roughly three times the White rate across this period and peaked
+  near 70 in 2021. Figures use the post-2018 pregnancy-checkbox coding and are
+  not comparable to maternal mortality reported before 2018.
+tags: [health, gender, us]

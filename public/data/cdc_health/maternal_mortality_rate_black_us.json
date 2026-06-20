@@ -1,0 +1,37 @@
+{
+  "id": "maternal_mortality_rate_black_us",
+  "name": "Maternal mortality rate, Black (non-Hispanic) \u2014 United States",
+  "kind": "timeseries",
+  "unit": "per 100,000 live births",
+  "lastUpdated": "2026-06-20T00:52:24Z",
+  "points": [
+    {
+      "t": "2019-12-31",
+      "v": 44.0
+    },
+    {
+      "t": "2020-12-31",
+      "v": 55.3
+    },
+    {
+      "t": "2021-12-31",
+      "v": 69.9
+    },
+    {
+      "t": "2022-12-31",
+      "v": 49.5
+    },
+    {
+      "t": "2023-12-31",
+      "v": 50.3
+    },
+    {
+      "t": "2024-12-31",
+      "v": 44.8
+    },
+    {
+      "t": "2025-12-31",
+      "v": 46.3
+    }
+  ]
+}

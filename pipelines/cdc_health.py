@@ -154,9 +154,11 @@ def write_yaml(
     sid: str, name: str, short_name: str, description: str, geo_key: str,
     supported: list[str], unit: str, decimals: int, suffix: str,
     series_note: str, url: str, unit_class: str | None,
+    extra_tags: list[str] | None = None,
 ) -> None:
     YAML_DIR.mkdir(parents=True, exist_ok=True)
-    tags = ["health"]
+    # ["health", <extra topic tags>, "us-state" (states only), "us"]
+    tags = ["health", *(extra_tags or [])]
     if geo_key != "us":
         tags.append("us-state")
     tags.append("us")
@@ -465,10 +467,133 @@ def build_overdose() -> int:
     return n
 
 
+MATERNAL_URL = (
+    "https://data.cdc.gov/NCHS/"
+    "VSRR-Provisional-Maternal-Death-Counts-and-Rates/e2d5-ggg7"
+)
+# (exact subgroup string, id slug, human label). Total/White/Black/Hispanic are
+# reliable across all years; AIAN and NHOPI cells are frequently <20 deaths and
+# suppressed, so they are deliberately left out.
+MATERNAL_RACE = [
+    ("Black, Non-Hispanic", "black", "Black (non-Hispanic)"),
+    ("White, Non-Hispanic", "white", "White (non-Hispanic)"),
+    ("Hispanic", "hispanic", "Hispanic"),
+]
+_MATERNAL_CAVEAT = (
+    "National only; most state cells are suppressed. Figures use the post-2018 "
+    "pregnancy-checkbox coding and are not comparable to maternal mortality "
+    "published before 2018 (historically near 12 to 15 per 100,000). Each year "
+    "is the December 12-month-ending window (the calendar-year value); recent "
+    "years are provisional and revised as records complete."
+)
+
+
+def build_maternal() -> int:
+    """National maternal mortality rate (deaths per 100,000 live births),
+    overall + the three reliably-reported race/ethnicity groups, plus the raw
+    death count. NCHS VSRR; national only (states suppressed). Uses the
+    December 12-month-ending row as the calendar-year value."""
+    rows = [
+        r for r in fetch_csv(MATERNAL_DATASET)
+        if (r.get("jurisdiction") or "").strip() == "United States"
+        and (r.get("month_of_death") or "").strip() == "12"
+    ]
+    n = 0
+
+    def rate_points(group: str, subgroup: str) -> list[dict]:
+        pts = []
+        for r in rows:
+            if (r.get("group") or "").strip() != group:
+                continue
+            if (r.get("subgroup") or "").strip() != subgroup:
+                continue
+            yr = (r.get("year_of_death") or "").strip()
+            rate = _f(r.get("maternal_mortality_rate"))
+            if not yr or rate is None:
+                continue
+            pts.append({"t": f"{yr}-12-31", "v": round(rate, 1)})
+        pts.sort(key=lambda p: p["t"])
+        return pts
+
+    # ---- Overall rate ----
+    total = rate_points("Total", "Total")
+    if len(total) >= 2:
+        write_timeseries(
+            PIPELINE, "maternal_mortality_rate_us",
+            "Maternal mortality rate — United States", total,
+            unit="per 100,000 live births", merge=False,
+        )
+        write_yaml(
+            "maternal_mortality_rate_us",
+            "Maternal mortality rate — United States", "US maternal mortality",
+            f"Maternal deaths per 100,000 live births for the United States, by "
+            f"year. CDC / National Center for Health Statistics, Vital "
+            f"Statistics Rapid Release. WHO maternal-death definition (death "
+            f"while pregnant or within 42 days). {_MATERNAL_CAVEAT}",
+            "us", ["1y", "5y", "10y"], "per 100,000 live births", 1, " per 100k",
+            "CDC NCHS VSRR maternal mortality; Total; 12 month-ending Dec; US",
+            MATERNAL_URL, "rate", extra_tags=["gender"],
+        )
+        n += 1
+
+    # ---- Overall death count ----
+    cpts = []
+    for r in rows:
+        if ((r.get("group") or "").strip() == "Total"
+                and (r.get("subgroup") or "").strip() == "Total"):
+            yr = (r.get("year_of_death") or "").strip()
+            d = _f(r.get("maternal_deaths"))
+            if yr and d is not None:
+                cpts.append({"t": f"{yr}-12-31", "v": int(round(d))})
+    cpts.sort(key=lambda p: p["t"])
+    if len(cpts) >= 2:
+        write_timeseries(
+            PIPELINE, "maternal_deaths_us",
+            "Maternal deaths — United States", cpts, unit="deaths", merge=False,
+        )
+        write_yaml(
+            "maternal_deaths_us", "Maternal deaths — United States",
+            "US maternal deaths",
+            f"Number of maternal deaths in the United States, by year (the "
+            f"numerator behind the maternal mortality rate). CDC / National "
+            f"Center for Health Statistics, Vital Statistics Rapid Release. "
+            f"{_MATERNAL_CAVEAT}",
+            "us", ["1y", "5y", "10y"], "deaths", 0, "",
+            "CDC NCHS VSRR maternal deaths; Total; 12 month-ending Dec; US",
+            MATERNAL_URL, "count", extra_tags=["gender"],
+        )
+        n += 1
+
+    # ---- Race / ethnicity rates (disparity) ----
+    for subgroup, slug_, label in MATERNAL_RACE:
+        pts = rate_points("Race and Hispanic origin", subgroup)
+        if len(pts) < 2:
+            continue
+        sid = f"maternal_mortality_rate_{slug_}_us"
+        name = f"Maternal mortality rate, {label} — United States"
+        write_timeseries(
+            PIPELINE, sid, name, pts,
+            unit="per 100,000 live births", merge=False,
+        )
+        write_yaml(
+            sid, name, f"US maternal mortality ({slug_})",
+            f"Maternal deaths per 100,000 live births for {label} women in the "
+            f"United States, by year. CDC / National Center for Health "
+            f"Statistics, Vital Statistics Rapid Release. {_MATERNAL_CAVEAT}",
+            "us", ["1y", "5y", "10y"], "per 100,000 live births", 1, " per 100k",
+            f"CDC NCHS VSRR maternal mortality; {subgroup}; 12 month-ending Dec; US",
+            MATERNAL_URL, "rate", extra_tags=["gender"],
+        )
+        n += 1
+
+    return n
+
+
 BUILDERS = {
     "life_expectancy": build_life_expectancy,
     "causes": build_causes,
     "overdose": build_overdose,
+    "maternal": build_maternal,
 }
 
 

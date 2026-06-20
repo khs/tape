@@ -1,0 +1,15 @@
+title: "US maternal mortality rate"
+sources:
+  - cdc_health/maternal_mortality_rate_us
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+blurb: |
+  Maternal deaths per 100,000 live births in the United States, by year. CDC
+  National Center for Health Statistics. The rate spiked to 32.9 in 2021,
+  driven heavily by COVID-19, then fell back to the high teens by 2025. These
+  figures use the post-2018 death-certificate pregnancy checkbox and are not
+  comparable to maternal mortality reported before 2018. National only; most
+  state-level figures are suppressed.
+tags: [health, gender, us]
