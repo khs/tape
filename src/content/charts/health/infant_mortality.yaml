@@ -1,0 +1,15 @@
+title: "US infant mortality rate"
+sources:
+  - cdc_health/infant_mortality_rate_us
+render: line
+defaultDelta: 50y
+normalize: raw
+emphasis: level
+blurb: |
+  Deaths of infants under one year per 1,000 live births in the United States,
+  by year. CDC National Center for Health Statistics. One of the great public
+  health success stories of the 20th century: the rate fell from about 100 per
+  1,000 in 1915 to a low of 5.42 in 2020. It then rose significantly in 2022,
+  the first such increase in roughly two decades. Annual series back to 1915
+  (final through 2023; 2024 provisional).
+tags: [health, us]

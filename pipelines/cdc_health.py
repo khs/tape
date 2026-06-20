@@ -589,11 +589,74 @@ def build_maternal() -> int:
     return n
 
 
+INFANT_URL = "https://data.cdc.gov/d/epev-k6ss"
+# FINAL national infant mortality rate (deaths under 1 year per 1,000 live
+# births) for the years past the 1915-2013 Socrata series. From NCHS "Infant
+# Mortality in the United States" reports: 2014-2022 = NVSR Vol 73 No 5 (Jul
+# 2024, Table 1); 2023 = NVSR Vol 74 No 7 (Jun 2025). 2022 was the first
+# statistically significant annual rise in roughly two decades. Verify each
+# value against the cited report when extending this dict.
+INFANT_FINAL = {
+    "2014": 5.82, "2015": 5.90, "2016": 5.87, "2017": 5.79, "2018": 5.67,
+    "2019": 5.58, "2020": 5.42, "2021": 5.44, "2022": 5.61, "2023": 5.61,
+}
+# Provisional latest year (NCHS VSRR No. 42, Jan 2026); revised as records land.
+INFANT_PROVISIONAL = {"2024": 5.52}
+
+
+def build_infant() -> int:
+    """National infant mortality rate (deaths under 1 year per 1,000 live
+    births). Long final annual series 1915-2013 from NCHS Socrata (epev-k6ss,
+    type=Infant), extended with hand-entered NCHS-report finals (2014-2023) and
+    the latest provisional year. National only — no state IMR is published on
+    data.cdc.gov (it lives only in query-only CDC WONDER)."""
+    rows = fetch_csv(
+        INFANT_DATASET, where="type='Infant'", select="year,mortality_rate",
+    )
+    pts = []
+    for r in rows:
+        yr = (r.get("year") or "").strip()
+        v = _f(r.get("mortality_rate"))
+        if yr and v is not None:
+            pts.append({"t": f"{yr}-12-31", "v": round(v, 2)})
+    for yr, v in {**INFANT_FINAL, **INFANT_PROVISIONAL}.items():
+        pts.append({"t": f"{yr}-12-31", "v": v})
+    # De-dup by year (Socrata ends 2013, appends start 2014 — no overlap, but be
+    # defensive); a later entry wins.
+    by_t = {p["t"]: p for p in pts}
+    pts = [by_t[t] for t in sorted(by_t)]
+    if len(pts) < 2:
+        return 0
+    write_timeseries(
+        PIPELINE, "infant_mortality_rate_us",
+        "Infant mortality rate — United States", pts,
+        unit="per 1,000 live births", merge=False,
+    )
+    write_yaml(
+        "infant_mortality_rate_us",
+        "Infant mortality rate — United States", "US infant mortality",
+        "Deaths of infants under 1 year per 1,000 live births in the United "
+        "States, by year. CDC / National Center for Health Statistics. The long "
+        "annual series (1915-2013) is from NCHS Socrata; 2014-2023 are final "
+        "figures from the NCHS 'Infant Mortality in the United States' reports "
+        "and 2024 is provisional. National only; state infant mortality is not "
+        "published on data.cdc.gov. The rate fell from about 100 per 1,000 in "
+        "1915 to a low of 5.42 in 2020, then rose significantly in 2022.",
+        "us", ["1y", "10y", "30y", "50y"], "per 1,000 live births", 2,
+        " per 1k",
+        "CDC NCHS infant mortality; type=Infant; US (Socrata 1915-2013 + NCHS "
+        "report finals 2014-2023 + 2024 provisional)",
+        INFANT_URL, "rate",
+    )
+    return 1
+
+
 BUILDERS = {
     "life_expectancy": build_life_expectancy,
     "causes": build_causes,
     "overdose": build_overdose,
     "maternal": build_maternal,
+    "infant": build_infant,
 }
 
 

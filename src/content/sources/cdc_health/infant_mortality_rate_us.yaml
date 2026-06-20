@@ -1,0 +1,22 @@
+name: 'Infant mortality rate — United States'
+shortName: 'US infant mortality'
+description: 'Deaths of infants under 1 year per 1,000 live births in the United States, by year. CDC / National Center for Health Statistics. The long annual series (1915-2013) is from NCHS Socrata; 2014-2023 are final figures from the NCHS ''Infant Mortality in the United States'' reports and 2024 is provisional. National only; state infant mortality is not published on data.cdc.gov. The rate fell from about 100 per 1,000 in 1915 to a low of 5.42 in 2020, then rose significantly in 2022.'
+kind: timeseries
+pipeline: cdc_health
+dataFile: data/cdc_health/infant_mortality_rate_us.json
+supportedDeltas: ["1y", "10y", "30y", "50y"]
+unit: "per 1,000 live births"
+emphasis: change
+formatting:
+  style: number
+  decimals: 2
+  suffix: " per 1k"
+provenance:
+  provider: CDC / National Center for Health Statistics
+  series: 'CDC NCHS infant mortality; type=Infant; US (Socrata 1915-2013 + NCHS report finals 2014-2023 + 2024 provisional)'
+  url: https://data.cdc.gov/d/epev-k6ss
+  license: Public domain (US government data)
+tags:
+  - health
+  - us
+unitClass: rate
