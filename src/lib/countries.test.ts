@@ -109,6 +109,18 @@ describe("parseCountrySourceId", () => {
       });
     });
 
+    it("hides every non-US OECD country (no foreign OECD in the default list)", () => {
+      // The default source list must never contain a foreign OECD series —
+      // they belong behind the "Countries & regions" chip. Spot-check the
+      // major economies; each must parse to a non-null country code.
+      for (const [slug, code] of [
+        ["jpn", "JPN"], ["fra", "FRA"], ["gbr", "GBR"],
+        ["mex", "MEX"], ["ita", "ITA"], ["kor", "KOR"], ["aus", "AUS"],
+      ] as const) {
+        expect(parseCountrySourceId(`oecd/${slug}_cpi_yoy`)?.code, slug).toBe(code);
+      }
+    });
+
     it("returns null for usa-prefixed slugs", () => {
       // USA OECD entries stay in the default list — same rule as
       // worldbank_gdp.
@@ -184,6 +196,44 @@ describe("parseCountrySourceId", () => {
       expect(parseCountrySourceId("owid_co2/per_capita_united_states")).toBeNull();
       expect(parseCountrySourceId("owid_co2/co2_world")).toBeNull();
       expect(parseCountrySourceId("owid_co2/share_global_co2_world")).toBeNull();
+    });
+  });
+
+  describe("countries_gdp/<slug> branch (leak fix)", () => {
+    it("hides foreign GDP-share series (countries_gdp leaked into default)", () => {
+      // countries_gdp/mexico = "Mexico real-GDP share of world" — was leaking
+      // because the parser only knew the countries/ sibling.
+      expect(parseCountrySourceId("countries_gdp/mexico")?.code).toBe("MEX");
+      expect(parseCountrySourceId("countries_gdp/uk")?.code).toBe("GBR");
+      expect(parseCountrySourceId("countries_gdp/south_korea")?.code).toBe("KOR");
+    });
+
+    it("keeps USA + world visible (null)", () => {
+      expect(parseCountrySourceId("countries_gdp/usa")).toBeNull();
+      expect(parseCountrySourceId("countries_gdp/world")).toBeNull();
+    });
+  });
+
+  describe("owid_energy/<metric>_<entity> branch (leak fix)", () => {
+    it("hides foreign renewable-share series (owid_energy sibling of owid_co2)", () => {
+      expect(
+        parseCountrySourceId("owid_energy/renewable_electricity_share_china")?.code,
+      ).toBe("CHN");
+      expect(
+        parseCountrySourceId("owid_energy/renewable_electricity_share_south_korea")
+          ?.code,
+      ).toBe("KOR");
+    });
+
+    it("keeps United States + World visible (null)", () => {
+      expect(
+        parseCountrySourceId(
+          "owid_energy/renewable_electricity_share_united_states",
+        ),
+      ).toBeNull();
+      expect(
+        parseCountrySourceId("owid_energy/renewable_electricity_share_world"),
+      ).toBeNull();
     });
   });
 

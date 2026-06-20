@@ -354,7 +354,30 @@ async function compute(): Promise<LibraryManifest> {
       synthetics.includes(COUNTRY_TAG) ||
       metroExtra.length > 0;
     const isSubNationalById = /\/(county|city|zip)_/.test(s.id);
-    if (!isAlreadyGeo && !isSubNationalById && declaredTags.includes("us")) {
+    // US tagging, by strong default. Every US-subnational geography
+    // (congressional district, state, county/QCEW jurisdiction, metro CBSA)
+    // is US soil; tag it `us` even when the YAML didn't declare it, so the
+    // "exclude US" topical filter is comprehensive for foreign users.
+    // Covers usaspending (878 district/state sources), bls state/qcew, zillow
+    // metros, and any acs_*/fred state source missing the declared tag.
+    const hasUsGeo =
+      synthetics.includes(CD_TAG) ||
+      synthetics.includes(STATE_TAG) ||
+      synthetics.includes(COUNTY_TAG) ||
+      metroExtra.length > 0;
+    // US-national series filed under a country pipeline's USA entity, which
+    // parseCountrySourceId deliberately leaves untagged so they stay visible
+    // by default (oecd/usa_*, owid_*/*_united_states, worldbank_gdp_raw/usa,
+    // countries_gdp/usa). These ARE US economy numbers, so tag them `us` too.
+    const isUsNational =
+      /^oecd\/usa_/.test(s.id) ||
+      /_united_states$/.test(s.id) ||
+      /^(?:worldbank_gdp_raw|countries_gdp)\/usa$/.test(s.id);
+    if ((hasUsGeo || isUsNational) && !declaredTags.includes("us")) {
+      synthetics.push("us");
+    }
+    const hasUs = declaredTags.includes("us") || synthetics.includes("us");
+    if (!isAlreadyGeo && !isSubNationalById && hasUs) {
       synthetics.push(`${COUNTRY_TAG}:USA`);
       countriesInUse.set("USA", "United States");
     }

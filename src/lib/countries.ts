@@ -346,9 +346,11 @@ export function parseCountrySourceId(
   // countries/<country_name> — the "country equity vs. VT" ratio
   // pipeline (countries_relative emits its data here but the source
   // YAMLs live at src/content/sources/countries/<name>.yaml, so the
-  // collection ID is countries/<name>). Reuse the worldbank_gdp slug
-  // table since both use the same English country-name slug convention.
-  m = id.match(/^countries\/(\w+)$/);
+  // collection ID is countries/<name>). countries_gdp/<name> is the
+  // sibling "real-GDP share of world" pipeline with the SAME English
+  // country-name slug convention; both reuse the worldbank_gdp slug
+  // table. usa + world stay in the default list.
+  m = id.match(/^countries(?:_gdp)?\/(\w+)$/);
   if (m) {
     const slug = m[1];
     if (slug === "usa" || slug === "world") return null;
@@ -383,10 +385,11 @@ export function parseCountrySourceId(
       return { code: iso3, name: COUNTRY_NAME_BY_CODE[iso3] };
     }
   }
-  // owid_co2/<metric>_<entity>. Entity is the slug suffix; match longest
-  // entity first. united_states + world are absent from the map, so they
-  // fall through to null and stay in the default list.
-  m = id.match(/^owid_co2\/(.+)$/);
+  // owid_co2/<metric>_<entity> and owid_energy/<metric>_<entity>. Both Our
+  // World in Data pipelines share the same 21 entity slugs (entity is the
+  // slug suffix); match longest entity first. united_states + world are
+  // absent from the map, so they fall through to null and stay visible.
+  m = id.match(/^owid_(?:co2|energy)\/(.+)$/);
   if (m) {
     const slug = m[1];
     for (const [entitySlug, code] of OWID_CO2_ENTITY_SORTED) {
