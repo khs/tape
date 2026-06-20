@@ -1,0 +1,23 @@
+name: 'Drug overdose death rate — New Jersey'
+shortName: 'NJ overdose deaths'
+description: 'Age-adjusted death rate per 100,000 population from drug overdose (drug poisoning) for New Jersey, by year. CDC / National Center for Health Statistics. Final data, 1999 through 2018; ICD-10 underlying-cause codes X40-X44, X60-X64, X85, Y10-Y14.'
+kind: timeseries
+pipeline: cdc_health
+dataFile: data/cdc_health/drug_overdose_aadr_nj.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "per 100k"
+emphasis: change
+formatting:
+  style: number
+  decimals: 1
+  suffix: " per 100k"
+provenance:
+  provider: CDC / National Center for Health Statistics
+  series: 'CDC NCHS drug poisoning mortality; age-adjusted; geo=nj'
+  url: https://data.cdc.gov/d/44rk-q6r2
+  license: Public domain (US government data)
+tags:
+  - health
+  - us-state
+  - us
+unitClass: rate

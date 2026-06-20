@@ -45,6 +45,7 @@ Run: ``python pipelines/cdc_health.py`` (hits data.cdc.gov).
 """
 from __future__ import annotations
 
+import calendar
 import csv
 import io
 import re
@@ -61,7 +62,31 @@ YAML_DIR = REPO_ROOT / "src" / "content" / "sources" / PIPELINE
 
 LE_DATASET = "w9j2-ggv5"
 CAUSES_DATASET = "bi63-dtpu"
+# Drug-overdose mortality. The FINAL age-adjusted death-rate series (national +
+# every state, 1999-2018) lives in "Drug Poisoning Mortality by State"
+# (44rk-q6r2). The only post-2018 coverage on data.cdc.gov is the PROVISIONAL
+# VSRR 12-month-ending counts (xkb8-kh2a), which bridges the recency gap.
+OVERDOSE_FINAL_DATASET = "44rk-q6r2"
+OVERDOSE_PROV_DATASET = "xkb8-kh2a"
+# Maternal mortality (national only; states are suppressed). VSRR provisional
+# maternal death counts + rates, 2019-present, post-2018-checkbox methodology.
+MATERNAL_DATASET = "e2d5-ggg7"
+# Infant mortality (national). Long final annual series 1915-2013; recent final
+# years are hand-appended from NCHS reports (see build_infant).
+INFANT_DATASET = "epev-k6ss"
 SOCRATA = "https://data.cdc.gov/resource/{}.csv"
+
+MONTHS = {
+    "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
+    "July": 7, "August": 8, "September": 9, "October": 10, "November": 11,
+    "December": 12,
+}
+
+
+def _month_end(year: int, month: int) -> str:
+    """ISO date for the last day of (year, month) — the natural timestamp for a
+    12-month-ending observation reported for that month."""
+    return f"{year:04d}-{month:02d}-{calendar.monthrange(year, month)[1]:02d}"
 
 STATE_NAME = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -83,9 +108,26 @@ NAME_TO_ABBR = {name: ab for ab, name in STATE_NAME.items()}
 NAME_TO_ABBR["United States"] = "US"  # national row in the causes dataset
 
 
-def fetch_csv(dataset: str) -> list[dict[str, str]]:
+def fetch_csv(
+    dataset: str,
+    where: str | None = None,
+    select: str | None = None,
+    limit: int = 200000,
+) -> list[dict[str, str]]:
+    """Fetch a Socrata dataset as parsed CSV rows. ``where``/``select`` pass
+    SoQL ``$where``/``$select`` filters; cached_get keys the on-disk cache on
+    the full param set, so a filtered fetch never collides with an unfiltered
+    one. ``requests`` URL-encodes the literal ``$`` param names and the quoted
+    string values, so callers write plain SoQL (e.g. ``state='United States'``).
+    Note SoQL reserved words like ``group`` must be backtick-quoted by the
+    caller."""
+    params: dict[str, object] = {"$limit": limit}
+    if select:
+        params["$select"] = select
+    if where:
+        params["$where"] = where
     url = SOCRATA.format(dataset)
-    body = cached_get(url, ttl_seconds=7 * 24 * 3600, params={"$limit": 200000})
+    body = cached_get(url, ttl_seconds=7 * 24 * 3600, params=params)
     return list(csv.DictReader(io.StringIO(body)))
 
 
@@ -315,12 +357,137 @@ def build_causes() -> int:
     return n
 
 
-def main() -> int:
-    le = build_life_expectancy()
-    causes = build_causes()
-    print(f"[cdc_health] wrote {le} life-expectancy/mortality + {causes} "
-          f"cause-of-death series (+ YAMLs).")
-    if le == 0 and causes == 0:
+OVERDOSE_FINAL_URL = "https://data.cdc.gov/d/44rk-q6r2"
+OVERDOSE_PROV_URL = (
+    "https://data.cdc.gov/NCHS/VSRR-Provisional-Drug-Overdose-Death-Counts/"
+    "xkb8-kh2a"
+)
+
+
+def build_overdose() -> int:
+    """Drug-overdose mortality: final age-adjusted death rate (national + every
+    state, 1999-2018) + a provisional national 12-month-ending count that
+    bridges the recency gap past 2018."""
+    n = 0
+
+    # ---- FINAL age-adjusted death rate, national + per state (1999-2018) ----
+    # CRITICAL: 44rk-q6r2 carries one row per (state, year, sex, age, race);
+    # filter to the all-population total or an unfiltered read silently grabs a
+    # sub-stratum. ageadjrate is age-adjusted to the 2000 US standard pop.
+    rows = fetch_csv(
+        OVERDOSE_FINAL_DATASET,
+        where=("sex='Both Sexes' AND age='All Ages' AND "
+               "race='All Races-All Origins'"),
+        select="state,year,deaths,ageadjrate",
+    )
+    series: dict[str, list[dict]] = {}
+    for r in rows:
+        state = strip_footnote_marker(r.get("state") or "")
+        abbr = NAME_TO_ABBR.get(state)
+        yr = (r.get("year") or "").strip()
+        aadr = _f(r.get("ageadjrate"))
+        deaths = _f(r.get("deaths"))
+        if not abbr or not yr or aadr is None:
+            continue
+        # NCHS flags rates built on <20 deaths as unreliable; drop them.
+        if deaths is not None and deaths < 20:
+            continue
+        series.setdefault(abbr.lower(), []).append(
+            {"t": f"{yr}-12-31", "v": round(aadr, 1)}
+        )
+
+    for geo_key, pts in series.items():
+        if len(pts) < 2:
+            continue
+        pts.sort(key=lambda p: p["t"])
+        sid = f"drug_overdose_aadr_{geo_key}"
+        if geo_key == "us":
+            geo_name, abbr = "United States", "US"
+        else:
+            geo_name, abbr = STATE_NAME[geo_key.upper()], geo_key.upper()
+        name = f"Drug overdose death rate — {geo_name}"
+        write_timeseries(PIPELINE, sid, name, pts, unit="per 100k", merge=False)
+        write_yaml(
+            sid, name, f"{abbr} overdose deaths",
+            f"Age-adjusted death rate per 100,000 population from drug overdose "
+            f"(drug poisoning) for {geo_name}, by year. CDC / National Center "
+            f"for Health Statistics. Final data, 1999 through 2018; ICD-10 "
+            f"underlying-cause codes X40-X44, X60-X64, X85, Y10-Y14.",
+            geo_key, ["1y", "5y", "10y", "30y"], "per 100k", 1, " per 100k",
+            f"CDC NCHS drug poisoning mortality; age-adjusted; geo={geo_key}",
+            OVERDOSE_FINAL_URL, "rate",
+        )
+        n += 1
+
+    # ---- PROVISIONAL national 12-month-ending count (recency bridge) ----
+    # Rolling-year totals reported monthly. predicted_value is CDC's
+    # completeness-adjusted figure (the headline VSRR number); it corrects the
+    # downward bias in the most recent months, where data_value undercounts
+    # because toxicology / death records are still landing. Fall back to the raw
+    # data_value if a predicted value is missing.
+    prov = fetch_csv(
+        OVERDOSE_PROV_DATASET,
+        where=("state='US' AND indicator='Number of Drug Overdose Deaths' "
+               "AND period='12 month-ending'"),
+        select="year,month,data_value,predicted_value",
+    )
+    ppts: list[dict] = []
+    for r in prov:
+        yr = (r.get("year") or "").strip()
+        mon = MONTHS.get((r.get("month") or "").strip())
+        val = _f(r.get("predicted_value"))
+        if val is None:
+            val = _f(r.get("data_value"))
+        if not yr or not mon or val is None:
+            continue
+        ppts.append({"t": _month_end(int(yr), mon), "v": int(round(val))})
+
+    if len(ppts) >= 2:
+        ppts.sort(key=lambda p: p["t"])
+        sid = "drug_overdose_deaths_12mo_us"
+        name = "Drug overdose deaths, 12-month rolling — United States"
+        write_timeseries(PIPELINE, sid, name, ppts, unit="deaths", merge=False)
+        write_yaml(
+            sid, name, "US overdose deaths",
+            "Provisional count of US drug-overdose deaths over the trailing 12 "
+            "months, reported monthly. CDC / National Center for Health "
+            "Statistics, Vital Statistics Rapid Release. Each point is a "
+            "rolling-year total (not a calendar-year count); values are the "
+            "completeness-adjusted predicted figure CDC publishes as the "
+            "headline. This bridges the final age-adjusted rate series, which "
+            "ends in 2018.",
+            "us", ["1y", "5y", "10y"], "deaths", 0, "",
+            "CDC NCHS VSRR provisional drug overdose deaths; 12 month-ending; US",
+            OVERDOSE_PROV_URL, "count",
+        )
+        n += 1
+
+    return n
+
+
+BUILDERS = {
+    "life_expectancy": build_life_expectancy,
+    "causes": build_causes,
+    "overdose": build_overdose,
+}
+
+
+def main(argv: list[str] | None = None) -> int:
+    # Optional subset filter: `python pipelines/cdc_health.py overdose causes`
+    # runs only those builders. With no args, run them all. Selective runs keep
+    # an incremental add from rewriting every other series' file (merge-on-write
+    # bumps lastUpdated on each write, which would otherwise churn the diff).
+    argv = sys.argv[1:] if argv is None else argv
+    selected = [a for a in argv if a in BUILDERS]
+    unknown = [a for a in argv if a not in BUILDERS]
+    if unknown:
+        print(f"  unknown builder(s) ignored: {', '.join(unknown)} "
+              f"(known: {', '.join(BUILDERS)})", file=sys.stderr)
+    names = selected or list(BUILDERS)
+    counts = {name: BUILDERS[name]() for name in names}
+    summary = " + ".join(f"{counts[n]} {n}" for n in names)
+    print(f"[cdc_health] wrote {summary} series (+ YAMLs).")
+    if sum(counts.values()) == 0:
         print("  nothing written — check network access to data.cdc.gov",
               file=sys.stderr)
         return 1

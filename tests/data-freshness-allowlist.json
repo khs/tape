@@ -1,3 +1,12 @@
 {
-  "_doc": "Referenced time-series sources that data-freshness.test.ts has confirmed are stale but ACCEPTED — the upstream genuinely publishes nothing newer (capped/discontinued), so the chart is as current as the source allows. Each entry needs a reason and, where a fix is pending, a task. A NEW freeze (e.g. a fetch break like oecd/jpn_cpi_yoy) will NOT be here, so the gate fails on it. When a source is fixed or stops being referenced, the gate also fails until its stale entry is removed, so this list cannot rot. (Currently empty: every referenced series is current.)"
+  "_doc": "Referenced time-series sources that data-freshness.test.ts has confirmed are stale but ACCEPTED — the upstream genuinely publishes nothing newer (capped/discontinued), so the chart is as current as the source allows. Each entry needs a reason and, where a fix is pending, a task. A NEW freeze (e.g. a fetch break like oecd/jpn_cpi_yoy) will NOT be here, so the gate fails on it. When a source is fixed or stops being referenced, the gate also fails until its stale entry is removed, so this list cannot rot.",
+  "cdc_health/drug_overdose_aadr_us": {
+    "reason": "CDC NCHS 'Drug Poisoning Mortality by State' final age-adjusted death rates end at data year 2018 (no newer final vintage exists on data.cdc.gov). Recency is carried by the fresh provisional series cdc_health/drug_overdose_deaths_12mo_us (12-month-ending count, current to 2026)."
+  },
+  "cdc_health/drug_overdose_aadr_wv": {
+    "reason": "CDC NCHS 'Drug Poisoning Mortality by State' final age-adjusted death rates end at data year 2018 (state series, West Virginia). Recency lives in the national provisional count cdc_health/drug_overdose_deaths_12mo_us."
+  },
+  "cdc_health/drug_overdose_aadr_oh": {
+    "reason": "CDC NCHS 'Drug Poisoning Mortality by State' final age-adjusted death rates end at data year 2018 (state series, Ohio). Recency lives in the national provisional count cdc_health/drug_overdose_deaths_12mo_us."
+  }
 }

@@ -1,0 +1,15 @@
+title: "Drug overdose deaths, 12-month rolling (US)"
+sources:
+  - cdc_health/drug_overdose_deaths_12mo_us
+render: line
+defaultDelta: 10y
+normalize: raw
+emphasis: level
+blurb: |
+  Provisional count of US drug overdose deaths over the trailing 12 months,
+  reported monthly. CDC National Center for Health Statistics, Vital Statistics
+  Rapid Release. Each point is a rolling-year total, using CDC's
+  completeness-adjusted estimate. Deaths surged through the synthetic-opioid
+  wave to a peak above 110,000 in 2022 to 2023, then fell sharply. Because
+  recent months are still being finalized, the latest values may be revised.
+tags: [health, us]

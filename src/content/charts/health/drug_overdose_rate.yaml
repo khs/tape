@@ -1,0 +1,21 @@
+title: "Drug overdose death rate, US and hardest-hit states"
+sources:
+  - cdc_health/drug_overdose_aadr_us
+  - cdc_health/drug_overdose_aadr_wv
+  - cdc_health/drug_overdose_aadr_oh
+render: line
+defaultDelta: 30y
+normalize: raw
+emphasis: level
+seriesLabels:
+  - United States
+  - West Virginia
+  - Ohio
+blurb: |
+  Age-adjusted deaths from drug overdose (drug poisoning) per 100,000 people,
+  by year. CDC National Center for Health Statistics, final data 1999 to 2018.
+  The national rate more than tripled over the period as the opioid epidemic
+  spread, and the geographic gap widened: West Virginia and Ohio ran far above
+  the national line. Rates for all 50 states and DC are available in the
+  composer. For figures past 2018, see the provisional 12-month count.
+tags: [health, us]
