@@ -1,6 +1,6 @@
 name: Median age — KS
 shortName: KS median age
-description: Median age for KS (statewide). Population-weighted average of the 4 congressional-district median age values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B01002), released annually.
+description: Median age for KS (statewide), from the American Community Survey 5-year estimates (table B01002), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_age_ks.json

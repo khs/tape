@@ -60,7 +60,61 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+import _env  # noqa: F401 — loads .env (CENSUS_API_KEY) for the median fetch
 from common import write_timeseries, utc_now_iso
+from census_acs_cd import acs_fetch, STATE_ABBR
+
+# States ARE a native Census median geography, so for these indicators we fetch
+# the TRUE state-level median directly (var _001E) instead of the population-
+# weighted average of CD medians (which is only an approximation). Keyed by
+# out_id -> direct estimate variable. median_commute (B08303) has no direct
+# median var (it's a travel-time distribution), so it stays a CD rollup.
+TRUE_MEDIAN_VARS: dict[str, str] = {
+    "median_hh_income": "B19013_001E",
+    "median_age": "B01002_001E",
+    "median_home_value": "B25077_001E",
+    "median_gross_rent": "B25064_001E",
+    "gini_index": "B19083_001E",
+    "median_year_built": "B25035_001E",
+}
+
+
+def fetch_true_state_medians(
+    years: range, key: str,
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """{out_id: {state_abbr: [{t, v}]}} of true state medians from the Census
+    API (one call per year per var, geo=state:*). Skips negative sentinels."""
+    decimals = {ind["out_id"]: ind["decimals"] for ind in MEDIAN_INDICATORS}
+    out: dict[str, dict[str, list[dict[str, Any]]]] = {
+        oid: defaultdict(list) for oid in TRUE_MEDIAN_VARS
+    }
+    for year in years:
+        for oid, var in TRUE_MEDIAN_VARS.items():
+            rows = acs_fetch(year, [var], "state:*", key)
+            if not rows or len(rows) < 2:
+                continue
+            hdr = rows[0]
+            try:
+                vi, fi = hdr.index(var), hdr.index("state")
+            except ValueError:
+                continue
+            for r in rows[1:]:
+                abbr = STATE_ABBR.get(r[fi])
+                if not abbr or not r[vi]:
+                    continue
+                try:
+                    v = float(r[vi])
+                except ValueError:
+                    continue
+                if v <= 0:  # Census negative sentinels = missing / suppressed
+                    continue
+                out[oid][abbr].append(
+                    {"t": f"{year}-12-31", "v": round(v, decimals[oid])}
+                )
+    for oid in out:
+        for abbr in out[oid]:
+            out[oid][abbr].sort(key=lambda p: p["t"])
+    return out
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -469,10 +523,7 @@ def description_for(indicator: dict[str, Any], state: str, n_cds: int) -> str:
             f"series."
         )
     return (
-        f"{name} for {abbr} (statewide). Population-weighted average "
-        f"of the {n_cds} congressional-district {name.lower()} values "
-        f"for this state, an approximation, not the true Census "
-        f"state-level median. Underlying source, American Community "
+        f"{name} for {abbr} (statewide), from the American Community "
         f"Survey 5-year estimates (table {table}), released annually."
     )
 
@@ -585,6 +636,19 @@ def main() -> int:
                     if isinstance(p.get("t"), str) and isinstance(p.get("v"), (int, float))}
             pop_lookup[(state, dst)] = by_t
 
+    # True state medians (direct Census state fetch) for indicators with a
+    # native median var — replaces the CD population-weighted approximation.
+    import os
+    census_key = os.environ.get("CENSUS_API_KEY", "")
+    true_medians = (
+        fetch_true_state_medians(range(2010, 2025), census_key)
+        if census_key
+        else {}
+    )
+    if not census_key:
+        print("WARNING: CENSUS_API_KEY unset; medians fall back to CD rollups.",
+              file=sys.stderr)
+
     written_json = 0
     written_yaml = 0
     skipped_yaml = 0
@@ -598,7 +662,14 @@ def main() -> int:
             # would write an empty/single-point series and clobber it.
             if state in SINGLE_CD_STATES:
                 continue
-            points = aggregate_state(indicator, state, districts, pop_lookup, is_median)
+            # Prefer the true direct state median where Census publishes one;
+            # otherwise aggregate from the CDs (counts; commute).
+            true_series = true_medians.get(indicator["out_id"], {}).get(state)
+            points = (
+                true_series
+                if true_series is not None
+                else aggregate_state(indicator, state, districts, pop_lookup, is_median)
+            )
             if not points:
                 continue
             # Write data JSON via write_timeseries for consistency with the

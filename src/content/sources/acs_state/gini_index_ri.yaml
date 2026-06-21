@@ -1,6 +1,6 @@
 name: Income inequality (Gini index) — RI
 shortName: RI Gini index
-description: Income inequality (Gini index) for RI (statewide). Population-weighted average of the 2 congressional-district income inequality (gini index) values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B19083), released annually.
+description: Income inequality (Gini index) for RI (statewide), from the American Community Survey 5-year estimates (table B19083), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/gini_index_ri.json

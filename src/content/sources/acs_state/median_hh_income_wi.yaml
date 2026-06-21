@@ -1,6 +1,6 @@
 name: Median household income — WI
 shortName: WI median hh income
-description: Median household income for WI (statewide). Population-weighted average of the 8 congressional-district median household income values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B19013), released annually.
+description: Median household income for WI (statewide), from the American Community Survey 5-year estimates (table B19013), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_hh_income_wi.json

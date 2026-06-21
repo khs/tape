@@ -3,7 +3,7 @@
   "name": "Median year housing structure built \u2014 CT",
   "kind": "timeseries",
   "unit": "year",
-  "lastUpdated": "2026-06-18T22:18:29Z",
+  "lastUpdated": "2026-06-21T00:34:27Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -47,11 +47,11 @@
     },
     {
       "t": "2020-12-31",
-      "v": 1964.0
+      "v": 1965.0
     },
     {
       "t": "2021-12-31",
-      "v": 1964.0
+      "v": 1966.0
     },
     {
       "t": "2022-12-31",

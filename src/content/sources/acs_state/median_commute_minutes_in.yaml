@@ -1,6 +1,6 @@
 name: Median travel time to work — IN
 shortName: IN median commute
-description: Median travel time to work for IN (statewide). Population-weighted average of the 9 congressional-district median travel time to work values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B08303), released annually.
+description: Median travel time to work for IN (statewide), from the American Community Survey 5-year estimates (table B08303), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_commute_minutes_in.json

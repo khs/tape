@@ -1,6 +1,6 @@
 name: Median age — AL
 shortName: AL median age
-description: Median age for AL (statewide). Population-weighted average of the 7 congressional-district median age values for this state, an approximation, not the true Census state-level median. Underlying source, American Community Survey 5-year estimates (table B01002), released annually.
+description: Median age for AL (statewide), from the American Community Survey 5-year estimates (table B01002), released annually.
 kind: timeseries
 pipeline: derive_acs_state_from_cd
 dataFile: data/acs_state/median_age_al.json
