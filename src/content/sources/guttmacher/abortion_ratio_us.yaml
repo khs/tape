@@ -1,0 +1,23 @@
+name: 'Abortion ratio — United States'
+shortName: 'US abortion ratio'
+description: 'Abortions per 1,000 live births in the United States, by year. The Guttmacher Institute Abortion Provider Census reports this ratio directly for 1973 to 2020. For 2023 and 2024 it is computed as Guttmacher Monthly Abortion Provision Study abortions divided by CDC NCHS live births; 2025 abortions are available but the 2025 ratio awaits final 2025 birth totals. Because Guttmacher counts nationally (all 50 states and DC, unlike CDC Abortion Surveillance, which excludes California and others), this ratio runs well above the CDC abortion-surveillance figure.'
+kind: timeseries
+pipeline: guttmacher
+dataFile: data/guttmacher/abortion_ratio_us.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "per 1,000 live births"
+emphasis: change
+formatting:
+  style: number
+  decimals: 0
+  suffix: " per 1k births"
+provenance:
+  provider: Guttmacher Institute
+  series: 'Guttmacher APC (1973-2020) + MAPS abortions / CDC NCHS births (2023-2024); national; ratio per 1,000 births'
+  url: https://www.guttmacher.org/report/pregnancies-births-abortions-in-united-states-1973-2020
+  license: Free to use with citation (Guttmacher Institute)
+tags:
+  - health
+  - gender
+  - us
+unitClass: ratio

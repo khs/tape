@@ -1,15 +1,20 @@
 title: "US abortion ratio"
 sources:
-  - cdc_health/abortion_ratio_us
+  - guttmacher/abortion_ratio_us
 render: line
 defaultDelta: 10y
 normalize: raw
 emphasis: level
+annotations:
+  - date: "2022-01-01"
+    label: "Census ends, monthly study begins"
 blurb: |
-  Legal induced abortions per 1,000 live births, reported to the CDC each year.
-  The ratio complements the rate by measuring abortions relative to births
-  rather than to the female population, and stayed in the high 180s to low 200s
-  over the decade through 2022. Based on the 47 areas that reported
-  continuously, so it is consistent over time but excludes several non-reporting
-  areas, including California. Recent years are provisional.
+  Abortions per 1,000 live births in the United States. From the Guttmacher
+  Institute Abortion Provider Census (all 50 states and DC) for 1973 to 2020,
+  then computed from Guttmacher Monthly Abortion Provision Study abortions and
+  CDC NCHS live births for 2023 and 2024. Because Guttmacher counts nationally,
+  unlike CDC abortion surveillance, which excludes California and others, the
+  ratio runs well above the CDC figure. The 2020-to-2023 break marks a change
+  from the triennial census to the monthly study; 2021 and 2022 are not covered,
+  and the 2025 ratio awaits final birth totals.
 tags: [health, gender, us]

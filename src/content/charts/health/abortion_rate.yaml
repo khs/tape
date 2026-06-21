@@ -1,16 +1,19 @@
 title: "US abortion rate"
 sources:
-  - cdc_health/abortion_rate_us
+  - guttmacher/abortion_rate_us
 render: line
 defaultDelta: 10y
 normalize: raw
 emphasis: level
+annotations:
+  - date: "2022-01-01"
+    label: "Census ends, monthly study begins"
 blurb: |
-  Legal induced abortions per 1,000 women aged 15 to 44, reported to the CDC
-  each year. The rate held in a narrow band near 11 to 12 over the decade
-  through 2022. Based on the 47 areas that reported continuously, so the series
-  is consistent over time but undercounts the national total: several large
-  areas, including California, Maryland, New Hampshire, and New Jersey, do not
-  report to the CDC. The fuller count published by the Guttmacher Institute is
-  substantially higher. Recent years are provisional.
+  Abortions per 1,000 women aged 15 to 44 in the United States. From the
+  Guttmacher Institute Abortion Provider Census for 1973 to 2020, spliced with
+  the Guttmacher Monthly Abortion Provision Study for 2023 to 2025. The rate
+  peaked near 29 around 1980, fell to about 14 by the late 2010s, then rose after
+  the 2022 Dobbs decision to 16.7 by 2024. Both series count nationally, unlike
+  CDC surveillance, which excludes California and others. The 2020-to-2023 break
+  marks the census-to-monthly-study change; 2021 and 2022 are not covered.
 tags: [health, gender, us]

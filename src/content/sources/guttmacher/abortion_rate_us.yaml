@@ -1,0 +1,23 @@
+name: 'Abortion rate — United States'
+shortName: 'US abortion rate'
+description: 'Abortions per 1,000 women aged 15 to 44 in the United States, by year. Guttmacher Institute Abortion Provider Census for 1973 to 2020, spliced with the Guttmacher Monthly Abortion Provision Study for 2023 to 2025. Both count nationally, unlike CDC Abortion Surveillance, which excludes several states including California. The two Guttmacher series use different methods and 2021 to 2022 are not covered, so the recent points are not strictly comparable with the earlier census.'
+kind: timeseries
+pipeline: guttmacher
+dataFile: data/guttmacher/abortion_rate_us.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "per 1,000 women 15-44"
+emphasis: change
+formatting:
+  style: number
+  decimals: 1
+  suffix: " per 1k"
+provenance:
+  provider: Guttmacher Institute
+  series: 'Guttmacher APC (1973-2020) + MAPS (2023-2025); national; rate'
+  url: https://www.guttmacher.org/report/pregnancies-births-abortions-in-united-states-1973-2020
+  license: Free to use with citation (Guttmacher Institute)
+tags:
+  - health
+  - gender
+  - us
+unitClass: rate

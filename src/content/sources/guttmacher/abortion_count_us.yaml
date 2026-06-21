@@ -1,0 +1,23 @@
+name: 'Abortions — United States'
+shortName: 'US abortions'
+description: 'Total number of abortions in the United States, by year. Two Guttmacher Institute series, spliced: the Abortion Provider Census (a survey of all known providers in all 50 states and DC) for 1973 to 2020, and the Monthly Abortion Provision Study for 2023 to 2025. Both count nationally, unlike CDC Abortion Surveillance, which is voluntary and excludes several states including California. The two Guttmacher series use different methods (a full provider census versus a modeled monthly sample) and 2021 to 2022 are not covered, so the recent points are not strictly comparable with the earlier census; recent figures include medication abortions via telehealth under shield laws.'
+kind: timeseries
+pipeline: guttmacher
+dataFile: data/guttmacher/abortion_count_us.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "abortions"
+emphasis: change
+formatting:
+  style: number
+  decimals: 0
+  suffix: ""
+provenance:
+  provider: Guttmacher Institute
+  series: 'Guttmacher APC (1973-2020) + MAPS (2023-2025); national; number'
+  url: https://www.guttmacher.org/report/pregnancies-births-abortions-in-united-states-1973-2020
+  license: Free to use with citation (Guttmacher Institute)
+tags:
+  - health
+  - gender
+  - us
+unitClass: count

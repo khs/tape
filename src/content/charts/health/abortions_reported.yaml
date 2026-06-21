@@ -1,16 +1,20 @@
-title: "US reported abortions"
+title: "US abortions"
 sources:
-  - cdc_health/abortions_reported_us
+  - guttmacher/abortion_count_us
 render: line
 defaultDelta: 10y
 normalize: raw
 emphasis: level
+annotations:
+  - date: "2022-01-01"
+    label: "Census ends, monthly study begins"
 blurb: |
-  Number of legal induced abortions reported to the CDC each year, from the 47
-  areas that reported continuously. The reported count eased from about 640,000
-  in 2013 to about 609,000 in 2022. This is a consistent series over time but an
-  undercount of the national total: several areas, including California,
-  Maryland, New Hampshire, and New Jersey, do not report to the CDC, and the
-  fuller national count from the Guttmacher Institute is substantially higher.
-  Recent years are provisional.
+  Total abortions in the United States. From the Guttmacher Institute Abortion
+  Provider Census (all known providers, all 50 states and DC) for 1973 to 2020,
+  spliced with the Guttmacher Monthly Abortion Provision Study for 2023 to 2025.
+  The count topped 1.6 million around 1990, fell to about 930,000 by 2020, then
+  rose past 1.1 million after the 2022 Dobbs decision. Both series count
+  nationally, unlike CDC surveillance, which excludes California and others. The
+  2020-to-2023 break marks the census-to-monthly-study change; 2021 and 2022 are
+  not covered.
 tags: [health, gender, us]
