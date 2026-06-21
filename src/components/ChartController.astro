@@ -543,6 +543,11 @@
     prior: Point;
     /** True when we fell back to the inception baseline. */
     partial: boolean;
+    /** Set (to a year) when the baseline IS the current observation — a stale
+     *  series whose only in-window point is the latest. There's no measured
+     *  span, so callers report "as of YYYY" rather than a vacuous "unchanged
+     *  since YYYY". */
+    asOf?: string;
   };
 
   /** Delta display for `s` at `window`, with a graceful inception
@@ -560,14 +565,27 @@
     fixed?: { start: string; end: string },
   ): DeltaResult | null {
     if (!current) return null;
+    // Baseline == the current observation → no measured span (a stale series
+    // whose only in-window point is the latest, e.g. USGS water ending 2015).
+    // Report "as of YYYY", not a vacuous "unchanged since 2015".
+    const asOfResult = (b: Point): DeltaResult => ({
+      text: "",
+      rawText: "",
+      direction: "flat",
+      prior: b,
+      partial: true,
+      asOf: b.t.slice(0, 4),
+    });
     const prior = tilePrior(s, window, fixed);
     if (prior) {
+      if (prior.t === current.t) return asOfResult(prior);
       const dd = formatDeltaDisplay(current.v, prior.v, s.formatting);
       return { text: dd.text, rawText: dd.text, direction: dd.direction, prior, partial: false };
     }
     if (fixed) return null;
     const base = inceptionPoint(s, window);
     if (!base) return null;
+    if (base.t === current.t) return asOfResult(base);
     const dd = formatDeltaDisplay(current.v, base.v, s.formatting);
     return {
       text: `${dd.text} since ${base.t.slice(0, 4)}`,
@@ -595,7 +613,12 @@
     }
     el.textContent = dd.text;
     el.dataset.direction = dd.direction;
-    if (dd.partial) {
+    if (dd.asOf) {
+      // Single observation (baseline IS the latest point) — no change to
+      // caption; the cell renders blank with an as-of tooltip.
+      delete el.dataset.partial;
+      el.title = `Single observation, as of ${dd.asOf}.`;
+    } else if (dd.partial) {
       el.dataset.partial = "1";
       el.title = `Change shown is since ${dd.prior.t.slice(0, 4)}, the earliest data for this series.`;
     } else {
@@ -2269,6 +2292,11 @@
             ddResult.direction === "flat"
               ? `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, roughly unchanged ${periodHtml}.`
               : `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)}, ${directionWord(ddResult.direction)} from ${escapeHtml(priorStr)} ${periodHtml} (${escapeHtml(ddResult.rawText)}).`;
+        } else if (ddResult && ddResult.asOf) {
+          // Baseline is the current observation itself (stale series, only the
+          // latest point in window) — no change to claim, so state it as a
+          // single observation rather than "roughly unchanged since YYYY".
+          descriptorEl.innerHTML = `${escapeHtml(s.name)} is at ${escapeHtml(currentStr)} as of ${ddResult.asOf}.`;
         } else if (ddResult && ddResult.partial) {
           // Window reaches further back than the data — report the change
           // since the series' first year (labelled "since YYYY") rather than

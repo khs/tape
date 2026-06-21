@@ -452,8 +452,20 @@ type SingleDescriptorParts = {
   duration: string | null;
   suffix: string;
 };
-const singleDescriptor: SingleDescriptorParts =
-  primary.current && primary.prior && primary.priorStr && primary.delta
+// Baseline == the latest observation (a stale series whose only in-window
+// point is the latest, e.g. USGS water ending 2015): no measured span, so
+// state it as a single observation rather than "roughly unchanged over the …".
+const singleAsOfYear =
+  primary.current && primary.prior && primary.prior.t === primary.current.t
+    ? primary.current.t.slice(0, 4)
+    : null;
+const singleDescriptor: SingleDescriptorParts = singleAsOfYear
+  ? {
+      prefix: `${primarySource.data.name} is at ${primary.currentStr} as of ${singleAsOfYear}.`,
+      duration: null,
+      suffix: "",
+    }
+  : primary.current && primary.prior && primary.priorStr && primary.delta
     ? primary.delta.direction === "flat"
       ? {
           prefix: `${primarySource.data.name} is at ${primary.currentStr}, roughly unchanged over the `,
