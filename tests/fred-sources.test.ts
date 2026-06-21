@@ -72,5 +72,9 @@ describe("fred sources are generated from the catalog (no drift)", () => {
     }
     for (const orphan of yamls) bad.push(`YAML '${orphan}' has no catalog row`);
     expect(bad, bad.slice(0, 30).join("\n")).toEqual([]);
-  });
+    // 30s timeout: this reads + regenerates all ~560 fred YAMLs, which can
+    // exceed vitest's 5s default on a loaded machine (CI / a concurrent build)
+    // and flake. The work is fast in isolation (~0.5s); the cap just absorbs
+    // contention so a slow run doesn't read as a drift failure.
+  }, 30_000);
 });
