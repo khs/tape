@@ -7,6 +7,7 @@ import {
 } from "./deltas";
 import type { InlineChart, InlineMap, InlineSource } from "./composer-state";
 import { canonicalCountryTitle } from "./countries";
+import { isDerivedId } from "./composer/ids";
 import {
   combineTwo,
   combineOpFormatting,
@@ -255,6 +256,10 @@ export async function resolveChart(
     let renderValid = valid;
     let effSources: string[] = spec.sources;
     let effOp = spec.op;
+    // True when the exact-rebuild substitution below collapsed an op'd chart to
+    // its numerator: we still preload the exact count so the tile shows it
+    // rather than the rounding-drifted product.
+    let substituted = false;
     if (spec.op === "multiply" && valid.length === 2 && spec.sources.length === 2) {
       const subId = multiplyRebuildNumerator(
         spec.sources[0],
@@ -269,15 +274,27 @@ export async function resolveChart(
           renderValid = [sub];
           effSources = [subId];
           effOp = undefined;
+          substituted = true;
         }
       }
     }
     const validSources = renderValid.map((v) => v.entry);
     const preloaded: Record<string, TimeSeriesData> = {};
-    for (const v of renderValid) {
-      // Always preload — for real sources this is harmless duplication;
-      // for derived sources it's required.
-      preloaded[v.entry.id] = v.points;
+    // Inline the full series ONLY when it's actually needed server-side:
+    //   - effOp set:      combineTwo(a, b) needs both full series
+    //   - derived source: computed points, no dataFile to lazy-load from
+    // Simple real-source inline charts fall through to summary-mode in
+    // Chart.astro — the same lean path library tiles use — so saved/composed
+    // dashboards stop inlining the entire daily history (~10× the bytes a
+    // sparkline needs; the full series still lazy-loads on dialog open).
+    // Fixed-range sections are unaffected: Chart.astro full-loads them itself
+    // via needsFullData when dashboardFixedRange is set.
+    const mustPreload =
+      !!effOp || substituted || effSources.some((sid) => isDerivedId(sid));
+    if (mustPreload) {
+      for (const v of renderValid) {
+        preloaded[v.entry.id] = v.points;
+      }
     }
     // Synthesize a minimal chart entry. Only `id` and `data` are read downstream
     // (see Chart.astro + effectiveChart). Default render to "line" and pick a

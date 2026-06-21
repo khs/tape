@@ -223,7 +223,14 @@ const perSourceRaw: PerSource[] = await Promise.all(sources.map(async (s, i) => 
         s.data.supportedDeltas as DeltaWindow[],
       );
       if (!summary) {
-        loadError = `Data unavailable: ${s.data.dataFile} — empty or missing summary`;
+        // No precomputed .summary.json sibling (e.g. a freshly-added source,
+        // or one build_summaries hasn't covered yet). Fall back to the full
+        // series so the tile still renders instead of erroring — important now
+        // that simple inline charts rely on summary-mode (see resolve-dashboard).
+        const raw = await loadSourceData(s.data.dataFile);
+        if (raw.kind === "timeseries") data = raw;
+        else
+          loadError = `Data unavailable: ${s.data.dataFile} — empty or missing summary`;
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);

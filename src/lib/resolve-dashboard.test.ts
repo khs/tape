@@ -549,4 +549,33 @@ describe("resolveChart — exact-rebuild substitution", () => {
     expect(data.sources).toEqual([RATE, OTHER]);
     expect(data.op).toBe("multiply");
   });
+
+  it("does NOT preload full points for a simple multi-source chart", async () => {
+    await wireMocks();
+    // Two real sources, no op, no fixed range: the lean path. Chart.astro
+    // loads each source's .summary.json rather than inlining the full series,
+    // so saved/composed dashboards stop shipping the entire daily history.
+    const inlineCharts: Record<string, InlineChart> = {
+      "inline:lean0001": {
+        title: "two counts",
+        sources: [NUM, DENOM],
+        normalize: "raw",
+        render: "line",
+      },
+    };
+    const resolved = await resolveChart(
+      "inline:lean0001",
+      inlineCharts,
+      undefined,
+      undefined,
+    );
+    expect(resolved).not.toBeNull();
+    const preloaded = (resolved as unknown as {
+      preloaded?: Record<string, unknown>;
+    }).preloaded;
+    expect(preloaded ?? {}).toEqual({});
+    // Sources still resolve so Chart.astro can summary-load them.
+    const data = resolved!.chart.data as unknown as { sources: string[] };
+    expect(data.sources).toEqual([NUM, DENOM]);
+  });
 });
