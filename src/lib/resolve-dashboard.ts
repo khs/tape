@@ -445,6 +445,12 @@ export function dashboardSupportedDeltas(
   const supported = DELTA_WINDOWS.filter((w) =>
     perChart.some((sup) => sup.includes(w)),
   );
+  // "max" (all time) is universal — every time-series source can show all of
+  // its own history — but no source *declares* it, so the union above never
+  // includes it. Append it whenever the dashboard has at least one time-series
+  // chart, so the dashboard window selector offers MAX the same way each
+  // chart's own dialog pill row does (Chart.astro's effectiveSupported).
+  if (supported.length > 0 && !supported.includes("max")) supported.push("max");
   return supported.length > 0 ? supported : [...DELTA_WINDOWS];
 }
 

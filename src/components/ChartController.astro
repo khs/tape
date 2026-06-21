@@ -14,6 +14,7 @@
     DELTA_LABELS_PAST,
     DELTA_LABELS_SHORT,
     DELTA_DAYS,
+    DELTA_WINDOWS,
     closestSupported,
     windowStartMs,
     windowDays,
@@ -497,15 +498,34 @@
    *  than the data the spark spans all of it, and downsampling preserves
    *  endpoints, so spark[0] is the true first observation). Full mode:
    *  points[0]. */
+  /** Spark for the longest window a summary carries (50y → 1w). Summaries stop
+   *  at 50y, so this is the all-time stand-in on summary-mode tiles: for any
+   *  series ≤50y it already IS the full history; >50y series get the last 50y
+   *  on the tile and true all-time once the dialog loads full points. */
+  function longestSummarySpark(summary: SummaryPayload): Point[] | null {
+    for (let i = DELTA_WINDOWS.length - 1; i >= 0; i--) {
+      const w = DELTA_WINDOWS[i];
+      if (w === "max") continue;
+      const sp = summary.sparks[w];
+      if (sp && sp.length > 0) return sp;
+    }
+    return null;
+  }
+
   function inceptionPoint(s: SourcePayload, window: DeltaWindow): Point | null {
     if (s.summary) {
       const sp = s.summary.sparks[window];
       if (sp && sp.length > 0) return sp[0];
-      // "max" (all time) has no precomputed spark, so fall through to the
-      // loaded full series' first point. Other windows keep the strict
-      // null (their spark is authoritative). Without this, max's descriptor
-      // wrongly reads "History doesn't cover the full history".
-      if (window !== "max") return null;
+      if (window === "max") {
+        // No max spark in summaries. With full points (dialog) fall through to
+        // the true first point below; in summary mode use the longest spark's
+        // first point so the tile readout reads "since YYYY" instead of the
+        // bogus "History doesn't cover the full history".
+        const longest = !s.points ? longestSummarySpark(s.summary) : null;
+        if (longest && longest.length > 0) return longest[0];
+      } else {
+        return null; // other windows: the spark is authoritative
+      }
     }
     const pts = s.points;
     return pts && pts.length > 0 ? pts[0] : null;
@@ -631,6 +651,16 @@
         // works (it scans for the last point at-or-before startMs).
         startMs: new Date(summarySpark[0].t).getTime(),
       };
+    }
+    // "max" carries no precomputed spark; on a summary-mode tile fall back to
+    // the longest spark we have (50y ⊇ full history for any ≤50y series) so the
+    // dashboard MAX pill still paints a tile. Full-points mode (dialog) drops
+    // through to visibleRange, which keeps all points for max.
+    if (window === "max" && !s.points && s.summary) {
+      const longest = longestSummarySpark(s.summary);
+      if (longest && longest.length > 0) {
+        return { visible: longest, startMs: new Date(longest[0].t).getTime() };
+      }
     }
     const pts = s.points;
     if (!pts) return { visible: [], startMs: 0 };
@@ -2001,7 +2031,10 @@
       height: 280,
       width,
       marginLeft: AXIS_LABEL_MARGIN_PX,
-      marginBottom: 28,
+      // 40 (not 28) so the temporal x-axis's two-line tick labels — a day
+      // number over a month-tier label ("4" above "Jun") on short windows —
+      // aren't clipped at the plot's bottom edge.
+      marginBottom: 40,
       marginTop: 10,
       marginRight: 16,
       style: {

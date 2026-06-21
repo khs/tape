@@ -129,7 +129,18 @@ describe("dashboardSupportedDeltas", () => {
       makeChart("map"),
     ]);
     const supported = dashboardSupportedDeltas([section]);
-    expect(supported).toEqual(["1y", "10y"]);
+    // "max" (all time) is appended for any dashboard with a time-series chart.
+    expect(supported).toEqual(["1y", "10y", "max"]);
+  });
+
+  it("appends the universal 'max' window for time-series dashboards", () => {
+    // No source declares "max", but every series can show all of its history,
+    // so the dashboard window selector must offer it (mirrors the per-chart
+    // dialog pill row). It sorts last, after the declared windows.
+    const section = sectionWith([makeChart("line", [["1y", "5y"]])]);
+    const supported = dashboardSupportedDeltas([section]);
+    expect(supported).toContain("max");
+    expect(supported[supported.length - 1]).toBe("max");
   });
 });
 
