@@ -21,3 +21,7 @@ tags:
   - us-state
   - us
 unitClass: rate
+derivedFrom:
+  numerator: nhtsa_fars/traffic_fatalities_in
+  denominator: fred/state_population_in
+  scale: 100

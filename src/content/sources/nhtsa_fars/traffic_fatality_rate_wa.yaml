@@ -21,3 +21,7 @@ tags:
   - us-state
   - us
 unitClass: rate
+derivedFrom:
+  numerator: nhtsa_fars/traffic_fatalities_wa
+  denominator: fred/state_population_wa
+  scale: 100

@@ -411,8 +411,26 @@ def write_yaml(sid: str, kind: str, geo_key: str, geo_name: str) -> None:
         "tags:",
         *[f"  - {t}" for t in tags],
         f"unitClass: {uclass}",
-        "",
     ]
+    # Counts -> rates: per-geography (state) fatality COUNTS are population-
+    # distorted (CA always tops WY on people, not road danger), so the rate is
+    # the default display and the raw count is hidden from the picker but one
+    # click away via the derived-source "x population" chip. derivedFrom points
+    # that chip at the exact FRED population the rate was built from (rate =
+    # count / pop_in_thousands * 100, so scale = 100), and the chip substitutes
+    # the real count series rather than recomputing. National US keeps both
+    # visible (a single timeline, not a cross-state comparison).
+    if geo_key != "us":
+        if kind == "count":
+            lines.append("hidden: true")
+        else:
+            lines += [
+                "derivedFrom:",
+                f"  numerator: {PIPELINE}/traffic_fatalities_{geo_key}",
+                f"  denominator: fred/state_population_{geo_key}",
+                "  scale: 100",
+            ]
+    lines.append("")
     YAML_DIR.mkdir(parents=True, exist_ok=True)
     (YAML_DIR / f"{sid}.yaml").write_text("\n".join(lines), encoding="utf-8")
 
