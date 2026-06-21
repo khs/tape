@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_sc_03",
+  "name": "House margin \u2014 South Carolina 3",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -97.6
+    },
+    {
+      "t": "2024-12-31",
+      "v": -46.4
+    }
+  ]
+}

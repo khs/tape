@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_ct_04",
+  "name": "House margin \u2014 Connecticut 4",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 19.9
+    },
+    {
+      "t": "2024-12-31",
+      "v": 23.7
+    }
+  ]
+}

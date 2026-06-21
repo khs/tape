@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_il_12",
+  "name": "House margin \u2014 Illinois 12",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -50.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": -48.4
+    }
+  ]
+}

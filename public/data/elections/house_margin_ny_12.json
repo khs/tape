@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_ny_12",
+  "name": "House margin \u2014 New York 12",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 57.3
+    },
+    {
+      "t": "2024-12-31",
+      "v": 55.6
+    }
+  ]
+}

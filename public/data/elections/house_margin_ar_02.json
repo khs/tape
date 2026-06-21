@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_ar_02",
+  "name": "House margin \u2014 Arkansas 2",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -24.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": -17.9
+    }
+  ]
+}

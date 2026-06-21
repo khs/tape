@@ -1,0 +1,21 @@
+name: 'Senate margin — Washington'
+shortName: 'Washington Senate margin'
+description: 'Two-party vote margin (Democratic minus Republican) as a share of the total vote, in percentage points, for the US Senate race in Washington, by election year. Positive values lean Democratic, negative Republican. Computed from MEDSL (MIT Election Data and Science Lab) returns via Harvard Dataverse. US Senate general elections (excluding special elections), 1976 to 2024; a state appears only in the cycles its seat was up.'
+kind: timeseries
+pipeline: elections
+dataFile: data/elections/sen_margin_wa.json
+supportedDeltas: ["10y", "30y"]
+unit: "pp"
+emphasis: level
+formatting:
+  style: number
+  decimals: 1
+  suffix: " pp"
+provenance:
+  provider: MEDSL (MIT Election Data and Science Lab)
+  series: 'US Senate two-party margin (D-R), pp of total vote'
+  url: https://electionlab.mit.edu/data
+  license: CC0 (MEDSL via Harvard Dataverse)
+tags:
+  - elections
+  - us

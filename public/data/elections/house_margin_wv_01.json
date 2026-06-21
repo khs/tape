@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_wv_01",
+  "name": "House margin \u2014 West Virginia 1",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -37.9
+    },
+    {
+      "t": "2024-12-31",
+      "v": -40.2
+    }
+  ]
+}

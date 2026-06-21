@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_tx_20",
+  "name": "House margin \u2014 Texas 20",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 36.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": 100.0
+    }
+  ]
+}

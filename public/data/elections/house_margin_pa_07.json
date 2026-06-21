@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_pa_07",
+  "name": "House margin \u2014 Pennsylvania 7",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": 2.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": -1.0
+    }
+  ]
+}

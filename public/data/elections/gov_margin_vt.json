@@ -1,0 +1,25 @@
+{
+  "id": "gov_margin_vt",
+  "name": "Gubernatorial margin \u2014 Vermont",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": -14.9
+    },
+    {
+      "t": "2020-12-31",
+      "v": -41.1
+    },
+    {
+      "t": "2022-12-31",
+      "v": -47.0
+    },
+    {
+      "t": "2024-12-31",
+      "v": -25.1
+    }
+  ]
+}

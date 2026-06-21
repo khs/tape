@@ -1,0 +1,17 @@
+{
+  "id": "gov_margin_sc",
+  "name": "Gubernatorial margin \u2014 South Carolina",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": -8.0
+    },
+    {
+      "t": "2022-12-31",
+      "v": -17.4
+    }
+  ]
+}

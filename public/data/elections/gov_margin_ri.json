@@ -1,0 +1,17 @@
+{
+  "id": "gov_margin_ri",
+  "name": "Gubernatorial margin \u2014 Rhode Island",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": 15.5
+    },
+    {
+      "t": "2022-12-31",
+      "v": 19.1
+    }
+  ]
+}

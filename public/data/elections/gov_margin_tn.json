@@ -1,0 +1,13 @@
+{
+  "id": "gov_margin_tn",
+  "name": "Gubernatorial margin \u2014 Tennessee",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": -21.0
+    }
+  ]
+}

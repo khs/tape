@@ -116,6 +116,24 @@ describe("parseCdSourceId", () => {
     // Trailing junk
     expect(parseCdSourceId("usaspending/district_tx_01_extra")).toBeNull();
   });
+
+  it("parses elections House-margin district IDs (incl at-large + DC)", () => {
+    expect(parseCdSourceId("elections/house_margin_tx_12")).toEqual({
+      state: "tx",
+      district: "12",
+    });
+    expect(parseCdSourceId("elections/house_margin_ak_al")).toEqual({
+      state: "ak",
+      district: "al",
+    });
+    expect(parseCdSourceId("elections/house_margin_dc_98")).toEqual({
+      state: "dc",
+      district: "98",
+    });
+    // State-level election margins are NOT congressional districts.
+    expect(parseCdSourceId("elections/pres_margin_ca")).toBeNull();
+    expect(parseCdSourceId("elections/sen_margin_oh")).toBeNull();
+  });
 });
 
 describe("formatDistrictLabel", () => {
@@ -324,6 +342,22 @@ describe("parseStateSourceId", () => {
 
   it("rejects BEA county series (numeric FIPS tail, not a state name)", () => {
     expect(parseStateSourceId("bea/county_income_01001")).toBeNull();
+  });
+
+  it("parses elections state-margin IDs (pres/sen/gov), not House", () => {
+    expect(parseStateSourceId("elections/pres_margin_ca")).toEqual({
+      state: "ca",
+    });
+    expect(parseStateSourceId("elections/sen_margin_oh")).toEqual({
+      state: "oh",
+    });
+    expect(parseStateSourceId("elections/gov_margin_va")).toEqual({
+      state: "va",
+    });
+    // House margins are CD-level (parseCdSourceId), not state. A House
+    // at-large id ends in _al, which must NOT false-match the state tail.
+    expect(parseStateSourceId("elections/house_margin_ak_al")).toBeNull();
+    expect(parseStateSourceId("elections/house_margin_tx_12")).toBeNull();
   });
 });
 

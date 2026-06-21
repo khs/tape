@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_oh_05",
+  "name": "House margin \u2014 Ohio 5",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -33.8
+    },
+    {
+      "t": "2024-12-31",
+      "v": -35.0
+    }
+  ]
+}

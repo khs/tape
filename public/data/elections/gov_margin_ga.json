@@ -1,0 +1,17 @@
+{
+  "id": "gov_margin_ga",
+  "name": "Gubernatorial margin \u2014 Georgia",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": -1.4
+    },
+    {
+      "t": "2022-12-31",
+      "v": -7.5
+    }
+  ]
+}

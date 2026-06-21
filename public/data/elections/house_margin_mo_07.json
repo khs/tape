@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_mo_07",
+  "name": "House margin \u2014 Missouri 7",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -44.1
+    },
+    {
+      "t": "2024-12-31",
+      "v": -45.3
+    }
+  ]
+}

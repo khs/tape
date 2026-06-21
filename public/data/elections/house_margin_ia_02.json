@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_ia_02",
+  "name": "House margin \u2014 Iowa 2",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -8.2
+    },
+    {
+      "t": "2024-12-31",
+      "v": -15.6
+    }
+  ]
+}

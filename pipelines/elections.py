@@ -37,7 +37,8 @@ from pathlib import Path
 
 import _env  # noqa: F401 — loads .env (HDV_API_KEY)
 
-from common import utc_now_iso
+from common import utc_now_iso, write_timeseries
+from nhtsa_fars import FIPS_STATE
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = REPO_ROOT / "pipelines" / "_cache" / "elections"
@@ -533,11 +534,139 @@ def build_governor() -> int:
     return n
 
 
+# --- Per-geo margin TIMESERIES (state politics + CD House) ----------------
+# Pivots the per-year choropleth margin maps (written by the builders above,
+# already committed on disk) into one timeseries source per geography per
+# office, so election margins are filterable like any other state/CD series.
+# Positive = Democratic lean, negative = Republican (see _margin). No re-fetch:
+# reads the existing public/data choropleth JSONs.
+
+SOURCES_DIR = REPO_ROOT / "src" / "content" / "sources" / "elections"
+_USPS_BY_FIPS = {f"{k:02d}": v[0] for k, v in FIPS_STATE.items()}
+_NAME_BY_FIPS = {f"{k:02d}": v[1] for k, v in FIPS_STATE.items()}
+
+# (indicator, map_dir, geo, id_prefix, office_label, name_prefix, short_word,
+#  supportedDeltas, years_note)
+_TS_OFFICES = [
+    ("pres_margin", STATE_MAP_DIR, "state", "pres_margin", "presidential",
+     "Presidential margin", "pres", ["10y", "30y"],
+     "Presidential elections, 1976 to 2024."),
+    ("sen_margin", STATE_MAP_DIR, "state", "sen_margin", "US Senate",
+     "Senate margin", "Senate", ["10y", "30y"],
+     "US Senate general elections (excluding special elections), 1976 to 2024; "
+     "a state appears only in the cycles its seat was up."),
+    ("gov_margin", STATE_MAP_DIR, "state", "gov_margin", "gubernatorial",
+     "Gubernatorial margin", "gov", ["5y", "10y"],
+     "Gubernatorial general elections, 2018 to 2024."),
+    ("house_margin", CD_MAP_DIR, "cd", "house_margin", "US House",
+     "House margin", "House", ["1y", "5y"],
+     "US House general elections on 2023 (118th Congress) district boundaries, "
+     "2022 and 2024."),
+]
+
+
+def _ts_yaml_str(s: str) -> str:
+    return "'" + s.replace("'", "''") + "'"
+
+
+def _dist_label(dst: str) -> str:
+    if dst == "al":
+        return "at-large"
+    if dst == "98":
+        return "delegate"
+    try:
+        return str(int(dst))
+    except ValueError:
+        return dst
+
+
+def _write_ts_yaml(sid: str, name: str, short: str, desc: str,
+                   deltas: list[str], office_label: str) -> None:
+    SOURCES_DIR.mkdir(parents=True, exist_ok=True)
+    dl = ", ".join(f'"{d}"' for d in deltas)
+    lines = [
+        f"name: {_ts_yaml_str(name)}",
+        f"shortName: {_ts_yaml_str(short)}",
+        f"description: {_ts_yaml_str(desc)}",
+        "kind: timeseries",
+        "pipeline: elections",
+        f"dataFile: data/elections/{sid}.json",
+        f"supportedDeltas: [{dl}]",
+        'unit: "pp"',
+        "emphasis: level",
+        "formatting:",
+        "  style: number",
+        "  decimals: 1",
+        '  suffix: " pp"',
+        "provenance:",
+        "  provider: MEDSL (MIT Election Data and Science Lab)",
+        f"  series: {_ts_yaml_str(office_label + ' two-party margin (D-R), pp of total vote')}",
+        "  url: https://electionlab.mit.edu/data",
+        "  license: CC0 (MEDSL via Harvard Dataverse)",
+        "tags:",
+        "  - elections",
+        "  - us",
+        "",
+    ]
+    (SOURCES_DIR / f"{sid}.yaml").write_text("\n".join(lines), encoding="utf-8")
+
+
+def build_timeseries() -> int:
+    import glob
+    n = 0
+    for ind, mdir, geo, idp, office, nprefix, sword, deltas, ynote in _TS_OFFICES:
+        acc: dict[str, dict[str, float]] = {}
+        for fp in sorted(glob.glob(str(mdir / f"{ind}_*.json"))):
+            year = Path(fp).stem[len(ind) + 1:]
+            if not year.isdigit():
+                continue
+            payload = json.loads(Path(fp).read_text(encoding="utf-8"))
+            for gk, v in (payload.get("values") or {}).items():
+                if v is not None:
+                    acc.setdefault(gk, {})[year] = v
+        for gk, yrs in sorted(acc.items()):
+            if geo == "state":
+                usps = _USPS_BY_FIPS.get(gk)
+                if not usps:
+                    continue
+                geo_name = _NAME_BY_FIPS[gk]
+                sid = f"{idp}_{usps}"
+                name = f"{nprefix} — {geo_name}"
+                short = f"{geo_name} {sword} margin"
+                geo_label = geo_name
+            else:
+                fips2, cd2 = gk[:2], gk[2:]
+                usps = _USPS_BY_FIPS.get(fips2)
+                if not usps:
+                    continue
+                dst = "al" if cd2 == "00" else cd2
+                geo_name = _NAME_BY_FIPS[fips2]
+                sid = f"{idp}_{usps}_{dst}"
+                name = f"{nprefix} — {geo_name} {_dist_label(dst)}"
+                short = f"{usps.upper()}-{dst.upper()} House margin"
+                geo_label = f"{geo_name} ({_dist_label(dst)})"
+            pts = [{"t": f"{y}-12-31", "v": yrs[y]} for y in sorted(yrs)]
+            desc = (
+                "Two-party vote margin (Democratic minus Republican) as a share "
+                "of the total vote, in percentage points, for the "
+                f"{office} race in {geo_label}, by election year. Positive values "
+                "lean Democratic, negative Republican. Computed from MEDSL (MIT "
+                "Election Data and Science Lab) returns via Harvard Dataverse. "
+                f"{ynote}"
+            )
+            write_timeseries("elections", sid, name, pts, unit="pp", merge=False)
+            _write_ts_yaml(sid, name, short, desc, deltas, office)
+            n += 1
+    print(f"elections timeseries: wrote {n} sources")
+    return n
+
+
 BUILDERS = {
     "president": build_president,
     "senate": build_senate,
     "house": build_house,
     "governor": build_governor,
+    "timeseries": build_timeseries,
 }
 
 

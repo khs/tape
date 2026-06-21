@@ -1,0 +1,17 @@
+{
+  "id": "gov_margin_mo",
+  "name": "Gubernatorial margin \u2014 Missouri",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2020-12-31",
+      "v": -16.4
+    },
+    {
+      "t": "2024-12-31",
+      "v": -20.4
+    }
+  ]
+}

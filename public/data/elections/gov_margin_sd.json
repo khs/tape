@@ -1,0 +1,17 @@
+{
+  "id": "gov_margin_sd",
+  "name": "Gubernatorial margin \u2014 South Dakota",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": -3.4
+    },
+    {
+      "t": "2022-12-31",
+      "v": -26.8
+    }
+  ]
+}

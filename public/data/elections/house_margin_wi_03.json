@@ -1,0 +1,17 @@
+{
+  "id": "house_margin_wi_03",
+  "name": "House margin \u2014 Wisconsin 3",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:18:00Z",
+  "points": [
+    {
+      "t": "2022-12-31",
+      "v": -3.7
+    },
+    {
+      "t": "2024-12-31",
+      "v": -2.7
+    }
+  ]
+}

@@ -210,6 +210,12 @@ export function parseStateSourceId(id: string): { state: string } | null {
     const code = stateCodeFromNameSuffix(id);
     if (code) return { state: code };
   }
+  // elections/(pres|sen|gov)_margin_<st> — state-level election margins.
+  // House margins are CD-level and handled by parseCdSourceId, so they are
+  // deliberately excluded here (a House at-large id ends in _al, which would
+  // otherwise false-match the 2-letter state tail).
+  m = id.match(/^elections\/(?:pres|sen|gov)_margin_([a-z]{2})$/);
+  if (m && STATE_CODE_SET.has(m[1])) return { state: m[1] };
   return null;
 }
 
@@ -242,6 +248,13 @@ export function parseCdSourceId(
   // state code, so it parses to null and stays in the general browse.
   if (id.startsWith("fec/house_spending_")) {
     const m = id.match(/^fec\/house_spending_([a-z]{2})_([a-z0-9]{2})$/);
+    if (m && STATE_CODE_SET.has(m[1])) return { state: m[1], district: m[2] };
+    return null;
+  }
+  // elections/house_margin_<st>_<dst> — House election margins per district
+  // (district code: 01..53, "al" at-large, "98" DC delegate).
+  if (id.startsWith("elections/house_margin_")) {
+    const m = id.match(/^elections\/house_margin_([a-z]{2})_([a-z0-9]{2})$/);
     if (m && STATE_CODE_SET.has(m[1])) return { state: m[1], district: m[2] };
     return null;
   }

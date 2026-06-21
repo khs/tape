@@ -1,0 +1,17 @@
+{
+  "id": "gov_margin_nm",
+  "name": "Gubernatorial margin \u2014 New Mexico",
+  "kind": "timeseries",
+  "unit": "pp",
+  "lastUpdated": "2026-06-21T23:17:59Z",
+  "points": [
+    {
+      "t": "2018-12-31",
+      "v": 14.4
+    },
+    {
+      "t": "2022-12-31",
+      "v": 6.4
+    }
+  ]
+}
