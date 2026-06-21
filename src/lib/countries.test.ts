@@ -17,6 +17,7 @@ import {
   parseCountrySourceId,
   countryNameFor,
   isRegionCode,
+  canonicalCountryTitle,
 } from "./countries";
 
 describe("parseCountrySourceId", () => {
@@ -295,5 +296,35 @@ describe("isRegionCode", () => {
   it("returns false for unknown codes", () => {
     expect(isRegionCode("XYZ")).toBe(false);
     expect(isRegionCode("")).toBe(false);
+  });
+});
+
+describe("canonicalCountryTitle (self-heal stale slug titles)", () => {
+  const uaeSrc = ["worldbank_extended/population_uae"];
+  it("corrects the stale title-cased slug to the country name", () => {
+    expect(canonicalCountryTitle("Uae", uaeSrc)).toBe("United Arab Emirates");
+    expect(canonicalCountryTitle("Uae", ["treasury_tic/uae"])).toBe(
+      "United Arab Emirates",
+    );
+  });
+  it("preserves an all-caps acronym, a real name, and renames", () => {
+    expect(canonicalCountryTitle("UAE", uaeSrc)).toBe("UAE");
+    expect(canonicalCountryTitle("United Arab Emirates", uaeSrc)).toBe(
+      "United Arab Emirates",
+    );
+    expect(canonicalCountryTitle("Emirates", uaeSrc)).toBe("Emirates");
+  });
+  it("leaves correct single-word names alone (title === name)", () => {
+    // France's name IS "France", so the Title-Case word equals the name and is
+    // returned untouched (and would be correct regardless).
+    expect(canonicalCountryTitle("France", ["worldbank_gdp/france"])).toBe(
+      "France",
+    );
+  });
+  it("no-ops on multi-source charts and non-country sources", () => {
+    expect(
+      canonicalCountryTitle("Uae", ["worldbank_extended/population_uae", "x/y"]),
+    ).toBe("Uae");
+    expect(canonicalCountryTitle("Foo", ["fred/unrate"])).toBe("Foo");
   });
 });

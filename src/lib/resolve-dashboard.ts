@@ -6,6 +6,7 @@ import {
   type DeltaWindow,
 } from "./deltas";
 import type { InlineChart, InlineMap, InlineSource } from "./composer-state";
+import { canonicalCountryTitle } from "./countries";
 import {
   combineTwo,
   combineOpFormatting,
@@ -297,7 +298,9 @@ export async function resolveChart(
     const fakeChart = {
       id,
       data: {
-        title: spec.title,
+        // Self-heal stale title-cased-slug titles ("Uae") frozen into
+        // dashboards saved before the country-label fix.
+        title: canonicalCountryTitle(spec.title, spec.sources),
         sources: effSources,
         render: spec.render ?? ("line" as const),
         defaultDelta: spec.defaultDelta ?? ("1m" as const),

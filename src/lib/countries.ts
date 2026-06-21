@@ -427,6 +427,36 @@ export function countryNameFor(code: string): string {
 }
 
 /**
+ * Self-heal a stale country tile title. An earlier generator title-cased the
+ * entity slug directly ("uae" → "Uae"), and those titles are frozen into
+ * already-saved dashboards. When a single-source country chart's title is
+ * EXACTLY that stale form — a single Title-Case word whose lowercase is the
+ * source's own entity slug — return the proper country name instead. Anything
+ * else is returned untouched, so intentional renames ("Emirates"), all-caps
+ * acronyms ("UAE"), and correct names ("United Arab Emirates") are preserved.
+ */
+export function canonicalCountryTitle(
+  title: string | null | undefined,
+  sources: readonly string[] | undefined,
+): string {
+  const t = title ?? "";
+  if (!t || !sources || sources.length !== 1) return t;
+  const country = parseCountrySourceId(sources[0]);
+  if (!country || t === country.name) return t;
+  const slug = t.toLowerCase();
+  // Single all-letters word, and `t` is its Title-Case form (so "UAE" — which
+  // title-cases to "Uae" ≠ "UAE" — is left alone).
+  if (!/^[a-z]+$/.test(slug)) return t;
+  if (t !== slug[0].toUpperCase() + slug.slice(1)) return t;
+  // Confirm the word is the source's actual entity slug, not a coincidental
+  // one-word rename, by checking the id ends with it.
+  if (sources[0].endsWith(`_${slug}`) || sources[0].endsWith(`/${slug}`)) {
+    return country.name;
+  }
+  return t;
+}
+
+/**
  * Returns true if the given code is a regional aggregate rather than a
  * single country. Used by the dropdown renderer to optionally style
  * regions differently from individual countries.
