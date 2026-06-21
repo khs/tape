@@ -19,5 +19,6 @@ provenance:
 tags:
   - government
   - us
+  - income
 unitClass: count
 hidden: true

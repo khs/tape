@@ -17,6 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from _generate_acs_sources import INDICATORS
+from acs_subjects import subjects_for_out_id
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,7 +39,7 @@ def render_yaml(ind: dict) -> str:
     name = f"{ind['name_prefix']} — US"
     short = f"US {ind['short_suffix']}"
     desc = description_for(ind)
-    tags = ["government", "us"] + list(ind.get("extra_tags", []))
+    tags = ["government", "us"] + list(subjects_for_out_id(ind["out_id"]))
 
     lines: list[str] = [
         f"name: {name}",

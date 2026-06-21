@@ -18,6 +18,8 @@ provenance:
 tags:
   - government
   - us
+  - demographics
+  - income
 unitClass: rate
 derivedFrom:
   numerator: acs_cd/masters_plus_ca_10

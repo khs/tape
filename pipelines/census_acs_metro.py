@@ -42,6 +42,7 @@ from pathlib import Path
 
 import _env  # noqa: F401 — load .env (also imported transitively via census_acs_cd)
 from common import write_timeseries
+from acs_subjects import subjects_for_out_id
 from census_acs_cd import (
     INDICATORS,
     ACS_VINTAGES,
@@ -169,7 +170,7 @@ def write_source_yaml(out_id: str, cbsa: str, short_name: str,
     )
     short_label = f"{display_name} {meta['short_suffix']}"
     name_full = f"{meta['name_prefix']} — {display_name}"
-    tags = ["government", "us"] + list(meta.get("extra_tags", []))
+    tags = ["government", "us"] + list(subjects_for_out_id(out_id))
     lines = [
         f"name: {yaml_escape(name_full)}",
         f"shortName: {yaml_escape(short_label)}",

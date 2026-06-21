@@ -18,6 +18,7 @@ provenance:
 tags:
   - government
   - us
+  - health
 unitClass: rate
 derivedFrom:
   numerator: acs_cd/people_uninsured_ne_01

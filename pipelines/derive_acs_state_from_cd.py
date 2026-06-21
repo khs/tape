@@ -58,6 +58,7 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+from acs_subjects import subjects_for_out_id
 from typing import Any
 
 import _env  # noqa: F401 — loads .env (CENSUS_API_KEY) for the median fetch
@@ -533,7 +534,7 @@ def render_yaml(indicator: dict[str, Any], state: str, n_cds: int) -> str:
     name = f"{indicator['name_prefix']} — {abbr}"
     short = f"{abbr} {indicator['short_suffix']}"
     desc = description_for(indicator, state, n_cds)
-    tags = ["government", "us"] + list(indicator.get("extra_tags", []))
+    tags = ["government", "us"] + list(subjects_for_out_id(indicator["out_id"]))
 
     lines: list[str] = [
         f"name: {name}",

@@ -18,6 +18,7 @@ provenance:
 tags:
   - government
   - us
+  - housing
 unitClass: rate
 derivedFrom:
   numerator: acs_cd/workers_wfh_al_02

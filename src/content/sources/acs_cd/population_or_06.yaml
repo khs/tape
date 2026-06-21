@@ -16,4 +16,8 @@ provenance:
   series: population
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - demographics
 unitClass: count

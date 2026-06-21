@@ -16,4 +16,8 @@ provenance:
   series: poverty_count
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
+tags:
+  - government
+  - us
+  - income
 unitClass: count

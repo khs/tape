@@ -17,7 +17,8 @@ provenance:
   url: https://api.census.gov/data/2022/acs/acs5
   license: Public domain (US government data)
 tags:
-  - education
-  - demographics
+  - government
   - us
+  - demographics
+  - income
 unitClass: count

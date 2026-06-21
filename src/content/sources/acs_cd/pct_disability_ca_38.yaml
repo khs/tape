@@ -18,6 +18,7 @@ provenance:
 tags:
   - government
   - us
+  - demographics
 unitClass: rate
 derivedFrom:
   numerator: acs_cd/people_with_disability_ca_38

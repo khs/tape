@@ -18,6 +18,7 @@ provenance:
 tags:
   - government
   - us
+  - housing
 unitClass: rate
 derivedFrom:
   numerator: acs_cd/households_no_vehicle_nj_03

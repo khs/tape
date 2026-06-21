@@ -18,6 +18,7 @@ provenance:
 tags:
   - government
   - us
+  - income
 unitClass: rate
 derivedFrom:
   numerator: acs_cd/households_above_200k_ia_01

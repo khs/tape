@@ -19,5 +19,6 @@ provenance:
 tags:
   - government
   - us
+  - health
 unitClass: count
 hidden: true

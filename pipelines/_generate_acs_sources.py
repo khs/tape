@@ -20,6 +20,7 @@ Run with:  python pipelines/_generate_acs_sources.py
 from __future__ import annotations
 
 from pathlib import Path
+from acs_subjects import subjects_for_out_id
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -555,7 +556,7 @@ def render_yaml(ind: dict, slug: str) -> str:
     name = f"{ind['name_prefix']} — {display}"
     short = f"{display} {ind['short_suffix']}"
     desc = description_for(ind, slug)
-    tags = ["government", "us"] + ind["extra_tags"]
+    tags = ["government", "us"] + list(subjects_for_out_id(ind["out_id"]))
 
     lines: list[str] = [
         f"name: {name}",
