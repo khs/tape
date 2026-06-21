@@ -16,6 +16,7 @@ import { nanoid } from "nanoid";
 import { track } from "../track";
 import { INLINE_PREFIX } from "./ids";
 import { filterUsablePresets, type PresetDef } from "../generator-presets";
+import { GENERATOR_TOPICS, topicForTemplate } from "./generator-topics";
 import type { UIState, UISection, ComposerStore } from "./state";
 
 export interface GeneratorsTabContext {
@@ -224,11 +225,30 @@ export function createGeneratorsTab(ctx: GeneratorsTabContext) {
         t.id.toLowerCase().includes(q)
       );
     });
-    sel.innerHTML = matches
-      .map(
-        (t) =>
-          `<option value="${escapeHtml(t.id)}">${escapeHtml(t.label)} (${t.count})</option>`,
-      )
+    // Group templates by topic and render as <optgroup>s in topic order so
+    // related indicators (all water use, all NAEP scores, …) sit together
+    // instead of one flat list. Topic is derived by id pattern, so new
+    // templates self-group — see generator-topics.ts.
+    const byTopic = new Map<string, typeof matches>();
+    for (const t of matches) {
+      const topic = topicForTemplate(t.id);
+      const bucket = byTopic.get(topic);
+      if (bucket) bucket.push(t);
+      else byTopic.set(topic, [t]);
+    }
+    sel.innerHTML = GENERATOR_TOPICS.filter((g) => byTopic.has(g.id))
+      .map((g) => {
+        const opts = byTopic
+          .get(g.id)!
+          .slice()
+          .sort((a, b) => a.label.localeCompare(b.label))
+          .map(
+            (t) =>
+              `<option value="${escapeHtml(t.id)}">${escapeHtml(t.label)} (${t.count})</option>`,
+          )
+          .join("");
+        return `<optgroup label="${escapeHtml(g.label)}">${opts}</optgroup>`;
+      })
       .join("");
     // Preserve selection if still in the filtered set; else pick the
     // first match (so the form is always actionable).
