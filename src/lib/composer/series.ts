@@ -11,6 +11,8 @@
  * library/baseUrl/state deps stay encapsulated; build ONE instance and share it.
  */
 import { isDerivedId } from "./ids";
+import { ensureGeoForSourceId } from "../library-loader";
+import type { SharedLibraryPayload } from "../library-loader";
 import type { UIState } from "./state";
 import type { LibraryPayload } from "./library";
 
@@ -87,7 +89,17 @@ export function createSeriesFetcher(ctx: SeriesFetcherContext) {
         return { id: sourceId, name: spec.name, points: out };
       }
       const lib = getLibrary();
-      const meta = lib?.sources[sourceId];
+      let meta = lib?.sources[sourceId];
+      // Geo-hidden sources (CD / state / metro / county / country) live in lazy
+      // /library-geo/* slices, not the lean manifest. A chart can reference one
+      // before its slice has loaded — e.g. editing a pregen multi-state chart
+      // like "NAEP grade 8 math: selected states" — so pull the slice on demand
+      // instead of silently dropping the series (the bug where a 6-line chart
+      // rendered as "1 series", inconsistently, as slices raced to load).
+      if (lib && !meta) {
+        await ensureGeoForSourceId(lib as SharedLibraryPayload, sourceId);
+        meta = lib.sources[sourceId];
+      }
       if (!lib || !meta) return null;
       const rawPath = (meta as any).dataFile as string | undefined;
       if (!rawPath) return null;
@@ -108,6 +120,12 @@ export function createSeriesFetcher(ctx: SeriesFetcherContext) {
       }
     })();
     sourceDataCache.set(sourceId, promise);
+    // Don't let a transient null (a geo slice that hadn't loaded yet, or a
+    // one-off fetch error) poison the cache and permanently drop the series —
+    // evict it so a later render can retry and succeed.
+    void promise.then((res) => {
+      if (res === null) sourceDataCache.delete(sourceId);
+    });
     return promise;
   }
 
