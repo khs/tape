@@ -1,0 +1,15 @@
+title: "Governor election margin by state"
+render: map
+geo: state
+indicator: gov_margin
+vintage: "2022"
+colorScheme: rdbu
+colorScale: diverging
+blurb: |
+  Margin in each state's most recent gubernatorial election, Democratic minus
+  Republican, in percentage points of the total vote. Blue = Democratic, red =
+  Republican, white = a tie. Governors serve staggered four-year terms (most
+  elected in midterm years), so only states voting that cycle are colored. Drag
+  the year slider in the expanded view to scrub 2018 to 2024. Derived from MIT
+  Election Data and Science Lab precinct-level returns (public domain).
+tags: [elections, us]

@@ -53,6 +53,17 @@ SOURCES = {
     "president_county": ("doi:10.7910/DVN/VOQCHQ", "countypres_2000-2024.tab", True),
     "senate_state": ("doi:10.7910/DVN/PEJ5QU", "1976-2024-senate-state.tab", True),
     "house_cd": ("doi:10.7910/DVN/IG0UN2", "1976-2024-house.tab", True),
+    # Governor: MEDSL ships NO governor returns file, so build_governor derives
+    # state margins from the State Precinct-Level Returns (one ~1-2 GB CSV per
+    # cycle; filter office=GOVERNOR, sum votes over precinct/county/mode). 2018+
+    # share a standardized schema. 2016 (DVN/GSZG1O) uses an older un-standardized
+    # layout (raw office strings, a `party` column, state_postal) and is left out
+    # for now; every state with a 2016 race also votes in 2020/2024, so no state
+    # is lost.
+    "governor_2018": ("doi:10.7910/DVN/ZFXEJU", "STATE_precinct_general.csv", False),
+    "governor_2020": ("doi:10.7910/DVN/OKL2K1", "STATE_precinct_general.csv", False),
+    "governor_2022": ("doi:10.7910/DVN/OAARCY", "STATE_precinct_general.csv", False),
+    "governor_2024": ("doi:10.7910/DVN/DODOBJ", "STATE_precinct_general.csv", False),
 }
 SOURCE_URL = "https://electionlab.mit.edu/data"
 
@@ -102,6 +113,48 @@ def fetch_source(key: str) -> Path:
     out.write_bytes(g.content)
     print(f"[elections] downloaded {key} ({len(g.content)} bytes)")
     return out
+
+
+def _fetch_precinct(key: str) -> Path:
+    """Stream a large (~1-2 GB) MEDSL precinct file to the gitignored cache.
+    Unlike fetch_source (which holds the whole body in memory) this streams to
+    disk via iter_content, so a 2 GB CSV never sits in RAM. Cached after the
+    first pull; writes to a .part temp and renames so a half-download isn't
+    mistaken for a complete cache."""
+    doi, filename, ingested = SOURCES[key]
+    out = CACHE_DIR / f"{key}.csv"
+    if out.exists() and out.stat().st_size > 1_000_000:
+        return out
+    import requests
+    tok = _require_token()
+    fid = _resolve_file_id(doi, filename, tok)
+    post = f"{DATAVERSE}/api/access/datafile/{fid}" + ("?format=original" if ingested else "")
+    r = requests.post(
+        post, headers={"X-Dataverse-key": tok, "Content-Type": "application/json"},
+        data=json.dumps({"guestbookResponse": {}}), timeout=300,
+    )
+    r.raise_for_status()
+    signed = r.json()["data"]["signedUrl"]
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".part")
+    n = 0
+    with requests.get(signed, timeout=1800, stream=True) as g:
+        g.raise_for_status()
+        with open(tmp, "wb") as fh:
+            for chunk in g.iter_content(1 << 20):
+                if chunk:
+                    fh.write(chunk)
+                    n += len(chunk)
+    tmp.replace(out)
+    print(f"[elections] downloaded {key} ({n} bytes)")
+    return out
+
+
+def _stream_rows(path: Path):
+    """Yield dict rows from a multi-GB CSV without slurping it into memory
+    (build_governor reads ~1-2 GB precinct files this way)."""
+    with open(path, "r", encoding="utf-8", errors="replace", newline="") as fh:
+        yield from csv.DictReader(fh)
 
 
 def _rows(path: Path) -> list[dict]:
@@ -327,10 +380,164 @@ def build_house() -> int:
     return n
 
 
+# Precinct rows include ballot-artifact "candidates" (blank / under / over
+# votes) that must not inflate the denominator, and they label some Democratic
+# nominees only in party_detailed (MN's DFL, VT's DEM/PROG fusion line) while
+# party_simplified files them under OTHER. _dr_precinct folds both columns.
+_GOV_NON_CANDIDATE = {
+    "BLANK VOTES", "BLANK", "UNDER VOTES", "UNDERVOTES", "OVER VOTES",
+    "OVERVOTES", "EXHAUSTED", "EXHAUSTED BALLOTS", "TOTAL", "TOTAL VOTES",
+    "SCATTERING", "SCATTER", "NONE OF THESE CANDIDATES", "VOID", "REJECTED",
+}
+
+
+def _is_governor_office(office: str | None) -> bool:
+    """True for the governorship, including the joint "Governor / Lieutenant
+    Governor" ticket some states (IA 2018, MT, ND) label as one office. Excludes
+    a lone "LIEUTENANT GOVERNOR" race and Massachusetts's "GOVERNOR'S COUNCIL"."""
+    o = (office or "").strip().upper()
+    if o == "GOVERNOR":
+        return True
+    if "COUNCIL" in o:
+        return False
+    return o.startswith("GOVERNOR") and "LIEUTENANT" in o
+
+
+def _dr_precinct(party_simplified: str | None,
+                 party_detailed: str | None) -> str | None:
+    s = (party_simplified or "").strip().upper()
+    d = (party_detailed or "").strip().upper()
+    if d.startswith("DEMOCRAT") or d in ("DEM/PROG", "PROG/DEM") or s == "DEMOCRAT":
+        return "D"
+    if d.startswith("REPUBLICAN") or s == "REPUBLICAN":
+        return "R"
+    return None
+
+
+# Races where the precinct file carries no party label at all (both columns
+# blank), so _dr_precinct can't decide. Researched per case, matched by surname
+# substring, and consulted ONLY when the party columns fail. Populated as such
+# states surface across cycles (e.g. New Mexico ships blank party columns).
+_GOV_CANDIDATE_PARTY: dict[tuple[str, str], str] = {
+    ("NM", "LUJAN GRISHAM"): "D",   # 2018 + 2022  Michelle Lujan Grisham (D)
+    ("NM", "RONCHETTI"): "R",       # 2022  Mark Ronchetti (R)
+    ("NM", "PEARCE"): "R",          # 2018  Steve Pearce (R)
+}
+
+
+def _gov_override_dr(state_po: str | None, candidate: str | None) -> str | None:
+    po = (state_po or "").strip().upper()
+    c = (candidate or "").strip().upper()
+    for (st, name), dr in _GOV_CANDIDATE_PARTY.items():
+        if st == po and name in c:
+            return dr
+    return None
+
+
+def _gov_state_margin(cands: dict[str, dict]) -> float | None:
+    """State two-party margin (pp of total) from per-candidate {v, dr} tallies.
+
+    When only one major party fielded a nominee, a non-major candidate who is
+    the other half of the top two and cleared 20% of the vote stands in for the
+    absent major party (Alaska-style independents who are the de-facto
+    opposition). Where no such second candidate exists (e.g. WY 2022, a lone
+    Republican over a sub-20% Libertarian) the state is omitted rather than
+    painted with a misleading near-100-point margin."""
+    total = sum(c["v"] for c in cands.values())
+    if total <= 0:
+        return None
+    d = sum(c["v"] for c in cands.values() if c["dr"] == "D")
+    r = sum(c["v"] for c in cands.values() if c["dr"] == "R")
+    if d > 0 and r > 0:
+        return round((d - r) / total * 100, 1)
+    if (d > 0) == (r > 0):  # both zero: no major-party nominee at all
+        return None
+    ranked = sorted(cands.values(), key=lambda c: c["v"], reverse=True)
+    if len(ranked) < 2:
+        return None
+    first, second = ranked[0], ranked[1]
+    present = "D" if d > 0 else "R"
+    # The lone major nominee and a >20% non-major must be the top two; promote
+    # that non-major into the empty major slot (works whichever one led).
+    if first["dr"] == present and second["dr"] is None and second["v"] > 0.20 * total:
+        promoted = second["v"]
+    elif first["dr"] is None and first["v"] > 0.20 * total and second["dr"] == present:
+        promoted = first["v"]
+    else:
+        return None
+    return round(((d if present == "D" else promoted)
+                  - (promoted if present == "D" else r)) / total * 100, 1)
+
+
+def build_governor() -> int:
+    """Per-state Governor two-party margin choropleths, one file per cycle.
+
+    MEDSL publishes no governor *returns* file, so margins are derived from the
+    State Precinct-Level Returns (one ~1-2 GB CSV per cycle): keep general,
+    non-special office=GOVERNOR rows and sum `votes` over precinct / county /
+    mode up to a state two-party margin (same (D-R)/total convention as the
+    other offices). Coverage 2018-2024 (the standardized-schema precinct files;
+    see SOURCES for why 2016 is excluded). Sparse like senate: only states
+    electing a governor that cycle appear, so each state still gets ~2 cycles
+    across the slider.
+
+    Set GOV_YEARS=2022,2024 to restrict which cycles are (down)loaded."""
+    import os
+    want = {y.strip() for y in (os.environ.get("GOV_YEARS") or "").split(",") if y.strip()}
+    n = 0
+    for yr in ("2018", "2020", "2022", "2024"):
+        key = f"governor_{yr}"
+        if key not in SOURCES or (want and yr not in want):
+            continue
+        # Per-candidate tallies (not raw D/R buckets) so a candidate's fusion
+        # lines fold into one total (e.g. NY's Working Families row for the
+        # Democratic nominee) and so _gov_state_margin can rank candidates for
+        # the >20% non-major rule. agg[fips][candidate] = {"v": votes, "dr": …}.
+        agg: dict[str, dict[str, dict]] = {}
+        for r in _stream_rows(_fetch_precinct(key)):
+            if not _is_governor_office(r.get("office")):
+                continue
+            if not _gen_nonspecial(r):
+                continue
+            cand = (r.get("candidate") or "").strip().upper()
+            if not cand or cand in _GOV_NON_CANDIDATE:
+                continue  # blank / under / over votes aren't cast for the office
+            fips = (r.get("state_fips") or "").strip()
+            try:
+                fips = f"{int(float(fips)):02d}"
+            except (TypeError, ValueError):
+                continue
+            v = _f(r.get("votes"))
+            if v is None:
+                continue
+            dr = _dr_precinct(r.get("party_simplified"), r.get("party_detailed"))
+            if dr is None:
+                dr = _gov_override_dr(r.get("state_po"), cand)
+            c = agg.setdefault(fips, {}).setdefault(cand, {"v": 0.0, "dr": None})
+            c["v"] += v
+            if dr is not None:
+                c["dr"] = dr  # any party-bearing line fixes the candidate's side
+        values = {}
+        for f, cands in agg.items():
+            m = _gov_state_margin(cands)
+            if m is not None:
+                values[f] = m
+        if values:
+            _write_map(STATE_MAP_DIR, "gov_margin", yr,
+                       f"Governor margin, {yr} (Dem minus Rep, pp of total)", values)
+            n += 1
+            print(f"[elections] governor {yr}: {len(values)} states")
+        else:
+            print(f"[elections] governor {yr}: no GOVERNOR rows (schema mismatch?)")
+    print(f"[elections] governor: wrote {n} margin choropleth files.")
+    return n
+
+
 BUILDERS = {
     "president": build_president,
     "senate": build_senate,
     "house": build_house,
+    "governor": build_governor,
 }
 
 
