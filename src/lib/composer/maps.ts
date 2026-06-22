@@ -92,11 +92,11 @@ export function createMapsTab(ctx: MapsTabContext) {
     // calls in census_acs_choropleth.py).
     poverty_rate: "Poverty rate",
     median_hh_income: "Median household income",
-    bachelors_plus_pct: "Bachelor's+ share (adults 18+)",
+    bachelors_plus_pct: "Bachelor's+ share (adults 25+)",
     foreign_born_pct: "Foreign-born share",
     // The rest — state-level only. Derived from acs_state time-series
     // by pipelines/census_acs_choropleth_derive_state.py.
-    masters_plus_pct: "Master's+ share (adults 18+)",
+    masters_plus_pct: "Master's+ share (adults 25+)",
     owner_occupied_pct: "Owner-occupied housing share",
     broadband_households_pct: "Broadband subscription share",
     median_gross_rent: "Median gross rent",
