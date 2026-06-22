@@ -224,6 +224,38 @@ INDICATORS: list[AcsIndicator] = [
         variables=["B26001_001E", "B01003_001E"],
         combine=pct("B26001_001E", "B01003_001E"),
     ),
+    # Reliability (CV) siblings for the three share indicators, emitted as
+    # <indicator>_cv_<vintage>.json and read by the tract tooltip to flag
+    # imprecise estimates (CV > ~30%). Fetch the _E + _M variants; combine
+    # returns the CV percent. Not standalone map indicators.
+    AcsIndicator(
+        out_id="poverty_rate_cv", name="Poverty rate reliability (CV)",
+        unit="%", decimals=1, value_label="coefficient of variation (%)",
+        variables=["B17001_001E", "B17001_002E", "B17001_001M", "B17001_002M"],
+        combine=lambda v: cv_pct("B17001_002E", "B17001_002M",
+                                 "B17001_001E", "B17001_001M")(v),
+    ),
+    AcsIndicator(
+        out_id="foreign_born_pct_cv", name="Foreign-born share reliability (CV)",
+        unit="%", decimals=1, value_label="coefficient of variation (%)",
+        variables=["B05002_001E", "B05002_013E", "B05002_001M", "B05002_013M"],
+        combine=lambda v: cv_pct("B05002_013E", "B05002_013M",
+                                 "B05002_001E", "B05002_001M")(v),
+    ),
+    AcsIndicator(
+        out_id="bachelors_plus_pct_cv", name="Bachelor's+ share reliability (CV)",
+        unit="%", decimals=1, value_label="coefficient of variation (%)",
+        variables=[
+            "B15003_001E", "B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E",
+            "B15003_001M", "B15003_022M", "B15003_023M", "B15003_024M", "B15003_025M",
+        ],
+        combine=lambda v: cv_sum_pct(
+            v,
+            ("B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E"),
+            ("B15003_022M", "B15003_023M", "B15003_024M", "B15003_025M"),
+            "B15003_001E", "B15003_001M",
+        ),
+    ),
 ]
 
 
@@ -238,6 +270,54 @@ def _sum_pct_combine(vals: dict[str, float | None], numer_codes, denom_code):
     if not parts or d is None or d < MIN_PCT_DENOM:
         return None
     return round(100.0 * sum(parts) / d, 2)
+
+
+# ---- Reliability (coefficient of variation) of a share estimate ----
+# ACS publishes a 90%-confidence margin of error (the _M variant) alongside
+# every estimate (_E). For a derived proportion p = num/den (num a subset of
+# den), the Census-documented MOE is
+#     MOE_p = (1/den) * sqrt(MOE_num^2 - p^2 * MOE_den^2)
+# falling back to the ratio formula (+ instead of -) when the radicand goes
+# negative. The coefficient of variation CV = (MOE_p / 1.645) / p, expressed
+# as a percent, is the standard ACS reliability measure (CV > ~30% = shaky).
+# These emit sibling "<indicator>_cv_<vintage>.json" files the tract tooltip
+# reads to flag imprecise estimates; None when the CV is undefined (zero/floor
+# universe, zero numerator, or a Census-controlled MOE sentinel).
+def _cv_from_moe(n: float, d: float, mn: float, md: float) -> float | None:
+    if d < MIN_PCT_DENOM or n <= 0 or mn < 0 or md < 0:
+        return None
+    p = n / d
+    rad = mn * mn - p * p * md * md
+    if rad < 0:
+        rad = mn * mn + p * p * md * md
+    moe_p = (rad ** 0.5) / d
+    return round(100.0 * (moe_p / 1.645) / p, 1)
+
+
+def cv_pct(numer_e: str, numer_m: str, denom_e: str, denom_m: str):
+    def _combine(vals: dict[str, float | None]) -> float | None:
+        n, d = vals.get(numer_e), vals.get(denom_e)
+        mn, md = vals.get(numer_m), vals.get(denom_m)
+        if None in (n, d, mn, md):
+            return None
+        return _cv_from_moe(n, d, mn, md)
+    return _combine
+
+
+def cv_sum_pct(vals, numer_e, numer_m, denom_e, denom_m):
+    d, md = vals.get(denom_e), vals.get(denom_m)
+    if d is None or md is None:
+        return None
+    n = 0.0
+    moe_n_sq = 0.0
+    for ec, mc in zip(numer_e, numer_m):
+        ev, mv = vals.get(ec), vals.get(mc)
+        if ev is None or ev < -100000000:
+            continue
+        n += ev
+        if mv is not None and mv >= 0:
+            moe_n_sq += mv * mv
+    return _cv_from_moe(n, d, moe_n_sq ** 0.5, md)
 
 
 def fetch_acs(year: str, geo_spec: str, in_spec: str | None,
