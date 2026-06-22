@@ -19,5 +19,5 @@ blurb: |
   This series is the headline US civilian unemployment rate
   (seasonally adjusted), published monthly by the Bureau of Labor
   Statistics. Source: [FRED's UNRATE page](https://fred.stlouisfed.org/series/UNRATE).
-  You can also play around with the timeframe using the
-  pills above; the chart re-renders with whichever window you pick.
+  You can switch which timeframe you're looking at within a given
+  chart. Zoom out to Max to see just how bad COVID was.

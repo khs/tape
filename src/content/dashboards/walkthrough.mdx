@@ -5,7 +5,7 @@ title: "Walkthrough: a tour of every Tape feature"
 # 11-13, hence the 20 cushion).
 order: 20
 defaultDelta: 1y
-description: "A tour of what Tape can do, read this if you've just landed and want to know which knobs are where. Each section below shows a real chart + a short note about the feature it demonstrates."
+description: "A tour of what Tape can do, read this if you've just landed and want to know which knobs are where."
 aboutBlurb: "Curated demo dashboard. Every section below is a real Tape feature, shown via real charts; the headings are the explanations. Click any tile to see its expanded view + the per-tile controls."
 sections:
   - title: "Every mini-chart shows the level and the change"
@@ -16,15 +16,15 @@ sections:
       - us-macro/life_expectancy
 
   - title: "Same data, different windows"
-    description: "The dashboard-wide pills above (1W, 1M, YTD, 1Y, 5Y, 10Y, 30Y, 50Y) flip every tile to that lookback in lockstep. A section can pin its own window, these three render at 30Y regardless of where the top pills are set, useful for stacking 'last decade' + 'last thirty years' commentary side by side."
+    description: "The dashboard-wide pills above (1W, 1M, YTD, 1Y, 5Y, 10Y, 30Y, 50Y) flip every tile to that lookback in lockstep. A section can also have a custom timeframe: these show 30 years of history by default."
     defaultDelta: 30y
     charts:
       - us-macro/real_gdp
       - us-macro/fed_funds
       - us-macro/core_cpi
 
-  - title: "Multi-source charts: combine series with math"
-    description: "A tile can combine two or more series via the composer's '+ Custom chart' or '+ Derived source' button. Pick raw / rebased-to-100 / dual-axis, or pick an operator (sum, difference, division) to collapse the inputs into one derived line. The three tiles below are the canonical examples, addition (misery index = inflation + unemployment), subtraction (yield-curve recession signal = 10Y minus fed funds), and division (real GDP per capita = real GDP ÷ population)."
+  - title: "Custom sources via mathematics"
+    description: "If the sources we provide aren't enough, you can always make your own using what we provide. Divide, multiply, add, or subtract, as many times as you want. You can add inflation to unemployment to get the famous \"misery index\", predict a recession by looking at the difference between the yield on the 10-year treasury note and something shorter term, or get real US GDP per capita by division."
     charts:
       - us-macro/misery_index
       - us-macro/yield_curve_spread
