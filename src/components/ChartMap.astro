@@ -684,24 +684,26 @@ const statesJoined = stateCodes.join(",");
     let urls = b.boundaryUrls && b.boundaryUrls.length > 0
       ? b.boundaryUrls
       : [b.boundaryUrl];
-    // Boundary-era selection. ACS vintages <= 2019 use the 2010-census tract
-    // grid; 2020+ use the 2020 grid. The year slider rewrites b.dataUrls per
-    // vintage but leaves the boundary fixed, so derive the era HERE from the
-    // displayed vintage and swap a per-state tract topo to its -2010 sibling
-    // when pre-2020. Without this, scrubbing before 2020 joins old-grid data
-    // onto new-grid polygons and ~15-19% of tracts falsely hatch as "no data"
-    // (they were renumbered in the redraw, not dropped). Restricted to the
-    // 2-letter per-state files (the only ones with a -2010 sibling); curated
-    // regional bundles (dmv-tracts-topo.json etc.) have no sibling and are
-    // left as-is (those charts default to a 2020-grid vintage anyway).
-    if (b.geo === "tract") {
+    // Boundary-era selection. ACS vintages <= 2019 use the 2010-census tract /
+    // block-group grid; 2020+ use the 2020 grid. The year slider rewrites
+    // b.dataUrls per vintage but leaves the boundary fixed, so derive the era
+    // HERE from the displayed vintage and swap a per-state topo to its -2010
+    // sibling when pre-2020. Without this, scrubbing before 2020 joins old-grid
+    // data onto new-grid polygons and renumbered areas falsely hatch as "no
+    // data" (~15-19% of tracts; block groups nest in tracts and were
+    // renumbered in the same redraw). Restricted to the 2-letter per-state
+    // files (the only ones with a -2010 sibling); curated regional bundles
+    // (dmv-tracts-topo.json etc.) have no sibling and are left as-is (those
+    // charts default to a 2020-grid vintage anyway).
+    if (b.geo === "tract" || b.geo === "block-group") {
+      const seg = b.geo === "tract" ? "tracts" : "block-groups";
       const m = (b.dataUrls[0] || "").match(/_(\d{4})\.json$/);
       const yr = m ? Number(m[1]) : NaN;
       if (yr && yr <= 2019) {
+        const perState = new RegExp(`/maps/[a-z]{2}-${seg}-topo\\.json$`);
+        const tail = new RegExp(`-${seg}-topo\\.json$`);
         urls = urls.map((u) =>
-          /\/maps\/[a-z]{2}-tracts-topo\.json$/.test(u)
-            ? u.replace(/-tracts-topo\.json$/, "-tracts-2010-topo.json")
-            : u,
+          perState.test(u) ? u.replace(tail, `-${seg}-2010-topo.json`) : u,
         );
       }
     }
