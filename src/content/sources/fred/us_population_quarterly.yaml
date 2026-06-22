@@ -1,10 +1,9 @@
 name: US population (quarterly)
 shortName: US population (quarterly)
-description: US resident population, BEA quarterly mid-period estimate (FRED B230RC0Q173SBEA). The quarterly-cadence companion to the monthly POPTHM series, used as the denominator for quarterly per-capita ratios so the result doesn't stair-step.
+description: US resident population, BEA quarterly mid-period estimate (FRED B230RC0Q173SBEA). The quarterly-cadence companion to the monthly POPTHM series; used as the denominator for quarterly per-capita ratios so the result does not stair-step. Hidden from the picker as redundant with the monthly series.
 kind: timeseries
 pipeline: fred_series
 dataFile: data/fred/B230RC0Q173SBEA.json
-hidden: true
 supportedDeltas:
 - 1y
 - 5y
@@ -13,9 +12,9 @@ supportedDeltas:
 - 50y
 unit: people
 formatting:
+  style: number
   decimals: 0
   notation: compact
-  style: number
 emphasis: change
 provenance:
   provider: FRED (St. Louis Fed)
@@ -26,3 +25,4 @@ tags:
 - macro
 - us
 unitClass: count
+hidden: true

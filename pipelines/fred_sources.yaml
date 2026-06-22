@@ -15782,6 +15782,35 @@ us_population:
   - us
   unit: people
   unitClass: count
+us_population_quarterly:
+  description: US resident population, BEA quarterly mid-period estimate (FRED B230RC0Q173SBEA). The quarterly-cadence companion to the monthly POPTHM series; used as the denominator for quarterly per-capita ratios so the result does not stair-step. Hidden from the picker as redundant with the monthly series.
+  emphasis: change
+  fetchName: US population (quarterly, mid-period)
+  fetchUnit: thousands of persons
+  formatting:
+    decimals: 0
+    notation: compact
+    style: number
+  hidden: true
+  name: US population (quarterly)
+  provenance:
+    license: Public domain (US government data)
+    provider: FRED (St. Louis Fed)
+    series: B230RC0Q173SBEA
+    url: https://fred.stlouisfed.org/series/B230RC0Q173SBEA
+  series: B230RC0Q173SBEA
+  shortName: US population (quarterly)
+  supportedDeltas:
+  - 1y
+  - 5y
+  - 10y
+  - 30y
+  - 50y
+  tags:
+  - macro
+  - us
+  unit: people
+  unitClass: count
 us_real_gdp:
   description: Real gross domestic product, quarterly, chained 2017 dollars.
   fetchName: US real GDP (chained 2017 dollars)
