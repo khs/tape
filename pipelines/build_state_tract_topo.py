@@ -171,7 +171,7 @@ def extract_shapefile(zip_path: Path, geo: str, fips: str) -> Path:
 
 
 def make_topo(state_code: str, fips: str, geo: str,
-              simplify_pct: int = 10) -> Path:
+              simplify_pct: int = 10, out_suffix: str = "") -> Path:
     """Convert one state's TIGER shapefile (tract OR block group) to
     TopoJSON in the schema the renderer expects.
 
@@ -189,7 +189,7 @@ def make_topo(state_code: str, fips: str, geo: str,
     shp = extract_shapefile(zip_path, geo, fips)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     out_path = OUTPUT_DIR / (
-        f"{state_code.lower()}-{geo_file_stem(geo)}-topo.json"
+        f"{state_code.lower()}-{geo_file_stem(geo)}{out_suffix}-topo.json"
     )
     # On Windows, the npm-installed `mapshaper` is a Unix shim with no
     # .exe/.cmd association; subprocess.run can't launch it directly.
@@ -217,6 +217,7 @@ def make_topo(state_code: str, fips: str, geo: str,
 
 
 def main(argv: list[str] | None = None) -> int:
+    global TIGER_YEAR, TIGER_ROOT
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--state", default="all",
@@ -240,7 +241,23 @@ def main(argv: list[str] | None = None) -> int:
             "for sharper boundaries at high zoom."
         ),
     )
+    ap.add_argument(
+        "--tiger-year", type=int, default=TIGER_YEAR,
+        help=(
+            "TIGER/Line vintage. Default 2025 (2020-census tract grid). Use "
+            "a 2010-era year (e.g. 2019) to build the pre-2020 grid for ACS "
+            "vintages 2019 and earlier, paired with --out-suffix -2010."
+        ),
+    )
+    ap.add_argument(
+        "--out-suffix", default="",
+        help=("Inserted before '-topo.json' in the output filename, e.g. "
+              "'-2010' gives <st>-tracts-2010-topo.json."),
+    )
     args = ap.parse_args(argv)
+    if args.tiger_year != TIGER_YEAR:
+        TIGER_YEAR = args.tiger_year
+        TIGER_ROOT = f"https://www2.census.gov/geo/tiger/TIGER{TIGER_YEAR}"
 
     if args.state.lower() == "all":
         targets = list(STATE_FIPS.items())
@@ -256,7 +273,8 @@ def main(argv: list[str] | None = None) -> int:
     for code, fips in targets:
         print(f"\n--- {code} (FIPS {fips}) [{args.geo}] ---", flush=True)
         try:
-            path = make_topo(code, fips, args.geo, args.simplify)
+            path = make_topo(code, fips, args.geo, args.simplify,
+                             out_suffix=args.out_suffix)
             size_kb = path.stat().st_size / 1024
             print(f"  ok: {size_kb:.0f} KB", flush=True)
             written += 1
