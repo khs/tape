@@ -719,6 +719,23 @@ const statesJoined = stateCodes.join(",");
         gqValues = {};
       }
     }
+    // Reliability (coefficient of variation) of the displayed share, from the
+    // <indicator>_cv_<vintage>.json sibling, to flag imprecise estimates in the
+    // tooltip. The MIN_PCT_DENOM floor is a hard cutoff, not a confidence scale;
+    // this surfaces the actual statistical uncertainty. Same graceful contract
+    // as gqValues (median income + other non-share maps have no _cv sibling, so
+    // this just stays empty there).
+    let cvValues: Record<string, number> = {};
+    if (b.geo === "tract") {
+      const cvUrls = b.dataUrls.map((u) =>
+        u.replace(/_(\d{4})\.json$/, "_cv_$1.json"),
+      );
+      try {
+        cvValues = await getMergedValues(cvUrls);
+      } catch {
+        cvValues = {};
+      }
+    }
     const features: Array<{
       id: string;
       properties?: { name?: string; id?: string };
@@ -1087,6 +1104,13 @@ const statesJoined = stateCodes.join(",");
             if (typeof gq === "number") {
               if (gq >= 30) s += `\n${Math.round(gq)}% group quarters`;
               else if (gq >= 10) s += `\npartly group quarters (${Math.round(gq)}%)`;
+            }
+            // Statistical reliability: ACS estimates from small samples carry a
+            // wide margin of error. CV > 30% is the conventional "interpret
+            // with caution" line.
+            const cv = cvValues[d.id];
+            if (typeof cv === "number" && cv >= 30) {
+              s += `\nimprecise estimate (CV ${Math.round(cv)}%)`;
             }
             return s;
           },
