@@ -168,7 +168,6 @@ building_permits:
   - 50y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   unit: permits
@@ -606,7 +605,6 @@ cpi_rent:
   - 50y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   - inflation
@@ -634,7 +632,6 @@ cpi_shelter:
   - 50y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   - inflation
@@ -742,7 +739,7 @@ dc_median_listing:
   - 10y
   - 30y
   tags:
-  - real-estate
+  - housing
   - us
   unit: USD
   unitClass: currency
@@ -1685,7 +1682,6 @@ fhfa_dc_hpi:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - housing
   unit: index 1980Q1=100
@@ -1712,7 +1708,6 @@ fhfa_purchase_only_hpi:
   - 30y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   unit: index 1991=100
@@ -1739,7 +1734,6 @@ fhfa_us_hpi:
   - 30y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   unit: index 1980Q1=100
@@ -1904,7 +1898,6 @@ homeowner_vacancy:
   - 50y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   unit: '%'
@@ -2502,7 +2495,7 @@ months_supply:
   - 50y
   tags:
   - macro
-  - real-estate
+  - housing
   - us
   unit: months
   unitClass: ratio
@@ -2531,7 +2524,6 @@ mortgage_15y:
   tags:
   - macro
   - rates
-  - real-estate
   - us
   - housing
   unit: '%'
@@ -2587,7 +2579,6 @@ mortgage_delinquency:
   tags:
   - macro
   - us
-  - real-estate
   - housing
   unit: '%'
   unitClass: rate
@@ -2698,7 +2689,6 @@ new_home_sales:
   - 50y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   unit: homes sold
@@ -3254,7 +3244,6 @@ rental_vacancy:
   - 50y
   tags:
   - macro
-  - real-estate
   - us
   - housing
   unit: '%'
@@ -3537,7 +3526,6 @@ state_building_permits_ak:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3564,7 +3552,6 @@ state_building_permits_al:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3591,7 +3578,6 @@ state_building_permits_ar:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3618,7 +3604,6 @@ state_building_permits_az:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3645,7 +3630,6 @@ state_building_permits_ca:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3672,7 +3656,6 @@ state_building_permits_co:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3699,7 +3682,6 @@ state_building_permits_ct:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3726,7 +3708,6 @@ state_building_permits_dc:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3753,7 +3734,6 @@ state_building_permits_de:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3780,7 +3760,6 @@ state_building_permits_fl:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3807,7 +3786,6 @@ state_building_permits_ga:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3834,7 +3812,6 @@ state_building_permits_hi:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3861,7 +3838,6 @@ state_building_permits_ia:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3888,7 +3864,6 @@ state_building_permits_id:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3915,7 +3890,6 @@ state_building_permits_il:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3942,7 +3916,6 @@ state_building_permits_in:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3969,7 +3942,6 @@ state_building_permits_ks:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -3996,7 +3968,6 @@ state_building_permits_ky:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4023,7 +3994,6 @@ state_building_permits_la:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4050,7 +4020,6 @@ state_building_permits_ma:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4077,7 +4046,6 @@ state_building_permits_md:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4104,7 +4072,6 @@ state_building_permits_me:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4131,7 +4098,6 @@ state_building_permits_mi:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4158,7 +4124,6 @@ state_building_permits_mn:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4185,7 +4150,6 @@ state_building_permits_mo:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4212,7 +4176,6 @@ state_building_permits_ms:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4239,7 +4202,6 @@ state_building_permits_mt:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4266,7 +4228,6 @@ state_building_permits_nc:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4293,7 +4254,6 @@ state_building_permits_nd:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4320,7 +4280,6 @@ state_building_permits_ne:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4347,7 +4306,6 @@ state_building_permits_nh:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4374,7 +4332,6 @@ state_building_permits_nj:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4401,7 +4358,6 @@ state_building_permits_nm:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4428,7 +4384,6 @@ state_building_permits_nv:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4455,7 +4410,6 @@ state_building_permits_ny:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4482,7 +4436,6 @@ state_building_permits_oh:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4509,7 +4462,6 @@ state_building_permits_ok:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4536,7 +4488,6 @@ state_building_permits_or:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4563,7 +4514,6 @@ state_building_permits_pa:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4590,7 +4540,6 @@ state_building_permits_ri:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4617,7 +4566,6 @@ state_building_permits_sc:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4644,7 +4592,6 @@ state_building_permits_sd:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4671,7 +4618,6 @@ state_building_permits_tn:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4698,7 +4644,6 @@ state_building_permits_tx:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4725,7 +4670,6 @@ state_building_permits_ut:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4752,7 +4696,6 @@ state_building_permits_va:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4779,7 +4722,6 @@ state_building_permits_vt:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4806,7 +4748,6 @@ state_building_permits_wa:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4833,7 +4774,6 @@ state_building_permits_wi:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4860,7 +4800,6 @@ state_building_permits_wv:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing
@@ -4887,7 +4826,6 @@ state_building_permits_wy:
   - 10y
   - 30y
   tags:
-  - real-estate
   - us
   - us-state
   - housing

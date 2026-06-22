@@ -20,7 +20,6 @@ provenance:
   license: Public domain (US government data; FHFA publishes the underlying index)
 tags:
 - macro
-- real-estate
 - us
 - housing
 unitClass: index

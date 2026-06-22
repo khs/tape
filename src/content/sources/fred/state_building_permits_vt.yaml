@@ -21,7 +21,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/VTBPPRIV
   license: Public domain (US government data)
 tags:
-- real-estate
 - us
 - us-state
 - housing

@@ -20,7 +20,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/DCSTHPI
   license: Public domain (US government data; FHFA publishes the underlying index)
 tags:
-- real-estate
 - us
 - housing
 unitClass: index

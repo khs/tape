@@ -22,6 +22,6 @@ provenance:
   url: https://fred.stlouisfed.org/series/MEDLISPRI47900
   license: Realtor.com, citation required, via FRED
 tags:
-- real-estate
+- housing
 - us
 unitClass: currency

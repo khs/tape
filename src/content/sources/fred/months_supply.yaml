@@ -22,6 +22,6 @@ provenance:
   license: Public domain (US government data)
 tags:
 - macro
-- real-estate
+- housing
 - us
 unitClass: ratio
