@@ -16,6 +16,7 @@ import {
 } from "../lib/format";
 import {
   DELTA_DAYS,
+  DELTA_LABELS,
   DELTA_LABELS_PAST,
   DELTA_LABELS_SHORT,
   closestSupported,
@@ -129,6 +130,19 @@ const baseSupported: DeltaWindow[] =
 const effectiveSupported: DeltaWindow[] = baseSupported.includes("max")
   ? baseSupported
   : [...baseSupported, "max"];
+
+// Build-time label for the all-time (max) window: "more than N years", where N
+// is the largest window the chart declares it supports (trusted — the data
+// covers it). A card's max readout is computed from the spark (capped at 50y),
+// so the literal "full history" would mislead; this states a concrete floor.
+// Computed here so the client reads it off data-alltime-label rather than
+// scanning points at render time.
+const largestSupported: DeltaWindow | null = baseSupported.reduce<
+  DeltaWindow | null
+>((best, w) => (best === null || DELTA_DAYS[w] > DELTA_DAYS[best] ? w : best), null);
+const maxWindowLabel: string = largestSupported
+  ? `more than ${DELTA_LABELS[largestSupported]}`
+  : DELTA_LABELS_PAST.max;
 
 // Effective default delta:
 // 1) dashboardWindow (mapped to closest effectiveSupported)
@@ -653,6 +667,7 @@ const mostRecentUpdate = payload.sources
   data-spark-mode={sparkMode}
   data-section-locked={sectionLocked ? "1" : undefined}
   data-dashboard-window={dashboardWindow ?? undefined}
+  data-alltime-label={maxWindowLabel}
   aria-haspopup="dialog"
   aria-label={`${chart.title} details`}
 >
@@ -703,10 +718,18 @@ const mostRecentUpdate = payload.sources
     class="tile-window muted"
     data-window-mismatch={windowMismatch ? "1" : undefined}
   >
-    over the{" "}
-    <span class="window-duration" data-role="window-duration">
-      {DELTA_LABELS_PAST[defaultDelta]}
-    </span>
+    {defaultDelta === "max" ? (
+      <span class="window-duration" data-role="window-duration">
+        {maxWindowLabel}
+      </span>
+    ) : (
+      <Fragment>
+        over the{" "}
+        <span class="window-duration" data-role="window-duration">
+          {DELTA_LABELS_PAST[defaultDelta]}
+        </span>
+      </Fragment>
+    )}
   </div>
 </button>
 

@@ -12,7 +12,6 @@
   import * as Plot from "@observablehq/plot";
   import {
     DELTA_LABELS_PAST,
-    DELTA_LABELS,
     DELTA_LABELS_SHORT,
     DELTA_DAYS,
     DELTA_WINDOWS,
@@ -2141,32 +2140,6 @@
     return;
   }
 
-  /** Card-only "more than N years" label for the all-time (max) window. A
-   *  tile's max readout is computed from the longest spark (capped at 50y),
-   *  so the literal "full history" overstates short series and is vague for
-   *  long ones. Instead name the largest round window the data verifiably
-   *  spans — a true lower bound derived from the earliest point actually
-   *  shown, NOT the declared supportedDeltas (which can reach past the data
-   *  via the inception fallback). For a >50y series the spark caps at 50y, so
-   *  this reads "more than 50 years", which holds because the real history is
-   *  longer still. Returns null for a series too short to clear the 1-year
-   *  bucket; the caller keeps "full history" then. */
-  function moreThanLabel(payload: Payload): string | null {
-    let earliestMs = Infinity;
-    for (const s of payload.sources) {
-      const inc = inceptionPoint(s, "max");
-      if (inc) earliestMs = Math.min(earliestMs, new Date(inc.t).getTime());
-    }
-    if (!Number.isFinite(earliestMs)) return null;
-    const spanDays = (Date.now() - earliestMs) / 86400000;
-    let bucket: DeltaWindow | null = null;
-    for (const w of DELTA_WINDOWS) {
-      if (w === "max") continue;
-      if (DELTA_DAYS[w] <= spanDays) bucket = w;
-    }
-    return bucket ? `more than ${DELTA_LABELS[bucket]}` : null;
-  }
-
   function updateTile(
     tile: HTMLElement,
     payload: Payload,
@@ -2187,13 +2160,13 @@
       if (fixed) {
         captionEl.textContent = `${fixed.start} → ${fixed.end}`;
       } else {
-        // innerHTML rather than textContent so the duration wraps in
-        // the span the CSS bolds on mismatch. Content is author-controlled
-        // constants + a numeric label, no XSS risk. For the all-time window
-        // a card can only show the spark-capped (≤50y) readout, so instead
-        // of the vague/overstated "over the full history" we name the
-        // largest window the data actually spans: "more than 50 years".
-        const moreThan = window === "max" ? moreThanLabel(payload) : null;
+        // innerHTML rather than textContent so the duration wraps in the span
+        // the CSS bolds on mismatch. Content is author-controlled, no XSS risk.
+        // The all-time window reads "more than N years" — its largest declared
+        // supported window, computed at build time and carried on
+        // data-alltime-label, so there's no per-render data scan here.
+        const moreThan =
+          window === "max" ? tile.dataset.alltimeLabel || null : null;
         captionEl.innerHTML = moreThan
           ? `<span class="window-duration" data-role="window-duration">${moreThan}</span>`
           : `over the <span class="window-duration" data-role="window-duration">${DELTA_LABELS_PAST[window]}</span>`;
