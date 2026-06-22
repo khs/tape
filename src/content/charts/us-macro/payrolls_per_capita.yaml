@@ -1,0 +1,16 @@
+title: Nonfarm payrolls per capita
+sources:
+  - fred/payrolls
+  - fred/us_population
+op: divide
+percentDisplay: percent
+render: line
+defaultDelta: 30y
+tags: [us, macro, derived, ratio]
+blurb: |
+  Total nonfarm payroll employment as a share of US population: the
+  fraction of all Americans holding a nonfarm payroll job. Dividing out
+  raw population growth turns "the number always goes up" into a measure
+  of employment intensity, with the long postwar climb as participation
+  rose and a sharp drop in every recession. Both series are monthly, so
+  the line stays smooth.
