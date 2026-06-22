@@ -239,7 +239,7 @@ const ogD = state
         whenever you visit Tape.
       </span>
       <a
-        href={`${baseUrl || "/"}/?nopin=1`}
+        href={`${baseUrl}/?nopin=1`}
         class="pinned-home-link"
         data-role="pinned-home-open-home"
       >
@@ -693,7 +693,7 @@ const ogD = state
               window.location.href = `${baseUrl}/u/${encodeURIComponent(slug)}/?from=home`;
             } else {
               localStorage.removeItem(DEFAULT_SLUG_KEY);
-              window.location.href = `${baseUrl || "/"}/?nopin=1`;
+              window.location.href = `${baseUrl}/?nopin=1`;
             }
           } catch {
             /* localStorage blocked — no-op */
