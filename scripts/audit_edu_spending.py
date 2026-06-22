@@ -4,9 +4,14 @@ Audit the per-pupil-spending source YAMLs (src/content/sources/edu_spending/).
 
 Single-metric, emitted inline by pipelines/edu_spending.py. This
 local audit confirms the invariants that matter for correctness +
-attribution: each source is a per-pupil USD series, and (per the
-provider ToS sweep) carries the required NCES + Urban Institute / ODC-BY
-attribution. No network call needed.
+attribution: each source is a per-pupil USD series, and carries the
+US Census Bureau (Annual Survey of School System Finances) attribution
+under a public-domain license. The data was migrated off the Urban
+Institute Education Data Portal to the Census summary tables directly
+(see the edu_spending.py docstring: Urban's per-pupil denominator
+differed ~5%, which would have put a false kink at the splice seam), so
+this audit expects Census / public-domain, not the old Urban / ODC-BY.
+No network call needed.
 
 Usage:
   python scripts/audit_edu_spending.py
@@ -54,11 +59,14 @@ def main() -> int:
             notes.append(f"name missing 'per pupil': {data.get('name')!r}")
         if data.get("unit") != "USD":
             notes.append(f"unit not USD: {data.get('unit')!r}")
-        # ToS-sweep requirement: NCES data via Urban, ODC-BY, cite both.
-        if "urban" not in provider or "nces" not in provider:
-            notes.append(f"provider must credit NCES + Urban: {prov.get('provider')!r}")
-        if "odc-by" not in license_:
-            notes.append(f"license must state ODC-BY: {prov.get('license')!r}")
+        # Sourced directly from the Census ASSF (F-33) summary tables, which are
+        # federal public-domain data (migrated off the Urban Institute portal).
+        if "census" not in provider:
+            notes.append(
+                f"provider must credit the US Census Bureau (ASSF): {prov.get('provider')!r}"
+            )
+        if "public domain" not in license_:
+            notes.append(f"license must state public domain: {prov.get('license')!r}")
         if notes:
             findings.append({"file": p.name, "notes": notes})
 
@@ -70,7 +78,7 @@ def main() -> int:
         for f in findings[:40]:
             print(f"[!] {f['file']}: {f['notes']}")
         if not findings:
-            print("OK: per-pupil USD + NCES/Urban/ODC-BY attribution on every source.")
+            print("OK: per-pupil USD + US Census Bureau / public-domain attribution on every source.")
     return 1 if (args.strict and findings) else 0
 
 

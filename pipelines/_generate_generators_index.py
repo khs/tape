@@ -313,6 +313,31 @@ def _match_state_cdc_health(sid: str) -> MatchResult:
     return ("state", f"cdc_health_{m.group(1)}", abbr)
 
 
+def _match_state_nhtsa_fars(sid: str) -> MatchResult:
+    # nhtsa_fars/<metric>_<state>, e.g. nhtsa_fars/traffic_fatalities_nd,
+    # nhtsa_fars/traffic_fatality_rate_tx. US-rollup IDs end "_us" and drop.
+    # Captures both the count and the rate metric as separate template keys.
+    m = re.match(r"^nhtsa_fars/(.+)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"nhtsa_fars_{m.group(1)}", abbr)
+
+
+def _match_state_elections(sid: str) -> MatchResult:
+    # elections/(pres|sen|gov)_margin_<state>, e.g. elections/pres_margin_ca.
+    # House margins are CD-level (no CD generators category), so excluded here.
+    m = re.match(r"^elections/((?:pres|sen|gov)_margin)_([a-z]{2})$", sid)
+    if not m:
+        return None
+    abbr = m.group(2).upper()
+    if abbr not in STATE_ABBR_TO_NAME:
+        return None
+    return ("state", f"elections_{m.group(1)}", abbr)
+
+
 def _match_state_acs_labor(sid: str) -> MatchResult:
     # acs_labor/state_<race>_<state>, e.g. acs_labor/state_aian_wy.
     m = re.match(r"^acs_labor/(.+)_([a-z]{2})$", sid)
@@ -478,6 +503,8 @@ MATCHERS: list[Matcher] = [
     _match_state_usgs_water,
     _match_state_usda_nass,
     _match_state_cdc_health,
+    _match_state_nhtsa_fars,
+    _match_state_elections,
     _match_state_acs_labor,
     _match_state_census_govfin,
     _match_state_edu_spending,
