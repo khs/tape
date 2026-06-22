@@ -122,13 +122,29 @@ class AcsIndicator:
     combine: callable = field(default=lambda v: None)
 
 
+# Reliability floor for SHARE indicators (percent of a universe). A tract
+# whose universe (the denominator) holds fewer than this many people can't
+# support a stable share: a single household swings it to 0% or 100%, which
+# is what drove the implausible "0%-100%" range on tract maps. Below the
+# floor we emit None (no value) so the tract hatches as no-data instead of
+# painting statistical noise.
+#
+# It also cleanly separates the two kinds of special-use tract without any
+# tract-code special-casing: an empty "park" tract (≈0 residents) falls
+# under the floor and drops to no-data, while a populated institutional
+# tract (e.g. a ~1,900-resident prison) clears it and is kept — so prisons
+# stay distinguishable from parks. Only applies to the percent indicators;
+# direct values (median income etc.) have no universe to floor here.
+MIN_PCT_DENOM = 100
+
+
 def pct(numer: str, denom: str):
     """Returns a percent (0-100) of numer/denom, or None if either is
-    missing or denom is zero."""
+    missing or the denominator (the universe) is below MIN_PCT_DENOM."""
     def _combine(vals: dict[str, float | None]) -> float | None:
         n = vals.get(numer)
         d = vals.get(denom)
-        if n is None or d is None or d <= 0:
+        if n is None or d is None or d < MIN_PCT_DENOM:
             return None
         return round(100.0 * n / d, 2)
     return _combine
@@ -203,7 +219,7 @@ def _sum_pct_combine(vals: dict[str, float | None], numer_codes, denom_code):
             continue
         parts.append(v)
     d = vals.get(denom_code)
-    if not parts or d is None or d <= 0:
+    if not parts or d is None or d < MIN_PCT_DENOM:
         return None
     return round(100.0 * sum(parts) / d, 2)
 
