@@ -15,6 +15,8 @@
  */
 import { isInlineId, isInlineMapId } from "./ids";
 import { CC_COLORS, type FetchedSeries } from "./series";
+import { combineTwo, type CombineOp } from "../derive";
+import type { TimeSeriesData } from "../data-types";
 import * as Plot from "@observablehq/plot";
 import { geoAlbers, geoPath } from "d3-geo";
 import { feature as topoFeature } from "topojson-client";
@@ -46,11 +48,14 @@ export function createTiles(ctx: TilesContext) {
     const library = getLibrary();
     // Resolve source IDs from inline or library chart.
     let sourceIds: string[] = [];
+    let op: CombineOp | undefined;
     if (isInlineId(chartId)) {
       sourceIds = state.inlineCharts[chartId]?.sources ?? [];
+      op = state.inlineCharts[chartId]?.op as CombineOp | undefined;
     } else {
       const c = library?.charts.find((x) => x.id === chartId);
       sourceIds = c?.sources ?? [];
+      op = (c as { op?: CombineOp } | undefined)?.op;
     }
     if (sourceIds.length === 0) return;
     // Cap at 4 series so a multi-source comparison tile doesn't try
@@ -64,17 +69,33 @@ export function createTiles(ctx: TilesContext) {
     const width = host.clientWidth || 200;
     const height = 64;
     try {
-      const marks = valid.map((s, i) =>
-        Plot.lineY(
-          s.points.map((p) => ({ t: new Date(p.t), v: p.v })),
-          {
-            x: "t",
-            y: "v",
-            stroke: CC_COLORS[i % CC_COLORS.length],
-            strokeWidth: 1.2,
-          },
-        ),
-      );
+      // An op'd 2-source tile (e.g. a divided / summed derived source) renders
+      // as a SINGLE combined line — matching the full chart — not its two raw
+      // inputs. combineTwo only reads .points, so the fetched series feed it
+      // directly.
+      const marks =
+        op && valid.length === 2
+          ? [
+              Plot.lineY(
+                combineTwo(
+                  valid[0] as unknown as TimeSeriesData,
+                  valid[1] as unknown as TimeSeriesData,
+                  op,
+                ).map((p) => ({ t: new Date(p.t), v: p.v })),
+                { x: "t", y: "v", stroke: CC_COLORS[0], strokeWidth: 1.2 },
+              ),
+            ]
+          : valid.map((s, i) =>
+              Plot.lineY(
+                s.points.map((p) => ({ t: new Date(p.t), v: p.v })),
+                {
+                  x: "t",
+                  y: "v",
+                  stroke: CC_COLORS[i % CC_COLORS.length],
+                  strokeWidth: 1.2,
+                },
+              ),
+            );
       const plot = Plot.plot({
         width,
         height,
