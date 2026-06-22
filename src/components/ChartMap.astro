@@ -1071,13 +1071,22 @@ const statesJoined = stateCodes.join(",");
             // override applied in the normalize loop above (see
             // `specialTractName` block), so we can just read it.
             const name = d.properties?.name ?? d.id;
-            let s = `${name}\n${fmtValue(v ?? null, b.unit, b.decimals)}`;
-            // Flag substantially-institutional tracts (prisons, college dorms)
-            // so an extreme reading there reads as group quarters, not a
-            // neighborhood. Threshold keeps it off the ~all-residential tracts.
+            // ACS top-codes tract median household income at $250,001; show the
+            // open-ended bucket it really represents instead of a false-precise
+            // figure (the cap clusters in high-income DMV/coastal tracts).
+            const valStr =
+              b.unit === "USD" && v === 250001
+                ? "over $250,000"
+                : fmtValue(v ?? null, b.unit, b.decimals);
+            let s = `${name}\n${valStr}`;
+            // Group-quarters context so an extreme reading reads as a prison /
+            // dorm, not a neighborhood: >=30% is mostly institutional; a 10-30%
+            // band (a facility inside an otherwise-residential tract) still
+            // pulls the numbers off, so flag it, more softly.
             const gq = gqValues[d.id];
-            if (typeof gq === "number" && gq >= 30) {
-              s += `\n${Math.round(gq)}% group quarters`;
+            if (typeof gq === "number") {
+              if (gq >= 30) s += `\n${Math.round(gq)}% group quarters`;
+              else if (gq >= 10) s += `\npartly group quarters (${Math.round(gq)}%)`;
             }
             return s;
           },

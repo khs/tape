@@ -12,6 +12,8 @@ tags: [government, dmv, demographics, income]
 blurb: |
   Tract-level median household income across the DC metropolitan
   area, ACS 5-year ending 2022. Darker = higher median income. The
-  federal-corridor income gradient is sharp at this resolution, 
+  federal-corridor income gradient is sharp at this resolution,
   Anacostia tracts sit ~3x below their inner-NW-DC and N. Arlington
-  counterparts within a few miles.
+  counterparts within a few miles. ACS top-codes tract median income
+  at $250,000, so the highest-income tracts (common in this region)
+  read as "over $250,000" rather than an exact figure.

@@ -51,7 +51,9 @@ INDICATORS = [
         "median household income",
         "greens",
         "median pre-tax money income at block-group resolution, "
-        "finer than tract-level. Darker green = higher income.",
+        "finer than tract-level. Darker green = higher income. The "
+        "highest-income block groups are top-coded at $250,000, so "
+        "they read as \"over $250,000\".",
     ),
     (
         "bachelors_plus_pct",

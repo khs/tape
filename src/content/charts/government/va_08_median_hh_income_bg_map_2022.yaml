@@ -15,4 +15,6 @@ blurb: |
   "VA-08 = uniformly high income" tract-level story into actual
   pockets: high-rise apartment-dense block groups along the
   Metro Orange line read lower; single-family neighborhoods
-  in McLean / Falls Church anchor the top.
+  in McLean / Falls Church anchor the top. ACS top-codes block-group
+  median income at $250,000, so the richest block groups (many here)
+  read as "over $250,000" rather than an exact figure.

@@ -1,4 +1,4 @@
-title: "Median household income by census block group: Connecticut (2022)"
+title: Median household income by census block group — Connecticut (2022)
 render: map
 geo: block-group
 states: [CT]
@@ -9,8 +9,8 @@ colorScheme: greens
 colorScale: linear
 tags: [demographics, state-bg-map, median-hh-income, ct]
 blurb: |
-  Block-group-level median pre-tax money income at block-group resolution, finer than tract-level. Darker green = higher income. ACS 5-year ending 2022.
+  Block-group-level median pre-tax money income at block-group resolution, finer than tract-level. Darker green = higher income. The highest-income block groups are top-coded at $250,000, so they read as "over $250,000". ACS 5-year ending 2022.
   Block-groups divide a census tract into 1-4 sub-units of ~600-3,000
-  residents each, the finest geography ACS publishes for income
+  residents each — the finest geography ACS publishes for income
   and education. Click to expand; the dialog supports zoom, pan,
   and a color-scheme picker.
