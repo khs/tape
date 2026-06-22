@@ -700,6 +700,25 @@ const statesJoined = stateCodes.join(",");
       }
     }));
     const values = await getMergedValues(b.dataUrls);
+    // Group-quarters share per tract, for the hover tooltip: a tract that's
+    // mostly group quarters (a prison, a college dorm cluster) is not a
+    // residential neighborhood, so a 0% bachelor's reading there is an inmate
+    // population, not a failing community. Derive the sibling
+    // group_quarters_pct file URL from each data URL (same path, swapped
+    // indicator). Tract-only, and wrapped so a missing GQ shard (pre-2012
+    // vintages where B26001 doesn't exist, or any vintage before the backfill
+    // lands) degrades to no annotation rather than throwing in paint().
+    let gqValues: Record<string, number> = {};
+    if (b.geo === "tract") {
+      const gqUrls = b.dataUrls.map((u) =>
+        u.replace(/\/[^/]+_(\d{4})\.json$/, "/group_quarters_pct_$1.json"),
+      );
+      try {
+        gqValues = await getMergedValues(gqUrls);
+      } catch {
+        gqValues = {};
+      }
+    }
     const features: Array<{
       id: string;
       properties?: { name?: string; id?: string };
@@ -1052,7 +1071,15 @@ const statesJoined = stateCodes.join(",");
             // override applied in the normalize loop above (see
             // `specialTractName` block), so we can just read it.
             const name = d.properties?.name ?? d.id;
-            return `${name}\n${fmtValue(v ?? null, b.unit, b.decimals)}`;
+            let s = `${name}\n${fmtValue(v ?? null, b.unit, b.decimals)}`;
+            // Flag substantially-institutional tracts (prisons, college dorms)
+            // so an extreme reading there reads as group quarters, not a
+            // neighborhood. Threshold keeps it off the ~all-residential tracts.
+            const gq = gqValues[d.id];
+            if (typeof gq === "number" && gq >= 30) {
+              s += `\n${Math.round(gq)}% group quarters`;
+            }
+            return s;
           },
         }),
       ],
