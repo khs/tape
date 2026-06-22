@@ -1,15 +1,17 @@
 title: Real GDP per capita (US)
 sources:
   - fred/us_real_gdp
-  - fred/us_population
+  - fred/us_population_quarterly
 op: divide
 render: line
 defaultDelta: 30y
 tags: [us, macro, derived, ratio, gdp]
 blurb: |
-  Real GDP (chained 2017 dollars, quarterly) divided by US
-  population (monthly). Reads as roughly real per-person economic
-  output: about $26K in 1970, $70K+ in the mid-2020s. Doesn't
+  Real GDP (chained 2017 dollars) divided by US population, both
+  quarterly (BEA mid-period), so the line doesn't stair-step the way
+  a quarterly-over-monthly ratio would. Reads as roughly real
+  per-person economic output: about $26K in 1970, $70K+ in the
+  mid-2020s, and it matches BEA's official per-capita figure. Doesn't
   account for distribution; useful as a long-run trend benchmark
   for how productive the average American has become.
 

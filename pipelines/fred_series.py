@@ -93,6 +93,13 @@ SPECS: list[FredSpec] = [
     FredSpec("LNS11300002", "Labor force participation rate, women", "%"),
     FredSpec("LNS11300001", "Labor force participation rate, men", "%"),
     FredSpec("A939RX0Q048SBEA", "US real GDP per capita (chained 2017 dollars)", "USD"),
+    # BEA quarterly mid-period population (the denominator BEA uses for its
+    # per-capita NIPA series). Quarterly cadence matches GDPC1, so dividing
+    # GDPC1 by it gives a clean per-capita line with no monthly-vs-quarterly
+    # stair-step. "thousands of persons" -> auto x1000 to raw, matching POPTHM.
+    # Hidden in the source YAML (redundant with monthly POPTHM in the picker);
+    # exists only as the real_gdp_per_capita denominator.
+    FredSpec("B230RC0Q173SBEA", "US population (quarterly, mid-period)", "thousands of persons"),
     FredSpec("INDPRO", "US industrial production", "index (2017=100)"),
     # SP500 (S&P 500) intentionally NOT ingested: third-party
     # copyrighted by S&P Dow Jones Indices LLC, pre-approval
