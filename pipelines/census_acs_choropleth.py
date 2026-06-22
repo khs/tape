@@ -208,6 +208,22 @@ INDICATORS: list[AcsIndicator] = [
         variables=["B05002_001E", "B05002_013E"],
         combine=pct("B05002_013E", "B05002_001E"),
     ),
+    # Group-quarters share — NOT a map indicator in its own right; it's the
+    # tract tooltip's context flag. A 0% bachelor's tract that's 100% group
+    # quarters is a prison/dorm, not a failing neighborhood, and (per the
+    # 2026-06 analysis) institutional tracts split across 9800 + ordinary
+    # tract codes, so GQ share is the only reliable identifier. ChartMap loads
+    # this sibling file and shows "X% group quarters" on hover for high-GQ
+    # tracts. Denominator is total population.
+    AcsIndicator(
+        out_id="group_quarters_pct",
+        name="Group-quarters population share",
+        unit="%",
+        decimals=1,
+        value_label="% of population in group quarters",
+        variables=["B26001_001E", "B01003_001E"],
+        combine=pct("B26001_001E", "B01003_001E"),
+    ),
 ]
 
 
