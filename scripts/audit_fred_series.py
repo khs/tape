@@ -86,6 +86,10 @@ ALLOWLIST: dict[str, str] = {
     # Index for the United States." The YAML uses the common short label
     # "FHFA national home price index" — same series, unambiguous.
     "USSTHPI": "FHFA national home price index = All-Transactions House Price Index for the US (FHFA)",
+    # DCSTHPI: the DC analog of USSTHPI. FRED spells it out as "All-
+    # Transactions House Price Index for the District of Columbia"; the YAML
+    # uses the short "FHFA DC home price index" — same series, unambiguous.
+    "DCSTHPI": "FHFA DC home price index = All-Transactions House Price Index for the District of Columbia (FHFA)",
     # MEDCPIM158SFRBCLE: Cleveland Fed's median CPI. FRED's title spells
     # out "Median Consumer Price Index"; we use the universal "Median CPI"
     # shorthand, which shares only the "median" token with the formal title.

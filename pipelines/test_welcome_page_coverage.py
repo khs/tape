@@ -77,6 +77,9 @@ PROVIDER_FEATURED_ON_WELCOME: dict[str, bool] = {
     # Intentionally NOT on welcome (per current curation)
     # The grid is hand-picked; sub-categories that would dilute the
     # signal are surfaced via the composer instead.
+    "nhtsa_fars": False,        # traffic-safety detail; via composer
+    "guttmacher": False,        # abortion data; via composer + source page
+    "elections": False,         # election margins; via composer + source page
     "acs_cd": False,           # 17k+ per-CD variants; too much detail
     "acs_metro": False,         # 393 MSAs × indicators; via composer
     "acs_state": False,         # surfaced via Maps tab in composer
