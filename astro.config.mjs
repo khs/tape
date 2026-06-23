@@ -61,18 +61,23 @@ export default defineConfig({
         !page.includes("/u/") &&
         !page.includes("/compose"),
     }),
-    // Strip public/data/ out of the Vercel SSR function bundle. The
-    // node-file-tracer that ships with @astrojs/vercel sees the
-    // fs.readFileSync(process.cwd() + "/public/" + ...) calls in
-    // load-data.ts and conservatively bundles the whole public/data
-    // tree into the function (~290MB). That's redundant with the
-    // static-assets copy of the same files (served from the same
-    // deployment's CDN) AND blows past Vercel's 250MB serverless-
-    // function size limit.
+    // Strip public/data/ AND public/maps/ out of the Vercel SSR
+    // function bundle. The node-file-tracer that ships with
+    // @astrojs/vercel sees the fs.readFile(process.cwd() + "/public/"
+    // + ...) calls in load-data.ts (data JSON) and ChartMap.astro
+    // (boundary TopoJSON) and conservatively bundles those public/
+    // subtrees into the function. public/data alone is ~290MB; public/
+    // maps is ~150MB+ (51 states x tract+BG x the 2010 and 2020 grids),
+    // so either one can blow past Vercel's 250MB serverless-function
+    // size limit. Both are redundant with the static-assets copy served
+    // from the same deployment's CDN.
     //
-    // load-data.ts is now async and falls back to fetch() against the
-    // deployment's static assets when fs.readFileSync ENOENTs at
-    // runtime, so deleting these files from the bundle is safe.
+    // Both loaders are async and fall back to fetch() against the
+    // deployment's static assets when the fs read ENOENTs at runtime
+    // (load-data.ts loadSourceData/Summary; ChartMap.astro's
+    // readPublicFileText, which covers the boundary TopoJSON reads),
+    // so deleting these files from the function bundle is safe: the
+    // runtime fetches them from the CDN instead.
     //
     // The adapter's own `excludeFiles` option only accepts literal
     // file paths (one entry per file), not globs — useless for a
@@ -88,6 +93,7 @@ export default defineConfig({
           const projectRoot = process.cwd();
           const candidates = [
             path.join(projectRoot, ".vercel/output/functions/_render.func/public/data"),
+            path.join(projectRoot, ".vercel/output/functions/_render.func/public/maps"),
             path.join(projectRoot, ".vercel/output/functions/_render.func/pipelines"),
           ];
           for (const target of candidates) {
