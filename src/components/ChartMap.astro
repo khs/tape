@@ -450,6 +450,7 @@ const statesJoined = stateCodes.join(",");
   import { specialTractName } from "../lib/special-tract-names";
   import { disambiguateCountyCityNames } from "../lib/disambiguate-county-city";
   import { statePostalFromFips } from "../lib/state-fips";
+  import { isMobileViewport } from "../lib/viewport";
 
   // Lazy-loaded county FIPS (5-digit) → name lookup. Block-group
   // hover labels need this to resolve the parent county from the
@@ -1146,7 +1147,7 @@ const statesJoined = stateCodes.join(",");
     } catch (e) {
       // Plot can throw on malformed colorSpec (e.g. clamp option
       // misalignment), invalid projection, or NaN in coordinates.
-      // Without this catch the failure bubbles up to hydrateAll's
+      // Without this catch the failure bubbles up to hydrateOne's
       // catch which renders a generic "Map failed to load" — but
       // the user still wants the error visible in the console.
       console.error("[map] Plot.plot threw:", e, plotSpec);
@@ -1667,63 +1668,122 @@ const statesJoined = stateCodes.join(",");
     ctx.sel.transition().duration(200).call(ctx.zoom.transform, zoomIdentity);
   }
 
-  function hydrateAll() {
-    const canvases = document.querySelectorAll<HTMLElement>(
-      "[data-role='map-canvas']",
-    );
-    canvases.forEach((canvas) => {
-      if (canvas.dataset.hydrated === "1") return;
-      canvas.dataset.hydrated = "1";
-      // When the server side already determined that no data file
-      // was readable for this chart (typically: chart was added
-      // after the last workflow run, the underlying data hasn't
-      // been fetched yet), bail out without trying to client-fetch.
-      // Otherwise the client request would 404 and overwrite the
-      // helpful "data not yet fetched" eyebrow message with a
-      // cryptic "values …json: 404" error.
-      if (canvas.dataset.skipHydrate === "1") return;
-      // Three render sizes: tile (dashboard thumbnail), expanded
-      // (dialog default), fullscreen (CSS-wide dialog). Previously
-      // narrowed to two and "fullscreen" silently fell through to
-      // "tile" — that's why the Full-screen toggle visibly flipped
-      // the dialog width but the SVG inside stayed thumbnail-sized.
-      const raw = canvas.dataset.mode;
-      const mode: "tile" | "expanded" | "fullscreen" =
-        raw === "fullscreen" ? "fullscreen"
-        : raw === "expanded" ? "expanded"
-        : "tile";
-      let parsedDataUrls: string[] = [];
-      try {
-        parsedDataUrls = JSON.parse(canvas.dataset.dataUrls ?? "[]");
-      } catch { /* leave empty; canvas will render "no data" */ }
-      let parsedBoundaryUrls: string[] = [];
-      try {
-        parsedBoundaryUrls = JSON.parse(canvas.dataset.boundaryUrls ?? "[]");
-      } catch { /* leave empty; falls back to single boundaryUrl below */ }
-      if (parsedBoundaryUrls.length === 0 && canvas.dataset.boundaryUrl) {
-        parsedBoundaryUrls = [canvas.dataset.boundaryUrl];
+  // Hydrate ONE map canvas: parse its data-* bindings and paint it.
+  // Returns the paint promise so a scheduler can await completion (the
+  // desktop ordered pool below relies on this). Idempotent via the
+  // data-hydrated guard, and a no-op for canvases the server flagged
+  // data-skip-hydrate.
+  async function hydrateOne(canvas: HTMLElement): Promise<void> {
+    if (canvas.dataset.hydrated === "1") return;
+    canvas.dataset.hydrated = "1";
+    // When the server side already determined that no data file
+    // was readable for this chart (typically: chart was added
+    // after the last workflow run, the underlying data hasn't
+    // been fetched yet), bail out without trying to client-fetch.
+    // Otherwise the client request would 404 and overwrite the
+    // helpful "data not yet fetched" eyebrow message with a
+    // cryptic "values …json: 404" error.
+    if (canvas.dataset.skipHydrate === "1") return;
+    // Three render sizes: tile (dashboard thumbnail), expanded
+    // (dialog default), fullscreen (CSS-wide dialog). Previously
+    // narrowed to two and "fullscreen" silently fell through to
+    // "tile" — that's why the Full-screen toggle visibly flipped
+    // the dialog width but the SVG inside stayed thumbnail-sized.
+    const raw = canvas.dataset.mode;
+    const mode: "tile" | "expanded" | "fullscreen" =
+      raw === "fullscreen" ? "fullscreen"
+      : raw === "expanded" ? "expanded"
+      : "tile";
+    let parsedDataUrls: string[] = [];
+    try {
+      parsedDataUrls = JSON.parse(canvas.dataset.dataUrls ?? "[]");
+    } catch { /* leave empty; canvas will render "no data" */ }
+    let parsedBoundaryUrls: string[] = [];
+    try {
+      parsedBoundaryUrls = JSON.parse(canvas.dataset.boundaryUrls ?? "[]");
+    } catch { /* leave empty; falls back to single boundaryUrl below */ }
+    if (parsedBoundaryUrls.length === 0 && canvas.dataset.boundaryUrl) {
+      parsedBoundaryUrls = [canvas.dataset.boundaryUrl];
+    }
+    // Guard the bbox parse too (mirrors the URL parses above) so a
+    // malformed data-bbox can't throw. This matters now that hydrateOne
+    // feeds the fire-and-forget IO callback + desktop pool, where a
+    // synchronous throw would surface as an unhandled rejection and kill
+    // one pool worker. bbox is server-emitted so this is belt-and-
+    // suspenders; a missing bbox just means a full-extent projection.
+    let parsedBbox: [number, number, number, number] | null = null;
+    try {
+      if (canvas.dataset.bbox && canvas.dataset.bbox !== "null") {
+        parsedBbox = JSON.parse(canvas.dataset.bbox) as
+          [number, number, number, number];
       }
-      const b: ChoroBindings = {
-        chartId: canvas.dataset.chartId ?? "",
-        dataUrls: parsedDataUrls,
-        boundaryUrl: canvas.dataset.boundaryUrl ?? "",
-        boundaryUrls: parsedBoundaryUrls,
-        geo: (canvas.dataset.geo ?? "county") as ChoroBindings["geo"],
-        state: canvas.dataset.state ?? "",
-        bbox: canvas.dataset.bbox && canvas.dataset.bbox !== "null"
-          ? (JSON.parse(canvas.dataset.bbox) as [number, number, number, number])
-          : null,
-        colorScheme: canvas.dataset.colorScheme ?? "blues",
-        colorScale: (canvas.dataset.colorScale ?? "linear") as
-          ChoroBindings["colorScale"],
-        valueLabel: canvas.dataset.valueLabel ?? "",
-        unit: canvas.dataset.unit ?? "",
-        decimals: Number(canvas.dataset.decimals ?? "1"),
-      };
-      paint(canvas, b, mode).catch((e) => {
-        canvas.innerHTML = `<p class="muted small">Map failed to load: ${String(e?.message ?? e)}</p>`;
-      });
+    } catch { /* malformed bbox → null → full-extent projection */ }
+    const b: ChoroBindings = {
+      chartId: canvas.dataset.chartId ?? "",
+      dataUrls: parsedDataUrls,
+      boundaryUrl: canvas.dataset.boundaryUrl ?? "",
+      boundaryUrls: parsedBoundaryUrls,
+      geo: (canvas.dataset.geo ?? "county") as ChoroBindings["geo"],
+      state: canvas.dataset.state ?? "",
+      bbox: parsedBbox,
+      colorScheme: canvas.dataset.colorScheme ?? "blues",
+      colorScale: (canvas.dataset.colorScale ?? "linear") as
+        ChoroBindings["colorScale"],
+      valueLabel: canvas.dataset.valueLabel ?? "",
+      unit: canvas.dataset.unit ?? "",
+      decimals: Number(canvas.dataset.decimals ?? "1"),
+    };
+    await paint(canvas, b, mode).catch((e) => {
+      canvas.innerHTML = `<p class="muted small">Map failed to load: ${String(e?.message ?? e)}</p>`;
     });
+  }
+
+  // Initial page-load hydration, strategy by viewport. A dashboard can
+  // stack many maps and each pulls a heavy per-state TopoJSON (block-
+  // group files run 250-420 KB), so painting all of them at once is
+  // wasteful and gives the above-the-fold maps no priority.
+  //   • Mobile: PURE LAZY. An IntersectionObserver hydrates each map
+  //     only as it nears the viewport (400px lead), so a long page
+  //     never fetches megabytes the reader may never scroll to.
+  //   • Desktop: LOAD ALL, TOP-TO-BOTTOM. Every map hydrates, but
+  //     through a small ordered concurrency pool (DOM order == visual
+  //     order) so the top maps get the connection + render budget
+  //     first instead of N maps racing the main thread at once.
+  // The dialog / slider / fullscreen / scheme re-render paths call
+  // hydrateOne directly on their own canvas, so this strategy governs
+  // only the first paint — the mobile laziness isn't undone later.
+  function hydrateInitial() {
+    const canvases = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-role='map-canvas']"),
+    );
+    if (canvases.length === 0) return;
+    if (isMobileViewport() && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries, obs) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          obs.unobserve(entry.target);
+          hydrateOne(entry.target as HTMLElement);
+        }
+      }, { rootMargin: "400px 0px" });
+      canvases.forEach((c) => io.observe(c));
+      return;
+    }
+    // Desktop (or no IntersectionObserver support): ordered pool.
+    // Workers pull from a shared cursor in DOM order, so the first
+    // CONCURRENCY maps start immediately and each completion advances
+    // to the next map down the page. CONCURRENCY 4 stays under the
+    // browser's ~6 per-host connection cap while keeping the main
+    // thread from rendering every map simultaneously.
+    const CONCURRENCY = 4;
+    let next = 0;
+    async function worker(): Promise<void> {
+      while (next < canvases.length) {
+        await hydrateOne(canvases[next++]);
+      }
+    }
+    for (let i = 0; i < Math.min(CONCURRENCY, canvases.length); i++) {
+      void worker();
+    }
   }
 
   // ---- Click-to-expand ----
@@ -1836,7 +1896,7 @@ const statesJoined = stateCodes.join(",");
         // applies before paint() reads window dimensions. Without
         // this, the SVG is sometimes sized using the pre-toggle
         // viewport.
-        requestAnimationFrame(() => hydrateAll());
+        requestAnimationFrame(() => hydrateOne(dialogCanvas));
       }
     }
     fullscreenBtn?.addEventListener("click", () => {
@@ -1949,7 +2009,8 @@ const statesJoined = stateCodes.join(",");
         tileCanvas.removeAttribute("data-hydrated");
         tileCanvas.innerHTML = "";
       }
-      hydrateAll();
+      if (dialogCanvas) hydrateOne(dialogCanvas);
+      if (tileCanvas) hydrateOne(tileCanvas);
     });
     // Year slider: split between `input` (cheap — readout follows the
     // thumb as the user drags) and `change` (expensive — actual
@@ -2026,7 +2087,7 @@ const statesJoined = stateCodes.join(",");
           })
           .catch(() => {});
       }
-      hydrateAll();
+      hydrateOne(dialogCanvas);
     });
     return dialog;
   }
@@ -2153,11 +2214,11 @@ const statesJoined = stateCodes.join(",");
       // mostly safari-iOS-pre-15. Fall back to a plain open.
       (dialog as unknown as { open: boolean }).open = true;
     }
-    hydrateAll();
+    hydrateOne(expandedCanvas);
   }
 
   function init() {
-    hydrateAll();
+    hydrateInitial();
     // Delegate clicks on map tiles to the document, so we don't
     // race the per-tile DOM-ready handler and don't miss tiles
     // hydrated late (e.g. by routing or re-mounts).
