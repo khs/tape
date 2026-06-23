@@ -39,7 +39,7 @@ describe("scanSourceFields", () => {
   });
 
   it("empty inline tags -> empty array", () => {
-    expect(scanSourceFields("kind: timeseries\ndataFile: data/x.json\ntags: []\n").tags).toEqual([]);
+    expect(scanSourceFields("kind: timeseries\ndataFile: data/x.json\ntags: []\n")!.tags).toEqual([]);
   });
 
   it("strips quotes on dataFile/kind/tags", () => {
