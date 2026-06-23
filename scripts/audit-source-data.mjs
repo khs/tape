@@ -35,6 +35,7 @@ import { promises as fs } from "node:fs";
 import { resolve, relative, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { scanSourceFields } from "./_scan_source_fields.mjs";
 
 // Resolve repo root from this file's location so the script works
 // regardless of cwd (Vercel runs from the project root, but local
@@ -184,26 +185,42 @@ function chartIdFromPath(yamlPath) {
 async function main() {
   const t0 = Date.now();
 
-  // 1. Index sources by id + dataFile.
+  // 1. Index sources by id + dataFile. The all-source passes below (tag-pill
+  // guard, quarantine scan) only need three flat fields — dataFile, kind, tags
+  // — so line-scan them (scanSourceFields) instead of full-parsing all ~36k
+  // YAMLs, which dominated this script's runtime. Fall back to js-yaml for any
+  // file the fast scan can't read as the uniform generated shape; the output
+  // is identical either way (verified across the whole corpus).
   const sourceYamls = await listYamls(SOURCES_DIR);
-  /** @type {Map<string, { dataFile?: string, path: string }>} */
+  /** @type {Map<string, { dataFile?: string, path: string, tags: string[], kind?: string }>} */
   const sourceIndex = new Map();
   for (const path of sourceYamls) {
     const id = sourceIdFromPath(path);
-    let data;
+    let text;
     try {
-      data = await readYaml(path);
+      text = await fs.readFile(path, "utf-8");
     } catch (e) {
-      console.error(`[data-audit] ${e.message}`);
+      console.error(`[data-audit] cannot read ${path}: ${e.message}`);
       process.exit(1);
     }
-    if (!data || typeof data !== "object") continue;
-    sourceIndex.set(id, {
-      dataFile: typeof data.dataFile === "string" ? data.dataFile : undefined,
-      path,
-      tags: Array.isArray(data.tags) ? data.tags.filter((t) => typeof t === "string") : [],
-      kind: typeof data.kind === "string" ? data.kind : undefined,
-    });
+    let fields = scanSourceFields(text);
+    if (!fields) {
+      // Non-uniform file (quoted oddly, anchors, multi-doc, ...) — parse for real.
+      let data;
+      try {
+        data = yaml.load(text);
+      } catch (e) {
+        console.error(`[data-audit] YAML parse failed: ${path}\n  ${e.message}`);
+        process.exit(1);
+      }
+      if (!data || typeof data !== "object") continue;
+      fields = {
+        dataFile: typeof data.dataFile === "string" ? data.dataFile : undefined,
+        kind: typeof data.kind === "string" ? data.kind : undefined,
+        tags: Array.isArray(data.tags) ? data.tags.filter((t) => typeof t === "string") : [],
+      };
+    }
+    sourceIndex.set(id, { dataFile: fields.dataFile, path, tags: fields.tags, kind: fields.kind });
   }
 
   // 2. Find sources referenced by at least one non-deprecated chart.
