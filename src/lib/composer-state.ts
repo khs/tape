@@ -9,6 +9,18 @@ import { buildChartOverrideShape } from "./chart-schema";
  */
 export const COMPOSER_STATE_VERSION = 1 as const;
 
+// Upper bounds so a hostile ?d= / saved-dashboard row can't fan resolveSections
+// out into a compute/egress DoS (security audit 2026-06). Generous — far above
+// any real dashboard; they bound abuse, not legitimate composition.
+const MAX_SECTIONS = 100;
+const MAX_CHARTS = 300; // per-section and top-level chart lists
+const MAX_INLINE_ENTRIES = 300; // inlineCharts / inlineSources / inlineMaps / chartOverrides
+const MAX_SOURCES_PER_CHART = 50;
+const boundedRecord = <T extends z.ZodTypeAny>(value: T, max = MAX_INLINE_ENTRIES) =>
+  z
+    .record(z.string(), value)
+    .refine((o) => Object.keys(o).length <= max, { message: `too many entries (max ${max})` });
+
 const deltaWindowSchema = z.enum(DELTA_WINDOWS as unknown as [DeltaWindow, ...DeltaWindow[]]);
 
 const shadingSchema = z.array(
@@ -51,7 +63,7 @@ const sectionSchema = z
     // Charts can be empty when the section is markdown-only. The
     // .refine below requires either a non-empty chart list OR a
     // markdown body so a section can't be both empty.
-    charts: z.array(z.string()).default([]),
+    charts: z.array(z.string()).max(MAX_CHARTS).default([]),
     // Section-as-markdown body. Safe-subset markdown (see
     // src/lib/markdown.ts). Renders full-width when the section has
     // no charts; renders above the chart grid when charts is set.
@@ -75,7 +87,7 @@ const sectionSchema = z
  */
 const inlineChartSchema = z.object({
   title: z.string(),
-  sources: z.array(z.string()).min(1),
+  sources: z.array(z.string()).min(1).max(MAX_SOURCES_PER_CHART),
   render: z
     .enum([
       "line",
@@ -221,12 +233,12 @@ export const composedStateSchema = z.object({
   description: z.string().optional(),
   defaultDelta: deltaWindowSchema.optional(),
   fixedRange: fixedRangeSchema.optional(),
-  charts: z.array(z.string()).optional(),
-  sections: z.array(sectionSchema).optional(),
-  chartOverrides: z.record(z.string(), chartOverrideSchema).optional(),
-  inlineCharts: z.record(z.string(), inlineChartSchema).optional(),
-  inlineSources: z.record(z.string(), inlineSourceSchema).optional(),
-  inlineMaps: z.record(z.string(), inlineMapSchema).optional(),
+  charts: z.array(z.string()).max(MAX_CHARTS).optional(),
+  sections: z.array(sectionSchema).max(MAX_SECTIONS).optional(),
+  chartOverrides: boundedRecord(chartOverrideSchema).optional(),
+  inlineCharts: boundedRecord(inlineChartSchema).optional(),
+  inlineSources: boundedRecord(inlineSourceSchema).optional(),
+  inlineMaps: boundedRecord(inlineMapSchema).optional(),
   /**
    * Thin reference to a preset dashboard. When set, the renderer
    * IGNORES sections/charts/inlineCharts on this row and renders the

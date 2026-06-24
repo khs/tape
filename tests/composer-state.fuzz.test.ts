@@ -79,4 +79,22 @@ describe("decodeComposedState fuzz (untrusted shared-link input)", () => {
       { numRuns: 500 },
     );
   });
+
+  it("rejects states exceeding the DoS count caps, accepts within-cap", () => {
+    const section = () => ({ title: "x", charts: ["a"] });
+    const over: unknown[] = [
+      { v: 1, sections: Array.from({ length: 101 }, section) }, // > MAX_SECTIONS
+      { v: 1, charts: Array.from({ length: 301 }, (_, i) => String(i)) }, // > MAX_CHARTS
+      {
+        v: 1,
+        inlineCharts: Object.fromEntries(
+          Array.from({ length: 301 }, (_, i) => [String(i), { title: "x", sources: ["a"] }]),
+        ),
+      }, // > MAX_INLINE_ENTRIES
+    ];
+    for (const payload of over) expect(decodeComposedState(toLink(payload)).ok).toBe(false);
+    expect(
+      decodeComposedState(toLink({ v: 1, sections: Array.from({ length: 100 }, section) })).ok,
+    ).toBe(true);
+  });
 });
