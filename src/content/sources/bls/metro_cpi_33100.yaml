@@ -1,0 +1,18 @@
+name: Miami-Fort Lauderdale-West Palm Beach, FL — consumer price index (all items)
+shortName: Miami-Fort Lauderdale-West Palm Beach, FL CPI
+description: Consumer Price Index for All Urban Consumers (CPI-U), all items, for the Miami-Fort Lauderdale-West Palm Beach metropolitan area (CBSA 33100). Index level, not seasonally adjusted; the base period varies by metro, so compare via year-over-year percent change. BLS publishes a local CPI for only ~23 metro areas (some monthly, some bi-monthly).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_cpi_33100.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "index"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BLS (CPI)
+  series: CUURS35BSA0
+  url: https://data.bls.gov/timeseries/CUURS35BSA0
+  license: Public domain (US government data)
+unitClass: index

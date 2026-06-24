@@ -1,0 +1,18 @@
+name: Denver-Aurora-Centennial, CO — consumer price index (all items)
+shortName: Denver-Aurora-Centennial, CO CPI
+description: Consumer Price Index for All Urban Consumers (CPI-U), all items, for the Denver-Aurora-Centennial metropolitan area (CBSA 19740). Index level, not seasonally adjusted; the base period varies by metro, so compare via year-over-year percent change. BLS publishes a local CPI for only ~23 metro areas (some monthly, some bi-monthly).
+kind: timeseries
+pipeline: bls
+dataFile: data/bls/metro_cpi_19740.json
+supportedDeltas: ["1m", "ytd", "1y", "5y", "10y"]
+unit: "index"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BLS (CPI)
+  series: CUURS48BSA0
+  url: https://data.bls.gov/timeseries/CUURS48BSA0
+  license: Public domain (US government data)
+unitClass: index

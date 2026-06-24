@@ -34,12 +34,14 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+import _env  # noqa: F401 — load .env so BLS_API_KEY is available
 from common import write_timeseries
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -48,6 +50,15 @@ SOURCES_DIR = REPO_ROOT / "src" / "content" / "sources" / "bls"
 DATA_DIR = REPO_ROOT / "public" / "data" / "bls"
 
 BLS_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+
+# A registered BLS key (mirrors pipelines/bls.py) lifts the unregistered caps
+# (25 series/query, 10 yr/query, 25 queries/day) to 50 series/query, 20 yr,
+# 500/day, so we pull deeper history in fewer requests. Absent (e.g. CI without
+# the secret) we fall back to the unregistered tier; write_timeseries merges, so
+# a shallower CI re-fetch never truncates the deeper history seeded locally.
+BLS_API_KEY = os.environ.get("BLS_API_KEY", "").strip()
+MAX_SERIES_PER_QUERY = 50 if BLS_API_KEY else 25
+HISTORY_YEARS = 20 if BLS_API_KEY else 10
 
 
 @dataclass
@@ -145,19 +156,76 @@ def metro_specs(metros: list[CbsaMetro]) -> list[MetroSeriesSpec]:
     return out
 
 
+# BLS publishes a LOCAL CPI for only ~23 areas, keyed by BLS "area codes"
+# (e.g. S49A = Los Angeles), NOT by CBSA or state FIPS, so unlike LAUS/CES
+# these can't be built from the crosswalk and need this fixed table. The 2018
+# CPI geographic revision retired the old A### codes (CUURA###SA0 now 404s);
+# every S-code below was verified live against the BLS API. Washington
+# (S35A, CBSA 47900) is intentionally omitted: it already ships as the
+# hand-written bls/cpi_washington_metro. Urban Hawaii/Alaska and the
+# region/size-class aggregates are omitted (no clean single-CBSA mapping).
+CPI_AREAS: list[tuple[str, str]] = [
+    ("S11A", "14460"),  # Boston
+    ("S12A", "35620"),  # New York
+    ("S12B", "37980"),  # Philadelphia
+    ("S23A", "16980"),  # Chicago
+    ("S23B", "19820"),  # Detroit
+    ("S24A", "33460"),  # Minneapolis
+    ("S24B", "41180"),  # St. Louis
+    ("S35B", "33100"),  # Miami
+    ("S35C", "12060"),  # Atlanta
+    ("S35D", "45300"),  # Tampa
+    ("S35E", "12580"),  # Baltimore
+    ("S37A", "19100"),  # Dallas-Fort Worth
+    ("S37B", "26420"),  # Houston
+    ("S48A", "38060"),  # Phoenix
+    ("S48B", "19740"),  # Denver
+    ("S49A", "31080"),  # Los Angeles
+    ("S49B", "41860"),  # San Francisco
+    ("S49C", "40140"),  # Riverside
+    ("S49D", "42660"),  # Seattle
+    ("S49E", "41740"),  # San Diego
+]
+
+
+def cpi_specs(metros: list[CbsaMetro]) -> list[MetroSeriesSpec]:
+    """One all-items CPI series per local-CPI metro (NSA, ``CUUR<area>SA0``)."""
+    by_code = {m.code: m for m in metros}
+    out: list[MetroSeriesSpec] = []
+    for area, cbsa in CPI_AREAS:
+        m = by_code.get(cbsa)
+        if not m:
+            continue
+        display = metro_display_name(m.short_name, m.name)
+        out.append(MetroSeriesSpec(
+            series_id=f"CUUR{area}SA0",
+            out_id=f"metro_cpi_{cbsa}",
+            label=f"{display} — consumer price index (all items)",
+            short_name=f"{display} CPI",
+            unit="index",
+            unit_class="index",
+            fmt_style="number",
+            fmt_decimals=1,
+            pipeline_series_kind="cpi",
+        ))
+    return out
+
+
 def fetch_bls(series_ids: list[str]) -> dict[str, list[dict]]:
-    """POST to BLS API with up to 25 series. Returns {series_id: rows}."""
+    """POST to BLS API (<= MAX_SERIES_PER_QUERY series). Returns {series_id: rows}."""
     if not series_ids:
         return {}
-    if len(series_ids) > 25:
-        raise ValueError("BLS API caps at 25 series per request")
+    if len(series_ids) > MAX_SERIES_PER_QUERY:
+        raise ValueError(f"BLS API caps at {MAX_SERIES_PER_QUERY} series per request")
     end_year = datetime.now(timezone.utc).year
-    start_year = end_year - 9  # 10 years inclusive (unregistered cap)
+    start_year = end_year - (HISTORY_YEARS - 1)  # inclusive
     payload = {
         "seriesid": series_ids,
         "startyear": str(start_year),
         "endyear": str(end_year),
     }
+    if BLS_API_KEY:
+        payload["registrationkey"] = BLS_API_KEY
     body = json.dumps(payload)
     result = subprocess.run(
         [
@@ -229,6 +297,17 @@ def write_source_yaml(spec: MetroSeriesSpec, metro: CbsaMetro) -> bool:
         # Backfilled across the existing YAML corpus in the same change
         # that updated this pipeline.
         url = f"https://data.bls.gov/timeseries/{spec.series_id}"
+    elif spec.pipeline_series_kind == "cpi":
+        description = (
+            "Consumer Price Index for All Urban Consumers (CPI-U), all items, "
+            f"for the {metro.short_name} metropolitan area (CBSA {metro.code}). "
+            "Index level, not seasonally adjusted; the base period varies by "
+            "metro, so compare via year-over-year percent change. BLS publishes "
+            "a local CPI for only ~23 metro areas (some monthly, some "
+            "bi-monthly)."
+        )
+        provider = "BLS (CPI)"
+        url = f"https://data.bls.gov/timeseries/{spec.series_id}"
     else:
         description = (
             f"Total nonfarm payroll employment for the {metro.short_name} "
@@ -267,7 +346,16 @@ def main() -> int:
     if not metros:
         print("bls_metro: no metros loaded — aborting", file=sys.stderr)
         return 1
-    specs = metro_specs(metros)
+    # Optional CLI subset filter by series kind: e.g. ``bls_metro.py cpi``
+    # fetches only the CPI series (one batch), leaving the existing
+    # unemployment/payrolls data untouched. No args = full refresh (all kinds).
+    only = {a.strip().lower() for a in sys.argv[1:] if a.strip()}
+    specs = metro_specs(metros) + cpi_specs(metros)
+    if only:
+        specs = [s for s in specs if s.pipeline_series_kind in only]
+        if not specs:
+            print(f"bls_metro: no specs match filter {sorted(only)}", file=sys.stderr)
+            return 1
     # Index by series id for label lookups; metro per spec for YAMLs.
     metro_by_code = {m.code: m for m in metros}
     spec_metro: dict[str, CbsaMetro] = {}
@@ -282,7 +370,8 @@ def main() -> int:
     # parity, so the composer never surfaces a metro that renders blank.
 
     # Batch up to 25 series per request.
-    batches = [specs[i:i + 25] for i in range(0, len(specs), 25)]
+    batches = [specs[i:i + MAX_SERIES_PER_QUERY]
+               for i in range(0, len(specs), MAX_SERIES_PER_QUERY)]
     all_data: dict[str, list[dict]] = {}
     for batch in batches:
         ids = [s.series_id for s in batch]
