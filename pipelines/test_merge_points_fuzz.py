@@ -14,16 +14,29 @@ Run with::
 """
 from __future__ import annotations
 
+import os
 import unittest
 from datetime import date
 
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-# Suppress the too_slow health check: a cold first draw (Hypothesis warmup) can
-# blow the per-draw budget on this box; it's a generation-speed flake, not a
-# property failure. 400 examples still run in a few seconds.
-_S = settings(max_examples=400, suppress_health_check=[HealthCheck.too_slow])
+# Two modes. The default GATE run is derandomized at a modest example count, so a
+# given commit always gets the same verdict (a non-deterministic gate can fail an
+# unrelated push when a fresh draw trips a latent bug). The weekly DEEP run
+# (env FUZZ_DEEP=1, in .github/workflows/weekly-safety.yml) re-randomizes and does
+# ~25x the examples to hunt genuinely new counterexamples; a failure there is a
+# signal to open an issue, not a blocked deploy.
+# suppress_health_check(too_slow): a cold first draw (Hypothesis warmup) can blow
+# the per-draw budget on a busy box; it's a generation-speed flake, not a property
+# failure. deadline=None keeps a slow draw from flaking either mode.
+_DEEP = os.environ.get("FUZZ_DEEP") == "1"
+_S = settings(
+    max_examples=10_000 if _DEEP else 400,
+    derandomize=not _DEEP,
+    deadline=None,
+    suppress_health_check=[HealthCheck.too_slow],
+)
 
 try:
     from common import _merge_points_by_t, validate_points

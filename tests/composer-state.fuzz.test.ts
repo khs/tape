@@ -1,18 +1,29 @@
 /**
- * Property-based fuzz of the composed-dashboard decode boundary — the single
- * most attacker-exposed parser in the app: it takes a base64 blob straight off
+ * Property-based fuzz of the composed-dashboard decode boundary: the single
+ * most attacker-exposed parser in the app. It takes a base64 blob straight off
  * a shared `?d=` / `?state=` URL (or a saved-dashboard row) and turns it into a
  * rendered dashboard for a logged-in viewer. The 2026-06 security audit cleared
  * it (tagged DecodeResult, no throw, Zod-validated, no prototype-pollution
- * vector); this hammers it with 1000s of adversarial inputs so a future edit
+ * vector, count caps); this hammers it with adversarial inputs so a future edit
  * can't silently regress those guarantees.
  *
- * Out of scope (covered by the audit, not here): the missing max-count bound on
- * sections/charts/inlineCharts — a DoS/cost finding, not a decode-safety one.
+ * Two modes (see fcOpts): the default GATE run is seed-pinned at modest counts,
+ * so a given commit always gets the same verdict and a fresh random seed can't
+ * block an unrelated deploy. The weekly DEEP run (env FUZZ_DEEP=1, in
+ * .github/workflows/weekly-safety.yml) is unseeded at ~25x the volume to hunt
+ * genuinely new counterexamples; a failure there is a signal, not a blocker.
  */
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
 import { decodeComposedState, encodeComposedState } from "../src/lib/composer-state";
+
+const DEEP = process.env.FUZZ_DEEP === "1";
+// Gate (default): seed-pinned at the existing counts, a deterministic regression
+// guard (same commit, same verdict). Deep (weekly): unseeded at 25x the volume.
+const fcOpts = (gateRuns: number) =>
+  DEEP ? { numRuns: gateRuns * 25 } : { seed: 0x5eed, numRuns: gateRuns };
+// Deep does far more work per `it`; give it headroom over vitest's 5s default.
+const TEST_TIMEOUT = DEEP ? 300_000 : 5_000;
 
 /** Re-create the URL-safe base64 that decodeComposedState expects, so we can
  *  feed it ARBITRARY payloads (not just well-formed states). */
@@ -29,18 +40,18 @@ describe("decodeComposedState fuzz (untrusted shared-link input)", () => {
         expect(typeof r.ok).toBe("boolean");
         if (!r.ok) expect(typeof r.reason).toBe("string");
       }),
-      { numRuns: 2000 },
+      fcOpts(2000),
     );
-  });
+  }, TEST_TIMEOUT);
 
   it("never throws on arbitrary JSON encoded as a link", () => {
     fc.assert(
       fc.property(fc.jsonValue(), (value) => {
         expect(typeof decodeComposedState(toLink(value)).ok).toBe("boolean");
       }),
-      { numRuns: 2000 },
+      fcOpts(2000),
     );
-  });
+  }, TEST_TIMEOUT);
 
   it("never pollutes Object.prototype, even with __proto__/constructor payloads", () => {
     const polluters = fc.oneof(
@@ -56,9 +67,9 @@ describe("decodeComposedState fuzz (untrusted shared-link input)", () => {
         expect((Object.prototype as Record<string, unknown>).polluted).toBeUndefined();
         expect(({} as Record<string, unknown>).polluted).toBeUndefined();
       }),
-      { numRuns: 500 },
+      fcOpts(500),
     );
-  });
+  }, TEST_TIMEOUT);
 
   it("round-trips any valid composed state (encode -> decode -> ok)", () => {
     const validState = fc.record({
@@ -76,9 +87,9 @@ describe("decodeComposedState fuzz (untrusted shared-link input)", () => {
         const r = decodeComposedState(encodeComposedState(partial as Parameters<typeof encodeComposedState>[0]));
         expect(r.ok).toBe(true);
       }),
-      { numRuns: 500 },
+      fcOpts(500),
     );
-  });
+  }, TEST_TIMEOUT);
 
   it("rejects states exceeding the DoS count caps, accepts within-cap", () => {
     const section = () => ({ title: "x", charts: ["a"] });

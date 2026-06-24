@@ -24,8 +24,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 10 → 20 when the source-data deep audit landed (it JSON-parses
-    # every data file, which costs a few minutes on top of the build).
+    # 20 leaves headroom for npm ci + the build + Python tests. (The
+    # minutes-long source-data deep audit that originally forced 10→20
+    # now runs weekly in weekly-safety.yml, not on every push; the
+    # headroom is cheap to keep as a backstop.)
     timeout-minutes: 20
     steps:
       - name: Check out repo
@@ -104,17 +106,13 @@ jobs:
           python -m unittest pipelines.test_dispatch_alert_emails -v
           python -m unittest pipelines.test_merge_points_fuzz -v
 
-      - name: Source-data deep audit (--full)
-        # Order + summary-drift + point-count checks across EVERY
-        # source's data file, not just chart-referenced ones. Catches
-        # the bea/personal_income_virginia class (points concatenated
-        # out of order → a stale "latest" served as live) and the
-        # usaspending/metro_* orphan class anywhere in the catalog.
-        # Referenced-source violations hard-fail inside the prebuild
-        # (npm run build below); unreferenced ones surface here as
-        # ::warning:: annotations — they're already auto-hidden from
-        # the pickers by the prebuild's quarantine pass.
-        run: node scripts/audit-source-data.mjs --full
+      # The minutes-long `audit --full` deep scan of UNREFERENCED sources
+      # moved to .github/workflows/weekly-safety.yml. It was report-only
+      # (only ::warning:: annotations), so it never gated anything. The
+      # checks that DO protect a live deploy, referenced sources with too
+      # little data to render, still hard-fail inside the prebuild of
+      # `npm run build` below on every push, as does the quarantine of
+      # broken-data sources.
 
       - name: Build
         # SITE_URL is unset here, so Astro.site is undefined and sitemap()

@@ -1,0 +1,67 @@
+name: Weekly safety sweep
+
+# Defense-in-depth that deliberately does NOT gate deploys. Two things live
+# here instead of in per-push CI:
+#
+#   1. The source-data deep audit (`--full`): JSON-parses every UNREFERENCED
+#      source's data file for order/drift/point-count issues. It is report-only
+#      (referenced sources are hard-failed in the build on every push), so it
+#      only ever printed ::warning:: annotations. No reason to spend minutes on
+#      it per push; a stale unreferenced source can't reach a user anyway (the
+#      quarantine pass hides broken-data sources, and the moment a source is
+#      referenced it hits the per-push hard-fail path).
+#
+#   2. High-volume, RE-RANDOMIZED fuzzing of the two highest-risk parsers: the
+#      shared-link decode boundary (fast-check) and the merge-on-write point
+#      combiner (Hypothesis). The per-push gate runs both seed-pinned + modest
+#      so a commit's verdict is deterministic; FUZZ_DEEP=1 here unseeds them and
+#      cranks the example count to actually hunt genuinely new counterexamples.
+#
+# A failure here is a signal to open an issue and fix it, NOT a blocked deploy.
+# Runs every Monday and on-demand (Actions tab, "Run workflow").
+
+on:
+  schedule:
+    - cron: "13 7 * * 1"   # 07:13 UTC Mondays (off-peak)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deep fuzz, composed-dashboard decode (fast-check, re-randomized)
+        env:
+          FUZZ_DEEP: '1'
+        run: npx vitest run tests/composer-state.fuzz.test.ts
+
+      - name: Source-data deep audit (--full, report-only)
+        run: node scripts/audit-source-data.mjs --full
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install pipeline test deps
+        run: python -m pip install pyyaml python-dotenv hypothesis
+
+      - name: Deep fuzz, merge-on-write points (Hypothesis, re-randomized)
+        env:
+          FUZZ_DEEP: '1'
+        run: python -m unittest pipelines.test_merge_points_fuzz -v
