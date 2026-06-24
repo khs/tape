@@ -1,0 +1,18 @@
+name: San Diego-Chula Vista-Carlsbad, CA — home price index (FHFA)
+shortName: San Diego-Chula Vista-Carlsbad, CA home prices
+description: FHFA all-transactions House Price Index for the San Diego-Chula Vista-Carlsbad, CA metro area (CBSA 41740). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+kind: timeseries
+pipeline: fhfa
+dataFile: data/fhfa/hpi_41740.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Federal Housing Finance Agency (FHFA)
+  series: "41740"
+  url: https://www.fhfa.gov/data/hpi/datasets
+  license: Public domain (US government data)
+unitClass: index

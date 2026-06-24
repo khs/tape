@@ -1,0 +1,18 @@
+name: Winston-Salem, NC — home price index (FHFA)
+shortName: Winston-Salem, NC home prices
+description: FHFA all-transactions House Price Index for the Winston-Salem, NC metro area (CBSA 49180). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+kind: timeseries
+pipeline: fhfa
+dataFile: data/fhfa/hpi_49180.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "index"
+formatting:
+  style: number
+  decimals: 1
+emphasis: change
+provenance:
+  provider: U.S. Federal Housing Finance Agency (FHFA)
+  series: "49180"
+  url: https://www.fhfa.gov/data/hpi/datasets
+  license: Public domain (US government data)
+unitClass: index

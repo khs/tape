@@ -56,6 +56,11 @@ const PATTERNS: Array<{
     pipeline: "bls",
     rx: /^metro_([a-z][a-z0-9_]*?)_(\d{5})$/,
   },
+  // fhfa/hpi_<cbsa>  (hpi_po_<cbsa> reserved for purchase-only)
+  {
+    pipeline: "fhfa",
+    rx: /^(hpi(?:_po)?)_(\d{5})$/,
+  },
 ];
 
 /**
