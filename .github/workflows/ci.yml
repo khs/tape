@@ -70,7 +70,7 @@ jobs:
         # because test_census_acs_cd imports census_acs_cd, which imports
         # _env at module load, which does a hard `from dotenv import …`.
         # Both are tiny pure-Python wheels — negligible CI time.
-        run: python -m pip install pyyaml python-dotenv
+        run: python -m pip install pyyaml python-dotenv hypothesis
 
       - name: Pipeline unit tests (unittest)
         # Every pipelines/test_*.py runs here. We ENUMERATE rather than
@@ -102,6 +102,7 @@ jobs:
           python -m unittest pipelines.test_bea -v
           python -m unittest pipelines.test_census_acs_cd -v
           python -m unittest pipelines.test_dispatch_alert_emails -v
+          python -m unittest pipelines.test_merge_points_fuzz -v
 
       - name: Source-data deep audit (--full)
         # Order + summary-drift + point-count checks across EVERY
