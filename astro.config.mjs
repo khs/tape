@@ -42,6 +42,15 @@ process.env.PUBLIC_BUILD_ENV =
   process.env.VERCEL_ENV ?? "dev";
 process.env.PUBLIC_BUILD_TIME = new Date().toISOString();
 
+// Base dir for dynamic public/ reads (load-data, ChartMap). Sourcing it from
+// an env var here — instead of a literal path.join(cwd, "public", x) in those
+// readers — keeps node-file-trace from statically resolving the reads and
+// bundling the whole 705MB+ public/ tree into the serverless function (the
+// strip hook then has nothing to delete). See src/lib/public-dir.ts. At
+// function runtime these reads don't run (serverless → HTTPS fetch), so the
+// var being unset there is fine.
+process.env.TAPE_PUBLIC_DIR = path.join(process.cwd(), "public");
+
 export default defineConfig({
   site: resolveSite(),
   // `output: "static"` with an adapter = hybrid: pages default to prerender,
@@ -61,6 +70,13 @@ export default defineConfig({
         !page.includes("/u/") &&
         !page.includes("/compose"),
     }),
+    // BACKSTOP as of 2026-06-23: src/lib/public-dir.ts now routes the dynamic
+    // public/ reads (load-data, ChartMap) through the TAPE_PUBLIC_DIR env var
+    // set above, which keeps node-file-trace from bundling public/ at all — so
+    // this hook normally finds nothing to strip (a no-op, ~105s faster build,
+    // no 924MB copy). Kept as a safety net in case a future @astrojs/vercel /
+    // node-file-trace change re-introduces the bundling.
+    //
     // Strip public/data/ AND public/maps/ out of the Vercel SSR
     // function bundle. The node-file-tracer that ships with
     // @astrojs/vercel sees the fs.readFile(process.cwd() + "/public/"

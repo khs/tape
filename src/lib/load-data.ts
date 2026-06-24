@@ -2,7 +2,7 @@ import type { SourceData, TimeSeriesData, TimeSeriesPoint, TimeSeriesSummary } f
 import type { DeltaWindow } from "./deltas";
 import { windowStartMs } from "./deltas";
 import fs from "node:fs";
-import path from "node:path";
+import { publicFilePath } from "./public-dir";
 
 // Module-scoped cache. Warm serverless functions hit memory rather than
 // re-fetching the same source JSON on every page render. Cold-start
@@ -88,7 +88,7 @@ export async function loadSourceData(dataFile: string): Promise<SourceData> {
   let data: SourceData | null = null;
 
   if (!isServerless) {
-    const fullPath = path.join(process.cwd(), "public", dataFile);
+    const fullPath = publicFilePath(dataFile);
     try {
       const raw = fs.readFileSync(fullPath, "utf-8");
       data = JSON.parse(raw) as SourceData;
@@ -143,7 +143,7 @@ export async function loadSourceSummary(dataFile: string): Promise<TimeSeriesSum
   const isServerless = isServerlessRuntime();
   let data: TimeSeriesSummary | null = null;
   if (!isServerless) {
-    const fullPath = path.join(process.cwd(), "public", summaryFile);
+    const fullPath = publicFilePath(summaryFile);
     try {
       const raw = fs.readFileSync(fullPath, "utf-8");
       data = JSON.parse(raw) as TimeSeriesSummary;
