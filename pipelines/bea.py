@@ -32,14 +32,15 @@ Run: python pipelines/bea.py            (state indicators)
      python pipelines/bea.py county      (county per-capita-income choropleth)
      python pipelines/bea.py metro       (metro personal income, summed from counties)
 
-Cadence: BEA Regional income is ANNUAL (~Nov release). The metro + county
-passes are manual bump-and-rerun (re-run after BEA posts a new year), not wired
-into a weekly refresh.
+Cadence: BEA Regional income is ANNUAL (~Nov release). All three passes
+(state / metro / county) run monthly in refresh-demographics.yml; needs the
+BEA_API_KEY repo secret (read from the env, with a .env fallback for local runs).
 """
 from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 import sys
 import urllib.parse
@@ -56,12 +57,17 @@ API = "https://apps.bea.gov/api/data"
 
 
 def _load_key() -> str:
+    # Prefer the environment (CI secret) so the monthly refresh works without a
+    # .env file; fall back to .env for local runs.
+    key = os.environ.get("BEA_API_KEY", "").strip()
+    if key:
+        return key
     env = HERE.parent / ".env"
     if env.exists():
         m = re.search(r"^BEA_API_KEY=(.*)$", env.read_text(encoding="utf-8"), re.M)
         if m:
             return m.group(1).strip().strip('"').strip("'")
-    raise SystemExit("BEA_API_KEY not found in .env")
+    raise SystemExit("BEA_API_KEY not found in env or .env")
 
 
 @dataclass

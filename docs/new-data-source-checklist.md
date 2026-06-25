@@ -74,14 +74,19 @@ neighbors) would have been caught at step 8.
      data file is written (min-points checks, suppressed cells
      skipped), so YAML ↔ data parity holds by construction — no
      separate dir-scan needed.
-   - **Stage the dir in the refresh workflows.** Inline YAML reaches
-     main only if `src/content/sources/<provider>` is in the commit
-     step's YAML-dir list — which appears in THREE places per
-     workflow (snapshot loop, restore loop, `git add` loop) in
-     `refresh-demographics.yml`, plus the equivalent block in
-     `refresh-data.yml` for weekly-cadence providers. Update every
-     occurrence; a dir missing from the list means its refreshed
-     YAML silently never commits.
+   - **Wire the pipeline into a renewal workflow (REQUIRED — every
+     source must auto-renew; never leave it as manual bump-and-rerun).**
+     Two cadences exist: `refresh-data.yml` (WEEKLY, Sun) for daily/weekly
+     market data, and `refresh-demographics.yml` (MONTHLY, 1st) for
+     everything slower — ACS, metro, and ALL annual/quarterly/monthly
+     providers (a monthly run lands an annual release within ~a month, so
+     annual data still updates reasonably quickly). Add a `run:` step (with
+     `continue-on-error: true` + any `env:` secret), AND add the
+     source-YAML dir to that workflow's dir list, which appears in THREE
+     places (snapshot loop, restore loop, `git add` loop). `public/data/`
+     is staged wholesale, so only the source-YAML dir needs listing. A dir
+     missing from the list means its refreshed YAML silently never commits;
+     a pipeline with no run step means the data just goes stale.
 
    **Legacy patterns — do NOT use for new providers:** one-shot
    `_scaffold_<provider>.py` scripts (duplicate the pipeline's

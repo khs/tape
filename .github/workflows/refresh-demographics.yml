@@ -167,6 +167,31 @@ jobs:
         continue-on-error: true
         run: python pipelines/bls_metro.py
 
+      # Metro federal data layer (CBSA-keyed; built 2026-06; all fast).
+      # FHFA / Census permits / FTA NTD are keyless. BEA needs BEA_API_KEY in
+      # repo secrets -- continue-on-error keeps the refresh green until that
+      # secret lands (like EIA), and bea starts populating once it is set.
+      - name: Refresh FHFA metro House Price Index
+        continue-on-error: true
+        run: python pipelines/fhfa.py
+
+      - name: Refresh BEA Regional (state + metro income + county choropleth)
+        continue-on-error: true
+        env:
+          BEA_API_KEY: ${{ secrets.BEA_API_KEY }}
+        run: |
+          python pipelines/bea.py
+          python pipelines/bea.py metro
+          python pipelines/bea.py county
+
+      - name: Refresh Census metro building permits
+        continue-on-error: true
+        run: python pipelines/census_bps.py
+
+      - name: Refresh FTA NTD metro transit ridership
+        continue-on-error: true
+        run: python pipelines/ntd.py
+
       # State-level annual datasets — they update yearly (or biennially
       # for NAEP), so they live in this monthly workflow rather than the
       # weekly market-data one. Source YAMLs are static (scaffolded
@@ -298,7 +323,7 @@ jobs:
             tmp=$(mktemp -d)
             mkdir -p "$tmp/public" "$tmp/src/content/sources"
             cp -r public/data "$tmp/public/" 2>/dev/null || true
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending census_govfin acs_labor; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending census_govfin acs_labor fhfa bea census_bps ntd; do
               if [ -d "src/content/sources/$dir" ]; then
                 cp -r "src/content/sources/$dir" "$tmp/src/content/sources/" 2>/dev/null || true
               fi
@@ -315,7 +340,7 @@ jobs:
             # These source-YAML dirs are owned solely by this workflow's
             # pipelines (generators + inline emitters), so replacing them
             # wholesale is safe (no other job adds to them).
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending census_govfin acs_labor; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending census_govfin acs_labor fhfa bea census_bps ntd; do
               if [ -d "$tmp/src/content/sources/$dir" ]; then
                 rm -rf "src/content/sources/$dir"
                 cp -r "$tmp/src/content/sources/$dir" "src/content/sources/"
@@ -327,7 +352,7 @@ jobs:
             python pipelines/build_summaries.py
             python pipelines/_generate_generators_index.py
             git add public/data/ public/generators-index.json
-            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending census_govfin acs_labor; do
+            for dir in acs_cd acs_state acs_national acs_metro usaspending bls worldbank_extended naep edu_spending census_govfin acs_labor fhfa bea census_bps ntd; do
               git add "src/content/sources/$dir/" 2>/dev/null || true
             done
             if git diff --cached --quiet; then

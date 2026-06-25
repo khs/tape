@@ -21,7 +21,8 @@ Outputs (per metro):
 Source-ID convention: ntd/ridership_<cbsa> (parsed by
 src/lib/geographic-regions.ts -> parseMetroSourceId).
 
-Cadence: monthly (~1-2 month lag). Manual bump-and-rerun (re-fetches all).
+Cadence: monthly (~1-2 month lag). Runs monthly in refresh-demographics.yml
+(re-fetches all each run).
 
 Run: python pipelines/ntd.py
 """

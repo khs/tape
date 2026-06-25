@@ -25,8 +25,9 @@ Series: permits_total, permits_single_family, permits_multifamily.
 Source-ID convention: census_bps/<series>_<cbsa> (parsed by
 src/lib/geographic-regions.ts -> parseMetroSourceId).
 
-Cadence: ANNUAL. Manual bump-and-rerun; the current-era loop auto-discovers new
-cbsa<YYYY>a.txt files up to CURRENT_MAX, so a rerun picks up the new year.
+Cadence: ANNUAL. Runs monthly in refresh-demographics.yml; the current-era loop
+auto-discovers new cbsa<YYYY>a.txt files up to CURRENT_MAX, so the monthly run
+picks up the new year automatically.
 
 Run: python pipelines/census_bps.py
 """

@@ -25,9 +25,9 @@ Outputs (per metro):
 Source-ID convention: ``fhfa/hpi_<cbsa>`` (parsed by
 src/lib/geographic-regions.ts -> parseMetroSourceId).
 
-Cadence: FHFA HPI is QUARTERLY. This is a manual bump-and-rerun pipeline (like
-cms_nhe / bls_qcew / nhtsa_fars), NOT wired into the weekly refresh -- re-run it
-after FHFA posts a new quarter (~8 weeks after quarter close). write_timeseries
+Cadence: FHFA HPI is QUARTERLY. Runs monthly in refresh-demographics.yml, so a
+new quarter lands within ~a month of FHFA posting it (~8 weeks after quarter
+close). write_timeseries
 merges, so a rerun only appends the new quarter; the skip-if-exists YAML emitter
 leaves existing source YAMLs untouched.
 
