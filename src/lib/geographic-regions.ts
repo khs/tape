@@ -61,6 +61,11 @@ const PATTERNS: Array<{
     pipeline: "fhfa",
     rx: /^(hpi(?:_po)?)_(\d{5})$/,
   },
+  // bea/<series>_<cbsa> metro income (state bea ids use word suffixes, not 5 digits)
+  {
+    pipeline: "bea",
+    rx: /^([a-z][a-z0-9_]*?)_(\d{5})$/,
+  },
 ];
 
 /**

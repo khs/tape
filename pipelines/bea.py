@@ -27,11 +27,18 @@ SECURITY: the fetch URL embeds the API key, and BEA echoes UserID in its
 response. NEVER print the URL or the raw response — log only series ids
 and counts. No shared cache (would persist key-bearing URLs to disk).
 
-Run: python pipelines/bea.py            (all)
+Run: python pipelines/bea.py            (state indicators)
      python pipelines/bea.py gdp texas   (filter by indicator/state slug substrings)
+     python pipelines/bea.py county      (county per-capita-income choropleth)
+     python pipelines/bea.py metro       (metro personal income, summed from counties)
+
+Cadence: BEA Regional income is ANNUAL (~Nov release). The metro + county
+passes are manual bump-and-rerun (re-run after BEA posts a new year), not wired
+into a weekly refresh.
 """
 from __future__ import annotations
 
+import csv
 import json
 import re
 import sys
@@ -44,6 +51,7 @@ from common import strip_footnote_marker, write_timeseries
 
 HERE = Path(__file__).resolve().parent
 SOURCES_DIR = HERE.parent / "src" / "content" / "sources" / "bea"
+CROSSWALK_DIR = HERE / "_crosswalks"
 API = "https://apps.bea.gov/api/data"
 
 
@@ -286,11 +294,138 @@ def county_choropleth(key: str) -> int:
     return 0
 
 
+# ---- Metro (CBSA) personal income, summed from component counties ----
+# BEA discontinued its standalone metropolitan-area income/GDP tables with the
+# 2024 release (GeoFIPS=MSA and per-CBSA codes now error 101), so a metro total
+# must be summed from CAINC1 COUNTY rows via the county->CBSA crosswalk. We emit
+# total personal income (sum) and per-capita income (sum income / sum pop).
+
+def _load_county_to_cbsa() -> dict[str, str]:
+    out: dict[str, str] = {}
+    with (CROSSWALK_DIR / "county_to_cbsa.csv").open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            fips = (row.get("county_fips") or "").strip()
+            cbsa = (row.get("cbsa_code") or "").strip()
+            if fips and cbsa:
+                out[fips] = cbsa
+    return out
+
+
+def _load_cbsa_names() -> dict[str, tuple[str, str]]:
+    out: dict[str, tuple[str, str]] = {}
+    with (CROSSWALK_DIR / "cbsa_metro.csv").open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            code = (row.get("cbsa_code") or "").strip()
+            if code:
+                out[code] = ((row.get("short_name") or "").strip(),
+                             (row.get("name") or "").strip())
+    return out
+
+
+def _metro_display(short_name: str, full_name: str) -> str:
+    if "," in full_name:
+        tail = full_name.split(",", 1)[1].strip()
+        if tail:
+            return f"{short_name}, {tail}"
+    return short_name
+
+
+def _metro_yaml(series_slug: str, cbsa: str, display: str, label: str, short: str,
+                unit: str, decimals: int, desc: str, line: str) -> str:
+    return "\n".join([
+        f'name: "{label} — {display}"',
+        f'shortName: "{display} {short}"',
+        f'description: "{desc}"',
+        "kind: timeseries",
+        "pipeline: bea",
+        f"dataFile: data/bea/{series_slug}_{cbsa}.json",
+        'supportedDeltas: ["5y", "10y", "30y", "50y"]',
+        f'unit: "{unit}"',
+        "formatting:",
+        "  style: currency",
+        f"  decimals: {decimals}",
+        "emphasis: change",
+        "provenance:",
+        "  provider: BEA (Bureau of Economic Analysis)",
+        f'  series: "CAINC1 line {line} / metro {cbsa} (sum of counties)"',
+        "  url: https://apps.bea.gov/regional/",
+        "  license: Public domain (US government data)",
+        "unitClass: currency",
+    ]) + "\n"
+
+
+def _accumulate(rows: list[dict], c2c: dict[str, str],
+                target: dict[str, dict[str, float]]) -> None:
+    for r in rows:
+        cbsa = c2c.get((r.get("GeoFips") or "").strip())
+        if not cbsa:
+            continue
+        raw = (r.get("DataValue") or "").replace(",", "")
+        yr = r.get("TimePeriod", "")
+        if not yr or not re.fullmatch(r"-?\d+(\.\d+)?", raw):
+            continue  # skip (NA)/(D) suppressions
+        val = float(raw) * (10 ** int(r.get("UNIT_MULT") or 0))
+        target.setdefault(cbsa, {}).setdefault(yr, 0.0)
+        target[cbsa][yr] += val
+
+
+def metro_income(key: str) -> int:
+    SOURCES_DIR.mkdir(parents=True, exist_ok=True)
+    c2c = _load_county_to_cbsa()
+    names = _load_cbsa_names()
+    income: dict[str, dict[str, float]] = {}   # cbsa -> year -> $ (dollars)
+    pop: dict[str, dict[str, float]] = {}       # cbsa -> year -> persons
+    _accumulate(fetch_county_year("1", "ALL", key), c2c, income)  # personal income
+    _accumulate(fetch_county_year("2", "ALL", key), c2c, pop)     # population
+    written = 0
+    for cbsa, (short_name, full_name) in names.items():
+        inc_y = income.get(cbsa, {})
+        pop_y = pop.get(cbsa, {})
+        if not inc_y:
+            continue
+        display = _metro_display(short_name, full_name)
+        pi = [{"t": f"{y}-01-01", "v": inc_y[y] / 1e9}
+              for y in sorted(inc_y) if inc_y[y] > 0]
+        if len(pi) >= 2:
+            write_timeseries(pipeline="bea", series_id=f"personal_income_{cbsa}",
+                             name=f"Personal income — {display}", points=pi,
+                             unit="billions USD")
+            (SOURCES_DIR / f"personal_income_{cbsa}.yaml").write_text(
+                _metro_yaml("personal_income", cbsa, display, "Personal income",
+                            "personal income", "billions USD", 1,
+                            f"Total personal income for the {display} metro area "
+                            f"(CBSA {cbsa}), summed from BEA component-county data "
+                            "(BEA discontinued its standalone metro income tables in "
+                            "2024). Annual, BEA Regional table CAINC1.", "1"),
+                encoding="utf-8")
+            written += 1
+        pc = [{"t": f"{y}-01-01", "v": inc_y[y] / pop_y[y]}
+              for y in sorted(set(inc_y) & set(pop_y))
+              if pop_y.get(y, 0) > 0 and inc_y[y] > 0]
+        if len(pc) >= 2:
+            write_timeseries(pipeline="bea", series_id=f"pc_personal_income_{cbsa}",
+                             name=f"Per-capita personal income — {display}", points=pc,
+                             unit="USD")
+            (SOURCES_DIR / f"pc_personal_income_{cbsa}.yaml").write_text(
+                _metro_yaml("pc_personal_income", cbsa, display,
+                            "Per-capita personal income", "per-capita income", "USD", 0,
+                            f"Per-capita personal income for the {display} metro area "
+                            f"(CBSA {cbsa}): total personal income divided by population, "
+                            "both summed from BEA component counties. Annual, CAINC1.",
+                            "1/2"),
+                encoding="utf-8")
+            written += 1
+    print(f"bea metro: wrote {written} metro series (data + YAML).")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     filters = [a.lower() for a in (argv or [])[1:]]
     key = _load_key()
     if filters and filters[0] in ("county", "choropleth"):
         return county_choropleth(key)
+    if filters and filters[0] in ("metro", "msa"):
+        return metro_income(key)
     SOURCES_DIR.mkdir(parents=True, exist_ok=True)
     written = 0
     for ind in INDICATORS:

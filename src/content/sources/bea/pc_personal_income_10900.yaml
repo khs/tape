@@ -1,0 +1,18 @@
+name: "Per-capita personal income — Allentown-Bethlehem-Easton, PA-NJ"
+shortName: "Allentown-Bethlehem-Easton, PA-NJ per-capita income"
+description: "Per-capita personal income for the Allentown-Bethlehem-Easton, PA-NJ metro area (CBSA 10900): total personal income divided by population, both summed from BEA component counties. Annual, CAINC1."
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/pc_personal_income_10900.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "USD"
+formatting:
+  style: currency
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: "CAINC1 line 1/2 / metro 10900 (sum of counties)"
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+unitClass: currency

@@ -1,0 +1,18 @@
+name: "Personal income — Erie, PA"
+shortName: "Erie, PA personal income"
+description: "Total personal income for the Erie, PA metro area (CBSA 21500), summed from BEA component-county data (BEA discontinued its standalone metro income tables in 2024). Annual, BEA Regional table CAINC1."
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/personal_income_21500.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: "CAINC1 line 1 / metro 21500 (sum of counties)"
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+unitClass: currency

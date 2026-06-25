@@ -1,0 +1,18 @@
+name: "Per-capita personal income — Austin-Round Rock-San Marcos, TX"
+shortName: "Austin-Round Rock-San Marcos, TX per-capita income"
+description: "Per-capita personal income for the Austin-Round Rock-San Marcos, TX metro area (CBSA 12420): total personal income divided by population, both summed from BEA component counties. Annual, CAINC1."
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/pc_personal_income_12420.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "USD"
+formatting:
+  style: currency
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: "CAINC1 line 1/2 / metro 12420 (sum of counties)"
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+unitClass: currency

@@ -1,0 +1,18 @@
+name: "Per-capita personal income — La Crosse-Onalaska, WI-MN"
+shortName: "La Crosse-Onalaska, WI-MN per-capita income"
+description: "Per-capita personal income for the La Crosse-Onalaska, WI-MN metro area (CBSA 29100): total personal income divided by population, both summed from BEA component counties. Annual, CAINC1."
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/pc_personal_income_29100.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "USD"
+formatting:
+  style: currency
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: "CAINC1 line 1/2 / metro 29100 (sum of counties)"
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+unitClass: currency

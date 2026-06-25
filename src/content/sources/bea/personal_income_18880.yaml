@@ -1,0 +1,18 @@
+name: "Personal income — Crestview-Fort Walton Beach-Destin, FL"
+shortName: "Crestview-Fort Walton Beach-Destin, FL personal income"
+description: "Total personal income for the Crestview-Fort Walton Beach-Destin, FL metro area (CBSA 18880), summed from BEA component-county data (BEA discontinued its standalone metro income tables in 2024). Annual, BEA Regional table CAINC1."
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/personal_income_18880.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "billions USD"
+formatting:
+  style: currency
+  decimals: 1
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: "CAINC1 line 1 / metro 18880 (sum of counties)"
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+unitClass: currency

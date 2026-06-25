@@ -1,0 +1,18 @@
+name: "Per-capita personal income — Coeur d'Alene, ID"
+shortName: "Coeur d'Alene, ID per-capita income"
+description: "Per-capita personal income for the Coeur d'Alene, ID metro area (CBSA 17660): total personal income divided by population, both summed from BEA component counties. Annual, CAINC1."
+kind: timeseries
+pipeline: bea
+dataFile: data/bea/pc_personal_income_17660.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "USD"
+formatting:
+  style: currency
+  decimals: 0
+emphasis: change
+provenance:
+  provider: BEA (Bureau of Economic Analysis)
+  series: "CAINC1 line 1/2 / metro 17660 (sum of counties)"
+  url: https://apps.bea.gov/regional/
+  license: Public domain (US government data)
+unitClass: currency
