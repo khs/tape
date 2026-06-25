@@ -25,7 +25,7 @@
     formatDeltaDisplay,
     formatDate,
     magnitudeFromFormatting,
-    axisTickFormatting,
+    axisTickFormat,
     type Formatting,
   } from "../lib/format";
   import { AXIS_LABEL_MARGIN_PX, AXIS_LABEL_FONT_PX } from "../lib/chart-layout";
@@ -1770,20 +1770,25 @@
           // unique, otherwise just compact numeric.
           const leftFmt = leftSrcs[0]?.formatting;
           const rightFmt = rightSrcs[0]?.formatting;
+          // Per-axis magnitude → compact notation for large counts (same fix as
+          // the single-axis branch) so a big-number side doesn't clip the
+          // margin. lMin/lMax + rMin/rMax are the raw per-side ranges above.
+          const leftMaxAbs = Math.max(Math.abs(lMin), Math.abs(lMax));
+          const rightMaxAbs = Math.max(Math.abs(rMin), Math.abs(rMax));
+          const leftTick = axisTickFormat({ ...leftFmt, decimals: 1 }, leftMaxAbs);
+          const rightTick = axisTickFormat({ ...rightFmt, decimals: 1 }, rightMaxAbs);
           marks.push(
             Plot.axisY({
               anchor: "left",
               color: leftAxisColor,
               ticks: 5,
-              tickFormat: (v: number) =>
-                formatValue(v, axisTickFormatting({ ...leftFmt, decimals: 1 })),
+              tickFormat: (v: number) => leftTick(v),
             }),
             Plot.axisY({
               anchor: "right",
               color: rightAxisColor,
               ticks: 5,
-              tickFormat: (v: number) =>
-                formatValue(unscaleR(v), axisTickFormatting({ ...rightFmt, decimals: 1 })),
+              tickFormat: (v: number) => rightTick(unscaleR(v)),
             }),
           );
           const plot = Plot.plot({
@@ -2041,13 +2046,24 @@
         ? payload.sources[0]
         : null;
     const baseFmt = singleSource?.formatting ?? fullRescale?.axisFormatting;
+    // Largest absolute plotted value on the axis — drives the compact-notation
+    // decision in axisTickFormat so big counts (322,000 → "322K") don't clip
+    // the ~64px left margin, while small-magnitude axes keep their decimals.
+    let axisMaxAbs = 0;
+    for (const b of bundleSeries)
+      for (const p of b.pts) {
+        const a = Math.abs(p.v);
+        if (a > axisMaxAbs) axisMaxAbs = a;
+      }
     const tickFormat = transformActive
-      ? (v: number) =>
-          formatValue(v, axisTickFormatting(transformFormatting(baseFmt ?? { style: "number", decimals: 1 }, transform)))
+      ? axisTickFormat(
+          transformFormatting(baseFmt ?? { style: "number", decimals: 1 }, transform),
+          axisMaxAbs,
+        )
       : singleSource
-        ? (v: number) => formatValue(v, axisTickFormatting({ ...singleSource.formatting, decimals: 1 }))
+        ? axisTickFormat({ ...singleSource.formatting, decimals: 1 }, axisMaxAbs)
         : fullRescale
-          ? (v: number) => formatValue(v, axisTickFormatting({ ...fullRescale.axisFormatting, decimals: 1 }))
+          ? axisTickFormat({ ...fullRescale.axisFormatting, decimals: 1 }, axisMaxAbs)
           : undefined;
 
     const plot = Plot.plot({

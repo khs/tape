@@ -8,6 +8,7 @@ import {
   formatTimestamp,
   magnitudeFromFormatting,
   axisTickFormatting,
+  axisTickFormat,
 } from "./format";
 import { AXIS_LABEL_MARGIN_PX, AXIS_LABEL_FONT_PX } from "./chart-layout";
 
@@ -483,5 +484,40 @@ describe("axisTickFormatting — y-tick labels fit the plot's left margin", () =
     const axisLabel = formatValue(300, axisTickFormatting(src));
     expect(axisLabel).toBe("300 B");
     expect(estWidthPx(axisLabel)).toBeLessThanOrEqual(budgetPx);
+  });
+
+  it("compacts a large plain-number axis so it fits (US water withdrawals bug)", () => {
+    // usgs_water/total_us: style number, suffix " Mgal/d", values ~322,000.
+    // The full label "322,000.0" overflowed the margin and clipped its leading
+    // digits; axisTickFormat renders the whole axis compact ("322K") instead.
+    const src = { style: "number" as const, decimals: 0, suffix: " Mgal/d" };
+    expect(estWidthPx("322,000.0")).toBeGreaterThan(budgetPx); // the clipped form
+    const fmt = axisTickFormat(src, 322000);
+    expect(fmt(322000)).toBe("322K");
+    expect(fmt(300000)).toBe("300K");
+    expect(estWidthPx(fmt(322000))).toBeLessThanOrEqual(budgetPx);
+    expect(estWidthPx(fmt(300000))).toBeLessThanOrEqual(budgetPx);
+  });
+
+  it("leaves a small-magnitude axis with its decimals (no spurious compacting)", () => {
+    // The OASDI 'workers' axis (max ~3.4) must keep "3.4" — not "3.40" or "3".
+    // Compacting only kicks in for large magnitudes.
+    const fmt = axisTickFormat(
+      { style: "number" as const, decimals: 1, suffix: " workers" },
+      3.4,
+    );
+    expect(fmt(3.4)).toBe("3.4");
+    expect(estWidthPx(fmt(3.4))).toBeLessThanOrEqual(budgetPx);
+  });
+
+  it("does not double-compact an already-compact currency axis", () => {
+    const fmt = axisTickFormat(
+      { style: "currency" as const, decimals: 1, notation: "compact" as const },
+      3e12,
+    );
+    // 3e12 has 1 leading digit → compactDecimalsFor → 2 decimals → "$3.00T"
+    // (still a single compact label, not re-wrapped, and well inside the margin).
+    expect(fmt(3e12)).toBe("$3.00T");
+    expect(estWidthPx(fmt(3e12))).toBeLessThanOrEqual(budgetPx);
   });
 });

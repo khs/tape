@@ -176,6 +176,50 @@ export function axisTickFormatting(fmt: Formatting): Formatting {
 }
 
 /**
+ * Magnitude above which a plain-number y-axis switches to compact notation.
+ * A label like "300,000.0" (9 chars) overflows the dialog plot's ~64px left
+ * margin and clips its leading digits; "300K" fits. The smallest full label
+ * that overflows is ~5 integer digits ("10,000.0" → 8 chars), so 1e4 is the
+ * threshold. Below it, explicit-decimal labels ("3.4", "9,999.0") fit fine.
+ */
+const AXIS_COMPACT_THRESHOLD = 1e4;
+
+/**
+ * Build a y-axis TICK formatter (a `(value) => string` for Plot's tickFormat).
+ *
+ * Two jobs, both about fitting the dialog plot's narrow ~64px left margin:
+ *   1. Strip long word suffixes (via axisTickFormatting) so "3.4 workers"
+ *      becomes "3.4" — the leading chars no longer get clipped.
+ *   2. For LARGE plain-number axes, switch to compact notation so 322,000
+ *      renders "322K" instead of "322,000.0" (the bug: US water withdrawals,
+ *      ~322,000 Mgal/d, clipped on the y-axis). Currency already reads "$300B"
+ *      because such sources opt into compact; this brings plain counts in line.
+ *
+ * The compact decision is made ONCE for the whole axis from `maxAbs` (the
+ * largest absolute plotted value / domain magnitude) so every tick uses the
+ * same notation — no mixed "5,000.0" / "10K". Small-magnitude axes (rates,
+ * indices, rebased ~100, YoY %) keep their explicit decimals, and formats that
+ * are already compact, percent, or bps are left untouched (their labels are
+ * inherently short).
+ */
+export function axisTickFormat(
+  fmt: Formatting,
+  maxAbs: number,
+): (v: number) => string {
+  let f = axisTickFormatting(fmt);
+  if (
+    f.notation !== "compact" &&
+    f.style !== "percent" &&
+    f.style !== "bps" &&
+    Number.isFinite(maxAbs) &&
+    Math.abs(maxAbs) >= AXIS_COMPACT_THRESHOLD
+  ) {
+    f = { ...f, notation: "compact" };
+  }
+  return (v: number) => formatValue(v, f);
+}
+
+/**
  * Compact delta display string. For percent-style sources only the absolute
  * delta is shown — the relative change is meaningless (and often misleading)
  * for rate-like series with near-zero baselines: a 2-year Treasury that ran
