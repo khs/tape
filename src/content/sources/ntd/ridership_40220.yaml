@@ -1,0 +1,19 @@
+name: "Transit ridership — Roanoke, VA"
+shortName: "Roanoke, VA transit ridership"
+description: "Monthly public-transit ridership (unlinked passenger trips, all modes) for the Roanoke, VA urbanized area, summed across the transit agencies the FTA National Transit Database assigns to that area, then keyed to CBSA 40220. The urbanized area is the dense core, not the full metro. Captures the post-2020 ridership collapse and recovery."
+kind: timeseries
+pipeline: ntd
+dataFile: data/ntd/ridership_40220.json
+supportedDeltas: ["1m", "1y", "5y", "10y"]
+unit: "trips"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. DOT Federal Transit Administration (National Transit Database)
+  series: "NTD monthly UPT / UZA -> CBSA 40220"
+  url: https://www.transit.dot.gov/ntd/data-product/monthly-module-adjusted-data-release
+  license: Public domain (US government data)
+unitClass: count

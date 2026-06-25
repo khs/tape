@@ -71,6 +71,11 @@ const PATTERNS: Array<{
     pipeline: "census_bps",
     rx: /^([a-z][a-z0-9_]*?)_(\d{5})$/,
   },
+  // ntd/ridership_<cbsa> metro transit ridership
+  {
+    pipeline: "ntd",
+    rx: /^([a-z][a-z0-9_]*?)_(\d{5})$/,
+  },
 ];
 
 /**
