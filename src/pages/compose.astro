@@ -3023,21 +3023,38 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     cbEditingChartId = chartId;
     const existing = state.chartOverrides[chartId] ?? {};
     const libChart = library?.charts.find((c) => c.id === chartId);
+    // Resolve the tile's REAL default title + whether it's a map. Inline tiles
+    // aren't in library.charts, so the old `libChart?.title ?? chartId` fell
+    // through to the raw ref (e.g. "inlinemap:cr451EKd"). In the composer a map
+    // tile is always `inlinemap:<id>` (library maps aren't in the catalog), so
+    // the prefix is the map signal; the title lives in inlineMaps / inlineCharts.
+    const isMap = chartId.startsWith("inlinemap:");
+    const noun = isMap ? "map" : "chart";
+    const defaultTitle = isMap
+      ? state.inlineMaps?.[chartId.slice("inlinemap:".length)]?.title ?? chartId
+      : chartId.startsWith("inline:")
+        ? state.inlineCharts?.[chartId.slice("inline:".length)]?.title ?? chartId
+        : libChart?.title ?? chartId;
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cb-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;
+    const headerEl = shell.querySelector<HTMLElement>("#cb-modal-title");
+    if (headerEl) headerEl.textContent = `Edit ${noun} note`;
     const nameEl = shell.querySelector<HTMLElement>("[data-role='cb-chart-name']");
     if (nameEl) {
-      nameEl.textContent = libChart?.title ?? chartId;
+      nameEl.textContent = defaultTitle;
     }
     const titleInput = shell.querySelector<HTMLInputElement>("[data-role='cb-title']");
     if (titleInput) {
       titleInput.value = existing.title ?? "";
-      titleInput.placeholder = `Leave blank to keep "${libChart?.title ?? chartId}"`;
+      titleInput.placeholder = `Leave blank to keep "${defaultTitle}"`;
       titleInput.focus();
     }
     const blurbInput = shell.querySelector<HTMLTextAreaElement>("[data-role='cb-blurb']");
-    if (blurbInput) blurbInput.value = existing.blurb ?? "";
+    if (blurbInput) {
+      blurbInput.value = existing.blurb ?? "";
+      blurbInput.placeholder = `What should readers notice about this ${noun} in the context of your dashboard? Plain text. Leave blank to omit.`;
+    }
   }
 
   function closeChartBlurbModal(): void {
