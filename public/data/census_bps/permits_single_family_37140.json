@@ -1,0 +1,17 @@
+{
+  "id": "permits_single_family_37140",
+  "name": "Building permits, single-family \u2014 Paducah, KY-IL",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:10Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 79.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 96.0
+    }
+  ]
+}

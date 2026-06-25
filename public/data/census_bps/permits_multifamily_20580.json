@@ -1,0 +1,17 @@
+{
+  "id": "permits_multifamily_20580",
+  "name": "Building permits, multifamily (5+ units) \u2014 Eagle Pass, TX",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:09Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 8.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 12.0
+    }
+  ]
+}

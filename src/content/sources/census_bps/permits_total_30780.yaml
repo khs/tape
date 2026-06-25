@@ -1,0 +1,19 @@
+name: Building permits, total units — Little Rock-North Little Rock-Conway, AR
+shortName: Little Rock-North Little Rock-Conway, AR building permits
+description: New privately-owned housing units authorized by building permits in the Little Rock-North Little Rock-Conway, AR metro area (CBSA 30780). All structure types (1-unit, 2-unit, 3-4 unit, 5+ unit). Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_total_30780.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 30780 / permits_total"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

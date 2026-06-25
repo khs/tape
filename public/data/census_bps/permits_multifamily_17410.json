@@ -1,0 +1,17 @@
+{
+  "id": "permits_multifamily_17410",
+  "name": "Building permits, multifamily (5+ units) \u2014 Cleveland, OH",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:09Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 1076.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 1214.0
+    }
+  ]
+}

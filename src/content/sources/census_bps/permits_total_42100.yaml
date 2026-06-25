@@ -1,0 +1,19 @@
+name: Building permits, total units — Santa Cruz-Watsonville, CA
+shortName: Santa Cruz-Watsonville, CA building permits
+description: New privately-owned housing units authorized by building permits in the Santa Cruz-Watsonville, CA metro area (CBSA 42100). All structure types (1-unit, 2-unit, 3-4 unit, 5+ unit). Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_total_42100.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 42100 / permits_total"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

@@ -1,0 +1,19 @@
+name: Building permits, single-family — Pocatello, ID
+shortName: Pocatello, ID 1-unit permits
+description: New privately-owned housing units authorized by building permits in the Pocatello, ID metro area (CBSA 38540). Single-family (1-unit) structures only. Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_single_family_38540.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 38540 / permits_single_family"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

@@ -1,0 +1,17 @@
+{
+  "id": "permits_total_30500",
+  "name": "Building permits, total units \u2014 Lexington Park, MD",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:10Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 366.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 439.0
+    }
+  ]
+}

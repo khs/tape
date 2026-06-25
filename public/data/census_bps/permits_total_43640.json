@@ -1,0 +1,17 @@
+{
+  "id": "permits_total_43640",
+  "name": "Building permits, total units \u2014 Slidell-Mandeville-Covington, LA",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:11Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 1066.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 1096.0
+    }
+  ]
+}

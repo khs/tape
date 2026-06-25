@@ -1,0 +1,17 @@
+{
+  "id": "permits_multifamily_33500",
+  "name": "Building permits, multifamily (5+ units) \u2014 Minot, ND",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:10Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 0.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 41.0
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+name: Building permits, multifamily (5+ units) — Stockton-Lodi, CA
+shortName: Stockton-Lodi, CA 5+ unit permits
+description: New privately-owned housing units authorized by building permits in the Stockton-Lodi, CA metro area (CBSA 44700). Multifamily structures of 5 or more units. Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_multifamily_44700.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 44700 / permits_multifamily"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

@@ -1,0 +1,17 @@
+{
+  "id": "permits_total_45900",
+  "name": "Building permits, total units \u2014 Traverse City, MI",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:11Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 1232.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 808.0
+    }
+  ]
+}

@@ -66,6 +66,11 @@ const PATTERNS: Array<{
     pipeline: "bea",
     rx: /^([a-z][a-z0-9_]*?)_(\d{5})$/,
   },
+  // census_bps/<series>_<cbsa> metro building permits
+  {
+    pipeline: "census_bps",
+    rx: /^([a-z][a-z0-9_]*?)_(\d{5})$/,
+  },
 ];
 
 /**

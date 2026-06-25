@@ -1,0 +1,19 @@
+name: Building permits, single-family — Fort Collins-Loveland, CO
+shortName: Fort Collins-Loveland, CO 1-unit permits
+description: New privately-owned housing units authorized by building permits in the Fort Collins-Loveland, CO metro area (CBSA 22660). Single-family (1-unit) structures only. Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_single_family_22660.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 22660 / permits_single_family"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

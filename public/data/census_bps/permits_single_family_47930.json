@@ -1,0 +1,17 @@
+{
+  "id": "permits_single_family_47930",
+  "name": "Building permits, single-family \u2014 Waterbury-Shelton, CT",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:11Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 264.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 288.0
+    }
+  ]
+}

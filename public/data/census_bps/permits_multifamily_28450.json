@@ -1,0 +1,17 @@
+{
+  "id": "permits_multifamily_28450",
+  "name": "Building permits, multifamily (5+ units) \u2014 Kenosha, WI",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:10Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 8.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 518.0
+    }
+  ]
+}

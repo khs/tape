@@ -1,0 +1,19 @@
+name: Building permits, multifamily (5+ units) — Joplin, MO-KS
+shortName: Joplin, MO-KS 5+ unit permits
+description: New privately-owned housing units authorized by building permits in the Joplin, MO-KS metro area (CBSA 27900). Multifamily structures of 5 or more units. Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_multifamily_27900.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 27900 / permits_multifamily"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

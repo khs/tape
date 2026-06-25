@@ -1,0 +1,19 @@
+name: Building permits, single-family — Walla Walla, WA
+shortName: Walla Walla, WA 1-unit permits
+description: New privately-owned housing units authorized by building permits in the Walla Walla, WA metro area (CBSA 47460). Single-family (1-unit) structures only. Annual count, from the US Census Bureau Building Permits Survey (spliced across the 2024 CBSA redefinition).
+kind: timeseries
+pipeline: census_bps
+dataFile: data/census_bps/permits_single_family_47460.json
+supportedDeltas: ["1y", "5y", "10y", "30y"]
+unit: "units"
+formatting:
+  style: number
+  decimals: 0
+  notation: compact
+emphasis: change
+provenance:
+  provider: U.S. Census Bureau (Building Permits Survey)
+  series: "BPS CBSA 47460 / permits_single_family"
+  url: https://www.census.gov/construction/bps/
+  license: Public domain (US government data)
+unitClass: count

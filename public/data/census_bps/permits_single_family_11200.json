@@ -1,0 +1,17 @@
+{
+  "id": "permits_single_family_11200",
+  "name": "Building permits, single-family \u2014 Amherst Town-Northampton, MA",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:09Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 150.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 93.0
+    }
+  ]
+}

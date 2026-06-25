@@ -1,0 +1,17 @@
+{
+  "id": "permits_total_37140",
+  "name": "Building permits, total units \u2014 Paducah, KY-IL",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:10Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 195.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 178.0
+    }
+  ]
+}

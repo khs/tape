@@ -1,0 +1,17 @@
+{
+  "id": "permits_single_family_30500",
+  "name": "Building permits, single-family \u2014 Lexington Park, MD",
+  "kind": "timeseries",
+  "unit": "units",
+  "lastUpdated": "2026-06-25T00:45:10Z",
+  "points": [
+    {
+      "t": "2024-01-01",
+      "v": 363.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 383.0
+    }
+  ]
+}
