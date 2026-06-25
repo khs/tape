@@ -671,6 +671,70 @@ const statesJoined = stateCodes.join(",");
     return r;
   }
 
+  // Shared, PRECOMPUTED states-only TopoJSON (minted at build by
+  // scripts/build_us_states_topo.mjs from the county file's states layer). Used
+  // for the state-boundary overlay on tract / block-group maps, whose per-state
+  // boundary files carry no states layer — one small (~232KB) fetch cached for
+  // the whole site, so there is NO client-side meshing anywhere.
+  const STATES_BOUNDARY_URL = "/maps/us-states-10m.json";
+
+  // Thicker state-boundary overlay for county / tract / block-group maps, built
+  // entirely from PRECOMPUTED state geometry and cached (as a Promise) by
+  // boundary-file set — computed at most once per set and reused across every
+  // re-paint (tile -> expanded -> fullscreen, resize) and every chart instance,
+  // never on the render hot path. County / state boundary files ship a `states`
+  // layer we extract directly; per-state tract / block-group files have none, so
+  // we extract just the in-view states from the shared us-states file. Feature
+  // extraction only — no topojson.mesh / dissolve on the client.
+  const STATE_BORDER_CACHE = new Map<string, Promise<any[]>>();
+  function getStateBorders(
+    topos: Array<unknown>,
+    layerName: string,
+    urls: string[],
+    features: Array<{ id: string }>,
+  ): Promise<any[]> {
+    const key = layerName + "|" + [...urls].sort().join(",");
+    const hit = STATE_BORDER_CACHE.get(key);
+    if (hit) return hit;
+    const built = (async (): Promise<any[]> => {
+      const out: any[] = [];
+      try {
+        const embedded = topos.find(
+          (t) => (t as { objects?: Record<string, unknown> })?.objects?.states,
+        ) as { objects: Record<string, unknown> } | undefined;
+        if (embedded) {
+          // County / state file: extract its bundled states layer. These maps
+          // are US-wide, so keep every state.
+          const fc = topojson.feature(
+            embedded as never,
+            embedded.objects.states as never,
+          ) as unknown as { features: any[] };
+          out.push(...fc.features);
+        } else {
+          // Tract / block-group: pull the in-view states (first 2 chars of each
+          // GEOID) from the shared precomputed file — one cached fetch, no mesh.
+          const fips = new Set(features.map((f) => String(f.id).slice(0, 2)));
+          const statesTopo = await getBoundary(STATES_BOUNDARY_URL);
+          const fc = topojson.feature(
+            statesTopo,
+            statesTopo.objects.states,
+          ) as unknown as {
+            features: Array<{ id?: string; properties?: { GEOID?: string } }>;
+          };
+          for (const f of fc.features) {
+            const fp = String(f.id ?? f.properties?.GEOID ?? "").slice(0, 2);
+            if (fips.has(fp)) out.push(f);
+          }
+        }
+      } catch (err) {
+        console.warn("[map] state-border build failed:", err);
+      }
+      return out;
+    })();
+    STATE_BORDER_CACHE.set(key, built);
+    return built;
+  }
+
   async function paint(canvas: HTMLElement, b: ChoroBindings, mode: "tile" | "expanded" | "fullscreen") {
     // Pick the right TopoJSON object layer + GEOID key based on geo.
     // State features have id = 2-digit FIPS; county features have id
@@ -778,6 +842,15 @@ const statesJoined = stateCodes.join(",");
       };
       features.push(...fcShard.features);
     }
+    // Thicker state-boundary overlay so state outlines read over the fine
+    // county / tract / block-group borders. Built once and memoized in
+    // getStateBorders (precomputed "states" layer for county maps; one-time
+    // shard mesh for tract / block-group) — never recomputed on re-paint.
+    const drawStateBorders =
+      b.geo === "county" || b.geo === "tract" || b.geo === "block-group";
+    const stateBorders = drawStateBorders
+      ? await getStateBorders(topos, layerName, urls, features)
+      : [];
     // Normalize id at the feature level. Some boundary files (the
     // DMV-tract and VA-block-group TopoJSONs we generated with
     // mapshaper) carry the GEOID under properties.id instead of as
@@ -1139,6 +1212,21 @@ const statesJoined = stateCodes.join(",");
             return s;
           },
         }),
+        // Thicker, darker state outlines drawn ON TOP of the choropleth so state
+        // borders stand out over the fine county / tract / block-group lines.
+        // Built once + memoized by getStateBorders; empty for state / cd maps, so
+        // the spread contributes nothing there. pointer-events:none keeps the
+        // hover tooltip bound to the filled regions underneath.
+        ...(stateBorders.length
+          ? [
+              Plot.geo(stateBorders, {
+                stroke: "#444",
+                strokeWidth: mode === "tile" ? 0.6 : 0.9,
+                fill: "none",
+                pointerEvents: "none",
+              }),
+            ]
+          : []),
       ],
     };
     let fig: HTMLElement | null = null;

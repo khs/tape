@@ -164,7 +164,21 @@ const censusDisclaimer =
     }
   </div>
 
-  <ChartController />
+  {/*
+    ChartController is the LINE-chart hydration island: it wires
+    `.chart-tile[data-chart-ref]` tiles whose dialog carries
+    `script[data-chart-payload]`. ChartBar and ChartMap fully self-wire their
+    OWN tile + dialog (different payload attributes), so on a bar or map embed a
+    mounted ChartController does no useful work — yet Astro still ships its whole
+    client closure: ~290KB raw / ~95KB gzip of dead JS (the controller script +
+    PostHog via track.ts + composer-state + supabase-session + shading-presets).
+    Mount it ONLY for line charts so the 2 bar + 328 map embeds (incl. the
+    welcome-page gdp_snapshot tile and every county/tract choropleth iframe)
+    don't pay for it. This is an ALLOW-LIST by render type: any future
+    self-wiring render type must be excluded here too. Dropping it also stops the
+    controller's `dashboard_perf_loaded` telemetry on bar/map embeds (intended).
+  */}
+  {effChart?.render !== "bar" && effChart?.render !== "map" && <ChartController />}
 
   <script>
     /*

@@ -21,7 +21,14 @@
 // records pageviews; double-counting would inflate session counts and
 // confuse anyone reading either dashboard.
 
-import posthog from "posthog-js";
+// posthog-js is loaded LAZILY (dynamic import inside ensureInit) so its ~188KB
+// bundle stays OFF the synchronous critical path of every page that mounts a
+// chart — it is fetched once the first track() call actually fires in a
+// configured environment. Analytics is fire-and-forget, so the deferral is
+// invisible; in an unconfigured environment (no PUBLIC_POSTHOG_KEY) the chunk
+// is never requested at all.
+type PostHog = (typeof import("posthog-js"))["default"];
+let posthog: PostHog | null = null;
 
 type Props = Record<string, string | number | boolean | null | undefined>;
 
@@ -31,45 +38,45 @@ const HOST =
   "https://us.i.posthog.com";
 
 let initialized = false;
-let initAttempted = false;
+let initPromise: Promise<boolean> | null = null;
 
-function ensureInit(): boolean {
-  if (initialized) return true;
-  if (initAttempted) return false; // already failed once; don't retry
-  initAttempted = true;
-  if (typeof window === "undefined") return false; // SSR guard
-  if (!KEY) return false; // unconfigured environment
+function ensureInit(): Promise<boolean> {
+  if (initialized) return Promise.resolve(true);
+  if (initPromise) return initPromise; // load already in flight or settled
+  if (typeof window === "undefined") return Promise.resolve(false); // SSR guard
+  if (!KEY) return Promise.resolve(false); // unconfigured: never fetch the chunk
 
-  try {
-    posthog.init(KEY, {
-      api_host: HOST,
-      // Vercel handles pageviews; opt out here to avoid duplicate counts.
-      capture_pageview: false,
-      // We don't currently use session replay (privacy-sensitive, and we
-      // have no UX-debugging need). Cheap to flip on later if useful.
-      disable_session_recording: true,
-      // Persistence: anonymous-cookie + localStorage. Same default cookie
-      // as posthog-js standard; we never identify users so this is just
-      // a stable anonymous distinct_id across sessions.
-      persistence: "localStorage+cookie",
-      // Quiet logs in production; PostHog defaults to noisy on init.
-      loaded: () => {
-        initialized = true;
-      },
-    });
-    // posthog.init's loaded callback is async, but the SDK already queues
-    // capture() calls made before init completes. Flag as initialized
-    // synchronously so callers don't re-attempt.
-    initialized = true;
-    return true;
-  } catch (e) {
-    // Defensive — bad key, blocked host, etc. Don't let analytics crash
-    // the page.
-    if (typeof console !== "undefined") {
-      console.warn("[track] PostHog init failed:", e);
+  initPromise = (async () => {
+    try {
+      // Dynamic import keeps the ~188KB posthog-js bundle off the synchronous
+      // critical path; it is fetched only here, on the first real track() call
+      // in a configured environment.
+      const mod = await import("posthog-js");
+      posthog = mod.default;
+      posthog.init(KEY, {
+        api_host: HOST,
+        // Vercel handles pageviews; opt out here to avoid duplicate counts.
+        capture_pageview: false,
+        // We don't currently use session replay (privacy-sensitive, and we
+        // have no UX-debugging need). Cheap to flip on later if useful.
+        disable_session_recording: true,
+        // Persistence: anonymous-cookie + localStorage. Same default cookie
+        // as posthog-js standard; we never identify users so this is just
+        // a stable anonymous distinct_id across sessions.
+        persistence: "localStorage+cookie",
+      });
+      initialized = true;
+      return true;
+    } catch (e) {
+      // Defensive — bad key, blocked host, failed chunk fetch, etc. Don't let
+      // analytics crash the page.
+      if (typeof console !== "undefined") {
+        console.warn("[track] PostHog init failed:", e);
+      }
+      return false;
     }
-    return false;
-  }
+  })();
+  return initPromise;
 }
 
 /**
@@ -77,14 +84,19 @@ function ensureInit(): boolean {
  * bundle; no-ops gracefully when PostHog isn't configured or on SSR.
  */
 export function track(event: string, props?: Props): void {
-  if (!ensureInit()) return;
-  try {
-    posthog.capture(event, props);
-  } catch (e) {
-    if (typeof console !== "undefined") {
-      console.warn(`[track] capture('${event}') failed:`, e);
+  // Fire-and-forget: ensureInit() resolves once posthog-js has loaded + init'd
+  // (or immediately false when unconfigured / on SSR). We never block the
+  // caller, and concurrent early calls share one in-flight load via initPromise.
+  void ensureInit().then((ok) => {
+    if (!ok || !posthog) return;
+    try {
+      posthog.capture(event, props);
+    } catch (e) {
+      if (typeof console !== "undefined") {
+        console.warn(`[track] capture('${event}') failed:`, e);
+      }
     }
-  }
+  });
 }
 
 /** Whether tracking is actually wired up — useful for conditional UI. */
