@@ -1052,6 +1052,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import { createCustomChartModal } from "../lib/composer/cc-modal";
   import { createSourcesTab } from "../lib/composer/sources-tab";
   import { createTiles } from "../lib/composer/tiles";
+  import { resolveTileNoteMeta } from "../lib/composer/tile-note";
   import {
     DELTA_WINDOWS,
     DELTA_LABELS_SHORT,
@@ -3022,19 +3023,16 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   function openChartBlurbModal(chartId: string): void {
     cbEditingChartId = chartId;
     const existing = state.chartOverrides[chartId] ?? {};
-    const libChart = library?.charts.find((c) => c.id === chartId);
     // Resolve the tile's REAL default title + whether it's a map. Inline tiles
-    // aren't in library.charts, so the old `libChart?.title ?? chartId` fell
-    // through to the raw ref (e.g. "inlinemap:cr451EKd"). In the composer a map
-    // tile is always `inlinemap:<id>` (library maps aren't in the catalog), so
-    // the prefix is the map signal; the title lives in inlineMaps / inlineCharts.
-    const isMap = chartId.startsWith("inlinemap:");
-    const noun = isMap ? "map" : "chart";
-    const defaultTitle = isMap
-      ? state.inlineMaps?.[chartId.slice("inlinemap:".length)]?.title ?? chartId
-      : chartId.startsWith("inline:")
-        ? state.inlineCharts?.[chartId.slice("inline:".length)]?.title ?? chartId
-        : libChart?.title ?? chartId;
+    // aren't in library.charts, so a naive `libChart?.title ?? chartId` falls
+    // through to the raw ref (e.g. "inlinemap:cr451EKd") and the copy says
+    // "chart" even for a map. resolveTileNoteMeta (unit-tested) handles all
+    // three ref kinds.
+    const { title: defaultTitle, noun } = resolveTileNoteMeta(chartId, {
+      inlineMaps: state.inlineMaps,
+      inlineCharts: state.inlineCharts,
+      libraryCharts: library?.charts,
+    });
     const backdrop = shell.querySelector<HTMLElement>("[data-role='cb-modal']");
     if (!backdrop) return;
     backdrop.hidden = false;

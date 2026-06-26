@@ -520,4 +520,22 @@ describe("axisTickFormatting — y-tick labels fit the plot's left margin", () =
     expect(fmt(3e12)).toBe("$3.00T");
     expect(estWidthPx(fmt(3e12))).toBeLessThanOrEqual(budgetPx);
   });
+
+  it("threshold: compacts at >= 1e4, keeps full numbers just below", () => {
+    const src = { style: "number" as const, decimals: 1 };
+    expect(axisTickFormat(src, 9999)(9999)).toBe("9,999.0"); // below threshold: stays full
+    expect(estWidthPx("9,999.0")).toBeLessThanOrEqual(budgetPx);
+    expect(axisTickFormat(src, 10000)(10000)).toBe("10.0K"); // at threshold: compacts
+  });
+
+  it("class: ticks across every magnitude band fit the margin once compacted", () => {
+    const src = { style: "number" as const, decimals: 1, suffix: " things" };
+    for (const m of [1e4, 5e4, 1e5, 7e5, 1e6, 3.2e9, 1e12]) {
+      const fmt = axisTickFormat(src, m);
+      // the axis max + a few interior ticks must all clear the margin
+      for (const frac of [1, 0.75, 0.5, 0.25]) {
+        expect(estWidthPx(fmt(m * frac))).toBeLessThanOrEqual(budgetPx);
+      }
+    }
+  });
 });

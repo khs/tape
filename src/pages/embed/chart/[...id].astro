@@ -31,6 +31,7 @@ import {
   effectiveChart,
 } from "../../../lib/resolve-dashboard";
 import { resolveBarSnapshot } from "../../../lib/resolve-bar-snapshots";
+import { embedNeedsController } from "../../../lib/chart-render";
 import { DELTA_WINDOWS, type DeltaWindow } from "../../../lib/deltas";
 
 // SSR (rather than static getStaticPaths over every chart). With
@@ -174,11 +175,12 @@ const censusDisclaimer =
     PostHog via track.ts + composer-state + supabase-session + shading-presets).
     Mount it ONLY for line charts so the 2 bar + 328 map embeds (incl. the
     welcome-page gdp_snapshot tile and every county/tract choropleth iframe)
-    don't pay for it. This is an ALLOW-LIST by render type: any future
-    self-wiring render type must be excluded here too. Dropping it also stops the
-    controller's `dashboard_perf_loaded` telemetry on bar/map embeds (intended).
+    don't pay for it. embedNeedsController() owns the render-type logic (and is
+    unit-tested) — add any future self-wiring render type to SELF_WIRING_RENDERS
+    there. Dropping the controller also stops its `dashboard_perf_loaded`
+    telemetry on bar/map embeds (intended).
   */}
-  {effChart?.render !== "bar" && effChart?.render !== "map" && <ChartController />}
+  {embedNeedsController(effChart?.render) && <ChartController />}
 
   <script>
     /*
