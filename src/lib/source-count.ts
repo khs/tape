@@ -3,10 +3,10 @@
 // Counts under src/content/sources as of the last build.
 
 /** Exact source count at build time. */
-export const SOURCE_COUNT = 34970;
+export const SOURCE_COUNT = 38539;
 
-/** Marketing figure, floored to the nearest 1,000 with a "+", e.g. "34,000+". */
-export const SOURCE_COUNT_DISPLAY = "34,000+";
+/** Marketing figure, floored to the nearest 1,000 with a "+", e.g. "38,000+". */
+export const SOURCE_COUNT_DISPLAY = "38,000+";
 
 /** Distinct CBSA codes across the metro pipelines (acs_metro, bls, usaspending). */
 export const METRO_COUNT = 393;
