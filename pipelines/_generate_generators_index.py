@@ -245,6 +245,46 @@ def _match_metro_zillow(sid: str) -> MatchResult:
     return ("metro", f"zillow_{m.group(1)}", cbsa)
 
 
+def _match_metro_bea(sid: str) -> MatchResult:
+    # bea/<series>_<cbsa>, e.g. bea/pc_personal_income_28940. BEA also ships
+    # per-STATE series (bea/real_gdp_new_jersey — slug suffix, no 5-digit) AND
+    # per-COUNTY series (5-digit FIPS), so guard on the CBSA catalog to grab
+    # only the metro siblings; county FIPS (not a CBSA) fall through.
+    m = re.match(r"^bea/(.+)_(\d{5})$", sid)
+    if not m or m.group(2) not in CBSA_LABELS:
+        return None
+    return ("metro", f"bea_metro_{m.group(1)}", m.group(2))
+
+
+def _match_metro_census_bps(sid: str) -> MatchResult:
+    # census_bps/<series>_<cbsa>, e.g. census_bps/permits_total_43340. Building
+    # Permits also publish at place/county level (5-digit FIPS), so guard on the
+    # CBSA catalog so only metro siblings classify.
+    m = re.match(r"^census_bps/(.+)_(\d{5})$", sid)
+    if not m or m.group(2) not in CBSA_LABELS:
+        return None
+    return ("metro", f"census_bps_metro_{m.group(1)}", m.group(2))
+
+
+def _match_metro_fhfa(sid: str) -> MatchResult:
+    # fhfa/<series>_<cbsa>, e.g. fhfa/hpi_40660. State/division/national FHFA
+    # series don't carry a 5-digit suffix; the CBSA guard keeps any stray
+    # 5-digit non-CBSA out.
+    m = re.match(r"^fhfa/(.+)_(\d{5})$", sid)
+    if not m or m.group(2) not in CBSA_LABELS:
+        return None
+    return ("metro", f"fhfa_metro_{m.group(1)}", m.group(2))
+
+
+def _match_metro_ntd(sid: str) -> MatchResult:
+    # ntd/<series>_<cbsa>, e.g. ntd/ridership_28450 (FTA National Transit DB,
+    # keyed by CBSA). CBSA guard as above.
+    m = re.match(r"^ntd/(.+)_(\d{5})$", sid)
+    if not m or m.group(2) not in CBSA_LABELS:
+        return None
+    return ("metro", f"ntd_metro_{m.group(1)}", m.group(2))
+
+
 def _match_state_acs(sid: str) -> MatchResult:
     m = re.match(r"^acs_state/(.+)_([a-z]{2})$", sid)
     if not m:
@@ -497,6 +537,10 @@ MATCHERS: list[Matcher] = [
     _match_metro_bls,
     _match_metro_acs,
     _match_metro_zillow,
+    _match_metro_bea,
+    _match_metro_census_bps,
+    _match_metro_fhfa,
+    _match_metro_ntd,
     _match_state_acs,
     _match_state_fred,
     _match_state_bls,
