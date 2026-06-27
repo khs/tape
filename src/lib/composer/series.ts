@@ -23,17 +23,12 @@ export type FetchedSeries = {
   points: SeriesPoint[];
 };
 
-/** Modest palette echoing the chart-tile colors. Cycles for >8 sources. */
-export const CC_COLORS = [
-  "#2563eb",
-  "#dc2626",
-  "#16a34a",
-  "#9333ea",
-  "#ea580c",
-  "#0891b2",
-  "#db2777",
-  "#65a30d",
-];
+/**
+ * Composer preview palette = the one canonical chart palette
+ * (src/lib/series-colors.ts), so a tile/custom-chart preview colors its series
+ * exactly the way the live chart and OG card will. Cycles past 10 sources.
+ */
+export { SERIES_COLORS as CC_COLORS } from "../series-colors";
 
 export interface SeriesFetcherContext {
   getLibrary: () => LibraryPayload | null;

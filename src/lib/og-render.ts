@@ -3,25 +3,19 @@
  * SVG-path math and rebasing are unit-testable / reusable. Satori does not run
  * Observable Plot, so we hand-emit polyline paths from the raw point arrays.
  */
+import { SERIES_COLORS } from "./series-colors";
+
 export type OgSeries = {
   name: string;
   color: string;
   points: { t: string; v: number }[];
 };
 
-// A muted palette that reads well at 1200×630 print size and on light & dark
-// social-card backgrounds. First color is the brand teal; the rest are a
-// distinguishable but harmonious follow-set.
-export const OG_COLORS = [
-  "#0d7a6a",
-  "#dc6b2f",
-  "#3b6cb3",
-  "#9333ea",
-  "#16a34a",
-  "#dc2626",
-  "#0891b2",
-  "#db2777",
-];
+// Use the one canonical chart palette (src/lib/series-colors.ts) so an OG card
+// shows a series in the same color the live chart and composer preview do. It
+// leads with the brand teal and is CVD-tested; the slightly higher saturation
+// vs the old muted OG set still reads cleanly at 1200×630 on light/dark cards.
+export const OG_COLORS = SERIES_COLORS;
 
 /**
  * Truncate a series to the trailing N days from its last point. When
