@@ -9,6 +9,7 @@
  * Query parameter precedence (first match wins):
  *   ?dash=<preset-slug>     — preset dashboard (oil-energy, us-macro, …)
  *   ?chart=<chart-id>       — individual library chart (e.g. "oil/wti")
+ *   ?source=<source-id>     — single data series (per-source citation page)
  *   ?d=<encoded-state>      — URL-state composed dashboard from /custom/
  *   ?title=<text>           — fallback bare card for the homepage / about
  *
@@ -169,6 +170,34 @@ async function resolveChartId(chartId: string): Promise<Resolved | null> {
   };
 }
 
+async function resolveSource(sourceId: string): Promise<Resolved | null> {
+  const src = await getEntry("sources", sourceId);
+  if (!src) return null;
+  const sources: { id: string; name: string; shortName?: string; points: { t: string; v: number }[] }[] = [];
+  try {
+    const data = await loadSourceData(src.data.dataFile);
+    if (data.kind === "timeseries") {
+      sources.push({
+        id: src.id,
+        name: src.data.name,
+        shortName: src.data.shortName,
+        points: data.points,
+      });
+    }
+  } catch {
+    // missing data file — fall through with a titled, chartless card
+  }
+  // Single-series card: resolveChartSeries leaves a lone source un-rebased,
+  // so the OG thumbnail shows the series' real (windowed) level shape.
+  const series = resolveChartSeries({ sources: [src.id] }, sources);
+  return {
+    title: src.data.name,
+    subtitle: src.data.description,
+    series,
+    isSingle: series.length === 1,
+  };
+}
+
 async function resolveComposed(d: string): Promise<Resolved | null> {
   const decoded = decodeComposedState(d);
   if (!decoded.ok) return null;
@@ -221,6 +250,7 @@ export const GET: APIRoute = async ({ url }) => {
   let resolved: Resolved | null = null;
   if (params.has("dash")) resolved = await resolveDashSlug(params.get("dash")!);
   else if (params.has("chart")) resolved = await resolveChartId(params.get("chart")!);
+  else if (params.has("source")) resolved = await resolveSource(params.get("source")!);
   else if (params.has("d")) resolved = await resolveComposed(params.get("d")!);
 
   // Fallback / explicit title-only card.
