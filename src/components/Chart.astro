@@ -525,7 +525,11 @@ const plottedUnitClasses = perSource
         .unitClass,
   );
 const allowedTransforms = availableTransforms(plottedUnitClasses);
-const showTransformPills = allowedTransforms.length > 1;
+// Dual-axis charts plot each series on its own raw axis; the client renderer
+// ignores payload.transform in that mode, so the YoY/Index pills would be
+// silent no-ops. Hide them entirely rather than show dead controls.
+const showTransformPills =
+  allowedTransforms.length > 1 && normalize !== "dual-axis";
 
 // Tile height policy (drives the spark-height CSS below):
 //   "fill"  — 1–3 series: the card pins one total height and the spark

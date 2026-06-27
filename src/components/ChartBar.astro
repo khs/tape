@@ -396,20 +396,25 @@ const payload = {
             fill: "var(--color-neutral-900, #1c1c1a)",
           });
 
+    // Honor the server-side sort order (barSort: desc | asc | source-order),
+    // which is baked into `rows` upstream. We pin the categorical scale's
+    // `domain` to that row order below rather than letting Plot's per-mark
+    // `sort` re-derive it — Plot's value-sort always collapsed asc and
+    // source-order back to descending. For barSort=desc the row order is
+    // [largest..smallest], identical to the old `sort:{reverse:true}`.
     const bar =
       orientation === "horizontal"
         ? Plot.barX(rows, {
             x: "value",
             y: "label",
             fill,
-            sort: { y: "x", reverse: true, limit: 999 },
           })
         : Plot.barY(rows, {
             x: "label",
             y: "value",
             fill,
-            sort: { x: "y", reverse: true, limit: 999 },
           });
+    const labelDomain = rows.map((r) => r.label);
 
     return Plot.plot({
       width: opts.width,
@@ -433,11 +438,13 @@ const payload = {
             label: null,
             axis: xAxis,
             tickRotate: -30,
+            domain: labelDomain,
           },
       y: orientation === "horizontal"
         ? {
             label: null,
             axis: yAxis,
+            domain: labelDomain,
           }
         : {
             tickFormat,
