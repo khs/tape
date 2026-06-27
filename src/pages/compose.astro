@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SourcePicker from "../components/SourcePicker.astro";
+import { SOURCE_COUNT_DISPLAY } from "../lib/source-count";
 import "../styles/compose.css";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -583,7 +584,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             <p class="comp-empty-lead">Start with a popular indicator</p>
             <p class="muted small">
               Click one to drop it in — then keep adding, or build your own
-              from 35,000+ sources on the left.
+              from {SOURCE_COUNT_DISPLAY} sources on the left.
             </p>
             <div class="comp-quickstart-chips">
               <button type="button" class="comp-quickstart-chip" data-qs-source="fred/us_unemployment">Unemployment rate</button>
@@ -1375,7 +1376,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       rightAxisSources: (lib as { rightAxisSources?: string[] }).rightAxisSources,
       op: (lib as { op?: ChartCombineOp }).op,
       blurb: override?.blurb || lib.blurb,
-      percentDisplay: (lib as { percentDisplay?: "percent" | "decimal" })
+      percentDisplay: (lib as { percentDisplay?: import("../lib/derive").PercentDisplay })
         .percentDisplay,
     };
     const sec = state.sections[secIdx];

@@ -52,7 +52,6 @@
  * That guard lives at the call site, not here.
  */
 
-import type { CollectionEntry } from "astro:content";
 import { COUNTY_TAG } from "./county-sources";
 import { COUNTRY_TAG } from "./countries";
 import { METRO_TAG } from "./geographic-regions";
@@ -460,17 +459,3 @@ function buildHint(
     tags: [],
   };
 }
-
-/** Adapter for the library.json caller. */
-export function hintsFromLibrary(
-  entries: ReadonlyArray<{
-    id: string;
-    name: string;
-    tags: ReadonlyArray<string>;
-  }>,
-  mapLevelsAvailable: boolean = true,
-): SourceHint[] {
-  return synthesizeSourceHints(entries, mapLevelsAvailable);
-}
-
-export type SourceEntry = CollectionEntry<"sources">;

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { SOURCE_COUNT_DISPLAY } from "../lib/source-count";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -16,7 +17,7 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
 ---
 
 <BaseLayout
-  title="About | Tape"
+  title="About — Tape"
   description="Tape is a tool for writing about the economy: shareable, citation-ready dashboards composed from public data."
 >
   <article class="about-root">
@@ -38,7 +39,7 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
 
     <p class="about-stamp">
       Last shipped a new user-visible feature on <strong>{lastUpdatedLabel}</strong>.
-      ~35,000 individual data series across 22 providers. Data
+      {SOURCE_COUNT_DISPLAY} individual data series across 22 providers. Data
       refreshes weekly.
     </p>
 

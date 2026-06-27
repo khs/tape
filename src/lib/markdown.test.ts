@@ -109,6 +109,15 @@ describe("renderMarkdown — links", () => {
     );
   });
 
+  it("drops a control-char / percent-encoded scheme prefix (no anchor emitted)", () => {
+    // %09 (encoded TAB) before the scheme must still fail isAllowedUrl's
+    // anchored scheme check — no clickable <a href> for the smuggled
+    // javascript: URL; the link text still renders.
+    const out = renderMarkdown("[x](%09javascript:alert(1))");
+    expect(out).not.toMatch(/<a\b/);
+    expect(out).toContain("x");
+  });
+
   it("escapes quote chars in URLs", () => {
     expect(renderMarkdown('[x](https://a?q="evil)')).toContain("&quot;evil");
   });

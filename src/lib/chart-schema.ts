@@ -46,7 +46,7 @@ export function buildChartOverrideShape(
     normalize: z.enum(["rebase", "raw", "dual-axis"]),
     scale: z.enum(["linear", "log"]),
     seriesLabels: z.array(z.string()),
-    percentDisplay: z.enum(["percent", "decimal"]),
+    percentDisplay: z.enum(["percent", "decimal", "ratio"]),
     transform: z.enum(["level", "yoy_pct", "index_100"]),
     annotations: z.array(
       z.object({

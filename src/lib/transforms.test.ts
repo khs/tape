@@ -34,6 +34,34 @@ describe("applyYoYPercent", () => {
     expect(out.length).toBeGreaterThanOrEqual(6);
   });
 
+  it("drops the point after a multi-year gap (no ~1-year prior to divide by)", () => {
+    // A 2015 -> 2020 gap means 2020's only candidate prior is 5 years stale;
+    // dividing by it would mislabel a 5-year jump as a one-year change. The
+    // 183d staleness bound rejects it. 2021 (one year after 2020) is valid.
+    const pts = [
+      { t: "2015-12-31", v: 100 },
+      { t: "2020-12-31", v: 200 },
+      { t: "2021-12-31", v: 210 },
+    ];
+    const out = applyYoYPercent(pts);
+    expect(out.map((p) => p.t.slice(0, 4))).toEqual(["2021"]);
+    expect(out[0].v).toBeCloseTo(5, 5); // (210-200)/200
+  });
+
+  it("keeps clean annual + semiannual cadences (no false drops from the gap bound)", () => {
+    const annual = [
+      { t: "2018-12-31", v: 100 },
+      { t: "2019-12-31", v: 110 },
+      { t: "2020-12-31", v: 121 },
+    ];
+    expect(applyYoYPercent(annual).map((p) => p.t.slice(0, 4))).toEqual(["2019", "2020"]);
+    const semi = [
+      { t: "2020-01-01", v: 100 }, { t: "2020-07-01", v: 105 },
+      { t: "2021-01-01", v: 110 }, { t: "2021-07-01", v: 120 },
+    ];
+    expect(applyYoYPercent(semi).length).toBe(2); // 2021-01 vs 2020-01; 2021-07 vs 2020-07
+  });
+
   it("computes 10% YoY when v doubles by 10%", () => {
     // Two points exactly one year apart: 100 -> 110.
     // Use 366 days to be safely over the 365-day threshold.

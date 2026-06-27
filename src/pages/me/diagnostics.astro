@@ -17,7 +17,7 @@ export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
-<BaseLayout title="Diagnostics — Tape">
+<BaseLayout title="Diagnostics — Tape" noindex>
   {/* Sync pre-paint console-error ring buffer. Has to install before
       any other script runs so we capture early errors from the same
       page. Doesn't survive navigation. */}

@@ -111,6 +111,12 @@ export function applyYoYPercent(points: TimeSeriesPoint[]): TimeSeriesPoint[] {
     // No eligible prior yet — entire series is younger than 1 year
     // at this index. Skip.
     if (priorMs > targetPriorMs) continue;
+    // Reject a prior far OLDER than the 1-year target (a multi-year gap in the
+    // series). Without this, the first point after a gap divides by a value
+    // years stale and plots a multi-year jump as a one-year change. ~183d
+    // tolerance covers annual / semiannual cadences whose year-prior point
+    // lands a few days off; sporadic-gap series show a line gap, not a wrong %.
+    if (targetPriorMs - priorMs > 183 * 86_400_000) continue;
     if (prior.v === 0 || !Number.isFinite(prior.v)) continue;
     // Near-zero prior → ratio not meaningful; skip rather than explode.
     if (Math.abs(prior.v) < nearZeroPrior) continue;

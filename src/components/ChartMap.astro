@@ -528,7 +528,9 @@ const statesJoined = stateCodes.join(",");
     | "blues" | "greens" | "oranges" | "purples"
     // Diverging red<->blue, for signed quantities like an election margin
     // (used with colorScale:"diverging", which pivots the scheme at 0).
-    | "rdbu";
+    | "rdbu"
+    // Sequential yellow->orange->red (e.g. the traffic-fatality-rate map).
+    | "ylorrd";
   interface SchemeEntry {
     key: SchemeKey;
     label: string;
@@ -557,6 +559,7 @@ const statesJoined = stateCodes.join(",");
     { key: "oranges", label: "Orange",  plot: { scheme: "oranges" } },
     { key: "purples", label: "Purple",  plot: { scheme: "purples" } },
     { key: "rdbu",    label: "Red-Blue", plot: { scheme: "rdbu" } },
+    { key: "ylorrd",  label: "Yellow-Orange-Red", plot: { scheme: "ylorrd" } },
   ];
   function schemeByKey(key: string): SchemeEntry {
     return SCHEMES.find((s) => s.key === key) ?? SCHEMES[0];

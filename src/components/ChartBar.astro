@@ -231,7 +231,7 @@ const payload = {
   // Uses the same @observablehq/plot bundle the line-chart controller
   // pulls; Vite dedupes the import so we don't double-ship the lib.
   import * as Plot from "@observablehq/plot";
-  import { formatValue, axisTickFormatting, type Formatting } from "../lib/format";
+  import { axisTickFormat, type Formatting } from "../lib/format";
   import { seriesColor } from "../lib/series-colors";
 
   type Row = {
@@ -354,8 +354,14 @@ const payload = {
     // Tick formatter — re-use the same formatter that powers
     // line-chart axes so the bar values read consistently with the
     // rest of the site.
-    const tickFormat = (v: number) =>
-      formatting ? formatValue(v, axisTickFormatting(formatting)) : String(v);
+    // Big-magnitude axes compact to "322K" (the same helper the line charts
+    // use) so values don't clip; small/percent/bps values keep their decimals.
+    // maxAbs comes from the RAW row values — axisTickFormat applies any
+    // scaleFactor itself, so don't pre-scale here.
+    const maxAbs = Math.max(0, ...rows.map((r) => Math.abs(r.value)));
+    const tickFormat = formatting
+      ? axisTickFormat(formatting, maxAbs)
+      : (v: number) => String(v);
 
     // Per-bar fill color — re-use the existing series palette so a
     // bar chart of "GDP by country" colors the bars the same way a
