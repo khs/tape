@@ -54,7 +54,7 @@ function jsonResponse(body: unknown, status: number): Response {
   });
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   // 1. Extract Bearer token.
   const authHeader = request.headers.get("Authorization") ?? "";
   const token = authHeader.startsWith("Bearer ")
@@ -82,6 +82,37 @@ export const POST: APIRoute = async ({ request }) => {
   const sb = createClient(supabaseUrl, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  // 2a. Rate-limit by client IP BEFORE the Supabase auth round-trip. Without
+  // this, anonymous token-spray forces a sb.auth.getUser() (auth-server call +
+  // DB read) on every request, burning Supabase quota long before the admin
+  // check below would reject the caller — classic authn-before-authz quota
+  // drain. The diagnostic_rate_limit RPC (migration 0008) caps to 10/min/IP via
+  // the shared check_rate_limit infra. It FAILS OPEN: if the RPC is missing
+  // (migration not yet applied) the call errors and we log + continue, so the
+  // endpoint keeps working — rate-limiting simply activates once 0008 lands.
+  let clientIp = "unknown";
+  try {
+    if (clientAddress) clientIp = clientAddress;
+  } catch {
+    // Adapter without client-address support — bucket all as "unknown".
+  }
+  const { data: underLimit, error: rlErr } = await sb.rpc(
+    "diagnostic_rate_limit",
+    { p_ip: clientIp },
+  );
+  if (rlErr) {
+    console.warn(
+      `[diagnostic] rate-limit RPC unavailable, failing open: ${rlErr.message}`,
+    );
+  } else if (underLimit === false) {
+    console.warn(`[diagnostic] rate-limited ip ${clientIp}`);
+    return jsonResponse(
+      { error: "Too many requests — try again in a minute." },
+      429,
+    );
+  }
+
   const { data: userResult, error: authErr } = await sb.auth.getUser(token);
   if (authErr || !userResult?.user) {
     console.warn(
