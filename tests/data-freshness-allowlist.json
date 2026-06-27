@@ -8,5 +8,9 @@
   },
   "cdc_health/drug_overdose_aadr_oh": {
     "reason": "CDC NCHS 'Drug Poisoning Mortality by State' final age-adjusted death rates end at data year 2018 (state series, Ohio). Recency lives in the national provisional count cdc_health/drug_overdose_deaths_12mo_us."
+  },
+  "usgs_water/total_us": {
+    "reason": "USGS National Water-Use Survey is a 5-year compilation; 2015 is the last comprehensive national release (USGS restructured the program after 2015 and has not published an equivalent 2020 national total in the same form). Exposed by the new 10-year absolute-staleness ceiling in data-freshness.test.ts.",
+    "task": "VERIFY whether a USGS 2020 national water-use total exists to ingest (pipelines/usgs_water.py). If yes, refresh and remove this entry; if the program is genuinely capped at 2015, keep it. The ratchet check auto-flags this entry for removal once the series advances."
   }
 }

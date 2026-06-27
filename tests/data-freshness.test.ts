@@ -55,6 +55,15 @@ import {
 
 const ABS_THRESHOLD = 4.5; // median-cadence multiples behind "now" (backstop)
 const FLOOR_DAYS = 550; // ...and at least ~18 months behind in absolute terms
+// Hard ceiling on absolute staleness, independent of cadence. The ratio rule
+// above is cadence-aware (good), but for a long-cadence series it grants a huge
+// grace window: 4.5 x a 5-year survey cadence is ~22 years, so a quinquennial
+// series (USGS water) could silently freeze for two decades. Annual+ series are
+// already caught by the 4.5x rule well before this. Nothing legitimately goes a
+// full decade without its value moving, so flag anything past it regardless of
+// cadence. Genuinely decade-plus-cadence sources (none today) would be
+// allowlisted like any other upstream-capped series.
+const MAX_ABS_STALE_DAYS = 3650; // ~10 years
 const COHORT_K = 3; // cohort tolerance = this many member-cadence cycles...
 const COHORT_FLOOR_DAYS = 400; // ...but at least this (so monthly siblings get slack)
 const MIN_COHORT = 3;
@@ -140,14 +149,19 @@ function absoluteStale(): Frozen[] {
   return series
     .filter(
       (s) =>
-        s.daysBehind > FLOOR_DAYS && (s.ratio == null || s.ratio > ABS_THRESHOLD),
+        s.daysBehind > FLOOR_DAYS &&
+        (s.ratio == null ||
+          s.ratio > ABS_THRESHOLD ||
+          s.daysBehind > MAX_ABS_STALE_DAYS),
     )
     .map((s) => ({
       id: s.id,
       why:
         s.ratio == null
           ? `value last moved ${s.changeT}, ${Math.round(s.daysBehind)}d ago (cadence unknown — <2 historical points)`
-          : `value last moved ${s.changeT}, ${Math.round(s.daysBehind)}d ago (~${s.ratio.toFixed(1)}x its ${Math.round(s.cadenceDays!)}d cadence)`,
+          : s.daysBehind > MAX_ABS_STALE_DAYS && s.ratio <= ABS_THRESHOLD
+            ? `value last moved ${s.changeT}, ${Math.round(s.daysBehind)}d ago (past the ${MAX_ABS_STALE_DAYS}d absolute ceiling; ${Math.round(s.cadenceDays!)}d cadence)`
+            : `value last moved ${s.changeT}, ${Math.round(s.daysBehind)}d ago (~${s.ratio.toFixed(1)}x its ${Math.round(s.cadenceDays!)}d cadence)`,
     }));
 }
 
