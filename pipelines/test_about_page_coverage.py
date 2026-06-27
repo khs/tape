@@ -70,6 +70,7 @@ PROVIDER_TO_ABOUT_LABEL: dict[str, str | None] = {
     "acs_county": "Census Bureau",
     "acs_block_group": "Census Bureau",
     "census_govfin": "Census Bureau",
+    "census_bps": "Census Bureau",  # Building Permits Survey (per-metro housing permits)
     "naep": "NCES / NAEP",
     "edu_spending": "NCES / NAEP",
     "ssa": "SSA",
@@ -87,6 +88,8 @@ PROVIDER_TO_ABOUT_LABEL: dict[str, str | None] = {
     "cms_nhe": "CMS Office of the Actuary",
     "zillow": "Zillow Research",
     "bea": "BEA",
+    "fhfa": "FHFA",
+    "ntd": "FTA",
     "fbi_crime": "FBI",
     "fec": "FEC",
     "nhtsa_fars": "NHTSA",

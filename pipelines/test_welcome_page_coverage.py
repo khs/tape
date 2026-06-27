@@ -102,6 +102,9 @@ PROVIDER_FEATURED_ON_WELCOME: dict[str, bool] = {
     "owid_co2": False,          # climate/energy cross-country; via composer + energy charts
     "owid_energy": False,       # renewable-electricity share; via composer + energy charts
     "bea": False,               # per-state GDP/income detail; via composer + Maps/Generators
+    "census_bps": False,        # per-metro building permits; via composer + Generators
+    "fhfa": False,              # per-metro house-price index; via composer + Generators
+    "ntd": False,               # per-metro transit ridership; via composer + Generators
     "fbi_crime": False,         # per-state crime rates; via composer + government charts
     "fec": False,               # per-CD campaign spending; via composer + elections chart
     "noaa_climate": False,      # city climate series; via composer + energy charts

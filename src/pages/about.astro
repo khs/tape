@@ -37,11 +37,11 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
       he was tired of handling data manually.
     </p>
 
-    {/* "25 providers" = the count of <li> entries in the "Where the data
+    {/* "27 providers" = the count of <li> entries in the "Where the data
         comes from" list below. Keep in sync when adding/removing a provider. */}
     <p class="about-stamp">
       Last shipped a new user-visible feature on <strong>{lastUpdatedLabel}</strong>.
-      {SOURCE_COUNT_DISPLAY} individual data series across 25 providers. Data
+      {SOURCE_COUNT_DISPLAY} individual data series across 27 providers. Data
       refreshes weekly.
     </p>
 
@@ -89,8 +89,9 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
       <li>
         <strong>Census Bureau</strong>: American Community Survey 5-year
         estimates (income, population, poverty, education) at the
-        congressional-district and metro level, plus the Annual Survey
-        of State Government Finances (general expenditures by state).
+        congressional-district and metro level, the Annual Survey
+        of State Government Finances (general expenditures by state), and
+        the Building Permits Survey (housing units authorized by metro).
       </li>
       <li>
         <strong>NCES / NAEP</strong>: National Center for Education
@@ -155,6 +156,14 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
         <strong>BEA</strong>: Bureau of Economic Analysis regional
         accounts: GDP (nominal and real) and personal income, total and
         per-capita, for all 50 states and DC, annual.
+      </li>
+      <li>
+        <strong>FHFA</strong>: Federal Housing Finance Agency House Price
+        Index (HPI), by metro, quarterly.
+      </li>
+      <li>
+        <strong>FTA</strong>: Federal Transit Administration National Transit
+        Database: annual public-transit ridership by metro.
       </li>
       <li>
         <strong>FBI</strong>: Crime Data Explorer: reported violent- and
