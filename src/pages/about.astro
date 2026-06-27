@@ -37,9 +37,11 @@ const lastUpdatedLabel = lastUpdatedDate.toLocaleDateString("en-US", {
       he was tired of handling data manually.
     </p>
 
+    {/* "25 providers" = the count of <li> entries in the "Where the data
+        comes from" list below. Keep in sync when adding/removing a provider. */}
     <p class="about-stamp">
       Last shipped a new user-visible feature on <strong>{lastUpdatedLabel}</strong>.
-      {SOURCE_COUNT_DISPLAY} individual data series across 22 providers. Data
+      {SOURCE_COUNT_DISPLAY} individual data series across 25 providers. Data
       refreshes weekly.
     </p>
 

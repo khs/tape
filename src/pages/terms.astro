@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_BRAND_URL } from "../lib/brand";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const lastUpdated = "May 15, 2026";
@@ -7,7 +8,7 @@ const lastUpdated = "May 15, 2026";
 
 <BaseLayout
   title="Terms of Service — Tape"
-  description="The rules of the road for using tape.io, what the site is, what it isn't, and what we expect from each other."
+  description={`The rules of the road for using ${SITE_BRAND_URL}, what the site is, what it isn't, and what we expect from each other.`}
 >
   <article class="legal-root">
     <p class="legal-eyebrow">Terms</p>
@@ -15,7 +16,7 @@ const lastUpdated = "May 15, 2026";
     <p class="legal-updated">Last updated: {lastUpdated}</p>
 
     <p class="lead">
-      By using tape.io you agree to these terms. They're
+      By using {SITE_BRAND_URL} you agree to these terms. They're
       short on purpose. The whole document is in plain English and
       should take about three minutes to read.
     </p>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_BRAND_URL } from "../lib/brand";
 export const prerender = true;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const lastUpdated = "May 21, 2026";
@@ -16,7 +17,7 @@ const lastUpdated = "May 21, 2026";
 
     <p class="lead">
       Tape is built by Keller Scholl and runs at
-      tape.io. The short version: I collect the minimum
+      {SITE_BRAND_URL}. The short version: I collect the minimum
       needed to run the site, I don't sell any of it, I don't use it
       for advertising, and I don't share it with anyone except the
       service providers listed below.

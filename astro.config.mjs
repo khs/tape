@@ -143,6 +143,9 @@ export default defineConfig({
       watch: {
         ignored: [
           "**/public/data/**",
+          // Boundary TopoJSON (51 states x tract+BG x 2010/2020 grids) — like
+          // public/data, refreshed by CI, never edited during `astro dev`.
+          "**/public/maps/**",
           "**/pipelines/_crosswalks/**",
           "**/pipelines/_crosswalks_cache/**",
           "**/public/data/_archive/**",
