@@ -119,3 +119,12 @@ jobs:
         # warns + skips — that's fine for CI. The real build on Vercel
         # picks up VERCEL_PROJECT_PRODUCTION_URL and emits the sitemap.
         run: npm run build
+
+      - name: No build-drift in generated files
+        # The prebuild (gen-source-count.mjs + audit-source-data.mjs) regenerates
+        # these two from the source corpus. If the committed copies are stale —
+        # e.g. a source YAML was added or removed without re-running the build —
+        # the Build step above rewrites them and they drift here. Fail so the
+        # regenerated output gets committed instead of silently diverging from the
+        # corpus. Both are deterministic (counts / id-map, no timestamps).
+        run: git diff --exit-code -- src/lib/source-count.ts src/lib/quarantined-sources.json
