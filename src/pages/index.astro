@@ -2,17 +2,12 @@
 import { getCollection } from "astro:content";
 import { SOURCE_COUNT_DISPLAY } from "../lib/source-count";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ChartController from "../components/ChartController.astro";
-import DashboardGrid from "../components/DashboardGrid.astro";
-import { resolveDashboardForRender } from "../lib/resolve-dashboard-for-render";
 import { DEFAULT_DASHBOARD_SLUG_KEY as DEFAULT_SLUG_KEY } from "../lib/brand";
 
-// Prerendered (static): the home page features the default (lowest-
-// `order`) preset dashboard, baked in at build time so there's zero
-// per-request SSR or serverless cold-start cost on the highest-traffic
-// page. The featured tabs are <a> links to each preset's canonical
-// `/<slug>/` page, so picking a different preset is a normal static
-// navigation.
+// Prerendered (static): zero per-request SSR or serverless cold-start cost on
+// the highest-traffic page. The featured section is a lightweight preset nav —
+// the tabs are <a> links to each preset's canonical `/<slug>/` page — so the
+// page no longer bakes any dashboard's resolved chart data into the HTML.
 //
 // (Previously SSR to honor `?dash=<slug>` for the inline featured
 // render. That param was never load-bearing: nothing links to
@@ -31,24 +26,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const active = sorted[0] ?? null;
 
-// Full resolution for the active dashboard only. Resolving all 7 every
-// request would pull ~20MB of JSON into the page payload; lazy-resolving
-// just the one keeps the body weight to a single dashboard's worth
-// (~1-3MB raw, much less gzipped) which is what `/<slug>/` pages already
-// ship.
-const dash = active
-  ? await resolveDashboardForRender({
-      sections: active.data.sections,
-      charts: active.data.charts,
-      chartOverrides: active.data.chartOverrides,
-      defaultDelta: active.data.defaultDelta,
-      fixedRange: active.data.fixedRange,
-    })
-  : null;
-const activeSections = dash?.sections ?? [];
-const activeSupported = dash?.supportedDeltas ?? [];
-const activeDefaultDelta = dash?.defaultDelta ?? "1m";
-const activeBarSnapshots = dash?.barSnapshots ?? new Map();
+// The featured section no longer resolves/bakes a dashboard's chart data: that
+// was ~466KB of inline JSON that signed-out visitors (redirected to /welcome/
+// below) never saw and signed-in visitors replace with their own list. The
+// preset is now surfaced as nav — tabs + title/description + an "Open" link to
+// its own `/<slug>/` page, which already ships the full render.
 
 type TabSpec = { slug: string; title: string };
 const tabs: TabSpec[] = sorted.map((d) => ({
@@ -98,19 +80,13 @@ const tabs: TabSpec[] = sorted.map((d) => ({
     </div>
 
 
-    {/* Featured-dashboard preview: one dashboard rendered inline as a
-        teaser, with sibling tabs that link straight to each preset's
-        canonical URL `/<slug>/`. The home page still uses `?dash=<slug>`
-        on the server to pick which dashboard to feature for SEO/social
-        unfurls of the home page itself, but tab clicks navigate to the
-        clean preset URL so the address-bar URL Aaron copies always
-        matches what he'd share. */}
+    {/* Featured-dashboard nav: the lowest-`order` preset's title + description
+        with sibling tabs, each an <a> to a preset's canonical `/<slug>/` page.
+        No dashboard is rendered inline anymore (that was ~466KB of resolved
+        chart JSON baked into every home response); the reader clicks through to
+        the preset's own page for the live charts. */}
     {active && (
-      <section
-        class="featured dashboard-root"
-        data-role="featured"
-        data-dashboard-default-window={activeDefaultDelta}
-      >
+      <section class="featured" data-role="featured">
         <h2 class="section-eyebrow">Featured dashboards</h2>
         <div class="featured-tabs" role="tablist" aria-label="Preset dashboards">
           {tabs.map((t) => {
@@ -148,17 +124,6 @@ const tabs: TabSpec[] = sorted.map((d) => ({
               </a>
             </p>
           </header>
-
-          <DashboardGrid
-            sections={activeSections}
-            supportedDeltas={activeSupported}
-            defaultDelta={activeDefaultDelta}
-            dashboardSlug={active.id}
-            fixedRange={active.data.fixedRange}
-            chartOverrides={active.data.chartOverrides}
-            barSnapshots={activeBarSnapshots}
-            headingLevel="h4"
-          />
         </div>
       </section>
     )}
@@ -304,7 +269,9 @@ const tabs: TabSpec[] = sorted.map((d) => ({
 
   </div>
 
-  <ChartController />
+  {/* No <ChartController /> here: the home page no longer renders any chart
+      tiles (the featured dashboard is now preset nav, and the my-dashboards
+      list is link cards), so the heavy chart-dialog island isn't loaded. */}
 
   <script>
     import {
