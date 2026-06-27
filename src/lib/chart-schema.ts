@@ -23,9 +23,9 @@
  */
 import type * as Zod from "zod";
 
-export function buildChartOverrideShape(
+export function buildChartOverrideShape<DW extends Zod.ZodTypeAny>(
   z: typeof Zod.z,
-  deltaWindowSchema: Zod.ZodTypeAny,
+  deltaWindowSchema: DW,
 ) {
   const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
   return {

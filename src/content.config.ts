@@ -1,6 +1,7 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
 import { glob } from "astro/loaders";
-import { buildChartOverrideShape } from "../lib/chart-schema";
+import { buildChartOverrideShape } from "./lib/chart-schema";
 
 const deltaWindow = z.enum([
   "1w",
@@ -34,7 +35,9 @@ const formatting = z
     // a displayed "$1.63T" under notation:compact.
     scaleFactor: z.number().positive().optional(),
   })
-  .default({});
+  // zod 4: .default() now wants the post-parse OUTPUT shape; .prefault() keeps
+  // the old behavior (an empty input runs through the inner field defaults).
+  .prefault({});
 
 const provenance = z.object({
   provider: z.string(),
