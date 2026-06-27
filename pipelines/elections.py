@@ -226,9 +226,18 @@ def build_president() -> int:
                        values)
             n += 1
 
-    # ---- COUNTY (2000-2024): sum over `mode`, zero-pad FIPS ----
+    # ---- COUNTY (2000-2024): collapse `mode`, zero-pad FIPS ----
+    # MEDSL countypres ships candidatevotes broken out per voting `mode`
+    # (ELECTION DAY, EARLY VOTING, ABSENTEE, …). Recent years ALSO ship a
+    # per-county "TOTAL" mode row alongside the per-mode rows, so blindly
+    # summing every row double-counts each candidate — the 2024 bug that put
+    # 297 counties past +/-100pp. Rule: if a county has any TOTAL row, use ONLY
+    # the TOTAL rows; otherwise sum every non-TOTAL row (including blank-mode
+    # rows, which are the sole form for states that don't break results out by
+    # mode, e.g. Idaho). totalvotes is the true county total, repeated per row.
     crows = _rows(fetch_source("president_county"))
-    cby_year: dict[str, dict[str, dict[str, float]]] = {}
+    # yr -> fips -> {"T": total, "modes": {mode: {"D": .., "R": ..}}}
+    cby_year: dict[str, dict[str, dict]] = {}
     for r in crows:
         yr = (r.get("year") or "").strip()
         fips = (r.get("county_fips") or "").strip()
@@ -249,17 +258,32 @@ def build_president() -> int:
         tv = _f(r.get("totalvotes"))
         if not yr or cv is None or tv is None:
             continue
-        d = cby_year.setdefault(yr, {}).setdefault(fips, {"D": 0.0, "R": 0.0, "T": 0.0})
-        d["T"] = tv  # totalvotes is the county total, repeated per row
+        mode = (r.get("mode") or "").strip().upper()
+        county = cby_year.setdefault(yr, {}).setdefault(
+            fips, {"T": 0.0, "modes": {}})
+        county["T"] = tv  # totalvotes is the county total, repeated per row
+        md = county["modes"].setdefault(mode, {"D": 0.0, "R": 0.0})
         if party == "DEMOCRAT":
-            d["D"] += cv
+            md["D"] += cv
         elif party == "REPUBLICAN":
-            d["R"] += cv
+            md["R"] += cv
     for yr, geo in cby_year.items():
         values = {}
-        for fips, v in geo.items():
-            m = _margin(v["D"], v["R"], v["T"])
+        for fips, county in geo.items():
+            modes = county["modes"]
+            if "TOTAL" in modes:
+                dem, rep = modes["TOTAL"]["D"], modes["TOTAL"]["R"]
+            else:
+                dem = sum(mm["D"] for mm in modes.values())
+                rep = sum(mm["R"] for mm in modes.values())
+            m = _margin(dem, rep, county["T"])
             if m is not None:
+                # (D-R)/T is mathematically bounded to [-100, 100]; anything
+                # outside means a double-count slipped back in. Fail loudly.
+                if abs(m) > 100.0001:
+                    raise AssertionError(
+                        f"impossible county margin {m:.2f} at {yr}/{fips} "
+                        f"(D={dem} R={rep} T={county['T']})")
                 values[fips] = m
         if values:
             _write_map(COUNTY_MAP_DIR, "pres_margin_county", yr,
