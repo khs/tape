@@ -341,15 +341,13 @@ const defaultBoundary =
 // unit's AREA tracks its population. Same object name + GEOID keys as the normal
 // boundary, so the value-join and layer dispatch are unchanged — only the
 // geometry (and the projection: it's pre-projected, drawn with identity) differ.
-// Only levels with a BUILT asset get an entry; county + per-state tract/BG
-// aren't built yet, so a chart that sets cartogram:true on them falls through to
-// the normal choropleth (empty string → useCartogram false) instead of 404ing.
+// Only STATE ships a cartogram today. CD was dropped (equal-population districts
+// over-warp into an unrecognizable mess); county + per-state tract/BG aren't
+// built. Any other geo gets an empty string → cartogramAvailable false → no
+// toggle, and a chart that sets cartogram:true on it falls through to the normal
+// choropleth instead of 404ing.
 const cartogramBoundary =
-  geo === "state"
-    ? "/maps/us-states-cartogram-pop.json"
-    : geo === "cd"
-      ? "/maps/us-cd-cartogram-pop.json"
-      : "";
+  geo === "state" ? "/maps/us-states-cartogram-pop.json" : "";
 // A cartogram asset exists for this geo → the dialog shows an Area/Population
 // toggle. `cartogramDefault` is whether to START in population view (a curated
 // chart may opt in with `cartogram: true`); the user can flip it either way.

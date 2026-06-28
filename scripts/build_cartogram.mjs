@@ -11,13 +11,10 @@
 // 1976-2024, weighted by that year's population (FRED <ST>POP, Census estimates,
 // annual back to 1970). The renderer snaps a map's displayed vintage to the
 // nearest one, so the election year-slider is weighted by the population of THAT
-// era, not today's. CD level is single/latest — the 118th districts didn't exist
-// before 2022, so there's nothing to vintage-match against (and they're ~equal
-// population anyway).
+// era, not today's. (CD was dropped — equal-population districts over-warp into
+// an unrecognizable mess; county + per-state tract/BG are future work.)
 //
-//   node scripts/build_cartogram.mjs            # states (vintaged) + cd
-//   node scripts/build_cartogram.mjs states     # just the state vintages
-//   node scripts/build_cartogram.mjs cd         # just cd
+//   node scripts/build_cartogram.mjs
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
@@ -30,7 +27,6 @@ const ts = nodeRequire("topojson-server");
 
 const ROOT = process.cwd();
 const MAPS = path.join(ROOT, "public", "maps");
-const DATA = path.join(ROOT, "public", "data");
 const WASM = path.join(ROOT, "node_modules", "go-cart-wasm", "dist", "cart.wasm");
 const SIZE = [975, 610]; // standard d3 us-atlas canvas; cartogram is scale-free
 
@@ -52,39 +48,6 @@ const FIPS_TO_POSTAL = {
   "40": "OK", "41": "OR", "42": "PA", "44": "RI", "45": "SC", "46": "SD",
   "47": "TN", "48": "TX", "49": "UT", "50": "VT", "51": "VA", "53": "WA",
   "54": "WV", "55": "WI", "56": "WY",
-};
-
-// Latest value from a timeseries JSON ({points:[{t,v}]}), or null if absent.
-function lastV(file) {
-  if (!fs.existsSync(file)) return null;
-  const pts = JSON.parse(fs.readFileSync(file, "utf8")).points || [];
-  return pts.length ? pts[pts.length - 1].v : null;
-}
-
-// --- single-file levels (cd; county would extend the same shape) ------------
-const LEVELS = {
-  cd: {
-    topo: "us-cd118-10m.json",
-    object: "cd",
-    out: "us-cd-cartogram-pop.json",
-    // Partial cartogram: districts are drawn to ~equal population, so a FULL
-    // equalization (strength 1) over-warps them for no analytic gain — every
-    // district already holds the same number of people. Blend halfway toward the
-    // cartogram so shapes stay recognizable while still shedding land-area bias.
-    strength: 0.5,
-    // CD topo id = 2-digit state FIPS + 2-digit district ("0804" = CO-04).
-    pop: (id) => {
-      const postal = FIPS_TO_POSTAL[id.slice(0, 2)];
-      if (!postal) return null; // island territories (GU/AS/MP/VI/PR) → dropped
-      const lo = postal.toLowerCase();
-      // Normal multi-district CD.
-      const cdv = lastV(path.join(DATA, "acs_cd", `population_${lo}_${id.slice(2)}.json`));
-      if (cdv != null) return cdv;
-      // At-large state (topo "XX00") or DC delegate ("1198"): the district IS the
-      // whole state and acs_cd emits no file, so use the state population.
-      return lastV(path.join(DATA, "acs_state", `population_${lo}.json`));
-    },
-  },
 };
 
 // Project every coordinate of a Polygon/MultiPolygon through `proj`.
@@ -203,23 +166,6 @@ function buildCartogram(feats, objectName, outName, strength, label, GoCart) {
   return outPath;
 }
 
-// Single-file level (cd): read topo, attach latest population, build one file.
-function buildLevel(key, GoCart) {
-  const cfg = LEVELS[key];
-  const topo = JSON.parse(fs.readFileSync(path.join(MAPS, cfg.topo), "utf8"));
-  const fc = tc.feature(topo, topo.objects[cfg.object]);
-  const feats = [];
-  let missing = 0;
-  for (const f of fc.features) {
-    const id = String(f.id ?? f.properties?.GEOID ?? f.properties?.id ?? "");
-    const pop = cfg.pop(id);
-    if (pop == null || !(pop > 0)) { missing++; continue; }
-    feats.push({ ...f, id, properties: { ...(f.properties || {}), id, GEOID: id, population: pop } });
-  }
-  if (missing) console.log(`  [${key}] ${missing} features dropped (no population)`);
-  buildCartogram(feats, cfg.object, cfg.out, cfg.strength ?? 1, key, GoCart);
-}
-
 // Annual state population (thousands) per election-year vintage, from FRED's
 // <ST>POP series (Census resident-population estimates, keyless fredgraph.csv —
 // the only FRED access this project uses). Returns { year -> { fips -> pop } }.
@@ -276,10 +222,6 @@ async function buildStatesVintaged(GoCart) {
   );
 }
 
-const want = process.argv.slice(2);
-const doStates = !want.length || want.includes("states");
-const doCd = !want.length || want.includes("cd");
 const GoCart = await initGoCart({ locateFile: () => WASM });
-if (doStates) await buildStatesVintaged(GoCart);
-if (doCd) buildLevel("cd", GoCart);
+await buildStatesVintaged(GoCart);
 console.log("cartogram build complete.");
