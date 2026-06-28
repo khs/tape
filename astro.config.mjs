@@ -3,7 +3,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
-import { rm, stat } from "node:fs/promises";
+import { readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
 // Production site URL. Used by Astro.site (for sitemap, canonical URLs,
@@ -124,6 +124,59 @@ export default defineConfig({
               if (e && e.code !== "ENOENT") {
                 logger.warn(`could not strip ${target}: ${e}`);
               }
+            }
+          }
+
+          // Function-size tripwire. Measure what Vercel will actually deploy
+          // (after the strip above). The hard ceiling is 250MB unzipped; the
+          // content-layer chunk — 38k+ source records bundled into the function
+          // for SSR — is the main driver and grows with the catalog. We log the
+          // size every build for visibility, warn as it climbs, and FAIL the
+          // build before the cryptic Vercel 250MB deploy error instead of after.
+          const funcDir = path.join(
+            projectRoot,
+            ".vercel/output/functions/_render.func",
+          );
+          const dirSize = async (dir) => {
+            let total = 0;
+            let entries;
+            try {
+              entries = await readdir(dir, { withFileTypes: true });
+            } catch {
+              return 0; // function dir absent (e.g. fully-static build)
+            }
+            for (const e of entries) {
+              const p = path.join(dir, e.name);
+              if (e.isDirectory()) total += await dirSize(p);
+              else {
+                try {
+                  total += (await stat(p)).size;
+                } catch {
+                  /* file vanished mid-walk — ignore */
+                }
+              }
+            }
+            return total;
+          };
+          const bytes = await dirSize(funcDir);
+          if (bytes > 0) {
+            const mb = bytes / (1024 * 1024);
+            const WARN_MB = 180;
+            const FAIL_MB = 240; // Vercel hard limit is 250MB
+            logger.info(`_render.func size: ${mb.toFixed(0)}MB (Vercel limit 250MB)`);
+            if (mb >= FAIL_MB) {
+              throw new Error(
+                `_render.func is ${mb.toFixed(0)}MB, over the ${FAIL_MB}MB ` +
+                  `tripwire (Vercel hard-fails deploys at 250MB). The ` +
+                  `content-layer chunk (src/content metadata bundled into the ` +
+                  `function) is the usual cause — strip more public/ subtrees in ` +
+                  `this hook, or trim source metadata fields before they bundle.`,
+              );
+            } else if (mb >= WARN_MB) {
+              logger.warn(
+                `_render.func is ${mb.toFixed(0)}MB — approaching the 250MB ` +
+                  `ceiling (warn at ${WARN_MB}MB). Plan to trim the content-layer chunk.`,
+              );
             }
           }
         },
