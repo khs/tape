@@ -38,5 +38,7 @@ describe("source summaries (referenced tiles)", () => {
         `tile low-fi payload — first paint will be empty). Regenerate summaries ` +
         `for:\n  ${missing.join("\n  ")}\n`,
     ).toEqual([]);
-  });
+    // Corpus walk + two stats per source: fast alone (~0.6s) but flakes past the
+    // 5s default under parallel-suite I/O contention. Give it headroom.
+  }, 30000);
 });
