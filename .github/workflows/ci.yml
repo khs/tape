@@ -105,6 +105,9 @@ jobs:
           python -m unittest pipelines.test_census_acs_cd -v
           python -m unittest pipelines.test_dispatch_alert_emails -v
           python -m unittest pipelines.test_merge_points_fuzz -v
+          python -m unittest pipelines.test_census_acs_choropleth -v
+          python -m unittest pipelines.test_fred_catalog -v
+          python -m unittest pipelines.test_ci_test_coverage -v
 
       # The minutes-long `audit --full` deep scan of UNREFERENCED sources
       # moved to .github/workflows/weekly-safety.yml. It was report-only
