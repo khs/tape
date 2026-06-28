@@ -8,6 +8,7 @@ import {
   type TileSummary,
 } from "../lib/load-data";
 import { renderMarkdown } from "../lib/markdown";
+import ApproximatedNote from "./ApproximatedNote.astro";
 import { jsonForScript } from "../lib/json-island";
 import {
   formatValue,
@@ -540,6 +541,17 @@ const showTransformPills =
 //             the chart) and fix the spark to the same height a one-source
 //             chart gets, letting the card grow downward.
 const sparkMode = perSource.length >= 4 ? "fixed" : "fill";
+// Single-source charts: surface the "old data approximated" note (from the
+// downsample flag) in the dialog, near the blurb. Only single-source — for a
+// multi-source chart it's ambiguous which series is approximated. Suppressed on
+// the source page, which renders its own page-level note above the tile (no
+// double). Read from whichever load mode resolved (full data or tile summary).
+const singleApproxBefore: string | null =
+  perSource.length === 1 && dashboardSlug !== "source"
+    ? (perSource[0].data?.approximatedBefore ??
+        perSource[0].summary?.approximatedBefore ??
+        null)
+    : null;
 const savedTransform =
   (chart as { transform?: TransformKey }).transform ?? "level";
 const effectiveTransform: TransformKey = allowedTransforms.includes(
@@ -972,6 +984,8 @@ const mostRecentUpdate = payload.sources
         <Fragment set:html={renderMarkdown(blurb)} />
       </div>
     )}
+
+    <ApproximatedNote before={singleApproxBefore} variant="inline" />
 
     <footer class="dialog-footer muted">
       {
