@@ -175,9 +175,14 @@ export const pageTests: DiagnosticTest[] = [
       }
       const chartCount = charts.length;
       const sourceCount = Object.keys(sources).length;
-      // 100 + 1000 are conservative floors — the pipeline emits
-      // ~thousands of sources and at least dozens of curated charts.
-      if (sourceCount < 1000) {
+      // Floor for the LEAN /library.json. Since the lean/geo split, the ~96% of
+      // sources that are geographic (per-CD / metro / state / country) are
+      // lazy-loaded behind /library-geo and are deliberately NOT in this
+      // payload — it carries only the visible-by-default non-geo catalog (~685
+      // today). The old 1000 floor predated that split and fired a permanent
+      // false "unusually low" warning. 500 still catches a real collapse of the
+      // lean catalog without flagging its normal size.
+      if (sourceCount < 500) {
         return warn(
           `${sourceCount} sources, ${chartCount} charts — sources unusually low`,
           { chartCount, sourceCount },
