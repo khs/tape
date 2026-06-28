@@ -16,6 +16,13 @@ const MAX_SECTIONS = 100;
 const MAX_CHARTS = 300; // per-section and top-level chart lists
 const MAX_INLINE_ENTRIES = 300; // inlineCharts / inlineSources / inlineMaps / chartOverrides
 const MAX_SOURCES_PER_CHART = 50;
+// Byte ceiling on the ENCODED state. The count caps above bound how many
+// entities a state has, not the size of any single field (a title, blurb, or
+// inline definition). Cap the raw encoded length too, so a multi-MB ?d= or
+// saved-dashboard row can't force a large decode + resolveSections pass. 256KB
+// is far above any real composition (legit states are single-digit KB) — it
+// bounds abuse, not use; an oversized row decodes to an error banner.
+const MAX_ENCODED_LENGTH = 256 * 1024;
 const boundedRecord = <T extends z.ZodTypeAny>(value: T, max = MAX_INLINE_ENTRIES) =>
   z
     .record(z.string(), value)
@@ -312,6 +319,13 @@ export type DecodeResult =
  */
 export function decodeComposedState(raw: string | null | undefined): DecodeResult {
   if (!raw) return { ok: false, reason: "empty", message: "No composition provided." };
+  if (raw.length > MAX_ENCODED_LENGTH) {
+    return {
+      ok: false,
+      reason: "invalid-encoding",
+      message: "Composition is too large to load.",
+    };
+  }
   let json: string;
   try {
     json = base64urlDecode(raw);

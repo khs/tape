@@ -157,6 +157,15 @@ describe("decode error handling", () => {
     if (!dec.ok) expect(dec.reason).toBe("invalid-encoding");
   });
 
+  it("rejects an over-long encoded state before decoding (size cap)", () => {
+    // Past the 256KB ceiling — bounds a multi-MB ?d= / saved row from forcing a
+    // heavy decode + resolveSections pass. Rejected on length alone, pre-parse.
+    const huge = "A".repeat(256 * 1024 + 1);
+    const dec = decodeComposedState(huge);
+    expect(dec.ok).toBe(false);
+    if (!dec.ok) expect(dec.reason).toBe("invalid-encoding");
+  });
+
   it("returns ok=false with reason='wrong-version' when v doesn't match", () => {
     // Hand-craft a base64url of `{v: 999}` to simulate a future-version
     // composition link being opened by a currently-deployed renderer.
