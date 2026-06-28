@@ -1,69 +1,126 @@
 """
-Trim each source's full data JSON to its declared longest supportedDeltas
-window plus a small buffer. Source YAMLs declare what windows the
-charting code will ever render, so any history older than that is dead
-weight on every page load.
+Bound each source's data file to a payload budget by DOWNSAMPLING old data,
+without ever dropping the time span.
 
-Why this exists
----------------
-Some sources (Yahoo equities like KO, XOM) carry 50+ years of daily
-data — over 1MB per file. The dashboards using them top out at 10-year
-windows, so 80% of the data has never been displayed. Multiply across
-~6800 sources and the cumulative bandwidth waste on every page load
-and every Vercel function fetch is real.
+Why this exists / what changed
+------------------------------
+The old version TRUNCATED each file to its longest declared supportedDeltas
+window (~50y). That made sense before the synthetic "max" / all-time pill
+existed, but now every chart offers all-time — so truncation actively breaks it,
+and it punished low-frequency series (a 125-point annual series is ~2KB, yet got
+clipped to ~55 points, throwing away a century).
 
-This script reads each source's YAML manifest to find its longest
-declared supportedDelta, looks up the corresponding data file, and
-rewrites it with only points falling within (longest_window * 1.1)
-of the latest observation. The 10% buffer is for charts that compose
-multiple sources where the closestSupported fallback picks a slightly-
-larger window than declared.
+This version decouples retention (payload) from display (windows):
+  • Series at or under BUDGET points are left untouched — full history, free.
+    (All annual / monthly series fall here.)
+  • Series over BUDGET keep the last RECENT_NATIVE_DAYS verbatim (so the dense
+    short windows stay exact) and the OLDER portion is min/max (M4) decimated to
+    fit the remaining budget. The full SPAN survives, so "max" works everywhere;
+    only point DENSITY drops for old data, and extremes (spikes/crashes) are
+    preserved by construction.
 
-Trimmed files keep the same JSON shape — only the `points` array is
-shortened. No renderer code needs to change.
+Where a file is decimated, we stamp `approximatedBefore: <cutoff>` onto the data
+file AND its .summary.json, so the source page and single-source charts can warn
+that data older than ~5 years may be approximated.
 
-Pipeline ordering note: build_summaries.py runs BEFORE this script in
-the refresh workflow, so summaries are computed from the full
-(un-trimmed) data. If we trimmed first, sparks for windows beyond the
-declared max would have fewer points than they could, defeating the
-purpose.
+M4 reference: Jugel et al., "M4: A Visualization-Oriented Time Series Data
+Aggregation" (VLDB 2014) — per bucket keep first, last, value-min, value-max.
 
-Idempotent: re-running on already-trimmed files is a no-op. Run with
-``python pipelines/trim_source_data.py``.
+Pipeline ordering: runs AFTER build_summaries.py (sparks are computed from full
+data) and AFTER the fetch (which writes full history). Idempotent: a file already
+at/under budget is left alone, and an existing approximated-flag is preserved.
+
+Run with ``python pipelines/trim_source_data.py``.
 """
 from __future__ import annotations
 
 import json
 import sys
-import yaml
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = REPO_ROOT / "public" / "data"
 SOURCES_ROOT = REPO_ROOT / "src" / "content" / "sources"
 
-DELTA_DAYS = {
-    "1w": 7,
-    "1m": 30,
-    "ytd": 366,
-    "1y": 365,
-    "5y": 365 * 5,
-    "10y": 365 * 10,
-    "30y": 365 * 30,
-    "50y": 365 * 50,
-}
-BUFFER_FACTOR = 1.1  # keep 10% extra to be safe for cross-source charts
+BUDGET = 2500            # target ceiling, points per file
+RECENT_NATIVE_DAYS = 365 * 5  # keep the last ~5y verbatim (short windows stay exact)
 
 
-def trim_data_file(
-    data_file: Path,
-    longest_days: int,
-) -> tuple[bool, int, int]:
+def _parse(t: str) -> datetime:
+    return datetime.strptime(t[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+
+
+def m4_bucket(points: list[dict], out_budget: int) -> list[dict]:
+    """Min/max (M4) decimate `points` to ~out_budget points, preserving extremes.
+
+    Partition into out_budget//4 contiguous equal-count buckets; from each emit
+    first, last, value-min, value-max (deduped, in time order). Flat buckets
+    collapse to ~1 point; only volatile buckets cost the full 4.
     """
-    Trim a single data file to the last `longest_days * BUFFER_FACTOR`
-    days from its latest observation. Returns (changed, kept, dropped).
-    """
+    n = len(points)
+    if n <= out_budget or out_budget < 4:
+        return points
+    n_buckets = max(1, out_budget // 4)
+    out: list[dict] = []
+    for b in range(n_buckets):
+        lo = b * n // n_buckets
+        hi = (b + 1) * n // n_buckets
+        bucket = points[lo:hi]
+        if not bucket:
+            continue
+        picks = {
+            id(bucket[0]): bucket[0],
+            id(bucket[-1]): bucket[-1],
+        }
+        vmin = min(bucket, key=lambda p: p["v"])
+        vmax = max(bucket, key=lambda p: p["v"])
+        picks[id(vmin)] = vmin
+        picks[id(vmax)] = vmax
+        out.extend(sorted(picks.values(), key=lambda p: p["t"]))
+    return out
+
+
+def downsample_points(points: list[dict]) -> tuple[list[dict], str | None]:
+    """Return (new_points, approximated_before_iso). approx is None if untouched."""
+    if len(points) <= BUDGET:
+        return points, None
+    try:
+        latest = _parse(points[-1]["t"])
+    except (KeyError, ValueError):
+        return points, None
+    cutoff = latest - timedelta(days=RECENT_NATIVE_DAYS)
+    cutoff_iso = cutoff.strftime("%Y-%m-%d")
+    split = next((i for i, p in enumerate(points) if p["t"][:10] >= cutoff_iso), len(points))
+    recent = points[split:]
+    old = m4_bucket(points[:split], max(4, BUDGET - len(recent)))
+    return old + recent, cutoff_iso
+
+
+def _patch_summary(summary_file: Path, approx_before: str | None) -> None:
+    """Mirror the approximated-flag onto the .summary.json (built earlier)."""
+    if not summary_file.exists():
+        return
+    try:
+        s = json.loads(summary_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    cur = s.get("approximatedBefore")
+    if approx_before:
+        if cur == approx_before:
+            return
+        s["approximatedBefore"] = approx_before
+    else:
+        if cur is None:
+            return
+        s.pop("approximatedBefore", None)
+    summary_file.write_text(json.dumps(s, separators=(",", ":")), encoding="utf-8")
+
+
+def downsample_file(data_file: Path) -> tuple[bool, int, int]:
+    """Downsample one data file if over budget; stamp the flag. (changed, before, after)."""
     try:
         full = json.loads(data_file.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -73,34 +130,34 @@ def trim_data_file(
     points = full.get("points") or []
     if not points:
         return False, 0, 0
-    try:
-        latest_t = datetime.strptime(points[-1]["t"][:10], "%Y-%m-%d").replace(
-            tzinfo=timezone.utc
-        )
-    except (KeyError, ValueError):
-        return False, 0, 0
-    cutoff = latest_t - timedelta(days=int(longest_days * BUFFER_FACTOR))
-    cutoff_iso = cutoff.strftime("%Y-%m-%d")
-    kept = [p for p in points if p["t"][:10] >= cutoff_iso]
-    if len(kept) == len(points):
-        return False, len(points), 0
-    full["points"] = kept
-    data_file.write_text(
-        json.dumps(full, separators=(",", ":")),
-        encoding="utf-8",
-    )
-    return True, len(kept), len(points) - len(kept)
+
+    new_points, approx_before = downsample_points(points)
+    # Preserve a prior flag if a re-run sees an already-downsampled (now small) file.
+    if approx_before is None and full.get("approximatedBefore"):
+        approx_before = full["approximatedBefore"]
+
+    changed = len(new_points) != len(points) or full.get("approximatedBefore") != approx_before
+    if approx_before:
+        full["approximatedBefore"] = approx_before
+    else:
+        full.pop("approximatedBefore", None)
+    full["points"] = new_points
+    if changed:
+        data_file.write_text(json.dumps(full, separators=(",", ":")), encoding="utf-8")
+
+    _patch_summary(data_file.with_name(data_file.stem + ".summary.json"), approx_before)
+    return changed, len(points), len(new_points)
 
 
 def main() -> int:
     if not SOURCES_ROOT.exists() or not DATA_ROOT.exists():
-        print(f"missing sources/data root", file=sys.stderr)
+        print("missing sources/data root", file=sys.stderr)
         return 1
     yaml_files = list(SOURCES_ROOT.rglob("*.yaml"))
     print(f"trim_source_data: scanning {len(yaml_files)} source manifests...")
-    total_changed = 0
-    total_kept = 0
-    total_dropped = 0
+    changed_files = 0
+    kept = 0
+    dropped = 0
     bytes_before = 0
     bytes_after = 0
     for yaml_path in yaml_files:
@@ -112,41 +169,27 @@ def main() -> int:
         if not isinstance(manifest, dict):
             continue
         data_file_rel = manifest.get("dataFile")
-        supported = manifest.get("supportedDeltas") or []
-        if not data_file_rel or not isinstance(supported, list):
-            continue
-        # Find longest supported window. We treat ytd as 1y for trimming
-        # purposes — its actual span depends on today's date and we'd
-        # rather over-keep than risk under-keeping.
-        longest_days = max(
-            (DELTA_DAYS.get(w, 0) for w in supported),
-            default=0,
-        )
-        if longest_days <= 0:
+        if not data_file_rel:
             continue
         data_file = REPO_ROOT / "public" / data_file_rel
         if not data_file.exists():
             continue
         size_before = data_file.stat().st_size
+        was_changed, before, after = downsample_file(data_file)
         bytes_before += size_before
-        changed, kept, dropped = trim_data_file(data_file, longest_days)
-        size_after = data_file.stat().st_size
-        bytes_after += size_after
-        if changed:
-            total_changed += 1
-            total_kept += kept
-            total_dropped += dropped
-    print(
-        f"trim_source_data: trimmed {total_changed} files; "
-        f"kept {total_kept} points, dropped {total_dropped} points"
-    )
+        bytes_after += data_file.stat().st_size
+        if was_changed:
+            changed_files += 1
+            kept += after
+            dropped += before - after
     mb_before = bytes_before / (1024 * 1024)
     mb_after = bytes_after / (1024 * 1024)
-    saved_pct = (1 - mb_after / mb_before) * 100 if mb_before > 0 else 0
+    saved = (1 - mb_after / mb_before) * 100 if mb_before > 0 else 0
     print(
-        f"  data size: {mb_before:.1f} MB -> {mb_after:.1f} MB "
-        f"({saved_pct:.1f}% saved)"
+        f"trim_source_data: downsampled {changed_files} files; "
+        f"kept {kept} points, dropped {dropped}"
     )
+    print(f"  data size: {mb_before:.1f} MB -> {mb_after:.1f} MB ({saved:.1f}% saved)")
     return 0
 
 
