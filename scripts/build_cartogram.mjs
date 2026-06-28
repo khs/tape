@@ -1,18 +1,23 @@
 // Build population-weighted CONTIGUOUS cartogram geometry (the smooth
-// Gastner-Seguy-More flow-based "diffusion" look) for a US geography level.
+// Gastner-Seguy-More flow-based "diffusion" look) for US geography levels.
 //
-// Why precompute: the cartogram is weighted by POPULATION (stable), not by the
-// metric you color it with — so one distorted geometry per (level, vintage)
-// serves every indicator (vote margin, poverty %, …). The metric just colors
-// the warped polygons, exactly like a normal choropleth. Output is in PROJECTED
-// (planar Albers-USA) coordinates, so the renderer draws it with an identity
-// projection (it's already projected), not albers-usa.
+// Why precompute: the cartogram is weighted by POPULATION, not the metric you
+// color it with — so one distorted geometry per (level, population-vintage)
+// serves every indicator (vote margin, poverty %, …). The metric just colors the
+// warped polygons, exactly like a normal choropleth. Output is PROJECTED (planar
+// Albers-USA) coords, so the renderer draws it with an identity projection.
 //
-//   node scripts/build_cartogram.mjs            # all configured levels
-//   node scripts/build_cartogram.mjs states     # one level
+// STATE level is VINTAGED: one cartogram per presidential-election year
+// 1976-2024, weighted by that year's population (FRED <ST>POP, Census estimates,
+// annual back to 1970). The renderer snaps a map's displayed vintage to the
+// nearest one, so the election year-slider is weighted by the population of THAT
+// era, not today's. CD level is single/latest — the 118th districts didn't exist
+// before 2022, so there's nothing to vintage-match against (and they're ~equal
+// population anyway).
 //
-// Pipeline per level: topology -> FeatureCollection -> attach population by id
-// -> project to planar -> go-cart makeCartogram(weight="population") -> TopoJSON.
+//   node scripts/build_cartogram.mjs            # states (vintaged) + cd
+//   node scripts/build_cartogram.mjs states     # just the state vintages
+//   node scripts/build_cartogram.mjs cd         # just cd
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
@@ -28,6 +33,12 @@ const MAPS = path.join(ROOT, "public", "maps");
 const DATA = path.join(ROOT, "public", "data");
 const WASM = path.join(ROOT, "node_modules", "go-cart-wasm", "dist", "cart.wasm");
 const SIZE = [975, 610]; // standard d3 us-atlas canvas; cartogram is scale-free
+
+// Presidential election years — the vintages we emit state cartograms for. Maps
+// snap to the nearest; population changes slowly so 4-year steps are visually
+// lossless, and the election year-slider lands on exact matches.
+const STATE_VINTAGES = [];
+for (let y = 1976; y <= 2024; y += 4) STATE_VINTAGES.push(y);
 
 // FIPS -> USPS postal (50 + DC). Mirror of src/lib/state-fips.ts (a .mjs build
 // script can't import the .ts); territories omitted (no state topo/pop).
@@ -50,18 +61,8 @@ function lastV(file) {
   return pts.length ? pts[pts.length - 1].v : null;
 }
 
-// --- per-level config (county extends the same shape next) ------------------
+// --- single-file levels (cd; county would extend the same shape) ------------
 const LEVELS = {
-  states: {
-    topo: "us-states-10m.json",
-    object: "states",
-    out: "us-states-cartogram-pop.json",
-    // population for a state feature whose topo id is a 2-digit FIPS
-    pop: (id) =>
-      FIPS_TO_POSTAL[id]
-        ? lastV(path.join(DATA, "acs_state", `population_${FIPS_TO_POSTAL[id].toLowerCase()}.json`))
-        : null,
-  },
   cd: {
     topo: "us-cd118-10m.json",
     object: "cd",
@@ -157,22 +158,8 @@ function pearson(xs, ys) {
   return sxy / Math.sqrt(sxx * syy);
 }
 
-async function buildLevel(key, GoCart) {
-  const cfg = LEVELS[key];
-  const topo = JSON.parse(fs.readFileSync(path.join(MAPS, cfg.topo), "utf8"));
-  const fc = tc.feature(topo, topo.objects[cfg.object]);
-
-  // Attach population; drop features we can't weight.
-  const feats = [];
-  let missing = 0;
-  for (const f of fc.features) {
-    const id = String(f.id ?? f.properties?.GEOID ?? f.properties?.id ?? "");
-    const pop = cfg.pop(id);
-    if (pop == null || !(pop > 0)) { missing++; continue; }
-    feats.push({ ...f, id, properties: { ...(f.properties || {}), id, GEOID: id, population: pop } });
-  }
-  if (missing) console.log(`  [${key}] ${missing} features dropped (no population)`);
-
+// Core: features (lon/lat, properties.population) -> quantized cartogram TopoJSON.
+function buildCartogram(feats, objectName, outName, strength, label, GoCart) {
   // Project lon/lat -> planar (Albers-USA, AK/HI insets placed), fit to canvas.
   const proj = geoAlbersUsa().fitSize(SIZE, { type: "FeatureCollection", features: feats });
   const projected = {
@@ -182,31 +169,25 @@ async function buildLevel(key, GoCart) {
 
   // Flow-based contiguous cartogram, weighted by population.
   const cart = GoCart.makeCartogram(projected, "population");
-  // go-cart preserves feature order; re-attach id/props defensively.
   cart.features.forEach((f, i) => {
     f.id = projected.features[i].id;
     f.properties = projected.features[i].properties;
   });
 
   // Validate the FULL go-cart output (area must track population) BEFORE any
-  // softening or writing, so a degenerate run leaves no corrupt artifact. Check
-  // the full cartogram, not the blended one, because: (a) a partial blend
-  // deliberately breaks area∝population, and at levels with near-uniform
-  // population (CDs) the blended correlation is then just noise (~0); (b) the
-  // blend is a convex combination of two valid same-winding polygons, so it
-  // can't introduce the winding break / degeneracy this guard exists to catch.
-  // NaN-safe: a broken winding gives zero area variance → r = NaN, and `NaN < x`
-  // is false, so use !(r >= 0.9) to trip on NaN too.
+  // softening or writing, so a degenerate run leaves no corrupt artifact. NaN-safe:
+  // a broken winding gives zero area variance → r = NaN, and `NaN < x` is false,
+  // so use !(r >= 0.9) to trip on NaN too. (Check the full output, not the blend:
+  // a partial blend deliberately breaks area∝pop, and the blend is a convex combo
+  // of two valid same-winding polygons so it can't add the degeneracy this catches.)
   const areas = cart.features.map((f) => geomArea(f.geometry));
   const pops = cart.features.map((f) => f.properties.population);
   const r = pearson(areas, pops);
   if (!(r >= 0.9)) {
     const shown = Number.isFinite(r) ? r.toFixed(3) : "NaN";
-    throw new Error(`[${key}] area~population correlation ${shown} < 0.9 — cartogram looks wrong (check ring winding)`);
+    throw new Error(`[${label}] area~population correlation ${shown} < 0.9 — cartogram looks wrong (check ring winding)`);
   }
 
-  // Soften to a partial cartogram if this level asks for it (after the gate).
-  const strength = cfg.strength ?? 1;
   if (strength < 1) {
     for (let k = 0; k < cart.features.length; k++) {
       lerpToward(cart.features[k].geometry, projected.features[k].geometry, strength);
@@ -214,18 +195,88 @@ async function buildLevel(key, GoCart) {
   }
   // Quantize to shrink the file (planar coords → ~1e4 grid is visually lossless
   // at map scale; cuts the unquantized output several-fold).
-  const out = ts.topology({ [cfg.object]: cart }, 1e4);
-  const outPath = path.join(MAPS, cfg.out);
+  const out = ts.topology({ [objectName]: cart }, 1e4);
+  const outPath = path.join(MAPS, outName);
   fs.writeFileSync(outPath, JSON.stringify(out));
   const kb = (fs.statSync(outPath).size / 1024).toFixed(0);
-  console.log(`  [${key}] ${cart.features.length} features, full-cartogram area~pop r=${r.toFixed(3)}, strength=${strength}, ${kb}KB -> ${path.relative(ROOT, outPath)}`);
+  console.log(`  [${label}] ${cart.features.length} features, full r=${r.toFixed(3)}, strength=${strength}, ${kb}KB -> ${outName}`);
+  return outPath;
+}
+
+// Single-file level (cd): read topo, attach latest population, build one file.
+function buildLevel(key, GoCart) {
+  const cfg = LEVELS[key];
+  const topo = JSON.parse(fs.readFileSync(path.join(MAPS, cfg.topo), "utf8"));
+  const fc = tc.feature(topo, topo.objects[cfg.object]);
+  const feats = [];
+  let missing = 0;
+  for (const f of fc.features) {
+    const id = String(f.id ?? f.properties?.GEOID ?? f.properties?.id ?? "");
+    const pop = cfg.pop(id);
+    if (pop == null || !(pop > 0)) { missing++; continue; }
+    feats.push({ ...f, id, properties: { ...(f.properties || {}), id, GEOID: id, population: pop } });
+  }
+  if (missing) console.log(`  [${key}] ${missing} features dropped (no population)`);
+  buildCartogram(feats, cfg.object, cfg.out, cfg.strength ?? 1, key, GoCart);
+}
+
+// Annual state population (thousands) per election-year vintage, from FRED's
+// <ST>POP series (Census resident-population estimates, keyless fredgraph.csv —
+// the only FRED access this project uses). Returns { year -> { fips -> pop } }.
+async function fetchStatePopByYear() {
+  const byYear = {};
+  for (const y of STATE_VINTAGES) byYear[y] = {};
+  for (const [fips, postal] of Object.entries(FIPS_TO_POSTAL)) {
+    const id = `${postal}POP`;
+    const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}&cosd=1976-01-01`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`FRED ${id} HTTP ${res.status}`);
+    const csv = await res.text();
+    for (const line of csv.split(/\r?\n/).slice(1)) {
+      const [date, val] = line.split(",");
+      if (!date || val == null || val === "." || val.trim() === "") continue;
+      const yr = parseInt(date.slice(0, 4), 10);
+      if (byYear[yr]) byYear[yr][fips] = parseFloat(val);
+    }
+  }
+  return byYear;
+}
+
+// State level: one cartogram per election-year vintage, plus an un-suffixed copy
+// of the latest as the default (the renderer falls back to it when a map has no
+// vintage to match).
+async function buildStatesVintaged(GoCart) {
+  const topo = JSON.parse(fs.readFileSync(path.join(MAPS, "us-states-10m.json"), "utf8"));
+  const fc = tc.feature(topo, topo.objects.states);
+  console.log(`  [states] fetching FRED state population for ${STATE_VINTAGES.length} vintages…`);
+  const byYear = await fetchStatePopByYear();
+  let latestPath = null;
+  for (const y of STATE_VINTAGES) {
+    const popMap = byYear[y];
+    const feats = [];
+    for (const f of fc.features) {
+      const id = String(f.id);
+      const pop = popMap[id];
+      if (pop == null || !(pop > 0)) continue;
+      feats.push({ ...f, id, properties: { id, GEOID: id, population: pop } });
+    }
+    if (feats.length < 50) throw new Error(`[states@${y}] only ${feats.length} states have population — FRED fetch incomplete`);
+    latestPath = buildCartogram(feats, "states", `us-states-cartogram-pop-${y}.json`, 1, `states@${y}`, GoCart);
+  }
+  // Default (un-suffixed) = latest vintage, for the non-vintage render path.
+  if (latestPath) fs.copyFileSync(latestPath, path.join(MAPS, "us-states-cartogram-pop.json"));
+  // Manifest of available vintages so the renderer can snap a map's displayed
+  // vintage to the nearest cartogram without hardcoding the year list.
+  fs.writeFileSync(
+    path.join(MAPS, "us-states-cartogram-vintages.json"),
+    JSON.stringify(STATE_VINTAGES),
+  );
 }
 
 const want = process.argv.slice(2);
-const keys = want.length ? want : Object.keys(LEVELS);
+const doStates = !want.length || want.includes("states");
+const doCd = !want.length || want.includes("cd");
 const GoCart = await initGoCart({ locateFile: () => WASM });
-for (const k of keys) {
-  if (!LEVELS[k]) { console.error(`unknown level: ${k}`); continue; }
-  await buildLevel(k, GoCart);
-}
+if (doStates) await buildStatesVintaged(GoCart);
+if (doCd) buildLevel("cd", GoCart);
 console.log("cartogram build complete.");

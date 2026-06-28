@@ -30,6 +30,7 @@ import type { CollectionEntry } from "astro:content";
 import { promises as fs } from "node:fs";
 import { pickVintages, combineShardVintages } from "../lib/map-vintages";
 import { publicFilePath } from "../lib/public-dir";
+import { stateCartogramVintages } from "../lib/cartogram-vintages";
 import {
   isServerlessRuntime,
   resolveServerlessOrigin,
@@ -354,6 +355,12 @@ const cartogramBoundary =
 // chart may opt in with `cartogram: true`); the user can flip it either way.
 const cartogramAvailable = cartogramBoundary !== "";
 const cartogramDefault = (chart.cartogram ?? false) && cartogramAvailable;
+// State cartograms are VINTAGED (one per election year 1976-2024); the client
+// snaps a map's displayed vintage to the nearest. CD is a single file (its
+// boundaries are 118th-only, nothing to vintage-match). cartogramBase + the
+// vintages manifest let the client build the per-vintage URL.
+const cartogramBase = geo === "state" ? "/maps/us-states-cartogram-pop-" : "";
+const cartogramVintages = geo === "state" ? stateCartogramVintages() : [];
 // Boundary resolution order:
 //   1. Explicit chart.boundaryFile (pre-built regional bundle like
 //      /maps/dmv-tracts-topo.json — used by curated dashboards that
@@ -430,6 +437,8 @@ const statesJoined = stateCodes.join(",");
     data-color-scale={colorScale}
     data-cartogram={cartogramDefault ? "1" : undefined}
     data-cartogram-url={cartogramBoundary || undefined}
+    data-cartogram-base={cartogramBase || undefined}
+    data-cartogram-vintages={cartogramVintages.length ? JSON.stringify(cartogramVintages) : undefined}
     data-value-label={summary?.valueLabel ?? ""}
     data-unit={summary?.unit ?? ""}
     data-decimals={summary?.decimals ?? 1}
@@ -538,6 +547,13 @@ const statesJoined = stateCodes.join(",");
      *  (toggle hidden). */
     cartogram: boolean;
     cartogramUrl: string;
+    /** For VINTAGED cartograms (state): the URL prefix + available vintage years,
+     *  so the client snaps `vintage` (the displayed year) to the nearest file.
+     *  Empty for single-file levels (cd). */
+    cartogramBase: string;
+    cartogramVintages: number[];
+    /** The vintage currently displayed (the year slider updates it). */
+    vintage: string;
     valueLabel: string;
     unit: string;
     decimals: number;
@@ -778,13 +794,26 @@ const statesJoined = stateCodes.join(",");
     else if (b.geo === "cd") layerName = "cd";
     else layerName = "block_groups";
     // In population (cartogram) mode, draw the precomputed cartogram boundary
-    // instead of the normal one. It's a single national file (state / cd), so it
-    // overrides the normal one/many boundary URLs entirely.
-    let urls = b.cartogram && b.cartogramUrl
-      ? [b.cartogramUrl]
-      : b.boundaryUrls && b.boundaryUrls.length > 0
-        ? b.boundaryUrls
-        : [b.boundaryUrl];
+    // instead of the normal one (it overrides the normal one/many boundary URLs).
+    // State cartograms are VINTAGED: snap the displayed vintage to the nearest
+    // available year so the geometry matches the era of the data — a 1976 election
+    // map is weighted by 1976 population, not today's. CD + the no-vintage case
+    // fall back to the single cartogramUrl.
+    let urls: string[];
+    if (b.cartogram && b.cartogramUrl) {
+      let cgUrl = b.cartogramUrl;
+      const target = parseInt(b.vintage, 10);
+      if (b.cartogramBase && b.cartogramVintages.length > 0 && Number.isFinite(target)) {
+        const best = b.cartogramVintages.reduce(
+          (a, v) => (Math.abs(v - target) < Math.abs(a - target) ? v : a),
+          b.cartogramVintages[0],
+        );
+        cgUrl = `${b.cartogramBase}${best}.json`;
+      }
+      urls = [cgUrl];
+    } else {
+      urls = b.boundaryUrls && b.boundaryUrls.length > 0 ? b.boundaryUrls : [b.boundaryUrl];
+    }
     // Boundary-era selection. ACS vintages <= 2019 use the 2010-census tract /
     // block-group grid; 2020+ use the 2020 grid. The year slider rewrites
     // b.dataUrls per vintage but leaves the boundary fixed, so derive the era
@@ -1871,6 +1900,12 @@ const statesJoined = stateCodes.join(",");
         ChoroBindings["colorScale"],
       cartogram: canvas.dataset.cartogram === "1",
       cartogramUrl: canvas.dataset.cartogramUrl ?? "",
+      cartogramBase: canvas.dataset.cartogramBase ?? "",
+      cartogramVintages: (() => {
+        try { return JSON.parse(canvas.dataset.cartogramVintages ?? "[]") as number[]; }
+        catch { return []; }
+      })(),
+      vintage: canvas.dataset.vintage ?? "",
       valueLabel: canvas.dataset.valueLabel ?? "",
       unit: canvas.dataset.unit ?? "",
       decimals: Number(canvas.dataset.decimals ?? "1"),
