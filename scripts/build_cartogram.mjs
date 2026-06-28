@@ -66,6 +66,11 @@ const LEVELS = {
     topo: "us-cd118-10m.json",
     object: "cd",
     out: "us-cd-cartogram-pop.json",
+    // Partial cartogram: districts are drawn to ~equal population, so a FULL
+    // equalization (strength 1) over-warps them for no analytic gain — every
+    // district already holds the same number of people. Blend halfway toward the
+    // cartogram so shapes stay recognizable while still shedding land-area bias.
+    strength: 0.5,
     // CD topo id = 2-digit state FIPS + 2-digit district ("0804" = CO-04).
     pop: (id) => {
       const postal = FIPS_TO_POSTAL[id.slice(0, 2)];
@@ -113,6 +118,22 @@ function rewindGeom(geom) {
   if (geom.type === "MultiPolygon")
     return { type: "MultiPolygon", coordinates: geom.coordinates.map(rewindRings) };
   return geom;
+}
+
+// Partial cartogram: move each output vertex back toward its original (projected)
+// position by (1 - t). t=1 is the full area∝population cartogram; t<1 keeps shapes
+// more recognizable. go-cart displaces existing vertices without densifying, so
+// in/out geometries share vertex structure 1:1 (verified) and we can lerp pairwise.
+function lerpToward(outG, inG, t) {
+  const lr = (oR, iR) => {
+    for (let i = 0; i < oR.length; i++) {
+      oR[i][0] = iR[i][0] + t * (oR[i][0] - iR[i][0]);
+      oR[i][1] = iR[i][1] + t * (oR[i][1] - iR[i][1]);
+    }
+  };
+  if (outG.type === "Polygon") outG.coordinates.forEach((r, ri) => lr(r, inG.coordinates[ri]));
+  else if (outG.type === "MultiPolygon")
+    outG.coordinates.forEach((po, pi) => po.forEach((r, ri) => lr(r, inG.coordinates[pi][ri])));
 }
 
 function ringArea(r) {
@@ -167,19 +188,29 @@ async function buildLevel(key, GoCart) {
     f.properties = projected.features[i].properties;
   });
 
-  // Correctness check: distorted area should track population.
+  // Validate the FULL go-cart output (area must track population) BEFORE any
+  // softening or writing, so a degenerate run leaves no corrupt artifact. Check
+  // the full cartogram, not the blended one, because: (a) a partial blend
+  // deliberately breaks area∝population, and at levels with near-uniform
+  // population (CDs) the blended correlation is then just noise (~0); (b) the
+  // blend is a convex combination of two valid same-winding polygons, so it
+  // can't introduce the winding break / degeneracy this guard exists to catch.
+  // NaN-safe: a broken winding gives zero area variance → r = NaN, and `NaN < x`
+  // is false, so use !(r >= 0.9) to trip on NaN too.
   const areas = cart.features.map((f) => geomArea(f.geometry));
   const pops = cart.features.map((f) => f.properties.population);
   const r = pearson(areas, pops);
-
-  // Validate BEFORE writing so a degenerate run never leaves a corrupt artifact
-  // on disk. NaN-safe: broken ring winding gives degenerate geometry → zero area
-  // variance → r = NaN, and `NaN < 0.9` is false (it would slip a `<` gate). Use
-  // !(r >= 0.9) so NaN trips the gate too — this is the very failure the rewind
-  // exists to prevent, so the guard must catch it.
   if (!(r >= 0.9)) {
     const shown = Number.isFinite(r) ? r.toFixed(3) : "NaN";
     throw new Error(`[${key}] area~population correlation ${shown} < 0.9 — cartogram looks wrong (check ring winding)`);
+  }
+
+  // Soften to a partial cartogram if this level asks for it (after the gate).
+  const strength = cfg.strength ?? 1;
+  if (strength < 1) {
+    for (let k = 0; k < cart.features.length; k++) {
+      lerpToward(cart.features[k].geometry, projected.features[k].geometry, strength);
+    }
   }
   // Quantize to shrink the file (planar coords → ~1e4 grid is visually lossless
   // at map scale; cuts the unquantized output several-fold).
@@ -187,7 +218,7 @@ async function buildLevel(key, GoCart) {
   const outPath = path.join(MAPS, cfg.out);
   fs.writeFileSync(outPath, JSON.stringify(out));
   const kb = (fs.statSync(outPath).size / 1024).toFixed(0);
-  console.log(`  [${key}] ${cart.features.length} features, area~pop r=${r.toFixed(3)}, ${kb}KB -> ${path.relative(ROOT, outPath)}`);
+  console.log(`  [${key}] ${cart.features.length} features, full-cartogram area~pop r=${r.toFixed(3)}, strength=${strength}, ${kb}KB -> ${path.relative(ROOT, outPath)}`);
 }
 
 const want = process.argv.slice(2);
