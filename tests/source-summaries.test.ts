@@ -23,6 +23,10 @@ import {
 } from "./corpus";
 
 describe("source summaries (referenced tiles)", () => {
+  // Walks every referenced source and stats two files apiece. Fast alone
+  // (~0.6s) but it competes for disk I/O against the rest of the suite under
+  // vitest's parallel workers, where it has blown past the 5s default. Give it
+  // headroom so a busy CI box can't flake this gate.
   it("every referenced timeseries source has a .summary.json sibling", () => {
     const missing: string[] = [];
     for (const s of referencedSources()) {
@@ -38,5 +42,5 @@ describe("source summaries (referenced tiles)", () => {
         `tile low-fi payload — first paint will be empty). Regenerate summaries ` +
         `for:\n  ${missing.join("\n  ")}\n`,
     ).toEqual([]);
-  });
+  }, 30000);
 });
