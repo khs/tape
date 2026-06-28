@@ -260,7 +260,10 @@ async function buildStatesVintaged(GoCart) {
       if (pop == null || !(pop > 0)) continue;
       feats.push({ ...f, id, properties: { id, GEOID: id, population: pop } });
     }
-    if (feats.length < 50) throw new Error(`[states@${y}] only ${feats.length} states have population — FRED fetch incomplete`);
+    // The states topo has exactly 51 features (50 + DC) and FRED has <ST>POP for
+    // all of them back to 1970; require the full set so a single dropped state
+    // can't silently ship a 50-feature cartogram.
+    if (feats.length < 51) throw new Error(`[states@${y}] only ${feats.length}/51 states have population — FRED fetch incomplete`);
     latestPath = buildCartogram(feats, "states", `us-states-cartogram-pop-${y}.json`, 1, `states@${y}`, GoCart);
   }
   // Default (un-suffixed) = latest vintage, for the non-vintage render path.
