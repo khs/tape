@@ -342,6 +342,7 @@ const navActive = (prefix: string): boolean =>
       // ---- Add-to-my-dashboard modal ----
       // Listens for `legible:add-to-dashboard` events and walks the user
       // through picking a saved dashboard to append the chart to.
+      import { escapeHtml as escapeHtmlSafe } from "../lib/escape-html";
       import {
         readStoredSession,
         SUPABASE_REST_URL,
@@ -372,13 +373,6 @@ const navActive = (prefix: string): boolean =>
         "[data-role='atd-cancel']",
       );
 
-      function escapeHtmlSafe(s: string): string {
-        return s
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
-      }
 
       function closeAtd(): void {
         if (atdBackdrop) atdBackdrop.hidden = true;

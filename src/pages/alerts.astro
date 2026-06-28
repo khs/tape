@@ -405,6 +405,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   </dialog>
 
   <script>
+    import { escapeHtml } from "../lib/escape-html";
     import {
       createSupabase,
       isSupabaseConfigured,
@@ -1490,14 +1491,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       });
     }
 
-    function escapeHtml(s: string): string {
-      return s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
     function escapeAttr(s: string): string {
       return escapeHtml(s);
     }

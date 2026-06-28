@@ -35,16 +35,9 @@
  * dashboards shared with strangers.
  */
 
-const ALLOWED_URL_PREFIXES = ["http://", "https://", "/", "mailto:"] as const;
+import { escapeHtml } from "./escape-html";
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+const ALLOWED_URL_PREFIXES = ["http://", "https://", "/", "mailto:"] as const;
 
 function isAllowedUrl(href: string): boolean {
   const trimmed = href.trim();

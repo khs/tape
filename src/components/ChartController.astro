@@ -9,6 +9,7 @@
 ---
 
 <script>
+  import { escapeHtml } from "../lib/escape-html";
   import * as Plot from "@observablehq/plot";
   import {
     DELTA_LABELS_PAST,
@@ -915,16 +916,7 @@
   // strings come from YAML/format.ts and aren't user input today,
   // but escaping keeps the path safe if a future source name picks
   // up a "&" or "<" character.
-  const HTML_ESCAPES: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  };
-  function escapeHtml(s: string): string {
-    return s.replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
-  }
+  // escapeHtml + its entity table now live in ../lib/escape-html (imported above).
 
   // (Previously defined a standalone rebasePoints helper here; the
   // actual rebasing logic is inlined at the render site below since

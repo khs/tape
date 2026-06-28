@@ -204,6 +204,7 @@ const extraSourcesJson = extraSources.length > 0
 </div>
 
 <script>
+  import { escapeHtml } from "../lib/escape-html";
   import { METRO_TAG } from "../lib/geographic-regions";
   import { COUNTRY_TAG } from "../lib/countries";
   import {
@@ -661,13 +662,6 @@ const extraSourcesJson = extraSources.length > 0
     return finalize(counts);
   }
 
-  function escapeHtml(s: string): string {
-    return s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
 
   function renderTagChips(state: InstanceState, lib: LibraryPayload): void {
     const host = state.root.querySelector<HTMLElement>(

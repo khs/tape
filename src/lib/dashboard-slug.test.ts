@@ -159,11 +159,12 @@ describe("validateSlug", () => {
 });
 
 describe("escapeHtml", () => {
-  it("escapes the 4 XSS-relevant characters", () => {
+  it("escapes the 5 XSS-relevant characters", () => {
     expect(escapeHtml("<")).toBe("&lt;");
     expect(escapeHtml(">")).toBe("&gt;");
     expect(escapeHtml("&")).toBe("&amp;");
     expect(escapeHtml('"')).toBe("&quot;");
+    expect(escapeHtml("'")).toBe("&#39;");
   });
 
   it("escapes & first so other escapes don't get double-escaped", () => {
@@ -190,11 +191,10 @@ describe("escapeHtml", () => {
     expect(escapeHtml("")).toBe("");
   });
 
-  it("does NOT escape single quotes (templates always use double quotes)", () => {
-    // Intentional: the renderer uses double-quoted attribute templates
-    // so ' is safe. If a template ever switches to single quotes this
-    // becomes a real bug.
-    expect(escapeHtml("'")).toBe("'");
-    expect(escapeHtml("it's mine")).toBe("it's mine");
+  it("escapes single quotes too (safe in single-quoted attributes)", () => {
+    // The canonical escaper (src/lib/escape-html.ts) escapes ' as well, so it's
+    // correct for single-quoted attribute contexts, not just double-quoted ones.
+    expect(escapeHtml("'")).toBe("&#39;");
+    expect(escapeHtml("it's mine")).toBe("it&#39;s mine");
   });
 });

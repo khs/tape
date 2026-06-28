@@ -1034,6 +1034,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 </BaseLayout>
 
 <script>
+  import { escapeHtml } from "../lib/escape-html";
   import {
     decodeComposedState,
   } from "../lib/composer-state";
@@ -3318,13 +3319,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // wireCustomChartModal moved to src/lib/composer/cc-modal.ts (Plan 2d).
 
-  function escapeHtml(s: string): string {
-    return s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
 
   // ---- Copy-mode title auto-increment ----
   //

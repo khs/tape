@@ -67,6 +67,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   </div>
 
   <script>
+    import { escapeHtml } from "../../lib/escape-html";
     import { createSupabase, isSupabaseConfigured } from "../../lib/supabase";
     import { isAdmin } from "../../lib/admin";
     import {
@@ -88,13 +89,6 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       content!.innerHTML = html;
     }
 
-    function escapeHtml(s: string): string {
-      return s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
 
     async function boot(): Promise<void> {
       if (!isSupabaseConfigured) {

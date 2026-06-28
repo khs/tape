@@ -83,19 +83,7 @@ export function validateSlug(s: string): string | null {
   return null;
 }
 
-/**
- * HTML-escape a string for safe injection into an `innerHTML` template.
- * The 4 entities here are the standard XSS-prevention set (no need to
- * escape "'" because templates always use double quotes).
- *
- * Lives alongside validateSlug because both are pure helpers used by
- * render-saved-dashboards.ts and both benefit from the same unit-
- * test harness.
- */
-export function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+// escapeHtml moved to ./escape-html (now escapes all 5 chars, including ');
+// re-exported here so existing importers (render-saved-dashboards + the test)
+// keep resolving it from this module.
+export { escapeHtml } from "./escape-html";
