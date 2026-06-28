@@ -9,13 +9,21 @@ interface Props {
   variant?: "note" | "inline";
 }
 const { before, variant = "note" } = Astro.props;
-const formatted = before
-  ? new Date(before).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  : null;
+// `before` is a bare "YYYY-MM-DD" (UTC). Parse the parts + format in UTC so the
+// day is correct in every runtime zone — `new Date("YYYY-MM-DD")` is UTC midnight
+// but toLocaleDateString without timeZone formats local, which renders the prior
+// day west of UTC (e.g. "June 12" instead of "June 13" in US zones / astro dev).
+const formatted = (() => {
+  if (!before) return null;
+  const [y, m, d] = before.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+})();
 ---
 
 {

@@ -268,6 +268,7 @@ export async function loadSourceForTile(
     sparks: derived.sparks,
     lastUpdated: full.lastUpdated,
     latestProjection,
+    approximatedBefore: full.approximatedBefore,
   };
 }
 
