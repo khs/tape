@@ -349,7 +349,11 @@ const cartogramBoundary =
     : geo === "cd"
       ? "/maps/us-cd-cartogram-pop.json"
       : "";
-const useCartogram = (chart.cartogram ?? false) && cartogramBoundary !== "";
+// A cartogram asset exists for this geo → the dialog shows an Area/Population
+// toggle. `cartogramDefault` is whether to START in population view (a curated
+// chart may opt in with `cartogram: true`); the user can flip it either way.
+const cartogramAvailable = cartogramBoundary !== "";
+const cartogramDefault = (chart.cartogram ?? false) && cartogramAvailable;
 // Boundary resolution order:
 //   1. Explicit chart.boundaryFile (pre-built regional bundle like
 //      /maps/dmv-tracts-topo.json — used by curated dashboards that
@@ -361,15 +365,13 @@ const useCartogram = (chart.cartogram ?? false) && cartogramBoundary !== "";
 //   3. defaultBoundary (state / county US-wide file).
 const boundaryDirSeg =
   geo === "block-group" ? "block-groups" : "tracts";
-const boundaryUrls: string[] = useCartogram
-  ? [cartogramBoundary]
-  : chart.boundaryFile
-    ? [chart.boundaryFile]
-    : geo === "tract" || geo === "block-group"
-      ? stateCodes.map(
-          (st) => `/maps/${st}-${boundaryDirSeg}-topo.json`,
-        )
-      : [defaultBoundary];
+const boundaryUrls: string[] = chart.boundaryFile
+  ? [chart.boundaryFile]
+  : geo === "tract" || geo === "block-group"
+    ? stateCodes.map(
+        (st) => `/maps/${st}-${boundaryDirSeg}-topo.json`,
+      )
+    : [defaultBoundary];
 // Single-URL alias kept for back-compat with existing renderer code
 // paths + the data-boundary-url attribute the dialog reuses.
 const boundaryUrl = boundaryUrls[0] ?? defaultBoundary;
@@ -426,7 +428,8 @@ const statesJoined = stateCodes.join(",");
     data-bbox={bboxJson}
     data-color-scheme={colorScheme}
     data-color-scale={colorScale}
-    data-cartogram={useCartogram ? "1" : undefined}
+    data-cartogram={cartogramDefault ? "1" : undefined}
+    data-cartogram-url={cartogramBoundary || undefined}
     data-value-label={summary?.valueLabel ?? ""}
     data-unit={summary?.unit ?? ""}
     data-decimals={summary?.decimals ?? 1}
@@ -529,8 +532,12 @@ const statesJoined = stateCodes.join(",");
     colorScheme: string;
     colorScale: "linear" | "log" | "diverging";
     /** Population-weighted cartogram geometry (pre-projected planar coords →
-     *  drawn with an identity projection, no state-border overlay). */
+     *  drawn with an identity projection, no state-border overlay). `cartogram`
+     *  is the CURRENT mode (mutable via the dialog toggle); `cartogramUrl` is the
+     *  cartogram boundary to load when it's on, or "" if none exists for this geo
+     *  (toggle hidden). */
     cartogram: boolean;
+    cartogramUrl: string;
     valueLabel: string;
     unit: string;
     decimals: number;
@@ -770,9 +777,14 @@ const statesJoined = stateCodes.join(",");
     else if (b.geo === "tract") layerName = "tracts";
     else if (b.geo === "cd") layerName = "cd";
     else layerName = "block_groups";
-    let urls = b.boundaryUrls && b.boundaryUrls.length > 0
-      ? b.boundaryUrls
-      : [b.boundaryUrl];
+    // In population (cartogram) mode, draw the precomputed cartogram boundary
+    // instead of the normal one. It's a single national file (state / cd), so it
+    // overrides the normal one/many boundary URLs entirely.
+    let urls = b.cartogram && b.cartogramUrl
+      ? [b.cartogramUrl]
+      : b.boundaryUrls && b.boundaryUrls.length > 0
+        ? b.boundaryUrls
+        : [b.boundaryUrl];
     // Boundary-era selection. ACS vintages <= 2019 use the 2010-census tract /
     // block-group grid; 2020+ use the 2020 grid. The year slider rewrites
     // b.dataUrls per vintage but leaves the boundary fixed, so derive the era
@@ -1858,6 +1870,7 @@ const statesJoined = stateCodes.join(",");
       colorScale: (canvas.dataset.colorScale ?? "linear") as
         ChoroBindings["colorScale"],
       cartogram: canvas.dataset.cartogram === "1",
+      cartogramUrl: canvas.dataset.cartogramUrl ?? "",
       valueLabel: canvas.dataset.valueLabel ?? "",
       unit: canvas.dataset.unit ?? "",
       decimals: Number(canvas.dataset.decimals ?? "1"),
@@ -1950,6 +1963,13 @@ const statesJoined = stateCodes.join(",");
           <label class="map-dialog-scheme">
             <span class="muted small">Color</span>
             <select class="map-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
+          </label>
+          <label class="map-dialog-cartogram" hidden>
+            <span class="muted small">Shape</span>
+            <select class="map-dialog-cartogram-select" aria-label="Weight map shapes by land area or population">
+              <option value="area">Land area</option>
+              <option value="pop">Population</option>
+            </select>
           </label>
           <button type="button" class="map-dialog-zoom-out" aria-label="Zoom out" title="Zoom out (Ctrl+−)">−</button>
           <button type="button" class="map-dialog-zoom-in" aria-label="Zoom in" title="Zoom in (Ctrl+=)">+</button>
@@ -2141,6 +2161,30 @@ const statesJoined = stateCodes.join(",");
       if (dialogCanvas) hydrateOne(dialogCanvas);
       if (tileCanvas) hydrateOne(tileCanvas);
     });
+    // Area / Population toggle: swap the boundary geometry on both the dialog
+    // canvas and the source tile, then re-paint both. Not persisted — resets to
+    // the chart's default on reload (unlike the scheme override).
+    const cartoSelEl = dialog.querySelector<HTMLSelectElement>(
+      ".map-dialog-cartogram-select",
+    );
+    cartoSelEl?.addEventListener("change", () => {
+      const chartId = dialog!.dataset.activeChartId;
+      if (!chartId) return;
+      const mode = cartoSelEl.value === "pop" ? "1" : "0";
+      const canvases = [
+        dialog!.querySelector<HTMLElement>("[data-role='map-canvas']"),
+        document.querySelector<HTMLElement>(
+          `[data-map='1'][data-chart-id='${chartId}'] [data-role='map-canvas']`,
+        ),
+      ];
+      for (const canvas of canvases) {
+        if (!canvas) continue;
+        canvas.dataset.cartogram = mode;
+        canvas.removeAttribute("data-hydrated");
+        canvas.innerHTML = "";
+        hydrateOne(canvas);
+      }
+    });
     // Year slider: split between `input` (cheap — readout follows the
     // thumb as the user drags) and `change` (expensive — actual
     // fetch + re-paint, fires once when the user releases). This
@@ -2239,6 +2283,20 @@ const statesJoined = stateCodes.join(",");
     if (sel) {
       const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
       sel.value = effectiveScheme(chartId, authorScheme);
+    }
+    // Area / Population toggle: shown only when a cartogram asset exists for this
+    // map's geo; preselect the chart's current mode.
+    const cartoWrap = dialog.querySelector<HTMLElement>(".map-dialog-cartogram");
+    const cartoSel = dialog.querySelector<HTMLSelectElement>(
+      ".map-dialog-cartogram-select",
+    );
+    if (cartoWrap && cartoSel) {
+      if (canvasSrc.dataset.cartogramUrl) {
+        cartoSel.value = canvasSrc.dataset.cartogram === "1" ? "pop" : "area";
+        cartoWrap.hidden = false;
+      } else {
+        cartoWrap.hidden = true;
+      }
     }
     // Zoom controls are only useful for county-and-finer maps —
     // state maps don't get a zoom binding. Hide accordingly so the
@@ -2584,13 +2642,16 @@ const statesJoined = stateCodes.join(",");
   /* Color-scheme picker in the dialog actions row. Tightly styled so
      it doesn't dominate the dialog header — it's a refinement, not a
      primary action. */
-  .map-dialog-scheme {
+  .map-dialog-scheme,
+  .map-dialog-cartogram {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: var(--text-xs);
   }
-  .map-dialog-scheme-select {
+  .map-dialog-cartogram[hidden] { display: none; }
+  .map-dialog-scheme-select,
+  .map-dialog-cartogram-select {
     font-size: var(--text-xs);
     background: var(--color-white);
     border: 1px solid rgba(55, 53, 47, 0.12);
