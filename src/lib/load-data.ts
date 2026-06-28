@@ -196,6 +196,9 @@ export interface TileSummary {
     vintage: string;
     points: TimeSeriesPoint[];
   };
+  /** ISO date before which old data was downsampled (min/max-decimated). The
+   *  chart surfaces an "approximated" note. Absent when the series is full-res. */
+  approximatedBefore?: string;
 }
 
 /**
@@ -233,6 +236,7 @@ export async function loadSourceForTile(
       sparks: summary.sparks,
       lastUpdated: summary.lastUpdated,
       latestProjection: summary.latestProjection,
+      approximatedBefore: summary.approximatedBefore,
     };
   }
   // Fallback: derive summary from full data. Costs more (we load the

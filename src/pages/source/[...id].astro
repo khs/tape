@@ -27,6 +27,7 @@ import Chart from "../../components/Chart.astro";
 import ChartController from "../../components/ChartController.astro";
 import CitationBlock from "../../components/CitationBlock.astro";
 import SourceMethodology from "../../components/SourceMethodology.astro";
+import ApproximatedNote from "../../components/ApproximatedNote.astro";
 import {
   loadSourceData,
 } from "../../lib/load-data";
@@ -121,6 +122,7 @@ const headlineChart = source
 let dataStartIso: string | null = null;
 let dataEndIso: string | null = null;
 let observationCount = 0;
+let approximatedBefore: string | null = null;
 if (source) {
   try {
     const raw = await loadSourceData(source.data.dataFile);
@@ -130,6 +132,7 @@ if (source) {
         dataStartIso = ts.points[0].t;
         dataEndIso = ts.points[ts.points.length - 1].t;
         observationCount = ts.points.length;
+        approximatedBefore = ts.approximatedBefore ?? null;
       }
     }
   } catch {
@@ -308,10 +311,12 @@ const methodology = source ? getMethodology(source.data.pipeline) : null;
               dashboardSlug="source"
             />
           </div>
-          <p class="mt-2 mb-6 text-xs text-neutral-500">
+          <p class="mt-2 text-xs text-neutral-500">
             Click the tile for the full interactive view (longer
             windows, pills, citation actions).
           </p>
+          <ApproximatedNote before={approximatedBefore} />
+          <div class="mb-6"></div>
 
           <div class="source-detail-grid">
             <div class="source-detail-row">

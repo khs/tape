@@ -33,6 +33,14 @@ export interface TimeSeriesData {
   lastUpdated: string;
   points: TimeSeriesPoint[];
   projections?: Projections;
+  /**
+   * Set by pipelines/trim_source_data.py when a long-history series was
+   * downsampled to a payload budget: points OLDER than this ISO date were
+   * min/max-decimated (extremes preserved, density reduced) rather than kept at
+   * native resolution. The source page + single-source charts surface a note.
+   * Absent when the full series fits under budget (untouched).
+   */
+  approximatedBefore?: string;
 }
 
 export interface CurvePoint {
@@ -93,4 +101,7 @@ export interface TimeSeriesSummary {
     vintage: string;
     points: TimeSeriesPoint[];
   };
+  /** Mirror of TimeSeriesData.approximatedBefore — patched onto the summary by
+   *  trim_source_data.py so the tile/chart note shows without the full data. */
+  approximatedBefore?: string;
 }

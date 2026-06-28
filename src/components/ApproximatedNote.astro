@@ -1,0 +1,46 @@
+---
+// Shown when a source's old data was downsampled by trim_source_data.py (its
+// `approximatedBefore` is set). The full SPAN is intact and extremes (peaks/
+// troughs) are preserved, but points older than ~5 years are min/max-sampled
+// rather than kept at native density, to bound payload size.
+interface Props {
+  before?: string | null;
+  /** "note" = full sentence (source page); "inline" = terse caption (charts). */
+  variant?: "note" | "inline";
+}
+const { before, variant = "note" } = Astro.props;
+const formatted = before
+  ? new Date(before).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  : null;
+---
+
+{
+  formatted &&
+    (variant === "inline" ? (
+      <p class="approximated-note inline muted small">
+        Data before {formatted} is approximated (older points sampled to limit
+        file size; peaks and troughs preserved).
+      </p>
+    ) : (
+      <p class="approximated-note muted small">
+        Data before {formatted} (more than five years old) is approximated:
+        older points are min/max-sampled to limit file size, so peaks and
+        troughs stay accurate but fine detail is reduced. Recent data is exact.
+      </p>
+    ))
+}
+
+<style>
+  .approximated-note {
+    margin: 8px 0 0;
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .approximated-note.inline {
+    margin: 4px 0 0;
+  }
+</style>
