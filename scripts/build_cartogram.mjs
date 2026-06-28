@@ -43,20 +43,40 @@ const FIPS_TO_POSTAL = {
   "54": "WV", "55": "WI", "56": "WY",
 };
 
-// --- per-level config (states now; county/cd extend the same shape) ---------
+// Latest value from a timeseries JSON ({points:[{t,v}]}), or null if absent.
+function lastV(file) {
+  if (!fs.existsSync(file)) return null;
+  const pts = JSON.parse(fs.readFileSync(file, "utf8")).points || [];
+  return pts.length ? pts[pts.length - 1].v : null;
+}
+
+// --- per-level config (county extends the same shape next) ------------------
 const LEVELS = {
   states: {
     topo: "us-states-10m.json",
     object: "states",
     out: "us-states-cartogram-pop.json",
     // population for a state feature whose topo id is a 2-digit FIPS
+    pop: (id) =>
+      FIPS_TO_POSTAL[id]
+        ? lastV(path.join(DATA, "acs_state", `population_${FIPS_TO_POSTAL[id].toLowerCase()}.json`))
+        : null,
+  },
+  cd: {
+    topo: "us-cd118-10m.json",
+    object: "cd",
+    out: "us-cd-cartogram-pop.json",
+    // CD topo id = 2-digit state FIPS + 2-digit district ("0804" = CO-04).
     pop: (id) => {
-      const postal = FIPS_TO_POSTAL[id];
-      if (!postal) return null;
-      const f = path.join(DATA, "acs_state", `population_${postal.toLowerCase()}.json`);
-      if (!fs.existsSync(f)) return null;
-      const pts = JSON.parse(fs.readFileSync(f, "utf8")).points || [];
-      return pts.length ? pts[pts.length - 1].v : null;
+      const postal = FIPS_TO_POSTAL[id.slice(0, 2)];
+      if (!postal) return null; // island territories (GU/AS/MP/VI/PR) → dropped
+      const lo = postal.toLowerCase();
+      // Normal multi-district CD.
+      const cdv = lastV(path.join(DATA, "acs_cd", `population_${lo}_${id.slice(2)}.json`));
+      if (cdv != null) return cdv;
+      // At-large state (topo "XX00") or DC delegate ("1198"): the district IS the
+      // whole state and acs_cd emits no file, so use the state population.
+      return lastV(path.join(DATA, "acs_state", `population_${lo}.json`));
     },
   },
 };

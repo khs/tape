@@ -304,6 +304,16 @@ const charts = defineCollection({
     // pivots the (red↔blue) scheme at 0 with a symmetric domain — for
     // signed quantities like an election margin.
     colorScale: z.enum(["linear", "log", "diverging"]).optional(),
+    // Population-weighted CONTIGUOUS cartogram. When true the renderer loads a
+    // precomputed cartogram TopoJSON (public/maps/<geo>-cartogram-pop*.json from
+    // scripts/build_cartogram.mjs) whose polygons are distorted so each unit's
+    // AREA is proportional to its population — a dense small county reads as
+    // large as its people warrant, instead of being lost next to empty land.
+    // The metric still colors by GEOID; only the geometry changes. Cartogram
+    // geometry is pre-projected (planar), so it's drawn with an identity
+    // projection. Available where a cartogram asset exists (state, cd, county;
+    // tract / block-group are per-state).
+    cartogram: z.boolean().optional(),
     // ---- Bar-snapshot fields (render === "bar") ----
     // Bar orientation. "vertical" emits Plot.barY (categories on
     // x-axis, values on y); "horizontal" emits Plot.barX (categories

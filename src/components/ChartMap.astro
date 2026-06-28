@@ -335,6 +335,21 @@ const defaultBoundary =
     : geo === "state" || geo === "county"
       ? "/maps/us-counties-2024-10m.json"
       : "";
+// Population-weighted CONTIGUOUS cartogram: a parallel precomputed boundary file
+// per level (scripts/build_cartogram.mjs) whose polygons are warped so each
+// unit's AREA tracks its population. Same object name + GEOID keys as the normal
+// boundary, so the value-join and layer dispatch are unchanged — only the
+// geometry (and the projection: it's pre-projected, drawn with identity) differ.
+// Only levels with a built cartogram asset can opt in.
+const cartogramBoundary =
+  geo === "state"
+    ? "/maps/us-states-cartogram-pop.json"
+    : geo === "cd"
+      ? "/maps/us-cd-cartogram-pop.json"
+      : geo === "county"
+        ? "/maps/us-counties-cartogram-pop.json"
+        : "";
+const useCartogram = (chart.cartogram ?? false) && cartogramBoundary !== "";
 // Boundary resolution order:
 //   1. Explicit chart.boundaryFile (pre-built regional bundle like
 //      /maps/dmv-tracts-topo.json — used by curated dashboards that
@@ -346,13 +361,15 @@ const defaultBoundary =
 //   3. defaultBoundary (state / county US-wide file).
 const boundaryDirSeg =
   geo === "block-group" ? "block-groups" : "tracts";
-const boundaryUrls: string[] = chart.boundaryFile
-  ? [chart.boundaryFile]
-  : geo === "tract" || geo === "block-group"
-    ? stateCodes.map(
-        (st) => `/maps/${st}-${boundaryDirSeg}-topo.json`,
-      )
-    : [defaultBoundary];
+const boundaryUrls: string[] = useCartogram
+  ? [cartogramBoundary]
+  : chart.boundaryFile
+    ? [chart.boundaryFile]
+    : geo === "tract" || geo === "block-group"
+      ? stateCodes.map(
+          (st) => `/maps/${st}-${boundaryDirSeg}-topo.json`,
+        )
+      : [defaultBoundary];
 // Single-URL alias kept for back-compat with existing renderer code
 // paths + the data-boundary-url attribute the dialog reuses.
 const boundaryUrl = boundaryUrls[0] ?? defaultBoundary;
@@ -409,6 +426,7 @@ const statesJoined = stateCodes.join(",");
     data-bbox={bboxJson}
     data-color-scheme={colorScheme}
     data-color-scale={colorScale}
+    data-cartogram={useCartogram ? "1" : undefined}
     data-value-label={summary?.valueLabel ?? ""}
     data-unit={summary?.unit ?? ""}
     data-decimals={summary?.decimals ?? 1}
@@ -510,6 +528,9 @@ const statesJoined = stateCodes.join(",");
     bbox: [number, number, number, number] | null;
     colorScheme: string;
     colorScale: "linear" | "log" | "diverging";
+    /** Population-weighted cartogram geometry (pre-projected planar coords →
+     *  drawn with an identity projection, no state-border overlay). */
+    cartogram: boolean;
     valueLabel: string;
     unit: string;
     decimals: number;
@@ -849,8 +870,12 @@ const statesJoined = stateCodes.join(",");
     // county / tract / block-group borders. Built once and memoized in
     // getStateBorders (precomputed "states" layer for county maps; one-time
     // shard mesh for tract / block-group) — never recomputed on re-paint.
+    // Cartograms carry their own warped polygon borders; a state overlay would
+    // be meshed from the un-distorted lon/lat topology and drawn in the wrong
+    // (planar) space, so skip it.
     const drawStateBorders =
-      b.geo === "county" || b.geo === "tract" || b.geo === "block-group";
+      !b.cartogram &&
+      (b.geo === "county" || b.geo === "tract" || b.geo === "block-group");
     const stateBorders = drawStateBorders
       ? await getStateBorders(topos, layerName, urls, features)
       : [];
@@ -1121,7 +1146,12 @@ const statesJoined = stateCodes.join(",");
     // crammed into a sliver — visually that read as a white tile
     // because the actual polygons sat off the visible canvas.
     let projection: unknown;
-    if (b.geo === "state" || b.geo === "county" || b.geo === "cd") {
+    if (b.cartogram) {
+      // Cartogram geometry is already projected (planar Albers-USA, screen
+      // y-down) — draw it 1:1 and let Plot fit it to the frame. No re-projection,
+      // no reflectY (the coords already point y-down like the SVG).
+      projection = "identity";
+    } else if (b.geo === "state" || b.geo === "county" || b.geo === "cd") {
       projection = "albers-usa";
     } else {
       // Compute the geographic bbox of the clipped features so we can
@@ -1820,6 +1850,7 @@ const statesJoined = stateCodes.join(",");
       colorScheme: canvas.dataset.colorScheme ?? "blues",
       colorScale: (canvas.dataset.colorScale ?? "linear") as
         ChoroBindings["colorScale"],
+      cartogram: canvas.dataset.cartogram === "1",
       valueLabel: canvas.dataset.valueLabel ?? "",
       unit: canvas.dataset.unit ?? "",
       decimals: Number(canvas.dataset.decimals ?? "1"),
