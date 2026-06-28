@@ -340,15 +340,15 @@ const defaultBoundary =
 // unit's AREA tracks its population. Same object name + GEOID keys as the normal
 // boundary, so the value-join and layer dispatch are unchanged — only the
 // geometry (and the projection: it's pre-projected, drawn with identity) differ.
-// Only levels with a built cartogram asset can opt in.
+// Only levels with a BUILT asset get an entry; county + per-state tract/BG
+// aren't built yet, so a chart that sets cartogram:true on them falls through to
+// the normal choropleth (empty string → useCartogram false) instead of 404ing.
 const cartogramBoundary =
   geo === "state"
     ? "/maps/us-states-cartogram-pop.json"
     : geo === "cd"
       ? "/maps/us-cd-cartogram-pop.json"
-      : geo === "county"
-        ? "/maps/us-counties-cartogram-pop.json"
-        : "";
+      : "";
 const useCartogram = (chart.cartogram ?? false) && cartogramBoundary !== "";
 // Boundary resolution order:
 //   1. Explicit chart.boundaryFile (pre-built regional bundle like
@@ -1148,9 +1148,16 @@ const statesJoined = stateCodes.join(",");
     let projection: unknown;
     if (b.cartogram) {
       // Cartogram geometry is already projected (planar Albers-USA, screen
-      // y-down) — draw it 1:1 and let Plot fit it to the frame. No re-projection,
-      // no reflectY (the coords already point y-down like the SVG).
-      projection = "identity";
+      // y-down). Use identity in OBJECT form WITH an explicit domain so Plot
+      // scales + centers the planar coords to fill the frame. The bare
+      // "identity" string only passes coordinates through 1:1 (Plot's fit
+      // transform runs solely when a domain is given) — that would clip the
+      // map on tiles and render it tiny at fullscreen. No reflectY: the coords
+      // already point y-down like the SVG.
+      projection = {
+        type: "identity",
+        domain: { type: "FeatureCollection", features: clipped },
+      };
     } else if (b.geo === "state" || b.geo === "county" || b.geo === "cd") {
       projection = "albers-usa";
     } else {

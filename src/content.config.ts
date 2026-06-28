@@ -311,8 +311,9 @@ const charts = defineCollection({
     // large as its people warrant, instead of being lost next to empty land.
     // The metric still colors by GEOID; only the geometry changes. Cartogram
     // geometry is pre-projected (planar), so it's drawn with an identity
-    // projection. Available where a cartogram asset exists (state, cd, county;
-    // tract / block-group are per-state).
+    // projection. Honored only where a cartogram asset is built today (state,
+    // cd); county + per-state tract / block-group aren't built yet and fall
+    // through to the normal choropleth.
     cartogram: z.boolean().optional(),
     // ---- Bar-snapshot fields (render === "bar") ----
     // Bar orientation. "vertical" emits Plot.barY (categories on

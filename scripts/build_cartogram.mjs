@@ -172,6 +172,15 @@ async function buildLevel(key, GoCart) {
   const pops = cart.features.map((f) => f.properties.population);
   const r = pearson(areas, pops);
 
+  // Validate BEFORE writing so a degenerate run never leaves a corrupt artifact
+  // on disk. NaN-safe: broken ring winding gives degenerate geometry → zero area
+  // variance → r = NaN, and `NaN < 0.9` is false (it would slip a `<` gate). Use
+  // !(r >= 0.9) so NaN trips the gate too — this is the very failure the rewind
+  // exists to prevent, so the guard must catch it.
+  if (!(r >= 0.9)) {
+    const shown = Number.isFinite(r) ? r.toFixed(3) : "NaN";
+    throw new Error(`[${key}] area~population correlation ${shown} < 0.9 — cartogram looks wrong (check ring winding)`);
+  }
   // Quantize to shrink the file (planar coords → ~1e4 grid is visually lossless
   // at map scale; cuts the unquantized output several-fold).
   const out = ts.topology({ [cfg.object]: cart }, 1e4);
@@ -179,7 +188,6 @@ async function buildLevel(key, GoCart) {
   fs.writeFileSync(outPath, JSON.stringify(out));
   const kb = (fs.statSync(outPath).size / 1024).toFixed(0);
   console.log(`  [${key}] ${cart.features.length} features, area~pop r=${r.toFixed(3)}, ${kb}KB -> ${path.relative(ROOT, outPath)}`);
-  if (r < 0.9) throw new Error(`[${key}] area~population correlation ${r.toFixed(3)} < 0.9 — cartogram looks wrong`);
 }
 
 const want = process.argv.slice(2);
