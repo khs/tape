@@ -565,55 +565,41 @@ const EDITORIAL_FEATURES: string[] = [
         }
       });
 
-      // ---- Idle-time prefetch of coverage-chip embed pages ----
+      // ---- Semi-lazy progressive warm of coverage-chip embeds ----
       //
-      // Each coverage chip sets the inline preview iframe's src to
-      // /embed/chart/<id>/ — an SSR endpoint with ~200-500ms of
-      // cold-function latency on Vercel. Browser cache makes
-      // subsequent loads instant once warm.
+      // Each coverage chip points the inline preview iframe at
+      // /embed/chart/<id>/. That endpoint is SSR, but its response is now
+      // edge-cacheable (Cache-Control s-maxage, set in the embed page itself):
+      // the FIRST hit to each URL is a ~1.5s cold render, every hit after is a
+      // fast Vercel-edge HIT. The job here is to pay that first hit in the
+      // background, before the reader clicks — so the click feels instant.
       //
-      // Inject <link rel="prefetch"> for each chip's URL once the
-      // main page has settled. The browser fetches them in idle time,
-      // caches the response, and a later iframe.src = same URL pulls
-      // from cache instead of going over the network. Click-to-chart
-      // drops by the round-trip latency.
+      // Strategy ("semi-lazy"): while the page is open, warm embeds ONE AT A
+      // TIME, continuously, via <link rel="prefetch" as="document"> (the
+      // primitive whose cache partition matches the iframe's later navigation).
+      // One at a time — not a ~30-request burst — so the speculative warming
+      // never saturates the connection and slows the chart the reader actually
+      // clicks.
+      //   - Background driver: walks every chip's embed in order, warming the
+      //     next only once the previous settles, then yielding to idle.
+      //   - Urgent override: pointer-enter / focus warms THAT embed at once,
+      //     out of band, so the reader's likely target jumps the queue. The
+      //     driver dedupes against a warmed-set.
       //
-      // Ordering — "after the page is up, but guaranteed":
-      //   1. Wait for window.load — fires after the page's
-      //      synchronous resources (images, fonts, EMBED IFRAMES
-      //      including their chart payloads) finish loading. Without
-      //      this, prefetch can compete with the inline-preview
-      //      iframe loads, slowing both.
-      //   2. Then schedule via requestIdleCallback with timeout:5000
-      //      — the browser fires when the main thread is idle OR by
-      //      t=5s after load, whichever comes first. The timeout is
-      //      the "absolutely starting then" guarantee: even on pages
-      //      that never go idle (animations, polling, etc.), prefetch
-      //      will fire within 5s.
-      //   3. requestIdleCallback isn't supported in Safari — fall
-      //      back to setTimeout(2000) after load.
+      // Starts after window.load + requestIdleCallback (timeout 5000) so the
+      // first warm never competes with the page's own load (incl. the
+      // render-showcase iframes). Safari (no rIC) falls back to setTimeout.
       //
-      // Verification hooks (so we can answer "are we sure it's
-      // firing?" without grepping the source):
-      //   - console.info('[welcome:prefetch] ...') — visible in
-      //     devtools Network/Console panels with timings.
-      //   - <html data-welcome-prefetch="<state>"> — readable from
-      //     puppeteer / cypress / curl-with-headless tools without
-      //     diffing the JS. States: "queued" → "fired" → "done".
-      //   - CustomEvent("welcome:prefetch-fired") on window — gives
-      //     downstream code (analytics, tests) a hook.
+      // Verification hooks (answer "is it warming?" without grepping source):
+      //   - console.info('[welcome:prefetch] ...') with a count + timing.
+      //   - <html data-welcome-prefetch="<state>">: "queued" → "scheduled" →
+      //     "warming" → "done" (or "skipped"). Pollable from headless tools.
+      //   - CustomEvent("welcome:prefetch-fired") on window.
       //
-      // Pointer-enter + focus also trigger an immediate prefetch for
-      // any chip that the idle pass hasn't covered yet: covers fast
-      // clickers and slow connections where idle is still draining.
-      //
-      // Connection-quality gate: ~2MB of speculative fetch is fine
-      // on a wired/wifi/4G connection but ungenerous on cellular
-      // 3G or worse. Skip the prefetch entirely when the browser
-      // signals a slow connection or the user has explicitly opted
-      // into Save Data. Touch-vs-pointer is NOT used as a signal —
-      // many laptops have touchscreens and we don't want to deny
-      // them the speedup.
+      // Connection-quality gate: skip the speculative warming entirely on Save
+      // Data or a 3G-or-worse perceived connection — the click-latency win
+      // isn't worth ~30 speculative SSR fetches there. Touch-vs-pointer is NOT
+      // a signal (many laptops have touchscreens; don't deny them the speedup).
       type NetInfo = { saveData?: boolean; effectiveType?: string };
       function shouldPrefetch(): boolean {
         const nav = navigator as unknown as { connection?: NetInfo };
@@ -633,92 +619,111 @@ const EDITORIAL_FEATURES: string[] = [
         return true;
       }
       if (shouldPrefetch()) {
-        // Tag the document root with a state machine the test harness
-        // (or anyone running window.getComputedStyle on <html>) can
-        // poll. States: "queued" (waiting for load), "scheduled"
-        // (waiting for idle/timeout), "fired" (link tags injected).
-        document.documentElement.setAttribute(
-          "data-welcome-prefetch", "queued",
-        );
-        const prefetchedEmbeds = new Set<string>();
-        const prefetchEmbed = (chartId: string): void => {
-          if (!chartId || prefetchedEmbeds.has(chartId)) return;
-          prefetchedEmbeds.add(chartId);
+        // State machine on <html data-welcome-prefetch> for tests / debugging:
+        //   "queued" → "scheduled" → "warming" → "done" (or "skipped").
+        document.documentElement.setAttribute("data-welcome-prefetch", "queued");
+
+        // requestIdleCallback is absent in Safari + not in this script's TS DOM
+        // lib; one typed accessor, with a setTimeout fallback so warming still
+        // proceeds either way.
+        const scheduleIdle = (cb: () => void, timeout: number): void => {
+          const ric = (window as unknown as {
+            requestIdleCallback?: (c: () => void, o?: { timeout?: number }) => void;
+          }).requestIdleCallback;
+          if (ric) ric(cb, { timeout });
+          else setTimeout(cb, Math.min(timeout, 2000));
+        };
+
+        const warmed = new Set<string>(); // embeds we've injected a <link> for
+        const queue: string[] = []; // background work-list; front = warmed next
+
+        // Inject ONE <link rel="prefetch" as="document">. `as=document` matches
+        // the iframe's later top-level navigation, so the now-edge-cacheable
+        // embed response is reused on click instead of re-fetched.
+        const warmOne = (id: string): HTMLLinkElement => {
+          warmed.add(id);
           const link = document.createElement("link");
           link.rel = "prefetch";
-          // Prefetch the EXACT URL the chip click will use, query
-          // string included — browser caches by full URL so a mismatch
-          // here would cause the iframe load to bypass the prefetched
-          // response.
-          link.href = `${baseUrl}/embed/chart/${chartId}/`;
-          // `as=document` tells the browser to treat this as a top-
-          // level HTML doc fetch (matching what the iframe will do),
-          // so the cached response is reused correctly.
+          link.href = `${baseUrl}/embed/chart/${id}/`;
           link.setAttribute("as", "document");
           document.head.appendChild(link);
+          return link;
         };
-        const bulkPrefetchChips = (): void => {
-          const chips = document.querySelectorAll<HTMLButtonElement>(
-            ".welcome-coverage-chip",
-          );
-          let queued = 0;
-          chips.forEach((chip) => {
-            const id = chip.dataset.chartId;
-            if (id) {
-              prefetchEmbed(id);
-              queued += 1;
-            }
-          });
-          document.documentElement.setAttribute(
-            "data-welcome-prefetch", "fired",
-          );
+
+        // Urgent override: warm a chip's embed NOW (hover / focus), out of band
+        // from the background walk. The driver skips anything already warmed.
+        const warmUrgent = (id: string): void => {
+          if (!id || warmed.has(id)) return;
+          warmOne(id);
+        };
+
+        // Background driver: warm ONE embed at a time, advancing only when the
+        // previous settles (load/error) or a fallback timeout fires — never two
+        // at once, never a burst. "Always loading something" while the page is
+        // open, without saturating the connection.
+        let inFlight = false;
+        const driveNext = (): void => {
+          if (inFlight) return;
+          let id: string | undefined = queue.shift();
+          while (id !== undefined && warmed.has(id)) id = queue.shift();
+          if (id === undefined) {
+            document.documentElement.setAttribute("data-welcome-prefetch", "done");
+            return;
+          }
+          inFlight = true;
+          const link = warmOne(id);
+          let advanced = false;
+          const advance = (): void => {
+            if (advanced) return;
+            advanced = true;
+            inFlight = false;
+            scheduleIdle(driveNext, 1500); // yield to idle between warms
+          };
+          link.addEventListener("load", advance);
+          link.addEventListener("error", advance);
+          // Some browsers never fire load on a prefetch link — don't stall.
+          setTimeout(advance, 4000);
+        };
+
+        const startDriver = (): void => {
+          document.documentElement.setAttribute("data-welcome-prefetch", "warming");
+          document
+            .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
+            .forEach((chip) => {
+              const id = chip.dataset.chartId;
+              if (id) queue.push(id);
+            });
           // eslint-disable-next-line no-console
           console.info(
-            `[welcome:prefetch] queued ${queued} coverage-chip embed prefetches ` +
+            `[welcome:prefetch] progressive warm: ${queue.length} embeds queued ` +
             `at t=${Math.round(performance.now())}ms`,
           );
           window.dispatchEvent(
-            new CustomEvent("welcome:prefetch-fired", { detail: { count: queued } }),
+            new CustomEvent("welcome:prefetch-fired", { detail: { count: queue.length } }),
           );
+          driveNext();
         };
-        // Step 1: wait for window.load (or fire immediately if already
-        // loaded — possible when the script is in document body and
-        // the page is small enough that load already fired).
-        const schedulePrefetch = (): void => {
-          document.documentElement.setAttribute(
-            "data-welcome-prefetch", "scheduled",
-          );
-          const ric = (window as unknown as {
-            requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => void;
-          }).requestIdleCallback;
-          if (ric) {
-            // timeout:5000 guarantees firing within 5s of being
-            // scheduled, even on pages that never go truly idle.
-            ric(bulkPrefetchChips, { timeout: 5000 });
-          } else {
-            // Safari fallback. 2000ms picked to mirror "main thread
-            // settles" without competing with the inline-preview
-            // iframe loads that just finished.
-            setTimeout(bulkPrefetchChips, 2000);
-          }
+
+        // Start after window.load + idle so the first warm never competes with
+        // the page's own resources (incl. the render-showcase iframes).
+        const schedule = (): void => {
+          document.documentElement.setAttribute("data-welcome-prefetch", "scheduled");
+          scheduleIdle(startDriver, 5000);
         };
-        if (document.readyState === "complete") {
-          schedulePrefetch();
-        } else {
-          window.addEventListener("load", schedulePrefetch, { once: true });
-        }
-        // Pointer-enter / focus still bypass the wait — for an
-        // impatient user we'd rather prefetch THEIR target ASAP than
-        // wait for the bulk pass. Each chip's prefetchEmbed is a
-        // no-op after the bulk pass fires (deduped via the Set).
+        if (document.readyState === "complete") schedule();
+        else window.addEventListener("load", schedule, { once: true });
+
+        // Pointer-enter / focus → warm THAT chip's embed immediately, ahead of
+        // the background walk: the reader's likely target shouldn't wait its
+        // turn. (Click already loads it into the preview iframe.)
         document
           .querySelectorAll<HTMLButtonElement>(".welcome-coverage-chip")
           .forEach((chip) => {
             const id = chip.dataset.chartId;
             if (!id) return;
-            const trigger = () => prefetchEmbed(id);
-            chip.addEventListener("pointerenter", trigger, { once: true });
-            chip.addEventListener("focus", trigger, { once: true });
+            const urgent = (): void => warmUrgent(id);
+            chip.addEventListener("pointerenter", urgent, { once: true });
+            chip.addEventListener("focus", urgent, { once: true });
           });
       } else {
         // Slow connection / Save Data — record that we deliberately

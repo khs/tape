@@ -78,6 +78,30 @@ if (!resolved || !effChart) {
   Astro.response.status = 404;
 }
 
+// Edge-cache successful embed renders. This SSR response is a pure function of
+// (chartId, ?delta, ?expanded) — no auth, no Supabase, no per-user data — so a
+// shared by-URL CDN cache is safe (identical bytes for every requester). Each
+// query variant is its own cache key, which is correct: ?delta=10y and
+// ?expanded=1 render different tiles.
+//
+// Why it matters: without this the route falls back to Astro's SSR default
+// (max-age=0, must-revalidate) → X-Vercel-Cache MISS on EVERY load → a ~1.5s
+// cold render every time a welcome-page coverage chip is clicked, and the
+// page's <link rel=prefetch> warmups are wasted (the response forbids reuse).
+// s-maxage lets Vercel's edge serve a warm copy after the first hit (the same
+// mechanism og.png + /u/[slug] already rely on — verified HIT on prod); the
+// small browser max-age lets a prefetched copy be reused on click with no
+// revalidation round-trip. Data refreshes weekly, so an hour of edge staleness
+// is immaterial and stale-while-revalidate refreshes it in the background.
+// 404s stay uncached (header set only on the resolved path) so a newly-added
+// chart appears immediately.
+if (resolved && effChart) {
+  Astro.response.headers.set(
+    "Cache-Control",
+    "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+  );
+}
+
 // Bar charts need the per-source snapshot data preloaded so
 // ChartBar's JSX can render without an inline await. Skipped for
 // every other render type — the call is cheap (single chart) but
