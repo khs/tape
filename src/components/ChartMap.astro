@@ -30,6 +30,7 @@ import type { CollectionEntry } from "astro:content";
 import { promises as fs } from "node:fs";
 import { pickVintages, combineShardVintages } from "../lib/map-vintages";
 import { publicFilePath } from "../lib/public-dir";
+import { stateCartogramVintages } from "../lib/cartogram-vintages";
 import {
   isServerlessRuntime,
   resolveServerlessOrigin,
@@ -335,6 +336,29 @@ const defaultBoundary =
     : geo === "state" || geo === "county"
       ? "/maps/us-counties-2024-10m.json"
       : "";
+// Population-weighted CONTIGUOUS cartogram: a parallel precomputed boundary file
+// per level (scripts/build_cartogram.mjs) whose polygons are warped so each
+// unit's AREA tracks its population. Same object name + GEOID keys as the normal
+// boundary, so the value-join and layer dispatch are unchanged — only the
+// geometry (and the projection: it's pre-projected, drawn with identity) differ.
+// Only STATE ships a cartogram today. CD was dropped (equal-population districts
+// over-warp into an unrecognizable mess); county + per-state tract/BG aren't
+// built. Any other geo gets an empty string → cartogramAvailable false → no
+// toggle, and a chart that sets cartogram:true on it falls through to the normal
+// choropleth instead of 404ing.
+const cartogramBoundary =
+  geo === "state" ? "/maps/us-states-cartogram-pop.json" : "";
+// A cartogram asset exists for this geo → the dialog shows an Area/Population
+// toggle. `cartogramDefault` is whether to START in population view (a curated
+// chart may opt in with `cartogram: true`); the user can flip it either way.
+const cartogramAvailable = cartogramBoundary !== "";
+const cartogramDefault = (chart.cartogram ?? false) && cartogramAvailable;
+// State cartograms are VINTAGED (one per election year 1976-2024); the client
+// snaps a map's displayed vintage to the nearest. CD is a single file (its
+// boundaries are 118th-only, nothing to vintage-match). cartogramBase + the
+// vintages manifest let the client build the per-vintage URL.
+const cartogramBase = geo === "state" ? "/maps/us-states-cartogram-pop-" : "";
+const cartogramVintages = geo === "state" ? stateCartogramVintages() : [];
 // Boundary resolution order:
 //   1. Explicit chart.boundaryFile (pre-built regional bundle like
 //      /maps/dmv-tracts-topo.json — used by curated dashboards that
@@ -409,6 +433,10 @@ const statesJoined = stateCodes.join(",");
     data-bbox={bboxJson}
     data-color-scheme={colorScheme}
     data-color-scale={colorScale}
+    data-cartogram={cartogramDefault ? "1" : undefined}
+    data-cartogram-url={cartogramBoundary || undefined}
+    data-cartogram-base={cartogramBase || undefined}
+    data-cartogram-vintages={cartogramVintages.length ? JSON.stringify(cartogramVintages) : undefined}
     data-value-label={summary?.valueLabel ?? ""}
     data-unit={summary?.unit ?? ""}
     data-decimals={summary?.decimals ?? 1}
@@ -510,6 +538,20 @@ const statesJoined = stateCodes.join(",");
     bbox: [number, number, number, number] | null;
     colorScheme: string;
     colorScale: "linear" | "log" | "diverging";
+    /** Population-weighted cartogram geometry (pre-projected planar coords →
+     *  drawn with an identity projection, no state-border overlay). `cartogram`
+     *  is the CURRENT mode (mutable via the dialog toggle); `cartogramUrl` is the
+     *  cartogram boundary to load when it's on, or "" if none exists for this geo
+     *  (toggle hidden). */
+    cartogram: boolean;
+    cartogramUrl: string;
+    /** For VINTAGED cartograms (state): the URL prefix + available vintage years,
+     *  so the client snaps `vintage` (the displayed year) to the nearest file.
+     *  Empty for single-file levels (cd). */
+    cartogramBase: string;
+    cartogramVintages: number[];
+    /** The vintage currently displayed (the year slider updates it). */
+    vintage: string;
     valueLabel: string;
     unit: string;
     decimals: number;
@@ -749,9 +791,27 @@ const statesJoined = stateCodes.join(",");
     else if (b.geo === "tract") layerName = "tracts";
     else if (b.geo === "cd") layerName = "cd";
     else layerName = "block_groups";
-    let urls = b.boundaryUrls && b.boundaryUrls.length > 0
-      ? b.boundaryUrls
-      : [b.boundaryUrl];
+    // In population (cartogram) mode, draw the precomputed cartogram boundary
+    // instead of the normal one (it overrides the normal one/many boundary URLs).
+    // State cartograms are VINTAGED: snap the displayed vintage to the nearest
+    // available year so the geometry matches the era of the data — a 1976 election
+    // map is weighted by 1976 population, not today's. CD + the no-vintage case
+    // fall back to the single cartogramUrl.
+    let urls: string[];
+    if (b.cartogram && b.cartogramUrl) {
+      let cgUrl = b.cartogramUrl;
+      const target = parseInt(b.vintage, 10);
+      if (b.cartogramBase && b.cartogramVintages.length > 0 && Number.isFinite(target)) {
+        const best = b.cartogramVintages.reduce(
+          (a, v) => (Math.abs(v - target) < Math.abs(a - target) ? v : a),
+          b.cartogramVintages[0],
+        );
+        cgUrl = `${b.cartogramBase}${best}.json`;
+      }
+      urls = [cgUrl];
+    } else {
+      urls = b.boundaryUrls && b.boundaryUrls.length > 0 ? b.boundaryUrls : [b.boundaryUrl];
+    }
     // Boundary-era selection. ACS vintages <= 2019 use the 2010-census tract /
     // block-group grid; 2020+ use the 2020 grid. The year slider rewrites
     // b.dataUrls per vintage but leaves the boundary fixed, so derive the era
@@ -849,8 +909,12 @@ const statesJoined = stateCodes.join(",");
     // county / tract / block-group borders. Built once and memoized in
     // getStateBorders (precomputed "states" layer for county maps; one-time
     // shard mesh for tract / block-group) — never recomputed on re-paint.
+    // Cartograms carry their own warped polygon borders; a state overlay would
+    // be meshed from the un-distorted lon/lat topology and drawn in the wrong
+    // (planar) space, so skip it.
     const drawStateBorders =
-      b.geo === "county" || b.geo === "tract" || b.geo === "block-group";
+      !b.cartogram &&
+      (b.geo === "county" || b.geo === "tract" || b.geo === "block-group");
     const stateBorders = drawStateBorders
       ? await getStateBorders(topos, layerName, urls, features)
       : [];
@@ -1121,7 +1185,19 @@ const statesJoined = stateCodes.join(",");
     // crammed into a sliver — visually that read as a white tile
     // because the actual polygons sat off the visible canvas.
     let projection: unknown;
-    if (b.geo === "state" || b.geo === "county" || b.geo === "cd") {
+    if (b.cartogram) {
+      // Cartogram geometry is already projected (planar Albers-USA, screen
+      // y-down). Use identity in OBJECT form WITH an explicit domain so Plot
+      // scales + centers the planar coords to fill the frame. The bare
+      // "identity" string only passes coordinates through 1:1 (Plot's fit
+      // transform runs solely when a domain is given) — that would clip the
+      // map on tiles and render it tiny at fullscreen. No reflectY: the coords
+      // already point y-down like the SVG.
+      projection = {
+        type: "identity",
+        domain: { type: "FeatureCollection", features: clipped },
+      };
+    } else if (b.geo === "state" || b.geo === "county" || b.geo === "cd") {
       projection = "albers-usa";
     } else {
       // Compute the geographic bbox of the clipped features so we can
@@ -1820,6 +1896,14 @@ const statesJoined = stateCodes.join(",");
       colorScheme: canvas.dataset.colorScheme ?? "blues",
       colorScale: (canvas.dataset.colorScale ?? "linear") as
         ChoroBindings["colorScale"],
+      cartogram: canvas.dataset.cartogram === "1",
+      cartogramUrl: canvas.dataset.cartogramUrl ?? "",
+      cartogramBase: canvas.dataset.cartogramBase ?? "",
+      cartogramVintages: (() => {
+        try { return JSON.parse(canvas.dataset.cartogramVintages ?? "[]") as number[]; }
+        catch { return []; }
+      })(),
+      vintage: canvas.dataset.vintage ?? "",
       valueLabel: canvas.dataset.valueLabel ?? "",
       unit: canvas.dataset.unit ?? "",
       decimals: Number(canvas.dataset.decimals ?? "1"),
@@ -1912,6 +1996,13 @@ const statesJoined = stateCodes.join(",");
           <label class="map-dialog-scheme">
             <span class="muted small">Color</span>
             <select class="map-dialog-scheme-select" aria-label="Color scheme">${optsHtml}</select>
+          </label>
+          <label class="map-dialog-cartogram" hidden>
+            <span class="muted small">Shape</span>
+            <select class="map-dialog-cartogram-select" aria-label="Weight map shapes by land area or population">
+              <option value="area">Land area</option>
+              <option value="pop">Population</option>
+            </select>
           </label>
           <button type="button" class="map-dialog-zoom-out" aria-label="Zoom out" title="Zoom out (Ctrl+−)">−</button>
           <button type="button" class="map-dialog-zoom-in" aria-label="Zoom in" title="Zoom in (Ctrl+=)">+</button>
@@ -2103,6 +2194,30 @@ const statesJoined = stateCodes.join(",");
       if (dialogCanvas) hydrateOne(dialogCanvas);
       if (tileCanvas) hydrateOne(tileCanvas);
     });
+    // Area / Population toggle: swap the boundary geometry on both the dialog
+    // canvas and the source tile, then re-paint both. Not persisted — resets to
+    // the chart's default on reload (unlike the scheme override).
+    const cartoSelEl = dialog.querySelector<HTMLSelectElement>(
+      ".map-dialog-cartogram-select",
+    );
+    cartoSelEl?.addEventListener("change", () => {
+      const chartId = dialog!.dataset.activeChartId;
+      if (!chartId) return;
+      const mode = cartoSelEl.value === "pop" ? "1" : "0";
+      const canvases = [
+        dialog!.querySelector<HTMLElement>("[data-role='map-canvas']"),
+        document.querySelector<HTMLElement>(
+          `[data-map='1'][data-chart-id='${chartId}'] [data-role='map-canvas']`,
+        ),
+      ];
+      for (const canvas of canvases) {
+        if (!canvas) continue;
+        canvas.dataset.cartogram = mode;
+        canvas.removeAttribute("data-hydrated");
+        canvas.innerHTML = "";
+        hydrateOne(canvas);
+      }
+    });
     // Year slider: split between `input` (cheap — readout follows the
     // thumb as the user drags) and `change` (expensive — actual
     // fetch + re-paint, fires once when the user releases). This
@@ -2201,6 +2316,20 @@ const statesJoined = stateCodes.join(",");
     if (sel) {
       const authorScheme = canvasSrc.dataset.colorScheme ?? "blues";
       sel.value = effectiveScheme(chartId, authorScheme);
+    }
+    // Area / Population toggle: shown only when a cartogram asset exists for this
+    // map's geo; preselect the chart's current mode.
+    const cartoWrap = dialog.querySelector<HTMLElement>(".map-dialog-cartogram");
+    const cartoSel = dialog.querySelector<HTMLSelectElement>(
+      ".map-dialog-cartogram-select",
+    );
+    if (cartoWrap && cartoSel) {
+      if (canvasSrc.dataset.cartogramUrl) {
+        cartoSel.value = canvasSrc.dataset.cartogram === "1" ? "pop" : "area";
+        cartoWrap.hidden = false;
+      } else {
+        cartoWrap.hidden = true;
+      }
     }
     // Zoom controls are only useful for county-and-finer maps —
     // state maps don't get a zoom binding. Hide accordingly so the
@@ -2546,13 +2675,16 @@ const statesJoined = stateCodes.join(",");
   /* Color-scheme picker in the dialog actions row. Tightly styled so
      it doesn't dominate the dialog header — it's a refinement, not a
      primary action. */
-  .map-dialog-scheme {
+  .map-dialog-scheme,
+  .map-dialog-cartogram {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: var(--text-xs);
   }
-  .map-dialog-scheme-select {
+  .map-dialog-cartogram[hidden] { display: none; }
+  .map-dialog-scheme-select,
+  .map-dialog-cartogram-select {
     font-size: var(--text-xs);
     background: var(--color-white);
     border: 1px solid rgba(55, 53, 47, 0.12);

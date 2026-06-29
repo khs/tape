@@ -110,6 +110,17 @@ jobs:
           python -m unittest pipelines.test_trim_source_data -v
           python -m unittest pipelines.test_ci_test_coverage -v
 
+      - name: Summary-parity fixture is in sync
+        # The cross-language summary gate (src/lib/summary-parity.test.ts, run in
+        # `npm test`) checks TS computeSummaryFromPoints against this Python-
+        # generated fixture. Regenerate it from the REAL build_summaries.py and
+        # fail if it drifts: that means the Python prior/spark math changed
+        # without re-emitting, so the TS test would be validating stale output.
+        # The TS half catches the reverse (TS drifting from the fixture).
+        run: |
+          python pipelines/emit_summary_parity_fixture.py
+          git diff --exit-code -- src/lib/__fixtures__/summary-parity.json
+
       # The minutes-long `audit --full` deep scan of UNREFERENCED sources
       # moved to .github/workflows/weekly-safety.yml. It was report-only
       # (only ::warning:: annotations), so it never gated anything. The
