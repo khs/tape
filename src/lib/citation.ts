@@ -114,3 +114,153 @@ export function buildCitationLines(input: CitationInput): string[] {
   ];
   return lines.filter((x): x is string => x !== null);
 }
+
+// ---------------------------------------------------------------------------
+// Style-specific citations (APA 7th, Chicago 17th)
+//
+// The plain "Recommended" format above is Tape's own readable block. These two
+// build genuinely style-compliant strings so a reader pasting into an academic
+// paper / footnote gets a citation that actually follows the manual, not an
+// APA-flavored approximation.
+//
+// Field mapping (same for both styles):
+//   author      = the data PRODUCER (provenance.provider, e.g. "FRED") — the
+//                 originator of the dataset, which is who you cite as author.
+//   title       = the dataset name.
+//   site        = SITE_BRAND_NAME ("Tape") — the portal it was accessed from,
+//                 i.e. the publisher (APA) / website (Chicago).
+//   year        = the data-vintage year (asOf), falling back to the retrieval
+//                 year, then "n.d." Datasets that update use the version year.
+//   accessed    = today (the retrieval date). Both styles want a retrieval/
+//                 access date for content designed to change over time.
+//   url         = canonical source URL.
+//
+// License is intentionally omitted — neither style includes it (it lives in the
+// Recommended block and the page's license chip instead).
+// ---------------------------------------------------------------------------
+
+export type CitationStyleId = "recommended" | "apa" | "chicago";
+
+/** One run of citation text. `italic` spans render in <em>; the manuals
+ *  italicize the dataset title (APA) / the website name (Chicago). */
+export interface CitationSegment {
+  text: string;
+  italic?: boolean;
+}
+
+export interface StyledCitation {
+  id: CitationStyleId;
+  /** Toggle-button label. */
+  label: string;
+  /** Rich segments for HTML rendering (italics where the style requires). */
+  segments: CitationSegment[];
+  /** Flat text for clipboard copy (no markup — italics don't survive a paste). */
+  plain: string;
+}
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/**
+ * Format an ISO "YYYY-MM-DD" as "Month D, YYYY". Parsed by hand (not via
+ * `new Date()`) so it can't drift a day in a non-UTC runtime — the same
+ * timezone trap the approximated-note date hit. Returns null on a malformed
+ * input so callers can omit the date cleanly.
+ */
+function longDate(iso: string | undefined | null): string | null {
+  if (!iso) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return null;
+  const [, y, mm, dd] = m;
+  const monthIdx = Number(mm) - 1;
+  if (monthIdx < 0 || monthIdx > 11) return null;
+  return `${MONTH_NAMES[monthIdx]} ${Number(dd)}, ${y}`;
+}
+
+/** Four-digit year out of an ISO date, or null. */
+function yearOf(iso: string | undefined | null): string | null {
+  if (!iso) return null;
+  const m = /^(\d{4})/.exec(iso);
+  return m ? m[1] : null;
+}
+
+/** Drop a single trailing period so wrapping a title in quotes / a sentence
+ *  can't produce ".." (e.g. a source name that already ends in a period). */
+function trimTrailingPeriod(s: string): string {
+  return s.replace(/\.\s*$/, "");
+}
+
+/** APA group-author join: "A", "A & B", "A, B, & C" (serial comma + ampersand). */
+function joinAuthorsApa(authors: string[]): string {
+  if (authors.length <= 1) return authors[0] ?? "";
+  if (authors.length === 2) return `${authors[0]} & ${authors[1]}`;
+  return `${authors.slice(0, -1).join(", ")}, & ${authors[authors.length - 1]}`;
+}
+
+/** Chicago group-author join: "A", "A and B", "A, B, and C". */
+function joinAuthorsChicago(authors: string[]): string {
+  if (authors.length <= 1) return authors[0] ?? "";
+  if (authors.length === 2) return `${authors[0]} and ${authors[1]}`;
+  return `${authors.slice(0, -1).join(", ")}, and ${authors[authors.length - 1]}`;
+}
+
+function segmentsToPlain(segments: CitationSegment[]): string {
+  return segments.map((s) => s.text).join("");
+}
+
+/**
+ * APA 7th-edition dataset citation:
+ *   Author. (Year). *Title* [Data set]. Publisher. Retrieved Month D, YYYY, from URL
+ * No-author fallback moves the title to the author position. Note APA puts NO
+ * period after the closing URL.
+ */
+export function buildApaCitation(input: CitationInput): StyledCitation {
+  const authors = input.providers.filter(Boolean);
+  const title = trimTrailingPeriod(input.title);
+  const year = yearOf(input.asOf) ?? yearOf(input.today) ?? "n.d.";
+  const retrieved = longDate(input.today);
+  const retrievalClause = retrieved
+    ? `Retrieved ${retrieved}, from ${input.url}`
+    : `Retrieved from ${input.url}`;
+
+  const segments: CitationSegment[] = [];
+  if (authors.length > 0) {
+    segments.push({ text: `${joinAuthorsApa(authors)}. (${year}). ` });
+    segments.push({ text: title, italic: true });
+    segments.push({ text: ` [Data set]. ${SITE_BRAND_NAME}. ${retrievalClause}` });
+  } else {
+    // No author → title leads, then the year.
+    segments.push({ text: title, italic: true });
+    segments.push({ text: ` [Data set]. (${year}). ${SITE_BRAND_NAME}. ${retrievalClause}` });
+  }
+  return { id: "apa", label: "APA", segments, plain: segmentsToPlain(segments) };
+}
+
+/**
+ * Chicago 17th-edition (notes–bibliography) citation for an online dataset:
+ *   Author. "Title." Website. Accessed Month D, YYYY. URL.
+ * Title in quotation marks (period inside the quote), "Accessed" wording, and
+ * a terminal period after the URL (the opposite of APA).
+ *
+ * Website name is set ROMAN, not italic: CMOS 17 §14.206 italicizes a site
+ * name only when it's the online counterpart of a printed publication. Tape
+ * has no print counterpart, so roman is the manual-correct choice (matches
+ * CMOS's own "Yale University" web examples). Hence Chicago has no italics.
+ */
+export function buildChicagoCitation(input: CitationInput): StyledCitation {
+  const authors = input.providers.filter(Boolean);
+  const title = trimTrailingPeriod(input.title);
+  const accessed = longDate(input.today);
+  const accessedClause = accessed ? `Accessed ${accessed}. ` : "";
+  const lead =
+    authors.length > 0
+      ? `${joinAuthorsChicago(authors)}. "${title}." `
+      : `"${title}." `;
+
+  const segments: CitationSegment[] = [
+    { text: `${lead}${SITE_BRAND_NAME}. ${accessedClause}${input.url}.` },
+  ];
+  return { id: "chicago", label: "Chicago", segments, plain: segmentsToPlain(segments) };
+}

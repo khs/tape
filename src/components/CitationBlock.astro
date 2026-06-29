@@ -2,20 +2,27 @@
 /**
  * Visually-distinct citation card.
  *
- * Renders the citation lines (from src/lib/citation.ts) as a bordered
- * panel with a "Copy citation" button. Used on per-source and per-chart
- * pages — anywhere a reader might cite the chart in their own work and
- * need the canonical text to paste into a memo / Substack / academic
- * paper.
+ * Renders a dataset citation as a bordered panel with a style toggle
+ * (Recommended / APA / Chicago) and a "Copy" button that copies whichever
+ * style is currently selected. Used on per-source and per-chart pages —
+ * anywhere a reader might cite the chart in their own work and need the
+ * canonical text to paste into a memo / Substack / academic paper.
  *
- * Why a separate component rather than inlining: appears on multiple
- * routes and the styling needs to be consistent ("the citation card
- * looks the same everywhere"). Server-renders the lines + carries the
- * pre-joined plaintext on a data attribute for the inline copy script.
+ *   - Recommended: Tape's own plain readable block (multi-line, the original
+ *     format) — the default selection.
+ *   - APA / Chicago: genuinely style-compliant single-paragraph entries
+ *     (see src/lib/citation.ts) so a citation pasted into a paper actually
+ *     follows the manual rather than approximating it.
+ *
+ * Why a separate component rather than inlining: appears on multiple routes
+ * and the styling needs to be consistent. Server-renders all three styles;
+ * a small inline script toggles which is shown + which the copy button reads.
  */
 import {
   buildCitation,
   buildCitationLines,
+  buildApaCitation,
+  buildChicagoCitation,
   type CitationInput,
 } from "../lib/citation";
 
@@ -26,8 +33,20 @@ interface Props {
 }
 
 const { input, heading = "Cite this chart" } = Astro.props;
-const plain = buildCitation(input);
-const lines = buildCitationLines(input);
+
+// Recommended (the original Tape format) renders as multi-line; APA + Chicago
+// render as single hanging-indent paragraphs with italic spans.
+const recommendedPlain = buildCitation(input);
+const recommendedLines = buildCitationLines(input);
+const apa = buildApaCitation(input);
+const chicago = buildChicagoCitation(input);
+
+// Recommended is the default-selected style; order it first.
+const styleTabs = [
+  { id: "recommended", label: "Recommended" },
+  { id: "apa", label: apa.label },
+  { id: "chicago", label: chicago.label },
+] as const;
 ---
 
 <section class="citation-card" data-role="citation-card">
@@ -37,44 +56,99 @@ const lines = buildCitationLines(input);
       type="button"
       class="citation-copy-btn"
       data-role="citation-copy-btn"
-      data-citation={plain}
-      aria-label="Copy citation to clipboard"
+      aria-label="Copy the selected citation to clipboard"
     >
       Copy
     </button>
   </div>
-  <ol class="citation-lines">
-    {lines.map((line) => <li>{line}</li>)}
-  </ol>
+
+  <div class="citation-style-toggle" role="group" aria-label="Citation style">
+    {
+      styleTabs.map((s, i) => (
+        <button
+          type="button"
+          class="citation-style-btn"
+          data-role="citation-style-btn"
+          data-style={s.id}
+          aria-pressed={i === 0 ? "true" : "false"}
+        >
+          {s.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="citation-bodies">
+    {/* Recommended — multi-line, default visible. */}
+    <ol
+      class="citation-lines"
+      data-style-body="recommended"
+      data-plain={recommendedPlain}
+    >
+      {recommendedLines.map((line) => <li>{line}</li>)}
+    </ol>
+    {/* APA — single paragraph; italic dataset title. */}
+    <p class="citation-text" data-style-body="apa" data-plain={apa.plain} hidden>{
+      apa.segments.map((seg) => (seg.italic ? <em>{seg.text}</em> : seg.text))
+    }</p>
+    {/* Chicago — single paragraph; italic website name. */}
+    <p class="citation-text" data-style-body="chicago" data-plain={chicago.plain} hidden>{
+      chicago.segments.map((seg) => (seg.italic ? <em>{seg.text}</em> : seg.text))
+    }</p>
+  </div>
 </section>
 
 <script>
-  // Per-card copy handler. Multiple citation cards can coexist on one
-  // page (a dashboard renders one per chart) — wire per-button rather
-  // than delegating, so the active card's button text flips
-  // independently when copied.
+  // Per-card wiring. Multiple citation cards can coexist on one page (a
+  // dashboard renders one per chart), so scope everything to each card: the
+  // style toggle, the visible body, and the copy target all stay independent.
   document
-    .querySelectorAll<HTMLButtonElement>(
-      "[data-role='citation-copy-btn']",
-    )
-    .forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const text = btn.dataset.citation ?? "";
-        const original = btn.textContent ?? "Copy";
+    .querySelectorAll<HTMLElement>("[data-role='citation-card']")
+    .forEach((card) => {
+      const styleButtons = card.querySelectorAll<HTMLButtonElement>(
+        "[data-role='citation-style-btn']",
+      );
+      const bodies = card.querySelectorAll<HTMLElement>("[data-style-body]");
+      const copyBtn = card.querySelector<HTMLButtonElement>(
+        "[data-role='citation-copy-btn']",
+      );
+
+      function activate(styleId: string): void {
+        styleButtons.forEach((b) =>
+          b.setAttribute(
+            "aria-pressed",
+            b.dataset.style === styleId ? "true" : "false",
+          ),
+        );
+        bodies.forEach((body) => {
+          body.hidden = body.dataset.styleBody !== styleId;
+        });
+      }
+
+      styleButtons.forEach((b) =>
+        b.addEventListener("click", () => activate(b.dataset.style ?? "recommended")),
+      );
+
+      copyBtn?.addEventListener("click", async () => {
+        // Copy whichever style is currently shown.
+        const active = card.querySelector<HTMLElement>(
+          "[data-style-body]:not([hidden])",
+        );
+        const text = active?.dataset.plain ?? "";
+        const original = copyBtn.textContent ?? "Copy";
         if (!text) return;
-        btn.disabled = true;
+        copyBtn.disabled = true;
         try {
           await navigator.clipboard.writeText(text);
-          btn.textContent = "Copied";
+          copyBtn.textContent = "Copied";
         } catch {
-          // Old browsers / iframe sandboxing can block clipboard
-          // writes. Tell the user clearly instead of leaving them
-          // wondering why nothing happened.
+          // Old browsers / iframe sandboxing can block clipboard writes.
+          // Tell the user clearly instead of leaving them wondering.
           alert(`Copy failed. Citation:\n\n${text}`);
         } finally {
           setTimeout(() => {
-            btn.disabled = false;
-            btn.textContent = original;
+            copyBtn.disabled = false;
+            copyBtn.textContent = original;
           }, 1500);
         }
       });
@@ -131,6 +205,41 @@ const lines = buildCitationLines(input);
     opacity: 0.6;
     cursor: default;
   }
+
+  /* ---- Style toggle (Recommended / APA / Chicago) ---- */
+  .citation-style-toggle {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .citation-style-btn {
+    font-size: 11px;
+    line-height: 1;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid rgba(55, 53, 47, 0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #2d2d2a;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .citation-style-btn:hover {
+    background: #f5f3ec;
+    border-color: rgba(55, 53, 47, 0.32);
+  }
+  .citation-style-btn[aria-pressed="true"] {
+    background: var(--color-accent, #1a7f6b);
+    border-color: var(--color-accent, #1a7f6b);
+    color: #fff;
+    font-weight: 500;
+  }
+  .citation-style-btn:focus-visible {
+    outline: 2px solid var(--color-accent, #1a7f6b);
+    outline-offset: 1px;
+  }
+
+  /* ---- Citation bodies ---- */
   .citation-lines {
     list-style: none;
     margin: 0;
@@ -144,5 +253,20 @@ const lines = buildCitationLines(input);
   .citation-lines li + li {
     /* Subtle separator hint so the block doesn't smush together. */
     margin-top: 1px;
+  }
+  .citation-text {
+    margin: 0;
+    /* Hanging indent — reads like a bibliography entry, the form an APA /
+       Chicago user expects. */
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+  }
+  .citation-text em {
+    font-style: italic;
+  }
+  /* Belt-and-suspenders: the [hidden] bodies stay out of flow even if a
+     future global rule sets `display` on ol/p. */
+  .citation-bodies [hidden] {
+    display: none;
   }
 </style>

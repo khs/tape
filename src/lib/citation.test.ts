@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   buildCitation,
   buildCitationLines,
+  buildApaCitation,
+  buildChicagoCitation,
   citationRetrievalUrl,
   type CitationInput,
 } from "./citation";
@@ -90,6 +92,112 @@ describe("buildCitationLines — array form", () => {
     // title + data + as-of + license + retrieval.
     expect(lines.length).toBe(5);
     expect(lines[3]).toBe("License: CC-BY-4.0.");
+  });
+});
+
+describe("buildApaCitation — APA 7th edition", () => {
+  it("formats author, version year, italic title, [Data set], publisher, retrieval (no terminal period)", () => {
+    const c = buildApaCitation(base);
+    expect(c.id).toBe("apa");
+    expect(c.plain).toBe(
+      "FRED. (2026). US unemployment rate [Data set]. Tape. " +
+        "Retrieved May 15, 2026, from https://tape.io/source/fred/us_unemployment/",
+    );
+    // APA does NOT end with a period after the URL.
+    expect(c.plain.endsWith("/")).toBe(true);
+    // Only the title is italic.
+    const italic = c.segments.filter((s) => s.italic).map((s) => s.text);
+    expect(italic).toEqual(["US unemployment rate"]);
+  });
+
+  it("uses the data-through YEAR (not the retrieval year) for the date", () => {
+    // asOf 2026-03-31 → (2026); even though retrieval is 2026, prove it reads asOf.
+    const c = buildApaCitation({ ...base, asOf: "2019-12-31" });
+    expect(c.plain).toContain("(2019).");
+    expect(c.plain).toContain("Retrieved May 15, 2026, from");
+  });
+
+  it("falls back to the retrieval year when asOf is missing", () => {
+    const c = buildApaCitation({ ...base, asOf: undefined });
+    expect(c.plain).toContain("(2026).");
+  });
+
+  it("uses (n.d.) when neither asOf nor a parseable today is present", () => {
+    const c = buildApaCitation({ ...base, asOf: undefined, today: "" });
+    expect(c.plain).toContain("(n.d.).");
+    // No retrieval date → drop the date, keep the URL.
+    expect(c.plain).toContain("Retrieved from https://tape.io/source/fred/us_unemployment/");
+  });
+
+  it("joins two providers with an ampersand", () => {
+    const c = buildApaCitation({ ...base, providers: ["FRED", "Yahoo Finance"] });
+    expect(c.plain.startsWith("FRED & Yahoo Finance. (2026).")).toBe(true);
+  });
+
+  it("uses a serial comma before the ampersand for three providers", () => {
+    const c = buildApaCitation({
+      ...base,
+      providers: ["FRED", "Yahoo Finance", "World Bank"],
+    });
+    expect(c.plain.startsWith("FRED, Yahoo Finance, & World Bank. (2026).")).toBe(true);
+  });
+
+  it("moves the (italic) title to the author position when no provider", () => {
+    const c = buildApaCitation({ ...base, providers: [] });
+    expect(c.plain).toBe(
+      "US unemployment rate [Data set]. (2026). Tape. " +
+        "Retrieved May 15, 2026, from https://tape.io/source/fred/us_unemployment/",
+    );
+    expect(c.segments[0]).toEqual({ text: "US unemployment rate", italic: true });
+  });
+});
+
+describe("buildChicagoCitation — Chicago 17th edition", () => {
+  it("formats author, quoted title, roman website, Accessed date, terminal period", () => {
+    const c = buildChicagoCitation(base);
+    expect(c.id).toBe("chicago");
+    expect(c.plain).toBe(
+      'FRED. "US unemployment rate." Tape. Accessed May 15, 2026. ' +
+        "https://tape.io/source/fred/us_unemployment/.",
+    );
+    // Chicago ENDS with a period after the URL (opposite of APA).
+    expect(c.plain.endsWith("/.")).toBe(true);
+    // Website name is roman, not italic → no italic spans at all.
+    expect(c.segments.some((s) => s.italic)).toBe(false);
+    // "Accessed", not "Retrieved".
+    expect(c.plain).toContain("Accessed May 15, 2026.");
+    expect(c.plain).not.toContain("Retrieved");
+  });
+
+  it("joins two providers with 'and'", () => {
+    const c = buildChicagoCitation({ ...base, providers: ["FRED", "Yahoo Finance"] });
+    expect(c.plain.startsWith('FRED and Yahoo Finance. "US unemployment rate."')).toBe(true);
+  });
+
+  it("uses a serial comma before 'and' for three providers", () => {
+    const c = buildChicagoCitation({
+      ...base,
+      providers: ["FRED", "Yahoo Finance", "World Bank"],
+    });
+    expect(c.plain.startsWith('FRED, Yahoo Finance, and World Bank. "US unemployment rate."')).toBe(
+      true,
+    );
+  });
+
+  it("starts with the quoted title when no provider", () => {
+    const c = buildChicagoCitation({ ...base, providers: [] });
+    expect(c.plain).toBe(
+      '"US unemployment rate." Tape. Accessed May 15, 2026. ' +
+        "https://tape.io/source/fred/us_unemployment/.",
+    );
+  });
+
+  it("drops the Accessed clause when today is unparseable", () => {
+    const c = buildChicagoCitation({ ...base, today: "" });
+    expect(c.plain).not.toContain("Accessed");
+    expect(c.plain).toBe(
+      'FRED. "US unemployment rate." Tape. https://tape.io/source/fred/us_unemployment/.',
+    );
   });
 });
 
