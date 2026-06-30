@@ -22,10 +22,7 @@ import {
   METRO_COUNT,
   COUNTRY_COUNT,
 } from "../lib/source-count";
-import {
-  WALKTHROUGH_DASHBOARD_SLUG,
-  ENTERPRISE_INQUIRY_URL,
-} from "../lib/brand";
+import { WALKTHROUGH_DASHBOARD_SLUG } from "../lib/brand";
 
 export const prerender = true;
 
@@ -237,7 +234,7 @@ const EDITORIAL_FEATURES: string[] = [
         <a href={`${baseUrl}/compose/`} class="welcome-cta-primary">
           Build a dashboard &rarr;
         </a>
-        <a href={ENTERPRISE_INQUIRY_URL} class="welcome-cta-secondary">
+        <a href={`${baseUrl}/enterprise/`} class="welcome-cta-secondary">
           For organizations &rarr;
         </a>
       </p>

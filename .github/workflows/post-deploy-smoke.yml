@@ -73,29 +73,29 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Smoke-testing: $URL"
 
-      - name: Home page renders without data errors
-        # The home page is server-rendered (prerender = false) and loads
-        # ~32 chart tiles. The exact failure mode from this week was every
-        # tile rendering "Data unavailable: ..." because the serverless
-        # function couldn't resolve its own static-asset URL. Asserting
-        # zero "Data unavailable" + a positive chart-payload count is
-        # the same signal a human would notice eyeballing the page.
+      - name: Home page renders its featured-dashboard nav
+        # The home page is now prerendered (static) and no longer inlines
+        # chart tiles — it's a lightweight featured-dashboard launcher
+        # (preset nav, ~16KB HTML). So we assert the featured section is
+        # present rather than counting chart payloads; the inline-chart
+        # "Data unavailable" outage signal is covered by the /us-macro/
+        # step below, which still loads real chart data server-side.
         run: |
           URL="${{ steps.url.outputs.url }}"
           body=$(curl -sS --fail --max-time 30 "$URL/")
           bad=$(printf "%s" "$body" | grep -c "Data unavailable" || true)
-          payloads=$(printf "%s" "$body" | grep -c "data-chart-payload" || true)
-          echo "Home page: 'Data unavailable' x$bad, chart payloads x$payloads"
+          tabs=$(printf "%s" "$body" | grep -oE 'data-role="featured-tab"' | wc -l)
+          echo "Home page: 'Data unavailable' x$bad, featured tabs x$tabs"
           if [ "$bad" -gt 0 ]; then
             echo "::error::Home page has $bad 'Data unavailable' errors"
             printf "%s" "$body" | grep -oE "Data unavailable: [^<]+" | head -10
             exit 1
           fi
-          # Threshold of 5 not 32: tolerates a couple charts being added /
-          # removed without flapping; still fails closed if the payload
-          # script tags vanish entirely (the exact symptom of the recent bug).
-          if [ "$payloads" -lt 5 ]; then
-            echo "::error::Home page has only $payloads chart payloads (expected several)"
+          # Fails closed if the featured-dashboard nav vanishes entirely
+          # (e.g. the preset list failed to render). Threshold well under
+          # the real count so adding/removing a preset doesn't flap.
+          if [ "$tabs" -lt 3 ]; then
+            echo "::error::Home page has only $tabs featured-dashboard tabs (expected several)"
             exit 1
           fi
 
