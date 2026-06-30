@@ -607,8 +607,10 @@ const payload = {
     position: static;
     display: block;
     width: 100%;
-    max-width: 820px;
-    margin: 0 auto;
+    /* Fill the full grid area (DashboardGrid is single-column in solo mode);
+       the page container's max-width is the real cap, not a card column. */
+    max-width: none;
+    margin: 0;
     max-height: none;
     border: 1px solid rgba(55, 53, 47, 0.08);
     border-radius: 6px;

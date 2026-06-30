@@ -118,7 +118,7 @@ const soloChart = totalCharts === 1;
           <div class="section-markdown" set:html={renderMarkdown(section.markdown)} />
         )}
         {section.charts.length > 0 && (
-          <div class="chart-grid">
+          <div class={"chart-grid" + (soloChart ? " chart-grid-solo" : "")}>
             {section.charts.map((c) => (
               <SectionChart
                 chartId={c.chart.id}
@@ -255,5 +255,14 @@ const soloChart = totalCharts === 1;
     .chart-grid {
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     }
+  }
+  /* Solo single-chart dashboard: one full-width column so the inline expanded
+     chart fills the whole grid area (the space the full set of cards would
+     occupy) instead of being pinned to a single ~230px card column. The
+     compound selector (0,2,0) beats the single-class media-query rules above
+     at every breakpoint. The chart's own .chart-dialog-solo drops its width
+     cap to match (Chart.astro / ChartBar.astro). */
+  .chart-grid.chart-grid-solo {
+    grid-template-columns: 1fr;
   }
 </style>

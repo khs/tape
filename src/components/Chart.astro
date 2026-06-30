@@ -1320,8 +1320,11 @@ const mostRecentUpdate = payload.sources
     position: static;
     display: block;
     width: 100%;
-    max-width: 820px;
-    margin: 0 auto;
+    /* Fill the full grid area — DashboardGrid collapses to a single column in
+       solo mode, so the page container's max-width is the real cap (not a
+       narrow card column). */
+    max-width: none;
+    margin: 0;
     max-height: none;
   }
   /* No backdrop for the inline (non-modal) dialog; let the body grow to
