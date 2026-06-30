@@ -99,7 +99,7 @@ if (!decoded.ok) {
 >
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
-    data-dashboard-default-window={defaultDeltaRequested ?? "1m"}
+    data-dashboard-default-window={defaultDeltaRequested ?? "max"}
   >
     {/* Breadcrumb shortcuts. Hidden client-side for signed-in users —
         the BaseLayout header already exposes "Compose" + "My dashboards"
@@ -358,7 +358,7 @@ if (!decoded.ok) {
           <DashboardGrid
             sections={resolvedSections}
             supportedDeltas={supported}
-            defaultDelta={defaultDeltaRequested ?? "1m"}
+            defaultDelta={defaultDeltaRequested ?? "max"}
             dashboardSlug="custom"
             fixedRange={fixedRange}
             chartOverrides={chartOverrides}

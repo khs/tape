@@ -165,7 +165,7 @@ const charts = defineCollection({
         "bar",
       ])
       .default("line"),
-    defaultDelta: deltaWindow.default("1m"),
+    defaultDelta: deltaWindow.default("max"),
     blurb: z.string().optional(),
     emphasis: emphasis.optional(),
     // How to normalize multi-source plots. "rebase" indexes every series to 100

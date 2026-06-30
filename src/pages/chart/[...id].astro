@@ -134,7 +134,7 @@ const breadcrumbSchema = resolved
   <div
     class="chart-detail dashboard-root max-w-[880px] mx-auto px-6 pt-8 pb-16"
     data-chart-id={chartId}
-    data-dashboard-default-window={resolved?.chart.data.defaultDelta ?? "1m"}
+    data-dashboard-default-window={resolved?.chart.data.defaultDelta ?? "max"}
   >
     <nav class="text-xs text-neutral-500 mb-3">
       <a href={baseUrl || "/"} class="no-underline hover:text-neutral-900">All dashboards</a>

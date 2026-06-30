@@ -180,6 +180,12 @@ const viewedChartCount = resolvedSections.reduce(
   0,
 );
 
+// A saved dashboard with exactly one chart renders it inline in its full
+// expanded form (see DashboardGrid for the same rule on /custom/ + presets).
+// The dashboard-level window selector is hidden in that mode since the
+// inline expanded view carries its own range/transform controls.
+const soloChart = viewedChartCount === 1;
+
 // Re-encode the resolved state into an ?d= blob so the OG endpoint renders
 // the saved dashboard's actual hero chart (vs a bare title-only card). This
 // dodges the need to give the OG endpoint a service-role Supabase key.
@@ -207,7 +213,7 @@ const ogD = state
 >
   <div
     class="dashboard-root max-w-[1200px] mx-auto px-6 pt-8 pb-16"
-    data-dashboard-default-window={defaultDelta ?? "1m"}
+    data-dashboard-default-window={defaultDelta ?? "max"}
     data-slug={slug}
   >
     {/* Breadcrumb shortcuts. Hidden client-side for signed-in users —
@@ -367,7 +373,7 @@ const ogD = state
           )}
         </header>
 
-        {state.fixedRange ? (
+        {soloChart ? null : state.fixedRange ? (
           <div class="dashboard-window" role="group" aria-label="Fixed range">
             <span class="eyebrow">Range</span>
             <span class="dashboard-fixed-range">
@@ -441,6 +447,7 @@ const ogD = state
                     sectionLocked={!!(section.defaultDelta || section.fixedRange)}
                     preloaded={c.preloaded}
                     barSnapshot={barSnapshots.get(c.chart.id)}
+                    solo={soloChart}
                   />
                 ))}
               </div>

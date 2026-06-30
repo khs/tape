@@ -2645,7 +2645,7 @@
     const hydrateStartMs = performance.now();
     const dashRoot = document.querySelector<HTMLElement>(".dashboard-root");
     const dashDefault = (dashRoot?.dataset.dashboardDefaultWindow ??
-      "1m") as DeltaWindow;
+      "max") as DeltaWindow;
 
     const tileContexts: TileCtx[] = [];
     const tiles = document.querySelectorAll<HTMLElement>(
@@ -2708,80 +2708,87 @@
         );
       }
 
+      // First-open initialization of the expanded dialog: render the plot
+      // (two-phase low-fi → high-fi), wire zoom gestures, emit telemetry.
+      // Extracted so BOTH a tile click (modal) and a solo single-chart
+      // dashboard (inline, see below) can trigger the same init.
+      //
+      //   1. SYNCHRONOUS LOW-FI: updateDialog runs immediately. In summary
+      //      mode the plot renders from summary.sparks[window] (precomputed
+      //      ~30 points) — coarser than high-fi, but on-screen within a few
+      //      ms instead of waiting for a network fetch.
+      //   2. BACKGROUND HIGH-FI: ensureAllFullPoints fetches the full
+      //      timeseries; when it resolves we re-render. Plot swaps the marks
+      //      in place — readouts don't change (precomputed priors are
+      //      exact), so users see a smooth "upgrade in resolution."
+      //
+      // For op'd / fixed-range / derived charts, s.points was already
+      // shipped and the first render IS high-fi; the fetch returns fetched=0
+      // and the re-render is a cheap no-op.
+      // Arrow (not a hoisted `function`) so TS keeps the
+      // `dialog instanceof HTMLDialogElement` narrowing from above inside
+      // this closure — a hoisted declaration would widen it back to
+      // HTMLElement | null and break the updateDialog/setActivePill calls.
+      const initDialogFirstOpen = (): void => {
+        const tOpen = performance.now();
+        const useFixed = ctx.selectedView === "fixed";
+        // Phase 1: low-fi (or high-fi if points are already present).
+        updateDialog(
+          dialog,
+          effectivePayload(payload, useFixed),
+          ctx.currentWindow,
+        );
+        setActivePill(dialog, ctx.selectedView);
+        ctx.dialogInitialized = true;
+        // Attach pinch-to-zoom + swipe-to-pan + wheel-zoom gestures
+        // on the plot element. Idempotent — guarded by
+        // ctx.zoomGesturesAttached so reopening the dialog doesn't
+        // double-bind. See attachZoomGestures for the full state
+        // machine.
+        const plotElForZoom = dialog.querySelector<HTMLElement>("[data-role='plot']");
+        if (plotElForZoom) attachZoomGestures(plotElForZoom, ctx);
+        const tFirstPaintMs = Math.round(performance.now() - tOpen);
+
+        // Phase 2: high-fi upgrade. Async, but no await on the open
+        // path so the trigger itself doesn't block — we fire
+        // the perf event from inside the promise's then().
+        ensureAllFullPoints(payload).then((fetchStats) => {
+          if (fetchStats.fetched > 0) {
+            // Got real points — re-render to upgrade visual fidelity.
+            // updateDialog is idempotent; readout values are unchanged
+            // since summary.priors[w] matches the full-data prior.
+            updateDialog(
+              dialog,
+              effectivePayload(payload, useFixed),
+              ctx.currentWindow,
+            );
+          }
+          // fetchStats.failed > 0 → low-fi preview stays in place.
+          // Readouts are still correct (summary priors are exact);
+          // users get a usable chart, just coarser than ideal. Not
+          // worth a user-visible error for the rare network blip.
+
+          track("chart_expanded", {
+            chartId: payload.chartId ?? "unknown",
+            surface: payload.surface ?? "unknown",
+            window: ctx.currentWindow,
+            lazy_fetched_sources: fetchStats.fetched,
+            lazy_fetch_failed: fetchStats.failed,
+            lazy_fetch_ms: fetchStats.totalMs,
+            // Time-to-first-paint: low-fi plot on screen. The signal
+            // users actually feel when they click. Phase-2 target: <50ms.
+            time_to_first_paint_ms: tFirstPaintMs,
+            // Time-to-high-fi: when the full-resolution plot replaces
+            // the preview. Roughly tFirstPaint + fetch + Plot re-render.
+            open_to_render_ms: Math.round(performance.now() - tOpen),
+          });
+        });
+      };
+
       tile.addEventListener("click", () => {
-        // Two-phase open for snappier perceived latency:
-        //
-        //   1. SYNCHRONOUS LOW-FI: showModal opens the frame; updateDialog
-        //      runs immediately. In summary mode, the plot renders from
-        //      summary.sparks[window] (precomputed ~30 points) — visually
-        //      coarser than the high-fi version, but on-screen within a
-        //      few ms instead of waiting for a network fetch.
-        //
-        //   2. BACKGROUND HIGH-FI: ensureAllFullPoints fetches the full
-        //      timeseries. When it resolves, we re-render. The Plot
-        //      library swaps the marks in place — readouts don't change
-        //      (precomputed priors are exact), so users see a smooth
-        //      "upgrade in resolution" rather than a flash of new
-        //      content.
-        //
-        // For op'd / fixed-range / derived charts, s.points was already
-        // shipped and the first render IS high-fi. The fetch returns
-        // fetched=0 and the re-render is a cheap no-op.
         dialog.showModal();
         if (!ctx.dialogInitialized) {
-          const tOpen = performance.now();
-          const useFixed = ctx.selectedView === "fixed";
-          // Phase 1: low-fi (or high-fi if points are already present).
-          updateDialog(
-            dialog,
-            effectivePayload(payload, useFixed),
-            ctx.currentWindow,
-          );
-          setActivePill(dialog, ctx.selectedView);
-          ctx.dialogInitialized = true;
-          // Attach pinch-to-zoom + swipe-to-pan + wheel-zoom gestures
-          // on the plot element. Idempotent — guarded by
-          // ctx.zoomGesturesAttached so reopening the dialog doesn't
-          // double-bind. See attachZoomGestures for the full state
-          // machine.
-          const plotElForZoom = dialog.querySelector<HTMLElement>("[data-role='plot']");
-          if (plotElForZoom) attachZoomGestures(plotElForZoom, ctx);
-          const tFirstPaintMs = Math.round(performance.now() - tOpen);
-
-          // Phase 2: high-fi upgrade. Async, but no await on the open
-          // path so the click handler itself doesn't block — we fire
-          // the perf event from inside the promise's then().
-          ensureAllFullPoints(payload).then((fetchStats) => {
-            if (fetchStats.fetched > 0) {
-              // Got real points — re-render to upgrade visual fidelity.
-              // updateDialog is idempotent; readout values are unchanged
-              // since summary.priors[w] matches the full-data prior.
-              updateDialog(
-                dialog,
-                effectivePayload(payload, useFixed),
-                ctx.currentWindow,
-              );
-            }
-            // fetchStats.failed > 0 → low-fi preview stays in place.
-            // Readouts are still correct (summary priors are exact);
-            // users get a usable chart, just coarser than ideal. Not
-            // worth a user-visible error for the rare network blip.
-
-            track("chart_expanded", {
-              chartId: payload.chartId ?? "unknown",
-              surface: payload.surface ?? "unknown",
-              window: ctx.currentWindow,
-              lazy_fetched_sources: fetchStats.fetched,
-              lazy_fetch_failed: fetchStats.failed,
-              lazy_fetch_ms: fetchStats.totalMs,
-              // Time-to-first-paint: low-fi plot on screen. The signal
-              // users actually feel when they click. Phase-2 target: <50ms.
-              time_to_first_paint_ms: tFirstPaintMs,
-              // Time-to-high-fi: when the full-resolution plot replaces
-              // the preview. Roughly tFirstPaint + fetch + Plot re-render.
-              open_to_render_ms: Math.round(performance.now() - tOpen),
-            });
-          });
+          initDialogFirstOpen();
         } else {
           // Second+ open — dialog is already initialized + points cached.
           // No fetch, no re-render needed.
@@ -2797,6 +2804,13 @@
           });
         }
       });
+
+      // Solo single-chart dashboard: the dialog is server-rendered `open`
+      // and laid out inline (non-modal) with the tile hidden, so there's
+      // no click to wait for — initialize the expanded view on load.
+      if (tile.dataset.solo === "1" && !ctx.dialogInitialized) {
+        initDialogFirstOpen();
+      }
 
       dialog
         .querySelectorAll<HTMLButtonElement>("button[data-window]")

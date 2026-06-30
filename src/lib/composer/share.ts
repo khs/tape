@@ -239,7 +239,7 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
     const overflowBanner = shell.querySelector<HTMLElement>("[data-role='url-overflow']");
     const overflowLen = shell.querySelector<HTMLElement>("[data-role='url-overflow-len']");
     const overflowCount = shell.querySelector<HTMLElement>("[data-role='url-overflow-count']");
-    const preview = shell.querySelector<HTMLAnchorElement>("[data-role='preview-link']");
+    const previewLinks = shell.querySelectorAll<HTMLAnchorElement>("[data-role='preview-link']");
 
     if (shareUrlLen >= SHARE_URL_HARD_LIMIT) {
       // Don't replaceState — keeps the last short-enough URL in the
@@ -261,7 +261,7 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
     }
 
     window.history.replaceState(null, "", url.toString());
-    if (preview) {
+    if (previewLinks.length) {
       // When editing an existing saved dashboard, carry the edit slug
       // through to /custom/. Without this hand-off, Preview lands on
       // a fresh /custom/ that thinks it's a brand-new composition and
@@ -272,7 +272,12 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
       const editQuery = slug
         ? `&edit=${encodeURIComponent(slug)}`
         : "";
-      preview.href = `${baseUrl}/custom/?d=${encoded}${editQuery}`;
+      const href = `${baseUrl}/custom/?d=${encoded}${editQuery}`;
+      // There can be more than one (top toolbar + bottom "Show
+      // dashboard" CTA); keep every preview link in sync.
+      previewLinks.forEach((el) => {
+        el.href = href;
+      });
     }
 
     if (overflowBanner) overflowBanner.hidden = true;

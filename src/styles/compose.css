@@ -69,6 +69,24 @@
   }
   .btn-primary:hover { background: var(--color-accent-hover); }
   .btn-secondary:hover { background: var(--color-neutral-100); }
+  /* "Show dashboard" CTA — the primary composer action, enlarged so it
+     reads as the main next step. Shown in the top toolbar and repeated as
+     a full-width button at the bottom of the composition. */
+  .composer-preview-cta {
+    font-size: var(--text-base);
+    font-weight: 600;
+    padding: 9px 18px;
+  }
+  .composer-show-dashboard-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .composer-preview-cta-bottom {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+  }
   /* Disabled state is otherwise nearly indistinguishable from active on
      the green accent; reported as "Create chart button does nothing"
      when the prerequisite (title or source) hadn't been filled. Mute
@@ -839,6 +857,9 @@
   .comp-tile.has-override .comp-tile-edit {
     color: var(--color-accent);
   }
+  /* "Full view" button — a labeled pill (icon + text) so the action is
+     discoverable rather than a bare glyph. Sits bottom-right over the
+     sparkline; a solid backing keeps it legible. */
   .comp-tile-preview-btn {
     position: absolute;
     bottom: 4px;
@@ -846,25 +867,29 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* font-size anchors the icon's em sizing: the SVG below is 1.3em, so
-       it renders ~30% larger than the edit pencil (which sits at --text-sm). */
-    font-size: var(--text-sm);
+    gap: 4px;
+    font-size: var(--text-xs);
+    font-weight: 500;
     line-height: 1;
-    padding: 2px;
-    border: none;
+    padding: 3px 7px;
+    border: 1px solid rgba(55, 53, 47, 0.12);
     border-radius: var(--radius-sm);
-    /* Faint tile-colored backing so the icon stays legible over the
-       sparkline that fills the tile body. */
-    background: color-mix(in srgb, var(--color-neutral-50) 78%, transparent);
-    color: var(--color-neutral-400);
+    background: var(--color-white);
+    color: var(--color-neutral-600);
     cursor: pointer;
   }
   .comp-tile-preview-btn svg {
-    width: 1.3em;
-    height: 1.3em;
+    width: 1.05em;
+    height: 1.05em;
     display: block;
   }
-  .comp-tile-preview-btn:hover { color: var(--color-accent); }
+  .comp-tile-preview-btn-label {
+    white-space: nowrap;
+  }
+  .comp-tile-preview-btn:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
   .comp-tile-title {
     font-size: var(--text-sm);
     font-weight: 500;

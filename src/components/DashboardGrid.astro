@@ -47,10 +47,19 @@ const {
 } = Astro.props;
 
 const Heading = headingLevel;
+
+// A dashboard with exactly one chart (across all sections) renders that
+// chart inline in its full expanded form rather than as a clickable card.
+// Markdown-only sections contribute no charts. Maps opt out (their expanded
+// view is a shared modal); SectionChart forwards `solo` only to line + bar
+// charts. The dashboard-level window selector is hidden in this mode since
+// the inline expanded view carries its own range/transform controls.
+const totalCharts = sections.reduce((n, s) => n + s.charts.length, 0);
+const soloChart = totalCharts === 1;
 ---
 
 {
-  showFixedRangeChip && fixedRange ? (
+  soloChart ? null : showFixedRangeChip && fixedRange ? (
     <div class="dashboard-window" role="group" aria-label="Fixed range">
       <span class="eyebrow">Range</span>
       <span class="dashboard-fixed-range">
@@ -121,6 +130,7 @@ const Heading = headingLevel;
                 sectionLocked={!!(section.defaultDelta || section.fixedRange)}
                 preloaded={c.preloaded}
                 barSnapshot={barSnapshots.get(c.chart.id)}
+                solo={soloChart}
               />
             ))}
           </div>

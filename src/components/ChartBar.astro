@@ -65,9 +65,12 @@ interface Props {
   // hydration.
   snapshot: { sourceId: string; value: number; date: string }[];
   dashboardSlug: string;
+  // Solo single-chart dashboard: render the expanded dialog inline
+  // (non-modal) and hide the card. Mirrors Chart.astro's `solo`.
+  solo?: boolean;
 }
 
-const { chartId, chart, sources, snapshot, dashboardSlug } = Astro.props as Props;
+const { chartId, chart, sources, snapshot, dashboardSlug, solo } = Astro.props as Props;
 
 const orientation = chart.barOrientation ?? "horizontal";
 const sortMode = chart.barSort ?? "desc";
@@ -160,8 +163,9 @@ const payload = {
 
 <button
   type="button"
-  class="chart-tile chart-bar-tile"
+  class={"chart-tile chart-bar-tile" + (solo ? " chart-tile-solo" : "")}
   data-chart-ref={dialogId}
+  data-solo={solo ? "1" : undefined}
   aria-label={`${chart.title} details`}
 >
   <div class="tile-head">
@@ -173,7 +177,7 @@ const payload = {
   <div class="tile-bars" data-role="tile-bars" data-orientation={orientation}></div>
 </button>
 
-<dialog id={dialogId} class="chart-dialog chart-bar-dialog">
+<dialog id={dialogId} class={"chart-dialog chart-bar-dialog" + (solo ? " chart-dialog-solo" : "")} open={solo ? true : undefined}>
   <div class="dialog-close-bar">
     <button type="button" class="dialog-close-x" data-role="close-x" aria-label="Close">×</button>
   </div>
@@ -284,17 +288,13 @@ const payload = {
       tileHost.replaceChildren(tilePlot);
     }
 
-    tile.addEventListener("click", () => {
-      // Open the dialog FIRST, then render. Plot needs to know the
-      // host's actual pixel width to size axis ticks + bar spacing,
-      // and dialog.clientWidth is 0 until the dialog enters the top
-      // layer — measuring before showModal yielded width = -48
-      // (cap minus padding), which Plot drew as an empty SVG of
-      // negative width. Symptom: clicking a bar tile produced a blank
-      // expanded-view modal. Reordering is the fix.
-      if (typeof dialog.showModal === "function") dialog.showModal();
-      else dialog.setAttribute("open", "");
-
+    // Render the expanded bar plot into the dialog. Must run while the
+    // dialog is laid out (modal in the top layer, or inline+open for a
+    // solo dashboard) so dialog.clientWidth is a real positive number —
+    // measuring a closed dialog yields 0/negative and Plot draws blank.
+    // Arrow (not a hoisted `function`) so TS keeps the
+    // `dialog instanceof HTMLDialogElement` narrowing from above.
+    const renderBarDialog = (): void => {
       const plotHost = dialog.querySelector<HTMLElement>(
         "[data-role='dialog-bar-plot']",
       );
@@ -327,7 +327,20 @@ const payload = {
         plotHost.replaceChildren(dialogPlot);
         plotHost.dataset.rendered = "1";
       }
+    };
+
+    tile.addEventListener("click", () => {
+      // Open the dialog FIRST, then render — clientWidth is 0 until the
+      // dialog enters the top layer; measuring before showModal yielded a
+      // blank, negative-width SVG.
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+      renderBarDialog();
     });
+
+    // Solo single-chart dashboard: the dialog is server-rendered `open`
+    // and laid out inline, so render its plot on load (no click needed).
+    if (tile.dataset.solo === "1") renderBarDialog();
 
     const closeBtn = dialog.querySelector<HTMLButtonElement>(
       "[data-role='close-x']",
@@ -582,5 +595,29 @@ const payload = {
   }
   .chart-bar-dialog .dialog-body {
     padding: 4px 24px 24px;
+  }
+  /* Solo single-chart dashboard: render the expanded dialog inline
+     (non-modal, in normal flow) and hide the clickable card. A non-modal
+     <dialog open> defaults to position:absolute, so pin it back into flow
+     and give it the card chrome (the modal had none of its own here). */
+  .chart-tile-solo {
+    display: none;
+  }
+  .chart-bar-dialog.chart-dialog-solo {
+    position: static;
+    display: block;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    max-height: none;
+    border: 1px solid rgba(55, 53, 47, 0.08);
+    border-radius: 6px;
+    background: var(--color-white);
+  }
+  .chart-bar-dialog.chart-dialog-solo::backdrop {
+    display: none;
+  }
+  .chart-bar-dialog.chart-dialog-solo .dialog-close-x {
+    display: none;
   }
 </style>

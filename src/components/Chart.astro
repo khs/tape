@@ -59,6 +59,11 @@ interface Props {
   // derived sources (which don't have a real data file). Real sources
   // can also be preloaded; we just won't read fs in that case.
   preloaded?: Record<string, TimeSeriesData>;
+  // Solo single-chart dashboard: render the expanded view inline (the
+  // <dialog> opens non-modal, in normal flow) and hide the clickable card,
+  // so a one-chart dashboard shows the full chart directly. ChartController
+  // initializes the inline dialog on load. See DashboardGrid.
+  solo?: boolean;
 }
 
 const {
@@ -70,6 +75,7 @@ const {
   dashboardFixedRange,
   sectionLocked,
   preloaded,
+  solo,
 } = Astro.props;
 
 // Pull op (arithmetic combination) off the chart if set. When valid (op
@@ -676,8 +682,9 @@ const mostRecentUpdate = payload.sources
 
 <button
   type="button"
-  class={"chart-tile" + (isMulti ? " chart-tile-multi" : "")}
+  class={"chart-tile" + (isMulti ? " chart-tile-multi" : "") + (solo ? " chart-tile-solo" : "")}
   data-chart-ref={uniqueId}
+  data-solo={solo ? "1" : undefined}
   data-emphasis={effectiveEmphasis}
   data-multi={isMulti ? "true" : "false"}
   data-series-count={String(perSource.length)}
@@ -752,7 +759,8 @@ const mostRecentUpdate = payload.sources
 
 <dialog
   id={uniqueId}
-  class="chart-dialog"
+  class={"chart-dialog" + (solo ? " chart-dialog-solo" : "")}
+  open={solo ? true : undefined}
   data-chart-ref={uniqueId}
   data-emphasis={effectiveEmphasis}
   data-multi={isMulti ? "true" : "false"}
@@ -1300,6 +1308,34 @@ const mostRecentUpdate = payload.sources
   }
   .chart-dialog::backdrop {
     background: rgba(55, 53, 47, 0.45);
+  }
+  /* Solo single-chart dashboard: render the expanded dialog inline
+     (non-modal, in normal flow) and hide the clickable card. The dialog
+     is server-rendered with `open` + .chart-dialog-solo; ChartController
+     initializes its plot on load (see initDialogFirstOpen). */
+  .chart-tile-solo {
+    display: none;
+  }
+  .chart-dialog-solo {
+    position: static;
+    display: block;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    max-height: none;
+  }
+  /* No backdrop for the inline (non-modal) dialog; let the body grow to
+     its natural height (no internal scroll); and drop the Close control —
+     closing would hide the page's only content. */
+  .chart-dialog-solo::backdrop {
+    display: none;
+  }
+  .chart-dialog-solo .dialog-body {
+    max-height: none;
+    overflow-y: visible;
+  }
+  .chart-dialog-solo .dialog-close {
+    display: none;
   }
   /* Mobile: dialog fills the viewport edge-to-edge. A modal with
      90vw + radius + shadow looks fine on desktop but cramps the

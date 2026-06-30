@@ -155,7 +155,7 @@ const censusDisclaimer =
     data-chart-id={chartId}
     data-attribution-href={attributionHref}
     data-expanded={isExpanded ? "1" : undefined}
-    data-dashboard-default-window={requestedDelta ?? resolved?.chart.data.defaultDelta ?? "1m"}
+    data-dashboard-default-window={requestedDelta ?? resolved?.chart.data.defaultDelta ?? "max"}
   >
     {
       !resolved || !effChart ? (

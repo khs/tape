@@ -46,6 +46,10 @@ interface Props {
   preloaded?: Record<string, TimeSeriesData>;
   /** Pre-computed bar snapshot (only used when render === "bar"). */
   barSnapshot?: { sourceId: string; value: number; date: string }[];
+  /** Solo single-chart dashboard: render the full expanded view inline.
+   *  Forwarded to line + bar charts only; maps keep their card (their
+   *  expanded view is a shared modal). */
+  solo?: boolean;
 }
 
 const {
@@ -58,6 +62,7 @@ const {
   sectionLocked,
   preloaded,
   barSnapshot,
+  solo,
 } = Astro.props as Props;
 ---
 
@@ -75,6 +80,7 @@ const {
       sources={sources}
       snapshot={barSnapshot ?? []}
       dashboardSlug={dashboardSlug}
+      solo={solo}
     />
   ) : (
     <Chart
@@ -86,6 +92,7 @@ const {
       dashboardFixedRange={sectionFixedRange}
       sectionLocked={sectionLocked}
       preloaded={preloaded}
+      solo={solo}
     />
   )
 }

@@ -78,7 +78,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       <div class="composer-actions">
         <button type="button" class="btn-secondary" data-role="copy-share">Copy share link</button>
         <button type="button" class="btn-secondary" data-role="save" data-save-default-label="Save to my account">Save to my account</button>
-        <a class="btn-primary" data-role="preview-link" href={`${baseUrl}/custom/`}>Preview &rarr;</a>
+        <a class="btn-primary composer-preview-cta" data-role="preview-link" href={`${baseUrl}/custom/`}>Show dashboard &rarr;</a>
       </div>
     </div>
 
@@ -581,7 +581,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             data-role="comp-empty-quickstart"
             hidden
           >
-            <p class="comp-empty-lead">Start with a popular indicator</p>
+            <p class="comp-empty-lead">Start with a popular data source</p>
             <p class="muted small">
               Click one to drop it in — then keep adding, or build your own
               from {SOURCE_COUNT_DISPLAY} sources on the left.
@@ -627,6 +627,18 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           >+ Markdown block</button>
           <button type="button" class="btn-secondary" data-role="open-custom-chart">+ Custom chart</button>
           <button type="button" class="btn-secondary" data-role="open-derived-source">+ Derived source</button>
+        </div>
+        {/* Bottom "Show dashboard" CTA — the same action as the toolbar
+            link up top, repeated here so a composer who has scrolled
+            through a tall composition doesn't have to scroll back up to
+            view it. Shares data-role="preview-link" so writeUrl() keeps
+            its href in sync with the toolbar link. */}
+        <div class="composer-show-dashboard-row">
+          <a
+            class="btn-primary composer-preview-cta composer-preview-cta-bottom"
+            data-role="preview-link"
+            href={`${baseUrl}/custom/`}
+          >Show dashboard &rarr;</a>
         </div>
       </main>
     </div>
@@ -2522,11 +2534,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
             e.stopPropagation();
             openEditor();
           });
-          // Preview button: opens THIS chart alone in /custom/ preview mode
-          // (new tab), rendered exactly as it will appear — distinct from the
-          // tiny inline sparkline. Photo/image glyph, sized a touch larger
-          // than the edit pencil; sits in the bottom-right so it doesn't
-          // crowd the top-right edit/remove controls.
+          // "Full view" button: opens THIS chart alone in /custom/ (new
+          // tab), where a single-chart dashboard renders the full expanded
+          // version of the chart — distinct from the tiny inline sparkline.
+          // A labeled pill (icon + "Full view") rather than a bare glyph so
+          // the action is discoverable; sits in the bottom-right so it
+          // doesn't crowd the top-right edit/remove controls.
           const preview = document.createElement("button");
           preview.type = "button";
           // Distinct class from the .comp-tile-preview visual-preview slot
@@ -2535,14 +2548,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
           // ballooned this button's icon into a full-size "broken-image"
           // looking glyph.
           preview.className = "comp-tile-preview-btn";
-          preview.title = "Preview chart";
-          preview.setAttribute("aria-label", "Preview chart");
+          preview.title = "Show the full version of this chart";
+          preview.setAttribute("aria-label", "Show full chart");
           preview.draggable = false;
           preview.innerHTML =
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
             'aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/>' +
-            '<circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>';
+            '<circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>' +
+            '<span class="comp-tile-preview-btn-label">Full view</span>';
           preview.addEventListener("mousedown", (e) => e.stopPropagation());
           preview.addEventListener("click", (e) => {
             e.stopPropagation();

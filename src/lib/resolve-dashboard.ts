@@ -482,7 +482,7 @@ export function resolveDashboardDefault(
   requested: DeltaWindow | undefined,
   supported: DeltaWindow[],
 ): DeltaWindow {
-  const want: DeltaWindow = requested ?? "1m";
+  const want: DeltaWindow = requested ?? "max";
   if (supported.includes(want)) return want;
   return closestSupported(want, supported);
 }
