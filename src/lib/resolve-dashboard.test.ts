@@ -289,14 +289,12 @@ describe("resolveDashboardDefault", () => {
     expect(resolveDashboardDefault("1m", ["1y", "5y", "10y"])).toBe("1y");
   });
 
-  it("defaults to 1m when no request was passed", () => {
-    // The signed-in home page passes undefined to mean "no preference".
-    expect(resolveDashboardDefault(undefined, ["1m", "1y"])).toBe("1m");
-  });
-
-  it("when 1m isn't supported and no request is given, falls back via closestSupported", () => {
-    // Defaults to 1m → not supported → closest is 1y.
-    expect(resolveDashboardDefault(undefined, ["1y", "5y"])).toBe("1y");
+  it("defaults to max (all-time) when no request was passed", () => {
+    // No preference (the signed-in home page passes undefined) → the all-time
+    // "max" window. closestSupported treats "max" as universally supported, so
+    // it's returned regardless of the chart's own supportedDeltas.
+    expect(resolveDashboardDefault(undefined, ["1m", "1y"])).toBe("max");
+    expect(resolveDashboardDefault(undefined, ["1y", "5y"])).toBe("max");
   });
 });
 
