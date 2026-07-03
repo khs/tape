@@ -1611,13 +1611,13 @@ const statesJoined = stateCodes.join(",");
         const isTractGeo = b.geo === "tract" || b.geo === "block-group";
         if (isTractGeo && isSpecialLandUseTract(d.id)) {
           tooltip.textContent =
-            `${name} — special land use (no resident population, no ACS data)`;
+            `${name}: special land use (no resident population, no ACS data)`;
         } else if (isTractGeo) {
           tooltip.textContent =
-            `${name} — no data published for this vintage`;
+            `${name}: no data published for this vintage`;
         } else {
           tooltip.textContent =
-            `${name} — no data published for this indicator + vintage`;
+            `${name}: no data published for this indicator + vintage`;
         }
         tooltip.style.display = "block";
         tooltip.style.left = (ev.clientX - rectCache.rect.left + 12) + "px";

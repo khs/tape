@@ -224,7 +224,7 @@ def build_batch_message(
         obs = t["observed_value"]
         obs_t = t["observed_t"]
         text_lines.append(
-            f"- {label} {phrase} on {obs_t} — observed {obs}."
+            f"- {label} {phrase} on {obs_t}, observed {obs}."
         )
     text_lines.append("")
     text_lines.append(f"Manage your alerts: {manage_url}")
@@ -237,7 +237,7 @@ def build_batch_message(
             f'<li style="margin: 0 0 6px;">'
             f'<strong>{escape_html(_one_line(str(t.get("source_label", t.get("source_id", "Unknown")))))}</strong> '
             f'{escape_html(condition_phrase(t["condition"], float(t["threshold"])))} '
-            f'on {escape_html(t["observed_t"])} &mdash; '
+            f'on {escape_html(t["observed_t"])}, '
             f'observed <strong>{escape_html(str(t["observed_value"]))}</strong>.'
             f'</li>'
         )

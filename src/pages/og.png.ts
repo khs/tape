@@ -75,6 +75,16 @@ type Resolved = {
 };
 
 /**
+ * Threaded through the resolvers so an error/degraded render can be flagged
+ * without a module-scoped flag (which would leak across concurrent requests in
+ * a warm serverless isolate). `degraded` starts false; any error catch path
+ * that falls through to a chartless/fallback card flips it true, and the final
+ * ImageResponse then downgrades the edge cache so a transient failure isn't
+ * pinned for ~25h.
+ */
+type RenderCtx = { degraded: boolean };
+
+/**
  * Resolve a single chart's series (up to 4, to keep the OG legend compact)
  * into rebased points. We always rebase for the OG image: it makes the chart
  * legible even when source scales differ wildly, and ratios/levels both look
@@ -104,7 +114,7 @@ function resolveChartSeries(
   return out;
 }
 
-async function resolveDashSlug(slug: string): Promise<Resolved | null> {
+async function resolveDashSlug(slug: string, ctx: RenderCtx): Promise<Resolved | null> {
   const dash = await getEntry("dashboards", slug);
   if (!dash) return null;
   // Find the first chart in the dashboard (sections preferred, then flat charts).
@@ -130,6 +140,7 @@ async function resolveDashSlug(slug: string): Promise<Resolved | null> {
       });
     } catch {
       // missing data file — fall through with an empty card
+      ctx.degraded = true;
     }
   }
   const series = resolveChartSeries(chart.data, sources);
@@ -141,7 +152,7 @@ async function resolveDashSlug(slug: string): Promise<Resolved | null> {
   };
 }
 
-async function resolveChartId(chartId: string): Promise<Resolved | null> {
+async function resolveChartId(chartId: string, ctx: RenderCtx): Promise<Resolved | null> {
   const chart = await getEntry("charts", chartId);
   if (!chart) return null;
   const sources: { id: string; name: string; shortName?: string; points: { t: string; v: number }[] }[] = [];
@@ -159,6 +170,7 @@ async function resolveChartId(chartId: string): Promise<Resolved | null> {
       });
     } catch {
       // skip
+      ctx.degraded = true;
     }
   }
   const series = resolveChartSeries(chart.data, sources);
@@ -170,7 +182,7 @@ async function resolveChartId(chartId: string): Promise<Resolved | null> {
   };
 }
 
-async function resolveSource(sourceId: string): Promise<Resolved | null> {
+async function resolveSource(sourceId: string, ctx: RenderCtx): Promise<Resolved | null> {
   const src = await getEntry("sources", sourceId);
   if (!src) return null;
   const sources: { id: string; name: string; shortName?: string; points: { t: string; v: number }[] }[] = [];
@@ -186,6 +198,7 @@ async function resolveSource(sourceId: string): Promise<Resolved | null> {
     }
   } catch {
     // missing data file — fall through with a titled, chartless card
+    ctx.degraded = true;
   }
   // Single-series card: resolveChartSeries leaves a lone source un-rebased,
   // so the OG thumbnail shows the series' real (windowed) level shape.
@@ -198,7 +211,7 @@ async function resolveSource(sourceId: string): Promise<Resolved | null> {
   };
 }
 
-async function resolveComposed(d: string): Promise<Resolved | null> {
+async function resolveComposed(d: string, ctx: RenderCtx): Promise<Resolved | null> {
   const decoded = decodeComposedState(d);
   if (!decoded.ok) return null;
   const st = decoded.state;
@@ -225,6 +238,7 @@ async function resolveComposed(d: string): Promise<Resolved | null> {
         if (data.kind === "timeseries") pts = data.points;
       } catch {
         /* skip */
+        ctx.degraded = true;
       }
     }
     if (!pts) continue;
@@ -247,14 +261,32 @@ async function resolveComposed(d: string): Promise<Resolved | null> {
 export const GET: APIRoute = async ({ url }) => {
   const params = url.searchParams;
 
+  // Per-request flag: any error catch path flips this so the final response
+  // downgrades the edge cache. Kept request-local (not module-scoped) so it
+  // can't leak between concurrent requests in a warm serverless isolate.
+  const ctx: RenderCtx = { degraded: false };
+
+  // Did the caller ask for a specific entity? If so, a null resolution means
+  // "not found" (a genuine miss), which is degraded and must NOT be pinned at
+  // the edge. A bare ?title= (or no params) is the deliberate homepage/about
+  // fallback card and stays a clean, long-cached success.
+  const askedForEntity =
+    params.has("dash") ||
+    params.has("chart") ||
+    params.has("source") ||
+    params.has("d");
+
   let resolved: Resolved | null = null;
-  if (params.has("dash")) resolved = await resolveDashSlug(params.get("dash")!);
-  else if (params.has("chart")) resolved = await resolveChartId(params.get("chart")!);
-  else if (params.has("source")) resolved = await resolveSource(params.get("source")!);
-  else if (params.has("d")) resolved = await resolveComposed(params.get("d")!);
+  if (params.has("dash")) resolved = await resolveDashSlug(params.get("dash")!, ctx);
+  else if (params.has("chart")) resolved = await resolveChartId(params.get("chart")!, ctx);
+  else if (params.has("source")) resolved = await resolveSource(params.get("source")!, ctx);
+  else if (params.has("d")) resolved = await resolveComposed(params.get("d")!, ctx);
 
   // Fallback / explicit title-only card.
   if (!resolved) {
+    // A not-found on a requested entity is degraded (short cache); the bare
+    // title-only card is a legitimate success (long cache).
+    if (askedForEntity) ctx.degraded = true;
     resolved = {
       title: params.get("title") ?? SITE_BRAND_NAME,
       subtitle:
@@ -433,14 +465,20 @@ export const GET: APIRoute = async ({ url }) => {
     },
   };
 
-  // 1 hour edge cache, 24h stale-while-revalidate. Resolved data is functions
-  // of the request URL only, so it's safely cacheable.
+  // A clean render is a pure function of the request URL, so it's safely
+  // cacheable: 1 hour edge cache, 24h stale-while-revalidate. A degraded/error
+  // render (missing data file, not-found entity, etc.) must NOT be pinned at
+  // the edge for ~25h — a transient upstream failure would otherwise freeze a
+  // broken card. Give those a short, always-revalidated cache instead.
+  const cacheControl = ctx.degraded
+    ? "public, max-age=60, must-revalidate"
+    : "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400";
   return new ImageResponse(tree as never, {
     width: WIDTH,
     height: HEIGHT,
     fonts: loadFonts(),
     headers: {
-      "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+      "Cache-Control": cacheControl,
     },
   });
 };
