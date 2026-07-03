@@ -131,10 +131,12 @@ export function createTiles(ctx: TilesContext) {
     let boundaryUrl: string;
     let layerName: string;
     if (spec.geo === "state") {
-      boundaryUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+      // Same-origin local topology (the CDN copy is CSP connect-src
+      // blocked in prod). Matches ChartMap.astro's STATES_BOUNDARY_URL.
+      boundaryUrl = `${baseUrl}/maps/us-states-10m.json`;
       layerName = "states";
     } else if (spec.geo === "county") {
-      boundaryUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
+      boundaryUrl = `${baseUrl}/maps/us-counties-10m.json`;
       layerName = "counties";
     } else if (spec.boundaryFile) {
       boundaryUrl = `${baseUrl}${spec.boundaryFile.startsWith("/") ? "" : "/"}${spec.boundaryFile}`;

@@ -319,7 +319,12 @@ if (!decoded.ok) {
                         track("custom_save_succeeded", {
                           slug: editingSlug, mode: "update",
                         });
-                        window.location.href = `${baseUrl}/u/${editingSlug}/`;
+                        // ?saved=1 forces a fresh (no-store) render on the
+                        // /u/<slug>/ page — it's a distinct cache key, so the
+                        // edge serves a MISS instead of the pre-edit cached
+                        // copy the owner just viewed. The param is stripped
+                        // client-side after load so the URL bar reads clean.
+                        window.location.href = `${baseUrl}/u/${editingSlug}/?saved=1`;
                         return;
                       }
                     }

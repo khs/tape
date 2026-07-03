@@ -85,9 +85,13 @@ jobs:
         # capture stdout REGARDLESS of exit code and post it.
         # `continue-on-error: true` lets the post step still run.
         continue-on-error: true
+        # $? at the end of a pipe reports tee's status (always 0), masking a
+        # real script failure. pipefail + PIPESTATUS[0] capture the node
+        # script's own exit code so the final step can turn the workflow red.
         run: |
+          set -o pipefail
           node scripts/run-deploy-diagnostic.mjs "${{ steps.url.outputs.url }}" | tee report.md
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
       - name: Post comment to Diagnostics issue
         # Only posts if the user has wired DIAGNOSTIC_ISSUE_NUMBER as

@@ -208,6 +208,15 @@ def build_summary(full: dict[str, Any]) -> dict[str, Any] | None:
         "priors": priors,
         "sparks": sparks,
     }
+    # Mirror the "older data is approximated" flag through from the data file.
+    # trim_source_data.py stamps `approximatedBefore` onto both the data JSON
+    # and its .summary.json when it decimates a series. The weekly refresh may
+    # re-run this rebuild AFTER that decimation, which would otherwise drop the
+    # flag from the regenerated summary; carrying it through here keeps the
+    # rebuild idempotent w.r.t. ordering. Only copied when present.
+    approximated_before = full.get("approximatedBefore")
+    if approximated_before:
+        summary["approximatedBefore"] = approximated_before
     # If the full file carries projections, bake just the latest vintage
     # into the summary so the tile sparkline can render a forward-looking
     # dashed extension without a lazy fetch. Older vintages stay in the

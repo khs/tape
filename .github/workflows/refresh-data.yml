@@ -11,6 +11,13 @@ on:
 permissions:
   contents: write
 
+# Shared with refresh-demographics.yml so the two never race pushes to main.
+# When the 1st of the month falls on a Sunday both fire at 06:00 UTC; a shared
+# group with cancel-in-progress:false makes one wait for the other to finish.
+concurrency:
+  group: "data-refresh-main"
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest

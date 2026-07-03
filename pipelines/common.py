@@ -29,8 +29,10 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import sys
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
@@ -86,7 +88,21 @@ def strip_footnote_marker(name: str) -> str:
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+    text = json.dumps(payload, indent=2, default=str)
+    # Atomic write: serialize to a temp file in the SAME directory (so the
+    # rename stays on one filesystem), then os.replace() over the target.
+    # A crash mid-write leaves the temp file, never a half-written data file.
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def _read_existing_payload(path: Path) -> dict[str, Any] | None:

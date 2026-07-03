@@ -1551,8 +1551,28 @@ const statesJoined = stateCodes.join(",");
     tooltip.style.display = "none";
     canvas.appendChild(tooltip);
     const rectCache = { rect: canvas.getBoundingClientRect() };
-    const onResize = () => { rectCache.rect = canvas.getBoundingClientRect(); };
-    window.addEventListener("resize", onResize, { passive: true });
+    // Stash the current paint's rectCache on the canvas so the ONE persistent
+    // resize listener (attached below, once per canvas) always refreshes the
+    // latest paint's cache. paint() runs on every zoom / color-scheme / vintage
+    // / cartogram / fullscreen toggle, so attaching a fresh window listener each
+    // time would leak one per re-paint. Guard with a flag on the canvas node so
+    // a second paint() reuses the existing listener instead of adding a duplicate.
+    const stash = canvas as unknown as {
+      __mapRectCache?: { rect: DOMRect };
+      __mapResizeBound?: boolean;
+    };
+    stash.__mapRectCache = rectCache;
+    if (!stash.__mapResizeBound) {
+      stash.__mapResizeBound = true;
+      window.addEventListener(
+        "resize",
+        () => {
+          const rc = stash.__mapRectCache;
+          if (rc) rc.rect = canvas.getBoundingClientRect();
+        },
+        { passive: true },
+      );
+    }
     let pendingEv: MouseEvent | null = null;
     let rafQueued = false;
     function flushTooltip() {
@@ -1793,6 +1813,22 @@ const statesJoined = stateCodes.join(",");
           const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
           zoomScaleBy(canvas, factor);
         };
+        // Remove the previous paint's wheel handler before adding this one.
+        // paint() re-runs on every zoom / color-scheme / vintage / cartogram /
+        // fullscreen toggle, so without this each re-paint would stack another
+        // wheel listener on the canvas. The new handler reads current zoom state
+        // through zoomScaleBy -> canvas.__mapZoom (re-stashed above each paint),
+        // so it always operates on the latest projection / transform.
+        const wheelStash = canvas as unknown as {
+          __mapWheelHandler?: (e: WheelEvent) => void;
+        };
+        if (wheelStash.__mapWheelHandler) {
+          canvas.removeEventListener(
+            "wheel",
+            wheelStash.__mapWheelHandler as EventListener,
+          );
+        }
+        wheelStash.__mapWheelHandler = wheelHandler;
         canvas.addEventListener("wheel", wheelHandler, { passive: false });
       }
     }

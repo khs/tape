@@ -738,7 +738,20 @@
     const lastMsFromFull = s.points
       ? new Date(s.points[s.points.length - 1].t).getTime()
       : null;
-    const spark = !s.points ? s.summary?.sparks[window] : undefined;
+    let spark = !s.points ? s.summary?.sparks[window] : undefined;
+    // "max" carries no precomputed spark; on a summary-mode dialog fall back to
+    // the longest spark we have so the low-fi plot draws something instead of
+    // rendering empty until the full-data fetch resolves. Mirrors the tile
+    // path's tileVisibleAndStart fallback.
+    if (
+      !s.points &&
+      window === "max" &&
+      (!spark || spark.length === 0) &&
+      s.summary
+    ) {
+      const longest = longestSummarySpark(s.summary);
+      if (longest && longest.length > 0) spark = longest;
+    }
     const lastMsFromSpark =
       spark && spark.length > 0
         ? new Date(spark[spark.length - 1].t).getTime()
@@ -3255,6 +3268,14 @@
           p.setAttribute("aria-pressed", active ? "true" : "false");
         });
         tileContexts.forEach((ctx) => {
+          // Fixed-range tiles are locked to their explicit start/end range
+          // (section-level fixedRange) and never track a trailing window.
+          // Skip them entirely: don't touch selectedView/currentWindow, don't
+          // re-render, don't move the per-chart pill. Otherwise the dialog
+          // stays fixed-range-rendered while the pill highlights the wrong
+          // window, and selectedView drifts to `w` so a later transform-pill
+          // click silently exits the fixed range.
+          if (ctx.payload.fixedRange) return;
           // A manual dashboard-pill click is an explicit user action, so
           // EVERY tile follows it — including section-locked ones. The
           // section lock only guards the INITIAL window (so the
@@ -3395,34 +3416,51 @@
             '[data-role="tile-spark"]',
           );
           if (!sparkEl) return;
-          if (ctx.payload.isMulti) {
-            renderSparkMulti(sparkEl, ctx.payload, ctx.currentWindow);
-          } else {
-            const s = ctx.payload.sources[0];
-            if (s) {
-              const eff = closestSupported(
-                ctx.currentWindow,
-                s.supportedDeltas,
-              );
-              renderSparkSingle(sparkEl, s, eff, undefined, ctx.payload.shading);
+          // A re-render throw for ONE tile must not abort the whole forEach —
+          // that would leave every later tile un-resized. Log and keep going,
+          // mirroring hydrate()'s per-tile guard.
+          try {
+            if (ctx.payload.isMulti) {
+              renderSparkMulti(sparkEl, ctx.payload, ctx.currentWindow);
+            } else {
+              const s = ctx.payload.sources[0];
+              if (s) {
+                const eff = closestSupported(
+                  ctx.currentWindow,
+                  s.supportedDeltas,
+                );
+                renderSparkSingle(
+                  sparkEl,
+                  s,
+                  eff,
+                  ctx.payload.fixedRange,
+                  ctx.payload.shading,
+                );
+              }
             }
-          }
-          // Mobile: when the user rotates their device with the
-          // dialog open, the full plot stays sized to the previous
-          // orientation. Re-render the dialog plot too so portrait
-          // → landscape swaps the plot dimensions cleanly.
-          if (ctx.dialogInitialized && ctx.dialog.open) {
-            const plotEl = ctx.dialog.querySelector<HTMLElement>(
-              "[data-role='plot']",
+            // Mobile: when the user rotates their device with the
+            // dialog open, the full plot stays sized to the previous
+            // orientation. Re-render the dialog plot too so portrait
+            // → landscape swaps the plot dimensions cleanly.
+            if (ctx.dialogInitialized && ctx.dialog.open) {
+              const plotEl = ctx.dialog.querySelector<HTMLElement>(
+                "[data-role='plot']",
+              );
+              if (plotEl) {
+                const useFixed = ctx.selectedView === "fixed";
+                renderFullPlot(
+                  plotEl,
+                  effectivePayload(ctx.payload, useFixed),
+                  ctx.currentWindow,
+                );
+              }
+            }
+          } catch (err) {
+            console.warn(
+              "[chart] tile resize re-render failed:",
+              err,
+              ctx.payload.chartId ?? "unknown",
             );
-            if (plotEl) {
-              const useFixed = ctx.selectedView === "fixed";
-              renderFullPlot(
-                plotEl,
-                effectivePayload(ctx.payload, useFixed),
-                ctx.currentWindow,
-              );
-            }
           }
         });
       }, 150);

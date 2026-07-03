@@ -303,7 +303,11 @@ const methodology = source ? getMethodology(source.data.pipeline) : null;
             )}
           </header>
 
-          <div class="source-headline-chart">
+          <div
+            class="source-headline-chart dashboard-root"
+            data-dashboard-default-window={headlineChart.data.defaultDelta ?? "max"}
+            data-dashboard-slug="source"
+          >
             <Chart
               chartId={headlineChartId}
               chart={headlineChart.data}

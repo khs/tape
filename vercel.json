@@ -84,31 +84,7 @@
       ]
     },
     {
-      "source": "/me/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
-      ]
-    },
-    {
-      "source": "/compose/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
-      ]
-    },
-    {
-      "source": "/custom/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
-      ]
-    },
-    {
-      "source": "/alerts/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
-      ]
-    },
-    {
-      "source": "/u/(.*)",
+      "source": "/((?!embed/).*)",
       "headers": [
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
       ]

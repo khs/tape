@@ -133,10 +133,19 @@ if (!isSupabaseConfigured) {
 // background revalidate runs, and an owner's edit propagates within s-maxage.
 // Not-found/error responses stay uncached so a freshly created+shared
 // dashboard appears immediately.
+//
+// ?saved=1 exception: the owner just landed here from the composer's
+// UPDATE flow, and the normally-cached /u/<slug>/ copy on the edge is
+// still pre-edit. This URL is a distinct cache key (guaranteed MISS), so
+// we render fresh from Supabase and mark it no-store — the inline script
+// below strips the param so future visits fall back to the cached path.
+const justSaved = Astro.url.searchParams.has("saved");
 if (state && !errorMessage) {
   Astro.response.headers.set(
     "Cache-Control",
-    "public, s-maxage=60, stale-while-revalidate=86400",
+    justSaved
+      ? "no-store"
+      : "public, s-maxage=60, stale-while-revalidate=86400",
   );
 }
 
@@ -596,6 +605,25 @@ const ogD = state
           characterData: true,
           subtree: true,
         });
+      }
+    }
+  </script>
+
+  <script>
+    // Strip ?saved=1 after an owner's edit-save redirect. The composer's
+    // UPDATE path sends the owner to /u/<slug>/?saved=1 so the edge serves
+    // a fresh (no-store) render instead of the pre-edit cached copy. Once
+    // that fresh view is on screen, rewrite the URL bar to the clean
+    // /u/<slug>/ so a refresh or share uses the normally-cached path.
+    {
+      const savedUrl = new URL(window.location.href);
+      if (savedUrl.searchParams.has("saved")) {
+        savedUrl.searchParams.delete("saved");
+        window.history.replaceState(
+          {},
+          "",
+          savedUrl.pathname + savedUrl.search + savedUrl.hash,
+        );
       }
     }
   </script>

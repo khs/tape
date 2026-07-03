@@ -26,6 +26,7 @@ Run: python pipelines/fec_house_spending.py            (all cycles)
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import time
@@ -82,10 +83,17 @@ STATE_NAME = {
 
 
 def _key() -> str:
-    m = re.search(r"^DATAGOV_API_KEY=(.*)$", (HERE.parent / ".env").read_text(encoding="utf-8"), re.M)
-    if not m:
-        raise SystemExit("DATAGOV_API_KEY not found in .env")
-    return m.group(1).strip().strip('"').strip("'")
+    # Prefer the environment (CI secret) so the weekly refresh works without a
+    # .env file; fall back to .env for local runs.
+    key = os.environ.get("DATAGOV_API_KEY", "").strip()
+    if key:
+        return key
+    env = HERE.parent / ".env"
+    if env.exists():
+        m = re.search(r"^DATAGOV_API_KEY=(.*)$", env.read_text(encoding="utf-8"), re.M)
+        if m:
+            return m.group(1).strip().strip('"').strip("'")
+    raise SystemExit("DATAGOV_API_KEY not found in env or .env")
 
 
 def _get(params: list[tuple[str, str]]) -> dict:
