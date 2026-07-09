@@ -208,6 +208,31 @@ INDICATORS: list[AcsIndicator] = [
         variables=["B05002_001E", "B05002_013E"],
         combine=pct("B05002_013E", "B05002_001E"),
     ),
+    # Total resident population (B01003) as a standalone count. Two jobs:
+    #   1. It's the POPULATION-WEIGHT DATA LAYER the contiguous cartograms
+    #      need — scripts/build_cartogram.mjs warps each polygon so its area
+    #      tracks population, and until now only STATE population existed (from
+    #      FRED <ST>POP). County / tract / block-group cartograms had no weight
+    #      file; this emits one per (geo, vintage) as total_population_<v>.json.
+    #   2. B01003 is one of the few tables Census publishes at BLOCK-GROUP
+    #      resolution (poverty B17001 and place-of-birth B05002 are suppressed
+    #      there — see BG_UNSUPPORTED), so it's the ONLY viable BG cartogram
+    #      weight. `direct` keeps the raw count; no MIN_PCT_DENOM floor (a count
+    #      has no universe to floor, and the cartogram needs every populated
+    #      polygon, including small ones).
+    # NOTE: purely a data layer. The composer Maps-tab indicator list is a
+    # hardcoded registry in src/lib/composer/maps.ts, so emitting this file does
+    # NOT surface a "population" choropleth in the UI unless it's registered
+    # there — deliberately left unregistered for now (weight-only).
+    AcsIndicator(
+        out_id="total_population",
+        name="Total population",
+        unit="people",
+        decimals=0,
+        value_label="Total resident population",
+        variables=["B01003_001E"],
+        combine=direct("B01003_001E"),
+    ),
     # Group-quarters share — NOT a map indicator in its own right; it's the
     # tract tooltip's context flag. A 0% bachelor's tract that's 100% group
     # quarters is a prison/dorm, not a failing neighborhood, and (per the
