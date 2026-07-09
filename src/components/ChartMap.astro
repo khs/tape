@@ -341,22 +341,29 @@ const defaultBoundary =
 // unit's AREA tracks its population. Same object name + GEOID keys as the normal
 // boundary, so the value-join and layer dispatch are unchanged — only the
 // geometry (and the projection: it's pre-projected, drawn with identity) differ.
-// Only STATE ships a cartogram today. CD was dropped (equal-population districts
-// over-warp into an unrecognizable mess); county + per-state tract/BG aren't
-// built. Any other geo gets an empty string → cartogramAvailable false → no
-// toggle, and a chart that sets cartogram:true on it falls through to the normal
-// choropleth instead of 404ing.
+// STATE and COUNTY ship a cartogram. CD was dropped (equal-population districts
+// over-warp into an unrecognizable mess); per-state tract/BG aren't built for the
+// same reason (tracts/BGs are designed ~equal-population, so their cartograms come
+// out near-uniform). Any other geo gets an empty string → cartogramAvailable
+// false → no toggle, and a chart that sets cartogram:true on it falls through to
+// the normal choropleth instead of 404ing.
 const cartogramBoundary =
-  geo === "state" ? "/maps/us-states-cartogram-pop.json" : "";
+  geo === "state"
+    ? "/maps/us-states-cartogram-pop.json"
+    : geo === "county"
+      ? "/maps/us-counties-cartogram-pop.json"
+      : "";
 // A cartogram asset exists for this geo → the dialog shows an Area/Population
 // toggle. `cartogramDefault` is whether to START in population view (a curated
 // chart may opt in with `cartogram: true`); the user can flip it either way.
 const cartogramAvailable = cartogramBoundary !== "";
 const cartogramDefault = (chart.cartogram ?? false) && cartogramAvailable;
 // State cartograms are VINTAGED (one per election year 1976-2024); the client
-// snaps a map's displayed vintage to the nearest. CD is a single file (its
-// boundaries are 118th-only, nothing to vintage-match). cartogramBase + the
-// vintages manifest let the client build the per-vintage URL.
+// snaps a map's displayed vintage to the nearest. County is a SINGLE file
+// (weighted by the latest immutable ACS population; county pop moves slowly, so
+// one weight serves every vintage) — so its base/vintages stay empty and paint()
+// falls back to the single cartogramUrl. cartogramBase + the vintages manifest
+// let the client build the per-vintage URL for the vintaged (state) case.
 const cartogramBase = geo === "state" ? "/maps/us-states-cartogram-pop-" : "";
 const cartogramVintages = geo === "state" ? stateCartogramVintages() : [];
 // Boundary resolution order:

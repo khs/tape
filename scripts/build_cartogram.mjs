@@ -36,6 +36,15 @@ const SIZE = [975, 610]; // standard d3 us-atlas canvas; cartogram is scale-free
 const STATE_VINTAGES = [];
 for (let y = 1976; y <= 2024; y += 4) STATE_VINTAGES.push(y);
 
+// County level is a SINGLE (non-vintaged) cartogram, weighted by the latest
+// IMMUTABLE ACS 5-year total-population vintage. County maps are demographic
+// snapshots (not an election year-slider like states), and county population
+// moves slowly, so one current weight serves every vintage and metric — the
+// same single-file model CD used (118th-only). 2024 is the newest ACS 5-year
+// but is still "live" (released Dec 2025, may see a revision); 2023 is the
+// latest immutable vintage, so use it as the stable weight.
+const COUNTY_POP_VINTAGE = "2023";
+
 // FIPS -> USPS postal (50 + DC). Mirror of src/lib/state-fips.ts (a .mjs build
 // script can't import the .ts); territories omitted (no state topo/pop).
 const FIPS_TO_POSTAL = {
@@ -222,6 +231,58 @@ async function buildStatesVintaged(GoCart) {
   );
 }
 
+// County level: one nationwide cartogram warped by county resident population.
+// Full strength (1): county population is highly non-uniform (LA County ~10M vs
+// rural counties ~500), so the warp is dramatic and informative — unlike the
+// near-equal-population CD/tract case, which over-warps into an unrecognizable
+// mesh (why CD was dropped, and why tract/BG cartograms aren't built). The
+// output object is named "counties" so it matches ChartMap's layerName for the
+// county geo, and the file is us-counties-cartogram-pop.json to match the
+// renderer's cartogramBoundary. Not vintaged (single file); the year slider on
+// a county map keeps these 2023-population shapes across vintages.
+async function buildCounties(GoCart) {
+  const topo = JSON.parse(fs.readFileSync(path.join(MAPS, "us-counties-2024-10m.json"), "utf8"));
+  const fc = tc.feature(topo, topo.objects.counties);
+  const popPath = path.join(
+    ROOT, "public", "data", "acs_county", `total_population_${COUNTY_POP_VINTAGE}.json`,
+  );
+  if (!fs.existsSync(popPath)) {
+    throw new Error(
+      `[county] population weight file missing: ${popPath}. Run ` +
+      `\`python pipelines/census_acs_choropleth.py --geo county --indicators ` +
+      `total_population\` first.`,
+    );
+  }
+  const popMap = JSON.parse(fs.readFileSync(popPath, "utf8")).values;
+  const feats = [];
+  for (const f of fc.features) {
+    const id = String(f.id); // county topo ids are 5-digit FIPS strings ("01069")
+    const pop = popMap[id];
+    if (pop == null || !(pop > 0)) continue;
+    feats.push({ ...f, id, properties: { id, GEOID: id, population: pop } });
+  }
+  // The 2024 cb topology has 3144 counties; every one has ACS population, so
+  // require near-complete coverage — a botched fetch that dropped most counties
+  // must fail loudly rather than ship a sparse cartogram.
+  if (feats.length < 3100) {
+    throw new Error(`[county] only ${feats.length}/${fc.features.length} counties have population — weight data incomplete`);
+  }
+  buildCartogram(
+    feats, "counties", "us-counties-cartogram-pop.json", 1,
+    `county@${COUNTY_POP_VINTAGE}`, GoCart,
+  );
+}
+
+// Optional level filter so a single level can be rebuilt without the others:
+//   node scripts/build_cartogram.mjs --only county   (skip the FRED state fetch)
+//   node scripts/build_cartogram.mjs --only state
+// No flag rebuilds everything.
+const ONLY = (() => {
+  const i = process.argv.indexOf("--only");
+  return i >= 0 ? process.argv[i + 1] : null;
+})();
+
 const GoCart = await initGoCart({ locateFile: () => WASM });
-await buildStatesVintaged(GoCart);
+if (!ONLY || ONLY === "state") await buildStatesVintaged(GoCart);
+if (!ONLY || ONLY === "county") await buildCounties(GoCart);
 console.log("cartogram build complete.");
