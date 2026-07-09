@@ -53,6 +53,11 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
     renderComposition,
   } = ctx;
   const dsModal = store.dsModal;
+  // In-flight guard for the derived-source Create handler. Checked and set
+  // synchronously (before the awaited rate-limit check) so a rapid double-
+  // click can't run the create path twice and produce two identical derived
+  // sources plus two duplicate chart tiles.
+  let dsCreating = false;
   // Derived sources (the ones the user has already created) exposed to BOTH
   // operand SourcePickers as extraSources so they are pickable + recursive
   // derivation works. Real sources come from library.json inside SourcePicker
@@ -479,75 +484,89 @@ export function createDerivedSourceModal(ctx: DerivedSourceModalContext) {
         dsModal.a === dsModal.b
       )
         return;
-      // Anon rate-limit gate. Derived-source creation draws from the
-      // same per-IP budget as chart-adds — bot loops that generate
-      // synthetic derived sources are the same threat shape as those
-      // adding chart after chart.
-      const allowed = await checkComposeAction("create_derived_source");
-      if (!allowed) {
-        closeDerivedSourceModal();
-        showSigninPrompt("create_derived_source");
-        return;
-      }
-      const effectiveName =
-        dsModal.name.trim() || computeDerivedDefaultName();
-      const id = DERIVED_PREFIX + nanoid(8);
-      // Inherit parent tags + add "custom" so this new source shows up
-      // under the custom-tag filter chip in the source picker (chip
-      // only renders when at least one source has it; see Phase 5).
-      const inheritedTags = inheritedTagsForDerived(dsModal.a, dsModal.b);
-      state.inlineSources[id] = {
-        op: dsModal.op,
-        a: dsModal.a,
-        b: dsModal.b,
-        name: effectiveName,
-        tags: inheritedTags,
-      };
-      // Optional auto-insert as a chart in the current section. The vast
-      // majority of derived-source creations are "I want this ratio as a
-      // tile now"; pre-checking the box and creating the chart here saves
-      // the user from a follow-up trip through the cc-modal. Opt-out
-      // covers the stockpiling-sources-for-later case.
-      //
-      // The auto-chart references BOTH parent sources with the op set,
-      // not the freshly-created derived source. Same line either way
-      // (combineTwo applied at render), but the multi-source-with-op
-      // form preserves both component citations in the chart footer
-      // and "Copy citation" output — feels more transparent than the
-      // single-source-from-an-opaque-derived form.
-      let autoChartCreated = false;
-      if (dsModal.addAsChart) {
-        clampActiveSection();
-        const target = state.sections[store.activeSectionIdx];
-        if (target) {
-          const chartId = INLINE_PREFIX + nanoid(8);
-          state.inlineCharts[chartId] = {
-            title: effectiveName,
-            sources: [dsModal.a, dsModal.b],
-            normalize: "raw",
-            op: dsModal.op,
-          };
-          target.charts.push(chartId);
-          autoChartCreated = true;
+      // In-flight guard: the create path awaits the rate-limit check, so a
+      // rapid double-click would otherwise run this handler twice and create
+      // two identical derived sources plus two duplicate chart tiles. Flip
+      // the flag SYNCHRONOUSLY (before the first await) so the second click
+      // bails here, and disable the button for immediate feedback. The
+      // finally resets both so a later, deliberate create still works.
+      if (dsCreating) return;
+      dsCreating = true;
+      if (createBtn) createBtn.disabled = true;
+      try {
+        // Anon rate-limit gate. Derived-source creation draws from the
+        // same per-IP budget as chart-adds — bot loops that generate
+        // synthetic derived sources are the same threat shape as those
+        // adding chart after chart.
+        const allowed = await checkComposeAction("create_derived_source");
+        if (!allowed) {
+          closeDerivedSourceModal();
+          showSigninPrompt("create_derived_source");
+          return;
         }
-      }
-      writeUrl();
-      closeDerivedSourceModal();
-      // Re-render the dashboard composition if we just appended a chart;
-      // otherwise only the source-pickers need refreshing.
-      if (autoChartCreated) renderComposition();
+        const effectiveName =
+          dsModal.name.trim() || computeDerivedDefaultName();
+        const id = DERIVED_PREFIX + nanoid(8);
+        // Inherit parent tags + add "custom" so this new source shows up
+        // under the custom-tag filter chip in the source picker (chip
+        // only renders when at least one source has it; see Phase 5).
+        const inheritedTags = inheritedTagsForDerived(dsModal.a, dsModal.b);
+        state.inlineSources[id] = {
+          op: dsModal.op,
+          a: dsModal.a,
+          b: dsModal.b,
+          name: effectiveName,
+          tags: inheritedTags,
+        };
+        // Optional auto-insert as a chart in the current section. The vast
+        // majority of derived-source creations are "I want this ratio as a
+        // tile now"; pre-checking the box and creating the chart here saves
+        // the user from a follow-up trip through the cc-modal. Opt-out
+        // covers the stockpiling-sources-for-later case.
+        //
+        // The auto-chart references BOTH parent sources with the op set,
+        // not the freshly-created derived source. Same line either way
+        // (combineTwo applied at render), but the multi-source-with-op
+        // form preserves both component citations in the chart footer
+        // and "Copy citation" output — feels more transparent than the
+        // single-source-from-an-opaque-derived form.
+        let autoChartCreated = false;
+        if (dsModal.addAsChart) {
+          clampActiveSection();
+          const target = state.sections[store.activeSectionIdx];
+          if (target) {
+            const chartId = INLINE_PREFIX + nanoid(8);
+            state.inlineCharts[chartId] = {
+              title: effectiveName,
+              sources: [dsModal.a, dsModal.b],
+              normalize: "raw",
+              op: dsModal.op,
+            };
+            target.charts.push(chartId);
+            autoChartCreated = true;
+          }
+        }
+        writeUrl();
+        closeDerivedSourceModal();
+        // Re-render the dashboard composition if we just appended a chart;
+        // otherwise only the source-pickers need refreshing.
+        if (autoChartCreated) renderComposition();
 
-      // Funnel telemetry: derived sources are a power-user feature; tracking
-      // op distribution tells us whether divide-ratios dominate (the case we
-      // designed for) or sum/diff get real use. Including the operand source
-      // IDs lets us spot common derived-source recipes (e.g. retail-gas/WTI).
-      // `auto_chart` records whether the user opted into the "add as chart"
-      // default — useful for tuning the default if usage skews the other way.
-      track("compose_derived_source_created", {
-        op: dsModal.op,
-        sources: packSourceIds([dsModal.a, dsModal.b]),
-        auto_chart: autoChartCreated ? 1 : 0,
-      });
+        // Funnel telemetry: derived sources are a power-user feature; tracking
+        // op distribution tells us whether divide-ratios dominate (the case we
+        // designed for) or sum/diff get real use. Including the operand source
+        // IDs lets us spot common derived-source recipes (e.g. retail-gas/WTI).
+        // `auto_chart` records whether the user opted into the "add as chart"
+        // default — useful for tuning the default if usage skews the other way.
+        track("compose_derived_source_created", {
+          op: dsModal.op,
+          sources: packSourceIds([dsModal.a, dsModal.b]),
+          auto_chart: autoChartCreated ? 1 : 0,
+        });
+      } finally {
+        dsCreating = false;
+        if (createBtn) createBtn.disabled = false;
+      }
     });
   }
 

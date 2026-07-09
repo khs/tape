@@ -22,6 +22,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ROOT } from "./corpus";
 
@@ -60,20 +61,24 @@ describe("no em-dashes in authored prose", () => {
     ).toEqual([]);
   });
 
-  it("source YAML description/blurb prose contains no em-dash (—)", () => {
+  it("source YAML description/blurb prose contains no em-dash (—)", async () => {
     const offenders: string[] = [];
     const sourcesDir = join(ROOT, "src", "content", "sources");
-    for (const fp of filesWithExt(sourcesDir, ".yaml")) {
-      const text = readFileSync(fp, "utf-8");
-      if (!text.includes("—")) continue; // fast reject: no em-dash anywhere
+    const files = filesWithExt(sourcesDir, ".yaml");
+    // Reads ~38k source YAMLs (most contain an em-dash in an exempt name: field,
+    // so the fast-reject rarely fires -> nearly the whole corpus is read). Read
+    // ASYNC in bounded batches, not a synchronous readFileSync loop: sync opens
+    // block the worker and, under the full parallel suite on Windows, 38k opens
+    // blew past even a 60s timeout. Batched async reads overlap the I/O and yield
+    // to the event loop, keeping this ~1-2s.
+    const scan = (fp: string, text: string): void => {
+      if (!text.includes("—")) return; // fast reject: no em-dash anywhere
       // Track which top-level key each physical line belongs to. A folded /
-      // multi-line description keeps its continuation lines (which are
-      // indented, so they DON'T open a new top-level key) attributed to
-      // `description`; a `name:` / `shortName:` line opens its own key and so
-      // is exempt.
+      // multi-line description keeps its continuation lines (indented, so they
+      // DON'T open a new top-level key) attributed to `description`; a `name:` /
+      // `shortName:` line opens its own key and so is exempt.
       let currentKey: string | null = null;
-      const lines = text.split("\n");
-      lines.forEach((line, i) => {
+      text.split("\n").forEach((line, i) => {
         const m = line.match(TOP_LEVEL_KEY);
         if (m) currentKey = m[1];
         if (currentKey && PROSE_KEYS.has(currentKey) && line.includes("—")) {
@@ -81,6 +86,12 @@ describe("no em-dashes in authored prose", () => {
           offenders.push(`${rel}:${i + 1}: ${line.trim().slice(0, 80)}`);
         }
       });
+    };
+    const BATCH = 256; // well under the open-file-descriptor ceiling
+    for (let i = 0; i < files.length; i += BATCH) {
+      const chunk = files.slice(i, i + BATCH);
+      const texts = await Promise.all(chunk.map((fp) => readFile(fp, "utf-8")));
+      texts.forEach((text, j) => scan(chunk[j], text));
     }
     expect(
       offenders,
@@ -88,5 +99,8 @@ describe("no em-dashes in authored prose", () => {
         `with a comma, colon, or parens (name:/shortName: separators are exempt; ` +
         `only prose fields are checked):\n  ${offenders.join("\n  ")}\n`,
     ).toEqual([]);
-  });
+    // Generous ceiling (~2s on Linux CI): under the local Windows parallel suite
+    // this 38k-file walk is starved for I/O until the other 54 files finish, so
+    // it must outlast the whole suite's wall time, not its own compute time.
+  }, 120000);
 });

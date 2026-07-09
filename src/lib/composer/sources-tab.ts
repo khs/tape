@@ -163,8 +163,20 @@ export function createSourcesTab(ctx: SourcesTabContext) {
       card.innerHTML =
         `<div class="chart-card-title">${escapeHtml(c.title)}</div>` +
         `<div class="chart-card-meta">${c.tags.map(escapeHtml).join(" \u00b7 ")}</div>`;
-      card.addEventListener("click", () => {
-        void addChart(c.id);
+      card.addEventListener("click", async () => {
+        // Double-click guard: addChart's dedup check (target.charts.includes)
+        // runs before its own await, so two rapid clicks both pass it and
+        // append the same library chart twice. Disable the card synchronously
+        // for the duration of the add so the second click is a no-op; re-enable
+        // afterwards so a deliberate later re-add still works (addChart's dedup
+        // then correctly bails once the tile is present).
+        if (card.disabled) return;
+        card.disabled = true;
+        try {
+          await addChart(c.id);
+        } finally {
+          card.disabled = false;
+        }
       });
       host.appendChild(card);
       }

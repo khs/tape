@@ -206,7 +206,10 @@ export function createTiles(ctx: TilesContext) {
         const shard = topoFeature(t as never, obj as never) as unknown as {
           features: { id?: string | number; properties?: Record<string, unknown> }[];
         };
-        fc.features.push(...shard.features);
+        // push(...shard.features) spreads a huge array as call arguments,
+        // which throws RangeError on 4-state block-group previews. Append
+        // per element instead.
+        for (const feat of shard.features) fc.features.push(feat);
       }
       if (fc.features.length === 0) return;
     } else {
@@ -289,13 +292,22 @@ export function createTiles(ctx: TilesContext) {
       const v = values[id];
       if (typeof v === "number" && Number.isFinite(v)) vs.push(v);
     }
+    // Compute the tint extent ONCE up front. Doing Math.min/Math.max via
+    // spread INSIDE tintFor made this O(n^2) across every polygon, and
+    // spreading a large `vs` (4-state block-group previews) can itself throw
+    // a RangeError. A single pass avoids both. (When vs is empty, tintFor
+    // short-circuits to the fallback before these bounds are ever read.)
+    let vsMin = Infinity;
+    let vsMax = -Infinity;
+    for (const v of vs) {
+      if (v < vsMin) vsMin = v;
+      if (v > vsMax) vsMax = v;
+    }
     const tintFor = (v: number | undefined): string => {
       if (v === undefined || !Number.isFinite(v) || vs.length === 0) {
         return "rgba(15, 118, 110, 0.10)"; // outline-only fallback
       }
-      const min = Math.min(...vs);
-      const max = Math.max(...vs);
-      const t = max === min ? 0.5 : (v - min) / (max - min);
+      const t = vsMax === vsMin ? 0.5 : (v - vsMin) / (vsMax - vsMin);
       // 0.15 -> 0.85 opacity range so even low values are visible and
       // high values don't fully saturate (preview, not the real chart).
       const alpha = 0.15 + 0.7 * t;

@@ -22,6 +22,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { DEFAULT_DASHBOARD_SLUG_KEY } from "./brand";
 import { encodeComposedState, composedStateSchema } from "./composer-state";
 import { validateSlug, escapeHtml } from "./dashboard-slug";
 import type { DashboardRow } from "./supabase";
@@ -83,6 +84,30 @@ export interface RenderSavedDashboardsResult {
 
 // Slug validation + HTML escaping live in ./dashboard-slug.ts so they
 // can be unit-tested without a DOM. Import unchanged behavior above.
+
+// The "pinned home view" is a per-browser localStorage slug read by
+// index.astro's redirect pre-paint. Delete / set-url below MUST keep it
+// in sync: the /me/ caller doesn't wire defaultSlug/onSetDefault, so
+// without a direct reconcile here a delete-or-rename of the pinned
+// dashboard from /me/ would leave the pin pointing at a gone/old slug
+// and every later visit to '/' would redirect to /u/<slug>/ and 404.
+// Reuses DEFAULT_DASHBOARD_SLUG_KEY (lib/brand.ts) so the literal stays
+// in one place; index.astro reads/writes the same key.
+function readDefaultPin(): string | null {
+  try {
+    return localStorage.getItem(DEFAULT_DASHBOARD_SLUG_KEY);
+  } catch {
+    return null;
+  }
+}
+function writeDefaultPin(slug: string | null): void {
+  try {
+    if (slug) localStorage.setItem(DEFAULT_DASHBOARD_SLUG_KEY, slug);
+    else localStorage.removeItem(DEFAULT_DASHBOARD_SLUG_KEY);
+  } catch {
+    /* localStorage blocked — silently no-op. */
+  }
+}
 
 function makeNewDashboardTile(baseUrl: string): HTMLLIElement {
   const li = document.createElement("li");
@@ -295,12 +320,24 @@ export async function renderSavedDashboardList(
         ...((row?.state_json as Record<string, unknown>) ?? {}),
         title,
       };
-      const { error: updErr } = await sb
+      // .select() returns the affected rows so we can distinguish a
+      // real write from a zero-row no-op. Without it, an RLS-filtered
+      // or stale-token update returns no error and the UI would re-
+      // render as if the rename stuck though nothing changed. Mirrors
+      // the composer's zero-row guard in custom.astro.
+      const { data: updRows, error: updErr } = await sb
         .from("saved_dashboards")
         .update({ title, state_json: state })
-        .eq("id", id);
+        .eq("id", id)
+        .select();
       if (updErr) {
         alert(updErr.message);
+        return;
+      }
+      if (!updRows || updRows.length === 0) {
+        alert(
+          "The rename didn't save. You might be signed out or not the owner of this dashboard. Please refresh and try again.",
+        );
         return;
       }
       onMutate?.();
@@ -323,10 +360,14 @@ export async function renderSavedDashboardList(
         alert(err);
         return;
       }
-      const { error: updErr } = await sb
+      // .select() surfaces the affected rows so an RLS-filtered / stale-
+      // token write (zero rows, no error) is caught instead of being
+      // treated as a successful rename. Mirrors custom.astro's guard.
+      const { data: updRows, error: updErr } = await sb
         .from("saved_dashboards")
         .update({ slug: next })
-        .eq("id", id);
+        .eq("id", id)
+        .select();
       if (updErr) {
         const msg =
           (updErr as { code?: string }).code === "23505"
@@ -335,8 +376,28 @@ export async function renderSavedDashboardList(
         alert(msg);
         return;
       }
+      if (!updRows || updRows.length === 0) {
+        alert(
+          "The URL change didn't save. You might be signed out or not the owner of this dashboard. Please refresh and try again.",
+        );
+        return;
+      }
+      // Edge-cache note: the freed old slug and the new /u/<slug>/ both
+      // rely on the page's 60s s-maxage + stale-while-revalidate to self-
+      // heal. We deliberately don't purge the edge here; a brief window
+      // where the old URL still serves is expected, not a broken rename.
+      //
+      // Reconcile the pinned home view (localStorage) UNCONDITIONALLY —
+      // the /me/ caller wires neither defaultSlug nor onSetDefault, so
+      // without this a set-url from /me/ would strand the pin on the
+      // freed old slug and every later visit to '/' would 404 on
+      // /u/<old-slug>/. Migrate the pin to the new slug.
+      if (readDefaultPin() === current) {
+        writeDefaultPin(next);
+      }
       // If the user just renamed the slug currently set as default,
-      // poke the caller so it can migrate the stored default.
+      // poke the caller so it can migrate the stored default + re-render
+      // its hero (home page only; onSetDefault is undefined on /me/).
       if (defaultSlug && defaultSlug === current && onSetDefault) {
         onSetDefault(next);
       }
@@ -363,16 +424,43 @@ export async function renderSavedDashboardList(
       const title = b.dataset.title ?? "this dashboard";
       const slug = b.dataset.slug ?? "";
       if (!confirm(`Delete "${title}"? This can't be undone.`)) return;
-      const { error: delErr } = await sb
+      // .select() returns the deleted rows so a zero-row delete (RLS
+      // filtered the row out, or a stale token) is caught rather than
+      // being reported to the user as a successful delete. Mirrors
+      // custom.astro's zero-row guard on writes.
+      const { data: delRows, error: delErr } = await sb
         .from("saved_dashboards")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .select();
       if (delErr) {
         alert(delErr.message);
         return;
       }
-      // If the deleted row was the current default, clear the default
-      // slot so the hero doesn't keep pointing at a missing dashboard.
+      if (!delRows || delRows.length === 0) {
+        alert(
+          "Nothing was deleted. You might be signed out or not the owner of this dashboard. Please refresh and try again.",
+        );
+        return;
+      }
+      // Edge-cache note: /u/<slug>/ can keep serving the deleted
+      // dashboard from the edge for up to the page's 60s s-maxage (then
+      // stale-while-revalidate self-heals to a 404). We deliberately
+      // don't purge the edge here; that brief staleness is acceptable,
+      // not a broken delete.
+      //
+      // Reconcile the pinned home view (localStorage) UNCONDITIONALLY —
+      // the /me/ caller wires neither defaultSlug nor onSetDefault, so
+      // without this a delete of the pinned dashboard from /me/ would
+      // strand the pin and every later visit to '/' would redirect to
+      // /u/<gone-slug>/ and 404. Clear the pin when it points at the row
+      // we just deleted.
+      if (readDefaultPin() === slug) {
+        writeDefaultPin(null);
+      }
+      // If the deleted row was the current default, also poke the caller
+      // so it can clear its slot + re-render the hero (home page only;
+      // onSetDefault is undefined on /me/).
       if (defaultSlug && defaultSlug === slug && onSetDefault) {
         onSetDefault(null);
       }

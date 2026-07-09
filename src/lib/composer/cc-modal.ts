@@ -207,6 +207,10 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     ccModal.rightAxisSources = new Set<string>(
       existing?.rightAxisSources ?? [],
     );
+    // Keep the dual-axis assignment explicit from the moment the modal opens
+    // in dual-axis mode, so the L|R pills show the default split rather than
+    // an all-left set (the renderer defaults an empty set the same way).
+    materializeRightAxisIfDual();
     // Restore the log-scale flag from the saved spec; falls back to false
     // (linear) which is the safe default for any value distribution.
     ccModal.logScale =
@@ -453,11 +457,25 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
     return new Set(ids.slice(1));
   }
 
-  // Returns the current right-axis assignment, falling back to the default
-  // split when the explicit set is empty (initial state for fresh dual-axis).
+  // Materialize the default L/R split into the explicit set when dual-axis is
+  // engaged with an empty set, so the assignment is ALWAYS explicit while in
+  // dual-axis mode. Previously an empty set was overloaded as the "use the
+  // default split" sentinel, which meant an explicitly-emptied right axis
+  // (e.g. moving the last right-side series back to the left) snapped straight
+  // back to the default and a save persisted the default instead of the user's
+  // choice. Only fills an empty set: a custom split the user already built
+  // (and which survives a raw/rebase round-trip) is left untouched.
+  function materializeRightAxisIfDual(): void {
+    if (ccModal.mode === "dual-axis" && ccModal.rightAxisSources.size === 0) {
+      ccModal.rightAxisSources = defaultRightAxisSources();
+    }
+  }
+
+  // The current right-axis assignment. Once dual-axis is engaged the set is
+  // materialized (see materializeRightAxisIfDual), so an empty set now
+  // genuinely means "nothing on the right" rather than "use the default split".
   function effectiveRightAxisSources(): Set<string> {
-    if (ccModal.rightAxisSources.size > 0) return ccModal.rightAxisSources;
-    return defaultRightAxisSources();
+    return ccModal.rightAxisSources;
   }
 
   // Launch the cc-modal in "merge a single-source chart into another
@@ -554,6 +572,10 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
       ccModal.modeIsExplicit = false;
       ccModal.rightAxisSources = new Set<string>();
     }
+    // If the merge still lands in dual-axis with an empty split (a 2-source
+    // dual-axis base whose right set was empty), materialize the default so
+    // the L|R pills are explicit rather than all-left.
+    materializeRightAxisIfDual();
     ccModal.pendingMerge = {
       baseChartId: base.chartId,
       baseSecIdx: base.secIdx,
@@ -749,9 +771,9 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         const setSide = (right: boolean, e: Event) => {
           e.preventDefault();
           e.stopPropagation();
-          if (ccModal.rightAxisSources.size === 0) {
-            ccModal.rightAxisSources = new Set(effectiveRightAxisSources());
-          }
+          // The set is already explicit here (materialized on entering
+          // dual-axis), so toggle it directly. Emptying it now sticks —
+          // it no longer reverts to the default split.
           if (right) ccModal.rightAxisSources.add(id);
           else ccModal.rightAxisSources.delete(id);
           renderSelectedSources();
@@ -1275,6 +1297,11 @@ export function createCustomChartModal(ctx: CustomChartModalContext) {
         if (!r.checked) return;
         ccModal.mode = r.value as CustomChartMode;
         ccModal.modeIsExplicit = true;
+        // Entering dual-axis: seed the explicit L/R split so the pills show
+        // the default (first-left, rest-right) rather than an all-left set.
+        // A split the user built earlier (non-empty) is preserved across a
+        // raw/rebase round-trip.
+        materializeRightAxisIfDual();
         // Re-render the source list so the L|R pills appear/disappear as the
         // mode toggles into/out of dual-axis.
         renderSelectedSources();

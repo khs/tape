@@ -230,6 +230,12 @@ export function createMapsTab(ctx: MapsTabContext) {
   // the form DOM retains its values.
   let mapBuilderWired = false;
 
+  // Monotonic cancellation token for in-flight bbox previews. Each new
+  // selection (via updateMapBuilderUI) and each renderMapBboxPreview entry
+  // bumps it; a preview whose captured token is stale bails before it can
+  // overwrite the current preview or wire a brush with a stale projection.
+  let bboxPreviewGen = 0;
+
   function defaultMapTitle(): string {
     const ind = MAP_INDICATOR_LABELS[mapBuilder.indicator] ?? mapBuilder.indicator;
     if (mapBuilder.geo === "state" || mapBuilder.geo === "county") {
@@ -320,6 +326,9 @@ export function createMapsTab(ctx: MapsTabContext) {
   }
 
   function updateMapBuilderUI(): void {
+    // A selection changed — invalidate any in-flight bbox preview so a
+    // slow stale topology fetch can't clobber the fresh one.
+    bboxPreviewGen++;
     const needsState =
       mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
     const stateField = shell.querySelector<HTMLElement>(
@@ -352,6 +361,11 @@ export function createMapsTab(ctx: MapsTabContext) {
   }
 
   async function renderMapBboxPreview(): Promise<void> {
+    // Capture a cancellation token. If a newer selection (or preview) bumps
+    // bboxPreviewGen while this one awaits the topology fetch, the post-await
+    // guard below bails so we never overwrite the current preview or wire a
+    // brush with a stale projection.
+    const gen = ++bboxPreviewGen;
     const preview = shell.querySelector<HTMLElement>(
       "[data-role='map-bbox-preview']",
     );
@@ -404,6 +418,9 @@ export function createMapsTab(ctx: MapsTabContext) {
         return fc.features;
       }),
     );
+    // A newer selection superseded this preview while the topology was
+    // fetching — bail before any DOM write / brush wiring.
+    if (gen !== bboxPreviewGen) return;
     const features = featureGroups
       .filter((g): g is unknown[] => g !== null)
       .flat();
@@ -600,6 +617,10 @@ export function createMapsTab(ctx: MapsTabContext) {
       el.addEventListener("change", () => {
         if (el.checked) {
           mapBuilder.geo = el.value as MapGeo;
+          // Geo change invalidates any drawn bbox: a tract-scale bbox
+          // would filter a county/state map to near-empty, and the coords
+          // differ per projection. Mirror the state-select handler.
+          mapBuilder.bbox = null;
           updateMapBuilderUI();
         }
       });
@@ -663,8 +684,17 @@ export function createMapsTab(ctx: MapsTabContext) {
       "[data-role='map-add-btn']",
     );
     if (addBtn) {
-      addBtn.addEventListener("click", () => {
-        void addMapToDashboard();
+      addBtn.addEventListener("click", async () => {
+        // Guard against a double-click appending two identical maps (and
+        // burning two anon rate-limit actions). Disable while in flight,
+        // re-enable once addMapToDashboard settles.
+        if (addBtn.disabled) return;
+        addBtn.disabled = true;
+        try {
+          await addMapToDashboard();
+        } finally {
+          addBtn.disabled = false;
+        }
       });
     }
 
@@ -675,18 +705,21 @@ export function createMapsTab(ctx: MapsTabContext) {
     clampActiveSection();
     const target = state.sections[store.activeSectionIdx];
     if (!target) return;
+    const needsState =
+      mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
+    // Validate the state selection BEFORE consuming the rate-limit gate,
+    // so an invalid submit (no state picked for a tract/block-group map)
+    // never burns an anon action or pops a spurious sign-in prompt.
+    if (needsState && mapBuilder.states.length === 0) {
+      alert("Pick at least one state for a tract or block-group map.");
+      return;
+    }
     const allowed = await checkComposeAction("add_map_to_dashboard");
     if (!allowed) {
       showSigninPrompt("add_map_to_dashboard");
       return;
     }
     const mapId = INLINEMAP_PREFIX + nanoid(8);
-    const needsState =
-      mapBuilder.geo === "tract" || mapBuilder.geo === "block-group";
-    if (needsState && mapBuilder.states.length === 0) {
-      alert("Pick at least one state for a tract or block-group map.");
-      return;
-    }
     const title = mapBuilder.customTitle.trim() || defaultMapTitle();
     // Single-state tract/BG: keep `state` for back-compat (existing
     // saved dashboards + the map renderer's pre-multi paths
@@ -699,7 +732,10 @@ export function createMapsTab(ctx: MapsTabContext) {
       geo: mapBuilder.geo,
       indicator: mapBuilder.indicator,
       vintage: mapBuilder.vintage,
-      bbox: mapBuilder.bbox ?? undefined,
+      // Only tract/block-group maps carry a bbox. A state or county map must
+      // never inherit a stale bbox (from a prior tract selection) that would
+      // filter it to near-empty.
+      bbox: needsState ? (mapBuilder.bbox ?? undefined) : undefined,
       colorScheme: mapBuilder.colorScheme,
       colorScale: mapBuilder.colorScale,
     };

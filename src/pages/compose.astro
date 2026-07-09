@@ -1050,7 +1050,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
   import {
     decodeComposedState,
   } from "../lib/composer-state";
-  import { createShareUrl } from "../lib/composer/share";
+  import { createShareUrl, buildComposedState } from "../lib/composer/share";
   import {
     createComposerStore,
     defaultSections,
@@ -1186,17 +1186,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // ---- URL state writing ----
   // The composed-state serializers + the share-URL writer live in
-  // src/lib/composer/share.ts (Plan 2d). referencedInlineCharts /
-  // referencedInlineSources / referencedChartOverrides are returned because
-  // the Save-to-account path below serializes the same referenced defs.
+  // src/lib/composer/share.ts (Plan 2d). buildComposedState (imported above)
+  // is the single shared serializer: the Save-to-account path below calls it
+  // so the saved state_json is byte-for-byte the ?d= URL state (no drift; it
+  // used to hand-roll a subset that dropped inlineMaps + section windows).
   // editingSlug is read live (hydrateFromUrl above may set it after this runs).
-  const {
-    writeUrl,
-    singleChartPreviewUrl,
-    referencedInlineCharts,
-    referencedInlineSources,
-    referencedChartOverrides,
-  } = createShareUrl({
+  const { writeUrl, singleChartPreviewUrl } = createShareUrl({
     shell,
     baseUrl,
     state,
@@ -1407,6 +1402,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     return inlineId;
   }
 
+  // Guards a double-tap on a Sources-tab card from adding the same source as
+  // two tiles: this handler is async (it awaits checkComposeAction), so a
+  // second pick event for the same source can fire before the first add
+  // finishes. Track in-flight adds by sourceId and ignore re-entrant picks
+  // until they settle. A deliberate re-add of the same source after the first
+  // completes still works (the key is cleared in the finally).
+  const sourceAddInFlight = new Set<string>();
+
   // Add a library source as a single-series inline chart to the active
   // section. This is the new dominant path for "I want to track X" \u2014
   // separate from addChart() (pregenerated multi-source compositions)
@@ -1419,39 +1422,47 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
     // where the composer's shared `library.sources` hasn't picked them up yet.
     sourceMetaHint?: LibrarySource & { name?: string },
   ): Promise<void> {
-    clampActiveSection();
-    const target = state.sections[store.activeSectionIdx];
-    if (!target) return;
-    const allowed = await checkComposeAction("add_source_as_chart");
-    if (!allowed) {
-      showSigninPrompt("add_source_as_chart");
-      return;
+    // In-flight guard: ignore a re-entrant pick for the same source until the
+    // first add settles (see sourceAddInFlight above).
+    if (sourceAddInFlight.has(sourceId)) return;
+    sourceAddInFlight.add(sourceId);
+    try {
+      clampActiveSection();
+      const target = state.sections[store.activeSectionIdx];
+      if (!target) return;
+      const allowed = await checkComposeAction("add_source_as_chart");
+      if (!allowed) {
+        showSigninPrompt("add_source_as_chart");
+        return;
+      }
+      const sourceMeta = (library?.sources[sourceId] ?? sourceMetaHint) as
+        | (LibrarySource & { name?: string })
+        | undefined;
+      const chartId = INLINE_PREFIX + nanoid(8);
+      // Seed the chart's editorial annotations from the source's defaults
+      // (e.g. FEC per-district redistricting boundary notes). The user can
+      // edit or clear them in the chart-config modal — they're a starting
+      // point, not a lock, so we materialize them into the spec rather than
+      // re-deriving at render time (which would fight a user's removal).
+      const seededAnnotations = sourceMeta?.defaultAnnotations;
+      state.inlineCharts[chartId] = {
+        title: sourceMeta?.name ?? sourceId,
+        sources: [sourceId],
+        normalize: "raw",
+        ...(seededAnnotations && seededAnnotations.length
+          ? { annotations: seededAnnotations }
+          : {}),
+      };
+      target.charts.push(chartId);
+      writeUrl();
+      renderComposition();
+      track("compose_source_added_as_chart", {
+        sourceId,
+        source: "library",
+      });
+    } finally {
+      sourceAddInFlight.delete(sourceId);
     }
-    const sourceMeta = (library?.sources[sourceId] ?? sourceMetaHint) as
-      | (LibrarySource & { name?: string })
-      | undefined;
-    const chartId = INLINE_PREFIX + nanoid(8);
-    // Seed the chart's editorial annotations from the source's defaults
-    // (e.g. FEC per-district redistricting boundary notes). The user can
-    // edit or clear them in the chart-config modal — they're a starting
-    // point, not a lock, so we materialize them into the spec rather than
-    // re-deriving at render time (which would fight a user's removal).
-    const seededAnnotations = sourceMeta?.defaultAnnotations;
-    state.inlineCharts[chartId] = {
-      title: sourceMeta?.name ?? sourceId,
-      sources: [sourceId],
-      normalize: "raw",
-      ...(seededAnnotations && seededAnnotations.length
-        ? { annotations: seededAnnotations }
-        : {}),
-    };
-    target.charts.push(chartId);
-    writeUrl();
-    renderComposition();
-    track("compose_source_added_as_chart", {
-      sourceId,
-      source: "library",
-    });
   }
 
   // ---- Chart-spec helpers (shared by hover-merge + drag) ----
@@ -2917,36 +2928,17 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               });
               return;
             }
-            const cleanSections = state.sections
-              // A section is keep-worthy when it has charts OR a non-empty
-              // markdown body. The two together cover both
-              // "chart section" and "narrative-only block" cases.
-              .filter(
-                (s) =>
-                  s.charts.length > 0 ||
-                  (s.markdown && s.markdown.trim().length > 0),
-              )
-              .map((s) => ({
-                title: s.title,
-                description: s.description || undefined,
-                charts: [...s.charts],
-                markdown: s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
-              }));
-            if (cleanSections.length === 0) {
+            // Serialize through the SAME builder the share URL uses, so the
+            // saved state_json can't drift from the ?d= state. This carries
+            // inlineMaps + per-section defaultDelta/fixedRange, which the old
+            // hand-built object silently dropped (maps vanished + section time
+            // windows reverted on reload of a saved dashboard).
+            const composed = buildComposedState(state);
+            if (!composed.sections || composed.sections.length === 0) {
               alert("Add at least one chart or markdown block before saving.");
               return;
             }
-            const stateJson = {
-              v: 1,
-              title: state.title || undefined,
-              description: state.description || undefined,
-              defaultDelta: state.defaultDelta || undefined,
-              fixedRange: state.fixedRange,
-              sections: cleanSections,
-              inlineCharts: referencedInlineCharts(),
-              inlineSources: referencedInlineSources(),
-              chartOverrides: referencedChartOverrides(),
-            };
+            const stateJson = { v: 1, ...composed };
             saveBtn.disabled = true;
             const restoreLabel = editingSlug ? "Update dashboard" : saveDefaultLabel;
             saveBtn.textContent = editingSlug ? "Updating…" : "Saving…";
@@ -3017,10 +3009,12 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
               mode: editingSlug ? "update" : "create",
               slug: targetSlug,
             });
-            // On create (not update) include ?just-saved=1 so the /u/<slug>/
-            // page knows to surface the post-save email-signup prompt. Edits
-            // skip the prompt — the user has already been through this flow.
-            const arriveQuery = editingSlug ? "" : "?just-saved=1";
+            // Create adds ?just-saved=1 so the /u/<slug>/ page surfaces the
+            // post-save email-signup prompt. Update adds ?saved=1 so the edge
+            // serves a fresh (no-store) render instead of the pre-edit cached
+            // copy (mirrors custom.astro's UPDATE redirect); edits skip the
+            // email prompt since the user has already been through that flow.
+            const arriveQuery = editingSlug ? "?saved=1" : "?just-saved=1";
             window.location.href = `${baseUrl}/u/${targetSlug}/${arriveQuery}`;
           } catch (e) {
             console.error("[save] click handler threw:", e);

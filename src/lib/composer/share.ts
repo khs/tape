@@ -11,10 +11,12 @@
  * it during URL hydration (hydrateFromUrl), which can run after this factory
  * is constructed, and the save flow can change it later.
  *
- * referencedInlineCharts / referencedInlineSources / referencedChartOverrides
- * are returned (not kept internal) because the page's "Save to my account"
- * path serializes the same referenced defs. referencedInlineMaps stays
- * internal — only the two URL writers need it.
+ * The referenced-inline collectors and buildComposedState are module-level
+ * and exported: the page's "Save to my account" path calls buildComposedState
+ * to serialize the SAME state object the share URL encodes, so the persisted
+ * state_json can't drift from the ?d= URL state. (The Save path used to
+ * hand-roll a subset that silently dropped inlineMaps and the per-section
+ * defaultDelta / fixedRange windows.)
  */
 import {
   encodeComposedState,
@@ -41,90 +43,139 @@ export interface ShareUrlContext {
 export interface ShareUrl {
   writeUrl: () => void;
   singleChartPreviewUrl: (chartId: string) => string;
-  referencedInlineCharts: () => Record<string, InlineChart> | undefined;
-  referencedInlineSources: () => Record<string, InlineSource> | undefined;
-  referencedChartOverrides: () => Record<string, ChartOverride> | undefined;
+}
+
+// Collect only the inline-chart IDs that are actually referenced by some
+// section, so removing a chart also prunes its orphaned inline spec.
+function referencedInlineCharts(
+  state: UIState,
+): Record<string, InlineChart> | undefined {
+  const refs: Record<string, InlineChart> = {};
+  for (const sec of state.sections) {
+    for (const cid of sec.charts) {
+      if (isInlineId(cid) && state.inlineCharts[cid]) {
+        refs[cid] = state.inlineCharts[cid];
+      }
+    }
+  }
+  return Object.keys(refs).length > 0 ? refs : undefined;
+}
+
+// Parallel to referencedInlineCharts but for inline maps. Drops any
+// map spec whose ID isn't referenced by a section's chart list.
+function referencedInlineMaps(
+  state: UIState,
+): Record<string, InlineMap> | undefined {
+  const refs: Record<string, InlineMap> = {};
+  for (const sec of state.sections) {
+    for (const cid of sec.charts) {
+      if (isInlineMapId(cid) && state.inlineMaps[cid]) {
+        refs[cid] = state.inlineMaps[cid];
+      }
+    }
+  }
+  return Object.keys(refs).length > 0 ? refs : undefined;
+}
+
+// Walk the dashboard for transitive references to inline (derived)
+// sources — any source ID with the derived: prefix used either by an
+// inline chart's sources list or by another derived source's a/b.
+// Drops entries that aren't reachable so renaming/removing a chart
+// doesn't leave orphans in the saved state.
+function referencedInlineSources(
+  state: UIState,
+): Record<string, InlineSource> | undefined {
+  if (Object.keys(state.inlineSources).length === 0) return undefined;
+  const reachable = new Set<string>();
+  function visit(id: string): void {
+    if (!isDerivedId(id)) return;
+    if (reachable.has(id)) return;
+    const spec = state.inlineSources[id];
+    if (!spec) return;
+    reachable.add(id);
+    visit(spec.a);
+    visit(spec.b);
+  }
+  // Seed from all inline-chart sources currently in use.
+  for (const sec of state.sections) {
+    for (const cid of sec.charts) {
+      if (!isInlineId(cid)) continue;
+      const ic = state.inlineCharts[cid];
+      if (!ic) continue;
+      for (const sid of ic.sources) visit(sid);
+    }
+  }
+  if (reachable.size === 0) return undefined;
+  const out: Record<string, InlineSource> = {};
+  for (const id of reachable) out[id] = state.inlineSources[id];
+  return out;
+}
+
+// Strip empty values from chart overrides, drop overrides for charts no
+// longer referenced, and return undefined when nothing's left.
+function referencedChartOverrides(
+  state: UIState,
+): Record<string, ChartOverride> | undefined {
+  const referenced = new Set<string>();
+  for (const sec of state.sections) for (const cid of sec.charts) referenced.add(cid);
+  const refs: Record<string, ChartOverride> = {};
+  for (const [cid, ov] of Object.entries(state.chartOverrides)) {
+    if (!referenced.has(cid)) continue;
+    const trimmed: ChartOverride = {};
+    if (ov.title && ov.title.trim()) trimmed.title = ov.title.trim();
+    if (ov.defaultDelta) trimmed.defaultDelta = ov.defaultDelta;
+    if (ov.blurb && ov.blurb.trim()) trimmed.blurb = ov.blurb.trim();
+    if (Object.keys(trimmed).length > 0) refs[cid] = trimmed;
+  }
+  return Object.keys(refs).length > 0 ? refs : undefined;
+}
+
+/**
+ * Assemble the full composed-state object (everything except the version
+ * stamp `v`). This is the ONE serializer shared by the share-URL writer
+ * (writeUrl, below) and compose.astro's "Save to my account" handler, so the
+ * persisted state_json is identical to the ?d= URL state. Undefined-valued
+ * fields are dropped downstream: encodeComposedState strips them via a JSON
+ * round-trip, and JSON.stringify drops them from the Supabase request body.
+ */
+export function buildComposedState(state: UIState): Omit<ComposedState, "v"> {
+  const clean: Omit<ComposedState, "v"> = {
+    title: state.title || undefined,
+    description: state.description || undefined,
+    defaultDelta: (state.defaultDelta || undefined) as DeltaWindow | undefined,
+    fixedRange: state.fixedRange,
+    sections: state.sections
+      // Keep a section if it has charts OR a non-empty markdown
+      // body (markdown-only narrative sections).
+      .filter(
+        (s) =>
+          s.charts.length > 0 ||
+          (s.markdown && s.markdown.trim().length > 0),
+      )
+      .map((s) => ({
+        title: s.title,
+        description: s.description || undefined,
+        charts: [...s.charts],
+        markdown:
+          s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
+        defaultDelta: s.defaultDelta,
+        fixedRange: s.fixedRange,
+      })),
+    inlineCharts: referencedInlineCharts(state),
+    inlineSources: referencedInlineSources(state),
+    inlineMaps: referencedInlineMaps(state),
+    chartOverrides: referencedChartOverrides(state),
+  };
+  if (!clean.sections || clean.sections.length === 0) delete clean.sections;
+  if (!clean.inlineCharts) delete clean.inlineCharts;
+  if (!clean.inlineSources) delete clean.inlineSources;
+  if (!clean.inlineMaps) delete clean.inlineMaps;
+  if (!clean.chartOverrides) delete clean.chartOverrides;
+  return clean;
 }
 
 export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
   const { shell, baseUrl, state, getEditingSlug } = ctx;
-
-  // Collect only the inline-chart IDs that are actually referenced by some
-  // section, so removing a chart also prunes its orphaned inline spec.
-  function referencedInlineCharts(): Record<string, InlineChart> | undefined {
-    const refs: Record<string, InlineChart> = {};
-    for (const sec of state.sections) {
-      for (const cid of sec.charts) {
-        if (isInlineId(cid) && state.inlineCharts[cid]) {
-          refs[cid] = state.inlineCharts[cid];
-        }
-      }
-    }
-    return Object.keys(refs).length > 0 ? refs : undefined;
-  }
-
-  // Parallel to referencedInlineCharts but for inline maps. Drops any
-  // map spec whose ID isn't referenced by a section's chart list.
-  function referencedInlineMaps(): Record<string, InlineMap> | undefined {
-    const refs: Record<string, InlineMap> = {};
-    for (const sec of state.sections) {
-      for (const cid of sec.charts) {
-        if (isInlineMapId(cid) && state.inlineMaps[cid]) {
-          refs[cid] = state.inlineMaps[cid];
-        }
-      }
-    }
-    return Object.keys(refs).length > 0 ? refs : undefined;
-  }
-
-  // Walk the dashboard for transitive references to inline (derived)
-  // sources — any source ID with the derived: prefix used either by an
-  // inline chart's sources list or by another derived source's a/b.
-  // Drops entries that aren't reachable so renaming/removing a chart
-  // doesn't leave orphans in the saved state.
-  function referencedInlineSources(): Record<string, InlineSource> | undefined {
-    if (Object.keys(state.inlineSources).length === 0) return undefined;
-    const reachable = new Set<string>();
-    function visit(id: string): void {
-      if (!isDerivedId(id)) return;
-      if (reachable.has(id)) return;
-      const spec = state.inlineSources[id];
-      if (!spec) return;
-      reachable.add(id);
-      visit(spec.a);
-      visit(spec.b);
-    }
-    // Seed from all inline-chart sources currently in use.
-    for (const sec of state.sections) {
-      for (const cid of sec.charts) {
-        if (!isInlineId(cid)) continue;
-        const ic = state.inlineCharts[cid];
-        if (!ic) continue;
-        for (const sid of ic.sources) visit(sid);
-      }
-    }
-    if (reachable.size === 0) return undefined;
-    const out: Record<string, InlineSource> = {};
-    for (const id of reachable) out[id] = state.inlineSources[id];
-    return out;
-  }
-
-  // Strip empty values from chart overrides, drop overrides for charts no
-  // longer referenced, and return undefined when nothing's left.
-  function referencedChartOverrides(): Record<string, ChartOverride> | undefined {
-    const referenced = new Set<string>();
-    for (const sec of state.sections) for (const cid of sec.charts) referenced.add(cid);
-    const refs: Record<string, ChartOverride> = {};
-    for (const [cid, ov] of Object.entries(state.chartOverrides)) {
-      if (!referenced.has(cid)) continue;
-      const trimmed: ChartOverride = {};
-      if (ov.title && ov.title.trim()) trimmed.title = ov.title.trim();
-      if (ov.defaultDelta) trimmed.defaultDelta = ov.defaultDelta;
-      if (ov.blurb && ov.blurb.trim()) trimmed.blurb = ov.blurb.trim();
-      if (Object.keys(trimmed).length > 0) refs[cid] = trimmed;
-    }
-    return Object.keys(refs).length > 0 ? refs : undefined;
-  }
 
   // URL-length thresholds (chars of the FULL share URL, including
   // /custom/?d= prefix). Vercel + most CDNs start returning 414 at
@@ -178,10 +229,10 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
           fixedRange: undefined,
         },
       ],
-      inlineCharts: referencedInlineCharts(),
-      inlineSources: referencedInlineSources(),
-      inlineMaps: referencedInlineMaps(),
-      chartOverrides: referencedChartOverrides(),
+      inlineCharts: referencedInlineCharts(state),
+      inlineSources: referencedInlineSources(state),
+      inlineMaps: referencedInlineMaps(state),
+      chartOverrides: referencedChartOverrides(state),
     };
     if (!clean.defaultDelta) delete clean.defaultDelta;
     if (!clean.fixedRange) delete clean.fixedRange;
@@ -193,38 +244,7 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
   }
 
   function writeUrl(): void {
-    const clean: Omit<ComposedState, "v"> = {
-      title: state.title || undefined,
-      description: state.description || undefined,
-      defaultDelta: (state.defaultDelta || undefined) as DeltaWindow | undefined,
-      fixedRange: state.fixedRange,
-      sections: state.sections
-        // Keep a section if it has charts OR a non-empty markdown
-        // body (markdown-only narrative sections).
-        .filter(
-          (s) =>
-            s.charts.length > 0 ||
-            (s.markdown && s.markdown.trim().length > 0),
-        )
-        .map((s) => ({
-          title: s.title,
-          description: s.description || undefined,
-          charts: [...s.charts],
-          markdown:
-            s.markdown && s.markdown.trim().length > 0 ? s.markdown : undefined,
-          defaultDelta: s.defaultDelta,
-          fixedRange: s.fixedRange,
-        })),
-      inlineCharts: referencedInlineCharts(),
-      inlineSources: referencedInlineSources(),
-      inlineMaps: referencedInlineMaps(),
-      chartOverrides: referencedChartOverrides(),
-    };
-    if (!clean.sections || clean.sections.length === 0) delete clean.sections;
-    if (!clean.inlineCharts) delete clean.inlineCharts;
-    if (!clean.inlineSources) delete clean.inlineSources;
-    if (!clean.inlineMaps) delete clean.inlineMaps;
-    if (!clean.chartOverrides) delete clean.chartOverrides;
+    const clean = buildComposedState(state);
     const encoded = encodeComposedState(clean);
     const url = new URL(window.location.href);
     if (Object.keys(clean).length === 0) {
@@ -240,6 +260,35 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
     const overflowLen = shell.querySelector<HTMLElement>("[data-role='url-overflow-len']");
     const overflowCount = shell.querySelector<HTMLElement>("[data-role='url-overflow-count']");
     const previewLinks = shell.querySelectorAll<HTMLAnchorElement>("[data-role='preview-link']");
+    const copyShareBtn = shell.querySelector<HTMLButtonElement>("[data-role='copy-share']");
+
+    // Over the hard limit the URL bar keeps the LAST short-enough URL (see the
+    // branch below), so Copy-link + Preview would silently share a dashboard
+    // missing the tiles the user just added. Lock those two controls while
+    // over the limit; "Save to my account" stays the working path (its button
+    // lives outside this toggle). Re-enabled the moment the URL fits again.
+    function setShareControlsOverflowed(overflowed: boolean): void {
+      if (copyShareBtn) {
+        copyShareBtn.disabled = overflowed;
+        copyShareBtn.setAttribute("aria-disabled", overflowed ? "true" : "false");
+        copyShareBtn.title = overflowed
+          ? "This composition is too large to share by link. Save it to your account for a short /u/ link."
+          : "";
+      }
+      previewLinks.forEach((el) => {
+        if (overflowed) {
+          el.setAttribute("aria-disabled", "true");
+          el.setAttribute("tabindex", "-1");
+          el.style.pointerEvents = "none";
+          el.style.opacity = "0.5";
+        } else {
+          el.removeAttribute("aria-disabled");
+          el.removeAttribute("tabindex");
+          el.style.pointerEvents = "";
+          el.style.opacity = "";
+        }
+      });
+    }
 
     if (shareUrlLen >= SHARE_URL_HARD_LIMIT) {
       // Don't replaceState — keeps the last short-enough URL in the
@@ -257,10 +306,16 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
           overflowCount.textContent = String(tiles);
         }
       }
+      // Lock the share controls so the stale short URL can't be copied /
+      // opened without the user knowing it's out of date.
+      setShareControlsOverflowed(true);
       return;
     }
 
     window.history.replaceState(null, "", url.toString());
+    // Under the limit (or never over it): the URL in the bar now reflects
+    // the current state, so the share controls are safe to use again.
+    setShareControlsOverflowed(false);
     if (previewLinks.length) {
       // When editing an existing saved dashboard, carry the edit slug
       // through to /custom/. Without this hand-off, Preview lands on
@@ -294,8 +349,5 @@ export function createShareUrl(ctx: ShareUrlContext): ShareUrl {
   return {
     writeUrl,
     singleChartPreviewUrl,
-    referencedInlineCharts,
-    referencedInlineSources,
-    referencedChartOverrides,
   };
 }
