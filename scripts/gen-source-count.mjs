@@ -34,6 +34,9 @@ const count = countYaml(SOURCES_DIR);
 // never an overstatement and grows automatically as the library does.
 const floored = Math.floor(count / 1000) * 1000;
 const display = `${floored.toLocaleString("en-US")}+`;
+// Same floored figure without the "+", for copy that supplies its own
+// qualifier (e.g. "over 38,000 sources"), where "38,000+" would double up.
+const roundedDisplay = floored.toLocaleString("en-US");
 
 /* ---- US metros: distinct CBSA codes across the metro pipelines ----
  * Every metro-keyed source carries its 5-digit CBSA code in the
@@ -100,6 +103,10 @@ const body =
   `\n` +
   `/** Marketing figure, floored to the nearest 1,000 with a "+", e.g. "${display}". */\n` +
   `export const SOURCE_COUNT_DISPLAY = ${JSON.stringify(display)};\n` +
+  `\n` +
+  `/** Same floored figure without the "+", for copy that adds its own qualifier\n` +
+  ` *  (e.g. "over ${roundedDisplay} sources"), where "${display}" would double up. */\n` +
+  `export const SOURCE_COUNT_ROUNDED = ${JSON.stringify(roundedDisplay)};\n` +
   `\n` +
   `/** Distinct CBSA codes across the metro pipelines (acs_metro, bls, usaspending). */\n` +
   `export const METRO_COUNT = ${metroCount};\n` +

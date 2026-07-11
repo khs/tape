@@ -19,6 +19,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import EmailSignup from "../components/EmailSignup.astro";
 import {
   SOURCE_COUNT_DISPLAY,
+  SOURCE_COUNT_ROUNDED,
   METRO_COUNT,
   COUNTRY_COUNT,
 } from "../lib/source-count";
@@ -220,7 +221,7 @@ const EDITORIAL_FEATURES: string[] = [
     {/* Hero */}
     <section class="welcome-hero">
       <h1 class="welcome-title">
-        Research dashboards from {SOURCE_COUNT_DISPLAY} economic and geographic sources.
+        Make your own data story with over {SOURCE_COUNT_ROUNDED} sources, custom dashboards, and clear citations.
       </h1>
       <p class="welcome-pitch">
         Free, source-linked charts and maps to describe the world, from

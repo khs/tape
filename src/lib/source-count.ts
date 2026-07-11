@@ -8,6 +8,10 @@ export const SOURCE_COUNT = 38539;
 /** Marketing figure, floored to the nearest 1,000 with a "+", e.g. "38,000+". */
 export const SOURCE_COUNT_DISPLAY = "38,000+";
 
+/** Same floored figure without the "+", for copy that adds its own qualifier
+ *  (e.g. "over 38,000 sources"), where "38,000+" would double up. */
+export const SOURCE_COUNT_ROUNDED = "38,000";
+
 /** Distinct CBSA codes across the metro pipelines (acs_metro, bls, usaspending). */
 export const METRO_COUNT = 393;
 
