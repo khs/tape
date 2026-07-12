@@ -269,7 +269,7 @@ def build_life_expectancy() -> int:
             f"come from NCHS Socrata datasets; 2021 onward are final figures "
             f"from the NCHS 'Mortality in the United States' Data Briefs, which "
             f"are the only authoritative source for recent national-by-sex "
-            f"values (not available via the Socrata API).",
+            f"values (not carried in the Socrata datasets).",
             "us", ["1y", "10y", "30y", "50y"], "years", 1, " yrs",
             f"CDC NCHS life expectancy at birth; All Races; {sex}", LE_URL, None,
         )

@@ -1,6 +1,6 @@
 name: 'Life expectancy at birth — United States'
 shortName: 'US life expectancy'
-description: 'Life expectancy at birth for the United States, by year. CDC / National Center for Health Statistics. Values through 2020 come from NCHS Socrata datasets; 2021 onward are final figures from the NCHS ''Mortality in the United States'' Data Briefs, which are the only authoritative source for recent national-by-sex values (not available via the Socrata API).'
+description: 'Life expectancy at birth for the United States, by year. CDC / National Center for Health Statistics. Values through 2020 come from NCHS Socrata datasets; 2021 onward are final figures from the NCHS ''Mortality in the United States'' Data Briefs, which are the only authoritative source for recent national-by-sex values (not carried in the Socrata datasets).'
 kind: timeseries
 pipeline: cdc_health
 dataFile: data/cdc_health/life_expectancy_us.json
