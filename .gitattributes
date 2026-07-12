@@ -1,0 +1,6 @@
+# Manually-downloaded raw source artifacts (CBO XLSX/CSV, SSA HTML). Store them
+# byte-for-byte as downloaded — never translate line endings — so the committed
+# files are an exact copy of the operator's download and the pipelines parse the
+# same bytes on every machine. See pipelines/cbo.py + pipelines/ssa.py.
+pipelines/cbo_data/** -text
+pipelines/ssa_data/** -text

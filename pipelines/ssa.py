@@ -59,8 +59,8 @@ Manual workflow
    ``<vintage>_<suffix>.html``, e.g. ``2025_lr6g4.html``.
 4. Re-run ``python pipelines/ssa.py``.
 
-``pipelines/ssa_data/`` is gitignored — operator artifact, not part
-of the repo.
+``pipelines/ssa_data/`` is COMMITTED to the repo — ssa.gov 403s CI
+fetches, so the saved HTML is the only way this data is reproducible.
 
 Cached on disk via ``pipelines/_cache.py``: the Trustees Report
 contents for a given year don't change once published, so each year's

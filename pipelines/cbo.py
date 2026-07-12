@@ -20,7 +20,9 @@ CBO publishes their data exclusively as XLSX files at
 cbo.gov/data/budget-economic-data, behind DataDome anti-bot
 protection — direct CI fetches return HTTP 403. The workflow is
 operator-driven: the operator downloads files in a browser and drops
-them in ``pipelines/cbo_data/`` (gitignored), then runs this pipeline.
+them in ``pipelines/cbo_data/`` (committed to the repo — cbo.gov blocks CI
+fetches, so the raw files are the only way this data is reproducible), then
+runs this pipeline.
 
 Manual workflow
 ~~~~~~~~~~~~~~~

@@ -27,15 +27,13 @@ pipelines/_crosswalks_cache/
 # store was retired in favor of this one — safe to delete if present.
 pipelines/_cache/
 
-# CBO XLSX uploads. cbo.gov is behind DataDome and often blocks CI
-# fetches; the manual fallback is to drop browser-downloaded files
-# here. Operator artifact, not part of the repo. See pipelines/cbo.py.
-pipelines/cbo_data/
-
-# SSA HTML uploads. ssa.gov returns 403 to non-browser User-Agents;
-# the manual fallback is to save the Trustees Report HTML pages from
-# a browser into this directory. See pipelines/ssa.py for the workflow.
-pipelines/ssa_data/
+# NOTE: pipelines/cbo_data/ and pipelines/ssa_data/ are now COMMITTED (not
+# ignored). They hold the manually-downloaded raw source files for providers
+# whose sites block CI fetches (cbo.gov behind DataDome; ssa.gov 403s non-browser
+# User-Agents), so committing them is the only way the CBO/SSA data is
+# reproducible from the repo (and lets CI run those pipelines). They cost nothing
+# on Vercel: pipelines/ is not under public/ and is stripped from the SSR function
+# by astro.config's strip-data-from-function hook. See pipelines/cbo.py + ssa.py.
 
 # Census TIGER tract shapefiles cache for the state-tract-topo
 # generator. ~50 MB total of source ZIPs + extracted shapefiles;
