@@ -123,10 +123,17 @@ await timed("/library.json parses + has source dict", async () => {
   if (!sources || typeof sources !== "object")
     return { status: "fail", detail: ".sources not an object" };
   const sourceCount = Object.keys(sources).length;
-  if (sourceCount < 1000)
+  // Floor for the LEAN /library.json. Since the lean/geo split, the ~96% of
+  // sources that are geographic (per-CD / metro / state / country) are
+  // lazy-loaded behind /library-geo and are deliberately NOT in this payload —
+  // it carries only the visible-by-default non-geo catalog (~685 today). The old
+  // 1000 floor predated the split and fired a permanent false "only N sources"
+  // warning. 500 still catches a real collapse without flagging the normal size.
+  // Keep in sync with src/lib/diagnostics/page-tests.ts (pages/library-json).
+  if (sourceCount < 500)
     return {
       status: "warn",
-      detail: `only ${sourceCount} sources`,
+      detail: `only ${sourceCount} sources (lean catalog; geo sources are in /library-geo)`,
     };
   return {
     status: "pass",
