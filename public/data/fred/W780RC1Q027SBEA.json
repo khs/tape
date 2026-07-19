@@ -3,7 +3,7 @@
   "name": "Federal receipts: contributions for social insurance (payroll taxes)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-06-19T20:30:24Z",
+  "lastUpdated": "2026-07-19T07:59:17Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1271,7 +1271,7 @@
     },
     {
       "t": "2026-01-01",
-      "v": 2055.62
+      "v": 2055.9
     }
   ]
 }

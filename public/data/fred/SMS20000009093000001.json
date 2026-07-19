@@ -2,8 +2,8 @@
   "id": "SMS20000009093000001",
   "name": "Local government employment in Kansas",
   "kind": "timeseries",
-  "unit": "count",
-  "lastUpdated": "2026-05-28T02:14:07Z",
+  "unit": "people",
+  "lastUpdated": "2026-07-19T08:03:30Z",
   "points": [
     {
       "t": "2001-01-01",
@@ -1219,7 +1219,11 @@
     },
     {
       "t": "2026-04-01",
-      "v": 182800.0
+      "v": 183100.0
+    },
+    {
+      "t": "2026-05-01",
+      "v": 183500.0
     }
   ]
 }

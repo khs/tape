@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Arkansas",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-28T02:14:45Z",
+  "lastUpdated": "2026-07-19T08:03:55Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -515,7 +515,11 @@
     },
     {
       "t": "2025-10-01",
-      "v": 3525000.0
+      "v": 3486000.0
+    },
+    {
+      "t": "2026-01-01",
+      "v": 2878000.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, North Carolina",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-28T02:15:09Z",
+  "lastUpdated": "2026-07-19T08:04:15Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -515,7 +515,11 @@
     },
     {
       "t": "2025-10-01",
-      "v": 10145000.0
+      "v": 10142000.0
+    },
+    {
+      "t": "2026-01-01",
+      "v": 9769000.0
     }
   ]
 }

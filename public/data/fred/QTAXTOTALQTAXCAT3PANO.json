@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Pennsylvania",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-28T02:15:12Z",
+  "lastUpdated": "2026-07-19T08:04:18Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -516,6 +516,10 @@
     {
       "t": "2025-10-01",
       "v": 13136000.0
+    },
+    {
+      "t": "2026-01-01",
+      "v": 15828000.0
     }
   ]
 }

@@ -2,8 +2,8 @@
   "id": "SMS04000009092000001",
   "name": "State government employment in Arizona",
   "kind": "timeseries",
-  "unit": "count",
-  "lastUpdated": "2026-05-28T02:13:00Z",
+  "unit": "people",
+  "lastUpdated": "2026-07-19T08:02:40Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -1555,7 +1555,11 @@
     },
     {
       "t": "2026-04-01",
-      "v": 90200.0
+      "v": 89800.0
+    },
+    {
+      "t": "2026-05-01",
+      "v": 88000.0
     }
   ]
 }

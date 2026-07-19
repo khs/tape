@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Michigan",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-28T02:15:02Z",
+  "lastUpdated": "2026-07-19T08:04:08Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -511,11 +511,15 @@
     },
     {
       "t": "2025-07-01",
-      "v": 11473000.0
+      "v": 11612000.0
     },
     {
       "t": "2025-10-01",
       "v": 11501000.0
+    },
+    {
+      "t": "2026-01-01",
+      "v": 8586000.0
     }
   ]
 }

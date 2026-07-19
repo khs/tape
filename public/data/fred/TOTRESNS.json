@@ -3,7 +3,7 @@
   "name": "Total reserves of depository institutions",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-06-18T20:24:03Z",
+  "lastUpdated": "2026-07-19T07:59:38Z",
   "points": [
     {
       "t": "1959-01-01",
@@ -3235,7 +3235,11 @@
     },
     {
       "t": "2026-04-01",
-      "v": 3018.0
+      "v": 3018.1
+    },
+    {
+      "t": "2026-05-01",
+      "v": 3078.4
     }
   ]
 }

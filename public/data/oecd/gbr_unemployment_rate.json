@@ -3,7 +3,7 @@
   "name": "Unemployment rate \u2014 United Kingdom",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-14T09:22:05Z",
+  "lastUpdated": "2026-07-19T08:09:00Z",
   "points": [
     {
       "t": "1983-01-01",
@@ -2072,6 +2072,10 @@
     {
       "t": "2026-01-01",
       "v": 4.9
+    },
+    {
+      "t": "2026-02-01",
+      "v": 5.0
     }
   ]
 }

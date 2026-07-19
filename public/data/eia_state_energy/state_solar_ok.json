@@ -3,7 +3,7 @@
   "name": "state_solar_ok",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-06-14T09:27:04Z",
+  "lastUpdated": "2026-07-19T08:12:54Z",
   "points": [
     {
       "t": "2015-12-31",

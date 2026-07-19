@@ -3,7 +3,7 @@
   "name": "India \u2014 US Treasury holdings",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-06-14T09:25:15Z",
+  "lastUpdated": "2026-07-19T08:11:11Z",
   "points": [
     {
       "t": "2002-01-15",
@@ -1099,7 +1099,7 @@
     },
     {
       "t": "2025-10-15",
-      "v": 190.7
+      "v": 190.4
     },
     {
       "t": "2025-11-15",

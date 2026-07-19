@@ -3,7 +3,7 @@
   "name": "Federal government total receipts",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-06-19T20:30:22Z",
+  "lastUpdated": "2026-07-19T07:59:16Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1271,7 +1271,7 @@
     },
     {
       "t": "2026-01-01",
-      "v": 5917.161
+      "v": 5916.71
     }
   ]
 }

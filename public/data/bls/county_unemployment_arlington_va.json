@@ -3,7 +3,7 @@
   "name": "Arlington County, VA \u2014 unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-18T03:49:07Z",
+  "lastUpdated": "2026-07-19T08:08:48Z",
   "points": [
     {
       "t": "1990-01-15",
@@ -1744,6 +1744,10 @@
     {
       "t": "2026-04-15",
       "v": 2.9
+    },
+    {
+      "t": "2026-05-15",
+      "v": 2.8
     }
   ]
 }

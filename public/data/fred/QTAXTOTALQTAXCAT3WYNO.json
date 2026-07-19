@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Wyoming",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-05-28T02:15:20Z",
+  "lastUpdated": "2026-07-19T08:04:28Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -516,6 +516,10 @@
     {
       "t": "2025-10-01",
       "v": 599000.0
+    },
+    {
+      "t": "2026-01-01",
+      "v": 586000.0
     }
   ]
 }

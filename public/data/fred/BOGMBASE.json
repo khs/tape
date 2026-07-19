@@ -3,7 +3,7 @@
   "name": "Monetary base",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-06-18T20:24:02Z",
+  "lastUpdated": "2026-07-19T07:59:37Z",
   "points": [
     {
       "t": "1959-01-01",
@@ -3236,6 +3236,10 @@
     {
       "t": "2026-04-01",
       "v": 5470.4
+    },
+    {
+      "t": "2026-05-01",
+      "v": 5538.6
     }
   ]
 }

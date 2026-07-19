@@ -2,8 +2,8 @@
   "id": "SMS20000009092000001",
   "name": "State government employment in Kansas",
   "kind": "timeseries",
-  "unit": "count",
-  "lastUpdated": "2026-05-28T02:13:19Z",
+  "unit": "people",
+  "lastUpdated": "2026-07-19T08:02:51Z",
   "points": [
     {
       "t": "2001-01-01",
@@ -1219,6 +1219,10 @@
     },
     {
       "t": "2026-04-01",
+      "v": 51800.0
+    },
+    {
+      "t": "2026-05-01",
       "v": 51900.0
     }
   ]

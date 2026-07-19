@@ -3,7 +3,7 @@
   "name": "US median listing price (homes for sale)",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-05-28T02:11:11Z",
+  "lastUpdated": "2026-07-19T08:00:17Z",
   "points": [
     {
       "t": "2016-07-01",
@@ -476,6 +476,14 @@
     {
       "t": "2026-04-01",
       "v": 425000.0
+    },
+    {
+      "t": "2026-05-01",
+      "v": 429500.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 430000.0
     }
   ]
 }

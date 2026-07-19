@@ -3,7 +3,7 @@
   "name": "Federal receipts: excise taxes (taxes on production and imports)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-06-19T20:30:25Z",
+  "lastUpdated": "2026-07-19T07:59:19Z",
   "points": [
     {
       "t": "1959-01-01",
@@ -1079,7 +1079,7 @@
     },
     {
       "t": "2026-01-01",
-      "v": 102.216
+      "v": 102.148
     }
   ]
 }

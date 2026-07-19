@@ -3,7 +3,7 @@
   "name": "state_solar_la",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-06-14T09:26:55Z",
+  "lastUpdated": "2026-07-19T08:12:45Z",
   "points": [
     {
       "t": "2017-12-31",

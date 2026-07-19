@@ -3,7 +3,7 @@
   "name": "US real GDP per capita (chained 2017 dollars)",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-06-17T05:09:26Z",
+  "lastUpdated": "2026-07-19T07:59:21Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1271,7 +1271,7 @@
     },
     {
       "t": "2026-01-01",
-      "v": 70502.0
+      "v": 70583.0
     }
   ]
 }
