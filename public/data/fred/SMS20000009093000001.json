@@ -3,7 +3,7 @@
   "name": "Local government employment in Kansas",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:30Z",
+  "lastUpdated": "2026-07-26T08:12:16Z",
   "points": [
     {
       "t": "2001-01-01",
@@ -1223,7 +1223,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 183500.0
+      "v": 183400.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 183000.0
     }
   ]
 }

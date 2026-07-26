@@ -3,7 +3,7 @@
   "name": "Local government employment in Illinois",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:28Z",
+  "lastUpdated": "2026-07-26T08:12:13Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 627400.0
+      "v": 626900.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 627900.0
     }
   ]
 }

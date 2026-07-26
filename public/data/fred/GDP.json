@@ -3,7 +3,7 @@
   "name": "US GDP (nominal)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-07-19T08:04:28Z",
+  "lastUpdated": "2026-07-26T08:13:25Z",
   "points": [
     {
       "t": "1947-01-01",

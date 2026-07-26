@@ -3,7 +3,7 @@
   "name": "California government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:26Z",
+  "lastUpdated": "2026-07-26T08:10:06Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 2679900.0
+      "v": 2676100.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 2668500.0
     }
   ]
 }

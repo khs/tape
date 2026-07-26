@@ -3,7 +3,7 @@
   "name": "Median weekly earnings: men (full-time)",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:02Z",
   "points": [
     {
       "t": "1979-03-15",
@@ -756,6 +756,10 @@
     {
       "t": "2026-03-15",
       "v": 1362.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 1380.0
     }
   ]
 }

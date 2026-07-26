@@ -3,7 +3,7 @@
   "name": "Local government employment in Alabama",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:19Z",
+  "lastUpdated": "2026-07-26T08:12:03Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 236600.0
+      "v": 236500.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 236900.0
     }
   ]
 }

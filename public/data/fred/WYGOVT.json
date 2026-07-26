@@ -3,7 +3,7 @@
   "name": "Wyoming government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:59Z",
+  "lastUpdated": "2026-07-26T08:10:43Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 71400.0
+      "v": 71300.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 71700.0
     }
   ]
 }

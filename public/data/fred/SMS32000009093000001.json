@@ -3,7 +3,7 @@
   "name": "Local government employment in Nevada",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:38Z",
+  "lastUpdated": "2026-07-26T08:12:25Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 116000.0
+      "v": 116900.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 120500.0
     }
   ]
 }

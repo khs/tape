@@ -3,7 +3,7 @@
   "name": "District of Columbia government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:29Z",
+  "lastUpdated": "2026-07-26T08:10:09Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1752,6 +1752,10 @@
     {
       "t": "2026-05-01",
       "v": 207100.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 206800.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "State government employment in Oregon",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:09Z",
+  "lastUpdated": "2026-07-26T08:11:52Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,6 +1751,10 @@
     },
     {
       "t": "2026-05-01",
+      "v": 48900.0
+    },
+    {
+      "t": "2026-06-01",
       "v": 48900.0
     }
   ]

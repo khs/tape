@@ -3,7 +3,7 @@
   "name": "Federal spending in New Mexico",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-07-19T08:12:34Z",
+  "lastUpdated": "2026-07-26T08:22:32Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 46.246924531545
+      "v": 48.19033426599
     }
   ]
 }

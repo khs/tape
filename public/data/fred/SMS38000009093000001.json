@@ -3,7 +3,7 @@
   "name": "Local government employment in North Dakota",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:42Z",
+  "lastUpdated": "2026-07-26T08:12:30Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,6 +1751,10 @@
     },
     {
       "t": "2026-05-01",
+      "v": 55000.0
+    },
+    {
+      "t": "2026-06-01",
       "v": 55000.0
     }
   ]

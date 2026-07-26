@@ -3,7 +3,7 @@
   "name": "Oregon employment-population ratio",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:03Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2419,6 +2419,10 @@
     },
     {
       "t": "2026-05-15",
+      "v": 59.2
+    },
+    {
+      "t": "2026-06-15",
       "v": 59.2
     }
   ]

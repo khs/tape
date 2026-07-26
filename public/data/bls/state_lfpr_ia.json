@@ -3,7 +3,7 @@
   "name": "Iowa labor force participation rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:02Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2420,6 +2420,10 @@
     {
       "t": "2026-05-15",
       "v": 67.4
+    },
+    {
+      "t": "2026-06-15",
+      "v": 67.3
     }
   ]
 }

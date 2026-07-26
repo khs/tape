@@ -3,7 +3,7 @@
   "name": "state_coal_ri",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-07-19T08:12:56Z",
+  "lastUpdated": "2026-07-26T08:22:46Z",
   "points": [
     {
       "t": "2014-12-31",

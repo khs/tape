@@ -3,7 +3,7 @@
   "name": "Federal government employment in Arizona",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:02:01Z",
+  "lastUpdated": "2026-07-26T08:10:45Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 55600.0
+      "v": 55800.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 56000.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "state_hydro_tn",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-07-19T08:12:57Z",
+  "lastUpdated": "2026-07-26T08:22:48Z",
   "points": [
     {
       "t": "2001-12-31",

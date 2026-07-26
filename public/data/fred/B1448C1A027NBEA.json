@@ -3,7 +3,7 @@
   "name": "Net farm income (USDA)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-07-19T08:00:38Z",
+  "lastUpdated": "2026-07-26T08:09:25Z",
   "points": [
     {
       "t": "1967-01-01",

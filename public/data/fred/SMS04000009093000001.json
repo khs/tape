@@ -3,7 +3,7 @@
   "name": "Local government employment in Arizona",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:20Z",
+  "lastUpdated": "2026-07-26T08:12:05Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -1559,7 +1559,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 283100.0
+      "v": 282400.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 281700.0
     }
   ]
 }

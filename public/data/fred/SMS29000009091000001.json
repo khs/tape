@@ -3,7 +3,7 @@
   "name": "Federal government employment in Missouri",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:02:18Z",
+  "lastUpdated": "2026-07-26T08:11:03Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 50600.0
+      "v": 50700.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 50800.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "state_nuclear_pa",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-07-19T08:12:55Z",
+  "lastUpdated": "2026-07-26T08:22:46Z",
   "points": [
     {
       "t": "2001-12-31",

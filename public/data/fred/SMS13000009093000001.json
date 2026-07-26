@@ -3,7 +3,7 @@
   "name": "Local government employment in Georgia",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:25Z",
+  "lastUpdated": "2026-07-26T08:12:11Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 448200.0
+      "v": 448000.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 445600.0
     }
   ]
 }

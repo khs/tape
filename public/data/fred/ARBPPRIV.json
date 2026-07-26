@@ -3,7 +3,7 @@
   "name": "Building permits \u2014 Arkansas",
   "kind": "timeseries",
   "unit": "units",
-  "lastUpdated": "2026-07-19T08:05:05Z",
+  "lastUpdated": "2026-07-26T08:13:57Z",
   "points": [
     {
       "t": "1988-01-01",
@@ -1848,6 +1848,10 @@
     {
       "t": "2026-05-01",
       "v": 1238.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 1150.0
     }
   ]
 }

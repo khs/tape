@@ -3,7 +3,7 @@
   "name": "State government employment in South Carolina",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:11Z",
+  "lastUpdated": "2026-07-26T08:11:54Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 117700.0
+      "v": 118300.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 119800.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Federal government employment in Pennsylvania",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:02:29Z",
+  "lastUpdated": "2026-07-26T08:11:13Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 94700.0
+      "v": 94800.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 95100.0
     }
   ]
 }

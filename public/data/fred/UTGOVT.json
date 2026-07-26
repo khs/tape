@@ -3,7 +3,7 @@
   "name": "Utah government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:54Z",
+  "lastUpdated": "2026-07-26T08:10:38Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 277400.0
+      "v": 277100.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 277500.0
     }
   ]
 }

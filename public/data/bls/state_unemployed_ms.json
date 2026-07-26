@@ -3,7 +3,7 @@
   "name": "Mississippi unemployment level",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:02Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2419,7 +2419,11 @@
     },
     {
       "t": "2026-05-15",
-      "v": 49333.0
+      "v": 49314.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 48212.0
     }
   ]
 }

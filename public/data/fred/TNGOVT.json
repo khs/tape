@@ -3,7 +3,7 @@
   "name": "Tennessee government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:53Z",
+  "lastUpdated": "2026-07-26T08:10:37Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 455200.0
+      "v": 455000.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 454900.0
     }
   ]
 }

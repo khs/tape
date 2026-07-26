@@ -3,7 +3,7 @@
   "name": "State government employment in New Mexico",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:04Z",
+  "lastUpdated": "2026-07-26T08:11:48Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1752,6 +1752,10 @@
     {
       "t": "2026-05-01",
       "v": 59200.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 59300.0
     }
   ]
 }

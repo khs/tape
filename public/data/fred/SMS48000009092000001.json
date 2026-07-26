@@ -3,7 +3,7 @@
   "name": "State government employment in Texas",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:13Z",
+  "lastUpdated": "2026-07-26T08:11:57Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 480600.0
+      "v": 480800.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 482000.0
     }
   ]
 }

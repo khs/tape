@@ -3,7 +3,7 @@
   "name": "South Dakota labor force",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:03Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2419,7 +2419,11 @@
     },
     {
       "t": "2026-05-15",
-      "v": 489913.0
+      "v": 489908.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 488675.0
     }
   ]
 }

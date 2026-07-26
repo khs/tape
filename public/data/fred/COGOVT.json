@@ -3,7 +3,7 @@
   "name": "Colorado government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:27Z",
+  "lastUpdated": "2026-07-26T08:10:07Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 486800.0
+      "v": 486500.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 486600.0
     }
   ]
 }

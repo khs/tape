@@ -3,7 +3,7 @@
   "name": "Pennsylvania employment level (household survey)",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:03Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2419,7 +2419,11 @@
     },
     {
       "t": "2026-05-15",
-      "v": 6349672.0
+      "v": 6349605.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 6371312.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Federal government employment in Florida",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:02:06Z",
+  "lastUpdated": "2026-07-26T08:10:50Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 151300.0
+      "v": 151600.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 152100.0
     }
   ]
 }

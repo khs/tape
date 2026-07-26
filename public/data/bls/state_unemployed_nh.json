@@ -3,7 +3,7 @@
   "name": "New Hampshire unemployment level",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:08:48Z",
+  "lastUpdated": "2026-07-26T08:18:03Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2419,7 +2419,11 @@
     },
     {
       "t": "2026-05-15",
-      "v": 23653.0
+      "v": 23647.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 22671.0
     }
   ]
 }

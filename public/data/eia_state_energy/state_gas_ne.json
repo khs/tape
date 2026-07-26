@@ -3,7 +3,7 @@
   "name": "state_gas_ne",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-07-19T08:12:50Z",
+  "lastUpdated": "2026-07-26T08:22:42Z",
   "points": [
     {
       "t": "2001-12-31",

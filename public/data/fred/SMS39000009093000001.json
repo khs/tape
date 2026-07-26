@@ -3,7 +3,7 @@
   "name": "Local government employment in Ohio",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:43Z",
+  "lastUpdated": "2026-07-26T08:12:31Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 538800.0
+      "v": 537800.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 537200.0
     }
   ]
 }

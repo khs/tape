@@ -3,7 +3,7 @@
   "name": "State government employment in West Virginia",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:03:17Z",
+  "lastUpdated": "2026-07-26T08:12:00Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 47300.0
+      "v": 47200.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 47000.0
     }
   ]
 }

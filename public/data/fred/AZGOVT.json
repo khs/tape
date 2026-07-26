@@ -3,7 +3,7 @@
   "name": "Arizona government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-07-19T08:01:25Z",
+  "lastUpdated": "2026-07-26T08:10:04Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1751,7 +1751,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 426700.0
+      "v": 426100.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 426000.0
     }
   ]
 }
