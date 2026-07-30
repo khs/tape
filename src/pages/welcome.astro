@@ -196,6 +196,35 @@ const RENDER_SHOWCASE: RenderShowcase[] = [
 ];
 
 /**
+ * Hero worked example — a live slice of the US Macro dashboard shown right
+ * under the headline so the first thing a visitor sees is real Tape output,
+ * not just pitch copy. Two iconic macro lines (labor + policy rate) plus one
+ * striking county choropleth, so the breadth (time series AND geography) reads
+ * immediately. Reuses the RenderShowcase shape + the .welcome-render-* styles.
+ * Kept to three tiles + loading="lazy" so it doesn't drag the first paint.
+ */
+const HERO_SHOWCASE: RenderShowcase[] = [
+  {
+    label: "Unemployment rate",
+    blurb: "The timeliest hard read on the labor market, monthly back to 1948.",
+    chartId: "us-macro/unemployment",
+    chartHref: "/chart/us-macro/unemployment/",
+  },
+  {
+    label: "Fed funds rate",
+    blurb: "The policy rate everything else is priced off, with the 2022 hiking cycle in full view.",
+    chartId: "us-macro/fed_funds",
+    chartHref: "/chart/us-macro/fed_funds/",
+  },
+  {
+    label: "Income by county",
+    blurb: "The same platform does geography: median household income across every US county. Flip the Shape toggle to weight by population.",
+    chartId: "government/us_median_hh_income_county_map_2022",
+    chartHref: "/chart/government/us_median_hh_income_county_map_2022/",
+  },
+];
+
+/**
  * Editorial-layer feature pills shown above the render showcase.
  * Reads as a compressed list of "what makes a Tape chart different
  * from a bare FRED screenshot." None of these are individually
@@ -241,6 +270,47 @@ const EDITORIAL_FEATURES: string[] = [
       </p>
       <p class="welcome-walkthrough-line">
         New here? <a href={`${baseUrl}/${WALKTHROUGH_DASHBOARD_SLUG}/`}>Take the 5-minute tour</a>: every Tape feature in one annotated dashboard.
+      </p>
+    </section>
+
+    {/*
+      Hero worked example — a live slice of the US Macro dashboard, front and
+      center. Reuses the render-showcase iframe pattern + styles (each tile is
+      the production /embed/chart/<id>/ endpoint). Two macro lines + one county
+      choropleth so a first-time visitor sees real Tape output (and both render
+      shapes) before any pitch copy below.
+    */}
+    <section class="welcome-hero-example" aria-labelledby="hero-example-heading">
+      <p class="welcome-section-eyebrow">A live Tape dashboard</p>
+      <h2 id="hero-example-heading" class="welcome-section-heading">
+        US Macro snapshot, straight from the source.
+      </h2>
+      <div class="welcome-render-grid">
+        {HERO_SHOWCASE.map((r) => (
+          <figure class="welcome-render-card">
+            <figcaption class="welcome-render-caption">
+              <p class="welcome-render-label">{r.label}</p>
+              <p class="welcome-render-blurb">{r.blurb}</p>
+            </figcaption>
+            <iframe
+              class="welcome-render-iframe"
+              src={`${baseUrl}/embed/chart/${r.chartId}/`}
+              title={`${r.label} live example chart`}
+              loading="lazy"
+            ></iframe>
+            <a class="welcome-render-link" href={`${baseUrl}${r.chartHref}`}>
+              Open full chart &rarr;
+            </a>
+          </figure>
+        ))}
+      </div>
+      <p class="welcome-cta-row">
+        <a href={`${baseUrl}/us-macro/`} class="welcome-cta-primary">
+          Open the full US Macro dashboard &rarr;
+        </a>
+        <a href={`${baseUrl}/compose/`} class="welcome-cta-secondary">
+          Make your own &rarr;
+        </a>
       </p>
     </section>
 
@@ -893,6 +963,14 @@ const EDITORIAL_FEATURES: string[] = [
     line-height: 1.5;
     margin: 0 0 24px;
     max-width: 640px;
+  }
+
+  /* ---- Hero worked example ---- */
+  /* No border-top: reads as a continuation of the hero (the use-case section
+     below carries the first divider). Reuses the .welcome-render-* grid/card
+     styles for the tiles. */
+  .welcome-hero-example {
+    padding: 4px 0 44px;
   }
 
   /* ---- Use-case cards ---- */
