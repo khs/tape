@@ -1654,12 +1654,14 @@ const extraSourcesJson = extraSources.length > 0
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    /* Cap the tag strip so a long topic list can't shove the results
-       list off-screen — it scrolls internally past ~4 rows. Paired
-       with the <15-source suppression in renderTagChips so the default
-       (collapsed) strip is short and the results get the room. */
-    max-height: 116px;
-    overflow-y: auto;
+    /* Part of the FIXED top bar — no internal scroll. Previously this capped
+       at 116px and scrolled, which (with the results list's own scroll) made
+       the picker a two-scroll trap on short laptops. The strip now wraps to
+       its content and stays put while only the results below it scroll.
+       renderTagChips already suppresses the strip under ~15 sources, so it's
+       short in the common case; when it's tall it pushes the results down
+       rather than hiding a scrollbar inside the header. */
+    flex: 0 0 auto;
     padding-right: 2px;
   }
   .source-picker-chip {
@@ -1702,8 +1704,20 @@ const extraSourcesJson = extraSources.length > 0
     display: flex;
     flex-direction: column;
     gap: 6px;
-    max-height: 50vh;
+    /* The ONE scroll region in the picker. Floor at ~4 source cards (≈70px
+       each + gaps) so a short laptop never squeezes the list down to 1-2 rows
+       under the filters; cap at 65vh so tall screens show more. Was max-height
+       50vh with no floor, which — stacked above the old scrolling tag strip —
+       was the "two-scroll" squeeze. */
+    min-height: 300px;
+    max-height: 65vh;
     overflow-y: auto;
+    /* Read clearly as a scroll container: reserve the scrollbar gutter (no
+       layout shift when it appears) and separate it from the fixed top bar
+       with a hairline + inset so there's an obvious "list starts here" edge. */
+    scrollbar-gutter: stable;
+    border-top: 1px solid rgba(55, 53, 47, 0.1);
+    padding-top: 10px;
     /* See .source-picker for the min-width: 0 rationale. */
     min-width: 0;
   }
