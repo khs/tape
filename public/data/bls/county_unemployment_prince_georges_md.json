@@ -3,7 +3,7 @@
   "name": "Prince George's County, MD \u2014 unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-07-26T08:18:03Z",
+  "lastUpdated": "2026-08-02T08:16:51Z",
   "points": [
     {
       "t": "1990-01-15",
@@ -1748,6 +1748,10 @@
     {
       "t": "2026-05-15",
       "v": 4.6
+    },
+    {
+      "t": "2026-06-15",
+      "v": 4.7
     }
   ]
 }

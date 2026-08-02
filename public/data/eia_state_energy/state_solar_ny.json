@@ -3,7 +3,7 @@
   "name": "state_solar_ny",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-07-26T08:22:44Z",
+  "lastUpdated": "2026-08-02T08:22:00Z",
   "points": [
     {
       "t": "2011-12-31",

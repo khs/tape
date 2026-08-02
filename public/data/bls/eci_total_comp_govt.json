@@ -3,7 +3,7 @@
   "name": "ECI: total compensation (state & local government)",
   "kind": "timeseries",
   "unit": "index Dec 2005=100",
-  "lastUpdated": "2026-07-26T08:18:02Z",
+  "lastUpdated": "2026-08-02T08:16:51Z",
   "points": [
     {
       "t": "2001-03-15",
@@ -408,6 +408,10 @@
     {
       "t": "2026-03-15",
       "v": 178.506
+    },
+    {
+      "t": "2026-06-15",
+      "v": 180.246
     }
   ]
 }

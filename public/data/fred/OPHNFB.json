@@ -3,7 +3,7 @@
   "name": "Nonfarm business: output per hour",
   "kind": "timeseries",
   "unit": "index 2017=100",
-  "lastUpdated": "2026-07-26T08:09:22Z",
+  "lastUpdated": "2026-08-02T08:06:49Z",
   "points": [
     {
       "t": "1947-01-01",

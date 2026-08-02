@@ -3,7 +3,7 @@
   "name": "Federal spending \u2014 CT-01",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-07-26T08:22:32Z",
+  "lastUpdated": "2026-08-02T08:21:34Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 23.73834910503
+      "v": 21.20523626848
     }
   ]
 }

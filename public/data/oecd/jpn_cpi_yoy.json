@@ -3,7 +3,7 @@
   "name": "CPI inflation (YoY) \u2014 Japan",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-07-26T08:19:09Z",
+  "lastUpdated": "2026-08-02T08:17:57Z",
   "points": [
     {
       "t": "1956-01-01",
@@ -3384,6 +3384,10 @@
     {
       "t": "2026-05-01",
       "v": 1.5
+    },
+    {
+      "t": "2026-06-01",
+      "v": 1.7
     }
   ]
 }

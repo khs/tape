@@ -3,7 +3,7 @@
   "name": "Personal consumption expenditures",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-07-26T08:13:26Z",
+  "lastUpdated": "2026-08-02T08:10:49Z",
   "points": [
     {
       "t": "1959-01-01",
@@ -3235,11 +3235,15 @@
     },
     {
       "t": "2026-04-01",
-      "v": 21903.7
+      "v": 21931.5
     },
     {
       "t": "2026-05-01",
-      "v": 22059.8
+      "v": 22118.9
+    },
+    {
+      "t": "2026-06-01",
+      "v": 22184.1
     }
   ]
 }

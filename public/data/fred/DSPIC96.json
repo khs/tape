@@ -3,7 +3,7 @@
   "name": "Real disposable personal income",
   "kind": "timeseries",
   "unit": "billions chained 2017 USD",
-  "lastUpdated": "2026-07-26T08:08:32Z",
+  "lastUpdated": "2026-08-02T08:05:53Z",
   "points": [
     {
       "t": "1959-01-01",
@@ -3235,11 +3235,15 @@
     },
     {
       "t": "2026-04-01",
-      "v": 17938.8
+      "v": 17956.2
     },
     {
       "t": "2026-05-01",
-      "v": 17983.8
+      "v": 17999.8
+    },
+    {
+      "t": "2026-06-01",
+      "v": 18056.1
     }
   ]
 }

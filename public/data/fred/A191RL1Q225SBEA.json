@@ -3,7 +3,7 @@
   "name": "US real GDP growth rate (annualized)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-07-26T08:13:25Z",
+  "lastUpdated": "2026-08-02T08:10:48Z",
   "points": [
     {
       "t": "1947-04-01",
@@ -1268,6 +1268,10 @@
     {
       "t": "2026-01-01",
       "v": 2.1
+    },
+    {
+      "t": "2026-04-01",
+      "v": 1.5
     }
   ]
 }

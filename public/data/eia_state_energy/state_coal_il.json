@@ -3,7 +3,7 @@
   "name": "state_coal_il",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-07-26T08:22:38Z",
+  "lastUpdated": "2026-08-02T08:21:45Z",
   "points": [
     {
       "t": "2001-12-31",
