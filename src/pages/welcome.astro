@@ -173,6 +173,11 @@ interface RenderShowcase {
   blurb: string;
   chartId: string;
   chartHref: string;
+  /** Map embeds carry a topojson payload and are the heaviest tile. When a map
+   *  is NOT the first tile in its group, we defer its load to after
+   *  window.load (data-embed-src, hydrated by the script below) so it can't
+   *  drag first paint. Set true on any map entry. */
+  isMap?: boolean;
 }
 const RENDER_SHOWCASE: RenderShowcase[] = [
   {
@@ -192,6 +197,7 @@ const RENDER_SHOWCASE: RenderShowcase[] = [
     blurb: "How a measure varies across the country. State, county, tract, or block-group level, with ACS demographic indicators and other geographic series.",
     chartId: "government/us_bachelors_plus_pct_county_map_2022",
     chartHref: "/chart/government/us_bachelors_plus_pct_county_map_2022/",
+    isMap: true,
   },
 ];
 
@@ -221,6 +227,7 @@ const HERO_SHOWCASE: RenderShowcase[] = [
     blurb: "The same platform does geography: median household income across every US county. Flip the Shape toggle to weight by population.",
     chartId: "government/us_median_hh_income_county_map_2022",
     chartHref: "/chart/government/us_median_hh_income_county_map_2022/",
+    isMap: true,
   },
 ];
 
@@ -286,23 +293,29 @@ const EDITORIAL_FEATURES: string[] = [
         US Macro snapshot, straight from the source.
       </h2>
       <div class="welcome-render-grid">
-        {HERO_SHOWCASE.map((r) => (
-          <figure class="welcome-render-card">
-            <figcaption class="welcome-render-caption">
-              <p class="welcome-render-label">{r.label}</p>
-              <p class="welcome-render-blurb">{r.blurb}</p>
-            </figcaption>
-            <iframe
-              class="welcome-render-iframe"
-              src={`${baseUrl}/embed/chart/${r.chartId}/`}
-              title={`${r.label} live example chart`}
-              loading="lazy"
-            ></iframe>
-            <a class="welcome-render-link" href={`${baseUrl}${r.chartHref}`}>
-              Open full chart &rarr;
-            </a>
-          </figure>
-        ))}
+        {HERO_SHOWCASE.map((r, i) => {
+          const embedSrc = `${baseUrl}/embed/chart/${r.chartId}/`;
+          // Defer a map tile's heavy topojson unless it's the first tile.
+          const defer = !!r.isMap && i > 0;
+          return (
+            <figure class="welcome-render-card">
+              <figcaption class="welcome-render-caption">
+                <p class="welcome-render-label">{r.label}</p>
+                <p class="welcome-render-blurb">{r.blurb}</p>
+              </figcaption>
+              <iframe
+                class="welcome-render-iframe"
+                src={defer ? undefined : embedSrc}
+                data-embed-src={defer ? embedSrc : undefined}
+                title={`${r.label} live example chart`}
+                loading="lazy"
+              ></iframe>
+              <a class="welcome-render-link" href={`${baseUrl}${r.chartHref}`}>
+                Open full chart &rarr;
+              </a>
+            </figure>
+          );
+        })}
       </div>
       <p class="welcome-cta-row">
         <a href={`${baseUrl}/us-macro/`} class="welcome-cta-primary">
@@ -313,6 +326,23 @@ const EDITORIAL_FEATURES: string[] = [
         </a>
       </p>
     </section>
+
+    <script>
+      // Deferred map embeds. A map tile that isn't the first in its group is
+      // rendered WITHOUT a src (its URL sits in data-embed-src) so the heavy
+      // topojson can't compete with first paint. Hydrate them once the page has
+      // finished loading everything else.
+      function hydrateDeferredEmbeds() {
+        document
+          .querySelectorAll<HTMLIFrameElement>("iframe[data-embed-src]")
+          .forEach((frame) => {
+            const src = frame.getAttribute("data-embed-src");
+            if (src && !frame.getAttribute("src")) frame.setAttribute("src", src);
+          });
+      }
+      if (document.readyState === "complete") hydrateDeferredEmbeds();
+      else window.addEventListener("load", hydrateDeferredEmbeds, { once: true });
+    </script>
 
     {/* Use-case cards */}
     <section class="welcome-use-cases">
@@ -355,26 +385,32 @@ const EDITORIAL_FEATURES: string[] = [
         ))}
       </ul>
       <div class="welcome-render-grid">
-        {RENDER_SHOWCASE.map((r) => (
-          <figure class="welcome-render-card">
-            <figcaption class="welcome-render-caption">
-              <p class="welcome-render-label">{r.label}</p>
-              <p class="welcome-render-blurb">{r.blurb}</p>
-            </figcaption>
-            <iframe
-              class="welcome-render-iframe"
-              src={`${baseUrl}/embed/chart/${r.chartId}/`}
-              title={`${r.label} example chart`}
-              loading="lazy"
-            ></iframe>
-            <a
-              class="welcome-render-link"
-              href={`${baseUrl}${r.chartHref}`}
-            >
-              Open full chart &rarr;
-            </a>
-          </figure>
-        ))}
+        {RENDER_SHOWCASE.map((r, i) => {
+          const embedSrc = `${baseUrl}/embed/chart/${r.chartId}/`;
+          // Defer a map tile's heavy topojson unless it's the first tile.
+          const defer = !!r.isMap && i > 0;
+          return (
+            <figure class="welcome-render-card">
+              <figcaption class="welcome-render-caption">
+                <p class="welcome-render-label">{r.label}</p>
+                <p class="welcome-render-blurb">{r.blurb}</p>
+              </figcaption>
+              <iframe
+                class="welcome-render-iframe"
+                src={defer ? undefined : embedSrc}
+                data-embed-src={defer ? embedSrc : undefined}
+                title={`${r.label} example chart`}
+                loading="lazy"
+              ></iframe>
+              <a
+                class="welcome-render-link"
+                href={`${baseUrl}${r.chartHref}`}
+              >
+                Open full chart &rarr;
+              </a>
+            </figure>
+          );
+        })}
       </div>
     </section>
 
