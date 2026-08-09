@@ -3,7 +3,7 @@
   "name": "Wisconsin population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-02T08:07:33Z",
+  "lastUpdated": "2026-08-09T06:40:05Z",
   "points": [
     {
       "t": "1900-01-01",

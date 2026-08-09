@@ -3,7 +3,7 @@
   "name": "Job openings (JOLTS, total nonfarm)",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-02T08:06:14Z",
+  "lastUpdated": "2026-08-09T06:38:48Z",
   "points": [
     {
       "t": "2000-12-01",
@@ -1227,7 +1227,11 @@
     },
     {
       "t": "2026-05-01",
-      "v": 7594000.0
+      "v": 7537000.0
+    },
+    {
+      "t": "2026-06-01",
+      "v": 7359000.0
     }
   ]
 }

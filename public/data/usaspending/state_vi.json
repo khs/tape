@@ -3,7 +3,7 @@
   "name": "Federal spending in U.S. Virgin Islands",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-02T08:21:33Z",
+  "lastUpdated": "2026-08-09T06:51:03Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 1.6643030616533334
+      "v": 1.6890859188266663
     }
   ]
 }

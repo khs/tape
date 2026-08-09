@@ -3,7 +3,7 @@
   "name": "DC-metro median listing price (homes for sale)",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-02T08:06:58Z",
+  "lastUpdated": "2026-08-09T06:39:31Z",
   "points": [
     {
       "t": "2016-07-01",
@@ -484,6 +484,10 @@
     {
       "t": "2026-06-01",
       "v": 585000.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 579450.0
     }
   ]
 }

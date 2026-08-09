@@ -3,7 +3,7 @@
   "name": "state_nuclear_ma",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-02T08:21:51Z",
+  "lastUpdated": "2026-08-09T06:51:12Z",
   "points": [
     {
       "t": "2001-12-31",

@@ -3,7 +3,7 @@
   "name": "United Kingdom real GDP",
   "kind": "timeseries",
   "unit": "USD (constant 2015)",
-  "lastUpdated": "2026-08-02T08:15:02Z",
+  "lastUpdated": "2026-08-09T06:46:40Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -287,6 +287,10 @@
     },
     {
       "t": "2026-08-02",
+      "v": 3364.70417822016
+    },
+    {
+      "t": "2026-08-09",
       "v": 3364.70417822016
     }
   ]

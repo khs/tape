@@ -3,7 +3,7 @@
   "name": "U-6 unemployment rate (broader)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-02T08:06:12Z",
+  "lastUpdated": "2026-08-09T06:38:45Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -1559,6 +1559,10 @@
     },
     {
       "t": "2026-06-01",
+      "v": 7.9
+    },
+    {
+      "t": "2026-07-01",
       "v": 7.9
     }
   ]

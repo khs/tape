@@ -3,7 +3,7 @@
   "name": "Prime-age (25-54) labor force participation",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-02T08:06:22Z",
+  "lastUpdated": "2026-08-09T06:38:54Z",
   "points": [
     {
       "t": "1948-01-01",
@@ -3768,6 +3768,10 @@
     {
       "t": "2026-06-01",
       "v": 83.3
+    },
+    {
+      "t": "2026-07-01",
+      "v": 83.4
     }
   ]
 }

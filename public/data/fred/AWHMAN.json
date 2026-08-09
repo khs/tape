@@ -3,7 +3,7 @@
   "name": "Average weekly hours, manufacturing",
   "kind": "timeseries",
   "unit": "hours",
-  "lastUpdated": "2026-08-02T08:06:45Z",
+  "lastUpdated": "2026-08-09T06:39:17Z",
   "points": [
     {
       "t": "1939-01-01",
@@ -4203,7 +4203,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 41.6
+      "v": 41.7
+    },
+    {
+      "t": "2026-07-01",
+      "v": 41.7
     }
   ]
 }
