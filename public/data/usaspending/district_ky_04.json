@@ -3,7 +3,7 @@
   "name": "Federal spending \u2014 KY-04",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-09T06:51:03Z",
+  "lastUpdated": "2026-08-16T06:35:37Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 4.483491843533333
+      "v": 4.48427280424
     }
   ]
 }

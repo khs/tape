@@ -3,7 +3,7 @@
   "name": "Housing starts (new privately-owned units)",
   "kind": "timeseries",
   "unit": "starts",
-  "lastUpdated": "2026-08-09T06:38:21Z",
+  "lastUpdated": "2026-08-16T06:22:43Z",
   "points": [
     {
       "t": "1959-01-01",

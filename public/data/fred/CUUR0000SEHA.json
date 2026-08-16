@@ -3,7 +3,7 @@
   "name": "CPI: Rent of primary residence",
   "kind": "timeseries",
   "unit": "index 1982-84=100",
-  "lastUpdated": "2026-08-09T06:39:07Z",
+  "lastUpdated": "2026-08-16T06:23:21Z",
   "points": [
     {
       "t": "1914-12-01",
@@ -4312,6 +4312,10 @@
     {
       "t": "2026-06-01",
       "v": 446.945
+    },
+    {
+      "t": "2026-07-01",
+      "v": 447.963
     }
   ]
 }

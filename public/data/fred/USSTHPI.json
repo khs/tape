@@ -3,7 +3,7 @@
   "name": "FHFA all-transactions HPI, national",
   "kind": "timeseries",
   "unit": "index",
-  "lastUpdated": "2026-08-09T06:38:21Z",
+  "lastUpdated": "2026-08-16T06:22:43Z",
   "points": [
     {
       "t": "1975-01-01",

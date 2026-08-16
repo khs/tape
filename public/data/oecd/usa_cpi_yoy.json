@@ -3,7 +3,7 @@
   "name": "CPI inflation (YoY) \u2014 United States",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-09T06:47:49Z",
+  "lastUpdated": "2026-08-16T06:32:15Z",
   "points": [
     {
       "t": "1956-01-01",
@@ -3384,6 +3384,10 @@
     {
       "t": "2026-06-01",
       "v": 3.531425
+    },
+    {
+      "t": "2026-07-01",
+      "v": 3.364825
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "New Jersey population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-09T06:39:52Z",
+  "lastUpdated": "2026-08-16T06:24:01Z",
   "points": [
     {
       "t": "1900-01-01",

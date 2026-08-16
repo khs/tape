@@ -3,7 +3,7 @@
   "name": "CPI: Washington-Arlington-Alexandria metro (all items)",
   "kind": "timeseries",
   "unit": "index 1982-84=100",
-  "lastUpdated": "2026-08-02T08:16:51Z",
+  "lastUpdated": "2026-08-16T06:31:37Z",
   "points": [
     {
       "t": "1947-01-15",
@@ -1680,6 +1680,10 @@
     {
       "t": "2026-05-15",
       "v": 334.707
+    },
+    {
+      "t": "2026-07-15",
+      "v": 335.716
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Nebraska population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-09T06:39:50Z",
+  "lastUpdated": "2026-08-16T06:23:59Z",
   "points": [
     {
       "t": "1900-01-01",
