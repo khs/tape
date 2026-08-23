@@ -3,7 +3,7 @@
   "name": "Federal government employment in Alaska",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:24:52Z",
+  "lastUpdated": "2026-08-23T06:26:42Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1756,6 +1756,10 @@
     {
       "t": "2026-06-01",
       "v": 13500.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 13400.0
     }
   ]
 }

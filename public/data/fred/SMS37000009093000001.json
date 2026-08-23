@@ -3,7 +3,7 @@
   "name": "Local government employment in North Carolina",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:26:26Z",
+  "lastUpdated": "2026-08-23T06:28:43Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,7 +1755,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 477800.0
+      "v": 477600.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 477400.0
     }
   ]
 }

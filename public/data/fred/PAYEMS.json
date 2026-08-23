@@ -3,7 +3,7 @@
   "name": "Nonfarm payrolls",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:22:40Z",
+  "lastUpdated": "2026-08-23T06:24:07Z",
   "points": [
     {
       "t": "1939-01-01",

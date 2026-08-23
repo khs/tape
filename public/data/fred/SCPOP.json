@@ -3,7 +3,7 @@
   "name": "South Carolina population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-16T06:24:07Z",
+  "lastUpdated": "2026-08-23T06:25:46Z",
   "points": [
     {
       "t": "1900-01-01",

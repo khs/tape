@@ -3,7 +3,7 @@
   "name": "Manufacturing: output per hour",
   "kind": "timeseries",
   "unit": "index 2017=100",
-  "lastUpdated": "2026-08-16T06:23:35Z",
+  "lastUpdated": "2026-08-23T06:25:05Z",
   "points": [
     {
       "t": "1987-01-01",

@@ -3,7 +3,7 @@
   "name": "Montana government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:24:33Z",
+  "lastUpdated": "2026-08-23T06:26:17Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,6 +1755,10 @@
     },
     {
       "t": "2026-06-01",
+      "v": 91300.0
+    },
+    {
+      "t": "2026-07-01",
       "v": 91200.0
     }
   ]

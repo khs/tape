@@ -3,7 +3,7 @@
   "name": "State government employment in Arizona",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:25:27Z",
+  "lastUpdated": "2026-08-23T06:27:30Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -1563,7 +1563,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 88300.0
+      "v": 89000.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 89000.0
     }
   ]
 }

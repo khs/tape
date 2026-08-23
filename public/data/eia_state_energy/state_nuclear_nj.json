@@ -3,7 +3,7 @@
   "name": "state_nuclear_nj",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-09T06:51:15Z",
+  "lastUpdated": "2026-08-23T06:36:56Z",
   "points": [
     {
       "t": "2001-12-31",

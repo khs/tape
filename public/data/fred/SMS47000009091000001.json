@@ -3,7 +3,7 @@
   "name": "Federal government employment in Tennessee",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:25:19Z",
+  "lastUpdated": "2026-08-23T06:27:20Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,6 +1755,10 @@
     },
     {
       "t": "2026-06-01",
+      "v": 53600.0
+    },
+    {
+      "t": "2026-07-01",
       "v": 53600.0
     }
   ]

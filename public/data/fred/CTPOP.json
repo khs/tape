@@ -3,7 +3,7 @@
   "name": "Connecticut population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-16T06:23:47Z",
+  "lastUpdated": "2026-08-23T06:25:20Z",
   "points": [
     {
       "t": "1900-01-01",

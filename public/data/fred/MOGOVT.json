@@ -3,7 +3,7 @@
   "name": "Missouri government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:24:32Z",
+  "lastUpdated": "2026-08-23T06:26:16Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,7 +1755,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 432400.0
+      "v": 433000.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 434200.0
     }
   ]
 }

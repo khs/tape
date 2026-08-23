@@ -3,7 +3,7 @@
   "name": "Alabama government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:24:13Z",
+  "lastUpdated": "2026-08-23T06:25:53Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,7 +1755,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 431400.0
+      "v": 431000.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 431300.0
     }
   ]
 }

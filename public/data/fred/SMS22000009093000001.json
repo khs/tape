@@ -3,7 +3,7 @@
   "name": "Local government employment in Louisiana",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:26:15Z",
+  "lastUpdated": "2026-08-23T06:28:29Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1756,6 +1756,10 @@
     {
       "t": "2026-06-01",
       "v": 204000.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 204200.0
     }
   ]
 }

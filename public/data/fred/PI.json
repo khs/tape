@@ -3,7 +3,7 @@
   "name": "Personal income",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-08-16T06:22:46Z",
+  "lastUpdated": "2026-08-23T06:24:11Z",
   "points": [
     {
       "t": "1959-01-01",

@@ -3,7 +3,7 @@
   "name": "Federal government employment in Montana",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:25:08Z",
+  "lastUpdated": "2026-08-23T06:27:06Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1756,6 +1756,10 @@
     {
       "t": "2026-06-01",
       "v": 12700.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 12600.0
     }
   ]
 }

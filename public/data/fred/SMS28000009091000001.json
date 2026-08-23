@@ -3,7 +3,7 @@
   "name": "Federal government employment in Mississippi",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:25:07Z",
+  "lastUpdated": "2026-08-23T06:27:04Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,7 +1755,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 24400.0
+      "v": 24500.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 24600.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Industrial production: electric power generation",
   "kind": "timeseries",
   "unit": "index (2017=100)",
-  "lastUpdated": "2026-08-16T06:22:54Z",
+  "lastUpdated": "2026-08-23T06:24:19Z",
   "points": [
     {
       "t": "1972-01-01",
@@ -2615,11 +2615,15 @@
     },
     {
       "t": "2026-05-01",
-      "v": 109.075
+      "v": 109.6548
     },
     {
       "t": "2026-06-01",
-      "v": 110.0518
+      "v": 110.2498
+    },
+    {
+      "t": "2026-07-01",
+      "v": 110.79
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Virginia population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-16T06:24:10Z",
+  "lastUpdated": "2026-08-23T06:25:49Z",
   "points": [
     {
       "t": "1900-01-01",

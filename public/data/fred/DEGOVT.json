@@ -3,7 +3,7 @@
   "name": "Delaware government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:24:18Z",
+  "lastUpdated": "2026-08-23T06:25:59Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1755,7 +1755,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 72700.0
+      "v": 71900.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 71800.0
     }
   ]
 }

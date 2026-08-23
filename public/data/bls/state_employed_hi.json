@@ -3,7 +3,7 @@
   "name": "Hawaii employment level (household survey)",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-16T06:31:37Z",
+  "lastUpdated": "2026-08-23T06:32:30Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2423,7 +2423,11 @@
     },
     {
       "t": "2026-06-15",
-      "v": 672517.0
+      "v": 672504.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 672506.0
     }
   ]
 }

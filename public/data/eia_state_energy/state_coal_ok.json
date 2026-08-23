@@ -3,7 +3,7 @@
   "name": "state_coal_ok",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-09T06:51:17Z",
+  "lastUpdated": "2026-08-23T06:36:59Z",
   "points": [
     {
       "t": "2001-12-31",

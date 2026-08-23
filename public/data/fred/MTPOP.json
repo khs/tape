@@ -3,7 +3,7 @@
   "name": "Montana population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-16T06:23:58Z",
+  "lastUpdated": "2026-08-23T06:25:35Z",
   "points": [
     {
       "t": "1900-01-01",

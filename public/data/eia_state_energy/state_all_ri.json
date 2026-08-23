@@ -3,7 +3,7 @@
   "name": "state_all_ri",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-09T06:51:18Z",
+  "lastUpdated": "2026-08-23T06:37:01Z",
   "points": [
     {
       "t": "2001-12-31",
