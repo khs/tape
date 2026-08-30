@@ -3,7 +3,7 @@
   "name": "Building permits \u2014 District of Columbia",
   "kind": "timeseries",
   "unit": "units",
-  "lastUpdated": "2026-08-23T06:29:57Z",
+  "lastUpdated": "2026-08-30T11:02:11Z",
   "points": [
     {
       "t": "1988-01-01",
@@ -1848,6 +1848,10 @@
     {
       "t": "2026-06-01",
       "v": 639.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 36.0
     }
   ]
 }

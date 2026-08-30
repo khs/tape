@@ -3,7 +3,7 @@
   "name": "New orders: computers + electronic products",
   "kind": "timeseries",
   "unit": "millions USD",
-  "lastUpdated": "2026-08-23T06:24:23Z",
+  "lastUpdated": "2026-08-30T10:55:23Z",
   "points": [
     {
       "t": "1992-02-01",
@@ -1655,7 +1655,11 @@
     },
     {
       "t": "2026-06-01",
-      "v": 31105.0
+      "v": 31073.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 30739.0
     }
   ]
 }

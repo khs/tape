@@ -3,7 +3,7 @@
   "name": "DC-metro unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-23T06:25:13Z",
+  "lastUpdated": "2026-08-30T10:56:26Z",
   "points": [
     {
       "t": "1990-01-01",

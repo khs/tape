@@ -3,7 +3,7 @@
   "name": "Federal spending in Louisiana",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-23T06:36:38Z",
+  "lastUpdated": "2026-08-30T11:09:48Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 72.34064275146666
+      "v": 73.29673072014666
     }
   ]
 }

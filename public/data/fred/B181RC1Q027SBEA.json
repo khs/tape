@@ -3,7 +3,7 @@
   "name": "US agricultural exports",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-08-23T06:25:08Z",
+  "lastUpdated": "2026-08-30T10:56:21Z",
   "points": [
     {
       "t": "1967-01-01",
@@ -955,7 +955,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 200.792
+      "v": 202.408
     }
   ]
 }

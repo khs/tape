@@ -3,7 +3,7 @@
   "name": "State + local government current expenditures",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-08-23T06:24:25Z",
+  "lastUpdated": "2026-08-30T10:55:25Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1275,7 +1275,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 4418.17
+      "v": 4433.194
     }
   ]
 }

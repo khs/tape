@@ -3,7 +3,7 @@
   "name": "state_all_ne",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-23T06:36:54Z",
+  "lastUpdated": "2026-08-30T11:10:09Z",
   "points": [
     {
       "t": "2001-12-31",

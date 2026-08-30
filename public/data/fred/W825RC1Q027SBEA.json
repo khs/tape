@@ -3,7 +3,7 @@
   "name": "Federal unemployment insurance benefits (NIPA)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-08-23T06:24:46Z",
+  "lastUpdated": "2026-08-30T10:55:54Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1275,7 +1275,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 35.422
+      "v": 35.43
     }
   ]
 }

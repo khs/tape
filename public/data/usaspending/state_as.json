@@ -3,7 +3,7 @@
   "name": "Federal spending in American Samoa",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-23T06:36:38Z",
+  "lastUpdated": "2026-08-30T11:09:48Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 0.5247165893066666
+      "v": 0.5354030782933333
     }
   ]
 }

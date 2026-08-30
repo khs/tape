@@ -3,7 +3,7 @@
   "name": "Federal spending in Rhode Island",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-23T06:36:38Z",
+  "lastUpdated": "2026-08-30T11:09:48Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 18.063730096386667
+      "v": 18.261504249466668
     }
   ]
 }

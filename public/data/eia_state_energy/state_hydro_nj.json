@@ -3,7 +3,7 @@
   "name": "state_hydro_nj",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-23T06:36:56Z",
+  "lastUpdated": "2026-08-30T11:10:11Z",
   "points": [
     {
       "t": "2001-12-31",

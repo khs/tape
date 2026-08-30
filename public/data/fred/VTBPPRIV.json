@@ -3,7 +3,7 @@
   "name": "Building permits \u2014 Vermont",
   "kind": "timeseries",
   "unit": "units",
-  "lastUpdated": "2026-08-23T06:30:27Z",
+  "lastUpdated": "2026-08-30T11:02:48Z",
   "points": [
     {
       "t": "1988-01-01",
@@ -1852,6 +1852,10 @@
     {
       "t": "2026-06-01",
       "v": 179.0
+    },
+    {
+      "t": "2026-07-01",
+      "v": 138.0
     }
   ]
 }

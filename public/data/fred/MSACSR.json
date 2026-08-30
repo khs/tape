@@ -3,7 +3,7 @@
   "name": "Months supply of new houses for sale",
   "kind": "timeseries",
   "unit": "months",
-  "lastUpdated": "2026-08-23T06:24:39Z",
+  "lastUpdated": "2026-08-30T10:55:46Z",
   "points": [
     {
       "t": "1963-01-01",
@@ -3047,11 +3047,15 @@
     },
     {
       "t": "2026-05-01",
-      "v": 9.4
+      "v": 9.3
     },
     {
       "t": "2026-06-01",
-      "v": 9.3
+      "v": 8.5
+    },
+    {
+      "t": "2026-07-01",
+      "v": 9.6
     }
   ]
 }

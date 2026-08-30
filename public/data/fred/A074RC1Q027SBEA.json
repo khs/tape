@@ -3,7 +3,7 @@
   "name": "Federal receipts: personal / individual income taxes",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-08-23T06:23:48Z",
+  "lastUpdated": "2026-08-30T10:54:44Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1275,7 +1275,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 2573.172
+      "v": 2571.417
     }
   ]
 }

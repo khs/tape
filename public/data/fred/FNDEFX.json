@@ -3,7 +3,7 @@
   "name": "Federal nondefense consumption + investment (NIPA)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-08-23T06:24:43Z",
+  "lastUpdated": "2026-08-30T10:55:50Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1275,7 +1275,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 790.601
+      "v": 790.663
     }
   ]
 }

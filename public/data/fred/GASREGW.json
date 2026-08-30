@@ -3,7 +3,7 @@
   "name": "US retail gasoline, regular grade",
   "kind": "timeseries",
   "unit": "USD/gal",
-  "lastUpdated": "2026-08-23T06:23:55Z",
+  "lastUpdated": "2026-08-30T10:54:52Z",
   "points": [
     {
       "t": "1990-08-20",
@@ -7496,6 +7496,10 @@
     {
       "t": "2026-08-17",
       "v": 4.049
+    },
+    {
+      "t": "2026-08-24",
+      "v": 4.085
     }
   ]
 }

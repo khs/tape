@@ -3,7 +3,7 @@
   "name": "state_coal_tn",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-23T06:37:03Z",
+  "lastUpdated": "2026-08-30T11:10:19Z",
   "points": [
     {
       "t": "2001-12-31",
