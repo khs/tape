@@ -3,7 +3,7 @@
   "name": "Median sales price of houses sold",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-08-30T10:55:09Z",
+  "lastUpdated": "2026-09-06T09:54:58Z",
   "points": [
     {
       "t": "1963-01-01",

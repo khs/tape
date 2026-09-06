@@ -3,7 +3,7 @@
   "name": "state_wind_mt",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-30T11:10:08Z",
+  "lastUpdated": "2026-09-06T10:10:09Z",
   "points": [
     {
       "t": "2006-12-31",

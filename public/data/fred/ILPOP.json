@@ -3,7 +3,7 @@
   "name": "Illinois population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-08-30T10:56:41Z",
+  "lastUpdated": "2026-09-06T09:56:29Z",
   "points": [
     {
       "t": "1900-01-01",

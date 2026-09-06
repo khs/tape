@@ -3,7 +3,7 @@
   "name": "JOLTS: quits rate (total nonfarm)",
   "kind": "timeseries",
   "unit": "% of employment",
-  "lastUpdated": "2026-08-30T11:05:21Z",
+  "lastUpdated": "2026-09-06T10:04:29Z",
   "points": [
     {
       "t": "2000-12-15",
@@ -1232,6 +1232,10 @@
     {
       "t": "2026-06-15",
       "v": 2.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 1.9
     }
   ]
 }

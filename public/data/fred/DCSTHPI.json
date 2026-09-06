@@ -3,7 +3,7 @@
   "name": "FHFA all-transactions HPI, District of Columbia",
   "kind": "timeseries",
   "unit": "index",
-  "lastUpdated": "2026-08-30T10:56:25Z",
+  "lastUpdated": "2026-09-06T09:56:16Z",
   "points": [
     {
       "t": "1975-01-01",

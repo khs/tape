@@ -3,7 +3,7 @@
   "name": "Civilian labor force level",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-30T11:01:54Z",
+  "lastUpdated": "2026-09-06T10:01:17Z",
   "points": [
     {
       "t": "1948-01-01",
@@ -3772,6 +3772,10 @@
     {
       "t": "2026-07-01",
       "v": 169094000.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 169777000.0
     }
   ]
 }

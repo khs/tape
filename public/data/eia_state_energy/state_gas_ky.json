@@ -3,7 +3,7 @@
   "name": "state_gas_ky",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-30T11:10:02Z",
+  "lastUpdated": "2026-09-06T10:10:03Z",
   "points": [
     {
       "t": "2001-12-31",

@@ -3,7 +3,7 @@
   "name": "Fed total assets (balance sheet)",
   "kind": "timeseries",
   "unit": "millions USD",
-  "lastUpdated": "2026-08-30T10:55:14Z",
+  "lastUpdated": "2026-09-06T09:55:06Z",
   "points": [
     {
       "t": "2002-12-18",
@@ -4952,6 +4952,10 @@
     {
       "t": "2026-08-26",
       "v": 6730912.0
+    },
+    {
+      "t": "2026-09-02",
+      "v": 6737204.0
     }
   ]
 }

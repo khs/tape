@@ -3,7 +3,7 @@
   "name": "Prince William County, VA \u2014 unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-30T11:05:22Z",
+  "lastUpdated": "2026-09-06T10:04:30Z",
   "points": [
     {
       "t": "1990-01-15",
@@ -1752,6 +1752,10 @@
     {
       "t": "2026-06-15",
       "v": 3.7
+    },
+    {
+      "t": "2026-07-15",
+      "v": 3.5
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "state_hydro_ri",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-30T11:10:17Z",
+  "lastUpdated": "2026-09-06T10:10:17Z",
   "points": [
     {
       "t": "2001-12-31",

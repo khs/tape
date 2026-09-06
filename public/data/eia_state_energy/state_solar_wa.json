@@ -3,7 +3,7 @@
   "name": "state_solar_wa",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-08-30T11:10:23Z",
+  "lastUpdated": "2026-09-06T10:10:22Z",
   "points": [
     {
       "t": "2008-12-31",

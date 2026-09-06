@@ -3,7 +3,7 @@
   "name": "US rental vacancy rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-30T10:55:58Z",
+  "lastUpdated": "2026-09-06T09:55:51Z",
   "points": [
     {
       "t": "1956-01-01",

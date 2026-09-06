@@ -3,7 +3,7 @@
   "name": "Nonfarm business: unit labor costs",
   "kind": "timeseries",
   "unit": "index 2017=100",
-  "lastUpdated": "2026-08-30T10:56:17Z",
+  "lastUpdated": "2026-09-06T09:56:09Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1275,7 +1275,7 @@
     },
     {
       "t": "2026-04-01",
-      "v": 124.022
+      "v": 123.979
     }
   ]
 }

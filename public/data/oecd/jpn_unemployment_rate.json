@@ -3,7 +3,7 @@
   "name": "Unemployment rate \u2014 Japan",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-30T11:05:29Z",
+  "lastUpdated": "2026-09-06T10:04:38Z",
   "points": [
     {
       "t": "1955-01-01",
@@ -3436,6 +3436,10 @@
     {
       "t": "2026-06-01",
       "v": 2.5
+    },
+    {
+      "t": "2026-07-01",
+      "v": 2.4
     }
   ]
 }

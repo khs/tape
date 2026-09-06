@@ -3,7 +3,7 @@
   "name": "Unemployment rate: White",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-08-30T10:55:29Z",
+  "lastUpdated": "2026-09-06T09:55:24Z",
   "points": [
     {
       "t": "1954-01-01",
@@ -3484,6 +3484,10 @@
     {
       "t": "2026-07-01",
       "v": 3.6
+    },
+    {
+      "t": "2026-08-01",
+      "v": 3.7
     }
   ]
 }

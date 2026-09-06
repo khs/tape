@@ -3,7 +3,7 @@
   "name": "Employment: agriculture & related industries",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-08-30T10:56:24Z",
+  "lastUpdated": "2026-09-06T09:56:15Z",
   "points": [
     {
       "t": "1948-01-01",
@@ -3772,6 +3772,10 @@
     {
       "t": "2026-07-01",
       "v": 2216000.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 2444000.0
     }
   ]
 }
