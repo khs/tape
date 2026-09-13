@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Illinois",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-06T10:00:15Z",
+  "lastUpdated": "2026-09-13T10:52:04Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -520,6 +520,10 @@
     {
       "t": "2026-01-01",
       "v": 17450000.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 22599000.0
     }
   ]
 }

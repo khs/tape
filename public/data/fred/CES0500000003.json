@@ -3,7 +3,7 @@
   "name": "Average hourly earnings, all employees",
   "kind": "timeseries",
   "unit": "USD/hour",
-  "lastUpdated": "2026-09-06T09:55:39Z",
+  "lastUpdated": "2026-09-13T10:48:31Z",
   "points": [
     {
       "t": "2006-03-01",

@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Maine",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-06T10:00:28Z",
+  "lastUpdated": "2026-09-13T10:52:09Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -520,6 +520,10 @@
     {
       "t": "2026-01-01",
       "v": 1254000.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 2250000.0
     }
   ]
 }

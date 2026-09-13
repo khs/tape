@@ -3,7 +3,7 @@
   "name": "PPI \u2014 Data processing, hosting & related services",
   "kind": "timeseries",
   "unit": "index (Dec 2009=100)",
-  "lastUpdated": "2026-09-06T09:56:07Z",
+  "lastUpdated": "2026-09-13T10:48:48Z",
   "points": [
     {
       "t": "2000-12-01",
@@ -1231,11 +1231,15 @@
     },
     {
       "t": "2026-06-01",
-      "v": 124.065
+      "v": 124.034
     },
     {
       "t": "2026-07-01",
-      "v": 124.178
+      "v": 125.345
+    },
+    {
+      "t": "2026-08-01",
+      "v": 125.237
     }
   ]
 }

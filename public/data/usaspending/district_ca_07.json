@@ -3,7 +3,7 @@
   "name": "Federal spending \u2014 CA-07",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-09-06T10:09:50Z",
+  "lastUpdated": "2026-09-13T11:00:45Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2026-09-30",
-      "v": 156.39723375875
+      "v": 156.42226756588
     }
   ]
 }

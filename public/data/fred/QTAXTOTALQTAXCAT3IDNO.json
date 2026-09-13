@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Idaho",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-06T10:00:14Z",
+  "lastUpdated": "2026-09-13T10:52:03Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -520,6 +520,10 @@
     {
       "t": "2026-01-01",
       "v": 2064000.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 2974000.0
     }
   ]
 }

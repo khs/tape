@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, New Hampshire",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-06T10:00:42Z",
+  "lastUpdated": "2026-09-13T10:52:14Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -519,7 +519,11 @@
     },
     {
       "t": "2026-01-01",
-      "v": 810000.0
+      "v": 820000.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 1323000.0
     }
   ]
 }

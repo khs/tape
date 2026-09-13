@@ -3,7 +3,7 @@
   "name": "Unemployment rate \u2014 Canada",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-09-06T10:04:38Z",
+  "lastUpdated": "2026-09-13T10:55:24Z",
   "points": [
     {
       "t": "1955-01-01",
@@ -3439,6 +3439,10 @@
     },
     {
       "t": "2026-07-01",
+      "v": 6.4
+    },
+    {
+      "t": "2026-08-01",
       "v": 6.4
     }
   ]

@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, New Jersey",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-06T10:00:43Z",
+  "lastUpdated": "2026-09-13T10:52:15Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -520,6 +520,10 @@
     {
       "t": "2026-01-01",
       "v": 13827000.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 21742000.0
     }
   ]
 }

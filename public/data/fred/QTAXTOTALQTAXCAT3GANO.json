@@ -3,7 +3,7 @@
   "name": "State + local total tax collections, Georgia",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-06T10:00:12Z",
+  "lastUpdated": "2026-09-13T10:52:02Z",
   "points": [
     {
       "t": "1994-01-01",
@@ -520,6 +520,10 @@
     {
       "t": "2026-01-01",
       "v": 8084000.0
+    },
+    {
+      "t": "2026-04-01",
+      "v": 9332000.0
     }
   ]
 }
