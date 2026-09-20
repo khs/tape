@@ -3,7 +3,7 @@
   "name": "Arkansas government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:49:28Z",
+  "lastUpdated": "2026-09-20T10:19:05Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1760,6 +1760,10 @@
     {
       "t": "2026-07-01",
       "v": 204800.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 204900.0
     }
   ]
 }

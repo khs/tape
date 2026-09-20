@@ -3,7 +3,7 @@
   "name": "Local government employment in Oregon",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:51:43Z",
+  "lastUpdated": "2026-09-20T10:21:50Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 235700.0
+      "v": 236100.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 235800.0
     }
   ]
 }

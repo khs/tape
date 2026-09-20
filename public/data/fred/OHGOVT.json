@@ -3,7 +3,7 @@
   "name": "Ohio government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:49:50Z",
+  "lastUpdated": "2026-09-20T10:19:30Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 785100.0
+      "v": 786500.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 786900.0
     }
   ]
 }

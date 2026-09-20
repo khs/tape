@@ -3,7 +3,7 @@
   "name": "Illinois nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-09-13T10:55:14Z",
+  "lastUpdated": "2026-09-20T10:25:34Z",
   "points": [
     {
       "t": "1990-01-15",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-15",
-      "v": 6176400.0
+      "v": 6180000.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 6175600.0
     }
   ]
 }

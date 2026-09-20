@@ -3,7 +3,7 @@
   "name": "State government employment in Wyoming",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:51:16Z",
+  "lastUpdated": "2026-09-20T10:21:16Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 15300.0
+      "v": 15200.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 15200.0
     }
   ]
 }

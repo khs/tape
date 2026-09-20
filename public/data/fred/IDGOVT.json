@@ -3,7 +3,7 @@
   "name": "Idaho government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:49:34Z",
+  "lastUpdated": "2026-09-20T10:19:12Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 129500.0
+      "v": 128800.00000000001
+    },
+    {
+      "t": "2026-08-01",
+      "v": 128699.99999999999
     }
   ]
 }

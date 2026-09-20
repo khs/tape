@@ -3,7 +3,7 @@
   "name": "Local government employment in Oklahoma",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:51:42Z",
+  "lastUpdated": "2026-09-20T10:21:49Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 237500.0
+      "v": 237900.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 238900.0
     }
   ]
 }

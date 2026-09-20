@@ -3,7 +3,7 @@
   "name": "Federal government employment in Connecticut",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:50:08Z",
+  "lastUpdated": "2026-09-20T10:19:49Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1760,6 +1760,10 @@
     {
       "t": "2026-07-01",
       "v": 17200.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 17000.0
     }
   ]
 }

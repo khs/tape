@@ -3,7 +3,7 @@
   "name": "Local government employment in West Virginia",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:51:51Z",
+  "lastUpdated": "2026-09-20T10:21:58Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 75600.0
+      "v": 75700.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 76100.0
     }
   ]
 }

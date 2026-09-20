@@ -3,7 +3,7 @@
   "name": "Kansas unemployment level",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:55:14Z",
+  "lastUpdated": "2026-09-20T10:25:34Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2427,7 +2427,11 @@
     },
     {
       "t": "2026-07-15",
-      "v": 58711.0
+      "v": 58698.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 58912.0
     }
   ]
 }

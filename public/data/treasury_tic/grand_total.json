@@ -3,7 +3,7 @@
   "name": "Grand total (foreign) \u2014 US Treasury holdings",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-09-13T10:57:52Z",
+  "lastUpdated": "2026-09-20T10:28:11Z",
   "points": [
     {
       "t": "2000-02-15",
@@ -1199,7 +1199,7 @@
     },
     {
       "t": "2024-12-15",
-      "v": 8619.3
+      "v": 8620.8
     },
     {
       "t": "2025-01-15",

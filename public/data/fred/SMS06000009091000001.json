@@ -3,7 +3,7 @@
   "name": "Federal government employment in California",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:50:06Z",
+  "lastUpdated": "2026-09-20T10:19:47Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 227900.0
+      "v": 228400.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 228600.0
     }
   ]
 }

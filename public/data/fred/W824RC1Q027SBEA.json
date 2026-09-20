@@ -3,7 +3,7 @@
   "name": "Federal Medicare benefits (NIPA)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-09-13T10:48:36Z",
+  "lastUpdated": "2026-09-20T10:18:13Z",
   "points": [
     {
       "t": "1966-07-01",

@@ -3,7 +3,7 @@
   "name": "Local government employment in Florida",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:51:23Z",
+  "lastUpdated": "2026-09-20T10:21:24Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 731300.0
+      "v": 733000.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 737500.0
     }
   ]
 }

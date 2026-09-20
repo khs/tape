@@ -3,7 +3,7 @@
   "name": "Hawaii government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:49:34Z",
+  "lastUpdated": "2026-09-20T10:19:11Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,7 +1759,11 @@
     },
     {
       "t": "2026-07-01",
-      "v": 125500.0
+      "v": 125600.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 126100.0
     }
   ]
 }

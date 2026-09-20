@@ -3,7 +3,7 @@
   "name": "Federal government employment in Vermont",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:50:36Z",
+  "lastUpdated": "2026-09-20T10:20:27Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1759,6 +1759,10 @@
     },
     {
       "t": "2026-07-01",
+      "v": 6800.0
+    },
+    {
+      "t": "2026-08-01",
       "v": 6800.0
     }
   ]

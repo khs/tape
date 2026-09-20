@@ -3,7 +3,7 @@
   "name": "state_wind_az",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-09-13T11:00:58Z",
+  "lastUpdated": "2026-09-20T10:30:45Z",
   "points": [
     {
       "t": "2009-12-31",

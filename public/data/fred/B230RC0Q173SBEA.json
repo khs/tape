@@ -3,7 +3,7 @@
   "name": "US population (quarterly, mid-period)",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-13T10:48:00Z",
+  "lastUpdated": "2026-09-20T10:17:38Z",
   "points": [
     {
       "t": "1947-01-01",
