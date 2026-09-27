@@ -3,7 +3,7 @@
   "name": "Building permits (new private housing)",
   "kind": "timeseries",
   "unit": "permits",
-  "lastUpdated": "2026-09-20T10:18:03Z",
+  "lastUpdated": "2026-09-27T11:02:17Z",
   "points": [
     {
       "t": "1960-01-01",
@@ -3203,7 +3203,7 @@
     },
     {
       "t": "2026-08-01",
-      "v": 1394000.0
+      "v": 1403000.0
     }
   ]
 }

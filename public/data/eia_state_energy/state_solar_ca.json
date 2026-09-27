@@ -3,7 +3,7 @@
   "name": "state_solar_ca",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-09-20T10:30:54Z",
+  "lastUpdated": "2026-09-27T11:14:38Z",
   "points": [
     {
       "t": "2001-12-31",

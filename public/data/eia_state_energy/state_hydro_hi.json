@@ -3,7 +3,7 @@
   "name": "state_hydro_hi",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-09-20T10:31:25Z",
+  "lastUpdated": "2026-09-27T11:14:44Z",
   "points": [
     {
       "t": "2001-12-31",

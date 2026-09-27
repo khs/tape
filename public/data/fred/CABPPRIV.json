@@ -3,7 +3,7 @@
   "name": "Building permits \u2014 California",
   "kind": "timeseries",
   "unit": "units",
-  "lastUpdated": "2026-09-20T10:22:47Z",
+  "lastUpdated": "2026-09-27T11:06:49Z",
   "points": [
     {
       "t": "1988-01-01",
@@ -1856,6 +1856,10 @@
     {
       "t": "2026-07-01",
       "v": 8285.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 9649.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "FHFA purchase-only HPI, national (SA)",
   "kind": "timeseries",
   "unit": "index",
-  "lastUpdated": "2026-09-20T10:17:46Z",
+  "lastUpdated": "2026-09-27T11:01:58Z",
   "points": [
     {
       "t": "1991-01-01",

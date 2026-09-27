@@ -3,7 +3,7 @@
   "name": "state_solar_nc",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-09-20T10:32:16Z",
+  "lastUpdated": "2026-09-27T11:15:02Z",
   "points": [
     {
       "t": "2008-12-31",
