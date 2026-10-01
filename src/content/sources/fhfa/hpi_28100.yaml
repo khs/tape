@@ -1,6 +1,6 @@
 name: Kankakee, IL — home price index (FHFA)
 shortName: Kankakee, IL home prices
-description: FHFA all-transactions House Price Index for the Kankakee, IL metro area (CBSA 28100). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Kankakee, IL metro area (CBSA 28100). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_28100.json

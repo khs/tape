@@ -3,7 +3,7 @@
   "name": "Proprietors employment \u2014 District of Columbia",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-17T20:31:49Z",
+  "lastUpdated": "2026-10-01T17:50:06Z",
   "points": [
     {
       "t": "1969-01-01",
@@ -223,11 +223,15 @@
     },
     {
       "t": "2023-01-01",
-      "v": 124679.0
+      "v": 118725.0
     },
     {
       "t": "2024-01-01",
-      "v": 127378.0
+      "v": 116792.0
+    },
+    {
+      "t": "2025-01-01",
+      "v": 121400.0
     }
   ]
 }

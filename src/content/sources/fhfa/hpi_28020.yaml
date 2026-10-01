@@ -1,6 +1,6 @@
 name: Kalamazoo-Portage, MI — home price index (FHFA)
 shortName: Kalamazoo-Portage, MI home prices
-description: FHFA all-transactions House Price Index for the Kalamazoo-Portage, MI metro area (CBSA 28020). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Kalamazoo-Portage, MI metro area (CBSA 28020). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_28020.json

@@ -1,6 +1,6 @@
 name: Seattle-Tacoma-Bellevue, WA — home price index (FHFA)
 shortName: Seattle-Tacoma-Bellevue, WA home prices
-description: FHFA all-transactions House Price Index for the Seattle-Tacoma-Bellevue, WA metro area (CBSA 42660). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Seattle-Bellevue-Kent, WA (FHFA area 42644).
+description: FHFA all-transactions House Price Index for the Seattle-Tacoma-Bellevue, WA metro area (CBSA 42660). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Seattle-Bellevue-Kent, WA (FHFA area 42644). (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_42660.json

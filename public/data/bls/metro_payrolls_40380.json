@@ -1,9 +1,9 @@
 {
   "id": "metro_payrolls_40380",
-  "name": "Rochester \u2014 nonfarm payroll employment",
+  "name": "Rochester, NY \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:03Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -451,7 +451,23 @@
     },
     {
       "t": "2026-04-15",
-      "v": 518900.0
+      "v": 519200.00000000006
+    },
+    {
+      "t": "2026-05-15",
+      "v": 522600.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 524800.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 516100.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 508300.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Average temperature \u2014 Houston",
   "kind": "timeseries",
   "unit": "\u00b0F",
-  "lastUpdated": "2026-06-01T12:36:07Z",
+  "lastUpdated": "2026-10-01T17:54:07Z",
   "points": [
     {
       "t": "1970-01-01",
@@ -224,6 +224,10 @@
     {
       "t": "2024-01-01",
       "v": 73.1
+    },
+    {
+      "t": "2025-01-01",
+      "v": 72.9
     }
   ]
 }

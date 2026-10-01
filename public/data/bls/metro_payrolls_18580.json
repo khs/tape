@@ -1,9 +1,9 @@
 {
   "id": "metro_payrolls_18580",
-  "name": "Corpus Christi \u2014 nonfarm payroll employment",
+  "name": "Corpus Christi, TX \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:02Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -451,7 +451,23 @@
     },
     {
       "t": "2026-04-15",
-      "v": 202900.0
+      "v": 202700.0
+    },
+    {
+      "t": "2026-05-15",
+      "v": 203800.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 203500.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 202300.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 202300.0
     }
   ]
 }

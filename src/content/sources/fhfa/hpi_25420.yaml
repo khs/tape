@@ -1,6 +1,6 @@
 name: Harrisburg-Carlisle, PA — home price index (FHFA)
 shortName: Harrisburg-Carlisle, PA home prices
-description: FHFA all-transactions House Price Index for the Harrisburg-Carlisle, PA metro area (CBSA 25420). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Harrisburg-Carlisle, PA metro area (CBSA 25420). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_25420.json

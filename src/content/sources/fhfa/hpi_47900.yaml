@@ -1,6 +1,6 @@
 name: Washington-Arlington-Alexandria, DC-VA-MD-WV — home price index (FHFA)
 shortName: Washington-Arlington-Alexandria, DC-VA-MD-WV home prices
-description: FHFA all-transactions House Price Index for the Washington-Arlington-Alexandria, DC-VA-MD-WV metro area (CBSA 47900). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Washington, DC-MD (FHFA area 47764).
+description: FHFA all-transactions House Price Index for the Washington-Arlington-Alexandria, DC-VA-MD-WV metro area (CBSA 47900). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Washington, DC-MD (FHFA area 47764). (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_47900.json

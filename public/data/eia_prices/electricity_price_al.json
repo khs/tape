@@ -3,7 +3,7 @@
   "name": "Electricity price \u2014 Alabama",
   "kind": "timeseries",
   "unit": "cents/kWh",
-  "lastUpdated": "2026-06-01T14:49:24Z",
+  "lastUpdated": "2026-10-01T17:52:11Z",
   "points": [
     {
       "t": "2001-12-31",

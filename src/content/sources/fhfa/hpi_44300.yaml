@@ -1,6 +1,6 @@
 name: State College, PA — home price index (FHFA)
 shortName: State College, PA home prices
-description: FHFA all-transactions House Price Index for the State College, PA metro area (CBSA 44300). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the State College, PA metro area (CBSA 44300). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_44300.json

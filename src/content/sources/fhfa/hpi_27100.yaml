@@ -1,6 +1,6 @@
 name: Jackson, MI — home price index (FHFA)
 shortName: Jackson, MI home prices
-description: FHFA all-transactions House Price Index for the Jackson, MI metro area (CBSA 27100). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Jackson, MI metro area (CBSA 27100). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_27100.json

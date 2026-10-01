@@ -1,6 +1,6 @@
 name: Columbus, GA-AL — home price index (FHFA)
 shortName: Columbus, GA-AL home prices
-description: FHFA all-transactions House Price Index for the Columbus, GA-AL metro area (CBSA 17980). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Columbus, GA-AL metro area (CBSA 17980). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_17980.json

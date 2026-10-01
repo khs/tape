@@ -1,9 +1,9 @@
 {
   "id": "metro_payrolls_36500",
-  "name": "Olympia-Lacey-Tumwater \u2014 nonfarm payroll employment",
+  "name": "Olympia-Lacey-Tumwater, WA \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:03Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -451,7 +451,23 @@
     },
     {
       "t": "2026-04-15",
-      "v": 133000.0
+      "v": 132700.0
+    },
+    {
+      "t": "2026-05-15",
+      "v": 133100.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 133600.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 133300.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 132900.0
     }
   ]
 }

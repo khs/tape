@@ -1,6 +1,6 @@
 name: Wilmington, NC — home price index (FHFA)
 shortName: Wilmington, NC home prices
-description: FHFA all-transactions House Price Index for the Wilmington, NC metro area (CBSA 48900). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Wilmington, NC metro area (CBSA 48900). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_48900.json

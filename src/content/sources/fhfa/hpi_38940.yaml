@@ -1,6 +1,6 @@
 name: Port St. Lucie, FL — home price index (FHFA)
 shortName: Port St. Lucie, FL home prices
-description: FHFA all-transactions House Price Index for the Port St. Lucie, FL metro area (CBSA 38940). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Port St. Lucie, FL metro area (CBSA 38940). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_38940.json

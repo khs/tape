@@ -1,9 +1,9 @@
 {
   "id": "metro_payrolls_14460",
-  "name": "Boston-Cambridge-Newton \u2014 nonfarm payroll employment",
+  "name": "Boston-Cambridge-Newton, MA-NH \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:02Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -451,7 +451,23 @@
     },
     {
       "t": "2026-04-15",
-      "v": 2733200.0
+      "v": 2734200.0
+    },
+    {
+      "t": "2026-05-15",
+      "v": 2743500.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 2782100.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 2771800.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 2745600.0
     }
   ]
 }

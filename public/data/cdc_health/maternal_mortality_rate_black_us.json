@@ -3,7 +3,7 @@
   "name": "Maternal mortality rate, Black (non-Hispanic) \u2014 United States",
   "kind": "timeseries",
   "unit": "per 100,000 live births",
-  "lastUpdated": "2026-06-20T00:52:24Z",
+  "lastUpdated": "2026-10-01T17:52:09Z",
   "points": [
     {
       "t": "2019-12-31",
@@ -31,7 +31,7 @@
     },
     {
       "t": "2025-12-31",
-      "v": 46.3
+      "v": 42.1
     }
   ]
 }

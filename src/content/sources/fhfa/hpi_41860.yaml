@@ -1,6 +1,6 @@
 name: San Francisco-Oakland-Fremont, CA — home price index (FHFA)
 shortName: San Francisco-Oakland-Fremont, CA home prices
-description: FHFA all-transactions House Price Index for the San Francisco-Oakland-Fremont, CA metro area (CBSA 41860). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, San Francisco-San Mateo-Redwood City, CA (FHFA area 41884).
+description: FHFA all-transactions House Price Index for the San Francisco-Oakland-Fremont, CA metro area (CBSA 41860). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, San Francisco-San Mateo-Redwood City, CA (FHFA area 41884). (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_41860.json

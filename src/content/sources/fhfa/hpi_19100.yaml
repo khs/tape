@@ -1,6 +1,6 @@
 name: Dallas-Fort Worth-Arlington, TX — home price index (FHFA)
 shortName: Dallas-Fort Worth-Arlington, TX home prices
-description: FHFA all-transactions House Price Index for the Dallas-Fort Worth-Arlington, TX metro area (CBSA 19100). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Dallas-Plano-Irving, TX (FHFA area 19124).
+description: FHFA all-transactions House Price Index for the Dallas-Fort Worth-Arlington, TX metro area (CBSA 19100). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Dallas-Plano-Irving, TX (FHFA area 19124). (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_19100.json

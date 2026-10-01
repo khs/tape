@@ -1,9 +1,9 @@
 {
   "id": "metro_payrolls_41060",
-  "name": "St. Cloud \u2014 nonfarm payroll employment",
+  "name": "St. Cloud, MN \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:03Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -451,7 +451,23 @@
     },
     {
       "t": "2026-04-15",
-      "v": 107700.0
+      "v": 107600.0
+    },
+    {
+      "t": "2026-05-15",
+      "v": 109100.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 109100.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 108200.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 107800.0
     }
   ]
 }

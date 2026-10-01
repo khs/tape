@@ -1,6 +1,6 @@
 name: Gainesville, GA — home price index (FHFA)
 shortName: Gainesville, GA home prices
-description: FHFA all-transactions House Price Index for the Gainesville, GA metro area (CBSA 23580). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Gainesville, GA metro area (CBSA 23580). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_23580.json

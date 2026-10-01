@@ -1,6 +1,6 @@
 name: Lewiston, ID-WA — home price index (FHFA)
 shortName: Lewiston, ID-WA home prices
-description: FHFA all-transactions House Price Index for the Lewiston, ID-WA metro area (CBSA 30300). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Lewiston, ID-WA metro area (CBSA 30300). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_30300.json

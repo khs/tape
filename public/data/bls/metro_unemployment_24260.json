@@ -1,9 +1,9 @@
 {
   "id": "metro_unemployment_24260",
-  "name": "Grand Island \u2014 unemployment rate",
+  "name": "Grand Island, NE \u2014 unemployment rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:02Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -443,7 +443,27 @@
     },
     {
       "t": "2026-03-15",
-      "v": 3.3
+      "v": 3.2
+    },
+    {
+      "t": "2026-04-15",
+      "v": 2.5
+    },
+    {
+      "t": "2026-05-15",
+      "v": 2.7
+    },
+    {
+      "t": "2026-06-15",
+      "v": 3.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 2.7
+    },
+    {
+      "t": "2026-08-15",
+      "v": 2.6
     }
   ]
 }

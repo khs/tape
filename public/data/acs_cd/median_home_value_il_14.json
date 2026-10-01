@@ -3,7 +3,7 @@
   "name": "Median home value (owner-occupied) \u2014 IL-14",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-06-18T21:21:45Z",
+  "lastUpdated": "2026-10-01T13:56:14Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -47,7 +47,7 @@
     },
     {
       "t": "2020-12-31",
-      "v": 180286.7747503366
+      "v": 180286.77475033657
     },
     {
       "t": "2021-12-31",

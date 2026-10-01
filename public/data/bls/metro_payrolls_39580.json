@@ -1,9 +1,9 @@
 {
   "id": "metro_payrolls_39580",
-  "name": "Raleigh-Cary \u2014 nonfarm payroll employment",
+  "name": "Raleigh-Cary, NC \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-06-01T14:46:51Z",
+  "lastUpdated": "2026-10-01T17:50:03Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -451,7 +451,23 @@
     },
     {
       "t": "2026-04-15",
-      "v": 778300.0
+      "v": 779300.0
+    },
+    {
+      "t": "2026-05-15",
+      "v": 785900.0
+    },
+    {
+      "t": "2026-06-15",
+      "v": 788100.0
+    },
+    {
+      "t": "2026-07-15",
+      "v": 784800.0
+    },
+    {
+      "t": "2026-08-15",
+      "v": 787200.0
     }
   ]
 }

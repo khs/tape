@@ -1,6 +1,6 @@
 name: Grants Pass, OR — home price index (FHFA)
 shortName: Grants Pass, OR home prices
-description: FHFA all-transactions House Price Index for the Grants Pass, OR metro area (CBSA 24420). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Grants Pass, OR metro area (CBSA 24420). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_24420.json

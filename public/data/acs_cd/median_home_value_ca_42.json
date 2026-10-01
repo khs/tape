@@ -3,7 +3,7 @@
   "name": "Median home value (owner-occupied) \u2014 CA-42",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-06-18T21:21:43Z",
+  "lastUpdated": "2026-10-01T13:56:12Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -39,7 +39,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 493055.32881627
+      "v": 493055.32881627005
     },
     {
       "t": "2019-12-31",

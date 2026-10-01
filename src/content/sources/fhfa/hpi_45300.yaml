@@ -1,6 +1,6 @@
 name: Tampa-St. Petersburg-Clearwater, FL — home price index (FHFA)
 shortName: Tampa-St. Petersburg-Clearwater, FL home prices
-description: FHFA all-transactions House Price Index for the Tampa-St. Petersburg-Clearwater, FL metro area (CBSA 45300). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Tampa, FL (FHFA area 45294).
+description: FHFA all-transactions House Price Index for the Tampa-St. Petersburg-Clearwater, FL metro area (CBSA 45300). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. FHFA publishes this metro only at the metropolitan-division level, so values are its principal division, Tampa, FL (FHFA area 45294). (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_45300.json

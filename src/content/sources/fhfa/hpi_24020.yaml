@@ -1,6 +1,6 @@
 name: Glens Falls, NY — home price index (FHFA)
 shortName: Glens Falls, NY home prices
-description: FHFA all-transactions House Price Index for the Glens Falls, NY metro area (CBSA 24020). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Glens Falls, NY metro area (CBSA 24020). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_24020.json

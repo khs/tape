@@ -1,0 +1,21 @@
+name: "CPI inflation, annual % — Sub-Saharan Africa"
+shortName: Sub-Saharan Africa cpi inflation
+description: CPI inflation, annual % for Sub-Saharan Africa, annual. From World Bank World Development Indicators (series FP.CPI.TOTL.ZG). Most regions and country aggregates available back to 1960; individual series start dates vary. (CPI = Consumer Price Index.)
+kind: timeseries
+pipeline: worldbank_extended
+dataFile: data/worldbank_extended/cpi_inflation_africa_ssf.json
+supportedDeltas: ["5y", "10y", "30y", "50y"]
+unit: "%"
+formatting:
+  style: percent
+  decimals: 2
+emphasis: change
+provenance:
+  provider: World Bank (World Development Indicators)
+  series: FP.CPI.TOTL.ZG / SSF
+  url: https://api.worldbank.org/v2/country/SSF/indicator/FP.CPI.TOTL.ZG
+  license: CC BY 4.0
+tags:
+  - macro
+  - world
+unitClass: rate

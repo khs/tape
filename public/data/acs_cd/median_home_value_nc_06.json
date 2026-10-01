@@ -3,7 +3,7 @@
   "name": "Median home value (owner-occupied) \u2014 NC-06",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-06-18T21:21:48Z",
+  "lastUpdated": "2026-10-01T13:56:15Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -31,7 +31,7 @@
     },
     {
       "t": "2016-12-31",
-      "v": 145289.35043940163
+      "v": 145289.35043940166
     },
     {
       "t": "2017-12-31",

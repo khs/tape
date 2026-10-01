@@ -1,6 +1,6 @@
 name: Cleveland, OH — home price index (FHFA)
 shortName: Cleveland, OH home prices
-description: FHFA all-transactions House Price Index for the Cleveland, OH metro area (CBSA 17410). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Cleveland, OH metro area (CBSA 17410). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_17410.json

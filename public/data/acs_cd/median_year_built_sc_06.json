@@ -3,7 +3,7 @@
   "name": "Median year housing structure built \u2014 SC-06",
   "kind": "timeseries",
   "unit": "year",
-  "lastUpdated": "2026-06-18T21:21:50Z",
+  "lastUpdated": "2026-10-01T13:56:16Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -39,7 +39,7 @@
     },
     {
       "t": "2018-12-31",
-      "v": 1980.186776896389
+      "v": 1980.1867768963887
     },
     {
       "t": "2019-12-31",

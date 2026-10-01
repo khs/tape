@@ -3,7 +3,7 @@
   "name": "Average temperature \u2014 Denver",
   "kind": "timeseries",
   "unit": "\u00b0F",
-  "lastUpdated": "2026-06-01T12:36:23Z",
+  "lastUpdated": "2026-10-01T17:54:20Z",
   "points": [
     {
       "t": "1996-01-01",
@@ -116,6 +116,10 @@
     {
       "t": "2024-01-01",
       "v": 53.9
+    },
+    {
+      "t": "2025-01-01",
+      "v": 52.8
     }
   ]
 }

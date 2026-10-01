@@ -1,6 +1,6 @@
 name: Augusta-Richmond County, GA-SC — home price index (FHFA)
 shortName: Augusta-Richmond County, GA-SC home prices
-description: FHFA all-transactions House Price Index for the Augusta-Richmond County, GA-SC metro area (CBSA 12260). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index.
+description: FHFA all-transactions House Price Index for the Augusta-Richmond County, GA-SC metro area (CBSA 12260). Repeat-sales index of single-family properties with conforming mortgages; not seasonally adjusted, quarterly. The public-domain federal substitute for the proprietary Case-Shiller index. (FHFA = Federal Housing Finance Agency.)
 kind: timeseries
 pipeline: fhfa
 dataFile: data/fhfa/hpi_12260.json
