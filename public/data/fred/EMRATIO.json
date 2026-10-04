@@ -3,7 +3,7 @@
   "name": "Employment-population ratio",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-09-27T11:06:40Z",
+  "lastUpdated": "2026-10-04T11:36:17Z",
   "points": [
     {
       "t": "1948-01-01",
@@ -3776,6 +3776,10 @@
     {
       "t": "2026-08-01",
       "v": 59.1
+    },
+    {
+      "t": "2026-09-01",
+      "v": 59.2
     }
   ]
 }

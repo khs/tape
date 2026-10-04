@@ -3,7 +3,7 @@
   "name": "15-year fixed mortgage rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-09-27T11:02:22Z",
+  "lastUpdated": "2026-10-04T11:31:35Z",
   "points": [
     {
       "t": "1991-08-30",
@@ -7328,6 +7328,10 @@
     {
       "t": "2026-09-24",
       "v": 6.42
+    },
+    {
+      "t": "2026-10-01",
+      "v": 6.6
     }
   ]
 }

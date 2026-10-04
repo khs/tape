@@ -3,7 +3,7 @@
   "name": "state_solar_il",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-09-27T11:14:45Z",
+  "lastUpdated": "2026-10-04T11:42:29Z",
   "points": [
     {
       "t": "2009-12-31",

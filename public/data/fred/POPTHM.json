@@ -3,7 +3,7 @@
   "name": "US population, all persons (monthly)",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-09-27T11:02:25Z",
+  "lastUpdated": "2026-10-04T11:31:37Z",
   "points": [
     {
       "t": "1959-01-01",
@@ -3248,6 +3248,10 @@
     {
       "t": "2026-07-01",
       "v": 342909000.0
+    },
+    {
+      "t": "2026-08-01",
+      "v": 343008000.0
     }
   ]
 }

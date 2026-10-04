@@ -3,7 +3,7 @@
   "name": "state_solar_mo",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-09-27T11:14:55Z",
+  "lastUpdated": "2026-10-04T11:42:39Z",
   "points": [
     {
       "t": "2014-12-31",

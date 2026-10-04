@@ -3,7 +3,7 @@
   "name": "New York population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-27T11:03:11Z",
+  "lastUpdated": "2026-10-04T11:32:29Z",
   "points": [
     {
       "t": "1900-01-01",

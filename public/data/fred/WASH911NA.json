@@ -3,7 +3,7 @@
   "name": "DC-metro nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-27T11:02:48Z",
+  "lastUpdated": "2026-10-04T11:32:05Z",
   "points": [
     {
       "t": "1990-01-01",

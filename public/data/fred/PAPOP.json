@@ -3,7 +3,7 @@
   "name": "Pennsylvania population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-09-27T11:03:15Z",
+  "lastUpdated": "2026-10-04T11:32:33Z",
   "points": [
     {
       "t": "1900-01-01",
