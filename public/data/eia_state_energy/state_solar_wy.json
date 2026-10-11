@@ -3,7 +3,7 @@
   "name": "state_solar_wy",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-04T11:42:54Z",
+  "lastUpdated": "2026-10-11T12:04:23Z",
   "points": [
     {
       "t": "2018-12-31",

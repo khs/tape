@@ -3,7 +3,7 @@
   "name": "New single-family home sales",
   "kind": "timeseries",
   "unit": "homes sold",
-  "lastUpdated": "2026-10-04T11:31:30Z",
+  "lastUpdated": "2026-10-11T11:49:05Z",
   "points": [
     {
       "t": "1963-01-01",

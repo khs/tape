@@ -3,7 +3,7 @@
   "name": "Wyoming population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-04T11:32:40Z",
+  "lastUpdated": "2026-10-11T11:50:13Z",
   "points": [
     {
       "t": "1900-01-01",

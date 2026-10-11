@@ -3,7 +3,7 @@
   "name": "Reserve balances with Federal Reserve Banks",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-10-04T11:31:17Z",
+  "lastUpdated": "2026-10-11T11:48:51Z",
   "points": [
     {
       "t": "2002-12-18",
@@ -4972,6 +4972,10 @@
     {
       "t": "2026-09-30",
       "v": 2948.09
+    },
+    {
+      "t": "2026-10-07",
+      "v": 3029.659
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "state_gas_ri",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-04T11:42:47Z",
+  "lastUpdated": "2026-10-11T12:04:10Z",
   "points": [
     {
       "t": "2001-12-31",

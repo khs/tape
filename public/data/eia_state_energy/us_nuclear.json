@@ -3,7 +3,7 @@
   "name": "us_nuclear",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-04T11:42:21Z",
+  "lastUpdated": "2026-10-11T12:03:31Z",
   "points": [
     {
       "t": "2001-12-31",

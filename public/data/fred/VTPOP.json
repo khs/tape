@@ -3,7 +3,7 @@
   "name": "Vermont population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-04T11:32:37Z",
+  "lastUpdated": "2026-10-11T11:50:09Z",
   "points": [
     {
       "t": "1900-01-01",

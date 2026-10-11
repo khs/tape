@@ -3,7 +3,7 @@
   "name": "state_nuclear_ny",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-04T11:42:43Z",
+  "lastUpdated": "2026-10-11T12:04:06Z",
   "points": [
     {
       "t": "2001-12-31",

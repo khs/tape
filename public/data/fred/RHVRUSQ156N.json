@@ -3,7 +3,7 @@
   "name": "US homeowner vacancy rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-04T11:31:46Z",
+  "lastUpdated": "2026-10-11T11:49:21Z",
   "points": [
     {
       "t": "1956-01-01",
