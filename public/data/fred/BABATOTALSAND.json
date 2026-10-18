@@ -3,7 +3,7 @@
   "name": "Business applications \u2014 North Dakota",
   "kind": "timeseries",
   "unit": "applications",
-  "lastUpdated": "2026-10-11T11:55:38Z",
+  "lastUpdated": "2026-10-18T10:12:59Z",
   "points": [
     {
       "t": "2004-07-01",
@@ -1063,11 +1063,15 @@
     },
     {
       "t": "2026-07-01",
-      "v": 868.0
+      "v": 869.0
     },
     {
       "t": "2026-08-01",
       "v": 906.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 881.0
     }
   ]
 }

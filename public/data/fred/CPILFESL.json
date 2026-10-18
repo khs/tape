@@ -3,7 +3,7 @@
   "name": "Core CPI (all items less food & energy)",
   "kind": "timeseries",
   "unit": "index (1982-84=100)",
-  "lastUpdated": "2026-10-11T11:48:41Z",
+  "lastUpdated": "2026-10-18T10:05:47Z",
   "points": [
     {
       "t": "1957-01-01",
@@ -3344,6 +3344,10 @@
     {
       "t": "2026-08-01",
       "v": 337.765
+    },
+    {
+      "t": "2026-09-01",
+      "v": 338.896
     }
   ]
 }

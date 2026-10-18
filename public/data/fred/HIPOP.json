@@ -3,7 +3,7 @@
   "name": "Hawaii population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-11T11:49:47Z",
+  "lastUpdated": "2026-10-18T10:07:01Z",
   "points": [
     {
       "t": "1950-01-01",

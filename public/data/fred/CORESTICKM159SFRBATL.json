@@ -3,7 +3,7 @@
   "name": "Sticky-price CPI, less food & energy (YoY)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-11T11:54:22Z",
+  "lastUpdated": "2026-10-18T10:11:40Z",
   "points": [
     {
       "t": "1968-01-01",
@@ -2820,6 +2820,10 @@
     {
       "t": "2026-08-01",
       "v": 2.700641247
+    },
+    {
+      "t": "2026-09-01",
+      "v": 2.776528554
     }
   ]
 }

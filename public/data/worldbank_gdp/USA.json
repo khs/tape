@@ -3,7 +3,7 @@
   "name": "United States real GDP share of world",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-11T11:57:12Z",
+  "lastUpdated": "2026-10-18T10:14:19Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -331,6 +331,10 @@
     },
     {
       "t": "2026-10-11",
+      "v": 23.302347254652517
+    },
+    {
+      "t": "2026-10-18",
       "v": 23.302347254652517
     }
   ]

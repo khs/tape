@@ -3,7 +3,7 @@
   "name": "Alaska population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-11T11:49:41Z",
+  "lastUpdated": "2026-10-18T10:06:53Z",
   "points": [
     {
       "t": "1950-01-01",
