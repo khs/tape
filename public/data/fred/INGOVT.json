@@ -3,7 +3,7 @@
   "name": "Indiana government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:07:43Z",
+  "lastUpdated": "2026-10-25T10:26:17Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 422700.0
+      "v": 422800.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 409300.0
     }
   ]
 }

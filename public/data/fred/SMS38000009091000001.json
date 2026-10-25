@@ -3,7 +3,7 @@
   "name": "Federal government employment in North Dakota",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:08:51Z",
+  "lastUpdated": "2026-10-25T10:27:21Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,6 +1763,10 @@
     },
     {
       "t": "2026-08-01",
+      "v": 8500.0
+    },
+    {
+      "t": "2026-09-01",
       "v": 8500.0
     }
   ]

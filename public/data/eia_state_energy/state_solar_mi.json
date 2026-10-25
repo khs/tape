@@ -3,7 +3,7 @@
   "name": "state_solar_mi",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:03:54Z",
+  "lastUpdated": "2026-10-25T10:38:35Z",
   "points": [
     {
       "t": "2015-12-31",
@@ -47,7 +47,7 @@
     },
     {
       "t": "2025-12-31",
-      "v": 2.86041293
+      "v": 2.785776
     }
   ]
 }

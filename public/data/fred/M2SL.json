@@ -3,7 +3,7 @@
   "name": "M2 money supply",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-10-18T10:05:56Z",
+  "lastUpdated": "2026-10-25T10:24:08Z",
   "points": [
     {
       "t": "1959-01-01",

@@ -3,7 +3,7 @@
   "name": "Local government employment in Virginia",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:10:40Z",
+  "lastUpdated": "2026-10-25T10:29:27Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 417100.0
+      "v": 420000.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 420600.0
     }
   ]
 }

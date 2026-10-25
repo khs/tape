@@ -3,7 +3,7 @@
   "name": "state_nuclear_ar",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:03:38Z",
+  "lastUpdated": "2026-10-25T10:38:21Z",
   "points": [
     {
       "t": "2001-12-31",

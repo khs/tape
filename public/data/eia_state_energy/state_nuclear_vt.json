@@ -3,7 +3,7 @@
   "name": "state_nuclear_vt",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:04:19Z",
+  "lastUpdated": "2026-10-25T10:38:53Z",
   "points": [
     {
       "t": "2001-12-31",

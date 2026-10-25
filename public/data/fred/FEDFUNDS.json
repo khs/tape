@@ -3,7 +3,7 @@
   "name": "Federal funds effective rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-18T10:05:46Z",
+  "lastUpdated": "2026-10-25T10:23:55Z",
   "points": [
     {
       "t": "1954-07-01",

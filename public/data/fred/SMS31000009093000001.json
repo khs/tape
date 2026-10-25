@@ -3,7 +3,7 @@
   "name": "Local government employment in Nebraska",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:10:19Z",
+  "lastUpdated": "2026-10-25T10:29:09Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 118200.0
+      "v": 118300.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 118000.0
     }
   ]
 }

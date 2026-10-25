@@ -3,7 +3,7 @@
   "name": "Federal government employment in District of Columbia",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:08:28Z",
+  "lastUpdated": "2026-10-25T10:26:53Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 164200.0
+      "v": 164600.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 165300.0
     }
   ]
 }

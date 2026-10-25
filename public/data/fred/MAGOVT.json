@@ -3,7 +3,7 @@
   "name": "Massachusetts government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:07:49Z",
+  "lastUpdated": "2026-10-25T10:26:23Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 475100.0
+      "v": 476100.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 476800.0
     }
   ]
 }

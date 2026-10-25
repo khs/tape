@@ -3,7 +3,7 @@
   "name": "state_nuclear_ga",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:03:46Z",
+  "lastUpdated": "2026-10-25T10:38:26Z",
   "points": [
     {
       "t": "2001-12-31",

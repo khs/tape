@@ -3,7 +3,7 @@
   "name": "Local government employment in New Mexico",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:10:24Z",
+  "lastUpdated": "2026-10-25T10:29:13Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 109100.0
+      "v": 108600.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 108100.0
     }
   ]
 }

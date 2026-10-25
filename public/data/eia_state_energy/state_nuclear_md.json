@@ -3,7 +3,7 @@
   "name": "state_nuclear_md",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:03:52Z",
+  "lastUpdated": "2026-10-25T10:38:34Z",
   "points": [
     {
       "t": "2001-12-31",

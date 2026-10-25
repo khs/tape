@@ -3,7 +3,7 @@
   "name": "Alabama population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-18T10:06:52Z",
+  "lastUpdated": "2026-10-25T10:25:23Z",
   "points": [
     {
       "t": "1900-01-01",

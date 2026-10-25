@@ -3,7 +3,7 @@
   "name": "Sahm rule recession indicator (real-time)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-18T10:06:35Z",
+  "lastUpdated": "2026-10-25T10:25:04Z",
   "points": [
     {
       "t": "1959-12-01",

@@ -3,7 +3,7 @@
   "name": "state_wind_nv",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:04:01Z",
+  "lastUpdated": "2026-10-25T10:38:40Z",
   "points": [
     {
       "t": "2012-12-31",

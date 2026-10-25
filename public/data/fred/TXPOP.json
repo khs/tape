@@ -3,7 +3,7 @@
   "name": "Texas population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-18T10:07:25Z",
+  "lastUpdated": "2026-10-25T10:25:58Z",
   "points": [
     {
       "t": "1900-01-01",

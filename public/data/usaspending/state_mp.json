@@ -3,7 +3,7 @@
   "name": "Federal spending in Northern Mariana Islands",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-10-18T10:18:48Z",
+  "lastUpdated": "2026-10-25T10:38:17Z",
   "points": [
     {
       "t": "2008-09-30",
@@ -79,11 +79,11 @@
     },
     {
       "t": "2026-09-30",
-      "v": 0.69586913423
+      "v": 0.73304375036
     },
     {
       "t": "2027-09-30",
-      "v": -0.00055939613
+      "v": 0.10669693162999999
     }
   ]
 }

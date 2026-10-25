@@ -3,7 +3,7 @@
   "name": "state_solar_nv",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-10-11T12:04:01Z",
+  "lastUpdated": "2026-10-25T10:38:40Z",
   "points": [
     {
       "t": "2007-12-31",
@@ -79,7 +79,7 @@
     },
     {
       "t": "2025-12-31",
-      "v": 13.63958705
+      "v": 13.91306226
     }
   ]
 }

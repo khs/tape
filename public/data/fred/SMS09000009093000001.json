@@ -3,7 +3,7 @@
   "name": "Local government employment in Connecticut",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:09:57Z",
+  "lastUpdated": "2026-10-25T10:28:49Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 143500.0
+      "v": 143400.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 143400.0
     }
   ]
 }

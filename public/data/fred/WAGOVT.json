@@ -3,7 +3,7 @@
   "name": "Washington government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-18T10:08:10Z",
+  "lastUpdated": "2026-10-25T10:26:41Z",
   "points": [
     {
       "t": "1990-01-01",
@@ -1763,7 +1763,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": 606400.0
+      "v": 606000.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 606300.0
     }
   ]
 }

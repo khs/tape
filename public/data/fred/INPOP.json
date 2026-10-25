@@ -3,7 +3,7 @@
   "name": "Indiana population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-18T10:07:03Z",
+  "lastUpdated": "2026-10-25T10:25:34Z",
   "points": [
     {
       "t": "1900-01-01",
