@@ -3,7 +3,7 @@
   "name": "Total population \u2014 T\u00fcrkiye",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-01T17:31:17Z",
+  "lastUpdated": "2026-11-01T17:19:20Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -279,6 +279,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 85878556.0
+    },
+    {
+      "t": "2026-11-01",
       "v": 85878556.0
     }
   ]

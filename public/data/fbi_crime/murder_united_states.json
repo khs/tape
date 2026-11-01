@@ -3,7 +3,7 @@
   "name": "Murder rate \u2014 United States",
   "kind": "timeseries",
   "unit": "per 100k",
-  "lastUpdated": "2026-10-01T17:52:13Z",
+  "lastUpdated": "2026-11-01T17:31:55Z",
   "points": [
     {
       "t": "1985-01-01",
@@ -163,11 +163,11 @@
     },
     {
       "t": "2024-01-01",
-      "v": 5.02
+      "v": 5.03
     },
     {
       "t": "2025-01-01",
-      "v": 4.17
+      "v": 4.2
     }
   ]
 }

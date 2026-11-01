@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 China",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T16:55:17Z",
+  "lastUpdated": "2026-11-01T17:18:52Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -283,6 +283,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 35.6416587106792
+    },
+    {
+      "t": "2026-11-01",
       "v": 35.6416587106792
     }
   ]

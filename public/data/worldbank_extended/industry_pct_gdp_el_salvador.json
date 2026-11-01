@@ -3,7 +3,7 @@
   "name": "Industry (incl. construction) value-added (% of GDP) \u2014 El Salvador",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:41:59Z",
+  "lastUpdated": "2026-11-01T17:23:31Z",
   "points": [
     {
       "t": "1965-12-31",
@@ -259,6 +259,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 24.4802851467973
+    },
+    {
+      "t": "2026-11-01",
       "v": 24.4802851467973
     }
   ]

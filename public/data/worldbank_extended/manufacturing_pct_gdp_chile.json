@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Chile",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:42:05Z",
+  "lastUpdated": "2026-11-01T17:24:45Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -279,6 +279,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 8.95351962627781
+    },
+    {
+      "t": "2026-11-01",
       "v": 8.95351962627781
     }
   ]

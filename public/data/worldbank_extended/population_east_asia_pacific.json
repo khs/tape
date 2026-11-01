@@ -3,7 +3,7 @@
   "name": "Total population \u2014 East Asia and Pacific",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-01T17:20:15Z",
+  "lastUpdated": "2026-11-01T17:19:05Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -279,6 +279,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 2390873921.0
+    },
+    {
+      "t": "2026-11-01",
       "v": 2390873921.0
     }
   ]

@@ -3,7 +3,7 @@
   "name": "Providence-Warwick, RI-MA \u2014 nonfarm payroll employment",
   "kind": "timeseries",
   "unit": "jobs",
-  "lastUpdated": "2026-10-01T17:50:03Z",
+  "lastUpdated": "2026-11-01T17:29:10Z",
   "points": [
     {
       "t": "2017-01-15",
@@ -467,7 +467,11 @@
     },
     {
       "t": "2026-08-15",
-      "v": 746100.0
+      "v": 745900.0
+    },
+    {
+      "t": "2026-09-15",
+      "v": 746900.0
     }
   ]
 }

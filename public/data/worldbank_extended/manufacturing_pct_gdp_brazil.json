@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Brazil",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:42:02Z",
+  "lastUpdated": "2026-11-01T17:24:35Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -279,6 +279,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 11.7722632755736
+    },
+    {
+      "t": "2026-11-01",
       "v": 11.7722632755736
     }
   ]

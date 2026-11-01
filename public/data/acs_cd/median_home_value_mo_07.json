@@ -3,7 +3,7 @@
   "name": "Median home value (owner-occupied) \u2014 MO-07",
   "kind": "timeseries",
   "unit": "USD",
-  "lastUpdated": "2026-10-01T13:56:15Z",
+  "lastUpdated": "2026-11-01T14:17:42Z",
   "points": [
     {
       "t": "2010-12-31",
@@ -31,7 +31,7 @@
     },
     {
       "t": "2016-12-31",
-      "v": 125698.78021171158
+      "v": 125698.7802117116
     },
     {
       "t": "2017-12-31",

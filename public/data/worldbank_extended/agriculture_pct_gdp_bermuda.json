@@ -3,7 +3,7 @@
   "name": "Agriculture, forestry, fishing value-added (% of GDP) \u2014 Bermuda",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:44:49Z",
+  "lastUpdated": "2026-11-01T17:27:38Z",
   "points": [
     {
       "t": "1996-12-31",
@@ -115,6 +115,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 0.178160876410993
+    },
+    {
+      "t": "2026-11-01",
       "v": 0.178160876410993
     }
   ]

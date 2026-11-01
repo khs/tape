@@ -3,7 +3,7 @@
   "name": "Total population \u2014 Kuwait",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-10-01T17:31:48Z",
+  "lastUpdated": "2026-11-01T17:19:21Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -283,6 +283,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 4865298.0
+    },
+    {
+      "t": "2026-11-01",
       "v": 4865298.0
     }
   ]

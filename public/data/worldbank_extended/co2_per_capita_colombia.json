@@ -3,7 +3,7 @@
   "name": "CO2 emissions per capita (excl. land use) \u2014 Colombia",
   "kind": "timeseries",
   "unit": "t CO2e per capita",
-  "lastUpdated": "2026-10-01T17:32:05Z",
+  "lastUpdated": "2026-11-01T17:19:27Z",
   "points": [
     {
       "t": "1970-12-31",
@@ -239,6 +239,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 1.79780371737796
+    },
+    {
+      "t": "2026-11-01",
       "v": 1.79780371737796
     }
   ]

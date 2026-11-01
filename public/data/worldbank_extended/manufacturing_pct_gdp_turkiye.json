@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 T\u00fcrkiye",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:44:19Z",
+  "lastUpdated": "2026-11-01T17:27:05Z",
   "points": [
     {
       "t": "1960-12-31",
@@ -275,6 +275,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 16.8424801408013
+    },
+    {
+      "t": "2026-11-01",
       "v": 16.8424801408013
     }
   ]

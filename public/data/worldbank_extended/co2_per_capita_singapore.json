@@ -3,7 +3,7 @@
   "name": "CO2 emissions per capita (excl. land use) \u2014 Singapore",
   "kind": "timeseries",
   "unit": "t CO2e per capita",
-  "lastUpdated": "2026-10-01T17:35:52Z",
+  "lastUpdated": "2026-11-01T17:19:37Z",
   "points": [
     {
       "t": "1970-12-31",
@@ -239,6 +239,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 9.75144363129176
+    },
+    {
+      "t": "2026-11-01",
       "v": 9.75144363129176
     }
   ]

@@ -3,7 +3,7 @@
   "name": "Agriculture, forestry, fishing value-added (% of GDP) \u2014 Denmark",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:44:43Z",
+  "lastUpdated": "2026-11-01T17:27:33Z",
   "points": [
     {
       "t": "1966-12-31",
@@ -255,6 +255,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 1.16938005441414
+    },
+    {
+      "t": "2026-11-01",
       "v": 1.16938005441414
     }
   ]

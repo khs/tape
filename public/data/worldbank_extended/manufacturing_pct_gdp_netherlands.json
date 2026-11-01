@@ -3,7 +3,7 @@
   "name": "Manufacturing value-added (% of GDP) \u2014 Netherlands",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-01T17:44:12Z",
+  "lastUpdated": "2026-11-01T17:26:59Z",
   "points": [
     {
       "t": "1969-12-31",
@@ -243,6 +243,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 10.0816646290076
+    },
+    {
+      "t": "2026-11-01",
       "v": 10.0816646290076
     }
   ]

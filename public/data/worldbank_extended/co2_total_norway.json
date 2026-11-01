@@ -3,7 +3,7 @@
   "name": "CO2 emissions, total (excl. land use) \u2014 Norway",
   "kind": "timeseries",
   "unit": "Mt CO2e",
-  "lastUpdated": "2026-10-01T17:38:22Z",
+  "lastUpdated": "2026-11-01T17:22:24Z",
   "points": [
     {
       "t": "1970-12-31",
@@ -239,6 +239,10 @@
     },
     {
       "t": "2026-10-01",
+      "v": 39.9995
+    },
+    {
+      "t": "2026-11-01",
       "v": 39.9995
     }
   ]
