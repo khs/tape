@@ -3,7 +3,7 @@
   "name": "US retail diesel",
   "kind": "timeseries",
   "unit": "USD/gal",
-  "lastUpdated": "2026-10-25T10:23:52Z",
+  "lastUpdated": "2026-11-01T12:18:27Z",
   "points": [
     {
       "t": "1994-03-21",
@@ -6808,6 +6808,10 @@
     {
       "t": "2026-10-19",
       "v": 6.276
+    },
+    {
+      "t": "2026-10-26",
+      "v": 6.352
     }
   ]
 }

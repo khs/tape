@@ -3,7 +3,7 @@
   "name": "Building permits \u2014 Montana",
   "kind": "timeseries",
   "unit": "units",
-  "lastUpdated": "2026-10-25T10:31:30Z",
+  "lastUpdated": "2026-11-01T12:23:59Z",
   "points": [
     {
       "t": "1988-01-01",
@@ -1860,6 +1860,10 @@
     {
       "t": "2026-08-01",
       "v": 634.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 352.0
     }
   ]
 }

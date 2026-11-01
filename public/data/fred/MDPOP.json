@@ -3,7 +3,7 @@
   "name": "Maryland population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-25T10:25:40Z",
+  "lastUpdated": "2026-11-01T12:19:37Z",
   "points": [
     {
       "t": "1900-01-01",

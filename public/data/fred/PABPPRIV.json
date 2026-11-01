@@ -3,7 +3,7 @@
   "name": "Building permits \u2014 Pennsylvania",
   "kind": "timeseries",
   "unit": "units",
-  "lastUpdated": "2026-10-25T10:31:40Z",
+  "lastUpdated": "2026-11-01T12:24:08Z",
   "points": [
     {
       "t": "1988-01-01",
@@ -1860,6 +1860,10 @@
     {
       "t": "2026-08-01",
       "v": 2210.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": 2185.0
     }
   ]
 }

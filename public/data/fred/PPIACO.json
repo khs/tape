@@ -3,7 +3,7 @@
   "name": "Producer Price Index, all commodities",
   "kind": "timeseries",
   "unit": "index (1982=100)",
-  "lastUpdated": "2026-10-25T10:23:57Z",
+  "lastUpdated": "2026-11-01T12:18:31Z",
   "points": [
     {
       "t": "1913-01-01",

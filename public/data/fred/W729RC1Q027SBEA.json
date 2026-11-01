@@ -3,7 +3,7 @@
   "name": "Federal Medicaid benefits (NIPA)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-10-25T10:24:46Z",
+  "lastUpdated": "2026-11-01T12:19:02Z",
   "points": [
     {
       "t": "1966-01-01",
@@ -972,6 +972,10 @@
     {
       "t": "2026-04-01",
       "v": 1096.796
+    },
+    {
+      "t": "2026-07-01",
+      "v": 1097.56
     }
   ]
 }

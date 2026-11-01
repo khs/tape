@@ -3,7 +3,7 @@
   "name": "Producer Price Index, final demand",
   "kind": "timeseries",
   "unit": "index (Nov 2009=100)",
-  "lastUpdated": "2026-10-25T10:23:57Z",
+  "lastUpdated": "2026-11-01T12:18:32Z",
   "points": [
     {
       "t": "2009-11-01",

@@ -3,7 +3,7 @@
   "name": "Idaho population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-10-25T10:25:33Z",
+  "lastUpdated": "2026-11-01T12:19:33Z",
   "points": [
     {
       "t": "1900-01-01",

@@ -3,7 +3,7 @@
   "name": "National defense, share of GDP",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-25T10:24:12Z",
+  "lastUpdated": "2026-11-01T12:18:41Z",
   "points": [
     {
       "t": "1947-01-01",
@@ -1275,6 +1275,10 @@
     },
     {
       "t": "2026-04-01",
+      "v": 3.7
+    },
+    {
+      "t": "2026-07-01",
       "v": 3.7
     }
   ]

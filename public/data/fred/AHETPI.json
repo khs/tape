@@ -3,7 +3,7 @@
   "name": "Average hourly earnings (production & nonsupervisory)",
   "kind": "timeseries",
   "unit": "USD/hour",
-  "lastUpdated": "2026-10-25T10:23:58Z",
+  "lastUpdated": "2026-11-01T12:18:33Z",
   "points": [
     {
       "t": "1964-01-01",

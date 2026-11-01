@@ -3,7 +3,7 @@
   "name": "Tennessee labor force participation rate",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-10-18T10:14:30Z",
+  "lastUpdated": "2026-11-01T12:27:20Z",
   "points": [
     {
       "t": "1976-01-15",
@@ -2432,6 +2432,10 @@
     {
       "t": "2026-08-15",
       "v": 59.2
+    },
+    {
+      "t": "2026-09-15",
+      "v": 59.3
     }
   ]
 }
