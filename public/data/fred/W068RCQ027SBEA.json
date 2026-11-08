@@ -3,7 +3,7 @@
   "name": "Government total expenditures (federal + state + local)",
   "kind": "timeseries",
   "unit": "billions USD",
-  "lastUpdated": "2026-11-01T12:19:04Z",
+  "lastUpdated": "2026-11-08T12:27:34Z",
   "points": [
     {
       "t": "1960-01-01",

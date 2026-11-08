@@ -3,7 +3,7 @@
   "name": "Oregon population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-11-01T12:19:47Z",
+  "lastUpdated": "2026-11-08T12:28:23Z",
   "points": [
     {
       "t": "1900-01-01",

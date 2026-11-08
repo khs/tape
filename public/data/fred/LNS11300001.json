@@ -3,7 +3,7 @@
   "name": "Labor force participation rate, men",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-11-01T12:18:25Z",
+  "lastUpdated": "2026-11-08T12:26:50Z",
   "points": [
     {
       "t": "1948-01-01",
@@ -3780,6 +3780,10 @@
     {
       "t": "2026-09-01",
       "v": 67.2
+    },
+    {
+      "t": "2026-10-01",
+      "v": 67.3
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Capacity utilization: semiconductors",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-11-01T12:18:43Z",
+  "lastUpdated": "2026-11-08T12:27:10Z",
   "points": [
     {
       "t": "1972-01-01",

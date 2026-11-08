@@ -3,7 +3,7 @@
   "name": "state_hydro_nd",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-11-01T12:33:15Z",
+  "lastUpdated": "2026-11-08T12:56:33Z",
   "points": [
     {
       "t": "2001-12-31",

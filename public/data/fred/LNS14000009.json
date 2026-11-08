@@ -3,7 +3,7 @@
   "name": "Unemployment rate: Hispanic or Latino",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-11-01T12:18:49Z",
+  "lastUpdated": "2026-11-08T12:27:18Z",
   "points": [
     {
       "t": "1973-03-01",
@@ -2571,6 +2571,10 @@
     },
     {
       "t": "2026-09-01",
+      "v": 4.7
+    },
+    {
+      "t": "2026-10-01",
       "v": 4.7
     }
   ]

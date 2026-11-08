@@ -3,7 +3,7 @@
   "name": "SLOOS \u2014 banks tightening C&I loan standards (large/medium firms)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-11-01T12:19:07Z",
+  "lastUpdated": "2026-11-08T12:27:39Z",
   "points": [
     {
       "t": "1990-04-01",
@@ -588,6 +588,10 @@
     {
       "t": "2026-07-01",
       "v": 0.0
+    },
+    {
+      "t": "2026-10-01",
+      "v": 1.7
     }
   ]
 }

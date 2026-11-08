@@ -3,7 +3,7 @@
   "name": "US trade balance, goods and services",
   "kind": "timeseries",
   "unit": "millions USD",
-  "lastUpdated": "2026-11-01T12:18:58Z",
+  "lastUpdated": "2026-11-08T12:27:29Z",
   "points": [
     {
       "t": "1992-01-01",
@@ -1667,7 +1667,11 @@
     },
     {
       "t": "2026-08-01",
-      "v": -105572.0
+      "v": -105737.0
+    },
+    {
+      "t": "2026-09-01",
+      "v": -105047.0
     }
   ]
 }

@@ -3,7 +3,7 @@
   "name": "Government employment, total",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-11-01T12:18:45Z",
+  "lastUpdated": "2026-11-08T12:27:14Z",
   "points": [
     {
       "t": "1939-01-01",
@@ -4215,7 +4215,11 @@
     },
     {
       "t": "2026-09-01",
-      "v": 23327000.0
+      "v": 23326000.0
+    },
+    {
+      "t": "2026-10-01",
+      "v": 23332000.0
     }
   ]
 }

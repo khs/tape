@@ -3,7 +3,7 @@
   "name": "Credit card delinquency rate (all commercial banks)",
   "kind": "timeseries",
   "unit": "%",
-  "lastUpdated": "2026-11-01T12:23:39Z",
+  "lastUpdated": "2026-11-08T12:32:18Z",
   "points": [
     {
       "t": "1991-01-01",

@@ -3,7 +3,7 @@
   "name": "us_hydro",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-11-01T12:32:50Z",
+  "lastUpdated": "2026-11-08T12:56:04Z",
   "points": [
     {
       "t": "2001-12-31",

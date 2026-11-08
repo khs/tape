@@ -3,7 +3,7 @@
   "name": "state_solar_ga",
   "kind": "timeseries",
   "unit": "TWh",
-  "lastUpdated": "2026-11-01T12:32:58Z",
+  "lastUpdated": "2026-11-08T12:56:13Z",
   "points": [
     {
       "t": "2012-12-31",

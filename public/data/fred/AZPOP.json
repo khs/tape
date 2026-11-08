@@ -3,7 +3,7 @@
   "name": "Arizona population",
   "kind": "timeseries",
   "unit": "count",
-  "lastUpdated": "2026-11-01T12:19:27Z",
+  "lastUpdated": "2026-11-08T12:27:59Z",
   "points": [
     {
       "t": "1900-01-01",

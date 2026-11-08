@@ -3,7 +3,7 @@
   "name": "Unemployment level",
   "kind": "timeseries",
   "unit": "people",
-  "lastUpdated": "2026-11-01T12:23:36Z",
+  "lastUpdated": "2026-11-08T12:32:15Z",
   "points": [
     {
       "t": "1948-01-01",
@@ -3780,6 +3780,10 @@
     {
       "t": "2026-09-01",
       "v": 7109000.0
+    },
+    {
+      "t": "2026-10-01",
+      "v": 7068000.0
     }
   ]
 }
